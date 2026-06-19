@@ -26,6 +26,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
+#include <core/Basics/Adsr.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
@@ -82,7 +83,7 @@ bool CoreActionController::setStripVolume(
 	bool bSelectStrip
 )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
@@ -102,26 +103,28 @@ bool CoreActionController::setStripVolume(
 	return true;
 }
 
-bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue )
+std::shared_ptr<Instrument> CoreActionController::resolveInstrument(
+	int nInstrument ) const
 {
 	auto pSong = m_pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "no song set" );
-		return false;
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "no song or drumkit set" );
+		return nullptr;
 	}
-	auto pDrumkit = pSong->getDrumkit();
-	if ( pDrumkit == nullptr ) {
-		ERRORLOG( "no drumkit" );
-		return false;
-	}
-	auto pInstrumentList = pDrumkit->getInstruments();
-	auto pInstrument = pInstrumentList->get( nInstrument );
+	auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
 	if ( pInstrument == nullptr ) {
-		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" )
-					  .arg( nInstrument ) );
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( nInstrument ) );
+	}
+	return pInstrument;
+}
+
+bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
 		return false;
 	}
-
 	if ( pInstrument->getPitchOffset() != fValue ) {
 		pInstrument->setPitchOffset( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
@@ -130,6 +133,244 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue )
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 
+	return true;
+}
+
+bool CoreActionController::setInstrumentGain( int nInstrument, float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getGain() != fValue ) {
+		pInstrument->setGain( fValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentRandomPitch( int nInstrument,
+													 float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getRandomPitchFactor() != fValue ) {
+		pInstrument->setRandomPitchFactor( fValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentFilterCutoff( int nInstrument,
+													  float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getFilterCutoff() != fValue ) {
+		pInstrument->setFilterCutoff( fValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentFilterResonance( int nInstrument,
+														 float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getFilterResonance() != fValue ) {
+		pInstrument->setFilterResonance( fValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentAttack( int nInstrument, float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	const unsigned int nValue = static_cast<unsigned int>( fValue );
+	if ( pInstrument->getAdsr()->getAttack() != nValue ) {
+		pInstrument->getAdsr()->setAttack( nValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentDecay( int nInstrument, float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	const unsigned int nValue = static_cast<unsigned int>( fValue );
+	if ( pInstrument->getAdsr()->getDecay() != nValue ) {
+		pInstrument->getAdsr()->setDecay( nValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentSustain( int nInstrument, float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getAdsr()->getSustain() != fValue ) {
+		pInstrument->getAdsr()->setSustain( fValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentRelease( int nInstrument, float fValue )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	const unsigned int nValue = static_cast<unsigned int>( fValue );
+	if ( pInstrument->getAdsr()->getRelease() != nValue ) {
+		pInstrument->getAdsr()->setRelease( nValue );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentFilterActive( int nInstrument,
+													  bool bActive )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->isFilterActive() != bActive ) {
+		pInstrument->setFilterActive( bActive );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentMuteGroup( int nInstrument,
+												   int nMuteGroup )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getMuteGroup() != nMuteGroup ) {
+		pInstrument->setMuteGroup( nMuteGroup );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentStopNotes( int nInstrument,
+												   bool bStopNotes )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->isStopNotes() != bStopNotes ) {
+		pInstrument->setStopNotes( bStopNotes );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentApplyVelocity( int nInstrument,
+													   bool bApplyVelocity )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getApplyVelocity() != bApplyVelocity ) {
+		pInstrument->setApplyVelocity( bApplyVelocity );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentHihatGroup( int nInstrument,
+												    int nHihatGroup )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	if ( pInstrument->getHihatGrp() != nHihatGroup ) {
+		pInstrument->setHihatGrp( nHihatGroup );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentLowerCc( int nInstrument, int nCc )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	const auto param = Midi::parameterFromIntClamp( nCc );
+	if ( pInstrument->getLowerCc() != param ) {
+		pInstrument->setLowerCc( param );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
+bool CoreActionController::setInstrumentHigherCc( int nInstrument, int nCc )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	const auto param = Midi::parameterFromIntClamp( nCc );
+	if ( pInstrument->getHigherCc() != param ) {
+		pInstrument->setHigherCc( param );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
@@ -317,7 +558,7 @@ bool CoreActionController::setSwing( float fValue )
 
 bool CoreActionController::toggleStripIsMuted( int nStrip )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
@@ -331,7 +572,7 @@ bool CoreActionController::setStripIsMuted(
 	bool bSelectStrip
 )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
@@ -360,7 +601,7 @@ bool CoreActionController::setStripIsMuted(
 
 bool CoreActionController::toggleStripIsSoloed( int nStrip )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
@@ -374,7 +615,7 @@ bool CoreActionController::setStripIsSoloed(
 	bool bSelectStrip
 )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
@@ -407,7 +648,7 @@ bool CoreActionController::setStripPan(
 	bool bSelectStrip
 )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
@@ -437,7 +678,7 @@ bool CoreActionController::setStripPanSym(
 	bool bSelectStrip
 )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
@@ -495,7 +736,7 @@ bool CoreActionController::sendMasterVolumeFeedback()
 
 bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 		float fStripVolume = pInstr->getVolume();
 
@@ -582,7 +823,7 @@ bool CoreActionController::sendMasterIsMutedFeedback()
 
 bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
@@ -612,7 +853,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 
 bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
@@ -641,7 +882,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 
 bool CoreActionController::sendStripPanFeedback( int nStrip )
 {
-	auto pInstr = getStrip( nStrip );
+	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
 		if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
@@ -700,23 +941,6 @@ bool CoreActionController::handleOutgoingControlChanges(
 	}
 
 	return true;
-}
-
-std::shared_ptr<Instrument> CoreActionController::getStrip( int nStrip )
-{
-	auto pSong = m_pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		ERRORLOG( "no song set" );
-		return nullptr;
-	}
-
-	auto pInstr = pSong->getDrumkit()->getInstruments()->get( nStrip );
-	if ( pInstr == nullptr ) {
-		ERRORLOG( QString( "Couldn't find instrument [%1]" ).arg( nStrip ) );
-		return nullptr;
-	}
-
-	return pInstr;
 }
 
 bool CoreActionController::initExternalControlInterfaces()

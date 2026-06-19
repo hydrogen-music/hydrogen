@@ -73,6 +73,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
 	bool setInstrumentPitch( int nInstrument, float fValue );
+	bool setInstrumentGain( int nInstrument, float fValue );
+	bool setInstrumentRandomPitch( int nInstrument, float fValue );
+	bool setInstrumentFilterCutoff( int nInstrument, float fValue );
+	bool setInstrumentFilterResonance( int nInstrument, float fValue );
+	bool setInstrumentAttack( int nInstrument, float fValue );
+	bool setInstrumentDecay( int nInstrument, float fValue );
+	bool setInstrumentSustain( int nInstrument, float fValue );
+	bool setInstrumentRelease( int nInstrument, float fValue );
+	bool setInstrumentFilterActive( int nInstrument, bool bActive );
+	bool setInstrumentMuteGroup( int nInstrument, int nMuteGroup );
+	bool setInstrumentStopNotes( int nInstrument, bool bStopNotes );
+	bool setInstrumentApplyVelocity( int nInstrument, bool bApplyVelocity );
+	bool setInstrumentHihatGroup( int nInstrument, int nHihatGroup );
+	bool setInstrumentLowerCc( int nInstrument, int nCc );
+	bool setInstrumentHigherCc( int nInstrument, int nCc );
 	bool setInstrumentMidiOutNote(
 		int nInstrument,
 		Midi::Note note,
@@ -618,6 +633,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
 	Hydrogen* m_pHydrogen;
 
+	/** Resolve an instrument by its position in the current drumkit, logging on
+	 * failure. Shared by the per-parameter instrument setters. */
+	std::shared_ptr<Instrument> resolveInstrument( int nInstrument ) const;
+
 	bool sendMasterVolumeFeedback();
 	bool sendStripVolumeFeedback( int nStrip );
 	bool sendMetronomeIsActiveFeedback();
@@ -631,7 +650,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		const std::vector<Midi::Parameter>& params,
 		Midi::Parameter nValue
 	);
-	std::shared_ptr<Instrument> getStrip( int nStrip );
 
 	// -----------------------------------------------------------
 	// Actions required for session management.
