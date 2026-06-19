@@ -174,8 +174,12 @@ ComponentView::ComponentView( QWidget* pParent,
 		const QString sNewName = m_pInlineEdit->text();
 
 		if ( sOldName != sNewName ) {
+			int nInstrument, nComponent;
+			if ( ! resolveIndices( nInstrument, nComponent ) ) {
+				return;
+			}
 			pHydrogenApp->pushUndoCommand( new SE_renameComponentAction(
-				sNewName, sOldName, pInstrument->index( m_pComponent )
+				sNewName, sOldName, nInstrument, nComponent
 			) );
 			pHydrogenApp->showStatusBarMessage(
 				QString( "%1: [%2] -> [%3]" )

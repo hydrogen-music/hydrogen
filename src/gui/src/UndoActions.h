@@ -1224,10 +1224,12 @@ class SE_renameComponentAction : public QUndoCommand {
 	SE_renameComponentAction(
 		const QString& sNewName,
 		const QString& sOldName,
+		int nInstrumentIdx,
 		int nComponentId
 	)
 		: m_sNewName( sNewName ),
 		  m_sOldName( sOldName ),
+		  m_nInstrumentIdx( nInstrumentIdx ),
 		  m_nComponentId( nComponentId )
 	{
 		const auto pCommonStrings =
@@ -1240,19 +1242,20 @@ class SE_renameComponentAction : public QUndoCommand {
 	virtual void undo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->renameComponent(
-			m_nComponentId, m_sOldName
+			m_nInstrumentIdx, m_nComponentId, m_sOldName
 		);
 	}
 	virtual void redo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->renameComponent(
-			m_nComponentId, m_sNewName
+			m_nInstrumentIdx, m_nComponentId, m_sNewName
 		);
 	}
 
    private:
 	QString m_sNewName;
 	QString m_sOldName;
+	int m_nInstrumentIdx;
 	int m_nComponentId;
 };
 

@@ -426,7 +426,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * stays the same during the move action). */
 	bool moveInstrument( int nSourceIndex, int nTargetIndex );
 
-	bool renameComponent( int nComponentId, const QString& sNewName );
+	bool renameComponent(
+		int nInstrumentIdx,
+		int nComponentId,
+		const QString& sNewName
+	);
 
 	/** Relocates transport to the beginning of a particular
 	 * column/Pattern group.

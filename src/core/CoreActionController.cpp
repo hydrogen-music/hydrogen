@@ -2701,12 +2701,12 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex )
 }
 
 bool CoreActionController::renameComponent(
+	int nInstrumentIdx,
 	int nComponentId,
 	const QString& sNewName
 )
 {
-
-	const auto pInstrument = m_pHydrogen->getSelectedInstrument();
+	const auto pInstrument = resolveInstrument( nInstrumentIdx );
 	if ( pInstrument == nullptr ) {
 		return false;
 	}
