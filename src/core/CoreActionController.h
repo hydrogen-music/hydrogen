@@ -93,6 +93,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	bool setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted );
 	bool setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed );
 	bool setComponentGain( int nInstrument, int nComponent, float fGain );
+	/** \param nSelection underlying value of #H2Core::InstrumentComponent::Selection. */
+	bool setComponentSelection( int nInstrument, int nComponent, int nSelection );
 	bool setLayerIsMuted( int nInstrument, int nComponent, int nLayer,
 						  bool bIsMuted );
 	bool setLayerIsSoloed( int nInstrument, int nComponent, int nLayer,

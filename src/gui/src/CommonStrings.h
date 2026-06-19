@@ -682,6 +682,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getActionToggleComponentMute() const { return m_sActionToggleComponentMute; }
 	const QString& getActionToggleComponentSolo() const { return m_sActionToggleComponentSolo; }
 	const QString& getActionSetComponentGain() const { return m_sActionSetComponentGain; }
+	const QString& getActionSetSampleSelection() const { return m_sActionSetSampleSelection; }
 	const QString& getActionToggleLayerMute() const { return m_sActionToggleLayerMute; }
 	const QString& getActionToggleLayerSolo() const { return m_sActionToggleLayerSolo; }
 	const QString& getActionSetLayerGain() const { return m_sActionSetLayerGain; }
@@ -1049,6 +1050,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sActionToggleComponentMute;
 	QString m_sActionToggleComponentSolo;
 	QString m_sActionSetComponentGain;
+	QString m_sActionSetSampleSelection;
 	QString m_sActionToggleLayerMute;
 	QString m_sActionToggleLayerSolo;
 	QString m_sActionSetLayerGain;

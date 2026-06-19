@@ -2091,7 +2091,7 @@ class SE_setInstrumentPropertyAction : public QUndoCommand {
  * \ingroup docGUI */
 class SE_setComponentPropertyAction : public QUndoCommand {
    public:
-	enum class Property { IsMuted, IsSoloed, Gain };
+	enum class Property { IsMuted, IsSoloed, Gain, Selection };
 
 	SE_setComponentPropertyAction( int nInstrument, int nComponent,
 								   Property property, float fOldValue,
@@ -2109,6 +2109,7 @@ class SE_setComponentPropertyAction : public QUndoCommand {
 			case Property::IsMuted: sName = pCommonStrings->getActionToggleComponentMute(); break;
 			case Property::IsSoloed: sName = pCommonStrings->getActionToggleComponentSolo(); break;
 			case Property::Gain: sName = pCommonStrings->getActionSetComponentGain(); break;
+			case Property::Selection: sName = pCommonStrings->getActionSetSampleSelection(); break;
 		}
 		setText( QString( "%1 [%2:%3]" ).arg( sName ).arg( nInstrument )
 				 .arg( nComponent ) );
@@ -2130,6 +2131,8 @@ class SE_setComponentPropertyAction : public QUndoCommand {
 				pController->setComponentIsSoloed( m_nInstrument, m_nComponent, fValue != 0.0f ); break;
 			case Property::Gain:
 				pController->setComponentGain( m_nInstrument, m_nComponent, fValue ); break;
+			case Property::Selection:
+				pController->setComponentSelection( m_nInstrument, m_nComponent, static_cast<int>( fValue ) ); break;
 		}
 	}
 

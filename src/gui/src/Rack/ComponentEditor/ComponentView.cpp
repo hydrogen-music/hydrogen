@@ -564,7 +564,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pSampleSelectionCombo->setModifierTarget( Modifier::Drumkit );
 	m_pSampleSelectionCombo->setFixedHeight(
 		ComponentView::nSampleSelectionHeight );
-	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );
+	m_pSampleSelectionCombo->setToolTip(
+		pCommonStrings->getActionSetSampleSelection() );
 	setupSampleSelectionCombo();
 	connect( m_pSampleSelectionCombo, SIGNAL( activated( int ) ),
 			 this, SLOT( sampleSelectionChanged( int ) ) );
@@ -1578,15 +1579,28 @@ void ComponentView::sampleSelectionChanged( int selected ) {
 		 return;
 	 }
 
-	if ( selected == 0 ){
-		m_pComponent->setSelection( InstrumentComponent::Selection::Velocity );
+	InstrumentComponent::Selection selection;
+	if ( selected == 0 ) {
+		selection = InstrumentComponent::Selection::Velocity;
 	}
-	else if ( selected == 1 ){
-		m_pComponent->setSelection( InstrumentComponent::Selection::RoundRobin );
+	else if ( selected == 1 ) {
+		selection = InstrumentComponent::Selection::RoundRobin;
 	}
-	else if ( selected == 2){
-		m_pComponent->setSelection( InstrumentComponent::Selection::Random );
+	else if ( selected == 2 ) {
+		selection = InstrumentComponent::Selection::Random;
 	}
+	else {
+		return;
+	}
+
+	int nInstrument, nComponent;
+	if ( ! resolveIndices( nInstrument, nComponent ) ) {
+		return;
+	}
+	pushComponentUndo( nInstrument, nComponent,
+		SE_setComponentPropertyAction::Property::Selection, "sampleSelection",
+		static_cast<float>( static_cast<int>( m_pComponent->getSelection() ) ),
+		static_cast<float>( static_cast<int>( selection ) ) );
 }
 
 void ComponentView::setupSampleSelectionCombo() {

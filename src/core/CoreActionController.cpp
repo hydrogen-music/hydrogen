@@ -472,6 +472,25 @@ bool CoreActionController::setComponentGain( int nInstrument, int nComponent,
 	return true;
 }
 
+bool CoreActionController::setComponentSelection( int nInstrument,
+												  int nComponent, int nSelection )
+{
+	auto pComponent = resolveComponent( nInstrument, nComponent );
+	if ( pComponent == nullptr ) {
+		return false;
+	}
+	const auto selection =
+		static_cast<InstrumentComponent::Selection>( nSelection );
+	if ( pComponent->getSelection() != selection ) {
+		pComponent->setSelection( selection );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
+	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
+	return true;
+}
+
 bool CoreActionController::setLayerIsMuted( int nInstrument, int nComponent,
 											int nLayer, bool bIsMuted )
 {

@@ -869,6 +869,9 @@ CommonStrings::CommonStrings(){
 	m_sActionToggleComponentSolo = tr( "Toggle component solo" );
 	/*: Component gain rotary - undo history entry and widget tooltip. */
 	m_sActionSetComponentGain = tr( "Set component gain" );
+	/*: Component sample-selection (Velocity/Round Robin/Random) combo box - undo
+	 *  history entry and widget tooltip. */
+	m_sActionSetSampleSelection = tr( "Set sample selection algorithm" );
 	/*: Layer mute button - undo history entry and widget tooltip. */
 	m_sActionToggleLayerMute = tr( "Toggle layer mute" );
 	/*: Layer solo button - undo history entry and widget tooltip. */
