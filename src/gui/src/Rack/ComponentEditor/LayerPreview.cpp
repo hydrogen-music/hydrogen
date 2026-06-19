@@ -26,6 +26,7 @@
 #include <QtWidgets>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -81,6 +82,14 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 }
 
 LayerPreview::~LayerPreview() {
+}
+
+void LayerPreview::leaveEvent( QEvent* ev ) {
+	QWidget::leaveEvent( ev );
+	// Close the per-layer velocity undo context so a drag collapses into one
+	// undo step and Undo/Redo re-enable once the pointer leaves the preview
+	// (mirrors Widgets/EditorBase.h).
+	HydrogenApp::get_instance()->endUndoContext();
 }
 
 void LayerPreview::updatePreview()
@@ -832,25 +841,47 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 				VELOCITY_MIN, VELOCITY_MAX
 			);
 
-			bool bChanged = false;
+			// Address the layer by (instrument, component, layer) index for the
+			// undo command.
+			int nInstrument = -1, nComponent = -1;
+			auto pSong = HydrogenApp::pEngine()->getSong();
+			auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+			if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+				 pInstrument != nullptr ) {
+				nInstrument =
+					pSong->getDrumkit()->getInstruments()->index( pInstrument );
+				nComponent = pInstrument->index( pComponent );
+			}
+			if ( nInstrument == -1 || nComponent == -1 ) {
+				break;
+			}
+
+			const QString sContext = QString( "layer:%1:%2:%3:velocity" )
+				.arg( nInstrument ).arg( nComponent ).arg( nSelectedLayer );
+
 			if ( m_drag == Drag::VelocityStart ) {
 				if ( fVelocity < pLayer->getEndVelocity() ) {
-					pLayer->setStartVelocity( fVelocity );
-					bChanged = true;
+					HydrogenApp::get_instance()->pushUndoCommand(
+						new SE_setLayerPropertyAction(
+							nInstrument, nComponent, nSelectedLayer,
+							SE_setLayerPropertyAction::Property::StartVelocity,
+							pLayer->getStartVelocity(), fVelocity ),
+						sContext );
 					showLayerStartVelocity( pLayer, ev );
+					update();
 				}
 			}
 			else {
 				if ( fVelocity > pLayer->getStartVelocity() ) {
-					pLayer->setEndVelocity( fVelocity );
-					bChanged = true;
+					HydrogenApp::get_instance()->pushUndoCommand(
+						new SE_setLayerPropertyAction(
+							nInstrument, nComponent, nSelectedLayer,
+							SE_setLayerPropertyAction::Property::EndVelocity,
+							pLayer->getEndVelocity(), fVelocity ),
+						sContext );
 					showLayerEndVelocity( pLayer, ev );
+					update();
 				}
-			}
-
-			if ( bChanged ) {
-				update();
-				HydrogenApp::pEngine()->setDrumkitModified( true );
 			}
 			break;
 		}
