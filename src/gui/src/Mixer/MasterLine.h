@@ -54,6 +54,12 @@ public:
 	void	updateLine();
 	void	updatePeaks();
 
+protected:
+		/** Closes the per-property undo context (see the master-edit callbacks)
+		 * so a gesture forms a single undo step once the pointer leaves the
+		 * strip. */
+		void leaveEvent( QEvent* ev ) override;
+
 private:
 		/** For how many more peak update cycles to keep the same text in the
 		 * peak level display. */

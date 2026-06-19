@@ -1908,4 +1908,72 @@ class SE_setStripPropertyAction : public QUndoCommand {
 	float m_fOldValue;
 	float m_fNewValue;
 };
+
+/** Thin undo wrapper for a master-strip / song-wide edit (master volume & mute,
+ * humanize velocity/time, swing). Like #SE_setStripPropertyAction it routes
+ * through #H2Core::CoreActionController so the edit is undoable (and, in editor
+ * mode, IPC-routable); a drag coalesces into one undo step via the per-property
+ * undo context (`master:<property>`) the caller passes to
+ * HydrogenApp::pushUndoCommand(), closed by HydrogenApp::endUndoContext() when
+ * the pointer leaves the strip.
+ *
+ * \ingroup docGUI */
+class SE_setMasterPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Volume, HumanizeVelocity, HumanizeTime, Swing, Mute };
+
+	SE_setMasterPropertyAction( Property property, float fOldValue,
+								float fNewValue )
+		: m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		QString sName;
+		switch ( property ) {
+			case Property::Volume:
+				sName = QObject::tr( "Set master volume" ); break;
+			case Property::HumanizeVelocity:
+				sName = QObject::tr( "Set humanize velocity" ); break;
+			case Property::HumanizeTime:
+				sName = QObject::tr( "Set humanize time" ); break;
+			case Property::Swing:
+				sName = QObject::tr( "Set swing factor" ); break;
+			case Property::Mute:
+				sName = QObject::tr( "Toggle master mute" ); break;
+		}
+		setText( sName );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Volume:
+				pController->setMasterVolume( fValue );
+				break;
+			case Property::HumanizeVelocity:
+				pController->setHumanizeVelocity( fValue );
+				break;
+			case Property::HumanizeTime:
+				pController->setHumanizeTime( fValue );
+				break;
+			case Property::Swing:
+				pController->setSwing( fValue );
+				break;
+			case Property::Mute:
+				pController->setMasterIsMuted( fValue != 0.0f );
+				break;
+		}
+	}
+
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
 #endif	// UNDOACTIONS_H

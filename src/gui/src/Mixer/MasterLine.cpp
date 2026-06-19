@@ -24,6 +24,7 @@
 
 #include "../CommonStrings.h"
 #include "../HydrogenApp.h"
+#include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
@@ -68,7 +69,14 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pFader->setModifierTarget( Modifier::Song );
 	m_pFader->move( 24, 75 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
-		HydrogenApp::pEngine()->getCoreActionController()->setMasterVolume( m_pFader->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::Volume,
+					pSong->getVolume(), m_pFader->getValue() ),
+				"master:volume" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set master volume [%1]" ).arg( m_pFader->getValue(), 0, 'f', 2 ),
 			QString( "%1:faderChanged" ).arg( class_name() ) );
@@ -95,8 +103,15 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pHumanizeVelocityRotary->move( 66, 88 );
 	connect( m_pHumanizeVelocityRotary, &Rotary::valueChanged, [&]() {
-		HydrogenApp::pEngine()->getCoreActionController()->setHumanizeVelocity(
-			m_pHumanizeVelocityRotary->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::HumanizeVelocity,
+					pSong->getHumanizeVelocityValue(),
+					m_pHumanizeVelocityRotary->getValue() ),
+				"master:humanizeVelocity" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize vel. param [%1]" )
 			.arg( m_pHumanizeVelocityRotary->getValue(), 0, 'f', 2 ),
@@ -111,8 +126,15 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pHumanizeTimeRotary->move( 66, 125 );
 	connect( m_pHumanizeTimeRotary, &Rotary::valueChanged, [&]() {
-		HydrogenApp::pEngine()->getCoreActionController()->setHumanizeTime(
-			m_pHumanizeTimeRotary->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::HumanizeTime,
+					pSong->getHumanizeTimeValue(),
+					m_pHumanizeTimeRotary->getValue() ),
+				"master:humanizeTime" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize time param [%1]" )
 			.arg( m_pHumanizeTimeRotary->getValue(), 0, 'f', 2 ),
@@ -128,7 +150,14 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pSwingRotary->move( 66, 162 );
 	connect( m_pSwingRotary, &Rotary::valueChanged, [&]() {
-		HydrogenApp::pEngine()->getCoreActionController()->setSwing( m_pSwingRotary->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::Swing,
+					pSong->getSwingFactor(), m_pSwingRotary->getValue() ),
+				"master:swing" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set swing factor [%1]")
 			.arg( m_pSwingRotary->getValue(), 0, 'f', 2 ),
@@ -146,7 +175,15 @@ MasterLine::MasterLine( QWidget* pParent )
 		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle )
 	);
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
-		HydrogenApp::pEngine()->getCoreActionController()->setMasterIsMuted( m_pMuteBtn->isChecked() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::Mute,
+					pSong->getIsMuted() ? 1.0f : 0.0f,
+					m_pMuteBtn->isChecked() ? 1.0f : 0.0f ),
+				"master:mute" );
+		}
 	});
 
 	m_pMasterLbl = new ClickableLabel(
@@ -174,6 +211,14 @@ MasterLine::MasterLine( QWidget* pParent )
 }
 
 MasterLine::~MasterLine() {
+}
+
+void MasterLine::leaveEvent( QEvent* ev ) {
+	PixmapWidget::leaveEvent( ev );
+	// Close the per-property undo context opened by the master-edit callbacks so
+	// a gesture (e.g. a fader drag) collapses into one undo step and Undo/Redo
+	// re-enable once the pointer leaves the strip (mirrors Widgets/EditorBase.h).
+	HydrogenApp::get_instance()->endUndoContext();
 }
 
 void MasterLine::updateColors() {

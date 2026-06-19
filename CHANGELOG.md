@@ -102,6 +102,7 @@ All notable changes to this project will be documented in this file.
     scrolling beyond `0`) (#459).
 - Changes in the Sample Editor can now be undone.
 - Hydrogen does now ship 267 example patterns (1.9MB).
+- All user interaction in the mixer can now be undone/redone (#1374).
 
 ### Changed
 
