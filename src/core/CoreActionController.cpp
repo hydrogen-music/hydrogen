@@ -130,10 +130,27 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue )
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument
 		);
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 
 	return true;
+}
+
+std::shared_ptr<Instrument> CoreActionController::resolveInstrument(
+	int nInstrument ) const
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "no song or drumkit set" );
+		return nullptr;
+	}
+	auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+				  .arg( nInstrument ) );
+	}
+	return pInstrument;
 }
 
 bool CoreActionController::setInstrumentGain( int nInstrument, float fValue )
@@ -146,6 +163,7 @@ bool CoreActionController::setInstrumentGain( int nInstrument, float fValue )
 		pInstrument->setGain( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -162,6 +180,7 @@ bool CoreActionController::setInstrumentRandomPitch( int nInstrument,
 		pInstrument->setRandomPitchFactor( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -178,6 +197,7 @@ bool CoreActionController::setInstrumentFilterCutoff( int nInstrument,
 		pInstrument->setFilterCutoff( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -194,6 +214,7 @@ bool CoreActionController::setInstrumentFilterResonance( int nInstrument,
 		pInstrument->setFilterResonance( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -210,6 +231,7 @@ bool CoreActionController::setInstrumentAttack( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setAttack( nValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -226,6 +248,7 @@ bool CoreActionController::setInstrumentDecay( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setDecay( nValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -241,6 +264,7 @@ bool CoreActionController::setInstrumentSustain( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setSustain( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -257,6 +281,7 @@ bool CoreActionController::setInstrumentRelease( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setRelease( nValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -273,6 +298,7 @@ bool CoreActionController::setInstrumentFilterActive( int nInstrument,
 		pInstrument->setFilterActive( bActive );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -289,6 +315,7 @@ bool CoreActionController::setInstrumentMuteGroup( int nInstrument,
 		pInstrument->setMuteGroup( nMuteGroup );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -305,6 +332,7 @@ bool CoreActionController::setInstrumentStopNotes( int nInstrument,
 		pInstrument->setStopNotes( bStopNotes );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -321,6 +349,7 @@ bool CoreActionController::setInstrumentApplyVelocity( int nInstrument,
 		pInstrument->setApplyVelocity( bApplyVelocity );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -337,6 +366,7 @@ bool CoreActionController::setInstrumentHihatGroup( int nInstrument,
 		pInstrument->setHihatGrp( nHihatGroup );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -353,6 +383,7 @@ bool CoreActionController::setInstrumentLowerCc( int nInstrument, int nCc )
 		pInstrument->setLowerCc( param );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -369,6 +400,8 @@ bool CoreActionController::setInstrumentHigherCc( int nInstrument, int nCc )
 		pInstrument->setHigherCc( param );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
+		m_pHydrogen->setDrumkitModified( true );
+	}
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;

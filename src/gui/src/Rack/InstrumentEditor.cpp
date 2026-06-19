@@ -295,7 +295,6 @@ font-size: 21px;" );
 		pushInstrumentPropertyUndo(
 			SE_setInstrumentPropertyAction::Property::FilterActive,
 			"filterActive", bActive ? 1.0f : 0.0f, bActive ? 0.0f : 1.0f );
-		HydrogenApp::pEngine()->setDrumkitModified( true );
 		updateIcons();
 	} );
 	m_pFilterBypassButton->move( 75, 165 );
@@ -483,7 +482,6 @@ font-size: 21px;" );
 			SE_setInstrumentPropertyAction::Property::StopNotes, "stopNotes",
 			pInstrument->isStopNotes() ? 1.0f : 0.0f,
 			m_pIsStopNoteCheckBox->isChecked() ? 1.0f : 0.0f );
-		HydrogenApp::pEngine()->setDrumkitModified( true );
 	});
 	m_pIsStopNoteLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ),
 										   pCommonStrings->getIsStopNoteLabel() );
@@ -504,7 +502,6 @@ font-size: 21px;" );
 			SE_setInstrumentPropertyAction::Property::ApplyVelocity,
 			"applyVelocity", pInstrument->getApplyVelocity() ? 1.0f : 0.0f,
 			m_pApplyVelocity->isChecked() ? 1.0f : 0.0f );
-		HydrogenApp::pEngine()->setDrumkitModified( true );
 	});
 	m_pApplyVelocityLbl = new ClickableLabel( m_pInstrumentProp, QSize( 87, 10 ),
 											  pCommonStrings->getApplyVelocityLabel() );
