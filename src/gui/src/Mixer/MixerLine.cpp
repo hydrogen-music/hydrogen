@@ -36,6 +36,7 @@
 
 #include "../HydrogenApp.h"
 #include "../CommonStrings.h"
+#include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/Fader.h"
 #include "../Widgets/InstrumentNameWidget.h"
@@ -116,9 +117,13 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
-		if ( nLine != -1 ) {
-			HydrogenApp::pEngine()->getCoreActionController()->setStripIsMuted(
-				nLine, m_pMuteBtn->isChecked(), true );
+		if ( nLine != -1 && m_pInstrument != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setStripPropertyAction(
+					nLine, SE_setStripPropertyAction::Property::Mute,
+					m_pInstrument->isMuted() ? 1.0f : 0.0f,
+					m_pMuteBtn->isChecked() ? 1.0f : 0.0f ),
+				QString( "mixer:%1:mute" ).arg( nLine ) );
 		}
 	});
 
@@ -133,9 +138,13 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
 	connect( m_pSoloBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
-		if ( nLine != -1 ) {
-			HydrogenApp::pEngine()->getCoreActionController()->setStripIsSoloed(
-				nLine, m_pSoloBtn->isChecked(), true );
+		if ( nLine != -1 && m_pInstrument != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setStripPropertyAction(
+					nLine, SE_setStripPropertyAction::Property::Solo,
+					m_pInstrument->isSoloed() ? 1.0f : 0.0f,
+					m_pSoloBtn->isChecked() ? 1.0f : 0.0f ),
+				QString( "mixer:%1:solo" ).arg( nLine ) );
 		}
 	});
 
@@ -148,9 +157,12 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pPanRotary->move( 6, 32 );
 	connect( m_pPanRotary, &Rotary::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
-		if ( nLine != -1 ) {
-			HydrogenApp::pEngine()->getCoreActionController()->setStripPanSym(
-				nLine, m_pPanRotary->getValue(), true );
+		if ( nLine != -1 && m_pInstrument != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setStripPropertyAction(
+					nLine, SE_setStripPropertyAction::Property::Pan,
+					m_pInstrument->getPan(), m_pPanRotary->getValue() ),
+				QString( "mixer:%1:pan" ).arg( nLine ) );
 		}
 	});
 
@@ -173,9 +185,12 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pFader->move( 23, 91 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
 		const int nLine = retrieveLineNumber();
-		if ( nLine != -1 ) {
-			HydrogenApp::pEngine()->getCoreActionController()->setStripVolume(
-				nLine, m_pFader->getValue(), true );
+		if ( nLine != -1 && m_pInstrument != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setStripPropertyAction(
+					nLine, SE_setStripPropertyAction::Property::Volume,
+					m_pInstrument->getVolume(), m_pFader->getValue() ),
+				QString( "mixer:%1:volume" ).arg( nLine ) );
 		}
 	});
 
@@ -336,6 +351,15 @@ void MixerLine::setInstrument( std::shared_ptr<H2Core::Instrument> pInstrument )
 
 void MixerLine::triggerSampleLED() {
 	m_nCycleSampleActivation = MixerLine::nCyclesSampleActivationLED;
+}
+
+void MixerLine::leaveEvent( QEvent* ev ) {
+	PixmapWidget::leaveEvent( ev );
+	// Close the per-strip undo context opened by the volume/pan/mute/solo
+	// callbacks, so a gesture (e.g. a fader drag) collapses into one undo step
+	// and Undo/Redo re-enable once the pointer leaves the strip. Mirrors the
+	// editors' rule of thumb in Widgets/EditorBase.h.
+	HydrogenApp::get_instance()->endUndoContext();
 }
 
 int MixerLine::retrieveLineNumber() const {

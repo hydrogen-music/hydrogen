@@ -78,6 +78,11 @@ public:
 		/** Activates the corresponding LED widget for a short amount of time. */
 		void triggerSampleLED();
 
+protected:
+		/** Closes the per-strip undo context (see the strip-edit callbacks) so a
+		 * gesture forms a single undo step once the pointer leaves the strip. */
+		void leaveEvent( QEvent* ev ) override;
+
 private:
 		int retrieveLineNumber() const;
 		void updateActions();

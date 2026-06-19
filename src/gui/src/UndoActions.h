@@ -1841,4 +1841,71 @@ class SE_modifyCustomLibraryDirsAction : public QUndoCommand {
 	Action m_action;
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// mixer commands
+
+/** Thin undo wrapper for a mixer-strip edit (volume / pan / mute / solo). It
+ * routes through the existing #H2Core::CoreActionController strip commands, so
+ * the edit becomes undoable (and, in editor mode, IPC-routable) instead of
+ * mutating the engine directly. The strip is addressed by its list position
+ * (#m_nStrip), matching the CoreActionController strip API.
+ *
+ * A continuous drag pushes one command per value change; these are coalesced
+ * into a single undo step by the caller passing a per-strip-per-property undo
+ * context (`mixer:<line>:<property>`) to HydrogenApp::pushUndoCommand(), closed
+ * by HydrogenApp::endUndoContext() when the pointer leaves the strip — the same
+ * mechanism the editors use (see Widgets/EditorBase.h). No mergeWith() here.
+ *
+ * \ingroup docGUI */
+class SE_setStripPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Volume, Pan, Mute, Solo };
+
+	SE_setStripPropertyAction( int nStrip, Property property,
+							   float fOldValue, float fNewValue )
+		: m_nStrip( nStrip )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		QString sName;
+		switch ( property ) {
+			case Property::Volume: sName = QObject::tr( "Set strip volume" ); break;
+			case Property::Pan:    sName = QObject::tr( "Set strip pan" ); break;
+			case Property::Mute:   sName = QObject::tr( "Toggle strip mute" ); break;
+			case Property::Solo:   sName = QObject::tr( "Toggle strip solo" ); break;
+		}
+		setText( QString( "%1 [%2]" ).arg( sName ).arg( nStrip ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Volume:
+				pController->setStripVolume( m_nStrip, fValue, true );
+				break;
+			case Property::Pan:
+				pController->setStripPanSym( m_nStrip, fValue, true );
+				break;
+			case Property::Mute:
+				pController->setStripIsMuted( m_nStrip, fValue != 0.0f, true );
+				break;
+			case Property::Solo:
+				pController->setStripIsSoloed( m_nStrip, fValue != 0.0f, true );
+				break;
+		}
+	}
+
+	int m_nStrip;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
 #endif	// UNDOACTIONS_H
