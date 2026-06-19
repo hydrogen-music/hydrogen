@@ -1997,7 +1997,8 @@ class SE_setInstrumentPropertyAction : public QUndoCommand {
 	enum class Property { Gain, PitchOffset, RandomPitch, FilterCutoff,
 						  FilterResonance, Attack, Decay, Sustain, Release,
 						  FilterActive, MuteGroup, StopNotes, ApplyVelocity,
-						  HihatGroup, LowerCc, HigherCc };
+						  HihatGroup, LowerCc, HigherCc, MidiOutChannel,
+						  MidiOutNote };
 
 	SE_setInstrumentPropertyAction( int nInstrument, Property property,
 									float fOldValue, float fNewValue )
@@ -2026,6 +2027,8 @@ class SE_setInstrumentPropertyAction : public QUndoCommand {
 			case Property::HihatGroup: sName = pCommonStrings->getActionSetHihatGroup(); break;
 			case Property::LowerCc: sName = pCommonStrings->getActionSetHihatMinRange(); break;
 			case Property::HigherCc: sName = pCommonStrings->getActionSetHihatMaxRange(); break;
+			case Property::MidiOutChannel: sName = pCommonStrings->getActionSetMidiOutChannel(); break;
+			case Property::MidiOutNote: sName = pCommonStrings->getActionSetMidiOutNote(); break;
 		}
 		setText( QString( "%1 [%2]" ).arg( sName ).arg( nInstrument ) );
 	}
@@ -2072,6 +2075,12 @@ class SE_setInstrumentPropertyAction : public QUndoCommand {
 				pController->setInstrumentLowerCc( m_nInstrument, static_cast<int>( fValue ) ); break;
 			case Property::HigherCc:
 				pController->setInstrumentHigherCc( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::MidiOutChannel:
+				pController->setInstrumentMidiOutChannel( m_nInstrument,
+					H2Core::Midi::channelFromInt( static_cast<int>( fValue ) ), nullptr ); break;
+			case Property::MidiOutNote:
+				pController->setInstrumentMidiOutNote( m_nInstrument,
+					H2Core::Midi::noteFromIntClamp( static_cast<int>( fValue ) ), nullptr ); break;
 		}
 	}
 

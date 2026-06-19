@@ -884,6 +884,10 @@ CommonStrings::CommonStrings(){
 	m_sActionSetLayerVelocityStart = tr( "Set layer velocity start" );
 	/*: Layer velocity-range end drag - undo history entry and widget tooltip. */
 	m_sActionSetLayerVelocityEnd = tr( "Set layer velocity end" );
+	/*: Instrument MIDI-out channel spin box - undo history entry and widget tooltip. */
+	m_sActionSetMidiOutChannel = tr( "Set MIDI out channel" );
+	/*: Instrument MIDI-out note spin box - undo history entry and widget tooltip. */
+	m_sActionSetMidiOutNote = tr( "Set MIDI out note" );
 	/*: Shown in the undo history adding or deleting an envelope point in the
 	 *  sample editor. */
 	m_sActionEditEnvelopePoint = tr( "Add or remove envelope point in sample editor" );

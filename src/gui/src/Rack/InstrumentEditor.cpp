@@ -116,7 +116,7 @@ font-size: 21px;" );
 	);
 	m_pMidiOutChannelLCD->setModifierTarget( Modifier::Drumkit );
 	m_pMidiOutChannelLCD->move( 111, 257 );
-	m_pMidiOutChannelLCD->setToolTip( QString( tr( "Midi out channel" ) ) );
+	m_pMidiOutChannelLCD->setToolTip( pCommonStrings->getActionSetMidiOutChannel() );
 	connect(
 		m_pMidiOutChannelLCD,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
@@ -126,14 +126,12 @@ font-size: 21px;" );
 			if ( pInstrument == nullptr ) {
 				return;
 			}
-			auto pSong = HydrogenApp::pEngine()->getSong();
-			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-				return;
-			}
-			HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutChannel(
-				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				Midi::channelFromInt( static_cast<int>( fValue ) ), nullptr
-			);
+			pushInstrumentPropertyUndo(
+				SE_setInstrumentPropertyAction::Property::MidiOutChannel,
+				"midiOutChannel",
+				static_cast<float>(
+					static_cast<int>( pInstrument->getMidiOutChannel() ) ),
+				static_cast<float>( fValue ) );
 		}
 	);
 	m_pMidiOutChannelLbl = new ClickableLabel(
@@ -150,7 +148,7 @@ font-size: 21px;" );
 	);
 	m_pMidiOutNoteLCD->setModifierTarget( Modifier::Drumkit );
 	m_pMidiOutNoteLCD->move( 175, 257 );
-	m_pMidiOutNoteLCD->setToolTip( QString( tr( "Midi out note" ) ) );
+	m_pMidiOutNoteLCD->setToolTip( pCommonStrings->getActionSetMidiOutNote() );
 	connect(
 		m_pMidiOutNoteLCD,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
@@ -160,14 +158,12 @@ font-size: 21px;" );
 			if ( pInstrument == nullptr ) {
 				return;
 			}
-			auto pSong = HydrogenApp::pEngine()->getSong();
-			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-				return;
-			}
-			HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutNote(
-				pSong->getDrumkit()->getInstruments()->index( pInstrument ),
-				Midi::noteFromIntClamp( static_cast<int>( fValue ) ), nullptr
-			);
+			pushInstrumentPropertyUndo(
+				SE_setInstrumentPropertyAction::Property::MidiOutNote,
+				"midiOutNote",
+				static_cast<float>(
+					static_cast<int>( pInstrument->getMidiOutNote() ) ),
+				static_cast<float>( fValue ) );
 		}
 	);
 	m_pMidiOutNoteLbl =

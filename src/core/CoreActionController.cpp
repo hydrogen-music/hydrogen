@@ -629,6 +629,7 @@ bool CoreActionController::setInstrumentMidiOutNote(
 		if ( pEventId != nullptr ) {
 			*pEventId = nId;
 		}
+		m_pHydrogen->setDrumkitModified( true );
 	}
 
 	return true;
@@ -670,6 +671,7 @@ bool CoreActionController::setInstrumentMidiOutChannel(
 		if ( pEventId != nullptr ) {
 			*pEventId = nId;
 		}
+		m_pHydrogen->setDrumkitModified( true );
 	}
 
 	return true;

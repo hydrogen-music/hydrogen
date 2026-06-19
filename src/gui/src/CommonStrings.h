@@ -689,6 +689,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getActionSetLayerPitch() const { return m_sActionSetLayerPitch; }
 	const QString& getActionSetLayerVelocityStart() const { return m_sActionSetLayerVelocityStart; }
 	const QString& getActionSetLayerVelocityEnd() const { return m_sActionSetLayerVelocityEnd; }
+	const QString& getActionSetMidiOutChannel() const { return m_sActionSetMidiOutChannel; }
+	const QString& getActionSetMidiOutNote() const { return m_sActionSetMidiOutNote; }
 
 	const QString& getNotePropertyVelocity() const
 	{
@@ -1057,6 +1059,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sActionSetLayerPitch;
 	QString m_sActionSetLayerVelocityStart;
 	QString m_sActionSetLayerVelocityEnd;
+	QString m_sActionSetMidiOutChannel;
+	QString m_sActionSetMidiOutNote;
 
 	QString m_sActionEditEnvelopePoint;
 	QString m_sActionAddPlaybackTrack;
