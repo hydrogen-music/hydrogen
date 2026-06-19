@@ -1706,6 +1706,191 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Message shown when a source URL is invalid.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Set strip volume</source>
+        <extracomment>Mixer strip volume fader - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set strip pan</source>
+        <extracomment>Mixer strip pan rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle strip mute</source>
+        <extracomment>Mixer strip mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle strip solo</source>
+        <extracomment>Mixer strip solo button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set master volume</source>
+        <extracomment>Master volume fader - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize velocity</source>
+        <extracomment>Master humanize-velocity rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize time</source>
+        <extracomment>Master humanize-time rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set 16th-note swing factor</source>
+        <extracomment>Master swing rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle master mute</source>
+        <extracomment>Master mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument gain</source>
+        <extracomment>Instrument gain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument pitch</source>
+        <extracomment>Instrument pitch rotaries - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set random pitch</source>
+        <extracomment>Instrument random-pitch rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set filter cutoff</source>
+        <extracomment>Instrument filter cutoff rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set filter resonance</source>
+        <extracomment>Instrument filter resonance rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set length of attack phase</source>
+        <extracomment>Instrument ADSR attack rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set length of decay phase</source>
+        <extracomment>Instrument ADSR decay rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set sample volume in sustain phase</source>
+        <extracomment>Instrument ADSR sustain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set length of release phase</source>
+        <extracomment>Instrument ADSR release rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle filter</source>
+        <extracomment>Instrument filter bypass button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set mute group</source>
+        <extracomment>Instrument mute-group spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle stop-notes</source>
+        <extracomment>Instrument auto-stop-note check box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle apply-velocity</source>
+        <extracomment>Instrument apply-velocity check box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set hi-hat group</source>
+        <extracomment>Instrument hi-hat group spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set hi-hat min range</source>
+        <extracomment>Instrument hi-hat min-range spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set hi-hat max range</source>
+        <extracomment>Instrument hi-hat max-range spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle component mute</source>
+        <extracomment>Component mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle component solo</source>
+        <extracomment>Component solo button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set component gain</source>
+        <extracomment>Component gain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set sample selection algorithm</source>
+        <extracomment>Component sample-selection (Velocity/Round Robin/Random) combo box - undo * history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle layer mute</source>
+        <extracomment>Layer mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle layer solo</source>
+        <extracomment>Layer solo button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer gain</source>
+        <extracomment>Layer gain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer pitch</source>
+        <extracomment>Layer pitch rotaries - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer velocity start</source>
+        <extracomment>Layer velocity-range start drag - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer velocity end</source>
+        <extracomment>Layer velocity-range end drag - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set MIDI out channel</source>
+        <extracomment>Instrument MIDI-out channel spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set MIDI out note</source>
+        <extracomment>Instrument MIDI-out note spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1717,26 +1902,6 @@ Please set your system&apos;s locale to UTF-8!</source>
 </context>
 <context>
     <name>ComponentView</name>
-    <message>
-        <source>Layer gain</source>
-        <translation>Ganancia da capa</translation>
-    </message>
-    <message>
-        <source>Component volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Layer pitch (Coarse)</source>
-        <translation>Afinación da capa (grosa)</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Fine)</source>
-        <translation>Afinación da capa (fina)</translation>
-    </message>
-    <message>
-        <source>Select selection algorithm</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>First in Velocity</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
@@ -2276,59 +2441,11 @@ Sobrescribir o ficheiro existente?</translation>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>Random pitch factor</source>
-        <translation>Factor aleatorio de ton</translation>
-    </message>
-    <message>
-        <source>Filter Cutoff</source>
-        <translation>Filtro de corte</translation>
-    </message>
-    <message>
-        <source>Filter resonance</source>
-        <translation>Filtro de resonancia</translation>
-    </message>
-    <message>
-        <source>Instrument gain</source>
-        <translation>Ganancia do instrumento</translation>
-    </message>
-    <message>
-        <source>Midi out channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Midi out note</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Pitch offset (Coarse)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pitch offset (Fine)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Length of Attack phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Length of Decay phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sample volume in Sustain phase</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Length of Release phase</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2899,23 +3016,7 @@ It should work like a charm provided that you use the GMRockKit, and that you do
 <context>
     <name>MasterLine</name>
     <message>
-        <source>Master volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Peak</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Humanizar a velocidade</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Humanizar o tempo</translation>
-    </message>
-    <message>
-        <source>16th-note Swing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3157,10 +3258,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>Volume</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Peak</source>
         <translation type="unfinished"></translation>
