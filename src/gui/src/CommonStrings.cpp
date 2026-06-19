@@ -810,6 +810,77 @@ CommonStrings::CommonStrings(){
 	/*: Shown in the undo history adding or toggling pattern cells in the song
 	 *  editor. */
 	m_sActionTogglePatternCells = tr( "Toggle selected cells" );
+
+	// The following strings are each used twice: as the undo-history description
+	// of the edit and as the tooltip of the widget triggering it.
+	/*: Mixer strip volume fader - undo history entry and widget tooltip. */
+	m_sActionSetStripVolume = tr( "Set strip volume" );
+	/*: Mixer strip pan rotary - undo history entry and widget tooltip. */
+	m_sActionSetStripPan = tr( "Set strip pan" );
+	/*: Mixer strip mute button - undo history entry and widget tooltip. */
+	m_sActionToggleStripMute = tr( "Toggle strip mute" );
+	/*: Mixer strip solo button - undo history entry and widget tooltip. */
+	m_sActionToggleStripSolo = tr( "Toggle strip solo" );
+	/*: Master volume fader - undo history entry and widget tooltip. */
+	m_sActionSetMasterVolume = tr( "Set master volume" );
+	/*: Master humanize-velocity rotary - undo history entry and widget tooltip. */
+	m_sActionSetHumanizeVelocity = tr( "Set humanize velocity" );
+	/*: Master humanize-time rotary - undo history entry and widget tooltip. */
+	m_sActionSetHumanizeTime = tr( "Set humanize time" );
+	/*: Master swing rotary - undo history entry and widget tooltip. */
+	m_sActionSetSwing = tr( "Set 16th-note swing factor" );
+	/*: Master mute button - undo history entry and widget tooltip. */
+	m_sActionToggleMasterMute = tr( "Toggle master mute" );
+	/*: Instrument gain rotary - undo history entry and widget tooltip. */
+	m_sActionSetInstrumentGain = tr( "Set instrument gain" );
+	/*: Instrument pitch rotaries - undo history entry and widget tooltip. */
+	m_sActionSetInstrumentPitch = tr( "Set instrument pitch" );
+	/*: Instrument random-pitch rotary - undo history entry and widget tooltip. */
+	m_sActionSetRandomPitch = tr( "Set random pitch" );
+	/*: Instrument filter cutoff rotary - undo history entry and widget tooltip. */
+	m_sActionSetFilterCutoff = tr( "Set filter cutoff" );
+	/*: Instrument filter resonance rotary - undo history entry and widget tooltip. */
+	m_sActionSetFilterResonance = tr( "Set filter resonance" );
+	/*: Instrument ADSR attack rotary - undo history entry and widget tooltip. */
+	m_sActionSetAttack = tr( "Set length of attack phase" );
+	/*: Instrument ADSR decay rotary - undo history entry and widget tooltip. */
+	m_sActionSetDecay = tr( "Set length of decay phase" );
+	/*: Instrument ADSR sustain rotary - undo history entry and widget tooltip. */
+	m_sActionSetSustain = tr( "Set sample volume in sustain phase" );
+	/*: Instrument ADSR release rotary - undo history entry and widget tooltip. */
+	m_sActionSetRelease = tr( "Set length of release phase" );
+	/*: Instrument filter bypass button - undo history entry and widget tooltip. */
+	m_sActionToggleFilter = tr( "Toggle filter" );
+	/*: Instrument mute-group spin box - undo history entry and widget tooltip. */
+	m_sActionSetMuteGroup = tr( "Set mute group" );
+	/*: Instrument auto-stop-note check box - undo history entry and widget tooltip. */
+	m_sActionToggleStopNotes = tr( "Toggle stop-notes" );
+	/*: Instrument apply-velocity check box - undo history entry and widget tooltip. */
+	m_sActionToggleApplyVelocity = tr( "Toggle apply-velocity" );
+	/*: Instrument hi-hat group spin box - undo history entry and widget tooltip. */
+	m_sActionSetHihatGroup = tr( "Set hi-hat group" );
+	/*: Instrument hi-hat min-range spin box - undo history entry and widget tooltip. */
+	m_sActionSetHihatMinRange = tr( "Set hi-hat min range" );
+	/*: Instrument hi-hat max-range spin box - undo history entry and widget tooltip. */
+	m_sActionSetHihatMaxRange = tr( "Set hi-hat max range" );
+	/*: Component mute button - undo history entry and widget tooltip. */
+	m_sActionToggleComponentMute = tr( "Toggle component mute" );
+	/*: Component solo button - undo history entry and widget tooltip. */
+	m_sActionToggleComponentSolo = tr( "Toggle component solo" );
+	/*: Component gain rotary - undo history entry and widget tooltip. */
+	m_sActionSetComponentGain = tr( "Set component gain" );
+	/*: Layer mute button - undo history entry and widget tooltip. */
+	m_sActionToggleLayerMute = tr( "Toggle layer mute" );
+	/*: Layer solo button - undo history entry and widget tooltip. */
+	m_sActionToggleLayerSolo = tr( "Toggle layer solo" );
+	/*: Layer gain rotary - undo history entry and widget tooltip. */
+	m_sActionSetLayerGain = tr( "Set layer gain" );
+	/*: Layer pitch rotaries - undo history entry and widget tooltip. */
+	m_sActionSetLayerPitch = tr( "Set layer pitch" );
+	/*: Layer velocity-range start drag - undo history entry and widget tooltip. */
+	m_sActionSetLayerVelocityStart = tr( "Set layer velocity start" );
+	/*: Layer velocity-range end drag - undo history entry and widget tooltip. */
+	m_sActionSetLayerVelocityEnd = tr( "Set layer velocity end" );
 	/*: Shown in the undo history adding or deleting an envelope point in the
 	 *  sample editor. */
 	m_sActionEditEnvelopePoint = tr( "Add or remove envelope point in sample editor" );

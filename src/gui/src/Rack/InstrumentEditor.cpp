@@ -212,7 +212,8 @@ font-size: 21px;" );
 	m_pPitchLbl->move( 34, 235 );
 	
 	m_pPitchCoarseRotary = new Rotary(
-		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Coarse)" ),
+		m_pInstrumentProp, Rotary::Type::Center,
+		pCommonStrings->getActionSetInstrumentPitch(),
 		true, Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
 		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl );
 	m_pPitchCoarseRotary->setModifierTarget( Modifier::Drumkit );
@@ -235,7 +236,8 @@ font-size: 21px;" );
 	m_pPitchCoarseLbl->move( 92, 235 );
 
 	m_pPitchFineRotary = new Rotary(
-		m_pInstrumentProp, Rotary::Type::Center, tr( "Pitch offset (Fine)" ),
+		m_pInstrumentProp, Rotary::Type::Center,
+		pCommonStrings->getActionSetInstrumentPitch(),
 		false, -InstrumentEditor::nPitchFineControl,
 		InstrumentEditor::nPitchFineControl );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
@@ -259,7 +261,8 @@ font-size: 21px;" );
 	m_pPitchFineLbl->move( 149, 235 );
 
 	m_pRandomPitchRotary = new Rotary(
-		m_pInstrumentProp, Rotary::Type::Normal, tr( "Random pitch factor" ),
+		m_pInstrumentProp, Rotary::Type::Normal,
+		pCommonStrings->getActionSetRandomPitch(),
 		false );
 	m_pRandomPitchRotary->setModifierTarget( Modifier::Drumkit );
 	m_pRandomPitchRotary->move( 208, 210 );
@@ -280,7 +283,7 @@ font-size: 21px;" );
 	// Filter
 	m_pFilterBypassButton = new QToolButton( m_pInstrumentProp );
 	m_pFilterBypassButton->setCheckable( false );
-	m_pFilterBypassButton->setToolTip( pCommonStrings->getBypassButton() );
+	m_pFilterBypassButton->setToolTip( pCommonStrings->getActionToggleFilter() );
 	m_pFilterBypassButton->setFixedSize( QSize( 36, 23 ) );
 	m_pFilterBypassButton->setFocusPolicy( Qt::NoFocus );
 	connect( m_pFilterBypassButton, &QToolButton::clicked, [&]() {
@@ -298,7 +301,8 @@ font-size: 21px;" );
 	m_pFilterBypassButton->move( 75, 165 );
 
 	m_pCutoffRotary = new Rotary(
-		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter Cutoff" ), false );
+		m_pInstrumentProp, Rotary::Type::Normal,
+		pCommonStrings->getActionSetFilterCutoff(), false );
 	m_pCutoffRotary->setModifierTarget( Modifier::Drumkit );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
 	m_pCutoffRotary->move( 124, 164 );
@@ -316,7 +320,8 @@ font-size: 21px;" );
 	m_pCutoffLbl->move( 122, 189 );
 
 	m_pResonanceRotary = new Rotary(
-		m_pInstrumentProp, Rotary::Type::Normal, tr( "Filter resonance" ), false );
+		m_pInstrumentProp, Rotary::Type::Normal,
+		pCommonStrings->getActionSetFilterResonance(), false );
 	m_pResonanceRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pResonanceRotary, &Rotary::valueChanged, [&]() {
 		auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
@@ -338,7 +343,7 @@ font-size: 21px;" );
 	// ADSR
 	m_pAttackRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Length of Attack phase" ), false );
+		pCommonStrings->getActionSetAttack(), false );
 	m_pAttackRotary->setModifierTarget( Modifier::Drumkit );
 	m_pAttackRotary->move( 45, 52 );
 	connect( m_pAttackRotary, &Rotary::valueChanged, [&]() {
@@ -357,7 +362,7 @@ font-size: 21px;" );
 
 	m_pDecayRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Length of Decay phase" ), false );
+		pCommonStrings->getActionSetDecay(), false );
 	m_pDecayRotary->setModifierTarget( Modifier::Drumkit );
 	m_pDecayRotary->move( 101, 52 );
 	connect( m_pDecayRotary, &Rotary::valueChanged, [&]() {
@@ -376,7 +381,7 @@ font-size: 21px;" );
 
 	m_pSustainRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Sample volume in Sustain phase" ), false );
+		pCommonStrings->getActionSetSustain(), false );
 	m_pSustainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
 	m_pSustainRotary->move( 157, 52 );
@@ -396,7 +401,7 @@ font-size: 21px;" );
 
 	m_pReleaseRotary = new Rotary(
 		m_pInstrumentProp, Rotary::Type::Normal,
-		tr( "Length of Release phase" ), false );
+		pCommonStrings->getActionSetRelease(), false );
 	m_pReleaseRotary->setModifierTarget( Modifier::Drumkit );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	m_pReleaseRotary->move( 213, 52 );
@@ -422,7 +427,8 @@ font-size: 21px;" );
 	m_pInstrumentGainLCD->move( 73, 102 );
 
 	m_pInstrumentGain = new Rotary(
-		m_pInstrumentProp, Rotary::Type::Normal, tr( "Instrument gain" ), false,
+		m_pInstrumentProp, Rotary::Type::Normal,
+		pCommonStrings->getActionSetInstrumentGain(), false,
 		0.0, 5.0 );
 	m_pInstrumentGain->setModifierTarget( Modifier::Drumkit );
 	m_pInstrumentGain->setDefaultValue( 1.0 );
@@ -446,6 +452,7 @@ font-size: 21px;" );
 		LCDSpinBox::Flag::MinusOneAsOff
 	);
 	m_pMuteGroupLCD->setModifierTarget( Modifier::Drumkit );
+	m_pMuteGroupLCD->setToolTip( pCommonStrings->getActionSetMuteGroup() );
 	m_pMuteGroupLCD->move( 210, 101 );
 	connect( m_pMuteGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
@@ -511,6 +518,7 @@ font-size: 21px;" );
 		LCDSpinBox::Flag::MinusOneAsOff
 	);
 	m_pHihatGroupLCD->setModifierTarget( Modifier::Drumkit );
+	m_pHihatGroupLCD->setToolTip( pCommonStrings->getActionSetHihatGroup() );
 	m_pHihatGroupLCD->move( 33, 303 );
 	connect( m_pHihatGroupLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
@@ -533,6 +541,7 @@ font-size: 21px;" );
 		static_cast<int>( Midi::ParameterMaximum )
 	);
 	m_pHihatMinRangeLCD->setModifierTarget( Modifier::Drumkit );
+	m_pHihatMinRangeLCD->setToolTip( pCommonStrings->getActionSetHihatMinRange() );
 	m_pHihatMinRangeLCD->move( 146, 303 );
 	connect( m_pHihatMinRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
@@ -559,6 +568,7 @@ font-size: 21px;" );
 		static_cast<int>( Midi::ParameterMaximum )
 	);
 	m_pHihatMaxRangeLCD->move( 210, 303 );
+	m_pHihatMaxRangeLCD->setToolTip( pCommonStrings->getActionSetHihatMaxRange() );
 	m_pHihatMaxRangeLCD->setModifierTarget( Modifier::Drumkit );
 	connect( m_pHihatMaxRangeLCD, &LCDSpinBox::valueAdjusted, [&]() {
 		auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();

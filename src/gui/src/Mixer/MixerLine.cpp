@@ -115,6 +115,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	// Color used as background within the pixmap.
 	m_pMuteBtn->setDefaultBackgroundColor( buttonBackgroundColor );
 	m_pMuteBtn->setObjectName( "MixerMuteButton" );
+	m_pMuteBtn->setBaseToolTip( pCommonStrings->getActionToggleStripMute() );
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 && m_pInstrument != nullptr ) {
@@ -136,6 +137,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	// Color used as background within the pixmap.
 	m_pSoloBtn->setDefaultBackgroundColor( buttonBackgroundColor );
 	m_pSoloBtn->setObjectName( "MixerSoloButton" );
+	m_pSoloBtn->setBaseToolTip( pCommonStrings->getActionToggleStripSolo() );
 	connect( m_pSoloBtn, &QPushButton::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 && m_pInstrument != nullptr ) {
@@ -150,7 +152,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// pan rotary
 	m_pPanRotary = new Rotary(
-		this, Rotary::Type::Center, pCommonStrings->getNotePropertyPan(), false,
+		this, Rotary::Type::Center, pCommonStrings->getActionSetStripPan(), false,
 		PAN_MIN, PAN_MAX );
 	m_pPanRotary->setModifierTarget( Modifier::Drumkit );
 	m_pPanRotary->setObjectName( "PanRotary" );
@@ -178,8 +180,8 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 
 	// m_pFader
 	m_pFader = new Fader(
-		this, QSize( 23, 154 ), Fader::Type::Vertical, tr( "Volume" ), false,
-		false, 0.0, 1.5
+		this, QSize( 23, 154 ), Fader::Type::Vertical,
+		pCommonStrings->getActionSetStripVolume(), false, false, 0.0, 1.5
 	);
 	m_pFader->setModifierTarget( Modifier::Drumkit );
 	m_pFader->move( 23, 91 );

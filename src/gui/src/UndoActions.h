@@ -1868,12 +1868,14 @@ class SE_setStripPropertyAction : public QUndoCommand {
 		, m_fOldValue( fOldValue )
 		, m_fNewValue( fNewValue )
 	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
 		QString sName;
 		switch ( property ) {
-			case Property::Volume: sName = QObject::tr( "Set strip volume" ); break;
-			case Property::Pan:    sName = QObject::tr( "Set strip pan" ); break;
-			case Property::Mute:   sName = QObject::tr( "Toggle strip mute" ); break;
-			case Property::Solo:   sName = QObject::tr( "Toggle strip solo" ); break;
+			case Property::Volume: sName = pCommonStrings->getActionSetStripVolume(); break;
+			case Property::Pan:    sName = pCommonStrings->getActionSetStripPan(); break;
+			case Property::Mute:   sName = pCommonStrings->getActionToggleStripMute(); break;
+			case Property::Solo:   sName = pCommonStrings->getActionToggleStripSolo(); break;
 		}
 		setText( QString( "%1 [%2]" ).arg( sName ).arg( nStrip ) );
 	}
@@ -1928,18 +1930,20 @@ class SE_setMasterPropertyAction : public QUndoCommand {
 		, m_fOldValue( fOldValue )
 		, m_fNewValue( fNewValue )
 	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
 		QString sName;
 		switch ( property ) {
 			case Property::Volume:
-				sName = QObject::tr( "Set master volume" ); break;
+				sName = pCommonStrings->getActionSetMasterVolume(); break;
 			case Property::HumanizeVelocity:
-				sName = QObject::tr( "Set humanize velocity" ); break;
+				sName = pCommonStrings->getActionSetHumanizeVelocity(); break;
 			case Property::HumanizeTime:
-				sName = QObject::tr( "Set humanize time" ); break;
+				sName = pCommonStrings->getActionSetHumanizeTime(); break;
 			case Property::Swing:
-				sName = QObject::tr( "Set swing factor" ); break;
+				sName = pCommonStrings->getActionSetSwing(); break;
 			case Property::Mute:
-				sName = QObject::tr( "Toggle master mute" ); break;
+				sName = pCommonStrings->getActionToggleMasterMute(); break;
 		}
 		setText( sName );
 	}
@@ -2002,24 +2006,26 @@ class SE_setInstrumentPropertyAction : public QUndoCommand {
 		, m_fOldValue( fOldValue )
 		, m_fNewValue( fNewValue )
 	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
 		QString sName;
 		switch ( property ) {
-			case Property::Gain: sName = QObject::tr( "Set instrument gain" ); break;
-			case Property::PitchOffset: sName = QObject::tr( "Set instrument pitch" ); break;
-			case Property::RandomPitch: sName = QObject::tr( "Set random pitch" ); break;
-			case Property::FilterCutoff: sName = QObject::tr( "Set filter cutoff" ); break;
-			case Property::FilterResonance: sName = QObject::tr( "Set filter resonance" ); break;
-			case Property::Attack: sName = QObject::tr( "Set attack" ); break;
-			case Property::Decay: sName = QObject::tr( "Set decay" ); break;
-			case Property::Sustain: sName = QObject::tr( "Set sustain" ); break;
-			case Property::Release: sName = QObject::tr( "Set release" ); break;
-			case Property::FilterActive: sName = QObject::tr( "Toggle filter" ); break;
-			case Property::MuteGroup: sName = QObject::tr( "Set mute group" ); break;
-			case Property::StopNotes: sName = QObject::tr( "Toggle stop-notes" ); break;
-			case Property::ApplyVelocity: sName = QObject::tr( "Toggle apply-velocity" ); break;
-			case Property::HihatGroup: sName = QObject::tr( "Set hi-hat group" ); break;
-			case Property::LowerCc: sName = QObject::tr( "Set hi-hat min range" ); break;
-			case Property::HigherCc: sName = QObject::tr( "Set hi-hat max range" ); break;
+			case Property::Gain: sName = pCommonStrings->getActionSetInstrumentGain(); break;
+			case Property::PitchOffset: sName = pCommonStrings->getActionSetInstrumentPitch(); break;
+			case Property::RandomPitch: sName = pCommonStrings->getActionSetRandomPitch(); break;
+			case Property::FilterCutoff: sName = pCommonStrings->getActionSetFilterCutoff(); break;
+			case Property::FilterResonance: sName = pCommonStrings->getActionSetFilterResonance(); break;
+			case Property::Attack: sName = pCommonStrings->getActionSetAttack(); break;
+			case Property::Decay: sName = pCommonStrings->getActionSetDecay(); break;
+			case Property::Sustain: sName = pCommonStrings->getActionSetSustain(); break;
+			case Property::Release: sName = pCommonStrings->getActionSetRelease(); break;
+			case Property::FilterActive: sName = pCommonStrings->getActionToggleFilter(); break;
+			case Property::MuteGroup: sName = pCommonStrings->getActionSetMuteGroup(); break;
+			case Property::StopNotes: sName = pCommonStrings->getActionToggleStopNotes(); break;
+			case Property::ApplyVelocity: sName = pCommonStrings->getActionToggleApplyVelocity(); break;
+			case Property::HihatGroup: sName = pCommonStrings->getActionSetHihatGroup(); break;
+			case Property::LowerCc: sName = pCommonStrings->getActionSetHihatMinRange(); break;
+			case Property::HigherCc: sName = pCommonStrings->getActionSetHihatMaxRange(); break;
 		}
 		setText( QString( "%1 [%2]" ).arg( sName ).arg( nInstrument ) );
 	}

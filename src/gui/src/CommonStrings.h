@@ -652,6 +652,43 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		return m_sActionEditPlaybackTrack;
 	}
 
+	// Mixer/Instrument-Editor control actions: each is used both as the undo
+	// history description and as the tooltip of the corresponding widget.
+	const QString& getActionSetStripVolume() const { return m_sActionSetStripVolume; }
+	const QString& getActionSetStripPan() const { return m_sActionSetStripPan; }
+	const QString& getActionToggleStripMute() const { return m_sActionToggleStripMute; }
+	const QString& getActionToggleStripSolo() const { return m_sActionToggleStripSolo; }
+	const QString& getActionSetMasterVolume() const { return m_sActionSetMasterVolume; }
+	const QString& getActionSetHumanizeVelocity() const { return m_sActionSetHumanizeVelocity; }
+	const QString& getActionSetHumanizeTime() const { return m_sActionSetHumanizeTime; }
+	const QString& getActionSetSwing() const { return m_sActionSetSwing; }
+	const QString& getActionToggleMasterMute() const { return m_sActionToggleMasterMute; }
+	const QString& getActionSetInstrumentGain() const { return m_sActionSetInstrumentGain; }
+	const QString& getActionSetInstrumentPitch() const { return m_sActionSetInstrumentPitch; }
+	const QString& getActionSetRandomPitch() const { return m_sActionSetRandomPitch; }
+	const QString& getActionSetFilterCutoff() const { return m_sActionSetFilterCutoff; }
+	const QString& getActionSetFilterResonance() const { return m_sActionSetFilterResonance; }
+	const QString& getActionSetAttack() const { return m_sActionSetAttack; }
+	const QString& getActionSetDecay() const { return m_sActionSetDecay; }
+	const QString& getActionSetSustain() const { return m_sActionSetSustain; }
+	const QString& getActionSetRelease() const { return m_sActionSetRelease; }
+	const QString& getActionToggleFilter() const { return m_sActionToggleFilter; }
+	const QString& getActionSetMuteGroup() const { return m_sActionSetMuteGroup; }
+	const QString& getActionToggleStopNotes() const { return m_sActionToggleStopNotes; }
+	const QString& getActionToggleApplyVelocity() const { return m_sActionToggleApplyVelocity; }
+	const QString& getActionSetHihatGroup() const { return m_sActionSetHihatGroup; }
+	const QString& getActionSetHihatMinRange() const { return m_sActionSetHihatMinRange; }
+	const QString& getActionSetHihatMaxRange() const { return m_sActionSetHihatMaxRange; }
+	const QString& getActionToggleComponentMute() const { return m_sActionToggleComponentMute; }
+	const QString& getActionToggleComponentSolo() const { return m_sActionToggleComponentSolo; }
+	const QString& getActionSetComponentGain() const { return m_sActionSetComponentGain; }
+	const QString& getActionToggleLayerMute() const { return m_sActionToggleLayerMute; }
+	const QString& getActionToggleLayerSolo() const { return m_sActionToggleLayerSolo; }
+	const QString& getActionSetLayerGain() const { return m_sActionSetLayerGain; }
+	const QString& getActionSetLayerPitch() const { return m_sActionSetLayerPitch; }
+	const QString& getActionSetLayerVelocityStart() const { return m_sActionSetLayerVelocityStart; }
+	const QString& getActionSetLayerVelocityEnd() const { return m_sActionSetLayerVelocityEnd; }
+
 	const QString& getNotePropertyVelocity() const
 	{
 		return m_sNotePropertyVelocity;
@@ -983,6 +1020,41 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sActionMovePatternCells;
 	QString m_sActionPastePatternCells;
 	QString m_sActionTogglePatternCells;
+
+	QString m_sActionSetStripVolume;
+	QString m_sActionSetStripPan;
+	QString m_sActionToggleStripMute;
+	QString m_sActionToggleStripSolo;
+	QString m_sActionSetMasterVolume;
+	QString m_sActionSetHumanizeVelocity;
+	QString m_sActionSetHumanizeTime;
+	QString m_sActionSetSwing;
+	QString m_sActionToggleMasterMute;
+	QString m_sActionSetInstrumentGain;
+	QString m_sActionSetInstrumentPitch;
+	QString m_sActionSetRandomPitch;
+	QString m_sActionSetFilterCutoff;
+	QString m_sActionSetFilterResonance;
+	QString m_sActionSetAttack;
+	QString m_sActionSetDecay;
+	QString m_sActionSetSustain;
+	QString m_sActionSetRelease;
+	QString m_sActionToggleFilter;
+	QString m_sActionSetMuteGroup;
+	QString m_sActionToggleStopNotes;
+	QString m_sActionToggleApplyVelocity;
+	QString m_sActionSetHihatGroup;
+	QString m_sActionSetHihatMinRange;
+	QString m_sActionSetHihatMaxRange;
+	QString m_sActionToggleComponentMute;
+	QString m_sActionToggleComponentSolo;
+	QString m_sActionSetComponentGain;
+	QString m_sActionToggleLayerMute;
+	QString m_sActionToggleLayerSolo;
+	QString m_sActionSetLayerGain;
+	QString m_sActionSetLayerPitch;
+	QString m_sActionSetLayerVelocityStart;
+	QString m_sActionSetLayerVelocityEnd;
 
 	QString m_sActionEditEnvelopePoint;
 	QString m_sActionAddPlaybackTrack;

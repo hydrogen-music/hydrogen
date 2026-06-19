@@ -63,8 +63,8 @@ MasterLine::MasterLine( QWidget* pParent )
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	m_pFader = new Fader(
-		this, QSize( 34, 189 ), Fader::Type::Master, tr( "Master volume" ),
-		false, false, 0.0, 1.5
+		this, QSize( 34, 189 ), Fader::Type::Master,
+		pCommonStrings->getActionSetMasterVolume(), false, false, 0.0, 1.5
 	);
 	m_pFader->setModifierTarget( Modifier::Song );
 	m_pFader->move( 24, 75 );
@@ -95,7 +95,8 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	m_pHumanizeVelocityRotary = new Rotary(
-		this, Rotary::Type::Normal, tr( "Humanize velocity" ), false
+		this, Rotary::Type::Normal,
+		pCommonStrings->getActionSetHumanizeVelocity(), false
 	);
 	m_pHumanizeVelocityRotary->setModifierTarget( Modifier::Song );
 	m_pHumanizeVelocityRotary->setMidiAction( std::make_shared<MidiAction>(
@@ -119,7 +120,8 @@ MasterLine::MasterLine( QWidget* pParent )
 	});
 
 	m_pHumanizeTimeRotary =
-		new Rotary( this, Rotary::Type::Normal, tr( "Humanize time" ), false );
+		new Rotary( this, Rotary::Type::Normal,
+					pCommonStrings->getActionSetHumanizeTime(), false );
 	m_pHumanizeTimeRotary->setModifierTarget( Modifier::Song );
 	m_pHumanizeTimeRotary->setMidiAction( std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationTimingAbsolute
@@ -142,7 +144,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	});
 
 	m_pSwingRotary = new Rotary(
-		this, Rotary::Type::Normal, tr( "16th-note Swing" ), false
+		this, Rotary::Type::Normal, pCommonStrings->getActionSetSwing(), false
 	);
 	m_pSwingRotary->setModifierTarget( Modifier::Song );
 	m_pSwingRotary->setMidiAction( std::make_shared<MidiAction>(
@@ -168,6 +170,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pMuteBtn = new MuteButton(
 		this, QSize( 42, 17 ), "", ColoredButton::Flag::None );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
+	m_pMuteBtn->setBaseToolTip( pCommonStrings->getActionToggleMasterMute() );
 	m_pMuteBtn->move( 20, 31 );
 	// Color used as background within the pixmap.
 	m_pMuteBtn->setDefaultBackgroundColor( QColor( 128, 134, 152 ) );
