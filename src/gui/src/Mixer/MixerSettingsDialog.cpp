@@ -31,6 +31,7 @@
 #include <QDoubleValidator>
 
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
 
@@ -125,12 +126,10 @@ void MixerSettingsDialog::on_cancelBtn_clicked()
 
 
 void MixerSettingsDialog::on_okBtn_clicked() {
-	std::shared_ptr<Song> pSong = HydrogenApp::pEngine()->getSong();
 	bool bOk;
-	
-	// Pan Law settings
-	pSong->setPanLawType( ( panLawComboBox->currentData() ).toInt( &bOk ) );
-	
+
+	const int nPanLawType = ( panLawComboBox->currentData() ).toInt( &bOk );
+
 	// allowing both point or comma decimal separator
 	float fdBCenterCompensation = ( dBCompensationLineEdit->text() ).replace( ",", "." ).toFloat( &bOk );
 	if ( !bOk ) { // this should not happen
@@ -146,9 +145,12 @@ void MixerSettingsDialog::on_okBtn_clicked() {
 	/** convert the dB Compensation to the corresponding exponent k: assuming constraint L^k + R^k = 1
 	* For example -6.0206 dB <=> k = 1 <=> L + R = 1 (i.e. constant sum)
 	*/
-	pSong->setPanLawKNorm( - 6.0206 / fdBCenterCompensation );
+	const float fPanLawKNorm = - 6.0206 / fdBCenterCompensation;
 
-	HydrogenApp::pEngine()->setSongModified( true );
+	// The engine edit (+ song-modified + MixerSettingsChanged event) is owned
+	// by CoreActionController (ADR 0027).
+	HydrogenApp::pEngine()->getCoreActionController()->setPanLaw(
+		nPanLawType, fPanLawKNorm );
 
 	accept();
 }

@@ -792,6 +792,26 @@ bool CoreActionController::setSwing( float fValue )
 	return true;
 }
 
+bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pSong->setPanLawType( nPanLawType );
+	pSong->setPanLawKNorm( fPanLawKNorm );
+
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::MixerSettingsChanged, 0
+	);
+	m_pHydrogen->setSongModified( true );
+
+	return true;
+}
+
+bool CoreActionController::setPlaybackTrackMuted( bool bMuted )
 bool CoreActionController::toggleStripIsMuted( int nStrip )
 {
 	auto pInstr = resolveInstrument( nStrip );

@@ -134,6 +134,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	bool setHumanizeTime( float fValue );
 	bool setHumanizeVelocity( float fValue );
 	bool setSwing( float fValue );
+	/** Sets the song-global pan law (MixerSettingsDialog). @a nPanLawType is a
+	 * #H2Core::Sampler pan-law constant. */
+	bool setPanLaw( int nPanLawType, float fPanLawKNorm );
 
 	bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip );
 	bool toggleStripIsMuted( int nStrip );

@@ -34,6 +34,7 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
+#include <core/Sampler/Sampler.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <chrono>
@@ -163,6 +164,21 @@ void CoreActionControllerTest::testEditNoteProperty() {
 	___INFOLOG( "passed" );
 }
 
+void CoreActionControllerTest::testSetPanLaw() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+	pCAC->setSong( Song::getEmptySong( pHydrogen ) );
+
+	CPPUNIT_ASSERT( pCAC->setPanLaw( Sampler::RATIO_STRAIGHT_POLYGONAL, 1.5f ) );
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( Sampler::RATIO_STRAIGHT_POLYGONAL ),
+		pSong->getPanLawType() );
+	CPPUNIT_ASSERT_EQUAL( 1.5f, pSong->getPanLawKNorm() );
+
+	___INFOLOG( "passed" );
+}
 void CoreActionControllerTest::testSessionManagement() {
 	___INFOLOG( "" );
 	auto pHydrogen = pTestHydrogen();
