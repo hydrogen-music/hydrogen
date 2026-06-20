@@ -1154,6 +1154,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->playbackTrackChangedEvent();
 				break;
 
+			case Event::Type::PlaybackTrackParameterChanged:
+				ppEventListener->playbackTrackParameterChangedEvent();
+				break;
+
 			case Event::Type::PlayingPatternsChanged:
 				ppEventListener->playingPatternsChangedEvent();
 				break;

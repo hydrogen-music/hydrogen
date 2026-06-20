@@ -88,6 +88,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "PatternIsModified";
 	case Event::Type::PlaybackTrackChanged:
 		return "PlaybackTrackChanged";
+	case Event::Type::PlaybackTrackParameterChanged:
+		return "PlaybackTrackParameterChanged";
 	case Event::Type::PlayingPatternsChanged:
 		return "PlayingPatternsChanged";
 	case Event::Type::PlaylistChanged:

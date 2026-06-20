@@ -149,6 +149,7 @@ public:
 			/** Whether the modification state of a pattern changed. */
 			PatternIsModified,
 			PlaybackTrackChanged,
+			PlaybackTrackParameterChanged,
 			/**
 			 * Event triggered whenever part of or the whole current
 			 * #H2Core::Playlist changed.

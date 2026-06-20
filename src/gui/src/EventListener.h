@@ -67,6 +67,7 @@ class EventListener
 		virtual void patternEditorLockedEvent(){}
 		virtual void patternIsModifiedEvent() {}
 		virtual void playbackTrackChangedEvent(){}
+		virtual void playbackTrackParameterChangedEvent(){}
 		virtual void playingPatternsChangedEvent() {}
 		virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void playlistLoadSongEvent(){}

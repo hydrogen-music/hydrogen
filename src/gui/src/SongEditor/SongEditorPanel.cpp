@@ -989,6 +989,32 @@ void SongEditorPanel::playbackTrackChangedEvent() {
 	updatePlaybackTrack();
 }
 
+void SongEditorPanel::playbackTrackParameterChangedEvent()
+{
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
+		return;
+	}
+
+	if ( !HydrogenApp::pPreferences()->getShowPlaybackTrack() ) {
+		return;
+	}
+
+	auto pInstrument = pSong->getPlaybackTrackInstrument();
+	if ( m_pMutePlaybackTrackButton->isChecked() != pInstrument->isMuted() ) {
+		m_pMutePlaybackTrackButton->setChecked( pInstrument->isMuted() );
+		updateStyleSheet();
+		m_pPlaybackTrackWaveDisplay->updateBackground();
+	}
+
+	// Suppress so an event-driven resync during a volume drag does not feed
+	// back into faderChanged() (which would re-push undo commands).
+	m_pPlaybackTrackFader->setValue(
+		pInstrument->getVolume(), false, Event::Trigger::Suppress );
+}
+
+
 void SongEditorPanel::playingPatternsChangedEvent() {
 	// Triggered every time the column of the SongEditor grid
 	// changed. Either by rolling transport or by relocation.
