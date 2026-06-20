@@ -1501,8 +1501,8 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 		}
 #endif
 
-		fInstrPeak_L = std::max( fInstrPeak_L, buffer_L[nBufferPos] );
-		fInstrPeak_R = std::max( fInstrPeak_R, buffer_R[nBufferPos] );
+		fInstrPeak_L = std::max( fInstrPeak_L, buffer_L[nBufferPos] * fGain );
+		fInstrPeak_R = std::max( fInstrPeak_R, buffer_R[nBufferPos] * fGain );
 		m_pMainOut_L[nBufferPos] += fVal_L;
 		m_pMainOut_R[nBufferPos] += fVal_R;
 	}
