@@ -136,7 +136,7 @@ int main( int argc, char **argv)
 	}
 	else {
 		sLogFilePath = QString( "%1%2test.log" )
-			.arg( QDir::currentPath() ).arg( QDir::separator() );
+			.arg( H2Core::Filesystem::tmpDir() ).arg( QDir::separator() );
 	}
 	
 	auto logLevelOpt = H2Core::Logger::Error | H2Core::Logger::Warning |
