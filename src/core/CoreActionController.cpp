@@ -3419,7 +3419,8 @@ bool CoreActionController::addOrRemoveNote(
 	float fOldProbability,
 	bool bIsDelete,
 	bool bIsNoteOff,
-	bool bIsMappedToDrumkit )
+	bool bIsMappedToDrumkit,
+	Uuid* pNewNoteUuid )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -3528,6 +3529,10 @@ bool CoreActionController::addOrRemoveNote(
 		pNewNote->setKey( oldKey );
 		pNewNote->setOctave( oldOctave );
 		pPattern->insertNote( pNewNote );
+
+		if ( pNewNoteUuid != nullptr ) {
+			*pNewNoteUuid = pNewNote->getUuid();
+		}
 	}
 
 	pAudioEngine->unlock();

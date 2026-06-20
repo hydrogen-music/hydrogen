@@ -185,30 +185,47 @@ void CoreActionControllerTest::testAddOrRemoveNote() {
 	const int nNotesBefore = static_cast<int>( pPattern->getNotes()->size() );
 
 	// Add a note.
+	Uuid newNoteUuid;
 	CPPUNIT_ASSERT( pCAC->addOrRemoveNote(
 		12 /*position*/, nId, sType, 0 /*pattern*/, -1 /*length*/,
 		0.8f, 0.f, 0.f, nKey, nOctave, 1.0f,
-		false /*delete*/, false /*noteOff*/, true /*mapped*/ ) );
+		false /*delete*/, false /*noteOff*/, true /*mapped*/, &newNoteUuid ) );
 	CPPUNIT_ASSERT_EQUAL( nNotesBefore + 1,
 						  static_cast<int>( pPattern->getNotes()->size() ) );
 	CPPUNIT_ASSERT( pPattern->findNote(
 						12, pInstrument->getId(), sType, pProbe->getKey(),
 						pProbe->getOctave() ) != nullptr );
+	bool bFound = false;
+	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		if ( ppNote != nullptr && ppNote->getUuid() == newNoteUuid ) {
+			bFound = true;
+			break;
+		}
+	}
+	CPPUNIT_ASSERT( bFound );
 
 	// Remove it again.
 	CPPUNIT_ASSERT( pCAC->addOrRemoveNote(
 		12, nId, sType, 0, -1, 0.8f, 0.f, 0.f, nKey, nOctave, 1.0f,
-		true /*delete*/, false, true ) );
+		true /*delete*/, false, true, &newNoteUuid ) );
 	CPPUNIT_ASSERT_EQUAL( nNotesBefore,
 						  static_cast<int>( pPattern->getNotes()->size() ) );
 	CPPUNIT_ASSERT( pPattern->findNote(
 						12, pInstrument->getId(), sType, pProbe->getKey(),
 						pProbe->getOctave() ) == nullptr );
+	bFound = false;
+	for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+		if ( ppNote != nullptr && ppNote->getUuid() == newNoteUuid ) {
+			bFound = true;
+			break;
+		}
+	}
+	CPPUNIT_ASSERT( ! bFound );
 
 	// An out-of-range pattern index fails gracefully.
 	CPPUNIT_ASSERT( ! pCAC->addOrRemoveNote(
 		12, nId, sType, 999, -1, 0.8f, 0.f, 0.f, nKey, nOctave, 1.0f,
-		false, false, true ) );
+		false, false, true, &newNoteUuid ) );
 
 	___INFOLOG( "passed" );
 }

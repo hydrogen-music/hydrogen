@@ -594,7 +594,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		float fOldProbability,
 		bool bIsDelete,
 		bool bIsNoteOff,
-		bool bIsMappedToDrumkit
+		bool bIsMappedToDrumkit,
+		Uuid* pNewNoteUUid
 	);
 	/** "Overwrite" the slots of the given @a selected notes: for each, keep one
 	 * note at its (position + instrument id/type + key/octave) slot and erase
