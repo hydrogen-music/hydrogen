@@ -663,6 +663,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getActionSetHumanizeTime() const { return m_sActionSetHumanizeTime; }
 	const QString& getActionSetSwing() const { return m_sActionSetSwing; }
 	const QString& getActionToggleMasterMute() const { return m_sActionToggleMasterMute; }
+	const QString& getActionSetPlaybackTrackVolume() const { return m_sActionSetPlaybackTrackVolume; }
+	const QString& getActionTogglePlaybackTrackMute() const { return m_sActionTogglePlaybackTrackMute; }
 	const QString& getActionSetInstrumentGain() const { return m_sActionSetInstrumentGain; }
 	const QString& getActionSetInstrumentPitch() const { return m_sActionSetInstrumentPitch; }
 	const QString& getActionSetRandomPitch() const { return m_sActionSetRandomPitch; }
@@ -1033,6 +1035,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sActionSetHumanizeTime;
 	QString m_sActionSetSwing;
 	QString m_sActionToggleMasterMute;
+	QString m_sActionSetPlaybackTrackVolume;
+	QString m_sActionTogglePlaybackTrackMute;
 	QString m_sActionSetInstrumentGain;
 	QString m_sActionSetInstrumentPitch;
 	QString m_sActionSetRandomPitch;

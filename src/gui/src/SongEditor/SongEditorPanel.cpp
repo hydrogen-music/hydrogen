@@ -107,8 +107,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 			SongEditorPatternList::nWidth,
 			SongEditorPanel::nHeaderWidgetHeight / 2
 		),
-		Fader::Type::Horizonal, tr( "Playback track volume" ), false, false,
-		0.0, 1.5
+		Fader::Type::Horizonal,
+		pCommonStrings->getActionSetPlaybackTrackVolume(), false, false, 0.0,
+		1.5
 	);
 	m_pPlaybackTrackFader->setModifierTarget( Modifier::Song );
 	m_pPlaybackTrackFader->setObjectName( "SongEditorPlaybackTrackFader" );
@@ -254,7 +255,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		QSize(
 			SongEditorPanel::nButtonWidth, SongEditorPanel::nButtonToolHeight
 		),
-		tr( "Mute playback track" ),
+		pCommonStrings->getActionTogglePlaybackTrackMute(),
 		ColoredButton::Flag::CustomRendering | ColoredButton::Flag::AsToolButton
 	);
 	m_pMutePlaybackTrackButton->setModifierTarget( Modifier::Song );
@@ -265,13 +266,21 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	connect(
 		m_pMutePlaybackTrackButton, &QPushButton::clicked,
 		[=]( bool bChecked ) {
-			// The engine edit is owned by CoreActionController (ADR 0027); the
-			// GUI keeps only its local view refresh.
-			if ( HydrogenApp::pEngine()->getCoreActionController()
-					 ->setPlaybackTrackMuted( bChecked ) ) {
-				m_pPlaybackTrackWaveDisplay->updateBackground();
-				updateStyleSheet();
+			auto pSong = HydrogenApp::pEngine()->getSong();
+			if ( pSong == nullptr ||
+				 pSong->getPlaybackTrackInstrument() == nullptr ) {
+				return;
 			}
+			// Routed through CoreActionController via an undo command (ADR
+			// 0027); its redo() applies synchronously, then the
+			// PlaybackTrackChanged event resyncs the widgets (incl. on undo).
+			const bool bOld = pSong->getPlaybackTrackInstrument()->isMuted();
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setPlaybackTrackPropertyAction(
+					SE_setPlaybackTrackPropertyAction::Property::Mute,
+					bOld ? 1.0f : 0.0f, bChecked ? 1.0f : 0.0f ) );
+			m_pPlaybackTrackWaveDisplay->updateBackground();
+			updateStyleSheet();
 		}
 	);
 	m_pPlaybackTrackToolBar->addWidget( m_pMutePlaybackTrackButton );
@@ -821,7 +830,10 @@ void SongEditorPanel::updatePlaybackTrack()
 		else {
 			bTrackPresent = false;
 		}
-		m_pPlaybackTrackFader->setValue( pInstrument->getVolume() );
+		// Suppress so an event-driven resync during a volume drag does not feed
+		// back into faderChanged() (which would re-push undo commands).
+		m_pPlaybackTrackFader->setValue(
+			pInstrument->getVolume(), false, Event::Trigger::Suppress );
 		bEnabled = pSong->getMode() != Song::Mode::Pattern;
 	}
 
@@ -1176,9 +1188,14 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 	const float fNewValue = std::round( pFader->getValue() * 100 ) / 100;
 
 	if ( pInstrument->getVolume() != fNewValue ) {
-		// The engine edit is owned by CoreActionController (ADR 0027).
-		HydrogenApp::pEngine()->getCoreActionController()
-			->setPlaybackTrackVolume( fNewValue );
+		// Routed through CoreActionController via an undo command (ADR 0027); a
+		// drag coalesces into one undo step via the "playbackTrack:volume"
+		// context, closed by endUndoContext() in leaveEvent().
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_setPlaybackTrackPropertyAction(
+				SE_setPlaybackTrackPropertyAction::Property::Volume,
+				pInstrument->getVolume(), fNewValue ),
+			"playbackTrack:volume" );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Playback volume set to" )
 				.append( QString( " [%1]" ).arg( fNewValue ) ),
@@ -1260,6 +1277,14 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 {
 	UNUSED( ev );
 	resyncExternalScrollBar();
+}
+
+void SongEditorPanel::leaveEvent( QEvent* ev )
+{
+	QWidget::leaveEvent( ev );
+	// Close the playback-track volume-drag undo macro so consecutive drag
+	// steps coalesce into a single undo step (ADR 0027 / T4.5).
+	HydrogenApp::get_instance()->endUndoContext();
 }
 
 void SongEditorPanel::updateIcons() {

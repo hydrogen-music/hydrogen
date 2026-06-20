@@ -1892,6 +1892,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Instrument MIDI-out note spin box - undo history entry and widget tooltip.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Set playback track volume</source>
+        <extracomment>Playback track volume fader - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle playback track mute</source>
+        <extracomment>Playback track mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -5620,19 +5630,11 @@ N&apos;estàs segur?</translation>
         <translation>mode patrons apilats</translation>
     </message>
     <message>
-        <source>Mute playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Adjust parameter values in time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>selected pattern mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Playback track volume</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

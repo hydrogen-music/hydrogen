@@ -1984,6 +1984,60 @@ class SE_setMasterPropertyAction : public QUndoCommand {
 	float m_fNewValue;
 };
 
+/** Undo wrapper for the playback-track volume fader and mute button
+ * (SongEditorPanel). The playback track is a single special instrument, not part
+ * of the drumkit instrument list, so it needs no index. Routes through the
+ * #H2Core::CoreActionController playback-track setters. A volume drag coalesces
+ * into one undo step via the "playbackTrack:volume" undo context, closed by
+ * HydrogenApp::endUndoContext() when the pointer leaves the panel.
+ *
+ * \ingroup docGUI */
+class SE_setPlaybackTrackPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Volume, Mute };
+
+	SE_setPlaybackTrackPropertyAction( Property property, float fOldValue,
+									   float fNewValue )
+		: m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		switch ( property ) {
+			case Property::Volume:
+				setText( pCommonStrings->getActionSetPlaybackTrackVolume() );
+				break;
+			case Property::Mute:
+				setText( pCommonStrings->getActionTogglePlaybackTrackMute() );
+				break;
+		}
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Volume:
+				pController->setPlaybackTrackVolume( fValue );
+				break;
+			case Property::Mute:
+				pController->setPlaybackTrackMuted( fValue != 0.0f );
+				break;
+		}
+	}
+
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
 /** Thin undo wrapper for an instrument-parameter edit from the InstrumentEditor
  * rotaries (gain, pitch offset, random pitch, filter cutoff/resonance, ADSR).
  * Routes through the per-parameter #H2Core::CoreActionController setters (which

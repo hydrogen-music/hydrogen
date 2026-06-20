@@ -143,6 +143,9 @@ class SongEditorPanel : public QWidget,
 
 	private:
 		virtual void resizeEvent( QResizeEvent *ev ) override;
+		/** Closes the playback-track volume-drag undo context (ADR 0027 /
+		 * T4.5) when the pointer leaves the panel. */
+		virtual void leaveEvent( QEvent* ev ) override;
 
 		void resyncExternalScrollBar();
 

@@ -830,6 +830,8 @@ bool CoreActionController::setPlaybackTrackMuted( bool bMuted )
 	}
 
 	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::PlaybackTrackChanged, 0 );
 
 	return true;
 }
@@ -849,6 +851,8 @@ bool CoreActionController::setPlaybackTrackVolume( float fVolume )
 	if ( pInstrument->getVolume() != fVolume ) {
 		pInstrument->setVolume( fVolume );
 		m_pHydrogen->setSongModified( true );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::PlaybackTrackChanged, 0 );
 	}
 
 	return true;

@@ -831,6 +831,10 @@ CommonStrings::CommonStrings(){
 	m_sActionSetSwing = tr( "Set 16th-note swing factor" );
 	/*: Master mute button - undo history entry and widget tooltip. */
 	m_sActionToggleMasterMute = tr( "Toggle master mute" );
+	/*: Playback track volume fader - undo history entry and widget tooltip. */
+	m_sActionSetPlaybackTrackVolume = tr( "Set playback track volume" );
+	/*: Playback track mute button - undo history entry and widget tooltip. */
+	m_sActionTogglePlaybackTrackMute = tr( "Toggle playback track mute" );
 	/*: Instrument gain rotary - undo history entry and widget tooltip. */
 	m_sActionSetInstrumentGain = tr( "Set instrument gain" );
 	/*: Instrument pitch rotaries - undo history entry and widget tooltip. */
