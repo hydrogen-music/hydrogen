@@ -3542,6 +3542,29 @@ bool CoreActionController::addOrRemoveNote(
 	return true;
 }
 
+bool CoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid ) {
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pPatternList = pSong->getPatternList();
+	auto pPattern = pPatternList->get( pPatternList->index( patternUuid ) );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( "Unable to find pattern" );
+		return false;
+	}
+	auto pNote = pPattern->findNote( noteUuid );
+	if ( pNote == nullptr ) {
+		ERRORLOG( "Note not found" );
+		return false;
+	}
+
+	pPattern->removeNote( pNote );
+
+	return true;
+}
+
 bool CoreActionController::overwriteNotes(
 	int nPatternNumber,
 	const std::vector<std::shared_ptr<Note>>& selected )

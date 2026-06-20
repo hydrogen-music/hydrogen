@@ -597,6 +597,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool bIsMappedToDrumkit,
 		Uuid* pNewNoteUUid
 	);
+	/** Removes a specific note @a noteUuid within pattern @n patternUuid */
+	bool removeNote( Uuid noteUuid, Uuid patternUuid );
+
 	/** "Overwrite" the slots of the given @a selected notes: for each, keep one
 	 * note at its (position + instrument id/type + key/octave) slot and erase
 	 * any further notes sharing it. Owns the #H2Core::AudioEngine lock (ADR
