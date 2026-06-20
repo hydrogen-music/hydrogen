@@ -3338,13 +3338,26 @@ bool CoreActionController::editNoteProperty(
 				bValueChanged = true;
 			}
 			break;
-		case NoteProperty::KeyOctave:
-			if ( pNote->getKey() != newKey || pNote->getOctave() != newOctave ) {
+		case NoteProperty::KeyOctave: {
+			// The NotePropertiesRuler addresses key and octave independently:
+			// a value of Note::Key::Invalid / Note::Octave::Invalid means "leave
+			// this component unchanged". Only touch (and only report a change
+			// for) the valid, actually-different component — never write Invalid
+			// onto the note.
+			const bool bKeyChanges =
+				newKey != Note::Key::Invalid && newKey != pNote->getKey();
+			const bool bOctaveChanges =
+				newOctave != Note::Octave::Invalid &&
+				newOctave != pNote->getOctave();
+			if ( bKeyChanges ) {
 				pNote->setKey( newKey );
-				pNote->setOctave( newOctave );
-				bValueChanged = true;
 			}
+			if ( bOctaveChanges ) {
+				pNote->setOctave( newOctave );
+			}
+			bValueChanged = bKeyChanges || bOctaveChanges;
 			break;
+		}
 		case NoteProperty::Probability:
 			if ( pNote->getProbability() != fProbability ) {
 				pNote->setProbability( fProbability );
