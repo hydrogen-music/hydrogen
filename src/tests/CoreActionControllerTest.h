@@ -32,6 +32,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetPatternSize );
 	CPPUNIT_TEST( testEditNoteProperty );
 	CPPUNIT_TEST( testSetPanLaw );
+	CPPUNIT_TEST( testPlaybackTrack );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -41,6 +42,7 @@ public:
 		void testSetPatternSize();
 		void testEditNoteProperty();
 		void testSetPanLaw();
+		void testPlaybackTrack();
 
 	// Tests the H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(),
 	// H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong(),

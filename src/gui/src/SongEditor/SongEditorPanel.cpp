@@ -265,20 +265,10 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	connect(
 		m_pMutePlaybackTrackButton, &QPushButton::clicked,
 		[=]( bool bChecked ) {
-			auto pSong = HydrogenApp::pEngine()->getSong();
-			if ( pSong == nullptr ) {
-				return;
-			}
-			auto pInstrument = pSong->getPlaybackTrackInstrument();
-			if ( pInstrument != nullptr ) {
-				pInstrument->setMuted( bChecked );
-				if ( pInstrument->getComponent( 0 ) != nullptr &&
-					 pInstrument->getComponent( 0 )->getLayer( 0 ) !=
-						 nullptr ) {
-					pInstrument->getComponent( 0 )->getLayer( 0 )->setIsMuted(
-						bChecked
-					);
-				}
+			// The engine edit is owned by CoreActionController (ADR 0027); the
+			// GUI keeps only its local view refresh.
+			if ( HydrogenApp::pEngine()->getCoreActionController()
+					 ->setPlaybackTrackMuted( bChecked ) ) {
 				m_pPlaybackTrackWaveDisplay->updateBackground();
 				updateStyleSheet();
 			}
@@ -1186,7 +1176,9 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 	const float fNewValue = std::round( pFader->getValue() * 100 ) / 100;
 
 	if ( pInstrument->getVolume() != fNewValue ) {
-		pInstrument->setVolume( fNewValue );
+		// The engine edit is owned by CoreActionController (ADR 0027).
+		HydrogenApp::pEngine()->getCoreActionController()
+			->setPlaybackTrackVolume( fNewValue );
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Playback volume set to" )
 				.append( QString( " [%1]" ).arg( fNewValue ) ),

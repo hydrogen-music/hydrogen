@@ -179,6 +179,38 @@ void CoreActionControllerTest::testSetPanLaw() {
 
 	___INFOLOG( "passed" );
 }
+
+void CoreActionControllerTest::testPlaybackTrack() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+	auto pSong = Song::getEmptySong( pHydrogen );
+	pCAC->setSong( pSong );
+
+	// With no playback track loaded the setters fail gracefully (no crash).
+	CPPUNIT_ASSERT(
+		pHydrogen->getSong()->getPlaybackTrackInstrument() == nullptr
+	);
+	CPPUNIT_ASSERT( !pCAC->setPlaybackTrackMuted( true ) );
+	CPPUNIT_ASSERT( !pCAC->setPlaybackTrackVolume( 0.5f ) );
+
+	// A playback track is present: the setters apply.
+	pHydrogen->loadPlaybackTrack( H2TEST_FILE( "song/res/playbackTrack.flac" )
+	);
+	CPPUNIT_ASSERT(
+		pHydrogen->getSong()->getPlaybackTrackInstrument() != nullptr
+	);
+	CPPUNIT_ASSERT( pCAC->setPlaybackTrackVolume( 0.5f ) );
+	CPPUNIT_ASSERT_EQUAL(
+		0.5f, pHydrogen->getSong()->getPlaybackTrackInstrument()->getVolume()
+	);
+	CPPUNIT_ASSERT( pCAC->setPlaybackTrackMuted( true ) );
+	CPPUNIT_ASSERT( pHydrogen->getSong()->getPlaybackTrackInstrument()->isMuted(
+	) );
+
+	___INFOLOG( "passed" );
+}
+
 void CoreActionControllerTest::testSessionManagement() {
 	___INFOLOG( "" );
 	auto pHydrogen = pTestHydrogen();

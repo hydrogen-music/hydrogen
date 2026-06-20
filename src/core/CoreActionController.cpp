@@ -812,6 +812,48 @@ bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm )
 }
 
 bool CoreActionController::setPlaybackTrackMuted( bool bMuted )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pInstrument = pSong->getPlaybackTrackInstrument();
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	pInstrument->setMuted( bMuted );
+	if ( pInstrument->getComponent( 0 ) != nullptr &&
+		 pInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr ) {
+		pInstrument->getComponent( 0 )->getLayer( 0 )->setIsMuted( bMuted );
+	}
+
+	m_pHydrogen->setSongModified( true );
+
+	return true;
+}
+
+bool CoreActionController::setPlaybackTrackVolume( float fVolume )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pInstrument = pSong->getPlaybackTrackInstrument();
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	if ( pInstrument->getVolume() != fVolume ) {
+		pInstrument->setVolume( fVolume );
+		m_pHydrogen->setSongModified( true );
+	}
+
+	return true;
+}
+
 bool CoreActionController::toggleStripIsMuted( int nStrip )
 {
 	auto pInstr = resolveInstrument( nStrip );
