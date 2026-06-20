@@ -164,6 +164,56 @@ void CoreActionControllerTest::testEditNoteProperty() {
 	___INFOLOG( "passed" );
 }
 
+void CoreActionControllerTest::testAddOrRemoveNote() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	pCAC->setSong( Song::getEmptySong( pHydrogen ) );
+	auto pSong = pHydrogen->getSong();
+	auto pInstrument = pSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+	auto pPattern = pSong->getPatternList()->get( 0 );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+
+	const int nId = static_cast<int>( pInstrument->getId() );
+	const auto& sType = pInstrument->getType();
+	// A fresh note carries the default key/octave used to address it.
+	auto pProbe = std::make_shared<Note>( pInstrument, 0, 1.0f, 0.f, -1 );
+	const int nKey = static_cast<int>( pProbe->getKey() );
+	const int nOctave = static_cast<int>( pProbe->getOctave() );
+	const int nNotesBefore = static_cast<int>( pPattern->getNotes()->size() );
+
+	// Add a note.
+	CPPUNIT_ASSERT( pCAC->addOrRemoveNote(
+		12 /*position*/, nId, sType, 0 /*pattern*/, -1 /*length*/,
+		0.8f, 0.f, 0.f, nKey, nOctave, 1.0f,
+		false /*delete*/, false /*noteOff*/, true /*mapped*/ ) );
+	CPPUNIT_ASSERT_EQUAL( nNotesBefore + 1,
+						  static_cast<int>( pPattern->getNotes()->size() ) );
+	CPPUNIT_ASSERT( pPattern->findNote(
+						12, pInstrument->getId(), sType, pProbe->getKey(),
+						pProbe->getOctave() ) != nullptr );
+
+	// Remove it again.
+	CPPUNIT_ASSERT( pCAC->addOrRemoveNote(
+		12, nId, sType, 0, -1, 0.8f, 0.f, 0.f, nKey, nOctave, 1.0f,
+		true /*delete*/, false, true ) );
+	CPPUNIT_ASSERT_EQUAL( nNotesBefore,
+						  static_cast<int>( pPattern->getNotes()->size() ) );
+	CPPUNIT_ASSERT( pPattern->findNote(
+						12, pInstrument->getId(), sType, pProbe->getKey(),
+						pProbe->getOctave() ) == nullptr );
+
+	// An out-of-range pattern index fails gracefully.
+	CPPUNIT_ASSERT( ! pCAC->addOrRemoveNote(
+		12, nId, sType, 999, -1, 0.8f, 0.f, 0.f, nKey, nOctave, 1.0f,
+		false, false, true ) );
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testOverwriteNotes() {
 void CoreActionControllerTest::testSetPanLaw() {
 	___INFOLOG( "" );
 	auto pHydrogen = pTestHydrogen();

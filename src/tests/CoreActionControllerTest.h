@@ -31,6 +31,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSessionManagement );
 	CPPUNIT_TEST( testSetPatternSize );
 	CPPUNIT_TEST( testEditNoteProperty );
+	CPPUNIT_TEST( testAddOrRemoveNote );
 	CPPUNIT_TEST( testSetPanLaw );
 	CPPUNIT_TEST( testPlaybackTrack );
 	CPPUNIT_TEST_SUITE_END();
@@ -41,6 +42,7 @@ public:
 		/** Bucket-B write-surface entry points (ADR 0027 / T4.5). */
 		void testSetPatternSize();
 		void testEditNoteProperty();
+		void testAddOrRemoveNote();
 		void testSetPanLaw();
 		void testPlaybackTrack();
 

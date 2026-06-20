@@ -137,147 +137,81 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   bool bIsMappedToDrumkit,
 										   Editor::ActionModifier modifier )
 {
-	Hydrogen *pHydrogen = HydrogenApp::pHydrogen();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pPatternList = pSong->getPatternList();
-	if ( nPatternNumber < 0 ||
-		 nPatternNumber >= pPatternList->size() ) {
-		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
-				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
-		return;
-	}
-
-	auto pPattern = pPatternList->get( nPatternNumber );
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Pattern found for pattern number [%1] is not valid" )
-				  .arg( nPatternNumber ) );
-		return;
-	}
-
-	if ( id == Instrument::EmptyId && sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row" ) );
-		return;
-	}
-
 	auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	auto pVisibleEditor = pPatternEditorPanel->getVisibleEditor();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
-
-    std::shared_ptr<Note> pNewNote;
 	if ( action == Editor::Action::Delete ) {
-		// Find and delete an existing (matching) note.
-
-		// In case there are multiple notes at this position, use all provided
-		// properties to find right one.
-		std::vector< std::shared_ptr<Note> > notesFound;
-		const auto pNotes = pPattern->getNotes();
-		for ( auto it = pNotes->lower_bound( nPosition );
-			  it != pNotes->end() && it->first <= nPosition; ++it ) {
-			auto ppNote = it->second;
-			if ( ppNote != nullptr && ppNote->getInstrumentId() == id &&
-				 ppNote->getType() == sType && ppNote->getKey() == oldKey &&
-				 ppNote->getOctave() == oldOctave ) {
-				notesFound.push_back( ppNote );
-			}
+		// Drop the note(s) the engine is about to remove from the GUI selection
+		// first (selection is GUI-local; this find mirrors the one in
+		// CoreActionController::addOrRemoveNote).
+		auto pPatternList = pSong->getPatternList();
+		std::shared_ptr<Pattern> pPattern;
+		if ( nPatternNumber >= 0 && nPatternNumber < pPatternList->size() ) {
+			pPattern = pPatternList->get( nPatternNumber );
 		}
 
-		auto removeNote = [&]( std::shared_ptr<Note> pNote ) {
-			if ( pVisibleEditor->m_selection.isSelected( pNote ) ) {
-				pVisibleEditor->m_selection.removeFromSelection( pNote, false );
-			}
-			pPattern->removeNote( pNote );
-		};
-
-		if ( notesFound.size() == 1 ) {
-			// There is just a single note at this position. Remove it
-			// regardless of its properties.
-			removeNote( notesFound[ 0 ] );
-		}
-		else if ( notesFound.size() > 1 ) {
-			bool bFound = false;
-
-			for ( const auto& ppNote : notesFound ) {
-				if ( ppNote->getLength() == nOldLength &&
-					 ppNote->getVelocity() == fOldVelocity &&
-					 ppNote->getPan() == fOldPan &&
-					 ppNote->getLeadLag() == fOldLeadLag &&
-					 ppNote->getProbability() == fOldProbability &&
-					 ppNote->getNoteOff() == bIsNoteOff ) {
-					bFound = true;
-					removeNote( ppNote );
+		if ( pPattern != nullptr ) {
+			std::vector< std::shared_ptr<Note> > notesFound;
+			const auto pNotes = pPattern->getNotes();
+			for ( auto it = pNotes->lower_bound( nPosition );
+				  it != pNotes->end() && it->first <= nPosition; ++it ) {
+				auto ppNote = it->second;
+				if ( ppNote != nullptr && ppNote->getInstrumentId() == id &&
+					 ppNote->getType() == sType && ppNote->getKey() == oldKey &&
+					 ppNote->getOctave() == oldOctave ) {
+					notesFound.push_back( ppNote );
 				}
 			}
 
-			if ( ! bFound ) {
-				QStringList noteStrings;
+			auto deselect = [&]( std::shared_ptr<Note> pNote ) {
+				if ( pVisibleEditor->m_selection.isSelected( pNote ) ) {
+					pVisibleEditor->m_selection.removeFromSelection(
+						pNote, false );
+				}
+			};
+
+			if ( notesFound.size() == 1 ) {
+				deselect( notesFound[ 0 ] );
+			}
+			else if ( notesFound.size() > 1 ) {
 				for ( const auto& ppNote : notesFound ) {
-					noteStrings << "\n - " << ppNote->toQString();
+					if ( ppNote->getLength() == nOldLength &&
+						 ppNote->getVelocity() == fOldVelocity &&
+						 ppNote->getPan() == fOldPan &&
+						 ppNote->getLeadLag() == fOldLeadLag &&
+						 ppNote->getProbability() == fOldProbability &&
+						 ppNote->getNoteOff() == bIsNoteOff ) {
+						deselect( ppNote );
+					}
 				}
-				ERRORLOG( QString( "length: %1, velocity: %2, pan: %3, lead&lag: %4, probability: %5, noteOff: %6 not found amongst notes:%7" )
-						  .arg( nOldLength ).arg( fOldVelocity ).arg( fOldPan )
-						  .arg( fOldLeadLag ).arg( fOldProbability )
-						  .arg( bIsNoteOff ).arg( noteStrings.join( "" ) ) );
 			}
 		}
-		else {
-			ERRORLOG( "Did not find note to delete" );
-		}
-
 	}
-	else {
-		// create the new note
-		float fVelocity = fOldVelocity;
-		float fPan = fOldPan ;
-		int nLength = nOldLength;
-
-		if ( bIsNoteOff ) {
-			fVelocity = VELOCITY_MIN;
-			fPan = PAN_DEFAULT;
-			nLength = 1;
-		}
-
-		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( id != Instrument::EmptyId && bIsMappedToDrumkit ) {
-			// Can still be nullptr for notes in unmapped rows.
-			pInstrument =
-				pSong->getDrumkit()->getInstruments()->find( id );
-		}
-
-		auto pNewNote = std::make_shared<Note>( pInstrument, nPosition, fVelocity,
-											 fPan, nLength );
-		pNewNote->setInstrumentId( id );
-		pNewNote->setType( sType );
-		pNewNote->setNoteOff( bIsNoteOff );
-		pNewNote->setLeadLag( fOldLeadLag );
-		pNewNote->setProbability( fOldProbability );
-		pNewNote->setKey( oldKey );
-		pNewNote->setOctave( oldOctave );
-		pPattern->insertNote( pNewNote );
-    }
-	pHydrogen->getAudioEngine()->unlock();
-
-	if ( action != Editor::Action::Delete && pNewNote != nullptr ) {
-		if ( static_cast<char>( modifier ) &
-			 static_cast<char>( Editor::ActionModifier::AddToSelection ) ) {
-			pVisibleEditor->m_selection.addToSelection( pNewNote );
-		}
-
-		if ( static_cast<char>( modifier ) &
-			 static_cast<char>( Editor::ActionModifier::MoveCursorTo ) ) {
-			pPatternEditorPanel->setCursorColumn( pNewNote->getPosition() );
-			pPatternEditorPanel->setSelectedRowDB(
-				pPatternEditorPanel->findRowDB( pNewNote )
-			);
+	else if ( static_cast<char>( modifier ) & static_cast<char>( Editor::ActionModifier::MoveCursorTo ) ) {
+		// Create a note -> move to the corresponding row. We just take care of
+		// the selected DB row. PianoRoll row and column are handled at another
+		// place.
+		for ( const auto& rrow : pPatternEditorPanel->getDB() ) {
+			if ( rrow.id == id && rrow.sType == sType ) {
+				pPatternEditorPanel->setSelectedRowDB(
+					pPatternEditorPanel->getRowIndexDB( rrow )
+				);
+				break;
+			}
 		}
 	}
 
-	pHydrogen->setPatternModified( true, nPatternNumber );
+	// The engine add/remove (lock, find/insert/remove, song-modified) is owned
+	// by CoreActionController (ADR 0027).
+	HydrogenApp::pEngine()->getCoreActionController()->addOrRemoveNote(
+		nPosition, static_cast<int>( id ), sType, nPatternNumber, nOldLength,
+		fOldVelocity, fOldPan, fOldLeadLag, static_cast<int>( oldKey ),
+		static_cast<int>( oldOctave ), fOldProbability,
+		action == Editor::Action::Delete, bIsNoteOff, bIsMappedToDrumkit );
 
 	pVisibleEditor->updateMouseHoveredElements( nullptr );
 	pVisibleEditor->updateKeyboardHoveredElements();

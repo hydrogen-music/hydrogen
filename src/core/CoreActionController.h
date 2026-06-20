@@ -567,6 +567,34 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		int nNewOctave,
 		int nOldOctave
 	);
+	/** Adds or removes a single note in a pattern (the engine half of the
+	 * PatternEditor add/remove undo action). The note is addressed by value
+	 * (position + instrument id/type + key/octave; on delete further
+	 * disambiguated by length/velocity/pan/lead-lag/probability/note-off when
+	 * several match). Owns the #H2Core::AudioEngine lock (ADR 0027);
+	 * selection/cursor/view stay GUI-side.
+	 *
+	 * @param bIsDelete remove the matching note(s) when true, else insert a new
+	 *   note built from the provided properties.
+	 * @param bIsMappedToDrumkit whether @a nInstrumentId resolves to a kit
+	 *   instrument (else the note stays unmapped/typed).
+	 * @return true on success. */
+	bool addOrRemoveNote(
+		int nPosition,
+		int nInstrumentId,
+		const QString& sType,
+		int nPatternNumber,
+		int nOldLength,
+		float fOldVelocity,
+		float fOldPan,
+		float fOldLeadLag,
+		int nOldKey,
+		int nOldOctave,
+		float fOldProbability,
+		bool bIsDelete,
+		bool bIsNoteOff,
+		bool bIsMappedToDrumkit
+	);
 
 	bool setSongProperties(
 		const QString& sNewPath,

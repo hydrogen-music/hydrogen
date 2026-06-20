@@ -3405,6 +3405,138 @@ bool CoreActionController::editNoteProperty(
 	return bValueChanged;
 }
 
+bool CoreActionController::addOrRemoveNote(
+	int nPosition,
+	int nInstrumentId,
+	const QString& sType,
+	int nPatternNumber,
+	int nOldLength,
+	float fOldVelocity,
+	float fOldPan,
+	float fOldLeadLag,
+	int nOldKey,
+	int nOldOctave,
+	float fOldProbability,
+	bool bIsDelete,
+	bool bIsNoteOff,
+	bool bIsMappedToDrumkit )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "No song set yet" );
+		return false;
+	}
+
+	auto pPatternList = pSong->getPatternList();
+	if ( nPatternNumber < 0 || nPatternNumber >= pPatternList->size() ) {
+		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
+					  .arg( nPatternNumber ).arg( pPatternList->size() ) );
+		return false;
+	}
+
+	auto pPattern = pPatternList->get( nPatternNumber );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Pattern found for pattern number [%1] is not valid" )
+					  .arg( nPatternNumber ) );
+		return false;
+	}
+
+	const auto id = static_cast<Instrument::Id>( nInstrumentId );
+	if ( id == Instrument::EmptyId && sType.isEmpty() ) {
+		return false;
+	}
+
+	const auto oldKey = static_cast<Note::Key>( nOldKey );
+	const auto oldOctave = static_cast<Note::Octave>( nOldOctave );
+
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	if ( bIsDelete ) {
+		// Find and delete an existing (matching) note. When several notes share
+		// the same position + id/type + key/octave, disambiguate using all
+		// remaining properties.
+		std::vector<std::shared_ptr<Note>> notesFound;
+		const auto pNotes = pPattern->getNotes();
+		for ( auto it = pNotes->lower_bound( nPosition );
+			  it != pNotes->end() && it->first <= nPosition; ++it ) {
+			auto ppNote = it->second;
+			if ( ppNote != nullptr && ppNote->getInstrumentId() == id &&
+				 ppNote->getType() == sType && ppNote->getKey() == oldKey &&
+				 ppNote->getOctave() == oldOctave ) {
+				notesFound.push_back( ppNote );
+			}
+		}
+
+		if ( notesFound.size() == 1 ) {
+			pPattern->removeNote( notesFound[ 0 ] );
+		}
+		else if ( notesFound.size() > 1 ) {
+			bool bFound = false;
+			for ( const auto& ppNote : notesFound ) {
+				if ( ppNote->getLength() == nOldLength &&
+					 ppNote->getVelocity() == fOldVelocity &&
+					 ppNote->getPan() == fOldPan &&
+					 ppNote->getLeadLag() == fOldLeadLag &&
+					 ppNote->getProbability() == fOldProbability &&
+					 ppNote->getNoteOff() == bIsNoteOff ) {
+					bFound = true;
+					pPattern->removeNote( ppNote );
+				}
+			}
+
+			if ( ! bFound ) {
+				QStringList noteStrings;
+				for ( const auto& ppNote : notesFound ) {
+					noteStrings << "\n - " << ppNote->toQString();
+				}
+				ERRORLOG( QString( "length: %1, velocity: %2, pan: %3, lead&lag: %4, probability: %5, noteOff: %6 not found amongst notes:%7" )
+							  .arg( nOldLength ).arg( fOldVelocity ).arg( fOldPan )
+							  .arg( fOldLeadLag ).arg( fOldProbability )
+							  .arg( bIsNoteOff ).arg( noteStrings.join( "" ) ) );
+			}
+		}
+		else {
+			ERRORLOG( "Did not find note to delete" );
+		}
+	}
+	else {
+		// Create the new note.
+		float fVelocity = fOldVelocity;
+		float fPan = fOldPan;
+		int nLength = nOldLength;
+
+		if ( bIsNoteOff ) {
+			fVelocity = VELOCITY_MIN;
+			fPan = PAN_DEFAULT;
+			nLength = 1;
+		}
+
+		std::shared_ptr<Instrument> pInstrument = nullptr;
+		if ( id != Instrument::EmptyId && bIsMappedToDrumkit ) {
+			// Can still be nullptr for notes in unmapped rows.
+			pInstrument = pSong->getDrumkit()->getInstruments()->find( id );
+		}
+
+		auto pNewNote = std::make_shared<Note>(
+			pInstrument, nPosition, fVelocity, fPan, nLength );
+		pNewNote->setInstrumentId( id );
+		pNewNote->setType( sType );
+		pNewNote->setNoteOff( bIsNoteOff );
+		pNewNote->setLeadLag( fOldLeadLag );
+		pNewNote->setProbability( fOldProbability );
+		pNewNote->setKey( oldKey );
+		pNewNote->setOctave( oldOctave );
+		pPattern->insertNote( pNewNote );
+	}
+
+	pAudioEngine->unlock();
+
+	m_pHydrogen->setPatternModified( true, nPatternNumber );
+
+	return true;
+}
+
 bool CoreActionController::setSongProperties(
 	const QString& sNewPath,
 	const int nNewVersion,
