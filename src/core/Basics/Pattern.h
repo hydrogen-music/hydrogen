@@ -219,6 +219,7 @@ class Pattern : public H2Core::Object<Pattern> {
 		Note::Key key,
 		Note::Octave octave
 	) const;
+	std::shared_ptr<Note> findNote( Uuid noteUuid ) const;
 	/**
 	 * removes a given note from m_notes, it's not deleted
 	 * \param pNote the note to be removed

@@ -23,6 +23,7 @@
 #include <core/Basics/Pattern.h>
 
 #include <cassert>
+#include <memory>
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
@@ -342,6 +343,16 @@ std::shared_ptr<Note> Pattern::findNote(
 		if ( ppNote != nullptr && ppNote->getInstrumentId() == id &&
 			 ppNote->getType() == sType && ppNote->getKey() == key &&
 			 ppNote->getOctave() == octave ) {
+			return ppNote;
+		}
+	}
+
+	return nullptr;
+}
+
+std::shared_ptr<Note> Pattern::findNote( Uuid noteUuid ) const {
+	for ( const auto& [ _, ppNote ] : m_notes ) {
+		if ( ppNote != nullptr && ppNote->getUuid() == noteUuid ) {
 			return ppNote;
 		}
 	}
