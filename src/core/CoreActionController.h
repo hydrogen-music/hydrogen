@@ -38,6 +38,7 @@ class Hydrogen;
 class Instrument;
 class InstrumentComponent;
 class InstrumentLayer;
+class Note;
 class Pattern;
 class Playlist;
 struct PlaylistEntry;
@@ -594,6 +595,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool bIsDelete,
 		bool bIsNoteOff,
 		bool bIsMappedToDrumkit
+	);
+	/** "Overwrite" the slots of the given @a selected notes: for each, keep one
+	 * note at its (position + instrument id/type + key/octave) slot and erase
+	 * any further notes sharing it. Owns the #H2Core::AudioEngine lock (ADR
+	 * 0027); the GUI handles selection. @return true if anything was erased. */
+	bool overwriteNotes(
+		int nPatternNumber,
+		const std::vector<std::shared_ptr<Note>>& selected
+	);
+	/** Re-inserts copies of @a overwritten notes into the pattern (undo of
+	 * overwriteNotes()). Owns the AudioEngine lock. @return true if anything
+	 * was inserted. */
+	bool restoreOverwrittenNotes(
+		int nPatternNumber,
+		const std::vector<std::shared_ptr<Note>>& overwritten
 	);
 
 	bool setSongProperties(

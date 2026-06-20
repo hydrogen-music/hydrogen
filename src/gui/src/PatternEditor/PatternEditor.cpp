@@ -223,52 +223,15 @@ void PatternEditor::deselectAndOverwriteNotes(
 	const std::vector< std::shared_ptr<H2Core::Note> >& selected,
 	const std::vector< std::shared_ptr<H2Core::Note> >& overwritten )
 {
-	auto pPattern = m_pPatternEditorPanel->getPattern();
-	if ( pPattern == nullptr ) {
-		return;
-	}
-
-	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
-	// same position.
-	auto pHydrogen = HydrogenApp::pHydrogen();
-
-	bool bPatternModified = false;
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( pPattern->getNotes() );
+	// Drop the selected notes from the GUI selection (selection is GUI-local).
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
-		bool bFoundExact = false;
-		int nPosition = pSelectedNote->getPosition();
-		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
-			auto pNote = it->second;
-			if ( !bFoundExact && pSelectedNote->match( pNote ) ) {
-				// Found an exact match. We keep this.
-				bFoundExact = true;
-				++it;
-			}
-			else if ( pNote->getInstrumentId() == pSelectedNote->getInstrumentId() &&
-					  pNote->getType() == pSelectedNote->getType() &&
-					  pNote->getKey() == pSelectedNote->getKey() &&
-					  pNote->getOctave() == pSelectedNote->getOctave() &&
-					  pNote->getPosition() == pSelectedNote->getPosition() ) {
-				// Something else occupying the same position (which may or may not be an exact duplicate)
-				it = pNotes->erase( it );
-				bPatternModified = true;
-			}
-			else {
-				// Any other note
-				++it;
-			}
-		}
 	}
-	pHydrogen->getAudioEngine()->unlock();
 
-	if ( bPatternModified ) {
-		pHydrogen->setPatternModified(
-			true, m_pPatternEditorPanel->getPatternNumber()
-		);
-	}
+	// The engine overwrite (lock + slot erase + song-modified) is owned by
+	// CoreActionController (ADR 0027).
+	HydrogenApp::pEngine()->getCoreActionController()->overwriteNotes(
+		m_pPatternEditorPanel->getPatternNumber(), selected );
 }
 
 void PatternEditor::undoDeselectAndOverwriteNotes(
@@ -280,15 +243,14 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 		return;
 	}
 
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	// Restore previously-overwritten notes, and select notes that were selected before.
+	// Restore previously-overwritten notes through CAC (ADR 0027); selection
+	// stays GUI-local.
 	m_selection.clearSelection( /* bCheck=*/false );
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	for ( const auto& ppNote : overwritten ) {
-		auto pNewNote = std::make_shared<Note>( ppNote );
-		pPattern->insertNote( pNewNote );
-	}
-	// Select the previously-selected notes
+
+	HydrogenApp::pEngine()->getCoreActionController()->restoreOverwrittenNotes(
+		m_pPatternEditorPanel->getPatternNumber(), overwritten );
+
+	// Re-select the previously-selected notes.
 	for ( auto pNote : selected ) {
 		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, pNote->getPosition() ) {
 			if ( pNote->match( it->second ) ) {
@@ -297,13 +259,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 			}
 		}
 	}
-	pHydrogen->getAudioEngine()->unlock();
 
-	if ( overwritten.size() > 0 ) {
-		pHydrogen->setPatternModified(
-			true, m_pPatternEditorPanel->getPatternNumber()
-		);
-	}
 	updateVisibleComponents( Editor::Update::Content );
 }
 
