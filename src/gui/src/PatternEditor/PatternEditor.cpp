@@ -243,15 +243,56 @@ void PatternEditor::deselectAndOverwriteNotes(
 	const std::vector< std::shared_ptr<H2Core::Note> >& selected,
 	const std::vector< std::shared_ptr<H2Core::Note> >& overwritten )
 {
+	const auto pPattern = m_pPatternEditorPanel->getPattern();
+	if ( pPattern == nullptr ) {
+		return;
+	}
+
 	// Drop the selected notes from the GUI selection (selection is GUI-local).
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
 	}
 
+	std::vector<std::shared_ptr<Note>> notesToRemove;
+	auto pNotes = const_cast<Pattern::notes_t*>( pPattern->getNotes() );
+	for ( const auto& pSelectedNote : selected ) {
+		if ( pSelectedNote == nullptr ) {
+			continue;
+		}
+		bool bFoundExact = false;
+		const int nPosition = pSelectedNote->getPosition();
+		for ( auto it = pNotes->lower_bound( nPosition );
+			  it != pNotes->end() && it->first == nPosition; ) {
+			auto pNote = it->second;
+			if ( ! bFoundExact && pSelectedNote->match( pNote ) ) {
+				// Keep the first note occupying the slot (the selected one).
+				bFoundExact = true;
+			}
+			else if ( pNote != nullptr &&
+					  pNote->getInstrumentId() ==
+						  pSelectedNote->getInstrumentId() &&
+					  pNote->getType() == pSelectedNote->getType() &&
+					  pNote->getKey() == pSelectedNote->getKey() &&
+					  pNote->getOctave() == pSelectedNote->getOctave() ) {
+				// Another note occupying the same slot — overwrite it.
+				notesToRemove.push_back( pNote );
+			}
+			++it;
+		}
+	}
+
 	// The engine overwrite (lock + slot erase + song-modified) is owned by
 	// CoreActionController (ADR 0027).
-	HydrogenApp::pEngine()->getCoreActionController()->overwriteNotes(
-		m_pPatternEditorPanel->getPatternNumber(), selected );
+	auto pCAC = HydrogenApp::pEngine()->getCoreActionController();
+	for ( const auto& ppNote : notesToRemove ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+		const auto row = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->findRowDB( ppNote )
+		);
+		pCAC->removeNote( ppNote->getUuid(), pPattern->getUuid() );
+	}
 }
 
 void PatternEditor::undoDeselectAndOverwriteNotes(
@@ -267,8 +308,24 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 	// stays GUI-local.
 	m_selection.clearSelection( /* bCheck=*/false );
 
-	HydrogenApp::pEngine()->getCoreActionController()->restoreOverwrittenNotes(
-		m_pPatternEditorPanel->getPatternNumber(), overwritten );
+	auto pCAC = HydrogenApp::pEngine()->getCoreActionController();
+	for ( const auto& ppNote : overwritten ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+		const auto row = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->findRowDB( ppNote )
+		);
+		pCAC->addOrRemoveNote(
+			ppNote->getPosition(),
+			static_cast<int>( ppNote->getInstrumentId() ), ppNote->getType(),
+			m_pPatternEditorPanel->getPatternNumber(), ppNote->getLength(),
+			ppNote->getVelocity(), ppNote->getPan(), ppNote->getLeadLag(),
+			static_cast<int>( ppNote->getKey() ),
+			static_cast<int>( ppNote->getOctave() ), ppNote->getProbability(),
+			false, ppNote->getNoteOff(), row.bMappedToDrumkit, nullptr
+		);
+	}
 
 	// Re-select the previously-selected notes.
 	for ( auto pNote : selected ) {

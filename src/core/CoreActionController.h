@@ -600,22 +600,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Removes a specific note @a noteUuid within pattern @n patternUuid */
 	bool removeNote( Uuid noteUuid, Uuid patternUuid );
 
-	/** "Overwrite" the slots of the given @a selected notes: for each, keep one
-	 * note at its (position + instrument id/type + key/octave) slot and erase
-	 * any further notes sharing it. Owns the #H2Core::AudioEngine lock (ADR
-	 * 0027); the GUI handles selection. @return true if anything was erased. */
-	bool overwriteNotes(
-		int nPatternNumber,
-		const std::vector<std::shared_ptr<Note>>& selected
-	);
-	/** Re-inserts copies of @a overwritten notes into the pattern (undo of
-	 * overwriteNotes()). Owns the AudioEngine lock. @return true if anything
-	 * was inserted. */
-	bool restoreOverwrittenNotes(
-		int nPatternNumber,
-		const std::vector<std::shared_ptr<Note>>& overwritten
-	);
-
 	bool setSongProperties(
 		const QString& sNewPath,
 		const int nNewVersion,

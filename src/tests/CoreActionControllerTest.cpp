@@ -230,44 +230,6 @@ void CoreActionControllerTest::testAddOrRemoveNote() {
 	___INFOLOG( "passed" );
 }
 
-void CoreActionControllerTest::testOverwriteNotes() {
-	___INFOLOG( "" );
-	auto pHydrogen = pTestHydrogen();
-	auto pCAC = pHydrogen->getCoreActionController();
-
-	pCAC->setSong( Song::getEmptySong( pHydrogen ) );
-	auto pSong = pHydrogen->getSong();
-	auto pInstrument = pSong->getDrumkit()->getInstruments()->get( 0 );
-	CPPUNIT_ASSERT( pInstrument != nullptr );
-	auto pPattern = pSong->getPatternList()->get( 0 );
-	CPPUNIT_ASSERT( pPattern != nullptr );
-
-	// Two notes sharing one slot (same instrument/key/octave at position 5).
-	auto pKept = std::make_shared<Note>( pInstrument, 5, 0.8f, 0.f, -1 );
-	auto pOther = std::make_shared<Note>( pInstrument, 5, 0.4f, 0.f, -1 );
-	pPattern->insertNote( pKept );
-	pPattern->insertNote( pOther );
-	const int nBaseline = static_cast<int>( pPattern->getNotes()->size() );
-
-	// Overwrite keeps one note at the slot and erases the duplicate.
-	std::vector<std::shared_ptr<Note>> selected{ pKept };
-	CPPUNIT_ASSERT( pCAC->overwriteNotes( 0, selected ) );
-	CPPUNIT_ASSERT_EQUAL( nBaseline - 1,
-						  static_cast<int>( pPattern->getNotes()->size() ) );
-
-	// Restore re-inserts the overwritten note.
-	std::vector<std::shared_ptr<Note>> overwritten{ pOther };
-	CPPUNIT_ASSERT( pCAC->restoreOverwrittenNotes( 0, overwritten ) );
-	CPPUNIT_ASSERT_EQUAL( nBaseline,
-						  static_cast<int>( pPattern->getNotes()->size() ) );
-
-	// Out-of-range pattern index fails gracefully.
-	CPPUNIT_ASSERT( ! pCAC->overwriteNotes( 999, selected ) );
-	CPPUNIT_ASSERT( ! pCAC->restoreOverwrittenNotes( 999, overwritten ) );
-
-	___INFOLOG( "passed" );
-}
-
 void CoreActionControllerTest::testSetPanLaw() {
 	___INFOLOG( "" );
 	auto pHydrogen = pTestHydrogen();

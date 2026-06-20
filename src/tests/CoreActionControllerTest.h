@@ -32,7 +32,6 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetPatternSize );
 	CPPUNIT_TEST( testEditNoteProperty );
 	CPPUNIT_TEST( testAddOrRemoveNote );
-	CPPUNIT_TEST( testOverwriteNotes );
 	CPPUNIT_TEST( testSetPanLaw );
 	CPPUNIT_TEST( testPlaybackTrack );
 	CPPUNIT_TEST_SUITE_END();
@@ -44,13 +43,8 @@ public:
 		void testSetPatternSize();
 		void testEditNoteProperty();
 		void testAddOrRemoveNote();
-		void testOverwriteNotes();
 		void testSetPanLaw();
 		void testPlaybackTrack();
 
-	// Tests the H2Core::Hydrogen::get_instance()->getCoreActionController()->loadSong(),
-	// H2Core::Hydrogen::get_instance()->getCoreActionController()->setSong(),
-	// H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong()
-	// H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs() methods.
 	void testSessionManagement();
 };
