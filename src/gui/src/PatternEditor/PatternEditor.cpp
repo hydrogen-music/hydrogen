@@ -2148,8 +2148,12 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	// Each per-note preview edit routes through CoreActionController (ADR
+	// 0027), which owns the AudioEngine lock and marks the pattern modified.
+	// Notes are addressed by value (position + id/type + key/octave); the drag
+	// never changes those, so the lookup stays valid step to step.
+	auto pController = HydrogenApp::pEngine()->getCoreActionController();
+	const int nPatternNumber = m_pPatternEditorPanel->getPatternNumber();
 
 	int nLen = gridPoint.getColumn() - m_nDragStartColumn;
 
@@ -2158,9 +2162,21 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	}
 
 	for ( auto& [ppNote, _] : m_draggedNotes ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+		const int nPos = ppNote->getPosition();
+		const int nId = static_cast<int>( ppNote->getInstrumentId() );
+		const auto& sType = ppNote->getType();
+		const int nKey = static_cast<int>( ppNote->getKey() );
+		const int nOctave = static_cast<int>( ppNote->getOctave() );
+
 		if ( m_pPatternEditorPanel->getDragType() ==
 			 PatternEditorPanel::DragType::Length ) {
-			ppNote->setLength( nLen );
+			pController->editNoteProperty(
+				H2Core::NoteProperty::Length, nPatternNumber, nPos, nId, nId,
+				sType, sType, 0.0f, 0.0f, 0.0f, 0.0f, nLen, nKey, nKey,
+				nOctave, nOctave );
 
 			triggerStatusMessage(
 				m_elementsHoveredOnDragStart, Property::Length
@@ -2193,29 +2209,36 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 				fValue = 0.0;
 			}
 
+			// Convert the ruler-space [0,1] value to each property's native
+			// range (the same mapping the direct setters used).
+			H2Core::NoteProperty prop = H2Core::NoteProperty::Velocity;
+			float fVel = 0.0f, fPan = 0.0f, fLeadLag = 0.0f, fProb = 0.0f;
 			if ( m_property == Property::Velocity ) {
-				ppNote->setVelocity( fValue );
+				prop = H2Core::NoteProperty::Velocity;
+				fVel = fValue;
 			}
 			else if ( m_property == Property::Pan ) {
-				ppNote->setPanWithRangeFrom0To1( fValue );
+				prop = H2Core::NoteProperty::Pan;
+				fPan = PAN_MIN + ( PAN_MAX - PAN_MIN ) * fValue;
 			}
 			else if ( m_property == Property::LeadLag ) {
-				ppNote->setLeadLag( ( fValue * -2.0 ) + 1.0 );
+				prop = H2Core::NoteProperty::LeadLag;
+				fLeadLag = ( fValue * -2.0 ) + 1.0;
 			}
 			else if ( m_property == Property::Probability ) {
-				ppNote->setProbability( fValue );
+				prop = H2Core::NoteProperty::Probability;
+				fProb = fValue;
 			}
+
+			pController->editNoteProperty(
+				prop, nPatternNumber, nPos, nId, nId, sType, sType,
+				fVel, fPan, fLeadLag, fProb, -1, nKey, nKey, nOctave, nOctave );
 
 			triggerStatusMessage( m_elementsHoveredOnDragStart, m_property );
 		}
 	}
 
 	m_dragUpdate = pEv->position().toPoint();
-
-	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
-	pHydrogen->setPatternModified(
-		true, m_pPatternEditorPanel->getPatternNumber()
-	);
 
 	updateVisibleComponents( Editor::Update::Content );
 }
