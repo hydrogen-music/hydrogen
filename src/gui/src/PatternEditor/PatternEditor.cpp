@@ -1314,12 +1314,19 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 		octave = m_cursorPitch.toOctave();
 		key = m_cursorPitch.toKey();
 	}
+	else if ( m_instance == Editor::Instance::NotePropertiesRuler &&
+			  m_property != Property::KeyOctave ) {
+		auto pPianoRoll = m_pPatternEditorPanel->getPianoRollEditor();
+		octave = pPianoRoll->m_cursorPitch.toOctave();
+		key = pPianoRoll->m_cursorPitch.toKey();
+	}
 
 	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
 
 	float fYValue = std::nan( "" );
 	auto property = m_property;
 	if ( m_instance == Editor::Instance::NotePropertiesRuler &&
+		 m_property == Property::KeyOctave &&
 		 dynamic_cast<QMouseEvent*>( ev ) != nullptr ) {
 		fYValue = static_cast<NotePropertiesRuler*>( this )->eventToYValue(
 			dynamic_cast<QMouseEvent*>( ev )
@@ -1327,15 +1334,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 
 		// Ensure to add distinct notes when clicking the KeyOctave view in the
 		// ruler.
-		if ( m_property == Property::KeyOctave ) {
-			NotePropertiesRuler::yToKeyOctave( fYValue, &key, &octave );
-			if ( key == Note::Key::Invalid ) {
-				key = Note::KeyMinimum;
-			}
-			if ( octave == Note::Octave::Invalid ) {
-				octave = Note::OctaveDefault;
-			}
-		}
+		NotePropertiesRuler::yToKeyOctave( fYValue, &key, &octave );
 	}
 
 	m_pPatternEditorPanel->addOrRemoveNotes(

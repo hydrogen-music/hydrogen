@@ -2747,8 +2747,12 @@ void PatternEditorPanel::addOrRemoveNotes(
 				fLeadLag = pDummyNote->getLeadLag();
 			}
 			else if ( property == PatternEditor::Property::KeyOctave ) {
-				newKey = pDummyNote->getKey();
-				newOctave = pDummyNote->getOctave();
+				if ( pDummyNote->getKey() != Note::Key::Invalid ) {
+					newKey = pDummyNote->getKey();
+				}
+				if ( pDummyNote->getOctave() != Note::Octave::Invalid ) {
+					newOctave = pDummyNote->getOctave();
+				}
 			}
 			else if ( property == PatternEditor::Property::Probability ) {
 				fProbability = pDummyNote->getProbability();
