@@ -845,7 +845,9 @@ void SongEditorPanel::updatePlaybackTrack()
 	m_pPlaybackTrackWaveDisplay->setEnabled( bTrackPresent && bEnabled );
 
 	updateIcons();
+	// In case the mute state has changed.
 	updateStyleSheet();
+	m_pPlaybackTrackWaveDisplay->updateBackground();
 }
 
 ///
