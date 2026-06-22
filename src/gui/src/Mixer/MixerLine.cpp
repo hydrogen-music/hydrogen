@@ -72,22 +72,19 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPlaySampleBtn, &Button::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			auto pHydrogen = HydrogenApp::pHydrogen();
-			pHydrogen->setSelectedInstrumentNumber( nLine );
-
-			auto pNote = std::make_shared<Note>( m_pInstrument, 0, 1.0 );
-			pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
+			HydrogenApp::pHydrogen()->setSelectedInstrumentNumber( nLine );
+			// The sample audition (note build + Sampler trigger) is owned by
+			// CoreActionController (ADR 0027).
+			HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
+				nLine, false );
 		}
 	});
 	connect( m_pPlaySampleBtn, &Button::rightClicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			auto pHydrogen = HydrogenApp::pHydrogen();
-			pHydrogen->setSelectedInstrumentNumber( nLine );
-
-			auto pNote = std::make_shared<Note>( m_pInstrument, 0, 0.0 );
-			pNote->setNoteOff( true );
-			pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
+			HydrogenApp::pHydrogen()->setSelectedInstrumentNumber( nLine );
+			HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
+				nLine, true );
 		}
 	});
 

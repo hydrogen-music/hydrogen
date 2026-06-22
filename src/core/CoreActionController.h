@@ -138,6 +138,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Sets the song-global pan law (MixerSettingsDialog). @a nPanLawType is a
 	 * #H2Core::Sampler pan-law constant. */
 	bool setPanLaw( int nPanLawType, float fPanLawKNorm );
+	/** Auditions an instrument through the #H2Core::Sampler (the mixer-strip
+	 * "play sample" / "stop sample" preview buttons). Builds a transient note
+	 * for the instrument at @a nInstrument and triggers it; @a bStop sends a
+	 * note-off (stop) instead of a full-velocity note-on.
+	 *
+	 * @return true on success. */
+	bool previewInstrument( int nInstrument, bool bStop );
 	/** Mutes/unmutes the song's playback-track instrument (and its sole
 	 * component/layer), which is not part of the drumkit instrument list. */
 	bool setPlaybackTrackMuted( bool bMuted );

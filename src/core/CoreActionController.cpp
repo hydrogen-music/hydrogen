@@ -33,6 +33,7 @@
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
+#include <core/Sampler/Sampler.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
@@ -807,6 +808,23 @@ bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm )
 		Event::Type::MixerSettingsChanged, 0
 	);
 	m_pHydrogen->setSongModified( true );
+
+	return true;
+}
+
+bool CoreActionController::previewInstrument( int nInstrument, bool bStop )
+{
+	auto pInstrument = resolveInstrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+
+	auto pNote = std::make_shared<Note>(
+		pInstrument, 0, bStop ? 0.0f : 1.0f );
+	if ( bStop ) {
+		pNote->setNoteOff( true );
+	}
+	m_pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
 
 	return true;
 }
