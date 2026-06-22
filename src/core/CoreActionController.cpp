@@ -3549,7 +3549,8 @@ bool CoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid ) {
 		return false;
 	}
 	auto pPatternList = pSong->getPatternList();
-	auto pPattern = pPatternList->get( pPatternList->index( patternUuid ) );
+	const int nPatternNumber = pPatternList->index( patternUuid );
+	auto pPattern = pPatternList->get( nPatternNumber );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( "Unable to find pattern" );
 		return false;
@@ -3560,7 +3561,14 @@ bool CoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid ) {
 		return false;
 	}
 
+	// Removing a note the Sampler/AudioEngine may iterate live is real-time
+	// sensitive, so this owns the AudioEngine lock (ADR 0027).
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
 	pPattern->removeNote( pNote );
+	pAudioEngine->unlock();
+
+	m_pHydrogen->setPatternModified( true, nPatternNumber );
 
 	return true;
 }
