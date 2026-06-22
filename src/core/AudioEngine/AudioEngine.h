@@ -317,11 +317,12 @@ public:
 	const State& getState() const;
 	const State& getNextState() const;
 
-	void 			setMasterPeak_L( float value );
 	float 			getMasterPeak_L() const;
-
-	void	 		setMasterPeak_R( float value );
 	float 			getMasterPeak_R() const;
+	/** Reads the current master peak levels and resets the accumulators
+	 * (peak-hold consume). The engine owns the peak lifecycle; the meter only
+	 * reads and applies its own fall-off (ADR 0027 bucket D). */
+	void			consumeMasterPeaks( float& fPeak_L, float& fPeak_R );
 
 	float			getProcessTime() const;
 	float			getMaxProcessTime() const;
@@ -835,20 +836,19 @@ public:
 	}
 };
 
-inline void	AudioEngine::setMasterPeak_L( float value ) {
-	m_fMasterPeak_L = value;
-}
-
 inline float AudioEngine::getMasterPeak_L() const {
 	return m_fMasterPeak_L;
 }
 
-inline void	AudioEngine::setMasterPeak_R( float value ) {
-	m_fMasterPeak_R = value;
-}
-
 inline float AudioEngine::getMasterPeak_R() const {
 	return m_fMasterPeak_R;
+}
+
+inline void AudioEngine::consumeMasterPeaks( float& fPeak_L, float& fPeak_R ) {
+	fPeak_L = m_fMasterPeak_L;
+	fPeak_R = m_fMasterPeak_R;
+	m_fMasterPeak_L = 0.0f;
+	m_fMasterPeak_R = 0.0f;
 }
 
 inline float AudioEngine::getProcessTime() const {

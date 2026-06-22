@@ -705,12 +705,11 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 	// fader
 	float fOldPeak_L = m_pPlaybackTrackFader->getPeak_L();
 	float fOldPeak_R = m_pPlaybackTrackFader->getPeak_R();
-	
-	float fNewPeak_L = pInstrument->getPeak_L();
-	pInstrument->setPeak_L( 0.0f );	// reset instrument peak
 
-	float fNewPeak_R = pInstrument->getPeak_R();
-	pInstrument->setPeak_R( 0.0f );	// reset instrument peak
+	// Read and reset the playback-track peak in one engine-owned step (ADR
+	// 0027); the meter only applies its own fall-off below.
+	float fNewPeak_L, fNewPeak_R;
+	pInstrument->consumePeaks( fNewPeak_L, fNewPeak_R );
 
 	if (!bShowPeaks) {
 		fNewPeak_L = 0.0f;

@@ -261,8 +261,10 @@ void MixerLine::updatePeaks()
 	const float fFallOffSpeed =
 		pPref->getInterfaceTheme()->m_fMixerFalloffSpeed;
 
-	float fNewPeak_L = m_pInstrument->getPeak_L();
-	float fNewPeak_R = m_pInstrument->getPeak_R();
+	// Read and reset the instrument peak in one engine-owned step (ADR 0027);
+	// the meter only applies its own fall-off below.
+	float fNewPeak_L, fNewPeak_R;
+	m_pInstrument->consumePeaks( fNewPeak_L, fNewPeak_R );
 	if ( ! pPref->showInstrumentPeaks() ) {
 		fNewPeak_L = 0.0f;
 		fNewPeak_R = 0.0f;
@@ -270,10 +272,6 @@ void MixerLine::updatePeaks()
 
 	const float fOldPeak_L = m_pFader->getPeak_L();
 	const float fOldPeak_R = m_pFader->getPeak_R();
-
-	// reset instrument peak
-	m_pInstrument->setPeak_L( 0.0f );
-	m_pInstrument->setPeak_R( 0.0f );
 
 	if ( fNewPeak_L < fOldPeak_L ) {
 		fNewPeak_L = fOldPeak_L / fFallOffSpeed;

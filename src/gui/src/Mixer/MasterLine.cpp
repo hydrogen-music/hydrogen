@@ -269,8 +269,10 @@ void MasterLine::updatePeaks() {
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
-	float fNewPeak_L = pAudioEngine->getMasterPeak_L();
-	float fNewPeak_R = pAudioEngine->getMasterPeak_R();
+	// Read and reset the master peak in one engine-owned step (ADR 0027); the
+	// meter only applies its own fall-off below.
+	float fNewPeak_L, fNewPeak_R;
+	pAudioEngine->consumeMasterPeaks( fNewPeak_L, fNewPeak_R );
 	if ( ! pPref->showInstrumentPeaks() ) {
 		fNewPeak_L = 0.0;
 		fNewPeak_R = 0.0;
@@ -278,10 +280,6 @@ void MasterLine::updatePeaks() {
 
 	const float fOldPeak_L = m_pFader->getPeak_L();
 	const float fOldPeak_R = m_pFader->getPeak_R();
-
-	// reset master peak
-	pAudioEngine->setMasterPeak_L( 0.0 );
-	pAudioEngine->setMasterPeak_R( 0.0 );
 
 	if ( fNewPeak_L < fOldPeak_L ) {
 		fNewPeak_L = fOldPeak_L / fFallOffSpeed;

@@ -104,11 +104,6 @@ allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setProbability( f
 allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( nullptr, pComponent );'
 allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );'
 
-# --- SongEditorPanel.cpp: peak meters are display state (bucket D). These
-#     should become telemetry reads (ADR 0018); pending Phase 4.5 step 6. ------
-allow "$GUI_DIR/SongEditor/SongEditorPanel.cpp" 'pInstrument->setPeak_L( 0.0f ); // reset instrument peak'
-allow "$GUI_DIR/SongEditor/SongEditorPanel.cpp" 'pInstrument->setPeak_R( 0.0f ); // reset instrument peak'
-
 violations=0
 while IFS= read -r line; do
 	[ -z "$line" ] && continue

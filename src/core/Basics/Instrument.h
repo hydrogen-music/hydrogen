@@ -235,6 +235,10 @@ class Instrument : public H2Core::Object<Instrument> {
 	void setPeak_R( float val );
 	/** get the right peak of the instrument */
 	float getPeak_R() const;
+	/** Reads the current peak levels and resets the accumulators (peak-hold
+	 * consume). The meter reads through this and applies its own fall-off; it
+	 * must not poke the peak model itself (ADR 0027 bucket D). */
+	void consumePeaks( float& fPeak_L, float& fPeak_R );
 
 	/** set the random pitch factor of the instrument */
 	void setRandomPitchFactor( float val );
@@ -590,6 +594,14 @@ inline void Instrument::setPeak_R( float val )
 inline float Instrument::getPeak_R() const
 {
 	return m_fPeak_R;
+}
+
+inline void Instrument::consumePeaks( float& fPeak_L, float& fPeak_R )
+{
+	fPeak_L = m_fPeak_L;
+	fPeak_R = m_fPeak_R;
+	m_fPeak_L = 0.0f;
+	m_fPeak_R = 0.0f;
 }
 
 inline void Instrument::setRandomPitchFactor( float val )
