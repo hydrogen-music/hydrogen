@@ -71,7 +71,6 @@ Song::Song(
 	  m_sName( sName ),
 	  m_sAuthor( sAuthor ),
 	  m_fVolume( fVolume ),
-	  m_fMetronomeVolume( 0.5 ),
 	  m_sNotes( "..." ),
 	  m_tags( QStringList() ),
 	  m_pPatternList( std::make_shared<PatternList>() ),
@@ -322,9 +321,6 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 	) );
 	pSong->setIsMuted( rootNode.read_bool(
 		"isMuted", pSong->getIsMuted(), true, false, bSilent
-	) );
-	pSong->setMetronomeVolume( rootNode.read_float(
-		"metronomeVolume", pSong->getMetronomeVolume(), false, false, bSilent
 	) );
 	pSong->setNotes( rootNode.read_string(
 		"notes", pSong->getNotes(), false, false, bSilent
@@ -863,7 +859,6 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 	rootNode.write_float( "bpm", m_fBpm );
 	rootNode.write_float( "volume", m_fVolume );
 	rootNode.write_bool( "isMuted", m_bIsMuted );
-	rootNode.write_float( "metronomeVolume", m_fMetronomeVolume );
 	rootNode.write_int( "userVersion", m_nVersion );
 	rootNode.write_string( "name", m_sName );
 	rootNode.write_string( "author", m_sAuthor );
@@ -1069,8 +1064,6 @@ std::shared_ptr<Song> Song::getEmptySong(
 	std::shared_ptr<Song> pSong = std::make_shared<Song>(
 		Song::sDefaultName, Song::sDefaultAuthor, 120, 0.5
 	);
-
-	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
 	pSong->setLicense( License() );
 	pSong->setLoopMode( Song::LoopMode::Disabled );
@@ -1342,10 +1335,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 								   .arg( sPrefix )
 								   .arg( s )
 								   .arg( m_fVolume ) )
-					  .append( QString( "%1%2m_fMetronomeVolume: %3\n" )
-								   .arg( sPrefix )
-								   .arg( s )
-								   .arg( m_fMetronomeVolume ) )
 					  .append( QString( "%1%2m_sNotes: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -1484,8 +1473,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 				.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
 				.append( QString( ", m_fVolume: %1" ).arg( m_fVolume ) )
-				.append( QString( ", m_fMetronomeVolume: %1" )
-							 .arg( m_fMetronomeVolume ) )
 				.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
 				.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
 				.append( QString( "%1" ).arg(

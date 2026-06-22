@@ -196,9 +196,6 @@ class Song : public H2Core::Object<Song>,
 	void setVolume( float fVolume );
 	float getVolume() const;
 
-	void setMetronomeVolume( float fVolume );
-	float getMetronomeVolume() const;
-
 	std::shared_ptr<PatternList> getPatternList() const;
 	void setPatternList( std::shared_ptr<PatternList> pList );
 
@@ -342,8 +339,6 @@ class Song : public H2Core::Object<Song>,
 
 	///< volume of the song (0.0..1.0)
 	float m_fVolume;
-	///< Metronome volume
-	float m_fMetronomeVolume;
 	QString m_sNotes;
 	QStringList m_tags;
 
@@ -508,16 +503,6 @@ inline float Song::getVolume() const
 inline void Song::setVolume( float fValue )
 {
 	m_fVolume = fValue;
-}
-
-inline float Song::getMetronomeVolume() const
-{
-	return m_fMetronomeVolume;
-}
-
-inline void Song::setMetronomeVolume( float fValue )
-{
-	m_fMetronomeVolume = fValue;
 }
 
 inline bool Song::getIsModified() const
