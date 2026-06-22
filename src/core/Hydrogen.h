@@ -36,6 +36,7 @@
 #include <cassert>
 #include <chrono>
 #include <memory>
+#include <vector>
 
 namespace H2Core
 {
@@ -401,7 +402,15 @@ public:
 	bool			startExportSession( int nSampleRate, int nSampleDepth,
 										double fCompressionLevel = 0.0 );
 	void			stopExportSession();
-	void			startExportSong( const QString& sFileName );
+	/** Renders the current song to @a sFileName.
+	 *
+	 * @param excludedInstruments Identities of instruments to leave out of this
+	 *   export (per-instrument/track exports). Empty (the default) exports every
+	 *   instrument. The per-instrument export flag is set here rather than by the
+	 *   caller (ADR 0027). */
+	void			startExportSong(
+		const QString& sFileName,
+		const std::vector<Uuid>& excludedInstruments = {} );
 	void			stopExportSong();
 	
 	/************************************************************/

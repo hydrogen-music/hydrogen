@@ -29,14 +29,20 @@ class AudioExportTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( AudioExportTest );
 	CPPUNIT_TEST( testExportAudio );
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
+	CPPUNIT_TEST( testExportInstrumentBlackList );
 #ifdef H2CORE_HAVE_LIBARCHIVE
 	CPPUNIT_TEST( testFormats );
 #endif
 	CPPUNIT_TEST_SUITE_END();
-	
+
 	public:
 		void testExportAudio();
 		void testExportVelocityAutomationAudio();
+		/** Exports with the per-instrument export blacklist of
+		 * #H2Core::Hydrogen::startExportSong(): the default (empty list) renders
+		 * every instrument, while blacklisting all of them yields silence
+		 * (ADR 0027). */
+		void testExportInstrumentBlackList();
 		/** Exports a song in all supported format, sample rate and sample depth
 		 * configurations. */
 		void testFormats();

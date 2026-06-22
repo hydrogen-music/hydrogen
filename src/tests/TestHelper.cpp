@@ -175,12 +175,8 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 		
 	pHydrogen->setSong( pSong );
 
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->setCurrentlyExported( true );
-	}
-
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth, fCompressionLevel );
+	// No exclusion list -> all instruments are exported (ADR 0027).
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
@@ -210,20 +206,16 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 				.arg( nSampleRate ).arg( nSampleDepth ).arg( t ) );
 }
 
-void TestHelper::exportSong( const QString& sFileName )
+void TestHelper::exportSong( const QString& sFileName,
+							 const std::vector<H2Core::Uuid>& excludedInstruments )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	auto pHydrogen = pTestHydrogen();
 	auto pSong = pHydrogen->getSong();
 
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->setCurrentlyExported( true );
-	}
-
 	pHydrogen->startExportSession( 44100, 16, 1.0 );
-	pHydrogen->startExportSong( sFileName );
+	pHydrogen->startExportSong( sFileName, excludedInstruments );
 
 	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
 		pHydrogen->getAudioDriver()

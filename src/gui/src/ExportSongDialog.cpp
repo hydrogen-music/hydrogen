@@ -564,17 +564,13 @@ void ExportSongDialog::on_okBtn_clicked()
 			m_bExportTrackouts = true;
 		}
 		
-		/* arm all tracks for export */
-		for (auto i = 0; i < pInstrumentList->size(); i++) {
-			pInstrumentList->get(i)->setCurrentlyExported( true );
-		}
-
 		if ( ! pHydrogen->startExportSession(
 				 nSampleRate, nSampleDepth, fCompressionLevel ) ) {
 			QMessageBox::critical( this, "Hydrogen",
 								   pCommonStrings->getExportSongFailure() );
 			return;
 		}
+		// No exclusion list -> all instruments are exported (ADR 0027).
 		pHydrogen->startExportSong( sFileName );
 		return;
 	}
@@ -722,13 +718,17 @@ void ExportSongDialog::exportTracks()
 			m_bExporting = false;
 		}
 		
-		for (auto i = 0; i < pInstrumentList->size(); i++) {
-			pInstrumentList->get(i)->setCurrentlyExported( false );
+		// Export only the current instrument: exclude every other one. The core
+		// arms the per-instrument export flag from this list (ADR 0027).
+		std::vector<H2Core::Uuid> excludedInstruments;
+		for ( int i = 0; i < pInstrumentList->size(); i++ ) {
+			if ( i != m_nInstrument && pInstrumentList->get( i ) != nullptr ) {
+				excludedInstruments.push_back(
+					pInstrumentList->get( i )->getUuid() );
+			}
 		}
-		
-		pInstrumentList->get(m_nInstrument)->setCurrentlyExported( true );
-		
-		pHydrogen->startExportSong( sFileName );
+
+		pHydrogen->startExportSong( sFileName, excludedInstruments );
 
 		if(! (m_nInstrument == pInstrumentList->size()) ){
 			m_nInstrument++;

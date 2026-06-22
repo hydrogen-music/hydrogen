@@ -26,6 +26,7 @@
 #include <QString>
 #include <cassert>
 #include <memory>
+#include <vector>
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
@@ -95,8 +96,13 @@ class TestHelper {
 	 * Export the current song within Hydrogen to audio file @a sFileName;
 	 *
 	 * \param sFileName Output file name
+	 * \param excludedInstruments Identities of instruments to leave out of the
+	 *   export (empty = export all). Forwarded to
+	 *   #H2Core::Hydrogen::startExportSong().
 	 */
-	static void exportSong( const QString& sFileName );
+	static void exportSong(
+		const QString& sFileName,
+		const std::vector<H2Core::Uuid>& excludedInstruments = {} );
 
 	/**
 	 * Export Hydrogon song @a sSongFile to MIDI file @a sFileName

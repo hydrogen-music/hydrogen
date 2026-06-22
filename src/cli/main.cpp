@@ -610,11 +610,8 @@ int main(int argc, char *argv[])
 		// in common usage only support audio export or .h2map for now.
 		bool bExportMode = false;
 		if ( ! sOutFileName.isEmpty() && sKitToDrumkitMap.isEmpty() ) {
-			auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-			for (auto i = 0; i < pInstrumentList->size(); i++) {
-				pInstrumentList->get(i)->setCurrentlyExported( true );
-			}
 			pHydrogen->startExportSession(nRate, bits, fCompressionLevel);
+			// No exclusion list -> all instruments are exported.
 			pHydrogen->startExportSong( sOutFileName );
 			std::cout << "Export Progress ... ";
 			bExportMode = true;

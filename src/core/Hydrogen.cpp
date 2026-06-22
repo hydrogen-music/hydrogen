@@ -720,9 +720,30 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 }
 
 /// Export a song to a wav file
-void Hydrogen::startExportSong( const QString& sFileName)
+void Hydrogen::startExportSong( const QString& sFileName,
+								const std::vector<Uuid>& excludedInstruments )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
+
+	// Arm the instruments for this export (ADR 0027): every instrument is
+	// exported unless its identity is in the exclusion list (per-instrument /
+	// track-out exports). The Sampler honours this only while an export session
+	// is active.
+	auto pSong = getSong();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+		for ( int ii = 0; ii < pInstrumentList->size(); ++ii ) {
+			auto pInstr = pInstrumentList->get( ii );
+			if ( pInstr == nullptr ) {
+				continue;
+			}
+			const bool bExcluded = std::find(
+				excludedInstruments.begin(), excludedInstruments.end(),
+				pInstr->getUuid() ) != excludedInstruments.end();
+			pInstr->setCurrentlyExported( ! bExcluded );
+		}
+	}
+
 	m_pCoreActionController->locateToTick( 0 );
 	pAudioEngine->play();
 	pAudioEngine->getSampler()->stopPlayingNotes();

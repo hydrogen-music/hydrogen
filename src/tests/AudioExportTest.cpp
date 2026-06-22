@@ -26,14 +26,22 @@
 #include <QTemporaryDir>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 #include <core/Sampler/Sampler.h>
 
 #include "TestHelper.h"
 #include "assertions/AudioFile.h"
 
+#include <algorithm>
+#include <cmath>
 #include <memory>
 #include <vector>
 
@@ -84,6 +92,67 @@ void AudioExportTest::testExportVelocityAutomationAudio() {
 	TestHelper::exportSong( sSongFile, sOutFile );
 	H2TEST_ASSERT_AUDIO_FILES_EQUAL( sRefFile, sOutFile );
 	Filesystem::rm( sOutFile );
+	___INFOLOG( "passed" );
+}
+
+void AudioExportTest::testExportInstrumentBlackList() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+
+	// A song that renders audible output from its instruments.
+	const auto sSongFile = H2TEST_FILE( "functional/test_adsr.h2song" );
+	auto pSong = Song::load( sSongFile, false, pHydrogen );
+	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
+	pHydrogen->setSong( pSong );
+
+	// Identities of every drumkit instrument of the loaded song. UUIDs are
+	// minted per load, so they must be taken from this very song instance.
+	std::vector<Uuid> allInstruments;
+	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+	for ( int ii = 0; ii < pInstrumentList->size(); ++ii ) {
+		if ( pInstrumentList->get( ii ) != nullptr ) {
+			allInstruments.push_back( pInstrumentList->get( ii )->getUuid() );
+		}
+	}
+	CPPUNIT_ASSERT( allInstruments.size() > 0 );
+
+	// Export the current song with the given exclusion list and return the peak
+	// amplitude of the rendered audio.
+	auto exportPeak = [&]( const std::vector<Uuid>& excluded ) -> float {
+		const auto sOutFile = Filesystem::tmpFilePath( "blacklist-export.wav" );
+		TestHelper::exportSong( sOutFile, excluded );
+
+		auto pSample = Sample::load( sOutFile );
+		CPPUNIT_ASSERT( pSample != nullptr );
+		const long long nFrames = pSample->getFrames();
+		float* pData_L = pSample->getData_L();
+		float* pData_R = pSample->getData_R();
+		float fPeak = 0.0f;
+		for ( long long nn = 0; nn < nFrames; ++nn ) {
+			if ( pData_L != nullptr ) {
+				fPeak = std::max( fPeak, std::fabs( pData_L[ nn ] ) );
+			}
+			if ( pData_R != nullptr ) {
+				fPeak = std::max( fPeak, std::fabs( pData_R[ nn ] ) );
+			}
+		}
+		Filesystem::rm( sOutFile );
+		return fPeak;
+	};
+
+	const float fEps = 1e-4f;
+
+	// Default case: no exclusion list -> every instrument is exported -> the
+	// rendered audio is audible.
+	const float fPeakAll = exportPeak( {} );
+	___INFOLOG( QString( "peak (export all): %1" ).arg( fPeakAll ) );
+	CPPUNIT_ASSERT( fPeakAll > fEps );
+
+	// Blacklist every instrument -> nothing is rendered -> silence.
+	const float fPeakNone = exportPeak( allInstruments );
+	___INFOLOG( QString( "peak (exclude all): %1" ).arg( fPeakNone ) );
+	CPPUNIT_ASSERT( fPeakNone <= fEps );
+
 	___INFOLOG( "passed" );
 }
 
