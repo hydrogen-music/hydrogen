@@ -118,3 +118,16 @@ set_tests_properties( GuiStartup PROPERTIES
 	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
 	TIMEOUT 120
 )
+
+# Write-surface guard (ADR 0027, Phase 4.5 step 7): static source check that the
+# GUI does not mutate engine-owned Basics objects directly but routes edits
+# through CoreActionController. Pure source scan; needs no build artefacts.
+# It is a bash script, so it is only registered on Unix (Linux + macOS); on
+# Windows there is no shell to run it. The always-on Linux CI job runs it.
+if ( UNIX )
+	add_test(
+		NAME WriteSurfaceGuard
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/check_write_surface
+	)
+	set_tests_properties( WriteSurfaceGuard PROPERTIES TIMEOUT 60 )
+endif()

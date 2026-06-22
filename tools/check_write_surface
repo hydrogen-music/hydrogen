@@ -1,0 +1,140 @@
+#! /bin/bash
+#
+# tools/check_write_surface — CI guard for ADR 0027
+# (CoreActionController is the single GUI->engine write surface).
+#
+# Fails if GUI code (src/gui/src) calls a *mutating* method directly on an
+# engine-owned core (Basics) object instead of routing the edit through
+# CoreActionController. This is the "done-when" gate for the Phase 4.5
+# write-surface sweep (proposal 0005).
+#
+# Scope (current): direct mutation of engine-owned **Basics** objects (Note,
+# Pattern, Instrument, InstrumentComponent, InstrumentLayer, Sample, Adsr, Song,
+# Drumkit, AutomationPath) via the conventional pointer names.
+#
+# NOT yet enforced (pending Phase 4.5 step 6 + remaining preview routing):
+# direct AudioEngine / Sampler / Transport calls (e.g. getSampler()->noteOn,
+# getSampler()->setInterpolateMode [bucket C config], hand-rolled lock()).
+# Extend the pattern below once those are swept.
+#
+# Legitimate exceptions (ADR 0027 buckets C/D, editor-local working copies,
+# scratch/preview notes, file & session bookkeeping) are listed in ALLOW with a
+# reason. Prefer routing through CoreActionController over adding an entry here.
+#
+# Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+#
+# http://www.hydrogen-music.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see https://www.gnu.org/licenses
+
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT" || exit 2
+
+GUI_DIR="src/gui/src"
+
+# Pointer-variable names denoting engine-owned core objects, followed by a
+# mutating method (set/insert/remove/add/purge/clear/move/replace/erase + a
+# capital). Qt-widget pointers (pButton, pLabel, m_pFader, ...) are not named
+# like this, so they do not match.
+PATTERN='\b(pNote|ppNote|pNotes|pNewNote|pSelectedNote|pInstrument|ppInstrument|pInstr|pPattern|ppPattern|pComponent|ppComponent|pLayer|ppLayer|pSong|pDrumkit|pSample|pAdsr|pAutomationPath)[[:space:]]*->[[:space:]]*(set|insert|remove|add|purge|clear|move|replace|erase)[A-Z]'
+
+# Normalize a source line: strip leading/trailing whitespace, collapse internal
+# whitespace runs to single spaces.
+normalize() {
+	printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+						   -e 's/[[:space:]]\{1,\}/ /g'
+}
+
+# Allowlist stored as newline-separated "<relpath>|||<normalized line>" keys.
+# A plain string (not an associative array) keeps this compatible with the
+# bash 3.2 shipped on macOS.
+ALLOW=""
+allow() { ALLOW="${ALLOW}$1|||$2
+"; }
+
+# --- MainForm.cpp: file save/load & session bookkeeping (file names, modified
+#     flags, pre-add instrument id, missing-sample prompt). Not a live edit of
+#     the audio graph. -------------------------------------------------------
+allow "$GUI_DIR/MainForm.cpp" 'pSong->setPath( QString( "%1/%2%3" )'
+allow "$GUI_DIR/MainForm.cpp" 'pSong->setPath( sLastPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pSong->setPath( sPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pSong->setPath( sOldPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pSong->setWasAskedAboutMissingSamples( true );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setPath( sPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setPath( QString( "%1/%2%3" )'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setIsModified( false );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setAuthor( pSong->getAuthor() );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setLicense( pSong->getLicense() );'
+allow "$GUI_DIR/MainForm.cpp" 'pInstrument->setId( static_cast<Instrument::Id>( ii ) );'
+allow "$GUI_DIR/MainForm.cpp" 'pDrumkit->setPath( sPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pDrumkit->setIsModified( false );'
+
+# --- DrumkitPropertiesDialog.cpp: edits a detached working copy
+#     (std::make_shared<Drumkit>(...) at every call site); committed to the
+#     engine via SE_switchDrumkitAction -> CoreActionController::setDrumkit
+#     (bucket A) or saved to disk. -------------------------------------------
+allow "$GUI_DIR/DrumkitPropertiesDialog.cpp" 'ppInstrument->setType( ppItemType->currentText() );'
+
+# --- NotePropertiesRuler.cpp: applyProperty() mutates a caller-owned scratch
+#     note (a throwaway copy, or a dummy/transient preview note) to compute a
+#     value; real notes are committed via CoreActionController::editNoteProperty
+#     (see commitNoteProperty()). ----------------------------------------------
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setVelocity( fYValue );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setPanWithRangeFrom0To1( fYValue );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setLeadLag( fYValue * -2.0 + 1.0 );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setKey( key );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setOctave( octave );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setProbability( fYValue );'
+
+# --- LayerPreview.cpp: setSelectedLayerInfo is transient per-note view state
+#     used while auditioning a layer (bucket D, editor-local runtime preview). -
+allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( nullptr, pComponent );'
+allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );'
+
+# --- SongEditorPanel.cpp: peak meters are display state (bucket D). These
+#     should become telemetry reads (ADR 0018); pending Phase 4.5 step 6. ------
+allow "$GUI_DIR/SongEditor/SongEditorPanel.cpp" 'pInstrument->setPeak_L( 0.0f ); // reset instrument peak'
+allow "$GUI_DIR/SongEditor/SongEditorPanel.cpp" 'pInstrument->setPeak_R( 0.0f ); // reset instrument peak'
+
+violations=0
+while IFS= read -r line; do
+	[ -z "$line" ] && continue
+	file="${line%%:*}"
+	rest="${line#*:}"            # lineno:content
+	lineno="${rest%%:*}"
+	content="${rest#*:}"
+	norm="$(normalize "$content")"
+	if printf '%s' "$ALLOW" | grep -Fxq -- "$file|||$norm"; then
+		continue
+	fi
+	if [ "$violations" -eq 0 ]; then
+		echo "ERROR: direct mutation of engine-owned Basics objects in the GUI."
+		echo "       Route the edit through CoreActionController (ADR 0027), or"
+		echo "       add a documented exception to tools/check_write_surface."
+		echo
+	fi
+	echo "  $file:$lineno: $norm"
+	violations=$((violations + 1))
+done < <( LC_ALL=C grep -rnE "$PATTERN" "$GUI_DIR" 2>/dev/null )
+
+if [ "$violations" -gt 0 ]; then
+	echo
+	echo "Found $violations unguarded GUI write(s) to engine state."
+	exit 1
+fi
+
+echo "check_write_surface: OK — no unguarded GUI writes to engine Basics."
+exit 0
