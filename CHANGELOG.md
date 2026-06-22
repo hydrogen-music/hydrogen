@@ -308,6 +308,7 @@ All notable changes to this project will be documented in this file.
 - `Note-On` and `Note-Off` messages send via JACK MIDI should now be (almost)
   frame accurate (#535).
 - Support samples of arbitrary length.
+- Persist interpolation mode in preferences.
 
 ### Removed
 

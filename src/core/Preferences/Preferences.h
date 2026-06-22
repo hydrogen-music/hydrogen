@@ -34,6 +34,7 @@
 #include <core/Midi/Midi.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
+#include <core/Sampler/Interpolation.h>
 
 #include <QColor>
 #include <QDomDocument>
@@ -259,6 +260,10 @@ class Preferences : public H2Core::Object<Preferences> {
 	float m_fMetronomeVolume;
 	/// max notes
 	unsigned m_nMaxNotes;
+	/** Sample interpolation (resampling) quality used by the #H2Core::Sampler.
+	 * Persistent; during audio export it can be temporarily overridden via
+	 * #H2Core::Hydrogen::setInterpolateModeOverride(). */
+	Interpolation::InterpolateMode m_interpolateMode;
 	/** Buffer size of the audio. */
 	unsigned m_nBufferSize;
 	/** Sample rate of the audio. */

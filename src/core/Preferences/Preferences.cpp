@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Helpers/Filesystem.h"
 #include "Midi/Midi.h"
+#include "Sampler/Interpolation.h"
 
 #ifndef WIN32
 #include <pwd.h>
@@ -97,6 +98,7 @@ Preferences::Preferences()
 	  m_bUseMetronome( false ),
 	  m_fMetronomeVolume( 0.5 ),
 	  m_nMaxNotes( 256 ),
+	  m_interpolateMode( Interpolation::InterpolateMode::Linear ),
 	  m_nBufferSize( 1024 ),
 	  m_nSampleRate( 44100 ),
 	  m_sOSSDevice( "/dev/dsp" ),
@@ -287,6 +289,7 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	  m_bUseMetronome( pOther->m_bUseMetronome ),
 	  m_fMetronomeVolume( pOther->m_fMetronomeVolume ),
 	  m_nMaxNotes( pOther->m_nMaxNotes ),
+	  m_interpolateMode( pOther->m_interpolateMode ),
 	  m_nBufferSize( pOther->m_nBufferSize ),
 	  m_nSampleRate( pOther->m_nSampleRate ),
 	  m_sOSSDevice( pOther->m_sOSSDevice ),
@@ -584,6 +587,13 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 		);
 		pPref->m_nMaxNotes = audioEngineNode.read_int(
 			"maxNotes", pPref->m_nMaxNotes, false, false, bSilent
+		);
+		pPref->m_interpolateMode = static_cast<Interpolation::InterpolateMode>(
+			audioEngineNode.read_int(
+				"interpolateMode",
+				static_cast<int>( pPref->m_interpolateMode ), true, false,
+				bSilent
+			)
 		);
 		pPref->m_nBufferSize = audioEngineNode.read_int(
 			PreferencesKeys::BufferSize, pPref->m_nBufferSize, false, false, bSilent
@@ -1456,6 +1466,8 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 		audioEngineNode.write_bool( "use_metronome", m_bUseMetronome );
 		audioEngineNode.write_float( "metronome_volume", m_fMetronomeVolume );
 		audioEngineNode.write_int( "maxNotes", m_nMaxNotes );
+		audioEngineNode.write_int( "interpolateMode",
+								   static_cast<int>( m_interpolateMode ) );
 		audioEngineNode.write_int( PreferencesKeys::BufferSize, m_nBufferSize );
 		audioEngineNode.write_int( PreferencesKeys::SampleRate, m_nSampleRate );
 		audioEngineNode.write_bool( "countIn", m_bCountIn );
@@ -2215,6 +2227,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nMaxNotes ) )
+				.append( QString( "%1%2m_interpolateMode: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) )
 				.append( QString( "%1%2m_nBufferSize: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2715,6 +2731,8 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_fMetronomeVolume: %1" )
 							 .arg( m_fMetronomeVolume ) )
 				.append( QString( ", m_nMaxNotes: %1" ).arg( m_nMaxNotes ) )
+				.append( QString( ", m_interpolateMode: %1" )
+						 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) )
 				.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
 				.append( QString( ", m_nSampleRate: %1" ).arg( m_nSampleRate ) )
 				.append( QString( ", m_sOSSDevice: %1" ).arg( m_sOSSDevice ) )

@@ -30,6 +30,7 @@
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
+#include <core/Sampler/Interpolation.h>
 
 #include <stdint.h> // for uint32_t et al
 #include <cassert>
@@ -165,6 +166,18 @@ public:
 	void setPreferences( std::shared_ptr<Preferences> pPreferences ) {
 		m_pPreferences = pPreferences;
 	}
+
+	/** Effective sample-interpolation mode used by the #H2Core::Sampler: the
+	 * audio-export override (#m_interpolateModeOverride) when active, else the
+	 * persistent #H2Core::Preferences::m_interpolateMode (ADR 0027). */
+	Interpolation::InterpolateMode getInterpolateMode() const;
+	/** Temporarily overrides the interpolation mode (audio export only, CLI or
+	 * ExportSongDialog). Not persisted; cleared with
+	 * clearInterpolateModeOverride() once the export is done. */
+	void setInterpolateModeOverride( Interpolation::InterpolateMode mode );
+	/** Drops the audio-export interpolation override set via
+	 * setInterpolateModeOverride(). */
+	void clearInterpolateModeOverride();
 	/** \return The EventQueue owned by this instance (#m_pEventQueue). */
 	EventQueue*		getEventQueue() const { return m_pEventQueue; }
 #ifdef H2CORE_HAVE_OSC
@@ -506,6 +519,11 @@ private:
 	std::shared_ptr<Logger> m_pLogger;
 	/** Preferences owned by this instance (ADR 0015). */
 	std::shared_ptr<Preferences> m_pPreferences;
+	/** Audio-export interpolation override (ADR 0027). When
+	 * #m_bUseInterpolateModeOverride is set it takes priority over the
+	 * persistent Preferences value; not serialised. */
+	Interpolation::InterpolateMode m_interpolateModeOverride;
+	bool m_bUseInterpolateModeOverride;
 	/** EventQueue owned by this instance (ADR 0015). */
 	EventQueue*		m_pEventQueue;
 

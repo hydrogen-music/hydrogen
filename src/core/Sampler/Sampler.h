@@ -219,16 +219,6 @@ class Sampler : public H2Core::Object<Sampler> {
 
 	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr ) const;
 
-	void setInterpolateMode( Interpolation::InterpolateMode mode )
-	{
-		m_interpolateMode = mode;
-	}
-
-	Interpolation::InterpolateMode getInterpolateMode() const
-	{
-		return m_interpolateMode;
-	}
-
 	/**
 	 * Recalculates all note starts to make them valid again after a
 	 * TempoMarker was added to or deleted from the #Timeline or the
@@ -252,6 +242,11 @@ class Sampler : public H2Core::Object<Sampler> {
    private:
 	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
 	Hydrogen* m_pHydrogen;
+
+	/** Effective interpolation mode, resolved from the owning #H2Core::Hydrogen
+	 * (audio-export override, else the persistent Preferences value). The
+	 * Sampler no longer stores it (ADR 0027). */
+	Interpolation::InterpolateMode getInterpolateMode() const;
 
 	/** function to direct the computation to the selected pan law function
 	 */
@@ -330,8 +325,6 @@ class Sampler : public H2Core::Object<Sampler> {
 	 * single layer. Whenever a sample is going to be preview, it will be
 	 * assigned to that layer and the preview instrument will be triggered. */
 	std::shared_ptr<Instrument> m_pDefaultPreviewInstrument;
-
-	Interpolation::InterpolateMode m_interpolateMode;
 
 	/** In order to allow for all layers in an #H2Core::InstrumentComponent
 	 * to be selected in a round robin scheme consistently, we keep track of

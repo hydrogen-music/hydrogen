@@ -230,11 +230,12 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 		connect( toggleTimeLineBPMCheckBox, SIGNAL( toggled( bool ) ),
 				this, SLOT( toggleTimeLineBPMMode( bool ) ) );
 
-		// use of interpolation mode
-		m_OldInterpolationMode =
-			pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
+		// use of interpolation mode — initialise from the persistent
+		// preference; a change applies an export-only override on the engine
+		// (cleared in closeExport()).
 		resampleComboBox->setCurrentIndex(
-			interpolateModeToComboBoxIndex( m_OldInterpolationMode ) );
+			interpolateModeToComboBoxIndex(
+				pHydrogen->getPreferences()->m_interpolateMode ) );
 		connect( resampleComboBox, SIGNAL( currentIndexChanged(int) ),
 				 this, SLOT( resampleComboBoIndexChanged(int) ) );
 
@@ -766,7 +767,7 @@ void ExportSongDialog::closeExport() {
 	pPref->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	pHydrogen->setIsTimelineActivated( m_bOldTimeLineBPMMode );
 	
-	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( m_OldInterpolationMode );
+	pHydrogen->clearInterpolateModeOverride();
 	accept();
 }
 
@@ -934,22 +935,25 @@ void ExportSongDialog::resampleComboBoIndexChanged(int index )
 
 void ExportSongDialog::setResamplerMode(int index)
 {
-	auto pSampler = HydrogenApp::pEngine()->getAudioEngine()->getSampler();
+	// Apply an export-only interpolation override on the engine (ADR 0027); it
+	// takes priority over the persistent preference and is cleared in
+	// closeExport().
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	switch ( index ){
 	case 0:
-		pSampler->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		pSampler->setInterpolateMode( Interpolation::InterpolateMode::Third );
+		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		pSampler->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 }

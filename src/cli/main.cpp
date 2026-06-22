@@ -576,24 +576,24 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
-		Sampler* pSampler = pAudioEngine->getSampler();
+		// Apply the requested interpolation as an export-only override (ADR
+		// 0027); it takes priority over the persistent preference.
 		switch ( interpolation ) {
 			case 1:
-					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+					pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Cosine );
 					break;
 			case 2:
-					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Third );
+					pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Third );
 					break;
 			case 3:
-					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+					pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Cubic );
 					break;
 			case 4:
-					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+					pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Hermite );
 					break;
 			case 0:
 			default:
-					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+					pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Linear );
 		}
 
 		EventQueue *pQueue = pHydrogen->getEventQueue();

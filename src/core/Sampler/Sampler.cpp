@@ -61,8 +61,7 @@ Sampler::Sampler( Hydrogen* pHydrogen )
 	: m_pMainOut_L( nullptr ),
 	  m_pMainOut_R( nullptr ),
 	  m_pHydrogen( pHydrogen ),
-	  m_pPreviewInstrument( nullptr ),
-	  m_interpolateMode( Interpolation::InterpolateMode::Linear )
+	  m_pPreviewInstrument( nullptr )
 {
 	m_pMainOut_L = new float[MAX_BUFFER_SIZE];
 	m_pMainOut_R = new float[MAX_BUFFER_SIZE];
@@ -77,6 +76,11 @@ Sampler::Sampler( Hydrogen* pHydrogen )
 		m_pDefaultPreviewInstrument->setIsPreviewInstrument( true );
 	}
 	m_pPreviewInstrument = m_pDefaultPreviewInstrument;
+}
+
+Interpolation::InterpolateMode Sampler::getInterpolateMode() const
+{
+	return m_pHydrogen->getInterpolateMode();
 }
 
 Sampler::~Sampler()
@@ -1476,7 +1480,7 @@ bool Sampler::processPlaybackTrack( int nBufferSize )
 	}
 	else {
 		resample(
-			m_interpolateMode, &buffer_L[nInitialBufferPos],
+			getInterpolateMode(), &buffer_L[nInitialBufferPos],
 			&buffer_R[nInitialBufferPos], pSample_data_L, pSample_data_R,
 			nBufferSize, fSamplePos, fStep, nSampleFrames
 		);
@@ -1785,7 +1789,7 @@ bool Sampler::renderNote(
 
 	if ( bResample ) {
 		resample(
-			m_interpolateMode, &buffer_L[nInitialBufferPos],
+			getInterpolateMode(), &buffer_L[nInitialBufferPos],
 			&buffer_R[nInitialBufferPos], pSample_data_L, pSample_data_R,
 			nFinalBufferPos - nInitialBufferPos, fSamplePos, fFrequencyRatio,
 			nSampleFrames
@@ -2050,7 +2054,7 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 			.append( QString( "%1%2m_interpolateMode: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( Interpolation::ModeToQString( m_interpolateMode )
+						 .arg( Interpolation::ModeToQString( getInterpolateMode() )
 						 ) );
 	}
 	else {
@@ -2072,7 +2076,7 @@ QString Sampler::toQString( const QString& sPrefix, bool bShort ) const
 								 : m_pPreviewInstrument->toQString( "", bShort )
 						 ) )
 			.append( QString( ", m_interpolateMode: %1" )
-						 .arg( Interpolation::ModeToQString( m_interpolateMode )
+						 .arg( Interpolation::ModeToQString( getInterpolateMode() )
 						 ) );
 	}
 

@@ -90,7 +90,6 @@ void AudioExportTest::testExportVelocityAutomationAudio() {
 void AudioExportTest::testFormats() {
 	___INFOLOG( "" );
 	auto pHydrogen = pTestHydrogen();
-	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
 
 	const QString sSong = H2TEST_FILE( "song/AE_sampleConsistency.h2song" );
 
@@ -135,7 +134,7 @@ void AudioExportTest::testFormats() {
 			for ( const auto& nnSampleRate : sampleRates ) {
 				for ( const auto& nnSampleDepth : sampleDepths ) {
 					for ( const auto& ffCompressionLevel : compressionLevels ) {
-						pSampler->setInterpolateMode( iinterpolationMode );
+						pHydrogen->setInterpolateModeOverride( iinterpolationMode );
 						const QString sFileName = QString( "%1/song-%2-%3-%4-%5.%6" )
 							.arg( exportDir.path() )
 							.arg( Interpolation::ModeToQString( iinterpolationMode ) )

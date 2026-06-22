@@ -114,6 +114,8 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 					 , m_bSessionIsExported( false )
 					 , m_hihatOpenness( Midi::ParameterMaximum )
 					 , m_pPreferences( pPref )
+					 , m_interpolateModeOverride( Interpolation::InterpolateMode::Linear )
+					 , m_bUseInterpolateModeOverride( false )
 					 , m_pEventQueue( nullptr )
 {
 	// This instance owns its Preferences and EventQueue (ADR 0015); no
@@ -1323,6 +1325,25 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 bool Hydrogen::isUnderPluginHost() const {
 	return m_pPreferences != nullptr &&
 		m_pPreferences->m_audioDriver == Preferences::AudioDriver::Plugin;
+}
+
+Interpolation::InterpolateMode Hydrogen::getInterpolateMode() const {
+	if ( m_bUseInterpolateModeOverride ) {
+		return m_interpolateModeOverride;
+	}
+	if ( m_pPreferences != nullptr ) {
+		return m_pPreferences->m_interpolateMode;
+	}
+	return Interpolation::InterpolateMode::Linear;
+}
+
+void Hydrogen::setInterpolateModeOverride( Interpolation::InterpolateMode mode ) {
+	m_interpolateModeOverride = mode;
+	m_bUseInterpolateModeOverride = true;
+}
+
+void Hydrogen::clearInterpolateModeOverride() {
+	m_bUseInterpolateModeOverride = false;
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {

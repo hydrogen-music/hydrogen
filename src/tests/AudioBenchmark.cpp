@@ -159,8 +159,7 @@ double AudioBenchmark::timeExport( int nSampleRate,
 	std::vector< clock_t > times;
 	long long nFrames = 0, nFramesNew;
 
-	auto oldInterpolateMode = pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
-	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( interpolateMode );
+	pHydrogen->setInterpolateModeOverride( interpolateMode );
 
 	// Run through once to warm caches etc.
 	exportCurrentSong( outFile, 44100 );
@@ -195,7 +194,7 @@ double AudioBenchmark::timeExport( int nSampleRate,
 	}
 	out << Qt::endl;
 
-	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( oldInterpolateMode );
+	pHydrogen->clearInterpolateModeOverride();
 
 	Filesystem::rm( outFile );
 

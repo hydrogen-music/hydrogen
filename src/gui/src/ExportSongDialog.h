@@ -87,7 +87,6 @@ private:
 	QString					m_sExtension;
 	bool					m_bOldRubberbandBatchMode;
 	bool					m_bOldTimeLineBPMMode;
-	InterpolateMode			m_OldInterpolationMode;
 	bool					m_bQfileDialog;
 
 		std::map<int, H2Core::Filesystem::AudioFormat> m_formatMap;

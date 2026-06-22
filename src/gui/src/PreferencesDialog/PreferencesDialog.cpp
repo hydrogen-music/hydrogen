@@ -357,7 +357,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
 
 	resampleComboBox->setSize( audioTabWidgetSizeBottom );
-	resampleComboBox->setCurrentIndex( static_cast<int>(pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode() ) );
+	resampleComboBox->setCurrentIndex( static_cast<int>( pPref->m_interpolateMode ) );
 
 	restartAudioDriverBtn->setText( pCommonStrings->getDriverRestartButton() );
 
@@ -956,26 +956,13 @@ void PreferencesDialog::on_okBtn_clicked()
 		bAudioOptionAltered = true;
 	}
 
-	// Interpolation
-	if ( static_cast<int>( pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode() ) !=
+	// Interpolation — a persistent preference (ADR 0027). The Sampler reads the
+	// effective mode from Preferences; resyncing Preferences before
+	// onPreferencesChanged applies the change live.
+	if ( static_cast<int>( pPref->m_interpolateMode ) !=
 		 resampleComboBox->currentIndex() ) {
-		switch ( resampleComboBox->currentIndex() ){
-		case 0:
-			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
-			break;
-		case 1:
-			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
-			break;
-		case 2:
-			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
-			break;
-		case 3:
-			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
-			break;
-		case 4:
-			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
-			break;
-		}
+		pPref->m_interpolateMode = static_cast<Interpolation::InterpolateMode>(
+			resampleComboBox->currentIndex() );
 		bAudioOptionAltered = true;
 	}
 
