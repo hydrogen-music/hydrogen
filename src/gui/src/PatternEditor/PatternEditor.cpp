@@ -288,9 +288,6 @@ void PatternEditor::deselectAndOverwriteNotes(
 		if ( ppNote == nullptr ) {
 			continue;
 		}
-		const auto row = m_pPatternEditorPanel->getRowDB(
-			m_pPatternEditorPanel->findRowDB( ppNote )
-		);
 		pCAC->removeNote( ppNote->getUuid(), pPattern->getUuid() );
 	}
 }
