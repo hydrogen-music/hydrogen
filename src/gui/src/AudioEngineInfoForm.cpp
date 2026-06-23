@@ -133,23 +133,24 @@ void AudioEngineInfoForm::updateInfo()
 
 
 
-	// Audio driver info
-	auto pAudioDriver = pHydrogen->getAudioDriver();
-	if ( pAudioDriver != nullptr ) {
-		QString audioDriverName = pAudioDriver->class_name();
-		driverLbl->setText( audioDriverName );
+	// Audio driver info (ADR 0029: value views, not the driver pointer).
+	const auto pEngine = HydrogenApp::pEngine();
+	const auto audioDriverInfo = pEngine->getAudioDriverInfo();
+	if ( audioDriverInfo.isPresent ) {
+		driverLbl->setText(
+			Preferences::audioDriverToQString( audioDriverInfo.kind ) );
 
-		// Audio pAudioDriver buffer size
-		sprintf( tmp, "%d", pAudioDriver->getBufferSize() );
+		// Audio driver buffer size
+		sprintf( tmp, "%d", pEngine->getAudioBufferSize() );
 		bufferSizeLbl->setText( QString( tmp ) );
 
 		// Audio latency estimate
 		latencyLbl->setText(
-			QString( "%1 frames" ).arg( pAudioDriver->getLatency() )
+			QString( "%1 frames" ).arg( pEngine->getAudioLatencyFrames() )
 		);
 
-		// Audio pAudioDriver sampleRate
-		sprintf( tmp, "%d", pAudioDriver->getSampleRate() );
+		// Audio driver sampleRate
+		sprintf( tmp, "%d", pEngine->getAudioSampleRate() );
 		sampleRateLbl->setText( QString( tmp ) );
 
 		// Number of frames

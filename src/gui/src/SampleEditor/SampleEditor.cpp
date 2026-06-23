@@ -1359,7 +1359,7 @@ void SampleEditor::updateTransport()
 	// this within the increment.
 	const float fStep =
 		static_cast<float>( m_pSample->getSampleRate() ) /
-		static_cast<float>( pAudioEngine->getAudioDriver()->getSampleRate() );
+		static_cast<float>( HydrogenApp::pEngine()->getAudioSampleRate() );
 	const float fIncrement =
 		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) * fStep;
 
@@ -1663,10 +1663,8 @@ void SampleEditor::reloadLayer()
 
 void SampleEditor::checkRubberbandSettings()
 {
-	const double fSampleRate = static_cast<double>( HydrogenApp::pHydrogen()
-														->getAudioEngine()
-														->getAudioDriver()
-														->getSampleRate() );
+	const double fSampleRate =
+		static_cast<double>( HydrogenApp::pEngine()->getAudioSampleRate() );
 	// calculate ratio
 	double fRatio;
 	if ( m_rubberband.bUse ) {

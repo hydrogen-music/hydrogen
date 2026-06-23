@@ -57,8 +57,6 @@ public:
 	Hydrogen* getMirror() const { return m_pMirror; }
 
 	// --- reads: served from the local mirror ---
-	std::shared_ptr<AudioDriver> getAudioDriver() const override {
-		return m_pMirror->getAudioDriver(); }
 	AudioEngine* getAudioEngine() const override {
 		return m_pMirror->getAudioEngine(); }
 	std::shared_ptr<CoreActionController> getCoreActionController() const override {
@@ -97,6 +95,21 @@ public:
 	bool isUnderSessionManagement() const override {
 		return m_pMirror->isUnderSessionManagement(); }
 
+	// --- audio driver (ADR 0029) ---
+	// The host owns audio I/O; in editor mode driver state crosses as config
+	// (override layer), query, and event. That query/event plumbing is a later
+	// editor-mode sub-step; until it exists the mirror has no real audio driver,
+	// so we report "no driver" rather than the mirror's headless one.
+	AudioDriverInfo getAudioDriverInfo() const override { return AudioDriverInfo(); }
+	int getAudioSampleRate() const override { return 0; }
+	int getAudioBufferSize() const override { return 0; }
+	int getAudioLatencyFrames() const override { return 0; }
+	int getAudioXRuns() const override { return 0; }
+	QStringList getAudioDevices(
+		Preferences::AudioDriver /*kind*/, const QString& /*sHostAPI*/
+	) const override { return QStringList(); }
+	QStringList getAudioHostAPIs() const override { return QStringList(); }
+	bool isExportWritingFailed() const override { return false; }
 	// MIDI driver (ADR 0029): same deferred query/event plumbing as audio.
 	MidiDriverInfo getMidiDriverInfo() const override { return MidiDriverInfo(); }
 	std::vector<QString> getMidiPorts(

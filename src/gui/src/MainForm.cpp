@@ -211,10 +211,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 								 .arg( pCommonStrings->getUndoHistoryTitle() ) );
 
 	// Check whether the audio driver could be loaded based on the
-	// content of the config file
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
+	// content of the config file (ADR 0029).
+	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1 [%2]\n%3" )
@@ -2218,11 +2216,8 @@ void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 }
 	
 bool MainForm::nullDriverCheck() {
-	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
+	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1\n%2" )

@@ -876,11 +876,8 @@ void ExportSongDialog::audioExportProgressEvent( int nValue )
 		m_bExporting = false;
 
 		const auto pSong = HydrogenApp::pEngine()->getSong();
-		// Check whether an error occured during export.
-		const auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
-			HydrogenApp::pEngine()->getAudioEngine()->getAudioDriver()
-		);
-		if ( pDriver != nullptr && pDriver->m_bWritingFailed ) {
+		// Check whether an error occured during export (ADR 0029).
+		if ( HydrogenApp::pEngine()->isExportWritingFailed() ) {
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
 			QMessageBox::critical( this, "Hydrogen",

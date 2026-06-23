@@ -42,8 +42,6 @@ public:
 
 	Hydrogen* getHydrogen() const { return m_pHydrogen; }
 
-	std::shared_ptr<AudioDriver> getAudioDriver() const override {
-		return m_pHydrogen->getAudioDriver(); }
 	AudioEngine* getAudioEngine() const override {
 		return m_pHydrogen->getAudioEngine(); }
 	std::shared_ptr<CoreActionController> getCoreActionController() const override {
@@ -82,6 +80,18 @@ public:
 	bool isUnderSessionManagement() const override {
 		return m_pHydrogen->isUnderSessionManagement(); }
 
+	// Audio-driver value views (ADR 0029). Defined out-of-line in
+	// LocalEngineAccess.cpp: they read the live driver and so need the concrete
+	// driver headers, which we keep out of this widely-included header.
+	AudioDriverInfo getAudioDriverInfo() const override;
+	int getAudioSampleRate() const override;
+	int getAudioBufferSize() const override;
+	int getAudioLatencyFrames() const override;
+	int getAudioXRuns() const override;
+	QStringList getAudioDevices(
+		Preferences::AudioDriver kind, const QString& sHostAPI ) const override;
+	QStringList getAudioHostAPIs() const override;
+	bool isExportWritingFailed() const override;
 	MidiDriverInfo getMidiDriverInfo() const override;
 	std::vector<QString> getMidiPorts(
 		MidiBaseDriver::PortType portType ) const override;

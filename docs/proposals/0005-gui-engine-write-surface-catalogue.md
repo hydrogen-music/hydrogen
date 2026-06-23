@@ -1,9 +1,24 @@
 # Proposal 0005 — GUI→engine write-surface catalogue & sweep
 
-**Status:** draft (2026-06-18) — companion to
+**Status:** in progress (2026-06-18) — **re-audited 2026-06-23** against the
+working tree. Companion to
 [ADR 0027](/docs/decisions/0027-coreactioncontroller-single-write-surface.md).
 Supports the phase inserted into
 [proposal 0004 §8.5](/docs/proposals/0004-plugin-port-implementation-plan.md).
+
+**Audit summary (2026-06-23).** Buckets A/B-Basics/C/D are landed and the CI guard
+(`tools/check_write_surface`) is **green**, enforcing zero direct GUI mutation of
+engine-owned `Basics`. Done: §2.1 Note/Pattern, §2.2 Instrument+ADSR, §2.3
+Component/Layer, §2.4 Sample, §2.5 Drumkit properties, §2.7 song-grid, plus §2.6
+pan-law and stop-notes; bucket C (config, incl. the audio/MIDI **driver** sweep of
+[ADR 0029](/docs/decisions/0029-audio-driver-access-across-editor-split.md)) and
+bucket D (peaks → telemetry). **Still open** (not yet covered, guard does not reach
+them): the §2.6 sequencer / pattern-list verbs (`sequencerPlay`,
+`setSelectedPatternNumber`→`selectPattern`, `toggleNextPattern`, `movePattern` /
+`PatternList::replace`), the remaining hand-rolled lock sites in §5
+(SampleEditor / SongEditorPositionRuler / SongEditorPatternList / ExportSongDialog),
+and extending the guard beyond `Basics` to `AudioEngine`/`Sampler`/`Transport`.
+Per-section status is marked inline below.
 
 This document is the exhaustive map produced by reviewing `src/gui/src/`,
 `src/core/Basics/` and `src/core/AudioEngine/`. It records, for every writable
@@ -67,7 +82,11 @@ target pattern:
 > for a drumkit-property edit). Whole-object payloads are reserved for genuine
 > bulk loads (`SetSong`, `SetDrumkit`, drop-in instrument).
 
-### 2.1 Note / Pattern (PatternEditor)
+### 2.1 Note / Pattern (PatternEditor) — ✅ DONE
+
+CAC entry points `editNoteProperty`, `addOrRemoveNote`, `setPatternSize` landed;
+the GUI routes through them (guard-clean). The hand-rolled locks in
+`PatternEditorPanel`/`PatternEditorRuler` were absorbed into CAC.
 
 | Core mutator | GUI sites (file:line) | RT | Undo? | CAC | New entry point |
 |---|---|---|---|---|---|
@@ -79,7 +98,13 @@ target pattern:
 Notes: all four rows currently self-lock (`PatternEditorPanel.cpp:1506/1528`,
 `1724/1729`; `PatternEditorRuler.cpp:117/127`). The CAC entries absorb the lock.
 
-### 2.2 Instrument parameters (Rack/InstrumentEditor) — **not undoable today**
+### 2.2 Instrument parameters (Rack/InstrumentEditor) — ✅ DONE
+
+CAC gained `setInstrumentGain/Pitch/RandomPitch/FilterActive/FilterCutoff/
+FilterResonance/MuteGroup/StopNotes/ApplyVelocity/HihatGroup/LowerCc/HigherCc`
+and `setInstrumentAttack/Decay/Sustain/Release` (ADSR, scalar in-place under
+lock); volume/mute/solo route through the pre-existing `setStripVolume/
+setStripIsMuted/setStripIsSoloed` (bucket A). Guard-clean; undo coverage added.
 
 | Core mutator | GUI sites | RT | Undo? | CAC | New entry point |
 |---|---|---|---|---|---|
@@ -89,7 +114,12 @@ Notes: all four rows currently self-lock (`PatternEditorPanel.cpp:1506/1528`,
 | `Instrument::set{MuteGroup,StopNotes,ApplyVelocity,HihatGrp,LowerCc,HigherCc}` | InstrumentEditor.cpp 363–450 | mixed | no | no | `setInstrument*(…)` group |
 | `Adsr::set{Attack,Decay,Sustain,Release}` | InstrumentEditor.cpp 286–327 | yes | no | no | `setInstrumentAdsr(nInstr, …)` (scalar → in-place set under lock) |
 
-### 2.3 Component / Layer (Rack/ComponentView, LayerPreview) — **not undoable today**
+### 2.3 Component / Layer (Rack/ComponentView, LayerPreview) — ✅ DONE
+
+CAC gained `setComponentIsMuted/IsSoloed/Gain/Selection` and `setLayerIsMuted/
+IsSoloed/Gain/PitchOffset/StartVelocity/EndVelocity` (scalar in-place under lock).
+Guard-clean; undo coverage added. (The transient `setSelectedLayerInfo` preview
+state is bucket D, allowlisted in the guard.)
 
 Granular setters per the rule above. These are scalar component/layer params, so
 the engine can set them **in place under lock**; whole-instrument replacement is
@@ -103,7 +133,13 @@ wire payload (ADR 0027 invariants 2–3).
 | `InstrumentLayer::set{IsMuted,IsSoloed,Gain,PitchOffset}` | ComponentView.cpp 428, 448, 464, 577, 608 | yes | no | `setLayer*(nInstr, nComp, nLayer, …)` — in-place |
 | `InstrumentLayer::set{StartVelocity,EndVelocity}` | LayerPreview.cpp 838, 845 | no | no | `setLayerVelocityRange(nInstr, nComp, nLayer, …)` — in-place |
 
-### 2.4 Sample (SampleEditor) — structural; mostly covered, verify
+### 2.4 Sample (SampleEditor) — ✅ DONE (verified)
+
+Verified: no direct `Sample::set*` / `Instrument::setSample` path escapes the
+`SE_replaceInstrumentAction` → `replaceInstrument` commit (guard-clean — `pSample`
+and `pInstrument` mutators are in the guard's pattern). The in-memory-only-sample
+PCM transfer remains the sole warranted `QByteArray` payload (a deferred editor-IPC
+concern, not a standalone gap).
 
 `Sample::set{Loops,Rubberband,VelocityEnvelope,PanEnvelope}` and
 `Instrument::setSample` (SampleEditor.cpp 692–713) already commit through
@@ -119,13 +155,35 @@ there the PCM must cross IPC once — acceptable as a one-off, and the only plac
 the replace commit; confirm the in-memory-only-sample case is the sole PCM
 transfer; no new scalar CAC expected.**
 
-### 2.5 Drumkit properties (DrumkitPropertiesDialog)
+### 2.5 Drumkit properties (DrumkitPropertiesDialog) — ✅ DONE
+
+Covered via the **detached working-copy** path: `DrumkitPropertiesDialog` edits a
+`std::make_shared<Drumkit>` copy (the `ppInstrument->setType` line is allowlisted in
+the guard as a working-copy edit) and commits through `SE_switchDrumkitAction` →
+`CoreActionController::setDrumkit` (bucket A). Guard-clean. (This kept the
+whole-kit-replace commit rather than adding the granular `setDrumkit*` setters the
+row below proposed — the cross-split re-decode cost noted there is an editor-IPC
+optimisation to revisit when the wire payload matters, not a standalone gap.)
 
 | Core mutator | GUI sites | Undo? | New entry point |
 |---|---|---|---|
 | `Drumkit::set{Name,Author,Version,Info,License,Tags,Image,ImageLicense}` | DrumkitPropertiesDialog.cpp 1034–1097 | yes (`SE_switchDrumkitAction` → `SoundLibraryPanel::switchDrumkit` GUI static) | granular `setDrumkit{Name,Author,…}(value)` setters — **scalar metadata, in-place on the engine's kit, no whole-kit payload**. (Untangle from the GUI static; do **not** route via `SE_switchDrumkitAction`/whole-drumkit replacement for a property edit — that path would re-decode the entire kit across the split.) |
 
-### 2.6 Song-level & sequencer/pattern (SongEditor, MainForm, MainToolBar)
+### 2.6 Song-level & sequencer/pattern (SongEditor, MainForm, MainToolBar) — ⚠ PARTIAL
+
+**Done:** `setPanLaw` (CAC, guard-clean); the MixerLine "stop samples"
+(`Note::setNoteOff`) is now `CoreActionController::previewInstrument(nLine, true)`.
+**Still open** (these are `Hydrogen`/`PatternList` calls, not `Basics`, so the guard
+does not reach them and they remain direct in the GUI):
+* `Hydrogen::sequencerPlay` — `MainForm.cpp:2867`, `PlaylistEditor.cpp:954`,
+  `MainToolBar.cpp:759`. Not yet on `IEngineAccess`/CAC (`sequencerStop` is).
+* `Hydrogen::setSelectedPatternNumber` — `SongEditorPatternList.cpp:537` (should call
+  the existing CAC `selectPattern`).
+* `Hydrogen::toggleNextPattern` — `SongEditorPatternList.cpp:785` (no CAC entry yet).
+* `PatternList::replace` in `movePatternLine` — `SongEditorPatternList.cpp:521–530`
+  (needs CAC `movePattern(nFrom,nTo)`).
+* `updateVirtualPatterns` / `updateSongSize` reactions remain direct — best fired
+  from the CAC mutation via `EventListener` rather than called by the GUI.
 
 | Mutator | GUI sites | RT | Undo? | CAC | New entry point |
 |---|---|---|---|---|---|
@@ -137,15 +195,24 @@ transfer; no new scalar CAC expected.**
 | `Hydrogen::{updateSongSize,updateVirtualPatterns,updateSelectedPattern}` | PatternEditorPanel.cpp 1728; SongEditorPatternList.cpp 325, 534 | yes | no | no | these are *reactions* — prefer firing from CAC mutations + EventListener, not new commands |
 | `PatternList::replace` | SongEditorPatternList.cpp 521–530 | yes | yes (`SE_movePatternListItemAction` → GUI method) | no | `movePattern(nFrom, nTo)` (untangle from `movePatternLine`) |
 
-### 2.7 Pattern-cell / song-grid (SongEditor)
+### 2.7 Pattern-cell / song-grid (SongEditor) — ✅ DONE
 
-`SongEditor::addOrRemovePatternCellAction` (`SE_addOrRemovePatternCellAction` →
-GUI method) toggles song-grid cells. Untangle: CAC mutates the pattern group,
-fires an event, view reacts.
+`SongEditor::addOrRemovePatternCellAction` now calls
+`CoreActionController::toggleGridCell(gridPoint)` (`SongEditor.cpp:144`); CAC mutates
+the pattern group and fires the event, the view reacts. Guard-clean.
 
 ---
 
-## 3. Bucket C — reroute to the layered config (NOT CAC)
+## 3. Bucket C — reroute to the layered config (NOT CAC) — ✅ DONE
+
+Interpolation mode: `PreferencesDialog` writes `Preferences::m_interpolateMode`;
+`ExportSongDialog` uses the transient `Hydrogen::setInterpolateModeOverride` for the
+render (no direct `Sampler::setInterpolateMode` left). MIDI action-table /
+instrument-map edits persist via `Preferences::save()` (ADR 0023 path). The
+audio/MIDI **driver** config crosses as override-layer config per
+[ADR 0029](/docs/decisions/0029-audio-driver-access-across-editor-split.md). Metronome
+volume lives in `Preferences` and is applied to the live metronome instrument as a
+`preferencesChanged` reaction (`HydrogenApp.cpp:1661`).
 
 | Mutator | GUI sites | Target |
 |---|---|---|
@@ -158,7 +225,12 @@ elsewhere).
 
 ---
 
-## 4. Bucket D — display / editor-local (never crosses IPC)
+## 4. Bucket D — display / editor-local (never crosses IPC) — ✅ DONE
+
+The GUI no longer writes peaks into the engine model: `Instrument::setPeak_L/R` and
+`AudioEngine::setMasterPeak_L/R` are gone from `src/gui/src` (the remaining
+`setPeak_L/R` calls are on the `Fader` widget — display only). Export/selection/grid
+flags stay editor-local as designed.
 
 | Mutator | GUI sites | Disposition |
 |---|---|---|
@@ -170,30 +242,37 @@ elsewhere).
 
 ---
 
-## 5. The 16 hand-rolled lock sites (absorb into CAC)
+## 5. The 16 hand-rolled lock sites (absorb into CAC) — ⚠ PARTIAL
 
-`SampleEditor.cpp` 1535/1543, 1556/1566; `SongEditor.cpp` 207/217;
-`PatternEditorRuler.cpp` 117/127; `PatternEditorPanel.cpp` 1506/1528, 1724/1729;
-`SongEditorPositionRuler.cpp` 838/883; `SongEditorPatternList.cpp` 966/996.
+**Absorbed** (lock moved into the CAC entry point, GUI block deleted):
+`SongEditor.cpp` 207/217; `PatternEditorRuler.cpp` 117/127;
+`PatternEditorPanel.cpp` 1506/1528, 1724/1729.
 
-Each wraps a bucket-B edit. When that edit becomes a CAC call, the lock moves into
-CAC and the GUI block is deleted.
+**Still present** (their edit is not yet a CAC call — tracks the open §2.6 items and
+the editor's own staging): `SampleEditor.cpp` 1535/1543, 1556/1566;
+`SongEditorPositionRuler.cpp` 838/883; `SongEditorPatternList.cpp` 966/996; plus
+`ExportSongDialog.cpp` 762/765 (export render). These are not caught by the current
+guard (it does not enforce hand-rolled `lock()`); folding them in is part of closing
+§2.6 and the guard-scope extension.
 
 ---
 
 ## 6. Sweep order (each step keeps the suite green)
 
-1. **PatternEditor** (note edits, pattern size, cell toggles) — biggest, highest
-   value; establishes the untangle pattern (CAC mutates + fires event; view
-   reacts via `EventListener`).
-2. **SongEditor / pattern list** (move/select/toggle pattern, song-grid).
-3. **Rack/InstrumentEditor** (instrument params + ADSR) — also adds missing undo.
-4. **Rack/ComponentView + LayerPreview** (component/layer via replace) — adds undo.
-5. **Dialogs** (Drumkit/Song/Pattern properties; MixerSettings pan-law).
-6. **Config reroutes** (bucket C) and **display cleanups** (bucket D).
-7. **CI guard:** add a grep check failing on direct mutation of engine-owned
-   `Basics`/`AudioEngine`/`Transport` in `src/gui/src` (the done-when gate).
+1. ✅ **PatternEditor** (note edits, pattern size, cell toggles).
+2. ⚠ **SongEditor / pattern list** — song-grid cell ✅; **move/select/toggle pattern
+   still open** (see §2.6).
+3. ✅ **Rack/InstrumentEditor** (instrument params + ADSR; missing undo added).
+4. ✅ **Rack/ComponentView + LayerPreview** (component/layer; undo added).
+5. ✅ **Dialogs** (Drumkit/Song/Pattern properties; MixerSettings pan-law).
+6. ✅ **Config reroutes** (bucket C, incl. ADR 0029 drivers) and **display
+   cleanups** (bucket D).
+7. ⚠ **CI guard** — `tools/check_write_surface` is in CI and **green** for
+   engine-owned `Basics`; **extending it to `AudioEngine`/`Sampler`/`Transport`
+   (and hand-rolled `lock()`) is still pending** (see the guard header's "NOT yet
+   enforced" note).
 
-After step 7, editor mode resumes as CAC-over-IPC; the command-carrier mechanism
-(command-sink vs CAC virtualisation) is chosen then, against the now-complete and
-known CAC surface.
+**Remaining to finish the phase:** the §2.6 sequencer/pattern-list verbs
+(`sequencerPlay` onto the surface, `selectPattern`/`toggleNextPattern`/`movePattern`),
+absorbing the §5 locks that wrap them, and the step-7 guard-scope extension. Editor
+mode then resumes as CAC-over-IPC against the (then-complete) CAC surface.

@@ -1,5 +1,5 @@
 ---
-status: proposed
+status: accepted
 date: 2026-06-23
 deciders: pm
 ---
@@ -215,17 +215,27 @@ config; latency and driver name/kind from the query + descriptor.
   is needed: every payload here is a value (scalars, strings, the descriptor
   enum), carrying no engine pointers.
 
-### The MIDI driver is the analogous case
+### The MIDI driver is the analogous case — implemented here too
 
 `MidiBaseDriver` follows the same model under the same invariant (no driver
-pointer in the GUI): port *selection* is override config; `getExternalPortList()`
-is a **query**; the `getHandledInputs()/getHandledOutputs()` activity log is an
-ordered, variable-length **event** stream (not the fixed-size lossy telemetry
-block); and `clearHandledInput()/clearHandledOutput()` are **commands** →
-`CoreActionController`. The MIDI side needs no type descriptor (it has no
-GUI-visible concrete-subclass branching). It is covered by the same rules and can
-share the query/event plumbing defined here; a sibling note can be split out if
-the MIDI work lands separately.
+pointer in the GUI), and was swept alongside the audio driver (kept folded into
+this ADR rather than split out):
+
+* port *selection* is override config (unchanged);
+* `getExternalPortList()` → **query** `IEngineAccess::getMidiPorts(PortType)`;
+* the `getHandledInputs()/getHandledOutputs()` activity log → snapshot accessors
+  `getHandledMidiInputs()/getHandledMidiOutputs()` (an ordered, variable-length
+  **event** stream — not the fixed-size lossy telemetry block; the IPC event
+  feed is the deferred editor-mode step, like the audio queries);
+* `clearHandledInput()/clearHandledOutput()` → **commands**
+  `CoreActionController::clearMidiInputLog()/clearMidiOutputLog()`;
+* presence + input/output-active status → a small `MidiDriverInfo` value struct
+  (`{isPresent, isInputActive, isOutputActive}`) — no *kind* field is needed, as
+  the MIDI side has no GUI-visible concrete-subclass branching (no
+  `dynamic_pointer_cast`).
+
+`IEngineAccess::getMidiDriver()` was removed; `LocalEngineAccess` backs the
+accessors off the live driver, `IpcEngineAccess` returns deferred stubs.
 
 ## More Information
 

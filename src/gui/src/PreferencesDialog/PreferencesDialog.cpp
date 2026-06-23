@@ -66,37 +66,10 @@ void DeviceComboBox::showPopup()
 {
 	clear();
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	if ( m_driver == Preferences::AudioDriver::PortAudio ) {
-#ifdef H2CORE_HAVE_PORTAUDIO
-		auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
-			HydrogenApp::pEngine()->getAudioEngine()->getAudioDriver()
-		);
-		if ( pDriver != nullptr ) {
-			// Get device list for PortAudio based on current value of the API
-			// combo box
-			for ( QString s : pDriver->getDevices( m_sHostAPI ) ) {
-				addItem( s );
-			}
-		}
-#endif
-	}
-	else if ( m_driver == Preferences::AudioDriver::CoreAudio ) {
-#ifdef H2CORE_HAVE_COREAUDIO
-		auto pDriver =
-			HydrogenApp::pEngine()->getAudioEngine()->getAudioDriver();
-		if ( pDriver != nullptr ) {
-			for ( QString s : pDriver->getDevices() ) {
-				addItem( s );
-			}
-		}
-#endif
-	}
-	else if ( m_driver == Preferences::AudioDriver::Alsa ) {
-#ifdef H2CORE_HAVE_ALSA
-		for ( QString s : AlsaAudioDriver::getAlsaDevices() ) {
-			addItem( s );
-		}
-#endif
+	// Device enumeration is resolved engine-side per driver kind (ADR 0029).
+	for ( const QString& sDevice :
+		  HydrogenApp::pEngine()->getAudioDevices( m_driver, m_sHostAPI ) ) {
+		addItem( sDevice );
 	}
 	QApplication::restoreOverrideCursor();
 	LCDCombo::showPopup();
@@ -119,16 +92,10 @@ void HostAPIComboBox::setValue( const QString& sHostAPI ) {
 void HostAPIComboBox::showPopup()
 {
 	clear();
-#ifdef H2CORE_HAVE_PORTAUDIO
+	// Host-API enumeration is resolved engine-side (ADR 0029).
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	auto pDriver = std::dynamic_pointer_cast<PortAudioDriver>(
-		HydrogenApp::pEngine()->getAudioEngine()->getAudioDriver()
-	);
-	if ( pDriver != nullptr ) {
-		addItems( pDriver->getHostAPIs() );
-	}
+	addItems( HydrogenApp::pEngine()->getAudioHostAPIs() );
 	QApplication::restoreOverrideCursor();
-#endif
 
 	LCDCombo::showPopup();
 }
@@ -732,7 +699,9 @@ void PreferencesDialog::on_cancelBtn_clicked() {
 
 void PreferencesDialog::writeAudioDriverPreferences() {
 	auto pPref = HydrogenApp::pPreferences();
-	auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
+	// Resolve the running driver kind once (ADR 0029) instead of casting the
+	// driver pointer; used below to pick the right field when "Auto" is chosen.
+	const auto audioDriverInfo = HydrogenApp::pEngine()->getAudioDriverInfo();
 
 	bool bAudioOptionAltered = false;
 	const auto prevAudioDriver = pPref->m_audioDriver;
@@ -753,8 +722,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	// Driver-specific settings
 	if ( selectedDriver == Preferences::AudioDriver::Alsa ||
 		 ( selectedDriver == Preferences::AudioDriver::Auto &&
-		   std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver ) !=
-			   nullptr ) ) {
+		   audioDriverInfo.kind == Preferences::AudioDriver::Alsa ) ) {
 		if ( pPref->m_sAlsaAudioDevice !=
 			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
@@ -763,8 +731,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::Oss ||
 			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
-					nullptr ) ) {
+				audioDriverInfo.kind == Preferences::AudioDriver::Oss ) ) {
 		if ( pPref->m_sOSSDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 			bAudioOptionAltered = true;
@@ -772,8 +739,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::PortAudio ||
 			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				std::dynamic_pointer_cast<H2Core::PortAudioDriver>( pAudioDriver
-				) != nullptr ) ) {
+				audioDriverInfo.kind == Preferences::AudioDriver::PortAudio ) ) {
 		if ( pPref->m_sPortAudioDevice !=
 			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
@@ -792,8 +758,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::CoreAudio ||
 			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				std::dynamic_pointer_cast<H2Core::CoreAudioDriver>( pAudioDriver
-				) != nullptr ) ) {
+				audioDriverInfo.kind == Preferences::AudioDriver::CoreAudio ) ) {
 		if ( pPref->m_sCoreAudioDevice !=
 			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
@@ -931,9 +896,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	writeAudioDriverPreferences();
 
 	// Check whether the current audio driver is valid
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
+	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		if ( QMessageBox::warning(
 				 this, "Hydrogen",
 				 QString( "%1\n" )
@@ -1127,7 +1090,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 {
 	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
+	const auto audioDriverInfo = HydrogenApp::pEngine()->getAudioDriverInfo();
 
 	// Reset info text
 	updateAudioDriverInfoLabel();
@@ -1154,32 +1117,22 @@ void PreferencesDialog::updateAudioDriverInfo()
 		driverComboBox->currentText() );
 
 	if ( selectedAudioDriver == Preferences::AudioDriver::Auto ) {
-		if ( std::dynamic_pointer_cast<H2Core::JackDriver>( pAudioDriver ) !=
-			 nullptr ) {
+		if ( audioDriverInfo.kind == Preferences::AudioDriver::Jack ) {
 			setAudioDriverInfoJack();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::Alsa ) {
 			setAudioDriverInfoAlsa();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::PortAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::PortAudio ) {
 			setAudioDriverInfoPortAudio();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::CoreAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::CoreAudio ) {
 			setAudioDriverInfoCoreAudio();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::PulseAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::PulseAudio ) {
 			setAudioDriverInfoPulseAudio();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
-				  nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::Oss ) {
 			setAudioDriverInfoOss();
 		}
 		else {
@@ -1238,7 +1191,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 void PreferencesDialog::updateAudioDriverInfoLabel() {
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
+	const auto audioDriverInfo = HydrogenApp::pEngine()->getAudioDriverInfo();
 	QString sInfo;
 
 	if ( driverComboBox->currentText() ==
@@ -1247,8 +1200,8 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "<br><br>" );
 	}
 
-	if ( std::dynamic_pointer_cast<H2Core::JackDriver>( pAudioDriver ) !=
-		 nullptr ) {
+	// Branch on the running driver kind (ADR 0029), not the driver pointer.
+	if ( audioDriverInfo.kind == Preferences::AudioDriver::Jack ) {
 		sInfo.append( "<b>" )
 			.append( tr( "JACK Audio Connection Kit Driver" ) )
 			.append( "</b><br>" )
@@ -1261,8 +1214,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::Alsa ) {
 		sInfo.append( "<b>" )
 			.append( tr( "ALSA Driver" ) )
 			.append( "</b><br>" );
@@ -1273,25 +1225,14 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #else
-		auto pAlsaDriver =
-			std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver );
-		if ( pAlsaDriver != nullptr ) {
-			sInfo.append( "<br>" )
-				.append( tr( "Currently connected to device: " ) )
-				.append( "<b>" )
-				.append( pAlsaDriver->m_sAlsaAudioDevice )
-				.append( "</b>" );
-		}
-		else {
-			ERRORLOG(
-				"ALSA driver selected in PreferencesDialog but no ALSA driver "
-				"running?"
-			);
-		}
+		sInfo.append( "<br>" )
+			.append( tr( "Currently connected to device: " ) )
+			.append( "<b>" )
+			.append( audioDriverInfo.connectedDevice )
+			.append( "</b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::PortAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::PortAudio ) {
 		sInfo.append( "<b>" )
 			.append( tr( "PortAudio Driver" ) )
 			.append( "</b><br>" );
@@ -1303,8 +1244,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::CoreAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::CoreAudio ) {
 		sInfo.append( "<b>" )
 			.append( tr( "CoreAudio Driver" ) )
 			.append( "</b><br>" );
@@ -1316,8 +1256,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::PulseAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::PulseAudio ) {
 		sInfo.append( "<b>" )
 			.append( tr( "PulseAudio Driver" ) )
 			.append( "</b><br>" );
@@ -1329,8 +1268,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
-			  nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::Oss ) {
 		sInfo.append( "<b>" )
 			.append( tr( "Open Sound System" ) )
 			.append( "</b><br>" )
@@ -1367,7 +1305,6 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 void PreferencesDialog::updateMidiDriverInfo() {
 	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	const auto nMidiIndex = m_pMidiDriverComboBox->findText(
 		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
@@ -1380,58 +1317,34 @@ void PreferencesDialog::updateMidiDriverInfo() {
 				  .arg( Preferences::midiDriverToQString( pPref->m_midiDriver ) ) );
 	}
 
-	// List MIDI input ports
+	// List MIDI input ports (ADR 0029: enumerated via the engine handle).
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		const auto midiOutputPorts = pHydrogen->getMidiDriver()->
-			getExternalPortList( MidiBaseDriver::PortType::Output );
+	const auto midiOutputPorts = HydrogenApp::pEngine()->getMidiPorts(
+		MidiBaseDriver::PortType::Output );
+	midiPortComboBox->setEnabled( midiOutputPorts.size() != 0 );
+	for ( uint i = 0; i < midiOutputPorts.size(); i++) {
+		const QString sPortName = midiOutputPorts[i];
+		midiPortComboBox->addItem( sPortName );
 
-		if ( midiOutputPorts.size() != 0 ) {
-			midiPortComboBox->setEnabled( true );
-
-			for ( uint i = 0; i < midiOutputPorts.size(); i++) {
-				const QString sPortName = midiOutputPorts[i];
-				midiPortComboBox->addItem( sPortName );
-
-				if ( sPortName == pPref->m_sMidiPortName ) {
-					midiPortComboBox->setCurrentIndex( i + 1 );
-				}
-			}
-		}
-		else {
-			midiPortComboBox->setEnabled( false );
+		if ( sPortName == pPref->m_sMidiPortName ) {
+			midiPortComboBox->setCurrentIndex( i + 1 );
 		}
 	}
-	else {
-		midiPortComboBox->setEnabled( false );
-	}
 
-	// List MIDI output ports
+	// List MIDI output ports (ADR 0029: enumerated via the engine handle).
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		const auto midiInputPorts = pHydrogen->getMidiDriver()->
-			getExternalPortList( MidiBaseDriver::PortType::Input );
+	const auto midiInputPorts = HydrogenApp::pEngine()->getMidiPorts(
+		MidiBaseDriver::PortType::Input );
+	midiOutportComboBox->setEnabled( midiInputPorts.size() != 0 );
+	for ( uint i = 0; i < midiInputPorts.size(); i++) {
+		const QString sPortName = midiInputPorts[i];
+		midiOutportComboBox->addItem( sPortName );
 
-		if ( midiInputPorts.size() != 0 ) {
-			midiOutportComboBox->setEnabled( true );
-
-			for ( uint i = 0; i < midiInputPorts.size(); i++) {
-				const QString sPortName = midiInputPorts[i];
-				midiOutportComboBox->addItem( sPortName );
-
-				if ( sPortName == pPref->m_sMidiOutputPortName ) {
-					midiOutportComboBox->setCurrentIndex( i + 1 );
-				}
-			}
+		if ( sPortName == pPref->m_sMidiOutputPortName ) {
+			midiOutportComboBox->setCurrentIndex( i + 1 );
 		}
-		else {
-			midiOutportComboBox->setEnabled( false );
-		}
-	}
-	else {
-		midiOutportComboBox->setEnabled( false );
 	}
 }
 
@@ -1568,15 +1481,12 @@ void PreferencesDialog::setAudioDriverInfoPortAudio() {
 	latencyTargetSpinBox->show();
 	latencyValueLabel->show();
 
-	const auto pAudioDriver = HydrogenApp::pEngine()->getAudioDriver();
-	int nLatency;
-	if ( pAudioDriver == nullptr ) {
+	const auto pEngine = HydrogenApp::pEngine();
+	if ( ! pEngine->getAudioDriverInfo().isPresent ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;
 	}
-	else {
-		nLatency = pAudioDriver->getLatency();
-	}
+	const int nLatency = pEngine->getAudioLatencyFrames();
 	latencyValueLabel->setText( QString("Current: %1 frames").arg( nLatency ) );
 
 	bufferSizeSpinBox->setToolTip( "" );
@@ -1956,9 +1866,7 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 
 	QApplication::restoreOverrideCursor();
 
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
+	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		QMessageBox::critical(
 			this, "Hydrogen", pCommonStrings->getAudioDriverStartError()
 		);

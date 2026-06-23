@@ -565,37 +565,55 @@ identity decided by raw pointer or bare `Id` in the swept sites; no
 [ADR 0027](/docs/decisions/0027-coreactioncontroller-single-write-surface.md);
 catalogue in [proposal 0005](0005-gui-engine-write-surface-catalogue.md).
 
-**Status: 🚧 NEW (2026-06-18).** A review of `src/gui/src/`, `src/core/Basics/`
-and `src/core/AudioEngine/` found that the editor-mode premise — the GUI reaches
-the engine only through an injected handle — is only half true. Besides the ~70
-`CoreActionController` (CAC) entry points and the reads routed through
-`IEngineAccess` (Phase 2), the GUI **directly mutates** engine-owned `Basics`
-objects at ~110 sites (note/instrument/component/layer/sample/drumkit/song
-edits), 16 of them taking the `AudioEngine` lock by hand. In editor mode those
-edits hit the editor's local mirror, not the engine — so routing CAC over IPC
-while leaving direct mutation in place yields a GUI that silently drops most
-editing across the split. **This phase makes CAC the single GUI→engine write
-surface and must complete before T5.2-cont/T5.3/T5.4.**
+**Status: 🚧 MOSTLY DONE — re-audited 2026-06-23.** A review of `src/gui/src/`,
+`src/core/Basics/` and `src/core/AudioEngine/` found that the editor-mode premise —
+the GUI reaches the engine only through an injected handle — was only half true:
+besides the ~70 `CoreActionController` (CAC) entry points and the Phase-2 reads,
+the GUI **directly mutated** engine-owned `Basics` at ~110 sites, 16 taking the
+`AudioEngine` lock by hand. The sweep makes CAC the single GUI→engine write surface
+and must complete before T5.2-cont/T5.3/T5.4.
+
+As of the 2026-06-23 re-audit, this is **largely complete and CI-enforced**: the
+guard `tools/check_write_surface` is green (zero direct GUI mutation of engine-owned
+`Basics`), and the per-section catalogue in
+[proposal 0005](0005-gui-engine-write-surface-catalogue.md) is marked done for
+§2.1–2.5, §2.7, the §2.6 pan-law/stop-notes rows, bucket C (config, incl. the
+audio/MIDI driver sweep of
+[ADR 0029](0029-audio-driver-access-across-editor-split.md)) and bucket D (peaks).
+Suite at `OK (305 tests)`, ctest gate (incl. `WriteSurfaceGuard`) green.
+**Remaining before the phase is fully closed** (see proposal 0005 §2.6/§5/§6): the
+sequencer/pattern-list verbs still called directly on `Hydrogen`/`PatternList`
+(`sequencerPlay` onto the surface, `setSelectedPatternNumber`→`selectPattern`,
+`toggleNextPattern`, `movePattern`/`PatternList::replace`), the four remaining
+hand-rolled lock sites that wrap them, and extending the guard beyond `Basics` to
+`AudioEngine`/`Sampler`/`Transport`.
 
 **Tasks** (full catalogue + per-class tables in proposal 0005):
 
-* **T4.5a** — add CAC entry points for bucket B (~30–40 methods): note-property
-  edits, pattern size, the full `Instrument` parameter set + ADSR,
-  `InstrumentComponent`/`InstrumentLayer` edits (via whole-instrument
-  replacement), drumkit properties, pan-law, sequencer/pattern-selection ops.
-  Each entry **owns the `AudioEngine` lock** (absorbing the 16 hand-rolled lock
-  blocks).
-* **T4.5b** — sweep the GUI class by class (PatternEditor → SongEditor →
-  InstrumentEditor → ComponentView/LayerPreview → dialogs), redirecting direct
-  mutations and the undo commands that call GUI widget methods to call *only*
-  CAC; move view-refresh out of the mutation path into `EventQueue`/
-  `EventListener` reactions. Adds missing undo coverage for the ~27 instrument/
-  component/layer edits that are not undoable today.
-* **T4.5c** — reroute bucket C (config: `Sampler::setInterpolateMode`, metronome
-  volume, MIDI table, custom dirs) to the layered config (ADR 0022/0023), and
-  bucket D (display: peak meters → telemetry; export/selection flags stay local).
-* **T4.5d** — CI grep guard failing on any direct mutation of engine-owned
-  `Basics`/`AudioEngine`/`Transport` in `src/gui/src` (the done-when gate).
+* **T4.5a — ✅ DONE (bar the sequencer/pattern-list verbs).** CAC gained the
+  bucket-B entry points: `editNoteProperty`/`addOrRemoveNote`/`setPatternSize`;
+  the full `Instrument` set + `setInstrumentAttack/Decay/Sustain/Release` (ADSR);
+  `setComponent*`/`setLayer*`; `setPanLaw`; `toggleGridCell`; `previewInstrument`
+  (folds the MixerLine stop-notes). Each owns the `AudioEngine` lock.
+  **Open:** `sequencerPlay` (onto the surface), `toggleNextPattern`, `movePattern`
+  — not yet added.
+* **T4.5b — ✅ DONE for PatternEditor / InstrumentEditor / ComponentView+
+  LayerPreview / dialogs; ⚠ SongEditor pattern-list partial.** Direct `Basics`
+  mutations and their undo commands route through CAC (guard-clean); view-refresh
+  moved to `EventListener` reactions; missing undo added for the instrument/
+  component/layer edits. **Open:** `SongEditorPatternList` still calls
+  `setSelectedPatternNumber`/`toggleNextPattern`/`PatternList::replace` directly,
+  with the four hand-rolled locks that wrap them (proposal 0005 §2.6/§5).
+* **T4.5c — ✅ DONE.** Bucket C rerouted: interpolation
+  (`PreferencesDialog`→Preferences, `ExportSongDialog`→transient engine override),
+  MIDI table/instrument-map (persisted via ADR 0023), audio/MIDI **drivers**
+  (ADR 0029 override-layer config), metronome volume (Preferences). Bucket D:
+  peak-meter model writes removed (read as telemetry); export/selection flags
+  stay local.
+* **T4.5d — ⚠ PARTIAL.** CI grep guard `tools/check_write_surface` is wired
+  (CTest `WriteSurfaceGuard`) and **green** for engine-owned `Basics`. **Open:**
+  extend it to `AudioEngine`/`Sampler`/`Transport` calls and hand-rolled `lock()`
+  (documented in the guard header's "NOT yet enforced" note).
 
 **Tests first:** per new CAC entry point, a unit test against a local headless
 engine asserting the state change (+ that it is lock-safe); the standalone GUI
@@ -604,6 +622,12 @@ smoke + undo/redo stay green at every class converted.
 **Done when:** the CI guard is clean (zero direct mutations remain); full suite +
 GUI smoke green; undo/redo behaviour unchanged or improved. Editor mode then
 resumes as pure CAC-over-IPC.
+
+*Status against done-when (2026-06-23):* the `Basics`-scoped guard is **clean** and
+the suite/GUI-smoke are **green**; the gate is **not yet fully met** because the
+sequencer/pattern-list verbs (§2.6) remain direct and the guard does not yet cover
+`AudioEngine`/`Sampler`/`Transport`. Those are the only items left to close the
+phase.
 
 ---
 

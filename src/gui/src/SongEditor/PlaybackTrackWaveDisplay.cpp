@@ -118,10 +118,7 @@ void PlaybackTrackWaveDisplay::updatePeakData()
 	// this within the increment.
 	const float fStep =
 		static_cast<float>( m_pLayer->getSample()->getSampleRate() ) /
-		static_cast<float>( HydrogenApp::pHydrogen()
-								->getAudioEngine()
-								->getAudioDriver()
-								->getSampleRate() );
+		static_cast<float>( HydrogenApp::pEngine()->getAudioSampleRate() );
 
 	int nSongEditorGridWidth;
 	if ( pH2App->getSongEditorPanel() != nullptr ) {

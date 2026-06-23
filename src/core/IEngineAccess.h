@@ -31,6 +31,7 @@
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Time.h>
+#include <core/IO/AudioDriverInfo.h>
 #include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/MidiDriverInfo.h>
@@ -65,7 +66,8 @@ public:
 	virtual ~IEngineAccess() = default;
 
 	// --- owned services / handles the GUI fans out from ---
-	virtual std::shared_ptr<AudioDriver> getAudioDriver() const = 0;
+	// NB: the audio driver is NOT exposed as an object (ADR 0029). The GUI reads
+	// it through the value accessors below (getAudioDriverInfo() et al.).
 	virtual AudioEngine* getAudioEngine() const = 0;
 	virtual std::shared_ptr<CoreActionController> getCoreActionController() const = 0;
 	virtual EventQueue* getEventQueue() const = 0;
@@ -88,6 +90,29 @@ public:
 	virtual bool hasJackTransport() const = 0;
 	virtual bool isPatternEditorLocked() const = 0;
 	virtual bool isUnderSessionManagement() const = 0;
+
+	// --- audio driver: value views, never the driver object (ADR 0029) ---
+	/** Concrete kind / running state of the active audio driver — replaces
+	 * GUI-side `dynamic_pointer_cast` on the driver pointer. */
+	virtual AudioDriverInfo getAudioDriverInfo() const = 0;
+	/** Active driver sample rate in Hz, 0 when no driver is present. */
+	virtual int getAudioSampleRate() const = 0;
+	/** Active driver buffer size in frames, 0 when no driver is present. */
+	virtual int getAudioBufferSize() const = 0;
+	/** Estimated output latency in frames, 0 when no driver is present. */
+	virtual int getAudioLatencyFrames() const = 0;
+	/** XRuns since the driver started, 0 when no driver is present. */
+	virtual int getAudioXRuns() const = 0;
+	/** Available output devices for the given driver @a kind (and PortAudio
+	 * host API @a sHostAPI, ignored by other drivers). */
+	virtual QStringList getAudioDevices(
+		Preferences::AudioDriver kind, const QString& sHostAPI ) const = 0;
+	/** Available PortAudio host APIs, empty for other drivers. */
+	virtual QStringList getAudioHostAPIs() const = 0;
+	/** Whether the disk-writer (export) driver reported a write failure.
+	 * Interim accessor; folds into export progress/completion events later
+	 * (ADR 0029). */
+	virtual bool isExportWritingFailed() const = 0;
 
 	// --- MIDI driver: value views, never the driver object (ADR 0029) ---
 	/** Presence / input+output activity of the active MIDI driver — replaces

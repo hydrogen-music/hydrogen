@@ -591,7 +591,7 @@ void AudioFileBrowser::updateTransport()
 	// this within the increment.
 	const float fStep =
 		static_cast<float>( m_pSample->getSampleRate() ) /
-		static_cast<float>( pAudioEngine->getAudioDriver()->getSampleRate() );
+		static_cast<float>( HydrogenApp::pEngine()->getAudioSampleRate() );
 	const float fIncrement =
 		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) * fStep;
 

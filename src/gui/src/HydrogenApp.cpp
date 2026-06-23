@@ -826,13 +826,12 @@ void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& 
 }
 
 void HydrogenApp::XRunEvent() {
-	const auto pAudioDriver = m_pHydrogen->getAudioDriver();
-	if ( pAudioDriver == nullptr ) {
+	if ( ! pEngine()->getAudioDriverInfo().isPresent ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;
 	}
 	showStatusBarMessage(
-		QString( "XRUNS [%1]!!!" ).arg( pAudioDriver->getXRuns() ),
+		QString( "XRUNS [%1]!!!" ).arg( pEngine()->getAudioXRuns() ),
 		"HydrogenApp::XRunEvent" );
 }
 
