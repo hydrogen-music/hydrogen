@@ -84,11 +84,15 @@ class MidiControlDialog : public QDialog,
 
 	void updateFont();
 	void updateIcons();
-	/** Writes the (config) Preferences MIDI instrument map to disk after an
-	 * edit so changes made here are persisted immediately — like every other
-	 * Preferences option on dialog OK — instead of living only in memory until
-	 * shutdown (ADR 0027 bucket C). */
-	void persistMidiInstrumentMap();
+	/** Writes the (config) Preferences MIDI settings edited in this dialog
+	 * (instrument map, clock/transport handling, action/feedback channels,
+	 * note-off behaviour, …) to disk right after an edit so they are persisted
+	 * immediately — like every other Preferences option on dialog OK — instead
+	 * of living only in memory until shutdown. This keeps recovery after a crash
+	 * consistent: either all of these settings come back or none would. Settings
+	 * with a live engine side-effect still go through CoreActionController first;
+	 * this only adds the durable write (ADR 0027 bucket C). */
+	void persistMidiSettings();
 
 	void updateInstrumentTable();
 	/** @returns the row number corresponding to the objects just added. */

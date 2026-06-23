@@ -196,6 +196,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( m_pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
 		HydrogenApp::pPreferences()->m_bMidiNoteOffIgnore =
 			m_pInputIgnoreNoteOffCheckBox->isChecked();
+		persistMidiSettings();
 	} );
 
 	auto m_pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
@@ -205,6 +206,9 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( m_pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
 		HydrogenApp::pEngine()->getCoreActionController()->setMidiClockInputHandling(
 			m_pInputMidiClockCheckBox->isChecked() );
+		// CoreActionController applies the live engine side-effect; we still need
+		// the durable write so this survives a crash like the other settings.
+		persistMidiSettings();
 	} );
 
 	auto m_pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
@@ -219,6 +223,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( m_pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		HydrogenApp::pPreferences()->setMidiTransportInputHandling(
 			m_pInputMidiTransportCheckBox->isChecked() );
+		persistMidiSettings();
 	} );
 
 	auto pInputActionChannelWidget = new QWidget( pInputSettingsWidget );
@@ -251,6 +256,13 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 				Midi::channelFromInt( static_cast<int>( fValue ) );
 		}
 	);
+	// valueChanged fires on every increment; defer the durable write to commit
+	// (focus-out / Enter) so dragging the spin box does not write the config
+	// file on each tick.
+	connect(
+		m_pInputActionChannelSpinBox, &QAbstractSpinBox::editingFinished,
+		[=]() { persistMidiSettings(); }
+	);
 
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
 	pConfigLayout->addWidget( pOutputSettingsWidget );
@@ -280,6 +292,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( m_pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
 		HydrogenApp::pPreferences()->m_bEnableMidiFeedback =
 			m_pOutputEnableMidiFeedbackCheckBox->isChecked();
+		persistMidiSettings();
 	} );
 
 	auto m_pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
@@ -289,6 +302,9 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( m_pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
 		HydrogenApp::pEngine()->getCoreActionController()->setMidiClockOutputSend(
 			m_pOutputMidiClockCheckBox->isChecked() );
+		// CoreActionController applies the live engine side-effect; we still need
+		// the durable write so this survives a crash like the other settings.
+		persistMidiSettings();
 	} );
 
 	auto m_pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
@@ -299,6 +315,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( m_pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
 		HydrogenApp::pPreferences()->setMidiTransportOutputSend(
 			m_pOutputMidiTransportCheckBox->isChecked() );
+		persistMidiSettings();
 	} );
 
 	auto pOutputLabelledWidget = new QWidget( pOutputSettingsWidget );
@@ -333,6 +350,13 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			);
 		}
 	);
+	// valueChanged fires on every increment; defer the durable write to commit
+	// (focus-out / Enter) so dragging the spin box does not write the config
+	// file on each tick.
+	connect(
+		m_pOutputFeedbackChannelSpinBox, &QAbstractSpinBox::editingFinished,
+		[=]() { persistMidiSettings(); }
+	);
 
 	auto pOutputSendNoteOffLabel = new QLabel( tr( "Send Note-Off messages" ) );
 	pOutputLabelledLayout->addWidget( pOutputSendNoteOffLabel, 1, 0 );
@@ -361,6 +385,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 
 			if ( newValue != pPref->getMidiSendNoteOff() ) {
 				pPref->setMidiSendNoteOff( newValue );
+				persistMidiSettings();
 			}
 		}
 	);
@@ -465,7 +490,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		if ( pMidiInstrumentMap->getInput() != input ) {
 			pMidiInstrumentMap->setInput( input );
 			updateInstrumentTable();
-			persistMidiInstrumentMap();
+			persistMidiSettings();
 		}
 	} );
 
@@ -502,7 +527,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		if ( pMidiInstrumentMap->getOutput() != output ) {
 			pMidiInstrumentMap->setOutput( output );
 			updateInstrumentTable();
-			persistMidiInstrumentMap();
+			persistMidiSettings();
 
 			// Announce the changes to the instrument editor.
 			HydrogenApp::get_instance()->changePreferences(
@@ -545,7 +570,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
-			persistMidiInstrumentMap();
+			persistMidiSettings();
 		}
 	);
 	pMappingGridLayout->addWidget(
@@ -562,7 +587,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		m_pGlobalInputChannelSpinBox->setEnabled(
 			m_pGlobalInputChannelCheckBox->isChecked() );
 		updateInstrumentTable();
-		persistMidiInstrumentMap();
+		persistMidiSettings();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalInputChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
@@ -603,7 +628,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
-			persistMidiInstrumentMap();
+			persistMidiSettings();
 		}
 	);
 	pMappingGridLayout->addWidget(
@@ -620,7 +645,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		m_pGlobalOutputChannelSpinBox->setEnabled(
 			m_pGlobalOutputChannelCheckBox->isChecked() );
 		updateInstrumentTable();
-		persistMidiInstrumentMap();
+		persistMidiSettings();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalOutputChannelCheckBox, 3, 5,
 							  Qt::AlignCenter );
@@ -934,13 +959,13 @@ void MidiControlDialog::updateIcons() {
 
 }
 
-void MidiControlDialog::persistMidiInstrumentMap()
+void MidiControlDialog::persistMidiSettings()
 {
-	// The MIDI instrument map is part of the (config) Preferences. Persist it to
-	// disk right after an edit so it behaves like every other Preferences option
-	// (written on dialog OK) and — like those — reaches the engine via the
-	// shared config rather than living only in memory until shutdown (ADR 0027
-	// bucket C).
+	// The MIDI settings edited in this dialog are part of the (config)
+	// Preferences. Persist them to disk right after an edit so they behave like
+	// every other Preferences option (written on dialog OK) and — like those —
+	// reach the engine via the shared config rather than living only in memory
+	// until shutdown (ADR 0027 bucket C).
 	HydrogenApp::pPreferences()->save();
 }
 
@@ -1122,7 +1147,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 							Midi::channelFromInt( static_cast<int>( fValue
 							) )
 						);
-					persistMidiInstrumentMap();
+					persistMidiSettings();
 				}
 				else {
 					ERRORLOG(
@@ -1153,7 +1178,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 								pInputChannelSpinBox->value()
 							)
 						);
-					persistMidiInstrumentMap();
+					persistMidiSettings();
 				}
 				else {
 					ERRORLOG(
