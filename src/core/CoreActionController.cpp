@@ -3043,6 +3043,26 @@ bool CoreActionController::selectPattern( int nPatternNumber )
 	return true;
 }
 
+bool CoreActionController::toggleNextPattern( int nPatternNumber )
+{
+	const auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	const auto pPatternList = pSong->getPatternList();
+	if ( nPatternNumber < 0 || nPatternNumber >= pPatternList->size() ) {
+		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2)" )
+					  .arg( nPatternNumber )
+					  .arg( pPatternList->size() ) );
+		return false;
+	}
+
+	m_pHydrogen->toggleNextPattern( nPatternNumber );
+
+	return true;
+}
 bool CoreActionController::removePattern( int nPatternNumber )
 {
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();

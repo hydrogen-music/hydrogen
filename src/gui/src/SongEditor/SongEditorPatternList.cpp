@@ -782,7 +782,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent* ev )
 		 pHydrogen->getPatternMode() == Song::PatternMode::Stacked ) {
 		// Mark the pattern to be played once end of currently playing patterns
 		// is reached.
-		pHydrogen->toggleNextPattern( nRow );
+		HydrogenApp::pEngine()->getCoreActionController()->toggleNextPattern( nRow );
 	}
 	else {
 		HydrogenApp::pEngine()->getCoreActionController()->selectPattern( nRow );

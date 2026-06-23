@@ -514,6 +514,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * @return bool true on success
 	 */
 	bool selectPattern( int nPatternNumber );
+	/** Marks a pattern to be played next once the current one finishes (stacked
+	 * mode). Wraps `Hydrogen::toggleNextPattern`. */
+	bool toggleNextPattern( int nPatternNumber );
 	/** Removes a pattern from the pattern list.
 	 *
 	 * @param nPatternNumber Specifies the position/row of the pattern.
