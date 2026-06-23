@@ -3063,6 +3063,66 @@ bool CoreActionController::toggleNextPattern( int nPatternNumber )
 
 	return true;
 }
+
+bool CoreActionController::movePattern( int nSourcePattern, int nTargetPattern )
+{
+	if ( nSourcePattern == nTargetPattern ) {
+		return true;
+	}
+
+	const auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	auto pPatternList = pSong->getPatternList();
+	if ( nSourcePattern < 0 || nSourcePattern >= pPatternList->size() ||
+		 nTargetPattern < 0 || nTargetPattern >= pPatternList->size() ) {
+		ERRORLOG( QString( "Index out of bound — source [%1], target [%2], size [%3]" )
+					  .arg( nSourcePattern )
+					  .arg( nTargetPattern )
+					  .arg( pPatternList->size() ) );
+		return false;
+	}
+
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	auto pSourcePattern = pPatternList->get( nSourcePattern );
+	if ( nSourcePattern < nTargetPattern ) {
+		for ( int nPatr = nSourcePattern; nPatr < nTargetPattern; nPatr++ ) {
+			pPatternList->replace( nPatr, pPatternList->get( nPatr + 1 ) );
+		}
+		pPatternList->replace( nTargetPattern, pSourcePattern );
+	}
+	else {
+		for ( int nPatr = nSourcePattern; nPatr > nTargetPattern; nPatr-- ) {
+			pPatternList->replace( nPatr, pPatternList->get( nPatr - 1 ) );
+		}
+		pPatternList->replace( nTargetPattern, pSourcePattern );
+	}
+
+	pAudioEngine->unlock();
+
+	if ( m_pHydrogen->isPatternEditorLocked() ) {
+		m_pHydrogen->updateSelectedPattern();
+	}
+	else {
+		m_pHydrogen->setSelectedPatternNumber(
+			nTargetPattern, true, Event::Trigger::Default
+		);
+	}
+
+	m_pHydrogen->setSongModified( true );
+
+	// The view reacts to the event (ADR 0027) — no GUI-side editor refresh in the
+	// mutation path.
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, 0 );
+
+	return true;
+}
+
 bool CoreActionController::removePattern( int nPatternNumber )
 {
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();

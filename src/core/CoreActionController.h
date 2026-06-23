@@ -517,6 +517,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Marks a pattern to be played next once the current one finishes (stacked
 	 * mode). Wraps `Hydrogen::toggleNextPattern`. */
 	bool toggleNextPattern( int nPatternNumber );
+	/** Reorders the pattern list, moving the pattern at @a nSourcePattern to
+	 * @a nTargetPattern (shifting the patterns in between). Owns the
+	 * `AudioEngine` lock; updates the selection and fires `PatternChanged` so the
+	 * editors refresh (ADR 0027). */
+	bool movePattern( int nSourcePattern, int nTargetPattern );
 	/** Removes a pattern from the pattern list.
 	 *
 	 * @param nPatternNumber Specifies the position/row of the pattern.

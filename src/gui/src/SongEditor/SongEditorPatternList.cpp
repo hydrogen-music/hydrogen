@@ -505,43 +505,10 @@ void SongEditorPatternList::movePatternLine(
 	int nTargetPattern
 )
 {
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-
-	auto pPatternList = pSong->getPatternList();
-
-	// move patterns...
-	auto pSourcePattern = pPatternList->get( nSourcePattern );
-	if ( nSourcePattern < nTargetPattern ) {
-		for ( int nPatr = nSourcePattern; nPatr < nTargetPattern; nPatr++ ) {
-			auto pPattern = pPatternList->get( nPatr + 1 );
-			pPatternList->replace( nPatr, pPattern );
-		}
-		pPatternList->replace( nTargetPattern, pSourcePattern );
-	}
-	else {
-		for ( int nPatr = nSourcePattern; nPatr > nTargetPattern; nPatr-- ) {
-			auto pPattern = pPatternList->get( nPatr - 1 );
-			pPatternList->replace( nPatr, pPattern );
-		}
-		pPatternList->replace( nTargetPattern, pSourcePattern );
-	}
-
-	if ( pHydrogen->isPatternEditorLocked() ) {
-		pHydrogen->updateSelectedPattern();
-	}
-	else {
-		pHydrogen->setSelectedPatternNumber(
-			nTargetPattern, true, Event::Trigger::Default
-		);
-	}
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateEditors(
-		Editor::Update::Content
-	);
-	pHydrogen->setSongModified( true );
+	// Reorder + selection + modified + refresh-event all happen engine-side
+	// (ADR 0027); the view reacts to PatternChanged.
+	HydrogenApp::pEngine()->getCoreActionController()->movePattern(
+		nSourcePattern, nTargetPattern );
 }
 
 int SongEditorPatternList::yToRow( int nY ) const
