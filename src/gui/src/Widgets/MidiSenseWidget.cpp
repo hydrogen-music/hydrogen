@@ -152,10 +152,9 @@ void MidiSenseWidget::updateMidi()
 		m_lastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
 
 		if ( m_bDirectWrite ) {
-			// write the Midiaction / parameter combination to the midiMap
-			auto pMidiEventMap =
-				HydrogenApp::pPreferences()->getMidiEventMap();
-
+			// Write the MIDI-action / parameter combination to the map through
+			// the undo command, which routes to MidiActionTable and persists it
+			// (ADR 0027 bucket C).
 			assert( m_pAction );
 
 			auto pAction = std::make_shared<H2Core::MidiAction>( m_pAction );

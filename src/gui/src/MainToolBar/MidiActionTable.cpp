@@ -140,6 +140,17 @@ void MidiActionTable::resetTable()
 	}
 }
 
+void MidiActionTable::persistMidiMap()
+{
+	// The MIDI action table is part of the (config) Preferences MidiEventMap.
+	// Persist it to disk right after an edit so it behaves like every other
+	// Preferences option (written on dialog OK) and — like those — reaches the
+	// engine via the shared config rather than living only in memory until
+	// shutdown (ADR 0027 bucket C). GUI components stay in sync through the
+	// MidiEventMapChanged event fired by the (un)register calls.
+	HydrogenApp::pPreferences()->save();
+}
+
 void MidiActionTable::insertRow(
 	int nRow,
 	H2Core::MidiEvent::Type eventType,
@@ -175,6 +186,8 @@ void MidiActionTable::insertRow(
 		);
 		++nIndex;
 	}
+
+	persistMidiMap();
 }
 
 void MidiActionTable::removeRow( int nRow )
@@ -209,6 +222,8 @@ void MidiActionTable::removeRow( int nRow )
 		);
 		++nIndex;
 	}
+
+	persistMidiMap();
 }
 
 void MidiActionTable::replaceRow(
@@ -251,6 +266,8 @@ void MidiActionTable::replaceRow(
 	m_tableRows[nRow].pMidiAction = pMidiAction;
 
 	updateRowContent( nRow, eventType, eventParameter, pMidiAction );
+
+	persistMidiMap();
 }
 
 void MidiActionTable::removeRegisteredEvents(
