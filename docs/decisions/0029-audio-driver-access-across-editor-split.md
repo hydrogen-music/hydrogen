@@ -151,10 +151,15 @@ the editor reads, e.g.:
 struct AudioDriverInfo {            // value type; crosses IPC as plain fields
     Preferences::AudioDriver kind;  // Jack / Alsa / PortAudio / CoreAudio /
                                     // PulseAudio / Oss / Disk / Null / Fake / None
-    bool      isRunning;            // replaces the NullDriver "is real?" gate
-    bool      isCompiledIn;         // replaces the per-driver #ifdef NOT-compiled note
-    // driver-specific scalars already mirrored in config are read from Preferences;
-    // anything genuinely live (e.g. connected device name) is filled here.
+    bool      isPresent;            // a driver object exists (incl. NullDriver) —
+                                    // mirrors the old getAudioDriver() != nullptr
+    bool      isRunning;            // a real (non-Null) driver — replaces the
+                                    // NullDriver "is real?" gate
+    QString   connectedDevice;      // live device name where the driver exposes one
+                                    // (e.g. ALSA); empty otherwise. Display only.
+    // Driver-specific scalars (sample rate, buffer size, …) are read from the
+    // Preferences override layer, not from this struct. Per-backend "compiled in?"
+    // remains a GUI-side #ifdef build fact, not a descriptor field.
 };
 ```
 
@@ -173,7 +178,7 @@ subsumes the ~24 cast sites.
 | `getSampleRate()`, `getBufferSize()`; driver/device *selection*, JACK/PortAudio options | Config | `Preferences` override layer ([ADR 0022](0022-layered-plugin-configuration.md)); UI hidden in plugin mode ([ADR 0026](0026-plugin-mode-feature-disablement-and-gui.md)) |
 | `getDevices()/getHostAPIs()/getAlsaDevices()`, `getLatency()` | Query | request/response → typed `IEngineAccess` accessors |
 | `getXRuns()`; `DiskWriterDriver::m_bWritingFailed` | Event | `Xrun` event payload; export progress/completion events |
-| `dynamic_pointer_cast<ConcreteDriver>`, `NullDriver` "is real?" gates | Descriptor | `AudioDriverInfo` value struct (kind + isRunning + isCompiledIn) |
+| `dynamic_pointer_cast<ConcreteDriver>`, `NullDriver` "is real?" gates | Descriptor | `AudioDriverInfo` value struct (kind + isPresent + isRunning + connectedDevice) |
 | `getOut_L/R()`, `init/connect/disconnect()` | — | engine/RT-only; never GUI or IPC |
 
 The driver object stays entirely engine-side. `IpcEngineAccess` no longer forwards

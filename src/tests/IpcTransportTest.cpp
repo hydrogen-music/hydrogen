@@ -24,6 +24,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/Hydrogen.h>
+#include <core/IPC/IpcCoreActionController.h>
 #include <core/IPC/IpcEngineBridge.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcChannel.h>
@@ -116,6 +117,80 @@ void IpcTransportTest::testCommandReachesEngine() {
 		152.0, pEngine->getAudioEngine()->getNextBpm(), 0.001 );
 
 	delete pEngine;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcTransportTest::testProxyCommandReachesEngine() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pMirror = makeStandaloneEngine();   // editor-side read mirror
+	auto* pEngine = makeStandaloneEngine();   // authoritative engine
+
+	// The GUI calls the CoreActionController surface; in editor mode that is the
+	// IPC proxy (ADR 0030). One call must (a) reflect on the local mirror and
+	// (b) forward to the authoritative engine.
+	IpcCoreActionController proxy( pMirror, client );
+	CPPUNIT_ASSERT( proxy.setBpm( 152.0f ) );
+
+	// (a) local mirror updated for snappy UI
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		152.0, pMirror->getAudioEngine()->getNextBpm(), 0.001 );
+
+	// (b) the SetBpm opcode travelled the socket; the bridge applies it to the
+	// authoritative engine.
+	IpcMessage cmd;
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::SetBpm );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		152.0, pEngine->getAudioEngine()->getNextBpm(), 0.001 );
+
+	delete pEngine;
+	delete pMirror;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcTransportTest::testProxyMarshalsParameterCommands() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pMirror = makeStandaloneEngine();
+	IpcCoreActionController proxy( pMirror, client );
+
+	// A 2-arg instrument setter marshals opcode + args over the socket.
+	proxy.setInstrumentGain( 3, 0.75f );
+	IpcMessage m1;
+	CPPUNIT_ASSERT( conn->receive( m1 ) );
+	CPPUNIT_ASSERT( m1.getOpcode() == IpcOpcode::SetInstrumentGain );
+	CPPUNIT_ASSERT_EQUAL( 3, m1.getArgs()[0].toInt() );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.75, m1.getArgs()[1].toDouble(), 0.001 );
+
+	// A 4-arg layer setter too.
+	proxy.setLayerGain( 1, 2, 0, 0.5f );
+	IpcMessage m2;
+	CPPUNIT_ASSERT( conn->receive( m2 ) );
+	CPPUNIT_ASSERT( m2.getOpcode() == IpcOpcode::SetLayerGain );
+	CPPUNIT_ASSERT_EQUAL( 4, static_cast<int>( m2.getArgs().size() ) );
+	CPPUNIT_ASSERT_EQUAL( 2, m2.getArgs()[1].toInt() );
+
+	delete pMirror;
 	delete client;
 
 	___INFOLOG( "passed" );

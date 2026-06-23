@@ -24,6 +24,7 @@
 
 #include <core/IEngineAccess.h>
 #include <core/Hydrogen.h>
+#include <core/IPC/IpcCoreActionController.h>
 
 namespace H2Core {
 
@@ -51,7 +52,9 @@ class IpcChannel;
 class IpcEngineAccess : public IEngineAccess {
 public:
 	IpcEngineAccess( Hydrogen* pMirror, IpcChannel* pChannel )
-		: m_pMirror( pMirror ), m_pChannel( pChannel ) {}
+		: m_pMirror( pMirror ), m_pChannel( pChannel )
+		, m_pController(
+			std::make_shared<IpcCoreActionController>( pMirror, pChannel ) ) {}
 	~IpcEngineAccess() override = default;
 
 	Hydrogen* getMirror() const { return m_pMirror; }
@@ -60,7 +63,7 @@ public:
 	AudioEngine* getAudioEngine() const override {
 		return m_pMirror->getAudioEngine(); }
 	std::shared_ptr<CoreActionController> getCoreActionController() const override {
-		return m_pMirror->getCoreActionController(); }
+		return m_pController; }
 	EventQueue* getEventQueue() const override {
 		return m_pMirror->getEventQueue(); }
 	std::shared_ptr<MidiActionManager> getMidiActionManager() const override {
@@ -153,6 +156,9 @@ private:
 	Hydrogen* m_pMirror;
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;
+	/** Editor-mode command surface: forwards commands over IPC (ADR 0030). Owned
+	 * here; returned (as the base type) from getCoreActionController(). */
+	std::shared_ptr<CoreActionController> m_pController;
 };
 
 }

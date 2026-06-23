@@ -645,11 +645,45 @@ truth), `applyOverride()` composes base⊕override, and `mergeForWrite()`/`persi
 do the locked re-read + field-level 3-way merge + atomic `QSaveFile` write
 (diff-against-baseline, override excluded). Covered by `PluginConfigTest` (4) and
 `ConfigConcurrencyTest` (3, incl. a parallel-thread no-corruption check).
-Remaining: the live `QLocalSocket` transport + bridge thread (T5.1 wiring), T5.2
-`IpcEngineAccess`, T5.3/T5.4 editor mode + lifecycle (integration
-`EditorModeTest`), wiring `PluginConfig` into `Preferences` (baseline retention +
-debounced write-through replacing the snapshot `save()`), T5.7 sound-library
-rescan.
+The live `QLocalSocket` transport + EventQueue-draining bridge (`IpcChannel`/
+`IpcServer`/`IpcEngineBridge`, `IpcTransportTest`), the editor state mirror +
+`IpcEngineAccess` (T5.2, `EditorMirrorTest`), and T5.7 sound-library rescan have
+since landed.
+
+**T5.2-cont — CAC over IPC ([ADR 0030](/docs/decisions/0030-coreactioncontroller-over-ipc.md)) — STARTED 2026-06-23.**
+Stage 1 (mechanism) landed, suite `OK (306 tests)` + ctest 5/5: CAC's GUI-facing
+methods are `virtual`; a new `IpcCoreActionController` (`src/core/IPC/`) overrides
+them to marshal the command to an `IpcMessage` over the channel **and** apply it
+to the local mirror (the `sequencerStop` pattern); `IpcEngineAccess::getCoreActionController()`
+now returns it. Verified end-to-end by `IpcTransportTest::testProxyCommandReachesEngine`
+(`proxy.setBpm` → mirror updated **and** opcode dispatched to the authoritative
+engine).
+
+**Stage 2 — vocabulary expansion (batches 2a + 2b), suite `OK (307 tests)` + ctest
+5/5.** The GUI calls **96** distinct CAC methods (via `getCoreActionController()->`
+or a cached `pController->`). The simple fire-and-forget tier is now fully routed —
+**~74/96** covered: batch 2a (35 scalar Instrument/Component/Layer/strip/song
+setters — `setInstrument*`/`setComponent*`/`setLayer*`/`setStripIs*`/`setHumanize*`/
+`setSwing`/`setPanLaw`/`setPlaybackTrack*`) and batch 2b (23 transport/pattern/jack/
+midi-clock commands — `move/removePattern`, `moveInstrument`, `renameComponent`,
+`setPatternSize`, `toggle*`, `activate{Timeline,Jack*,PlaylistSong}`, `startCountIn`,
+`clearMidi*Log`, `previewInstrument`, …). Opcodes + bridge cases + proxy overrides
+were generated from the real CAC signatures (so they match exactly) and spliced in
+lockstep; `IpcTransportTest::testProxyMarshalsParameterCommands` covers the wire
+round-trip.
+
+**Remaining (~22, the complex tiers — need per-method work, not the generator):**
+* **Tier 2 — object/payload args:** `setPattern`/`setPatternProperties`/
+  `setSongProperties`/`setPlaylist`/`addToPlaylist`/`addInstrument`/
+  `removeInstrument`/`replaceInstrument` (XML/serialised payloads), `editNoteProperty`/
+  `addOrRemoveNote`/`handleNote` (many-arg note edits), `toggleGridCell` (`GridPoint`),
+  `setInstrumentMidiOutNote`/`Channel` (out-param `long*`).
+* **Tier 3 — object-returning ⇒ request/response on `IpcChannel`:** `loadPattern`/
+  `loadPlaylist`/`loadPreferences`/`loadSong`; the file-save ops `saveSong`/
+  `saveSongAs`/`savePlaylist`/`savePlaylistAs` (engine-side, result via event).
+* Then **T5.3/T5.4** editor mode + lifecycle (integration `EditorModeTest`); and
+  wiring `PluginConfig` into `Preferences` (baseline retention + debounced
+  write-through replacing the snapshot `save()`).
 
 **Tests first**
 * `IpcProtocolTest` (unit): every `CoreActionController` command and every

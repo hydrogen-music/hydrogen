@@ -28,6 +28,8 @@ class IpcTransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( IpcTransportTest );
 	CPPUNIT_TEST( testHelloHandshakeOverSocket );
 	CPPUNIT_TEST( testCommandReachesEngine );
+	CPPUNIT_TEST( testProxyCommandReachesEngine );
+	CPPUNIT_TEST( testProxyMarshalsParameterCommands );
 	CPPUNIT_TEST( testRescanCommandReachesEngine );
 	CPPUNIT_TEST( testEventForwardingOverSocket );
 	CPPUNIT_TEST( testTelemetrySharedMemory );
@@ -36,6 +38,8 @@ class IpcTransportTest : public CppUnit::TestFixture {
 public:
 	void testHelloHandshakeOverSocket();
 	void testCommandReachesEngine();
+	void testProxyCommandReachesEngine();
+	void testProxyMarshalsParameterCommands();
 	void testRescanCommandReachesEngine();
 	void testEventForwardingOverSocket();
 	void testTelemetrySharedMemory();
