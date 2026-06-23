@@ -108,20 +108,14 @@ void MidiControlButton::flashMidiOutputIcon() {
 void MidiControlButton::updateActivation() {
 	const auto pPref = HydrogenApp::pPreferences();
 
-	// No MIDI driver or device -> turn off
-	auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
-	if ( pMidiDriver != nullptr ) {
-		m_bMidiInputEnabled = pMidiDriver->isInputActive();
-		m_bMidiOutputEnabled = pMidiDriver->isOutputActive();
-	}
-	else {
-		m_bMidiInputEnabled = false;
-		m_bMidiOutputEnabled = false;
-	}
+	// No MIDI driver or device -> turn off (ADR 0029).
+	const auto midiDriverInfo = HydrogenApp::pEngine()->getMidiDriverInfo();
+	m_bMidiInputEnabled = midiDriverInfo.isInputActive;
+	m_bMidiOutputEnabled = midiDriverInfo.isOutputActive;
 
-	setEnabled( pMidiDriver != nullptr );
+	setEnabled( midiDriverInfo.isPresent );
 	setToolTip(
-		pMidiDriver != nullptr ? m_sToolTipDefault : m_sToolTipDisabled
+		midiDriverInfo.isPresent ? m_sToolTipDefault : m_sToolTipDisabled
 	);
 
 	update();

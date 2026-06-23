@@ -741,6 +741,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Enable or disable sending MIDI clock messages. */
 	bool setMidiClockOutputSend( bool bHandle );
 
+	/** Clear the MIDI driver's handled-input activity log (ADR 0029 — the GUI
+	 * "bin" button routes through here instead of touching the driver). */
+	bool clearMidiInputLog();
+	/** Clear the MIDI driver's handled-output activity log (ADR 0029). */
+	bool clearMidiOutputLog();
+
 	bool addAutomationPoint( float fX, float fY );
 	bool removeAutomationPoint( float fX );
 

@@ -4100,6 +4100,26 @@ bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 	return true;
 }
 
+bool CoreActionController::clearMidiInputLog()
+{
+	auto pMidiDriver = m_pHydrogen->getMidiDriver();
+	if ( pMidiDriver == nullptr ) {
+		return false;
+	}
+	pMidiDriver->clearHandledInput();
+	return true;
+}
+
+bool CoreActionController::clearMidiOutputLog()
+{
+	auto pMidiDriver = m_pHydrogen->getMidiDriver();
+	if ( pMidiDriver == nullptr ) {
+		return false;
+	}
+	pMidiDriver->clearHandledOutput();
+	return true;
+}
+
 bool CoreActionController::addAutomationPoint( float fX, float fY )
 {
 	auto pSong = m_pHydrogen->getSong();

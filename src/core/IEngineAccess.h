@@ -23,12 +23,17 @@
 #define H2C_IENGINE_ACCESS_H
 
 #include <memory>
+#include <vector>
+
+#include <QStringList>
 
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Time.h>
 #include <core/IO/JackDriver.h>
+#include <core/IO/MidiBaseDriver.h>
+#include <core/IO/MidiDriverInfo.h>
 
 namespace H2Core {
 
@@ -65,7 +70,8 @@ public:
 	virtual std::shared_ptr<CoreActionController> getCoreActionController() const = 0;
 	virtual EventQueue* getEventQueue() const = 0;
 	virtual std::shared_ptr<MidiActionManager> getMidiActionManager() const = 0;
-	virtual std::shared_ptr<MidiBaseDriver> getMidiDriver() const = 0;
+	// NB: the MIDI driver is NOT exposed as an object (ADR 0029). The GUI reads
+	// it through the value accessors below (getMidiDriverInfo() et al.).
 	virtual std::shared_ptr<Playlist> getPlaylist() const = 0;
 	virtual std::shared_ptr<Preferences> getPreferences() const = 0;
 	virtual std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const = 0;
@@ -82,6 +88,23 @@ public:
 	virtual bool hasJackTransport() const = 0;
 	virtual bool isPatternEditorLocked() const = 0;
 	virtual bool isUnderSessionManagement() const = 0;
+
+	// --- MIDI driver: value views, never the driver object (ADR 0029) ---
+	/** Presence / input+output activity of the active MIDI driver — replaces
+	 * GUI-side `getMidiDriver()` null + isInputActive/isOutputActive probes. */
+	virtual MidiDriverInfo getMidiDriverInfo() const = 0;
+	/** External system MIDI ports of the given @a portType, empty when no driver
+	 * is present (query — ADR 0029). */
+	virtual std::vector<QString> getMidiPorts(
+		MidiBaseDriver::PortType portType ) const = 0;
+	/** Snapshot of the driver's recently handled input events (the MIDI-activity
+	 * monitor), empty when no driver is present. */
+	virtual std::vector<std::shared_ptr<MidiInput::HandledInput>>
+		getHandledMidiInputs() const = 0;
+	/** Snapshot of the driver's recently handled output events, empty when no
+	 * driver is present. */
+	virtual std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
+		getHandledMidiOutputs() const = 0;
 
 	// --- commands / mutations ---
 	virtual bool handleBeatCounter( TimePoint start = TimePoint() ) = 0;

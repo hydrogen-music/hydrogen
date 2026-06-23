@@ -761,10 +761,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 
 	m_pInputBinButton = addBinButton( pInputWidget );
 	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
-		auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
-		if ( pMidiDriver != nullptr ) {
-			pMidiDriver->clearHandledInput();
-		}
+		// Clear the driver's activity log via CAC (ADR 0029).
+		HydrogenApp::pEngine()->getCoreActionController()->clearMidiInputLog();
 		updateInputTable();
 	});
 
@@ -796,10 +794,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pOutputLayout->addWidget( m_pMidiOutputTable );
 	m_pOutputBinButton = addBinButton( pOutputWidget );
 	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
-		auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
-		if ( pMidiDriver != nullptr ) {
-			pMidiDriver->clearHandledOutput();
-		}
+		// Clear the driver's activity log via CAC (ADR 0029).
+		HydrogenApp::pEngine()->getCoreActionController()->clearMidiOutputLog();
 		updateOutputTable();
 	});
 
@@ -1372,12 +1368,7 @@ void MidiControlDialog::updateInputTable() {
 	const bool bLastRowPreviouslyVisible =
 		MidiControlDialog::lastRowVisible( m_pMidiInputTable );
 
-	auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
-
-	std::vector< std::shared_ptr<MidiInput::HandledInput> > handledInputs;
-	if ( pMidiDriver != nullptr ) {
-		handledInputs = pMidiDriver->getHandledInputs();
-	}
+	const auto handledInputs = HydrogenApp::pEngine()->getHandledMidiInputs();
 
 	const int nOldRowCount = m_pMidiInputTable->rowCount();
 	m_pMidiInputTable->setRowCount( handledInputs.size() );
@@ -1571,12 +1562,7 @@ void MidiControlDialog::updateOutputTable() {
 	const bool bLastRowPreviouslyVisible =
 		MidiControlDialog::lastRowVisible( m_pMidiOutputTable );
 
-	auto pMidiDriver = HydrogenApp::pEngine()->getMidiDriver();
-
-	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > handledOutputs;
-	if ( pMidiDriver != nullptr ) {
-		handledOutputs = pMidiDriver->getHandledOutputs();
-	}
+	const auto handledOutputs = HydrogenApp::pEngine()->getHandledMidiOutputs();
 
 	const int nOldRowCount = m_pMidiOutputTable->rowCount();
 	m_pMidiOutputTable->setRowCount( handledOutputs.size() );

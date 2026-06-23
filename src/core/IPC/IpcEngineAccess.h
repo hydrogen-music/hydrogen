@@ -67,8 +67,6 @@ public:
 		return m_pMirror->getEventQueue(); }
 	std::shared_ptr<MidiActionManager> getMidiActionManager() const override {
 		return m_pMirror->getMidiActionManager(); }
-	std::shared_ptr<MidiBaseDriver> getMidiDriver() const override {
-		return m_pMirror->getMidiDriver(); }
 	std::shared_ptr<Playlist> getPlaylist() const override {
 		return m_pMirror->getPlaylist(); }
 	std::shared_ptr<Preferences> getPreferences() const override {
@@ -98,6 +96,18 @@ public:
 		return m_pMirror->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {
 		return m_pMirror->isUnderSessionManagement(); }
+
+	// MIDI driver (ADR 0029): same deferred query/event plumbing as audio.
+	MidiDriverInfo getMidiDriverInfo() const override { return MidiDriverInfo(); }
+	std::vector<QString> getMidiPorts(
+		MidiBaseDriver::PortType /*portType*/ ) const override {
+		return std::vector<QString>(); }
+	std::vector<std::shared_ptr<MidiInput::HandledInput>>
+		getHandledMidiInputs() const override {
+		return std::vector<std::shared_ptr<MidiInput::HandledInput>>(); }
+	std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
+		getHandledMidiOutputs() const override {
+		return std::vector<std::shared_ptr<MidiOutput::HandledOutput>>(); }
 
 	// --- commands: transport forwarded over IPC, view state applied locally ---
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override {

@@ -52,8 +52,6 @@ public:
 		return m_pHydrogen->getEventQueue(); }
 	std::shared_ptr<MidiActionManager> getMidiActionManager() const override {
 		return m_pHydrogen->getMidiActionManager(); }
-	std::shared_ptr<MidiBaseDriver> getMidiDriver() const override {
-		return m_pHydrogen->getMidiDriver(); }
 	std::shared_ptr<Playlist> getPlaylist() const override {
 		return m_pHydrogen->getPlaylist(); }
 	std::shared_ptr<Preferences> getPreferences() const override {
@@ -83,6 +81,14 @@ public:
 		return m_pHydrogen->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {
 		return m_pHydrogen->isUnderSessionManagement(); }
+
+	MidiDriverInfo getMidiDriverInfo() const override;
+	std::vector<QString> getMidiPorts(
+		MidiBaseDriver::PortType portType ) const override;
+	std::vector<std::shared_ptr<MidiInput::HandledInput>>
+		getHandledMidiInputs() const override;
+	std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
+		getHandledMidiOutputs() const override;
 
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override {
 		return m_pHydrogen->handleBeatCounter( start ); }
