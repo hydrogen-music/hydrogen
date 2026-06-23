@@ -84,6 +84,11 @@ class MidiControlDialog : public QDialog,
 
 	void updateFont();
 	void updateIcons();
+	/** Writes the (config) Preferences MIDI instrument map to disk after an
+	 * edit so changes made here are persisted immediately — like every other
+	 * Preferences option on dialog OK — instead of living only in memory until
+	 * shutdown (ADR 0027 bucket C). */
+	void persistMidiInstrumentMap();
 
 	void updateInstrumentTable();
 	/** @returns the row number corresponding to the objects just added. */

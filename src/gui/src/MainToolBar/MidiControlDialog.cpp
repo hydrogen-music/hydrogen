@@ -465,6 +465,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		if ( pMidiInstrumentMap->getInput() != input ) {
 			pMidiInstrumentMap->setInput( input );
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
 		}
 	} );
 
@@ -501,6 +502,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		if ( pMidiInstrumentMap->getOutput() != output ) {
 			pMidiInstrumentMap->setOutput( output );
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
 
 			// Announce the changes to the instrument editor.
 			HydrogenApp::get_instance()->changePreferences(
@@ -543,6 +545,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
 		}
 	);
 	pMappingGridLayout->addWidget(
@@ -559,6 +562,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		m_pGlobalInputChannelSpinBox->setEnabled(
 			m_pGlobalInputChannelCheckBox->isChecked() );
 		updateInstrumentTable();
+		persistMidiInstrumentMap();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalInputChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
@@ -599,6 +603,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
 		}
 	);
 	pMappingGridLayout->addWidget(
@@ -615,6 +620,7 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		m_pGlobalOutputChannelSpinBox->setEnabled(
 			m_pGlobalOutputChannelCheckBox->isChecked() );
 		updateInstrumentTable();
+		persistMidiInstrumentMap();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalOutputChannelCheckBox, 3, 5,
 							  Qt::AlignCenter );
@@ -928,6 +934,16 @@ void MidiControlDialog::updateIcons() {
 
 }
 
+void MidiControlDialog::persistMidiInstrumentMap()
+{
+	// The MIDI instrument map is part of the (config) Preferences. Persist it to
+	// disk right after an edit so it behaves like every other Preferences option
+	// (written on dialog OK) and — like those — reaches the engine via the
+	// shared config rather than living only in memory until shutdown (ADR 0027
+	// bucket C).
+	HydrogenApp::pPreferences()->save();
+}
+
 void MidiControlDialog::updateInstrumentTable() {
 	m_instrumentMap.clear();
 
@@ -1106,6 +1122,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 							Midi::channelFromInt( static_cast<int>( fValue
 							) )
 						);
+					persistMidiInstrumentMap();
 				}
 				else {
 					ERRORLOG(
@@ -1136,6 +1153,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 								pInputChannelSpinBox->value()
 							)
 						);
+					persistMidiInstrumentMap();
 				}
 				else {
 					ERRORLOG(
