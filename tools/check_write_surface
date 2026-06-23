@@ -8,14 +8,19 @@
 # CoreActionController. This is the "done-when" gate for the Phase 4.5
 # write-surface sweep (proposal 0005).
 #
-# Scope (current): direct mutation of engine-owned **Basics** objects (Note,
-# Pattern, Instrument, InstrumentComponent, InstrumentLayer, Sample, Adsr, Song,
-# Drumkit, AutomationPath) via the conventional pointer names.
+# Scope: (1) direct mutation of engine-owned **Basics** objects (Note, Pattern,
+# Instrument, InstrumentComponent, InstrumentLayer, Sample, Adsr, Song, Drumkit,
+# AutomationPath) via the conventional pointer names; (2) direct mutation /
+# playback commands on AudioEngine / Transport / Sampler (set*/reset*/... and
+# noteOn/noteOff/previewInstrument/stopPlayingNotes).
 #
-# NOT yet enforced (pending Phase 4.5 step 6 + remaining preview routing):
-# direct AudioEngine / Sampler / Transport calls (e.g. getSampler()->noteOn,
-# getSampler()->setInterpolateMode [bucket C config], hand-rolled lock()).
-# Extend the pattern below once those are swept.
+# NOT enforced (by design): state *reads* under a hand-rolled lock() — e.g. the
+# SongEditor position ruler / pattern list reading transport & playing-pattern
+# state for painting, and the SampleEditor's editor-local preview-instrument
+# mutation. These are not song-graph writes; in editor mode they become telemetry
+# reads (ADR 0018), a separate migration. The few preview/audition calls that
+# play an editor-local or not-yet-in-song object through the sampler are
+# allowlisted below, pending the editor-mode preview design (ADR 0016).
 #
 # Legitimate exceptions (ADR 0027 buckets C/D, editor-local working copies,
 # scratch/preview notes, file & session bookkeeping) are listed in ALLOW with a
@@ -50,6 +55,15 @@ GUI_DIR="src/gui/src"
 # capital). Qt-widget pointers (pButton, pLabel, m_pFader, ...) are not named
 # like this, so they do not match.
 PATTERN='\b(pNote|ppNote|pNotes|pNewNote|pSelectedNote|pInstrument|ppInstrument|pInstr|pPattern|ppPattern|pComponent|ppComponent|pLayer|ppLayer|pSong|pDrumkit|pSample|pAdsr|pAutomationPath)[[:space:]]*->[[:space:]]*(set|insert|remove|add|purge|clear|move|replace|erase)[A-Z]'
+
+# Direct mutation / playback commands on the engine, transport or sampler — these
+# must go through CoreActionController too (ADR 0027/0029). Reads
+# (getState/getPlayhead/getSampler getters, etc.) and hand-rolled lock() are NOT
+# matched: they are state reads for painting that become telemetry in editor mode,
+# a separate migration. The remaining preview/audition calls
+# (getSampler()->noteOn / previewInstrument of an editor-local or not-in-song
+# object) are allowlisted below, pending the editor-mode preview design (ADR 0016).
+PATTERN_ENGINE='(getAudioEngine\(\)|pAudioEngine|getTransport\(\)|pTransport|getSampler\(\)|pSampler)[[:space:]]*->[[:space:]]*((set|insert|remove|add|purge|clear|reset|move|replace|erase)[A-Z]|noteOn|noteOff|previewInstrument|stopPlayingNotes)'
 
 # Normalize a source line: strip leading/trailing whitespace, collapse internal
 # whitespace runs to single spaces.
@@ -104,6 +118,16 @@ allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setProbability( f
 allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( nullptr, pComponent );'
 allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );'
 
+# --- Preview / audition: play an editor-local or not-yet-in-song object through
+#     the sampler (layer audition; sample / file / library preview). These are
+#     transient render commands, not song-graph edits; routing them across the
+#     editor↔engine split is the editor-mode preview design (ADR 0016), tracked
+#     separately from the write-surface sweep. ---------------------------------
+allow "$GUI_DIR/SampleEditor/SampleEditor.cpp" 'pAudioEngine->getSampler()->previewInstrument('
+allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'HydrogenApp::pEngine()->getAudioEngine()->getSampler()->noteOn('
+allow "$GUI_DIR/Rack/SoundLibrary/SoundLibraryTree.cpp" 'pHydrogen->getAudioEngine()->getSampler()->previewInstrument('
+allow "$GUI_DIR/AudioFileBrowser/AudioFileBrowser.cpp" 'pAudioEngine->getSampler()->previewInstrument('
+
 violations=0
 while IFS= read -r line; do
 	[ -z "$line" ] && continue
@@ -123,7 +147,7 @@ while IFS= read -r line; do
 	fi
 	echo "  $file:$lineno: $norm"
 	violations=$((violations + 1))
-done < <( LC_ALL=C grep -rnE "$PATTERN" "$GUI_DIR" 2>/dev/null )
+done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)" "$GUI_DIR" 2>/dev/null )
 
 if [ "$violations" -gt 0 ]; then
 	echo

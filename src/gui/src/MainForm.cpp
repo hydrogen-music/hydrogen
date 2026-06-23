@@ -229,7 +229,7 @@ MainForm::~MainForm()
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencerStop();
+		HydrogenApp::pEngine()->sequencerStop();
 	}
 	
 	hide();
@@ -669,7 +669,7 @@ void MainForm::action_file_new()
 	
 	Hydrogen * pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogen->getAudioEngine()->getState() == H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencerStop();
+		HydrogenApp::pEngine()->sequencerStop();
 	}
 
 	if ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Artifact::Song ) ) {
@@ -940,7 +940,7 @@ bool MainForm::prepareSongOpening() {
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogen->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
-		pHydrogen->sequencerStop();
+		HydrogenApp::pEngine()->sequencerStop();
 	}
 
 	return HydrogenApp::handleUnsavedChanges( Filesystem::Artifact::Song );
@@ -2864,7 +2864,7 @@ void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	if ( pAudioEngine->getState() == H2Core::AudioEngine::State::Ready ||
 		 pAudioEngine->getState() == H2Core::AudioEngine::State::CountIn ) {
-		pHydrogen->sequencerPlay();
+		HydrogenApp::pEngine()->sequencerPlay();
 	}
 }
 

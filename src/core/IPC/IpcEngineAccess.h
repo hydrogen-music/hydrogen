@@ -129,6 +129,7 @@ public:
 		m_pMirror->loadPlaybackTrack( sFileName ); }
 	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override {
 		m_pMirror->onTapTempoAccelEvent( start ); }
+	void sequencerPlay() override;
 	void sequencerStop() override;
 	void setDrumkitModified( bool bIsModified ) override {
 		m_pMirror->setDrumkitModified( bIsModified ); }

@@ -756,12 +756,12 @@ void MainToolBar::playBtnClicked()
 			pHydrogenApp->showStatusBarMessage( tr( "Counting in" ) );
 		}
 		else {
-			pHydrogen->sequencerPlay();
+			HydrogenApp::pEngine()->sequencerPlay();
 			pHydrogenApp->showStatusBarMessage( tr( "Playing." ) );
 		}
 	}
 	else {
-		pHydrogen->sequencerStop();
+		HydrogenApp::pEngine()->sequencerStop();
 		pHydrogenApp->showStatusBarMessage( tr( "Pause." ) );
 	}
 }
@@ -770,7 +770,6 @@ void MainToolBar::playBtnClicked()
 void MainToolBar::stopBtnClicked()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	// Hint that something is wrong in case there is no proper audio
 	// driver set.
@@ -784,7 +783,7 @@ void MainToolBar::stopBtnClicked()
 		return;
 	}
 
-	pHydrogen->sequencerStop();
+	HydrogenApp::pEngine()->sequencerStop();
 	HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
 	( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Stopped." ) );
 }

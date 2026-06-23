@@ -951,10 +951,10 @@ void PlaylistEditor::playButtonClicked()
 	}
 
 	if ( m_pPlayButton->isChecked() ) {
-		pHydrogen->sequencerPlay();
+		HydrogenApp::pEngine()->sequencerPlay();
 	}
 	else {
-		pHydrogen->sequencerStop();
+		HydrogenApp::pEngine()->sequencerStop();
 		pH2App->showStatusBarMessage( tr("Pause.") );
 	}
 }

@@ -135,6 +135,7 @@ public:
 	virtual bool handleBeatCounter( TimePoint start = TimePoint() ) = 0;
 	virtual void loadPlaybackTrack( const QString& sFileName ) = 0;
 	virtual void onTapTempoAccelEvent( TimePoint start = TimePoint() ) = 0;
+	virtual void sequencerPlay() = 0;
 	virtual void sequencerStop() = 0;
 	virtual void setDrumkitModified( bool bIsModified ) = 0;
 	virtual void setIsTimelineActivated( bool bEnabled ) = 0;

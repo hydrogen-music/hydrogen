@@ -106,6 +106,8 @@ public:
 		m_pHydrogen->loadPlaybackTrack( sFileName ); }
 	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override {
 		m_pHydrogen->onTapTempoAccelEvent( start ); }
+	void sequencerPlay() override {
+		m_pHydrogen->sequencerPlay(); }
 	void sequencerStop() override {
 		m_pHydrogen->sequencerStop(); }
 	void setDrumkitModified( bool bIsModified ) override {

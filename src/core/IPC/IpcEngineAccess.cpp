@@ -26,6 +26,15 @@
 
 namespace H2Core {
 
+void IpcEngineAccess::sequencerPlay() {
+	// Transport start is engine-authoritative: forward it to the real engine and
+	// reflect it locally so the GUI's transport widgets update immediately.
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::Play ) );
+	}
+	m_pMirror->sequencerPlay();
+}
+
 void IpcEngineAccess::sequencerStop() {
 	// Transport stop is engine-authoritative: forward it to the real engine and
 	// reflect it locally so the GUI's transport widgets update immediately.

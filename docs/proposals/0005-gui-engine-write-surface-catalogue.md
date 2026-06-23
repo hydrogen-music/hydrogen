@@ -1,24 +1,25 @@
 # Proposal 0005 — GUI→engine write-surface catalogue & sweep
 
-**Status:** in progress (2026-06-18) — **re-audited 2026-06-23** against the
-working tree. Companion to
+**Status:** ✅ complete (sweep) — 2026-06-18, **closed out 2026-06-23**. Companion to
 [ADR 0027](/docs/decisions/0027-coreactioncontroller-single-write-surface.md).
 Supports the phase inserted into
 [proposal 0004 §8.5](/docs/proposals/0004-plugin-port-implementation-plan.md).
 
-**Audit summary (2026-06-23).** Buckets A/B-Basics/C/D are landed and the CI guard
-(`tools/check_write_surface`) is **green**, enforcing zero direct GUI mutation of
-engine-owned `Basics`. Done: §2.1 Note/Pattern, §2.2 Instrument+ADSR, §2.3
-Component/Layer, §2.4 Sample, §2.5 Drumkit properties, §2.7 song-grid, plus §2.6
-pan-law and stop-notes; bucket C (config, incl. the audio/MIDI **driver** sweep of
+**Final status (2026-06-23).** CAC is the single GUI→engine write surface and the CI
+guard (`tools/check_write_surface`, CTest `WriteSurfaceGuard`) is **green**, enforcing
+zero direct GUI mutation of engine-owned `Basics` **and** of `AudioEngine`/
+`Transport`/`Sampler`. All sections are done: §2.1 Note/Pattern, §2.2 Instrument+ADSR,
+§2.3 Component/Layer, §2.4 Sample, §2.5 Drumkit properties, §2.6 song-level/transport/
+pattern-list (`sequencerPlay`/`Stop` on the surface; `selectPattern`/`toggleNextPattern`/
+`movePattern`/`setPanLaw` via CAC), §2.7 song-grid; bucket C (config, incl. the
+audio/MIDI **driver** sweep of
 [ADR 0029](/docs/decisions/0029-audio-driver-access-across-editor-split.md)) and
-bucket D (peaks → telemetry). **Still open** (not yet covered, guard does not reach
-them): the §2.6 sequencer / pattern-list verbs (`sequencerPlay`,
-`setSelectedPatternNumber`→`selectPattern`, `toggleNextPattern`, `movePattern` /
-`PatternList::replace`), the remaining hand-rolled lock sites in §5
-(SampleEditor / SongEditorPositionRuler / SongEditorPatternList / ExportSongDialog),
-and extending the guard beyond `Basics` to `AudioEngine`/`Sampler`/`Transport`.
-Per-section status is marked inline below.
+bucket D (peaks → telemetry). The §5 hand-rolled locks are resolved: the write-locks
+were absorbed into CAC; the rest were re-audited as telemetry reads / editor-local
+preview / export (not song-graph writes). **Deferred (editor-mode, by design, not a
+sweep gap):** preview/audition of editor-local / not-in-song objects through the
+sampler (allowlisted in the guard, ADR 0016) and the read-under-lock telemetry
+migration (ADR 0018). Per-section status is marked inline below.
 
 This document is the exhaustive map produced by reviewing `src/gui/src/`,
 `src/core/Basics/` and `src/core/AudioEngine/`. It records, for every writable
@@ -169,21 +170,21 @@ optimisation to revisit when the wire payload matters, not a standalone gap.)
 |---|---|---|---|
 | `Drumkit::set{Name,Author,Version,Info,License,Tags,Image,ImageLicense}` | DrumkitPropertiesDialog.cpp 1034–1097 | yes (`SE_switchDrumkitAction` → `SoundLibraryPanel::switchDrumkit` GUI static) | granular `setDrumkit{Name,Author,…}(value)` setters — **scalar metadata, in-place on the engine's kit, no whole-kit payload**. (Untangle from the GUI static; do **not** route via `SE_switchDrumkitAction`/whole-drumkit replacement for a property edit — that path would re-decode the entire kit across the split.) |
 
-### 2.6 Song-level & sequencer/pattern (SongEditor, MainForm, MainToolBar) — ⚠ PARTIAL
+### 2.6 Song-level & sequencer/pattern (SongEditor, MainForm, MainToolBar) — ✅ DONE
 
-**Done:** `setPanLaw` (CAC, guard-clean); the MixerLine "stop samples"
-(`Note::setNoteOff`) is now `CoreActionController::previewInstrument(nLine, true)`.
-**Still open** (these are `Hydrogen`/`PatternList` calls, not `Basics`, so the guard
-does not reach them and they remain direct in the GUI):
-* `Hydrogen::sequencerPlay` — `MainForm.cpp:2867`, `PlaylistEditor.cpp:954`,
-  `MainToolBar.cpp:759`. Not yet on `IEngineAccess`/CAC (`sequencerStop` is).
-* `Hydrogen::setSelectedPatternNumber` — `SongEditorPatternList.cpp:537` (should call
-  the existing CAC `selectPattern`).
-* `Hydrogen::toggleNextPattern` — `SongEditorPatternList.cpp:785` (no CAC entry yet).
-* `PatternList::replace` in `movePatternLine` — `SongEditorPatternList.cpp:521–530`
-  (needs CAC `movePattern(nFrom,nTo)`).
-* `updateVirtualPatterns` / `updateSongSize` reactions remain direct — best fired
-  from the CAC mutation via `EventListener` rather than called by the GUI.
+* `setPanLaw` → CAC (guard-clean); MixerLine "stop samples" → `previewInstrument`.
+* **Transport** `sequencerPlay`/`sequencerStop` are both on `IEngineAccess` now
+  (`IpcEngineAccess` forwards `Play`/`Stop` opcodes); the GUI calls
+  `pEngine()->sequencerPlay()/Stop()` everywhere (MainForm, MainToolBar,
+  PlaylistEditor).
+* `setSelectedPatternNumber` → `CoreActionController::selectPattern`.
+* `toggleNextPattern` → new `CoreActionController::toggleNextPattern`.
+* `PatternList::replace` (`movePatternLine`) → new `CoreActionController::movePattern`
+  (reorder under lock + selection + `setSongModified` + fires `PatternChanged`); the
+  GUI `movePatternLine` is now a one-line CAC call and the editor refresh is
+  event-driven (`SongEditorPanel::patternChangedEvent`), not in the mutation path.
+* `updateVirtualPatterns`/`updateSongSize` remain as GUI-side reactions (reads/
+  view refresh), not engine mutations — out of the write surface.
 
 | Mutator | GUI sites | RT | Undo? | CAC | New entry point |
 |---|---|---|---|---|---|
@@ -242,37 +243,45 @@ flags stay editor-local as designed.
 
 ---
 
-## 5. The 16 hand-rolled lock sites (absorb into CAC) — ⚠ PARTIAL
+## 5. The hand-rolled lock sites — ✅ RESOLVED (write-locks absorbed; read-locks reclassified)
 
-**Absorbed** (lock moved into the CAC entry point, GUI block deleted):
-`SongEditor.cpp` 207/217; `PatternEditorRuler.cpp` 117/127;
-`PatternEditorPanel.cpp` 1506/1528, 1724/1729.
+**Absorbed into CAC** (the write they wrapped is now a CAC entry point, GUI block
+deleted): `SongEditor.cpp` 207/217; `PatternEditorRuler.cpp` 117/127;
+`PatternEditorPanel.cpp` 1506/1528, 1724/1729; and the `SongEditorPatternList`
+move-pattern lock (now inside `CoreActionController::movePattern`).
 
-**Still present** (their edit is not yet a CAC call — tracks the open §2.6 items and
-the editor's own staging): `SampleEditor.cpp` 1535/1543, 1556/1566;
-`SongEditorPositionRuler.cpp` 838/883; `SongEditorPatternList.cpp` 966/996; plus
-`ExportSongDialog.cpp` 762/765 (export render). These are not caught by the current
-guard (it does not enforce hand-rolled `lock()`); folding them in is part of closing
-§2.6 and the guard-scope extension.
+**Re-audit correction:** the remaining lock sites do **not** wrap song-graph
+*writes*, so they were never write-surface gaps:
+* `SongEditorPositionRuler.cpp` 838/883 and `SongEditorPatternList.cpp` 966/996 lock
+  to **read** transport position / playing-pattern state for *painting* — telemetry
+  reads that become a shared-memory telemetry read in editor mode (ADR 0018).
+* `SampleEditor.cpp` 1535/1556 mutate the **editor-local preview instrument**
+  (`m_pPreviewInstrument`, not a song object) under lock — editor-local audition.
+* `ExportSongDialog.cpp` 762 is an **export-session** batch op (rubberband
+  recalculation) — the export subsystem, engine-side.
+
+None are GUI writes to the song graph; they are tracked under editor-mode telemetry
+/ preview / export, not this sweep. The guard therefore does not enforce hand-rolled
+`lock()`.
 
 ---
 
 ## 6. Sweep order (each step keeps the suite green)
 
 1. ✅ **PatternEditor** (note edits, pattern size, cell toggles).
-2. ⚠ **SongEditor / pattern list** — song-grid cell ✅; **move/select/toggle pattern
-   still open** (see §2.6).
+2. ✅ **SongEditor / pattern list** (song-grid cell; move/select/toggle-next pattern;
+   transport play/stop).
 3. ✅ **Rack/InstrumentEditor** (instrument params + ADSR; missing undo added).
 4. ✅ **Rack/ComponentView + LayerPreview** (component/layer; undo added).
 5. ✅ **Dialogs** (Drumkit/Song/Pattern properties; MixerSettings pan-law).
 6. ✅ **Config reroutes** (bucket C, incl. ADR 0029 drivers) and **display
    cleanups** (bucket D).
-7. ⚠ **CI guard** — `tools/check_write_surface` is in CI and **green** for
-   engine-owned `Basics`; **extending it to `AudioEngine`/`Sampler`/`Transport`
-   (and hand-rolled `lock()`) is still pending** (see the guard header's "NOT yet
-   enforced" note).
+7. ✅ **CI guard** — `tools/check_write_surface` (CTest `WriteSurfaceGuard`) is
+   **green** and now covers engine-owned `Basics` **and** mutating/playback calls on
+   `AudioEngine`/`Transport`/`Sampler`; the only allowlisted exceptions are the
+   preview/audition render commands (ADR 0016, editor-mode preview design).
 
-**Remaining to finish the phase:** the §2.6 sequencer/pattern-list verbs
-(`sequencerPlay` onto the surface, `selectPattern`/`toggleNextPattern`/`movePattern`),
-absorbing the §5 locks that wrap them, and the step-7 guard-scope extension. Editor
-mode then resumes as CAC-over-IPC against the (then-complete) CAC surface.
+**Phase complete.** The single GUI→engine write surface (CAC) is in place and
+CI-enforced. Editor mode resumes as CAC-over-IPC. The only deferred, explicitly
+out-of-scope items are editor-mode concerns: preview/audition of editor-local /
+not-in-song objects, and the read-under-lock telemetry migration (ADR 0016/0018).
