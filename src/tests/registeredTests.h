@@ -39,6 +39,7 @@
 #include "FilesystemTest.h"
 #include "DrumkitTest.h"
 #include "EditorMirrorTest.h"
+#include "EditorModeTest.h"
 #include "H2ProjectTest.h"
 #include "IpcProtocolTest.h"
 #include "IpcTransportTest.h"
@@ -93,6 +94,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EditorMirrorTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EditorModeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcTransportTest );

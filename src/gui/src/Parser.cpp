@@ -118,6 +118,12 @@ bool Parser::parse( int argc, char* argv[] ) {
 		"Quit immediately after startup (startup smoke test)" );
 	quitAfterStartupOption.setFlags( QCommandLineOption::HiddenFromHelp );
 
+	QCommandLineOption pluginEditorOption(
+		QStringList() << "plugin-editor",
+		"Run as an out-of-process plugin editor attached to the engine at the "
+		"given IPC endpoint", "Endpoint" );
+	pluginEditorOption.setFlags( QCommandLineOption::HiddenFromHelp );
+
 	parser.addHelpOption();
 	parser.addVersionOption();
 
@@ -148,6 +154,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addOption( noReporterOption );
 
 	parser.addOption( quitAfterStartupOption );
+
+	parser.addOption( pluginEditorOption );
 
 	parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 
@@ -213,6 +221,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	m_bNoReporter = parser.isSet( noReporterOption );
 
 	m_bQuitAfterStartup = parser.isSet( quitAfterStartupOption );
+
+	m_sPluginEditorEndpoint = parser.value( pluginEditorOption );
 
 	// Operating system GUIs typically pass documents to open as simple
 	// positional arguments to the process command line. Handling this here

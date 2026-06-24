@@ -715,10 +715,13 @@ The serialiser-ready subset is wired:
   `QStringList` (a native `QVariant` type). No whole-object payload needed.
 
 **Per-type serialisers — DONE.** `toXmlBuffer`/`fromXmlBuffer` added to
-`Pattern`/`Drumkit`/`Instrument` (mirroring the pre-existing `Song` pair; tested
-by `H2ProjectTest::testBasicsBufferRoundTrip`). `Instrument::toXmlBuffer` is
-non-`const` (its `saveTo` is). `Playlist` deferred — `Playlist::load_from` is
-declared but undefined, so a serialiser would link-fail.
+`Pattern`/`Drumkit`/`Instrument`/`Playlist` (mirroring the pre-existing `Song`
+pair; tested by `H2ProjectTest::testBasicsBufferRoundTrip`). `Instrument::toXmlBuffer`
+is non-`const` (its `saveTo` is). `Playlist::load_from` (declared-but-undefined)
+was implemented by extracting the node-parsing out of `Playlist::load()` (which
+now delegates to it after its legacy-format check); `saveTo` took a
+`bool bUseRelativePaths` (was a `Preferences`) so `toXmlBuffer` can force absolute
+paths (no playlist file to resolve against over IPC).
 
 **Object-payload wiring (batch 2f) — DONE, suite `OK (313 tests)`.**
 * `setDrumkit` / `setPattern` / `replaceInstrument` → **payload commands**: the
@@ -737,12 +740,48 @@ declared but undefined, so a serialiser would link-fail.
   setPattern/replaceInstrument payload + engine reconstruction; saveSongAs
   opcode/args) and `testProxyAddInstrumentRequestResponse` (event id from reply).
 
-**Deferred:** `setPlaylist`/`addToPlaylist`/`removeFromPlaylist` — gated on a
-`Playlist`/`PlaylistEntry` serialiser, itself blocked on `Playlist::load_from`.
+**Playlist wiring (batch 2g) — DONE, suite `OK (319 tests)`.**
+* `setPlaylist` → **payload command**: the proxy serialises the playlist via
+  `Playlist::toXmlBuffer()`; the engine reconstructs with `fromXmlBuffer`.
+* `addToPlaylist` / `removeFromPlaylist` → marshal a single `PlaylistEntry` as its
+  **mime text** (`PlaylistEntry::toMimeText`/`fromMimeText`, already present) plus
+  the index; `remove` matches engine-side by value (`PlaylistEntry::operator==`).
+* Tested by `IpcTransportTest::testProxyPlaylistCommands` (set → add → remove,
+  each reconstructed + applied on the engine end).
 
-**Next: T5.3/T5.4** editor mode + lifecycle (integration `EditorModeTest`); and
-wiring `PluginConfig` into `Preferences` (baseline retention + debounced
-write-through replacing the snapshot `save()`).
+**T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
+* New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
+* New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`
+  opens an `IpcChannel`, attaches an `EditorStateMirror` (inbound events / song
+  snapshots → mirror), and sends the `hello`. `createEngineAccess()` yields the
+  IPC-backed `IpcEngineAccess` the GUI fans out from. Owns the channel + state
+  mirror; not the mirror engine.
+* `main.cpp` branches on the endpoint: in editor mode it builds a headless mirror
+  (Fake driver, no NSM, no local audio driver), attaches via `EditorSession`, and
+  injects through the new `HydrogenApp::setEditorBootstrap(mirror, access, prefs)`
+  — which generalised `m_pEngineAccess` from `LocalEngineAccess` to the
+  `IEngineAccess` interface so `pEngine()` returns either backing. A failed
+  connection aborts with a logged message (verified via the GUI binary).
+* The GUI itself is unchanged: the de-singletoning is complete (0 direct
+  `Hydrogen::get_instance()` calls in `src/gui`, 397 `pEngine()` fan-outs), so it
+  transparently reads the mirror and writes over IPC.
+* `EditorModeTest` (5 cases): attach + hello handshake; graceful failure on a bad
+  endpoint; inbound song-snapshot + event applied to the mirror; command issued
+  via the engine-access reaches the engine; **engine survives editor disconnect**
+  (the server keeps listening and accepts a reattaching editor).
+
+**T5.4 editor lifecycle — partially DONE.** Connect / inbound-sync / command
+forwarding / clean teardown / engine-survives-disconnect are in place and tested.
+The *host* side — the plugin launching, respawning, and re-attaching the editor
+process — is owned by the real plugin host (a later phase; today only
+`FakePluginHost` exists), so that part is deferred.
+
+**Layered-config consumption — deferred (no host yet).** Persistence is wired
+(`Preferences` retains the load baseline at `Preferences.cpp:464`;
+`PluginConfig::persist` runs the locked 3-way merge at `Preferences.cpp:1895`).
+`PluginConfig::applyOverride` (the host pushing its audio/MIDI/JACK override layer
+onto the editor's base config at startup) has no caller yet — it activates when a
+real host launches the editor with a config override.
 
 **Tests first**
 * `IpcProtocolTest` (unit): every `CoreActionController` command and every
@@ -776,11 +815,15 @@ write-through replacing the snapshot `save()`).
   events are.
 * **T5.2 `IpcEngineAccess`** — second `IEngineAccess` implementation (from Phase
   2) backed by the IPC client, so the GUI is unchanged.
-* **T5.3 Editor mode** — `--plugin-editor <endpoint>` in `Parser`/`main.cpp`:
-  skip `create_instance()`/driver; inject `IpcEngineAccess`; build the unchanged
-  `MainForm`.
-* **T5.4 Editor lifecycle** — plugin launches/reconnects/respawns/tears down the
-  editor process; engine survives editor crash.
+* **T5.3 Editor mode — ✅ DONE.** `--plugin-editor <endpoint>` in
+  `Parser`/`main.cpp`: skip the local driver; build a headless mirror; attach via
+  the new `EditorSession`; inject `IpcEngineAccess` through
+  `HydrogenApp::setEditorBootstrap`; build the unchanged `MainForm`. Covered by
+  `EditorModeTest`.
+* **T5.4 Editor lifecycle — ◑ PARTIAL.** Editor-side connect / inbound-sync /
+  command forwarding / teardown / engine-survives-disconnect are done and tested
+  (`EditorModeTest`). Host-side launch/respawn/re-attach is deferred to the real
+  plugin host (later phase; only `FakePluginHost` exists today).
 * **T5.5 Layered config** (ADR 0022): base from shared `~/.hydrogen`; override
   subset from host/state; retained load baseline on `Preferences`; hide host-owned
   controls in the editor's Preferences UI.

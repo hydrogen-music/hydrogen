@@ -77,7 +77,7 @@ QString HydrogenApp::sMimeSubSeparator = ":";
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 H2Core::Hydrogen* HydrogenApp::m_pBootstrapHydrogen = nullptr;
 std::shared_ptr<H2Core::Preferences> HydrogenApp::m_pBootstrapPreferences = nullptr;
-std::unique_ptr<H2Core::LocalEngineAccess> HydrogenApp::m_pEngineAccess = nullptr;
+std::unique_ptr<H2Core::IEngineAccess> HydrogenApp::m_pEngineAccess = nullptr;
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  : m_pMainForm( pMainForm )
@@ -267,6 +267,19 @@ void HydrogenApp::setBootstrap( H2Core::Hydrogen* pHydrogen,
 		m_pEngineAccess =
 			std::make_unique<H2Core::LocalEngineAccess>( pHydrogen );
 	}
+}
+
+void HydrogenApp::setEditorBootstrap(
+	H2Core::Hydrogen* pMirror,
+	std::unique_ptr<H2Core::IEngineAccess> pEngineAccess,
+	std::shared_ptr<H2Core::Preferences> pPreferences ) {
+	// Editor mode: pHydrogen() resolves to the headless mirror and pEngine() to
+	// the injected IPC-backed handle (ADR 0016). The mirror is owned like the
+	// standalone engine (freed via ~HydrogenApp); the IPC transport behind the
+	// access handle is owned by the EditorSession in main().
+	m_pBootstrapHydrogen = pMirror;
+	m_pBootstrapPreferences = pPreferences;
+	m_pEngineAccess = std::move( pEngineAccess );
 }
 
 H2Core::IEngineAccess* HydrogenApp::pEngine() {

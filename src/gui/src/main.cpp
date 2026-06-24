@@ -31,6 +31,8 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
 #include <core/Hydrogen.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/IpcEngineAccess.h>
 #include <core/Logger.h>
 #ifdef H2CORE_HAVE_OSC
   #include <core/NsmClient.h>
@@ -55,6 +57,7 @@
 #include <getopt.h>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <set>
 #include <signal.h>
 #ifdef WIN32
@@ -434,31 +437,60 @@ int main(int argc, char *argv[])
 			pPref->setShowDevelWarning( false );
 		}
 
-		// Hydrogen here to honor all preferences.
-		auto pHydrogen =
-			H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
-		HydrogenApp::setBootstrap( pHydrogen, pPref );
+		// Out-of-process editor mode (ADR 0016/0018): when an endpoint was given,
+		// the authoritative engine + audio driver live in the plugin host. Here
+		// we build only a headless mirror, attach to that engine over IPC, and let
+		// the GUI fan out from the IPC-backed engine-access handle. No local
+		// driver, no NSM (the host owns the session).
+		const QString sPluginEditorEndpoint = parser.getPluginEditorEndpoint();
+		const bool bEditorMode = ! sPluginEditorEndpoint.isEmpty();
+		std::unique_ptr<H2Core::EditorSession> pEditorSession;
+
+		H2Core::Hydrogen* pHydrogen = nullptr;
+		if ( bEditorMode ) {
+			pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+			pHydrogen =
+				H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
+			pEditorSession = H2Core::EditorSession::connect(
+				sPluginEditorEndpoint, pHydrogen );
+			if ( pEditorSession == nullptr ) {
+				___ERRORLOG( QString( "Unable to attach plugin editor to engine "
+									  "endpoint [%1]. Aborting..." )
+								 .arg( sPluginEditorEndpoint ) );
+				delete pQApp;
+				delete H2Core::Logger::get_instance();
+				exit( 1 );
+			}
+			HydrogenApp::setEditorBootstrap(
+				pHydrogen, pEditorSession->createEngineAccess(), pPref );
+		}
+		else {
+			// Hydrogen here to honor all preferences.
+			pHydrogen =
+				H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
+			HydrogenApp::setBootstrap( pHydrogen, pPref );
 
 #ifdef H2CORE_HAVE_OSC
-		auto pNsmClient = pHydrogen->getNsmClient();
-		if ( pNsmClient != nullptr ) {
-			// We provide the process name as argument.
-			pNsmClient->createInitialClient( QString( argv[0] ) );
-		}
+			auto pNsmClient = pHydrogen->getNsmClient();
+			if ( pNsmClient != nullptr ) {
+				// We provide the process name as argument.
+				pNsmClient->createInitialClient( QString( argv[0] ) );
+			}
 #endif
 
-		// If the NSM_URL variable is present, Hydrogen will not
-		// initialize the audio driver and leaves this to the callback
-		// function nsm_open_cb of the NSM client (which will be
-		// called by now). However, the presence of the environmental
-		// variable does not guarantee for a session management and if
-		// no audio driver is initialized yet, we will do it here. 
-		if ( pHydrogen->getAudioDriver() == nullptr ) {
-			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
-			// we're definitely busy.
-			QApplication::setOverrideCursor( Qt::WaitCursor );
-			pHydrogen->restartAudioDriver();
-			QApplication::restoreOverrideCursor();
+			// If the NSM_URL variable is present, Hydrogen will not
+			// initialize the audio driver and leaves this to the callback
+			// function nsm_open_cb of the NSM client (which will be
+			// called by now). However, the presence of the environmental
+			// variable does not guarantee for a session management and if
+			// no audio driver is initialized yet, we will do it here.
+			if ( pHydrogen->getAudioDriver() == nullptr ) {
+				// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
+				// we're definitely busy.
+				QApplication::setOverrideCursor( Qt::WaitCursor );
+				pHydrogen->restartAudioDriver();
+				QApplication::restoreOverrideCursor();
+			}
 		}
 
 		MainForm *pMainForm =
@@ -557,6 +589,10 @@ int main(int argc, char *argv[])
 		pPref->save();
 		delete pSplash;
 		delete pMainForm;
+		// Editor mode: the mirror engine + IPC engine-access were freed via
+		// ~HydrogenApp (delete pMainForm) above; now drop the IPC transport
+		// (channel + inbound sync) it rode on (ADR 0016).
+		pEditorSession.reset();
 		delete pQApp;
 		// Hydrogen (deleted via ~HydrogenApp) owns its EventQueue and frees it
 		// in ~Hydrogen (ADR 0015).

@@ -130,6 +130,17 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 * Hydrogen instance has been created. */
 		static void setBootstrap( H2Core::Hydrogen* pHydrogen,
 								  std::shared_ptr<H2Core::Preferences> pPreferences );
+
+		/** Editor-mode bootstrap (P5, ADR 0016): inject the headless mirror engine
+		 * @a pMirror (the GUI reads its live objects) together with a pre-built
+		 * IPC-backed engine-access handle @a pEngineAccess (writes are forwarded to
+		 * the authoritative engine in the plugin host). Used by main() in place of
+		 * setBootstrap() when started with `--plugin-editor`; takes ownership of the
+		 * access handle, and (like standalone) of the mirror engine. */
+		static void setEditorBootstrap(
+			H2Core::Hydrogen* pMirror,
+			std::unique_ptr<H2Core::IEngineAccess> pEngineAccess,
+			std::shared_ptr<H2Core::Preferences> pPreferences );
 		/** @} */
 
 		virtual ~HydrogenApp();
@@ -270,10 +281,11 @@ signals:
 		 * setBootstrap()). GUI-local, single-instance; not a core singleton. */
 		static H2Core::Hydrogen* m_pBootstrapHydrogen;
 		static std::shared_ptr<H2Core::Preferences> m_pBootstrapPreferences;
-		/** GUI-local engine-access handle backing pEngine(); a LocalEngineAccess
-		 * over the (single) GUI engine, created by setBootstrap() once the engine
-		 * exists (ADR 0016). */
-		static std::unique_ptr<H2Core::LocalEngineAccess> m_pEngineAccess;
+		/** GUI-local engine-access handle backing pEngine() (ADR 0016). Standalone:
+		 * a LocalEngineAccess over the (single) GUI engine, created by
+		 * setBootstrap() once the engine exists. Editor mode (P5): an IPC-backed
+		 * IpcEngineAccess injected by setEditorBootstrap(). */
+		static std::unique_ptr<H2Core::IEngineAccess> m_pEngineAccess;
 
 		/** Used for accessibility reasons to show scroll bars in case Hydrogen
 		 * has to be shrunk below its minimum size - magnified using the Qt

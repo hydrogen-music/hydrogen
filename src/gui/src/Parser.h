@@ -87,6 +87,13 @@ class Parser {
 		const QString& getShotList() const {
 			return m_sShotList; }
 
+		/** Editor-mode endpoint (ADR 0016/0018). When non-empty, the GUI runs as
+		 * an out-of-process editor attached to the engine living in the plugin
+		 * host at this control-socket endpoint, instead of creating its own
+		 * authoritative engine + audio driver. */
+		const QString& getPluginEditorEndpoint() const {
+			return m_sPluginEditorEndpoint; }
+
 		bool getNoReporter() const {
 			return m_bNoReporter; }
 
@@ -117,6 +124,8 @@ class Parser {
 		bool     m_bNoSplashScreen;
 
 		QString  m_sShotList;
+
+		QString  m_sPluginEditorEndpoint;
 
 		bool     m_bNoReporter;
 
