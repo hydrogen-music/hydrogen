@@ -42,9 +42,8 @@
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
-#include <thread>
-
 #include <QtCore/QCoreApplication>
+#include <QtCore/QThread>
 
 #include <memory>
 
@@ -70,6 +69,28 @@ Hydrogen* makeStandaloneEngine() {
 	auto* pHydrogen = new Hydrogen( pPref, -1 );
 	pHydrogen->setGUIState( Hydrogen::GUIState::headless );
 	return pHydrogen;
+}
+
+// Run @a responder on a dedicated QThread that *owns* @a pChannel for the
+// duration. A QLocalSocket is thread-affine: its QSocketNotifier / socket engine
+// may only be pumped on the (Qt-managed) thread that owns it. Pumping a
+// main-thread channel from a std::thread trips Qt's "Cannot create children for a
+// parent that is in a different thread" / "QSocketNotifier: Can only be used with
+// threads started with QThread" warnings. So we (1) orphan the channel from its
+// IpcServer parent (moveToThread refuses parented objects), (2) move it to a real
+// QThread, and (3) restore its affinity to the main thread on exit so it can be
+// destroyed there. Returns the started thread; the caller wait()s + deletes it
+// after issuing its own (blocking, main-thread) request.
+template <typename Fn>
+QThread* startResponderThread( IpcChannel* pChannel, Fn responder ) {
+	pChannel->setParent( nullptr );
+	QThread* pThread = QThread::create( [pChannel, responder]() {
+		responder();
+		pChannel->moveToThread( QCoreApplication::instance()->thread() );
+	} );
+	pChannel->moveToThread( pThread );
+	pThread->start();
+	return pThread;
 }
 
 } // namespace
@@ -218,7 +239,7 @@ void IpcTransportTest::testRequestResponseRoundTrip() {
 
 	// Engine-side responder: read the request and answer with a Reply that echoes
 	// the request id and carries a computed result (ADR 0030 tier 3).
-	std::thread responder( [conn]() {
+	QThread* pResponder = startResponderThread( conn, [conn]() {
 		IpcMessage req;
 		if ( conn->receive( req, 5000 ) && req.getRequestId() != 0 ) {
 			IpcMessage reply( IpcOpcode::Reply );
@@ -232,13 +253,15 @@ void IpcTransportTest::testRequestResponseRoundTrip() {
 	IpcMessage reply;
 	const bool bOk = client->request(
 		IpcMessage( IpcOpcode::LocateToColumn ).arg( 21 ), reply, 5000 );
-	responder.join();
+	pResponder->wait();
+	delete pResponder;
 
 	CPPUNIT_ASSERT( bOk );
 	CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Reply );
 	CPPUNIT_ASSERT( reply.getRequestId() != 0 );      // id survived the wire
 	CPPUNIT_ASSERT_EQUAL( 42, reply.getArgs()[0].toInt() );
 
+	delete conn;
 	delete client;
 
 	___INFOLOG( "passed" );
@@ -268,7 +291,7 @@ void IpcTransportTest::testProxyMidiOutRequestResponse() {
 	CPPUNIT_ASSERT( conn != nullptr );
 
 	auto* pMirror = makeStandaloneEngine();
-	std::thread responder( [conn]() {
+	QThread* pResponder = startResponderThread( conn, [conn]() {
 		IpcMessage r;
 		if ( conn->receive( r, 5000 ) &&
 			 r.getOpcode() == IpcOpcode::SetInstrumentMidiOutNote &&
@@ -283,10 +306,12 @@ void IpcTransportTest::testProxyMidiOutRequestResponse() {
 	IpcCoreActionController proxy( pMirror, client );
 	long nEventId = -123; // sentinel: must be overwritten by the engine's reply
 	proxy.setInstrumentMidiOutNote( 0, Midi::noteFromIntClamp( 60 ), &nEventId );
-	responder.join();
+	pResponder->wait();
+	delete pResponder;
 
 	CPPUNIT_ASSERT_EQUAL( static_cast<long>( 909 ), nEventId );
 
+	delete conn;
 	delete pMirror;
 	delete client;
 
@@ -422,7 +447,7 @@ void IpcTransportTest::testProxyAddInstrumentRequestResponse() {
 	auto pInstrument = std::make_shared<Instrument>(
 		pMirror->getSong()->getDrumkit()->getInstruments()->get( 0 ) );
 
-	std::thread responder( [conn]() {
+	QThread* pResponder = startResponderThread( conn, [conn]() {
 		IpcMessage r;
 		if ( conn->receive( r, 5000 ) &&
 			 r.getOpcode() == IpcOpcode::AddInstrument &&
@@ -437,10 +462,12 @@ void IpcTransportTest::testProxyAddInstrumentRequestResponse() {
 	IpcCoreActionController proxy( pMirror, client );
 	long nEventId = -123; // sentinel: must be overwritten by the engine's reply
 	proxy.addInstrument( pInstrument, -1, &nEventId );
-	responder.join();
+	pResponder->wait();
+	delete pResponder;
 
 	CPPUNIT_ASSERT_EQUAL( static_cast<long>( 4242 ), nEventId );
 
+	delete conn;
 	delete pMirror;
 	delete client;
 
