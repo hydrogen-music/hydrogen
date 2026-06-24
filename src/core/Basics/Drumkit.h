@@ -133,6 +133,22 @@ class Drumkit : public H2Core::Object<Drumkit>
 					bool bKeepMissingSamples,
 					bool bSilent = false ) const;
 
+		/** Serialize the drumkit to an in-memory XML buffer (samples referenced
+		 * by path, not embedded — ADR 0027/0030 bulk-load). Mirrors the on-disk
+		 * `drumkit.xml`; used to carry a kit across the editor↔engine IPC split. */
+		QByteArray toXmlBuffer( bool bSongKit = false,
+								bool bKeepMissingSamples = true,
+								bool bSilent = false ) const;
+		/** Reconstruct a drumkit from a buffer produced by toXmlBuffer(). The
+		 * engine reloads samples from their (shared-disk) paths. @a sDrumkitPath
+		 * resolves relative sample paths (may be empty). */
+		static std::shared_ptr<Drumkit> fromXmlBuffer(
+			const QByteArray& buffer,
+			const QString& sDrumkitPath,
+			bool bSongKit,
+			bool bSilent,
+			Hydrogen* pHydrogen );
+
 
 		/**
 		 * Save a drumkit to disk.

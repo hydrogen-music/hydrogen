@@ -22,17 +22,26 @@
 #include "IpcTransportTest.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcCoreActionController.h>
 #include <core/IPC/IpcEngineBridge.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcChannel.h>
+#include <core/Midi/Midi.h>
 #include <core/IPC/IpcServer.h>
 #include <core/IPC/PluginTelemetry.h>
 #include <core/IPC/PluginTelemetryShm.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+
+#include <thread>
 
 #include <QtCore/QCoreApplication>
 
@@ -189,6 +198,247 @@ void IpcTransportTest::testProxyMarshalsParameterCommands() {
 	CPPUNIT_ASSERT( m2.getOpcode() == IpcOpcode::SetLayerGain );
 	CPPUNIT_ASSERT_EQUAL( 4, static_cast<int>( m2.getArgs().size() ) );
 	CPPUNIT_ASSERT_EQUAL( 2, m2.getArgs()[1].toInt() );
+
+	delete pMirror;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcTransportTest::testRequestResponseRoundTrip() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	// Engine-side responder: read the request and answer with a Reply that echoes
+	// the request id and carries a computed result (ADR 0030 tier 3).
+	std::thread responder( [conn]() {
+		IpcMessage req;
+		if ( conn->receive( req, 5000 ) && req.getRequestId() != 0 ) {
+			IpcMessage reply( IpcOpcode::Reply );
+			reply.setRequestId( req.getRequestId() );
+			reply.arg( req.getArgs()[0].toInt() * 2 );
+			conn->send( reply );
+		}
+	} );
+
+	// Editor side: blocking request() correlates the reply by id.
+	IpcMessage reply;
+	const bool bOk = client->request(
+		IpcMessage( IpcOpcode::LocateToColumn ).arg( 21 ), reply, 5000 );
+	responder.join();
+
+	CPPUNIT_ASSERT( bOk );
+	CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Reply );
+	CPPUNIT_ASSERT( reply.getRequestId() != 0 );      // id survived the wire
+	CPPUNIT_ASSERT_EQUAL( 42, reply.getArgs()[0].toInt() );
+
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcTransportTest::testProxyMidiOutRequestResponse() {
+	___INFOLOG( "" );
+
+	// (A) Bridge handleRequest produces a Reply echoing the request id + an arg.
+	auto* pEngine = makeStandaloneEngine();
+	IpcMessage req( IpcOpcode::SetInstrumentMidiOutNote );
+	req.setRequestId( 5 );
+	req.arg( 0 ).arg( static_cast<int>( Midi::noteFromIntClamp( 60 ) ) );
+	const IpcMessage reply = IpcEngineBridge::handleRequest( req, pEngine );
+	CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Reply );
+	CPPUNIT_ASSERT_EQUAL( static_cast<quint32>( 5 ), reply.getRequestId() );
+	CPPUNIT_ASSERT_EQUAL( 1, static_cast<int>( reply.getArgs().size() ) );
+	delete pEngine;
+
+	// (B) The proxy issues a request when the caller needs the engine's event id
+	// and fills it from the reply (ADR 0030 tier 3).
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pMirror = makeStandaloneEngine();
+	std::thread responder( [conn]() {
+		IpcMessage r;
+		if ( conn->receive( r, 5000 ) &&
+			 r.getOpcode() == IpcOpcode::SetInstrumentMidiOutNote &&
+			 r.getRequestId() != 0 ) {
+			IpcMessage rep( IpcOpcode::Reply );
+			rep.setRequestId( r.getRequestId() );
+			rep.arg( static_cast<qlonglong>( 909 ) );
+			conn->send( rep );
+		}
+	} );
+
+	IpcCoreActionController proxy( pMirror, client );
+	long nEventId = -123; // sentinel: must be overwritten by the engine's reply
+	proxy.setInstrumentMidiOutNote( 0, Midi::noteFromIntClamp( 60 ), &nEventId );
+	responder.join();
+
+	CPPUNIT_ASSERT_EQUAL( static_cast<long>( 909 ), nEventId );
+
+	delete pMirror;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcTransportTest::testProxySetSongPayload() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pMirror = makeStandaloneEngine();
+	auto* pEngine = makeStandaloneEngine();
+
+	auto pSong = Song::getEmptySong( pMirror );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	pSong->setName( "IPCPAYLOAD" );
+
+	// The proxy serialises the song into the SetSong payload and forwards it; the
+	// engine reconstructs and applies it (ADR 0030 object-payload).
+	IpcCoreActionController proxy( pMirror, client );
+	proxy.setSong( pSong );
+
+	IpcMessage cmd;
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::SetSong );
+	CPPUNIT_ASSERT( ! cmd.getPayload().isEmpty() );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT( pEngine->getSong() != nullptr );
+	CPPUNIT_ASSERT( pEngine->getSong()->getName() == QString( "IPCPAYLOAD" ) );
+
+	delete pEngine;
+	delete pMirror;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2f: the object-payload commands (setDrumkit / setPattern /
+// replaceInstrument) serialise their object into the message payload; the engine
+// reconstructs it via the XML-buffer serialisers and applies it.
+void IpcTransportTest::testProxyObjectPayloadCommands() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pMirror = makeStandaloneEngine();
+	auto* pEngine = makeStandaloneEngine();
+	// Both ends start from an empty song so they share a drumkit context.
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+	CPPUNIT_ASSERT( pMirror->getSong() != nullptr );
+	CPPUNIT_ASSERT( pEngine->getSong() != nullptr );
+
+	IpcCoreActionController proxy( pMirror, client );
+	IpcMessage cmd;
+
+	// --- setDrumkit: drumkit XML payload, reconstructed engine-side ---
+	auto pKit = pMirror->getSong()->getDrumkit();
+	const int nKitInstruments = pKit->getInstruments()->size();
+	CPPUNIT_ASSERT( nKitInstruments > 0 );
+	proxy.setDrumkit( pKit );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::SetDrumkit );
+	CPPUNIT_ASSERT( ! cmd.getPayload().isEmpty() );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT_EQUAL(
+		nKitInstruments,
+		pEngine->getSong()->getDrumkit()->getInstruments()->size() );
+
+	// --- setPattern: pattern XML payload + (number, replace) args ---
+	auto pPattern = std::make_shared<Pattern>();
+	pPattern->setName( "IPCPAT" );
+	const int nPatternsBefore = pEngine->getSong()->getPatternList()->size();
+	proxy.setPattern( pPattern, 0, false );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::SetPattern );
+	CPPUNIT_ASSERT( ! cmd.getPayload().isEmpty() );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getPatternList()->size() > nPatternsBefore );
+
+	// --- replaceInstrument: new instrument payload + old id arg ---
+	auto pOldMirror = pMirror->getSong()->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pOldMirror != nullptr );
+	auto pNew = std::make_shared<Instrument>( pOldMirror ); // copy (same id)
+	proxy.replaceInstrument( pNew, pOldMirror );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::ReplaceInstrument );
+	CPPUNIT_ASSERT( ! cmd.getPayload().isEmpty() );
+	CPPUNIT_ASSERT_EQUAL( static_cast<int>( pOldMirror->getId() ),
+						  cmd.getArgs()[0].toInt() );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+
+	// --- saveSong: engine-only file op (no mirror write) ---
+	proxy.saveSongAs( "/tmp/ipc-save-test.h2song", true );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::SaveSongAs );
+	CPPUNIT_ASSERT_EQUAL( std::string( "/tmp/ipc-save-test.h2song" ),
+						  cmd.getArgs()[0].toString().toStdString() );
+
+	delete pEngine;
+	delete pMirror;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2f: addInstrument is request/response when the caller needs the
+// engine-assigned event id; the proxy fills it from the Reply.
+void IpcTransportTest::testProxyAddInstrumentRequestResponse() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pMirror = makeStandaloneEngine();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pInstrument = std::make_shared<Instrument>(
+		pMirror->getSong()->getDrumkit()->getInstruments()->get( 0 ) );
+
+	std::thread responder( [conn]() {
+		IpcMessage r;
+		if ( conn->receive( r, 5000 ) &&
+			 r.getOpcode() == IpcOpcode::AddInstrument &&
+			 r.getRequestId() != 0 ) {
+			IpcMessage rep( IpcOpcode::Reply );
+			rep.setRequestId( r.getRequestId() );
+			rep.arg( static_cast<qlonglong>( 4242 ) );
+			conn->send( rep );
+		}
+	} );
+
+	IpcCoreActionController proxy( pMirror, client );
+	long nEventId = -123; // sentinel: must be overwritten by the engine's reply
+	proxy.addInstrument( pInstrument, -1, &nEventId );
+	responder.join();
+
+	CPPUNIT_ASSERT_EQUAL( static_cast<long>( 4242 ), nEventId );
 
 	delete pMirror;
 	delete client;

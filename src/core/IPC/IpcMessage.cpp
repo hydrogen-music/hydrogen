@@ -30,6 +30,7 @@ QByteArray IpcMessage::encode() const {
 		QDataStream ds( &body, QIODevice::WriteOnly );
 		ds.setVersion( IPC_DATASTREAM_VERSION );
 		ds << static_cast<quint16>( m_opcode );
+		ds << m_requestId;
 		ds << m_args;
 		ds << m_payload;
 	}
@@ -50,9 +51,10 @@ bool IpcMessage::decodeBody( const QByteArray& body, IpcMessage& out ) {
 	ds.setVersion( IPC_DATASTREAM_VERSION );
 
 	quint16 nOpcode = 0;
+	quint32 nRequestId = 0;
 	QVector<QVariant> args;
 	QByteArray payload;
-	ds >> nOpcode >> args >> payload;
+	ds >> nOpcode >> nRequestId >> args >> payload;
 	if ( ds.status() != QDataStream::Ok ) {
 		return false;
 	}
@@ -61,6 +63,7 @@ bool IpcMessage::decodeBody( const QByteArray& body, IpcMessage& out ) {
 	}
 
 	out.m_opcode = static_cast<IpcOpcode>( nOpcode );
+	out.m_requestId = nRequestId;
 	out.m_args = args;
 	out.m_payload = payload;
 	return true;

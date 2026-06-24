@@ -672,18 +672,77 @@ were generated from the real CAC signatures (so they match exactly) and spliced 
 lockstep; `IpcTransportTest::testProxyMarshalsParameterCommands` covers the wire
 round-trip.
 
-**Remaining (~22, the complex tiers — need per-method work, not the generator):**
-* **Tier 2 — object/payload args:** `setPattern`/`setPatternProperties`/
-  `setSongProperties`/`setPlaylist`/`addToPlaylist`/`addInstrument`/
-  `removeInstrument`/`replaceInstrument` (XML/serialised payloads), `editNoteProperty`/
-  `addOrRemoveNote`/`handleNote` (many-arg note edits), `toggleGridCell` (`GridPoint`),
-  `setInstrumentMidiOutNote`/`Channel` (out-param `long*`).
-* **Tier 3 — object-returning ⇒ request/response on `IpcChannel`:** `loadPattern`/
-  `loadPlaylist`/`loadPreferences`/`loadSong`; the file-save ops `saveSong`/
-  `saveSongAs`/`savePlaylist`/`savePlaylistAs` (engine-side, result via event).
-* Then **T5.3/T5.4** editor mode + lifecycle (integration `EditorModeTest`); and
-  wiring `PluginConfig` into `Preferences` (baseline retention + debounced
-  write-through replacing the snapshot `save()`).
+Batch 2c added the two many-arg note/grid edits that need no new plumbing —
+`editNoteProperty` (16 scalar/enum/QString args) and `toggleGridCell` (`GridPoint`)
+— bringing coverage to **~76/96**. That exhausts the Tier-2 commands that are pure
+fire-and-forget.
+
+**Request/response channel — ✅ DONE (2026-06-24), suite `OK (308 tests)`.** The wire
+frame now carries a `quint32 requestId` (`IpcMessage`; `IPC_PROTOCOL_VERSION` → 2),
+there is a `Reply` opcode, and `IpcChannel::request( req, reply, timeout )` stamps a
+fresh non-zero id, sends, and blocks until the matching reply arrives — queueing any
+other frames received meanwhile for `receive()`/`messageReceived()`, in order.
+Verified by `IpcTransportTest::testRequestResponseRoundTrip` (threaded engine-side
+responder echoes the id in a `Reply`; the blocking `request()` returns the
+correlated result). This is the tier-3 prerequisite.
+
+**Out-param / object-returning wiring — ✅ DONE (batch 2d), suite `OK (309 tests)`.**
+The usage analysis decided the mechanism per method:
+* `setInstrumentMidiOutNote`/`Channel` → **request/response** (the caller needs the
+  engine's feedback-event id, to blacklist its own echo): a bridge
+  `handleRequest()` applies the command and replies with the id; the proxy
+  `request()`s when `pEventId != nullptr` (else plain send), and also base-applies
+  to the mirror for the displayed instrument property. Tested
+  (`IpcTransportTest::testProxyMidiOutRequestResponse` — bridge reply + proxy
+  round-trip filling the id).
+* `addOrRemoveNote` (`Uuid*`) and `handleNote` (`QStringList*`) → **dual-apply**:
+  the out-param is filled mirror-side by the base call (the GUI's local undo /
+  feedback uses the mirror), the opcode drives the authoritative engine.
+* `loadPattern`/`loadPlaylist`/`loadPreferences`/`loadSong` → **no proxy override**:
+  they are pure file parsers with no engine side effect, so they run on the mirror
+  locally (shared disk); their parsed object then feeds a payload command
+  (`setSong`/…) handled in the object-payload group below.
+
+**Object-payload / value-struct wiring — batch 2e DONE, suite `OK (310 tests)`.**
+The serialiser-ready subset is wired:
+* `setSong` → **payload command**: the proxy serialises the song via
+  `Song::toXmlBuffer()` into the `SetSong` payload (the engine reconstructs with
+  `Song::fromXmlBuffer`); dual-applies the live object to the mirror. Tested
+  (`testProxySetSongPayload` — payload round-trips, engine song name matches).
+* `setSongProperties` / `setPatternProperties` → **value-struct commands**: their
+  args are strings/ints + a `License` (marshalled as its license-string +
+  copyright-holder, reconstructed via `License(str, holder)`) + a tags
+  `QStringList` (a native `QVariant` type). No whole-object payload needed.
+
+**Per-type serialisers — DONE.** `toXmlBuffer`/`fromXmlBuffer` added to
+`Pattern`/`Drumkit`/`Instrument` (mirroring the pre-existing `Song` pair; tested
+by `H2ProjectTest::testBasicsBufferRoundTrip`). `Instrument::toXmlBuffer` is
+non-`const` (its `saveTo` is). `Playlist` deferred — `Playlist::load_from` is
+declared but undefined, so a serialiser would link-fail.
+
+**Object-payload wiring (batch 2f) — DONE, suite `OK (313 tests)`.**
+* `setDrumkit` / `setPattern` / `replaceInstrument` → **payload commands**: the
+  proxy serialises the object into the message payload (drumkit/instrument carry
+  samples by path → engine reloads; pattern serialised against the current
+  drumkit for id/type resolution); identity rides as args (`setPattern`:
+  number+replace; `replaceInstrument`: the old instrument's id). Dual-applied to
+  the mirror. Engine reconstructs via the `fromXmlBuffer` serialisers.
+* `addInstrument` → **request/response** when the caller needs the `long*` event
+  id (instrument as payload, index as arg, id from the `Reply`); falls back to a
+  plain payload command otherwise.
+* **File-save ops** (`saveSong`/`saveSongAs`/`savePlaylist`/`savePlaylistAs`) →
+  **engine-only commands** (no mirror dual-apply): the authoritative engine owns
+  the write to the shared file; the editor must not double-write/race it.
+* Tested: `IpcTransportTest::testProxyObjectPayloadCommands` (setDrumkit/
+  setPattern/replaceInstrument payload + engine reconstruction; saveSongAs
+  opcode/args) and `testProxyAddInstrumentRequestResponse` (event id from reply).
+
+**Deferred:** `setPlaylist`/`addToPlaylist`/`removeFromPlaylist` — gated on a
+`Playlist`/`PlaylistEntry` serialiser, itself blocked on `Playlist::load_from`.
+
+**Next: T5.3/T5.4** editor mode + lifecycle (integration `EditorModeTest`); and
+wiring `PluginConfig` into `Preferences` (baseline retention + debounced
+write-through replacing the snapshot `save()`).
 
 **Tests first**
 * `IpcProtocolTest` (unit): every `CoreActionController` command and every

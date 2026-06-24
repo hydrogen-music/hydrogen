@@ -60,6 +60,14 @@ public:
 	 * timeout/disconnect. */
 	bool receive( IpcMessage& out, int nTimeoutMs = 3000 );
 
+	/** Blocking request/response (ADR 0030 tier 3). Stamps @a req with a fresh
+	 * non-zero request id, sends it, and blocks until the matching reply (a frame
+	 * echoing that id) arrives, returning it in @a reply. Other frames received
+	 * while waiting stay queued for receive()/messageReceived(), in order.
+	 * Returns false on timeout/disconnect. Used editor-side for the few commands
+	 * that need an engine-computed result. */
+	bool request( const IpcMessage& req, IpcMessage& reply, int nTimeoutMs = 5000 );
+
 signals:
 	void messageReceived( const H2Core::IpcMessage& msg );
 	void disconnected();
@@ -73,6 +81,8 @@ private:
 	QLocalSocket* m_pSocket;
 	IpcFrameReader m_reader;
 	std::queue<IpcMessage> m_pending;
+	/** Monotonic source of request ids; 0 is reserved for "no correlation". */
+	quint32 m_nNextRequestId = 1;
 };
 
 };

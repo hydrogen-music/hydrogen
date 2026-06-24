@@ -117,6 +117,22 @@ class Pattern : public H2Core::Object<Pattern> {
 		bool bSilent = false
 	) const;
 
+	/** Serialize the pattern to an in-memory XML buffer (the `.h2pattern`
+	 * structure, no file). Mirrors save(); used to carry a pattern across the
+	 * editor↔engine IPC split (ADR 0030). */
+	QByteArray toXmlBuffer(
+		std::shared_ptr<Drumkit> pDrumkit = nullptr,
+		bool bSilent = false
+	) const;
+	/** Reconstruct a pattern from a buffer produced by toXmlBuffer(). @a pDrumkit
+	 * / @a pDB provide the drumkit context to resolve instrument ids/types. */
+	static std::shared_ptr<Pattern> fromXmlBuffer(
+		const QByteArray& buffer,
+		std::shared_ptr<Drumkit> pDrumkit,
+		bool bSilent,
+		std::shared_ptr<SoundLibraryDatabase> pDB
+	);
+
 	/** Stores a serialized version of the instance to the XML note @a
 	 * pNote.
 	 *

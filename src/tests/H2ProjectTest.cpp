@@ -28,6 +28,8 @@
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
@@ -124,6 +126,60 @@ void H2ProjectTest::testBufferRoundTrip() {
 		CPPUNIT_ASSERT( framesAfter.at( sKey ) > 0 ); // decoded from memory
 		CPPUNIT_ASSERT_EQUAL( nFrames, framesAfter.at( sKey ) );
 	}
+
+	___INFOLOG( "passed" );
+}
+
+// The XML-buffer serialisers that carry individual Drumkit / Instrument /
+// Pattern objects across the editor↔engine IPC split (ADR 0030) round-trip
+// in memory without touching disk.
+void H2ProjectTest::testBasicsBufferRoundTrip() {
+	___INFOLOG( "" );
+
+	auto* pHydrogen = pTestHydrogen();
+	auto pSong = makeLoadedSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pDrumkit = pSong->getDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getInstruments()->size() > 0 );
+
+	// --- Drumkit ---
+	const auto kitBuffer = pDrumkit->toXmlBuffer( true, true, true );
+	CPPUNIT_ASSERT( ! kitBuffer.isEmpty() );
+	auto pKit2 = Drumkit::fromXmlBuffer( kitBuffer, "", true, true, pHydrogen );
+	CPPUNIT_ASSERT( pKit2 != nullptr );
+	CPPUNIT_ASSERT_EQUAL( pDrumkit->getInstruments()->size(),
+						  pKit2->getInstruments()->size() );
+	for ( int ii = 0; ii < pDrumkit->getInstruments()->size(); ++ii ) {
+		CPPUNIT_ASSERT_EQUAL(
+			pDrumkit->getInstruments()->get( ii )->getName().toStdString(),
+			pKit2->getInstruments()->get( ii )->getName().toStdString() );
+	}
+
+	// --- Instrument ---
+	auto pInstr = pDrumkit->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pInstr != nullptr );
+	const auto instrBuffer = pInstr->toXmlBuffer( true, true, true );
+	CPPUNIT_ASSERT( ! instrBuffer.isEmpty() );
+	auto pInstr2 = Instrument::fromXmlBuffer( instrBuffer, true, true, pHydrogen );
+	CPPUNIT_ASSERT( pInstr2 != nullptr );
+	CPPUNIT_ASSERT_EQUAL( pInstr->getName().toStdString(),
+						  pInstr2->getName().toStdString() );
+
+	// --- Pattern ---
+	auto pPatternList = pSong->getPatternList();
+	CPPUNIT_ASSERT( pPatternList != nullptr );
+	CPPUNIT_ASSERT( pPatternList->size() > 0 );
+	auto pPattern = pPatternList->get( 0 );
+	CPPUNIT_ASSERT( pPattern != nullptr );
+	const auto patBuffer = pPattern->toXmlBuffer( pDrumkit, true );
+	CPPUNIT_ASSERT( ! patBuffer.isEmpty() );
+	auto pPattern2 = Pattern::fromXmlBuffer(
+		patBuffer, pDrumkit, true, pHydrogen->getSoundLibraryDatabase() );
+	CPPUNIT_ASSERT( pPattern2 != nullptr );
+	CPPUNIT_ASSERT_EQUAL( pPattern->getName().toStdString(),
+						  pPattern2->getName().toStdString() );
+	CPPUNIT_ASSERT_EQUAL( pPattern->getLength(), pPattern2->getLength() );
 
 	___INFOLOG( "passed" );
 }

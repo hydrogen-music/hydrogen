@@ -50,6 +50,13 @@ public:
 	/** Apply a command message to @a pHydrogen. Returns true if handled. */
 	static bool dispatchCommand( const IpcMessage& msg, Hydrogen* pHydrogen );
 
+	/** Apply a request message and build its reply (ADR 0030 tier 3). The
+	 * returned message has opcode Reply, echoes @a msg's requestId, and carries
+	 * the engine-computed result (e.g. a feedback-event id) in its args. Used by
+	 * the engine-side IPC consumer for opcodes the editor sends via
+	 * IpcChannel::request(). */
+	static IpcMessage handleRequest( const IpcMessage& msg, Hydrogen* pHydrogen );
+
 	/** Forward one event to the editor if it is engine-origin. Returns true if
 	 * it was sent, false if it was editor-internal (and so not marshalled). */
 	static bool forwardEvent( IpcChannel& channel, Event::Type type,

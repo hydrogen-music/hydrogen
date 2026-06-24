@@ -157,6 +157,37 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 	return pDrumkit;
 }
 
+QByteArray Drumkit::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
+								 bool bSilent ) const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+	saveTo( root, bSongKit, bKeepMissingSamples, bSilent );
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Drumkit> Drumkit::fromXmlBuffer(
+	const QByteArray& buffer,
+	const QString& sDrumkitPath,
+	bool bSongKit,
+	bool bSilent,
+	Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse drumkit XML buffer" );
+		return nullptr;
+	}
+	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	if ( root.isNull() ) {
+		ERRORLOG( "'drumkit_info' node not found in buffer" );
+		return nullptr;
+	}
+	bool bLegacyFormatEncountered = false;
+	return loadFrom( root, sDrumkitPath, "", bSongKit, &bLegacyFormatEncountered,
+					 bSilent, pHydrogen );
+}
+
 std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											const QString& sDrumkitPath,
 											const QString& sSongPath,

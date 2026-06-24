@@ -130,10 +130,67 @@ public:
 	bool clearMidiInputLog(  ) override;
 	bool clearMidiOutputLog(  ) override;
 
+	// ADR 0030 batch 2c — note / grid edits (enum + GridPoint args).
+	bool editNoteProperty( NoteProperty property, int nPatternNumber,
+		int nPosition, int nOldInstrumentId, int nNewInstrumentId,
+		const QString& sOldType, const QString& sNewType, float fVelocity,
+		float fPan, float fLeadLag, float fProbability, int nLength, int nNewKey,
+		int nOldKey, int nNewOctave, int nOldOctave ) override;
+	bool toggleGridCell( const GridPoint& gridPoint ) override;
+
+	// ADR 0030 batch 2d — out-param commands. addOrRemoveNote/handleNote are
+	// dual-applied (out-param filled by the mirror via the base call);
+	// setInstrumentMidiOut* use request/response when the caller needs the
+	// engine's feedback-event id.
+	bool addOrRemoveNote( int nPosition, int nInstrumentId, const QString& sType,
+		int nPatternNumber, int nOldLength, float fOldVelocity, float fOldPan,
+		float fOldLeadLag, int nOldKey, int nOldOctave, float fOldProbability,
+		bool bIsDelete, bool bIsNoteOff, bool bIsMappedToDrumkit,
+		Uuid* pNewNoteUUid ) override;
+	bool handleNote( Midi::Note note, Midi::Channel channel, float fVelocity,
+		bool bNoteOff, QStringList* pMappedInstruments ) override;
+	bool setInstrumentMidiOutNote( int nInstrument, Midi::Note note,
+		long* pEventId ) override;
+	bool setInstrumentMidiOutChannel( int nInstrument, Midi::Channel channel,
+		long* pEventId ) override;
+
+	// ADR 0030 batch 2e — object-payload (setSong: song XML) / value-struct
+	// (*Properties: strings + License + tags) commands.
+	bool setSong( std::shared_ptr<Song> pSong ) override;
+	bool setSongProperties( const QString& sNewPath, const int nNewVersion,
+		const QString& sNewName, const QString& sNewAuthor,
+		const QString& sNewNotes, const H2Core::License& newLicense,
+		const QStringList& newTags ) override;
+	bool setPatternProperties( const QString& sNewPatternPath,
+		const int nNewVersion, const QString& sNewPatternName,
+		const QString& sNewAuthor, const QString& sNewPatternInfo,
+		const H2Core::License& newLicense, const QStringList& newTags,
+		int nPatternIndex ) override;
+
+	// ADR 0030 batch 2f — object-payload (XML buffer) commands + file-save.
+	// setDrumkit/setPattern/replaceInstrument marshal the object as an XML-buffer
+	// payload and dual-apply; addInstrument is request/response when the caller
+	// needs the engine's event id. The save* commands are engine-only (no mirror
+	// write to the shared file).
+	bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) override;
+	bool setPattern( std::shared_ptr<Pattern> pPattern, int nPatternNumber,
+		bool bReplace ) override;
+	bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
+		std::shared_ptr<Instrument> pOldInstrument ) override;
+	bool addInstrument( std::shared_ptr<Instrument> pInstrument, int nIndex,
+		long* pEventId ) override;
+	bool saveSong( bool bKeepMissingSamples ) override;
+	bool saveSongAs( const QString& sNewFileName,
+		bool bKeepMissingSamples ) override;
+	bool savePlaylist() override;
+	bool savePlaylistAs( const QString& sPath ) override;
 
 private:
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;
+	/** The editor-side mirror engine (read-model), used to resolve serialisation
+	 * context (e.g. the current drumkit for a pattern). Not owned. */
+	Hydrogen* m_pMirror;
 };
 
 }

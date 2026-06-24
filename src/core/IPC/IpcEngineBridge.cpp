@@ -21,10 +21,18 @@
 
 #include <core/IPC/IpcEngineBridge.h>
 
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
+#include <core/Basics/GridPoint.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcChannel.h>
+#include <core/License.h>
+#include <core/Midi/Midi.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core {
@@ -135,6 +143,27 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		}
 		return pController->setSong( pSong );
 	}
+	// args: path, version, name, author, notes, licenseString, copyrightHolder, tags
+	case IpcOpcode::SetSongProperties:
+		if ( args.size() >= 8 ) {
+			return pController->setSongProperties(
+				args[0].toString(), args[1].toInt(), args[2].toString(),
+				args[3].toString(), args[4].toString(),
+				License( args[5].toString(), args[6].toString() ),
+				args[7].toStringList() );
+		}
+		return false;
+	// args: path, version, name, author, info, licenseString, copyrightHolder,
+	//       tags, patternIndex
+	case IpcOpcode::SetPatternProperties:
+		if ( args.size() >= 9 ) {
+			return pController->setPatternProperties(
+				args[0].toString(), args[1].toInt(), args[2].toString(),
+				args[3].toString(), args[4].toString(),
+				License( args[5].toString(), args[6].toString() ),
+				args[7].toStringList(), args[8].toInt() );
+		}
+		return false;
 	case IpcOpcode::RescanSoundLibrary:
 		if ( pHydrogen->getSoundLibraryDatabase() != nullptr ) {
 			pHydrogen->getSoundLibraryDatabase()->update();
@@ -408,9 +437,173 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	case IpcOpcode::ClearMidiOutputLog:
 		return pController->clearMidiOutputLog();
 
+	case IpcOpcode::EditNoteProperty:
+		if ( args.size() >= 16 ) {
+			return pController->editNoteProperty(
+				static_cast<NoteProperty>( args[0].toInt() ),
+				args[1].toInt(), args[2].toInt(), args[3].toInt(), args[4].toInt(),
+				args[5].toString(), args[6].toString(),
+				args[7].toFloat(), args[8].toFloat(), args[9].toFloat(),
+				args[10].toFloat(), args[11].toInt(), args[12].toInt(),
+				args[13].toInt(), args[14].toInt(), args[15].toInt() );
+		}
+		return false;
+	case IpcOpcode::ToggleGridCell:
+		if ( args.size() >= 2 ) {
+			return pController->toggleGridCell(
+				GridPoint( args[0].toInt(), args[1].toInt() ) );
+		}
+		return false;
+	case IpcOpcode::AddOrRemoveNote:
+		if ( args.size() >= 14 ) {
+			return pController->addOrRemoveNote(
+				args[0].toInt(), args[1].toInt(), args[2].toString(),
+				args[3].toInt(), args[4].toInt(), args[5].toFloat(),
+				args[6].toFloat(), args[7].toFloat(), args[8].toInt(),
+				args[9].toInt(), args[10].toFloat(), args[11].toBool(),
+				args[12].toBool(), args[13].toBool(), nullptr );
+		}
+		return false;
+	case IpcOpcode::HandleNote:
+		if ( args.size() >= 4 ) {
+			return pController->handleNote(
+				static_cast<Midi::Note>( args[0].toInt() ),
+				static_cast<Midi::Channel>( args[1].toInt() ),
+				args[2].toFloat(), args[3].toBool(), nullptr );
+		}
+		return false;
+	case IpcOpcode::SetInstrumentMidiOutNote:
+		if ( args.size() >= 2 ) {
+			return pController->setInstrumentMidiOutNote(
+				args[0].toInt(), static_cast<Midi::Note>( args[1].toInt() ),
+				nullptr );
+		}
+		return false;
+	case IpcOpcode::SetInstrumentMidiOutChannel:
+		if ( args.size() >= 2 ) {
+			return pController->setInstrumentMidiOutChannel(
+				args[0].toInt(), static_cast<Midi::Channel>( args[1].toInt() ),
+				nullptr );
+		}
+		return false;
+	case IpcOpcode::SetDrumkit: {
+		auto pDrumkit = Drumkit::fromXmlBuffer( msg.getPayload(), "", true, true,
+												pHydrogen );
+		if ( pDrumkit == nullptr ) {
+			return false;
+		}
+		return pController->setDrumkit( pDrumkit );
+	}
+	case IpcOpcode::SetPattern: {
+		if ( args.size() < 2 || pHydrogen->getSong() == nullptr ) {
+			return false;
+		}
+		auto pPattern = Pattern::fromXmlBuffer(
+			msg.getPayload(), pHydrogen->getSong()->getDrumkit(), true,
+			pHydrogen->getSoundLibraryDatabase() );
+		if ( pPattern == nullptr ) {
+			return false;
+		}
+		return pController->setPattern(
+			pPattern, args[0].toInt(), args[1].toBool() );
+	}
+	case IpcOpcode::ReplaceInstrument: {
+		if ( args.size() < 1 || pHydrogen->getSong() == nullptr ||
+			 pHydrogen->getSong()->getDrumkit() == nullptr ) {
+			return false;
+		}
+		auto pNewInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true,
+														 true, pHydrogen );
+		auto pOldInstrument =
+			pHydrogen->getSong()->getDrumkit()->getInstruments()->find(
+				static_cast<Instrument::Id>( args[0].toInt() ) );
+		if ( pNewInstrument == nullptr || pOldInstrument == nullptr ) {
+			return false;
+		}
+		return pController->replaceInstrument( pNewInstrument, pOldInstrument );
+	}
+	case IpcOpcode::AddInstrument: {
+		// Fire-and-forget path (the request/response path is in handleRequest).
+		if ( args.size() < 1 ) {
+			return false;
+		}
+		auto pInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true, true,
+													  pHydrogen );
+		if ( pInstrument == nullptr ) {
+			return false;
+		}
+		return pController->addInstrument( pInstrument, args[0].toInt(), nullptr );
+	}
+	case IpcOpcode::SaveSong:
+		if ( args.size() >= 1 ) {
+			return pController->saveSong( args[0].toBool() );
+		}
+		return false;
+	case IpcOpcode::SaveSongAs:
+		if ( args.size() >= 2 ) {
+			return pController->saveSongAs( args[0].toString(), args[1].toBool() );
+		}
+		return false;
+	case IpcOpcode::SavePlaylist:
+		return pController->savePlaylist();
+	case IpcOpcode::SavePlaylistAs:
+		if ( args.size() >= 1 ) {
+			return pController->savePlaylistAs( args[0].toString() );
+		}
+		return false;
 	default:
 		return false; // Hello / Event / unknown are not engine commands
 	}
+}
+
+IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
+										   Hydrogen* pHydrogen ) {
+	IpcMessage reply( IpcOpcode::Reply );
+	reply.setRequestId( msg.getRequestId() );
+	if ( pHydrogen == nullptr ) {
+		return reply;
+	}
+	auto pController = pHydrogen->getCoreActionController();
+	if ( pController == nullptr ) {
+		return reply;
+	}
+	const QVector<QVariant>& args = msg.getArgs();
+
+	switch ( msg.getOpcode() ) {
+	case IpcOpcode::SetInstrumentMidiOutNote:
+		if ( args.size() >= 2 ) {
+			long nEventId = Event::nInvalidId;
+			pController->setInstrumentMidiOutNote(
+				args[0].toInt(), static_cast<Midi::Note>( args[1].toInt() ),
+				&nEventId );
+			reply.arg( static_cast<qlonglong>( nEventId ) );
+		}
+		break;
+	case IpcOpcode::SetInstrumentMidiOutChannel:
+		if ( args.size() >= 2 ) {
+			long nEventId = Event::nInvalidId;
+			pController->setInstrumentMidiOutChannel(
+				args[0].toInt(), static_cast<Midi::Channel>( args[1].toInt() ),
+				&nEventId );
+			reply.arg( static_cast<qlonglong>( nEventId ) );
+		}
+		break;
+	case IpcOpcode::AddInstrument:
+		if ( args.size() >= 1 ) {
+			auto pInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true,
+														 true, pHydrogen );
+			long nEventId = Event::nInvalidId;
+			if ( pInstrument != nullptr ) {
+				pController->addInstrument(
+					pInstrument, args[0].toInt(), &nEventId );
+			}
+			reply.arg( static_cast<qlonglong>( nEventId ) );
+		}
+		break;
+	default:
+		break; // unknown request → empty Reply (correlated by id)
+	}
+	return reply;
 }
 
 bool IpcEngineBridge::forwardEvent( IpcChannel& channel, Event::Type type,

@@ -119,6 +119,21 @@ class Instrument : public H2Core::Object<Instrument> {
 		bool bKeepMissingSamples,
 		bool bSilent );
 
+	/** Serialize the instrument to an in-memory XML buffer (samples by path, not
+	 * embedded — ADR 0027/0030). Used to carry an instrument across the
+	 * editor↔engine IPC split (e.g. replaceInstrument). */
+	// Non-const: Instrument::saveTo (unlike Song/Drumkit/Pattern) is non-const.
+	QByteArray toXmlBuffer( bool bSongKit = false,
+							bool bKeepMissingSamples = true,
+							bool bSilent = false );
+	/** Reconstruct an instrument from a buffer produced by toXmlBuffer(); the
+	 * engine reloads samples from their (shared-disk) paths. */
+	static std::shared_ptr<Instrument> fromXmlBuffer(
+		const QByteArray& buffer,
+		bool bSongKit,
+		bool bSilent,
+		Hydrogen* pHydrogen );
+
 	/**
 	 * load an instrument from an XMLNode
 	 * \param pNode the XMLDode to read from

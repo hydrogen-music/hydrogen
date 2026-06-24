@@ -271,6 +271,44 @@ bool Pattern::save(
 	return doc.write( sPatternPath );
 }
 
+QByteArray Pattern::toXmlBuffer( std::shared_ptr<Drumkit> pDrumkit,
+								 bool bSilent ) const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
+	root.write_string( "drumkit_name",
+					   pDrumkit != nullptr ? pDrumkit->getExportName()
+										   : m_sDrumkitName );
+	saveTo( root, Instrument::EmptyId, "", Note::Pitch::Invalid, bSilent );
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Pattern> Pattern::fromXmlBuffer(
+	const QByteArray& buffer,
+	std::shared_ptr<Drumkit> pDrumkit,
+	bool bSilent,
+	std::shared_ptr<SoundLibraryDatabase> pDB )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse pattern XML buffer" );
+		return nullptr;
+	}
+	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( "'drumkit_pattern' node not found in buffer" );
+		return nullptr;
+	}
+	XMLNode patternNode = rootNode.firstChildElement( "pattern" );
+	if ( patternNode.isNull() ) {
+		ERRORLOG( "'pattern' node not found in buffer" );
+		return nullptr;
+	}
+	const QString sDrumkitName =
+		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
+	return loadFrom( patternNode, sDrumkitName, pDrumkit, bSilent, pDB );
+}
+
 void Pattern::saveTo(
 	XMLNode& node,
 	Instrument::Id id,

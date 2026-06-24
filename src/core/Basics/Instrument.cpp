@@ -181,6 +181,38 @@ std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample,
 	return pInstrument;
 }
 
+QByteArray Instrument::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
+									bool bSilent )
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "instrument_buffer" );
+	saveTo( root, bSongKit, bKeepMissingSamples, bSilent );
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Instrument> Instrument::fromXmlBuffer(
+	const QByteArray& buffer, bool bSongKit, bool bSilent, Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse instrument XML buffer" );
+		return nullptr;
+	}
+	XMLNode root = doc.firstChildElement( "instrument_buffer" );
+	if ( root.isNull() ) {
+		ERRORLOG( "'instrument_buffer' node not found in buffer" );
+		return nullptr;
+	}
+	XMLNode instrumentNode = root.firstChildElement( "instrument" );
+	if ( instrumentNode.isNull() ) {
+		ERRORLOG( "'instrument' node not found in buffer" );
+		return nullptr;
+	}
+	bool bLegacyFormatEncountered = false;
+	return loadFrom( instrumentNode, "", "", "", License(), bSongKit,
+					 &bLegacyFormatEncountered, bSilent, pHydrogen );
+}
+
 std::shared_ptr<Instrument> Instrument::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,

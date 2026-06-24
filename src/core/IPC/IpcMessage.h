@@ -50,6 +50,7 @@ constexpr int IPC_DATASTREAM_VERSION = QDataStream::Qt_5_15;
 enum class IpcOpcode : quint16 {
 	Hello = 0,
 	Event,                  ///< engine → editor: (type, value, id)
+	Reply,                  ///< response to a request, correlated by requestId (ADR 0030)
 	RescanSoundLibrary,     ///< editor → engine (ADR 0016)
 
 	// ── CoreActionController commands (editor → engine) ──
@@ -137,6 +138,40 @@ enum class IpcOpcode : quint16 {
 	ClearMidiInputLog,
 	ClearMidiOutputLog,
 
+	// ── ADR 0030 batch 2c: note/grid edits (many-arg, enum + GridPoint) ──
+	EditNoteProperty,
+	ToggleGridCell,
+
+	// ── ADR 0030 batch 2d: out-param commands ──
+	// AddOrRemoveNote / HandleNote are dual-applied (out-param filled mirror-side).
+	// SetInstrumentMidiOut* are request/response when the caller needs the
+	// engine-assigned feedback-event id (else plain commands).
+	AddOrRemoveNote,
+	HandleNote,
+	SetInstrumentMidiOutNote,
+	SetInstrumentMidiOutChannel,
+
+	// ── ADR 0030 batch 2e: object-payload / value-struct commands ──
+	// (SetSong/SetDrumkit opcodes already exist above; SetSong carries the song
+	// XML payload. The *Properties commands marshal their value-struct args —
+	// strings/ints + a License [as string + holder] + a tags QStringList.)
+	SetSongProperties,
+	SetPatternProperties,
+
+	// ── ADR 0030 batch 2f: object-payload (XML buffer) + file-save commands ──
+	// SetDrumkit (above) / SetPattern / ReplaceInstrument carry the object XML in
+	// the payload; AddInstrument is request/response when the caller needs the
+	// engine-assigned event id (else a plain command). The Save* commands run
+	// engine-side only (the engine owns the authoritative song/playlist and the
+	// write to shared disk) — the editor mirror must NOT also write.
+	SetPattern,             ///< args: [int nPatternNumber, bool bReplace]; payload: pattern XML
+	ReplaceInstrument,      ///< args: [int nOldInstrumentId]; payload: new instrument XML
+	AddInstrument,          ///< args: [int nIndex]; payload: instrument XML; reply: [qlonglong eventId]
+	SaveSong,               ///< args: [bool bKeepMissingSamples]
+	SaveSongAs,             ///< args: [QString sNewFileName, bool bKeepMissingSamples]
+	SavePlaylist,           ///< (no args)
+	SavePlaylistAs,         ///< args: [QString sPath]
+
 	OpcodeCount
 };
 
@@ -157,6 +192,12 @@ public:
 
 	const QVector<QVariant>& getArgs() const { return m_args; }
 	IpcMessage& arg( const QVariant& value ) { m_args.append( value ); return *this; }
+
+	/** Correlation id for request/response (ADR 0030 tier 3). 0 = a plain
+	 * fire-and-forget command / event / a non-correlated message; a reply echoes
+	 * the request's id. Set by IpcChannel::request(). */
+	quint32 getRequestId() const { return m_requestId; }
+	void setRequestId( quint32 nId ) { m_requestId = nId; }
 
 	const QByteArray& getPayload() const { return m_payload; }
 	void setPayload( const QByteArray& payload ) { m_payload = payload; }
@@ -180,6 +221,7 @@ public:
 
 private:
 	IpcOpcode m_opcode = IpcOpcode::Hello;
+	quint32 m_requestId = 0;
 	QVector<QVariant> m_args;
 	QByteArray m_payload;
 };

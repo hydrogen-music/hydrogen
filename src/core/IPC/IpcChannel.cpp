@@ -21,6 +21,7 @@
 
 #include <core/IPC/IpcChannel.h>
 
+#include <QtCore/QElapsedTimer>
 #include <QtNetwork/QLocalSocket>
 
 namespace H2Core {
@@ -109,6 +110,63 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs ) {
 	out = m_pending.front();
 	m_pending.pop();
 	return true;
+}
+
+bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
+						  int nTimeoutMs ) {
+	if ( m_pSocket == nullptr ) {
+		return false;
+	}
+
+	quint32 nId = m_nNextRequestId++;
+	if ( nId == 0 ) {
+		nId = m_nNextRequestId++; // 0 is reserved for "no correlation"
+	}
+	IpcMessage r = req;
+	r.setRequestId( nId );
+	if ( ! send( r ) ) {
+		return false;
+	}
+
+	QElapsedTimer timer;
+	timer.start();
+	while ( true ) {
+		// Pull our reply out of the pending queue, preserving the order of any
+		// other (event/command) frames so receive()/messageReceived() still get
+		// them.
+		std::queue<IpcMessage> rest;
+		bool bFound = false;
+		while ( ! m_pending.empty() ) {
+			IpcMessage m = m_pending.front();
+			m_pending.pop();
+			if ( ! bFound && m.getRequestId() == nId ) {
+				reply = m;
+				bFound = true;
+			}
+			else {
+				rest.push( m );
+			}
+		}
+		m_pending = std::move( rest );
+		if ( bFound ) {
+			return true;
+		}
+
+		const int nRemaining =
+			nTimeoutMs - static_cast<int>( timer.elapsed() );
+		if ( nRemaining <= 0 ) {
+			return false;
+		}
+		if ( ! m_pSocket->waitForReadyRead( nRemaining ) ) {
+			pump(); // last chance: bytes may already be buffered
+			if ( m_pending.empty() ) {
+				return false;
+			}
+		}
+		else {
+			pump();
+		}
+	}
 }
 
 };
