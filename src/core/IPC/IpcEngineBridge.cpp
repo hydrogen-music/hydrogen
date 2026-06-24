@@ -27,6 +27,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
@@ -549,6 +550,27 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	case IpcOpcode::SavePlaylistAs:
 		if ( args.size() >= 1 ) {
 			return pController->savePlaylistAs( args[0].toString() );
+		}
+		return false;
+	case IpcOpcode::SetPlaylist: {
+		auto pPlaylist = Playlist::fromXmlBuffer( msg.getPayload() );
+		if ( pPlaylist == nullptr ) {
+			return false;
+		}
+		return pController->setPlaylist( pPlaylist );
+	}
+	case IpcOpcode::AddToPlaylist:
+		if ( args.size() >= 2 ) {
+			return pController->addToPlaylist(
+				PlaylistEntry::fromMimeText( args[0].toString() ),
+				args[1].toInt() );
+		}
+		return false;
+	case IpcOpcode::RemoveFromPlaylist:
+		if ( args.size() >= 2 ) {
+			return pController->removeFromPlaylist(
+				PlaylistEntry::fromMimeText( args[0].toString() ),
+				args[1].toInt() );
 		}
 		return false;
 	default:

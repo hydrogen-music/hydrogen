@@ -123,6 +123,17 @@ class Playlist : public H2Core::Object<Playlist>
 											   std::shared_ptr<Preferences> pPreferences );
 		bool saveAs( const QString& sTargetPath, std::shared_ptr<Preferences> pPreferences, bool bSilent = false );
 		bool save( std::shared_ptr<Preferences> pPreferences, bool bSilent = false ) const;
+
+		/** Serialize the playlist to an in-memory XML buffer (the `.h2playlist`
+		 * structure, no file). Mirrors save() but always writes **absolute** song
+		 * / script paths so the result reconstructs without a path context; used
+		 * to carry the playlist across the editor↔engine IPC split (ADR 0030). */
+		QByteArray toXmlBuffer() const;
+		/** Reconstruct a playlist from a buffer produced by toXmlBuffer(). @a sPath
+		 * (may be empty) only resolves any relative entry paths and sets the
+		 * playlist path. */
+		static std::shared_ptr<Playlist> fromXmlBuffer( const QByteArray& buffer,
+														const QString& sPath = "" );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -136,7 +147,7 @@ class Playlist : public H2Core::Object<Playlist>
 	private:
 
 		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
-		void saveTo( XMLNode& node, std::shared_ptr<Preferences> pPreferences ) const;
+		void saveTo( XMLNode& node, bool bUseRelativePaths ) const;
 
 		void execScript( int index ) const;
 

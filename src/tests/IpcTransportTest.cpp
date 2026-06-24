@@ -28,6 +28,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcCoreActionController.h>
@@ -440,6 +441,58 @@ void IpcTransportTest::testProxyAddInstrumentRequestResponse() {
 
 	CPPUNIT_ASSERT_EQUAL( static_cast<long>( 4242 ), nEventId );
 
+	delete pMirror;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2g: setPlaylist marshals the playlist XML payload;
+// add/removeFromPlaylist marshal a single entry as mime text + index.
+void IpcTransportTest::testProxyPlaylistCommands() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	auto* pMirror = makeStandaloneEngine();
+	auto* pEngine = makeStandaloneEngine();
+
+	IpcCoreActionController proxy( pMirror, client );
+	IpcMessage cmd;
+
+	// --- setPlaylist: playlist XML payload, reconstructed engine-side ---
+	auto pPlaylist = std::make_shared<Playlist>();
+	CPPUNIT_ASSERT( pPlaylist->add(
+		std::make_shared<PlaylistEntry>( "/tmp/song1.h2song", "", false ) ) );
+	proxy.setPlaylist( pPlaylist );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::SetPlaylist );
+	CPPUNIT_ASSERT( ! cmd.getPayload().isEmpty() );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT( pEngine->getPlaylist() != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 1, pEngine->getPlaylist()->size() );
+
+	// --- addToPlaylist: entry mime text + index ---
+	auto pEntry = std::make_shared<PlaylistEntry>( "/tmp/song2.h2song", "", false );
+	proxy.addToPlaylist( pEntry, -1 );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::AddToPlaylist );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT_EQUAL( 2, pEngine->getPlaylist()->size() );
+
+	// --- removeFromPlaylist: same entry (matched by value) ---
+	proxy.removeFromPlaylist( pEntry, -1 );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::RemoveFromPlaylist );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT_EQUAL( 1, pEngine->getPlaylist()->size() );
+
+	delete pEngine;
 	delete pMirror;
 	delete client;
 

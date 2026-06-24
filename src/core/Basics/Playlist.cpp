@@ -72,27 +72,35 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
 		return pPlaylist;
 	}
 
-	QFileInfo fileInfo = QFileInfo( sPath );
+	return load_from( rootNode, sPath );
+}
+
+std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
+											   const QString& sPath )
+{
+	const QFileInfo fileInfo( sPath );
 
 	// Check whether the file was created using a newer version of Hydrogen.
-	auto formatVersionNode = rootNode.firstChildElement( "formatVersion" );
+	auto formatVersionNode = root.firstChildElement( "formatVersion" );
 	if ( !formatVersionNode.isNull() ) {
-		const int nFormatVersion = rootNode.read_int(
+		const int nFormatVersion = root.read_int(
 			"formatVersion", Playlist::nCurrentFormatVersion, true, false, false
 		);
 		if ( nFormatVersion != Playlist::nCurrentFormatVersion ) {
 			WARNINGLOG(
-				QString( "Playlist file [%1] was created with a different "
+				QString( "Playlist [%1] was created with a different "
 						 "version of Hydrogen than the current one!" )
-					.arg( fileInfo.absoluteFilePath() )
+					.arg( sPath )
 			);
 		}
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setPath( fileInfo.absoluteFilePath() );
+	if ( ! sPath.isEmpty() ) {
+		pPlaylist->setPath( fileInfo.absoluteFilePath() );
+	}
 
-	XMLNode songsNode = rootNode.firstChildElement( "songs" );
+	XMLNode songsNode = root.firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
 		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {
@@ -158,11 +166,40 @@ bool Playlist::save( std::shared_ptr<Preferences> pPreferences, bool bSilent ) c
 
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 
-	saveTo( root, pPreferences );
+	saveTo( root, pPreferences->getUseRelativeFileNamesForPlaylists() );
 	return doc.write( m_sPath );
 }
 
-void Playlist::saveTo( XMLNode& node, std::shared_ptr<Preferences> pPreferences ) const
+QByteArray Playlist::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "playlist", "playlist" );
+	root.write_int( "formatVersion", nCurrentFormatVersion );
+	// Always absolute paths: the buffer travels across the IPC split (ADR 0030),
+	// where there is no playlist file to resolve relative paths against.
+	saveTo( root, false /*bUseRelativePaths*/ );
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Playlist> Playlist::fromXmlBuffer( const QByteArray& buffer,
+												   const QString& sPath )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse playlist XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode root = doc.firstChildElement( "playlist" );
+	if ( root.isNull() ) {
+		ERRORLOG( "Error reading playlist buffer: 'playlist' node not found" );
+		return nullptr;
+	}
+
+	return load_from( root, sPath );
+}
+
+void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths ) const
 {
 	QFileInfo fileInfo( m_sPath );
 
@@ -171,7 +208,7 @@ void Playlist::saveTo( XMLNode& node, std::shared_ptr<Preferences> pPreferences 
 	for ( const auto& pEntry : m_entries ) {
 		QString sSongPath = pEntry->getSongPath();
 		QString sScriptPath = pEntry->getScriptPath();
-		if ( pPreferences->getUseRelativeFileNamesForPlaylists() ) {
+		if ( bUseRelativePaths ) {
 			if ( ! sSongPath.isEmpty() ) {
 				sSongPath = fileInfo.absoluteDir().relativeFilePath( sSongPath );
 			}

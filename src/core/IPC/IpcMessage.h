@@ -172,6 +172,13 @@ enum class IpcOpcode : quint16 {
 	SavePlaylist,           ///< (no args)
 	SavePlaylistAs,         ///< args: [QString sPath]
 
+	// ── ADR 0030 batch 2g: playlist commands ──
+	// SetPlaylist carries the playlist XML in the payload; Add/RemoveFromPlaylist
+	// marshal a single PlaylistEntry as its mime text (PlaylistEntry::toMimeText).
+	SetPlaylist,            ///< payload: playlist XML
+	AddToPlaylist,          ///< args: [QString entryMimeText, int nIndex]
+	RemoveFromPlaylist,     ///< args: [QString entryMimeText, int nIndex]
+
 	OpcodeCount
 };
 

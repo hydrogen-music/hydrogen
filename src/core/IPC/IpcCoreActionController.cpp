@@ -26,6 +26,7 @@
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Pattern.h>
+#include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcChannel.h>
@@ -866,6 +867,35 @@ bool IpcCoreActionController::savePlaylistAs( const QString& sPath ) {
 		return true;
 	}
 	return CoreActionController::savePlaylistAs( sPath );
+}
+
+// ── ADR 0030 batch 2g — playlist commands ──
+
+bool IpcCoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
+	if ( m_pChannel != nullptr && pPlaylist != nullptr ) {
+		IpcMessage msg( IpcOpcode::SetPlaylist );
+		msg.setPayload( pPlaylist->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::setPlaylist( pPlaylist );
+}
+
+bool IpcCoreActionController::addToPlaylist(
+	std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
+	if ( m_pChannel != nullptr && pEntry != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddToPlaylist )
+							  .arg( pEntry->toMimeText() ).arg( nIndex ) );
+	}
+	return CoreActionController::addToPlaylist( pEntry, nIndex );
+}
+
+bool IpcCoreActionController::removeFromPlaylist(
+	std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
+	if ( m_pChannel != nullptr && pEntry != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RemoveFromPlaylist )
+							  .arg( pEntry->toMimeText() ).arg( nIndex ) );
+	}
+	return CoreActionController::removeFromPlaylist( pEntry, nIndex );
 }
 
 }

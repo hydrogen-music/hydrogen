@@ -30,6 +30,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
@@ -180,6 +181,23 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 	CPPUNIT_ASSERT_EQUAL( pPattern->getName().toStdString(),
 						  pPattern2->getName().toStdString() );
 	CPPUNIT_ASSERT_EQUAL( pPattern->getLength(), pPattern2->getLength() );
+
+	// --- Playlist ---
+	auto pPlaylist = std::make_shared<Playlist>();
+	auto pEntry = std::make_shared<PlaylistEntry>(
+		"/tmp/ipc-playlist-song.h2song", "/tmp/ipc-playlist-script.sh", true );
+	CPPUNIT_ASSERT( pPlaylist->add( pEntry ) );
+	const auto plBuffer = pPlaylist->toXmlBuffer();
+	CPPUNIT_ASSERT( ! plBuffer.isEmpty() );
+	auto pPlaylist2 = Playlist::fromXmlBuffer( plBuffer );
+	CPPUNIT_ASSERT( pPlaylist2 != nullptr );
+	CPPUNIT_ASSERT_EQUAL( pPlaylist->size(), pPlaylist2->size() );
+	CPPUNIT_ASSERT( pPlaylist2->get( 0 ) != nullptr );
+	// Absolute song path round-trips verbatim (no relative resolution).
+	CPPUNIT_ASSERT_EQUAL( pEntry->getSongPath().toStdString(),
+						  pPlaylist2->get( 0 )->getSongPath().toStdString() );
+	CPPUNIT_ASSERT_EQUAL( pEntry->getScriptEnabled(),
+						  pPlaylist2->get( 0 )->getScriptEnabled() );
 
 	___INFOLOG( "passed" );
 }

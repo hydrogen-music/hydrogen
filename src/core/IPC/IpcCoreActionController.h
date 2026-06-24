@@ -185,6 +185,14 @@ public:
 	bool savePlaylist() override;
 	bool savePlaylistAs( const QString& sPath ) override;
 
+	// ADR 0030 batch 2g — playlist commands. setPlaylist marshals the playlist
+	// XML as payload; add/removeFromPlaylist marshal a single entry as mime text.
+	bool setPlaylist( std::shared_ptr<Playlist> pPlaylist ) override;
+	bool addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
+		int nIndex ) override;
+	bool removeFromPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
+		int nIndex ) override;
+
 private:
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;
