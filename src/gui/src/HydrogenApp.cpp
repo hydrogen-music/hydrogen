@@ -78,6 +78,7 @@ HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 H2Core::Hydrogen* HydrogenApp::m_pBootstrapHydrogen = nullptr;
 std::shared_ptr<H2Core::Preferences> HydrogenApp::m_pBootstrapPreferences = nullptr;
 std::unique_ptr<H2Core::IEngineAccess> HydrogenApp::m_pEngineAccess = nullptr;
+bool HydrogenApp::m_bEditorMode = false;
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  : m_pMainForm( pMainForm )
@@ -280,6 +281,7 @@ void HydrogenApp::setEditorBootstrap(
 	m_pBootstrapHydrogen = pMirror;
 	m_pBootstrapPreferences = pPreferences;
 	m_pEngineAccess = std::move( pEngineAccess );
+	m_bEditorMode = true;
 }
 
 H2Core::IEngineAccess* HydrogenApp::pEngine() {

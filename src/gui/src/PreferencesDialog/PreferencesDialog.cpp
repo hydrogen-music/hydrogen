@@ -682,6 +682,33 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pShortcuts = std::make_shared<H2Core::Shortcuts>( pPref->getShortcuts() );
 	initializeShortcutsTab();
 	updateShortcutsTab();
+
+	// Editor mode (ADR 0016/0022): the audio driver, MIDI driver and OSC server
+	// are owned by the plugin host, not the out-of-process editor. Present that
+	// configuration read-only — the values stay visible so the user can see what
+	// the host provides, but cannot be edited here (editing would not reach the
+	// host-driven engine, and these fields are excluded from the editor's config
+	// override layer anyway; see PluginConfig::isOverridePath).
+	if ( HydrogenApp::isEditorMode() ) {
+		const QList<QWidget*> hostOwnedWidgets = {
+			// Audio driver, device, sample rate / buffer size, and JACK options
+			driverComboBox, portaudioHostAPIComboBox, m_pAudioDeviceTxt,
+			latencyTargetSpinBox, bufferSizeSpinBox, sampleRateComboBox,
+			trackOutsCheckBox, enforceInstrumentNameCheckBox,
+			connectDefaultsCheckBox, enableTimebaseCheckBox, trackOutputComboBox,
+			restartAudioDriverBtn,
+			// MIDI driver and input/output ports
+			m_pMidiDriverComboBox, midiPortComboBox, midiOutportComboBox,
+			restartMidiDriverButton,
+			// OSC server (a host-level network service)
+			enableOscCheckbox, enableOscFeedbackCheckbox, incomingOscPortSpinBox
+		};
+		for ( QWidget* pWidget : hostOwnedWidgets ) {
+			if ( pWidget != nullptr ) {
+				pWidget->setEnabled( false );
+			}
+		}
+	}
 }
 
 PreferencesDialog::~PreferencesDialog()
