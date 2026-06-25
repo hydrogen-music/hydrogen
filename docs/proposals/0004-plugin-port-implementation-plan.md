@@ -770,11 +770,38 @@ paths (no playlist file to resolve against over IPC).
   via the engine-access reaches the engine; **engine survives editor disconnect**
   (the server keeps listening and accepts a reattaching editor).
 
-**T5.4 editor lifecycle — partially DONE.** Connect / inbound-sync / command
-forwarding / clean teardown / engine-survives-disconnect are in place and tested.
-The *host* side — the plugin launching, respawning, and re-attaching the editor
-process — is owned by the real plugin host (a later phase; today only
-`FakePluginHost` exists), so that part is deferred.
+**T5.4 editor lifecycle — mostly DONE (both ends of the serve loop built).**
+* **Editor side** (`EditorSession`): connect / inbound-sync / command forwarding /
+  clean teardown / engine-survives-disconnect — done and tested (`EditorModeTest`).
+* **Engine side** (`EngineSession`, `src/core/IPC/`): the serve loop, the
+  host-facing counterpart. `start(engine, endpoint)` listens and runs a dedicated
+  **bridge thread** (off the audio thread, ADR 0018) that accepts the editor,
+  answers the `hello`, sends the current song as initial state, then loops:
+  receive → `IpcEngineBridge::dispatchCommand` (commands) / `handleRequest`
+  (request-response, correlated by `requestId`), and drains the engine
+  `EventQueue` → `forwardEvent` (engine-origin events only). On editor disconnect
+  it returns to accepting, so a respawned editor re-attaches (engine survives
+  editor crash). The `IpcServer` + accepted channel live entirely on the bridge
+  thread (QLocalSocket is thread-affine); a `std::promise` reports listen success
+  to `start()`. Covered end-to-end by `EngineSessionTest` (5 cases: arg
+  rejection, initial-state priming, command dispatch, event forwarding,
+  survive+reconnect) driving a real `EngineSession` ↔ `EditorSession` pair.
+* **Still deferred to the real plugin host:** spawning the editor *process*
+  (`hydrogen --plugin-editor <endpoint>`) and respawn supervision, plus ensuring a
+  `QCoreApplication` exists in the host process for Qt's local-socket classes.
+  Today only `FakePluginHost` exists; the serve infrastructure it would drive is
+  now in place.
+
+**Editor Preferences UI — host-owned controls read-only — DONE.** Added
+`HydrogenApp::isEditorMode()` (static flag set by `setEditorBootstrap`). In editor
+mode `PreferencesDialog` presents the host-owned configuration **read-only**
+(`setEnabled(false)`, value still visible) rather than hidden — per the user's
+preference and ADR 0026: audio driver / device / sample rate / buffer size + JACK
+options, the MIDI driver + in/out ports, and the OSC server controls (the set
+tracks `PluginConfig::isOverridePath`). Whole-tab hiding was rejected because the
+Audio tab also holds user-level settings (metronome volume, polyphony,
+interpolation) and the MIDI tab holds non-host MIDI prefs, which stay editable.
+i18n-safe (no new strings). Standalone unaffected (`GuiStartup` green).
 
 **Layered-config consumption — deferred (no host yet).** Persistence is wired
 (`Preferences` retains the load baseline at `Preferences.cpp:464`;
@@ -820,13 +847,19 @@ real host launches the editor with a config override.
   the new `EditorSession`; inject `IpcEngineAccess` through
   `HydrogenApp::setEditorBootstrap`; build the unchanged `MainForm`. Covered by
   `EditorModeTest`.
-* **T5.4 Editor lifecycle — ◑ PARTIAL.** Editor-side connect / inbound-sync /
-  command forwarding / teardown / engine-survives-disconnect are done and tested
-  (`EditorModeTest`). Host-side launch/respawn/re-attach is deferred to the real
-  plugin host (later phase; only `FakePluginHost` exists today).
+* **T5.4 Editor lifecycle — ◑ MOSTLY DONE.** Both ends of the serve loop are
+  built: editor side (`EditorSession`, `EditorModeTest`) and engine side
+  (`EngineSession` serve loop on a bridge thread — accept, handshake, initial
+  state, command dispatch + request/response, EventQueue forwarding, survive +
+  reconnect; `EngineSessionTest`). Deferred to the real plugin host: spawning /
+  respawn-supervising the editor *process* and a host-side `QCoreApplication` for
+  Qt sockets (only `FakePluginHost` exists today).
 * **T5.5 Layered config** (ADR 0022): base from shared `~/.hydrogen`; override
-  subset from host/state; retained load baseline on `Preferences`; hide host-owned
-  controls in the editor's Preferences UI.
+  subset from host/state; retained load baseline on `Preferences` — all ✅ DONE.
+  Editor's Preferences UI presents host-owned controls **read-only** (not hidden)
+  via `HydrogenApp::isEditorMode()` — ✅ DONE. Remaining: the host pushing its
+  override layer at editor startup (`PluginConfig::applyOverride` caller) — gated
+  on a real plugin host.
 * **T5.6 Concurrency-safe persistence** (ADR 0023): replace the snapshot-on-close
   `save()` on the shared-config path (`Preferences.cpp:1405`; callers
   `main.cpp:534`, `MainForm.cpp:2758`) with `QLockFile` + `QSaveFile` + a 3-way
