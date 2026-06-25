@@ -29,9 +29,16 @@
 #include <core/Hydrogen.h>
 #include <core/IO/PluginAudioDriver.h>
 #include <core/IO/PluginMidiDriver.h>
+#include <core/IPC/EngineSession.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
+
+#include <atomic>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QProcess>
+#include <QtCore/QStringList>
 
 namespace H2Core {
 
@@ -76,6 +83,8 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 }
 
 HydrogenPlugin::~HydrogenPlugin() {
+	// Tear down the editor (process + serve loop) before the engine it serves.
+	closeEditor();
 	m_pMidiDriver.reset();
 	m_pAudioDriver.reset();
 	delete m_pHydrogen;
@@ -168,6 +177,130 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 		return false;
 	}
 	return m_pHydrogen->getCoreActionController()->setSong( pSong );
+}
+
+// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────────────────
+
+QString HydrogenPlugin::makeEditorEndpoint() const {
+	// Unique per editor open across this host process. IpcServer::listen clears a
+	// stale socket from a crashed run, so reuse-after-crash is safe.
+	static std::atomic<unsigned> s_nCounter{ 0 };
+	return QString( "hydrogen-editor-%1-%2" )
+		.arg( QCoreApplication::applicationPid() )
+		.arg( s_nCounter.fetch_add( 1 ) );
+}
+
+namespace {
+// Qt's QProcess / local-socket classes need a QCoreApplication in the process.
+// A standalone build and the unit tests already have one (QApplication /
+// test main); a bare (non-Qt) plugin host does not, so create a minimal one the
+// first time we need it. Left to leak — it is process-global and lives as long
+// as the plugin library is loaded.
+void ensureQtApplication() {
+	if ( QCoreApplication::instance() != nullptr ) {
+		return;
+	}
+	static int s_argc = 1;
+	static char s_arg0[] = "hydrogen-plugin";
+	static char* s_argv[] = { s_arg0, nullptr };
+	new QCoreApplication( s_argc, s_argv );
+}
+} // namespace
+
+QString HydrogenPlugin::editorBinary() const {
+	if ( ! m_sEditorBinary.isEmpty() ) {
+		return m_sEditorBinary;
+	}
+	const QByteArray sEnv = qgetenv( "HYDROGEN_EDITOR_PATH" );
+	if ( ! sEnv.isEmpty() ) {
+		return QString::fromLocal8Bit( sEnv );
+	}
+	// Fall back to PATH; a real package points setEditorBinary() at the bundled
+	// binary (its location is known relative to the plugin).
+	return QStringLiteral( "hydrogen" );
+}
+
+bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
+	if ( m_bEditorOpen ) {
+		return true;
+	}
+	if ( m_pHydrogen == nullptr ) {
+		return false;
+	}
+
+	ensureQtApplication();
+
+	if ( m_sEditorEndpoint.isEmpty() ) {
+		m_sEditorEndpoint = makeEditorEndpoint();
+	}
+	m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
+	if ( m_pEditorSession == nullptr ) {
+		m_sEditorEndpoint.clear();
+		return false;
+	}
+
+	m_bEditorOpen = true;
+	m_bEditorClosing = false;
+	m_nEditorRespawns = 0;
+	if ( bLaunchProcess ) {
+		launchEditorProcess();
+	}
+	return true;
+}
+
+void HydrogenPlugin::launchEditorProcess() {
+	m_pEditorProcess = std::make_unique<QProcess>();
+	QObject::connect(
+		m_pEditorProcess.get(),
+		QOverload<int, QProcess::ExitStatus>::of( &QProcess::finished ),
+		[this]( int, QProcess::ExitStatus status ) {
+			onEditorProcessFinished( status == QProcess::CrashExit );
+		} );
+	m_pEditorProcess->start(
+		editorBinary(),
+		QStringList() << QStringLiteral( "--plugin-editor" ) << m_sEditorEndpoint );
+}
+
+void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
+	if ( m_bEditorClosing || ! m_bEditorOpen ) {
+		return; // deliberate close — not a crash
+	}
+	if ( ! bCrashed ) {
+		// The user closed the editor window. Leave the engine running and the
+		// serve loop accepting, so the host can reopen the editor later.
+		m_bEditorOpen = false;
+		return;
+	}
+	// The editor crashed. The engine keeps running and the serve loop keeps
+	// accepting (ADR 0016); respawn a bounded number of times so a persistently
+	// crashing editor can't loop forever.
+	if ( m_nEditorRespawns < knMaxEditorRespawns ) {
+		++m_nEditorRespawns;
+		launchEditorProcess();
+	}
+	else {
+		m_bEditorOpen = false;
+	}
+}
+
+void HydrogenPlugin::closeEditor() {
+	m_bEditorClosing = true;
+	if ( m_pEditorProcess != nullptr ) {
+		if ( m_pEditorProcess->state() != QProcess::NotRunning ) {
+			m_pEditorProcess->terminate();
+			if ( ! m_pEditorProcess->waitForFinished( 2000 ) ) {
+				m_pEditorProcess->kill();
+				m_pEditorProcess->waitForFinished( 2000 );
+			}
+		}
+		m_pEditorProcess.reset();
+	}
+	// Stops the serve loop and joins the bridge thread.
+	m_pEditorSession.reset();
+	m_sEditorEndpoint.clear();
+	m_bEditorOpen = false;
+	m_bEditorClosing = false;
+	m_nEditorRespawns = 0;
 }
 
 };

@@ -786,11 +786,32 @@ paths (no playlist file to resolve against over IPC).
   to `start()`. Covered end-to-end by `EngineSessionTest` (5 cases: arg
   rejection, initial-state priming, command dispatch, event forwarding,
   survive+reconnect) driving a real `EngineSession` ↔ `EditorSession` pair.
-* **Still deferred to the real plugin host:** spawning the editor *process*
-  (`hydrogen --plugin-editor <endpoint>`) and respawn supervision, plus ensuring a
-  `QCoreApplication` exists in the host process for Qt's local-socket classes.
-  Today only `FakePluginHost` exists; the serve infrastructure it would drive is
-  now in place.
+* **Plugin integration** (`HydrogenPlugin`, `src/plugin/`): the per-instance
+  plugin engine wrapper now owns the editor lifecycle (ADR 0016).
+  `openEditor()` generates a unique endpoint, starts an `EngineSession` serving
+  this instance's engine, and spawns `hydrogen --plugin-editor <endpoint>` as a
+  separate process; `closeEditor()` terminates the process and stops the serve
+  loop; the dtor closes it. Auto-respawn (cap 3) relaunches the editor **only on
+  a crash** (a clean exit — the user closed the window — leaves it closed). The
+  editor binary is resolved from `setEditorBinary()` → `$HYDROGEN_EDITOR_PATH` →
+  `hydrogen` on PATH. `openEditor()` first ensures a `QCoreApplication` exists
+  (creates a minimal one if the host is non-Qt) so Qt's QProcess / local-socket
+  classes work. Covered by `PluginLifecycleTest` (open-serves-engine,
+  command-reaches-engine, reopen) which attach a real `EditorSession` to the
+  plugin's endpoint with the process spawn suppressed (the test acts as the
+  editor).
+* **CLAP gui extension** (`HydrogenClap.cpp`): the host's show/hide UI is wired to
+  the editor. Using CLAP's **floating** model (ADR 0016 — the editor is its own
+  top-level window, not embedded): `is_api_supported`/`get_preferred_api` advertise
+  floating on the platform window API; `create` allocates nothing; `show` →
+  `openEditor()`, `hide`/`destroy` → `closeEditor()`; the embedded methods
+  (`set_parent`/size/resize) report unsupported. Spec-validated by the
+  `clap-validate` ctest (which skips actually opening the window, so no spawn in
+  CI).
+* **Still deferred to the real plugin host:** the **LV2 UI** exposure (LV2's
+  `ui:showInterface` / external-UI fits the out-of-process model but isn't wired
+  yet); packaging-time editor-binary discovery (`setEditorBinary` from the bundle
+  layout); and the broader VST3/packaging work (T6.1–T6.3).
 
 **Editor Preferences UI — host-owned controls read-only — DONE.** Added
 `HydrogenApp::isEditorMode()` (static flag set by `setEditorBootstrap`). In editor

@@ -31,6 +31,9 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPluginProcess );
 	CPPUNIT_TEST( testPluginStateRoundTrip );
 	CPPUNIT_TEST( testPluginRepeatedLifecycle );
+	CPPUNIT_TEST( testEditorOpenServesEngine );
+	CPPUNIT_TEST( testEditorCommandReachesEngine );
+	CPPUNIT_TEST( testEditorReopen );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -44,6 +47,15 @@ public:
 	void testPluginStateRoundTrip();
 	/** Repeated construct/destroy of HydrogenPlugin leaves no residual objects. */
 	void testPluginRepeatedLifecycle();
+	/** openEditor() serves the instance's engine over IPC; an editor (here an
+	 * EditorSession standing in for the real GUI process) attaches and receives
+	 * the engine's song; closeEditor() tears the serve loop down (ADR 0016). */
+	void testEditorOpenServesEngine();
+	/** A command issued on the attached editor reaches and mutates the plugin's
+	 * engine. */
+	void testEditorCommandReachesEngine();
+	/** openEditor()/closeEditor() are idempotent and re-openable. */
+	void testEditorReopen();
 };
 
 #endif

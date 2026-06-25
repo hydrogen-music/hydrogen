@@ -159,6 +159,81 @@ bool CLAP_ABI stateLoad( const clap_plugin_t* plugin, const clap_istream_t* stre
 }
 const clap_plugin_state_t kState = { stateSave, stateLoad };
 
+// ── gui extension (ADR 0016: out-of-process, floating editor) ──────────────
+// Hydrogen's editor is a separate process with its own QApplication + top-level
+// window, so only the *floating* CLAP gui model applies: the host neither embeds
+// nor sizes our window. create() allocates nothing; show() launches the editor
+// process (served over IPC by this instance's engine), hide()/destroy() tear it
+// down. The embedded-window methods (set_parent/size/resize) report unsupported.
+const char* preferredWindowApi() {
+#if defined( _WIN32 )
+	return CLAP_WINDOW_API_WIN32;
+#elif defined( __APPLE__ )
+	return CLAP_WINDOW_API_COCOA;
+#else
+	return CLAP_WINDOW_API_X11;
+#endif
+}
+
+bool CLAP_ABI guiIsApiSupported( const clap_plugin_t*, const char*,
+								 bool is_floating ) {
+	return is_floating; // floating only — the editor is its own top-level window
+}
+bool CLAP_ABI guiGetPreferredApi( const clap_plugin_t*, const char** api,
+								  bool* is_floating ) {
+	*api = preferredWindowApi();
+	*is_floating = true;
+	return true;
+}
+bool CLAP_ABI guiCreate( const clap_plugin_t*, const char*, bool is_floating ) {
+	return is_floating; // nothing to allocate; the window appears on show()
+}
+void CLAP_ABI guiDestroy( const clap_plugin_t* plugin ) {
+	auto* p = self( plugin );
+	if ( p->engine != nullptr ) {
+		p->engine->closeEditor();
+	}
+}
+bool CLAP_ABI guiSetScale( const clap_plugin_t*, double ) { return false; }
+bool CLAP_ABI guiGetSize( const clap_plugin_t*, uint32_t*, uint32_t* ) {
+	return false; // a floating window manages its own size
+}
+bool CLAP_ABI guiCanResize( const clap_plugin_t* ) { return false; }
+bool CLAP_ABI guiGetResizeHints( const clap_plugin_t*,
+								 clap_gui_resize_hints_t* ) {
+	return false;
+}
+bool CLAP_ABI guiAdjustSize( const clap_plugin_t*, uint32_t*, uint32_t* ) {
+	return false;
+}
+bool CLAP_ABI guiSetSize( const clap_plugin_t*, uint32_t, uint32_t ) {
+	return false;
+}
+bool CLAP_ABI guiSetParent( const clap_plugin_t*, const clap_window_t* ) {
+	return false; // embedded (non-floating) not supported
+}
+bool CLAP_ABI guiSetTransient( const clap_plugin_t*, const clap_window_t* ) {
+	return false; // a cross-process window can't be made transient here
+}
+void CLAP_ABI guiSuggestTitle( const clap_plugin_t*, const char* ) {}
+bool CLAP_ABI guiShow( const clap_plugin_t* plugin ) {
+	auto* p = self( plugin );
+	return p->engine != nullptr && p->engine->openEditor();
+}
+bool CLAP_ABI guiHide( const clap_plugin_t* plugin ) {
+	auto* p = self( plugin );
+	if ( p->engine != nullptr ) {
+		p->engine->closeEditor();
+	}
+	return true;
+}
+const clap_plugin_gui_t kGui = {
+	guiIsApiSupported, guiGetPreferredApi, guiCreate,	  guiDestroy,
+	guiSetScale,	   guiGetSize,		   guiCanResize,	  guiGetResizeHints,
+	guiAdjustSize,	   guiSetSize,		   guiSetParent,	  guiSetTransient,
+	guiSuggestTitle,   guiShow,			   guiHide
+};
+
 // ── plugin vtable ─────────────────────────────────────────────────────────
 bool CLAP_ABI pluginInit( const clap_plugin_t* plugin ) {
 	auto* p = self( plugin );
@@ -306,6 +381,9 @@ const void* CLAP_ABI pluginGetExtension( const clap_plugin_t*, const char* id ) 
 	}
 	if ( std::strcmp( id, CLAP_EXT_NOTE_PORTS ) == 0 ) {
 		return &kNotePorts;
+	}
+	if ( std::strcmp( id, CLAP_EXT_GUI ) == 0 ) {
+		return &kGui;
 	}
 	if ( std::strcmp( id, CLAP_EXT_STATE ) == 0 ) {
 		return &kState;

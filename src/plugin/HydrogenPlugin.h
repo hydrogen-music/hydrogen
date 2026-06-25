@@ -26,11 +26,16 @@
 #include <memory>
 #include <vector>
 
+#include <QtCore/QString>
+
+class QProcess;
+
 namespace H2Core {
 
 class Hydrogen;
 class PluginAudioDriver;
 class PluginMidiDriver;
+class EngineSession;
 
 /**
  * Format-agnostic plugin engine wrapper (ADR 0013/0014).
@@ -93,11 +98,49 @@ public:
 
 	Hydrogen* getHydrogen() const { return m_pHydrogen; }
 
+	// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────
+	/** Open the editor for this instance: start serving the engine over IPC
+	 * (#EngineSession) and, when @a bLaunchProcess, spawn the editor process
+	 * `hydrogen --plugin-editor <endpoint>`. Idempotent; returns false only if the
+	 * serve loop could not bind. @a bLaunchProcess == false starts serving without
+	 * spawning (used by tests, which act as the editor themselves). */
+	bool openEditor( bool bLaunchProcess = true );
+	/** Close the editor: terminate the process (if any) and stop serving. Called
+	 * automatically on destruction. */
+	void closeEditor();
+	bool isEditorOpen() const { return m_bEditorOpen; }
+	/** The IPC endpoint the editor attaches to (empty while closed). */
+	const QString& getEditorEndpoint() const { return m_sEditorEndpoint; }
+	/** Override the editor binary (default: $HYDROGEN_EDITOR_PATH or `hydrogen`
+	 * on PATH; a real package points this at the bundled binary). */
+	void setEditorBinary( const QString& sPath ) { m_sEditorBinary = sPath; }
+
 private:
+	QString makeEditorEndpoint() const;
+	QString editorBinary() const;
+	void launchEditorProcess();
+	/** Process-exit handler. Respawns only on a crash (bounded); a clean exit
+	 * (the user closed the editor window) leaves it closed. */
+	void onEditorProcessFinished( bool bCrashed );
+
 	Hydrogen* m_pHydrogen;
 	std::shared_ptr<PluginAudioDriver> m_pAudioDriver;
 	std::shared_ptr<PluginMidiDriver> m_pMidiDriver;
 	int m_nBuses;
+
+	/** Engine-side serve loop for the attached editor; owned. */
+	std::unique_ptr<EngineSession> m_pEditorSession;
+	/** The spawned editor process; owned (null when not launched). */
+	std::unique_ptr<QProcess> m_pEditorProcess;
+	QString m_sEditorEndpoint;
+	QString m_sEditorBinary;
+	bool m_bEditorOpen = false;
+	/** Set during closeEditor() so the process-exit handler does not respawn. */
+	bool m_bEditorClosing = false;
+	/** Bounded auto-respawn count, so a persistently crashing editor can't loop
+	 * forever (ADR 0016 respawn-on-crash). */
+	int m_nEditorRespawns = 0;
+	static constexpr int knMaxEditorRespawns = 3;
 };
 
 };
