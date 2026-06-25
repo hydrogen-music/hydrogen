@@ -34,7 +34,11 @@
 #include <cstdio>
 #include <cstring>
 #include <new>
+#include <string>
 #include <vector>
+
+#include <QtCore/QFileInfo>
+#include <QtCore/QString>
 
 #ifndef H2_PLUGIN_OUTPUT_BUSES
 #define H2_PLUGIN_OUTPUT_BUSES 32
@@ -66,6 +70,10 @@ const clap_plugin_descriptor_t kDescriptor = {
 	"Hydrogen drum machine / sampler",
 	kFeatures
 };
+
+// Directory containing the loaded .clap, captured in entryInit(plugin_path); used
+// to find the bundled editor binary (ADR 0016).
+std::string g_clapPluginDir;
 
 struct H2ClapPlugin {
 	clap_plugin_t plugin;
@@ -240,6 +248,11 @@ bool CLAP_ABI pluginInit( const clap_plugin_t* plugin ) {
 	if ( p->engine == nullptr ) {
 		p->engine = new ( std::nothrow )
 			HydrogenPlugin( p->sampleRate, p->maxFrames, kNumBuses );
+	}
+	if ( p->engine != nullptr && ! g_clapPluginDir.empty() ) {
+		// Find the editor binary next to the installed plugin (ADR 0016).
+		p->engine->setEditorSearchDir(
+			QString::fromStdString( g_clapPluginDir ) );
 	}
 	return p->engine != nullptr;
 }
@@ -430,7 +443,14 @@ const clap_plugin_factory_t kFactory = {
 };
 
 // ── entry ─────────────────────────────────────────────────────────────────
-bool CLAP_ABI entryInit( const char* ) { return true; }
+bool CLAP_ABI entryInit( const char* plugin_path ) {
+	if ( plugin_path != nullptr && plugin_path[0] != '\0' ) {
+		g_clapPluginDir =
+			QFileInfo( QString::fromUtf8( plugin_path ) ).absolutePath()
+				.toStdString();
+	}
+	return true;
+}
 void CLAP_ABI entryDeinit( void ) {}
 const void* CLAP_ABI entryGetFactory( const char* factory_id ) {
 	if ( std::strcmp( factory_id, CLAP_PLUGIN_FACTORY_ID ) == 0 ) {

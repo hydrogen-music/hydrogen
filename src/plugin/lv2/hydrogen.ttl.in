@@ -3,6 +3,7 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
 @prefix urid: <http://lv2plug.in/ns/ext/urid#> .
 
 <https://hydrogen-music.org/lv2/hydrogen>
@@ -25,6 +26,7 @@
         ]
     ] ;
     lv2:requiredFeature urid:map ;
+    ui:ui <https://hydrogen-music.org/lv2/hydrogen#ui> ;
     lv2:port [
         a lv2:InputPort , atom:AtomPort ;
         atom:bufferType atom:Sequence ;
@@ -35,3 +37,18 @@
     ] , [
 @H2_LV2_PORTS@
     ] .
+
+# Out-of-process editor (ADR 0016). The editor is a separate process with its own
+# window, so this UI does not embed: it gets the DSP instance via instance-access
+# and shows/hides the editor through ui:showInterface (driven by ui:idleInterface).
+<https://hydrogen-music.org/lv2/hydrogen#ui>
+    a ui:@H2_LV2_UI_TYPE@ ;
+    # instance-access: the UI reaches the in-process engine to launch the editor.
+    # idleInterface: a show-interface UI must be driven by the host's idle loop
+    #   (so it can detect the editor window being closed). Both are intrinsic to
+    #   the out-of-process design (lv2lint warns about instance-access / same
+    #   binary, which are accepted trade-offs here).
+    lv2:requiredFeature <http://lv2plug.in/ns/ext/instance-access> ,
+                        ui:idleInterface ;
+    lv2:extensionData ui:showInterface , ui:idleInterface ;
+    ui:binary <hydrogen@CMAKE_SHARED_MODULE_SUFFIX@> .

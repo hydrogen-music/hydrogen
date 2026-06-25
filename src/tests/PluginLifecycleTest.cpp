@@ -43,7 +43,11 @@
 #include <plugin/HydrogenPlugin.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTemporaryDir>
 #include <QtCore/QThread>
 
 using namespace H2Core;
@@ -332,6 +336,46 @@ void PluginLifecycleTest::testEditorReopen() {
 	pEditor.reset();
 	plugin.closeEditor();
 	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testEditorBinaryDiscovery() {
+	___INFOLOG( "" );
+
+	qunsetenv( "HYDROGEN_EDITOR_PATH" );
+
+	// Explicit override always wins.
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "/opt/h/hydrogen" ),
+		HydrogenPlugin::resolveEditorBinary( "/opt/h/hydrogen", "" )
+			.toStdString() );
+
+	// No override and nothing bundled → PATH fallback (a bare name).
+	const QString sFallback =
+		HydrogenPlugin::resolveEditorBinary( "", "/no/such/plugin/dir" );
+	CPPUNIT_ASSERT( sFallback == QStringLiteral( "hydrogen" ) ||
+					sFallback == QStringLiteral( "hydrogen.exe" ) );
+
+	// An executable bundled next to the plugin is discovered.
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+#if defined( _WIN32 )
+	const QString sName = QStringLiteral( "hydrogen.exe" );
+#else
+	const QString sName = QStringLiteral( "hydrogen" );
+#endif
+	const QString sExe = QDir( tmp.path() ).filePath( sName );
+	{
+		QFile f( sExe );
+		CPPUNIT_ASSERT( f.open( QIODevice::WriteOnly ) );
+		f.write( "#!/bin/sh\n" );
+	}
+	QFile::setPermissions( sExe, QFile::permissions( sExe ) |
+								  QFileDevice::ExeOwner | QFileDevice::ExeUser );
+	CPPUNIT_ASSERT_EQUAL(
+		QFileInfo( sExe ).absoluteFilePath().toStdString(),
+		HydrogenPlugin::resolveEditorBinary( "", tmp.path() ).toStdString() );
 
 	___INFOLOG( "passed" );
 }

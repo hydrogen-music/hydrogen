@@ -109,11 +109,25 @@ public:
 	 * automatically on destruction. */
 	void closeEditor();
 	bool isEditorOpen() const { return m_bEditorOpen; }
+	/** Whether the editor *process* is currently alive. Polled (no event loop
+	 * needed), so a host idle callback can detect the user closing the window
+	 * (e.g. the LV2 ui:idleInterface). False when no process was launched. */
+	bool isEditorProcessRunning() const;
 	/** The IPC endpoint the editor attaches to (empty while closed). */
 	const QString& getEditorEndpoint() const { return m_sEditorEndpoint; }
-	/** Override the editor binary (default: $HYDROGEN_EDITOR_PATH or `hydrogen`
-	 * on PATH; a real package points this at the bundled binary). */
+	/** Override the editor binary outright (highest precedence). */
 	void setEditorBinary( const QString& sPath ) { m_sEditorBinary = sPath; }
+	/** Directory to look in for the bundled editor binary — the plugin's own
+	 * install location, supplied by the format shim (CLAP `init(plugin_path)`,
+	 * LV2 `instantiate(bundle_path)`). */
+	void setEditorSearchDir( const QString& sDir ) { m_sEditorSearchDir = sDir; }
+
+	/** Resolve the editor binary to launch, in precedence order: @a sExplicit
+	 * override → `$HYDROGEN_EDITOR_PATH` → a `hydrogen` executable found relative
+	 * to @a sSearchDir (the installed plugin location) → `hydrogen` on `PATH`.
+	 * Static + pure (aside from the env var) so it is unit-testable. */
+	static QString resolveEditorBinary( const QString& sExplicit,
+										const QString& sSearchDir );
 
 private:
 	QString makeEditorEndpoint() const;
@@ -134,6 +148,7 @@ private:
 	std::unique_ptr<QProcess> m_pEditorProcess;
 	QString m_sEditorEndpoint;
 	QString m_sEditorBinary;
+	QString m_sEditorSearchDir;
 	bool m_bEditorOpen = false;
 	/** Set during closeEditor() so the process-exit handler does not respawn. */
 	bool m_bEditorClosing = false;

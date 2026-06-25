@@ -808,10 +808,26 @@ paths (no playlist file to resolve against over IPC).
   (`set_parent`/size/resize) report unsupported. Spec-validated by the
   `clap-validate` ctest (which skips actually opening the window, so no spawn in
   CI).
-* **Still deferred to the real plugin host:** the **LV2 UI** exposure (LV2's
-  `ui:showInterface` / external-UI fits the out-of-process model but isn't wired
-  yet); packaging-time editor-binary discovery (`setEditorBinary` from the bundle
-  layout); and the broader VST3/packaging work (T6.1–T6.3).
+* **LV2 UI** (`HydrogenLv2.cpp` + `hydrogen.ttl`): a non-embedding UI via LV2's
+  `ui:showInterface` (driven by the mandatory `ui:idleInterface`). The UI obtains
+  the in-process engine through the `instance-access` feature and maps `show` →
+  `openEditor()`, `hide` → `closeEditor()`, and `idle` → poll
+  `isEditorProcessRunning()` (returns non-zero when the user closed the editor
+  window, so the host hides + can re-show). `lv2ui_descriptor` ships in the same
+  module; the TTL declares the platform UI type (X11UI/CocoaUI/WindowsUI via
+  cmake) + the two interfaces. Passes `lv2lint` + `lv2-smoke` (lv2lint warns —
+  accepted — that instance-access and same-binary DSP/UI are discouraged; both
+  are intrinsic to driving an out-of-process *local* editor).
+* **Editor-binary discovery** (`HydrogenPlugin::resolveEditorBinary`): the plugin
+  locates the editor relative to its own install instead of relying on PATH.
+  Precedence: explicit `setEditorBinary()` → `$HYDROGEN_EDITOR_PATH` → a
+  `hydrogen[.exe]` found next to the plugin (or `../bin`, or the macOS `.app`) →
+  `hydrogen` on PATH. The plugin's own location is captured per format — CLAP from
+  `entryInit(plugin_path)`, LV2 from `instantiate(bundle_path)` — and handed to
+  the engine via `setEditorSearchDir()`. The resolver is unit-tested
+  (`PluginLifecycleTest::testEditorBinaryDiscovery`). The exact bundle layout is
+  finalised by packaging (T6.2).
+* **Still deferred:** the VST3/packaging work (T6.1–T6.3).
 
 **Editor Preferences UI — host-owned controls read-only — DONE.** Added
 `HydrogenApp::isEditorMode()` (static flag set by `setEditorBootstrap`). In editor

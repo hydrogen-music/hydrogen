@@ -108,6 +108,18 @@ if(WANT_LV2)
             "        a lv2:AudioPort , lv2:OutputPort ;\n"
             "        lv2:index ${idxR} ;\n        lv2:symbol \"bus_${bus}_r\" ;\n        lv2:name \"Bus ${busName} R\"\n")
     endforeach()
+
+    # Platform-native UI type for the out-of-process editor (ADR 0016). The UI is
+    # not embedded (shown via ui:showInterface), but LV2 still requires a concrete
+    # window-toolkit type; pick the one matching the build platform.
+    if(APPLE)
+        set(H2_LV2_UI_TYPE "CocoaUI")
+    elseif(WIN32)
+        set(H2_LV2_UI_TYPE "WindowsUI")
+    else()
+        set(H2_LV2_UI_TYPE "X11UI")
+    endif()
+
     configure_file( lv2/hydrogen.ttl.in "${H2_LV2_BUNDLE}/hydrogen.ttl" @ONLY )
 
     # Drop the built module into the bundle next to the manifests.

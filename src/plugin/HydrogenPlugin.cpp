@@ -37,6 +37,8 @@
 #include <atomic>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
 
@@ -207,17 +209,49 @@ void ensureQtApplication() {
 }
 } // namespace
 
-QString HydrogenPlugin::editorBinary() const {
-	if ( ! m_sEditorBinary.isEmpty() ) {
-		return m_sEditorBinary;
+QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
+											 const QString& sSearchDir ) {
+	if ( ! sExplicit.isEmpty() ) {
+		return sExplicit;
 	}
 	const QByteArray sEnv = qgetenv( "HYDROGEN_EDITOR_PATH" );
 	if ( ! sEnv.isEmpty() ) {
 		return QString::fromLocal8Bit( sEnv );
 	}
-	// Fall back to PATH; a real package points setEditorBinary() at the bundled
-	// binary (its location is known relative to the plugin).
-	return QStringLiteral( "hydrogen" );
+
+#if defined( _WIN32 )
+	const QString sExe = QStringLiteral( "hydrogen.exe" );
+#else
+	const QString sExe = QStringLiteral( "hydrogen" );
+#endif
+
+	// Look for the editor bundled alongside the installed plugin. The exact
+	// layout is set by packaging (T6.2); these are the candidates it may use.
+	if ( ! sSearchDir.isEmpty() ) {
+		const QDir dir( sSearchDir );
+		const QStringList candidates = {
+			dir.filePath( sExe ),                                   // same dir
+			dir.filePath( QStringLiteral( "../bin/" ) + sExe ),     // relocatable bin/
+#if defined( __APPLE__ )
+			dir.filePath( "Hydrogen.app/Contents/MacOS/Hydrogen" ), // macOS .app
+			dir.filePath( "../MacOS/Hydrogen" ),
+#endif
+		};
+		for ( const QString& sCandidate : candidates ) {
+			const QFileInfo info( sCandidate );
+			if ( info.isFile() && info.isExecutable() ) {
+				return info.absoluteFilePath();
+			}
+		}
+	}
+
+	// Last resort: rely on PATH (or a packaging-set HYDROGEN_EDITOR_PATH /
+	// setEditorBinary()).
+	return sExe;
+}
+
+QString HydrogenPlugin::editorBinary() const {
+	return resolveEditorBinary( m_sEditorBinary, m_sEditorSearchDir );
 }
 
 bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
@@ -281,6 +315,11 @@ void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
 	else {
 		m_bEditorOpen = false;
 	}
+}
+
+bool HydrogenPlugin::isEditorProcessRunning() const {
+	return m_pEditorProcess != nullptr &&
+		m_pEditorProcess->state() != QProcess::NotRunning;
 }
 
 void HydrogenPlugin::closeEditor() {

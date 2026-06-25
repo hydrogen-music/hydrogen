@@ -34,6 +34,7 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEditorOpenServesEngine );
 	CPPUNIT_TEST( testEditorCommandReachesEngine );
 	CPPUNIT_TEST( testEditorReopen );
+	CPPUNIT_TEST( testEditorBinaryDiscovery );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -56,6 +57,9 @@ public:
 	void testEditorCommandReachesEngine();
 	/** openEditor()/closeEditor() are idempotent and re-openable. */
 	void testEditorReopen();
+	/** The editor binary is resolved by precedence: explicit override →
+	 * $HYDROGEN_EDITOR_PATH → bundled-next-to-plugin → `hydrogen` on PATH. */
+	void testEditorBinaryDiscovery();
 };
 
 #endif
