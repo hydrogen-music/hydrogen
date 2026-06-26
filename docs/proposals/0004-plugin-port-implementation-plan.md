@@ -921,13 +921,39 @@ Linux.
 
 ADR 0014, proposal 0003 §9.
 
+**Status: 🚧 IN PROGRESS** — T6.1 (VST3 via clap-wrapper) DONE; T6.2/T6.3 pending.
+
 **Tests first**
 * VST3 validator smoke step in CI; reuse the Windows installer verification
   pattern (`windows/ci/test_installation.py`) extended to assert plugin bundles
   install to the right locations.
 
 **Tasks**
-* **T6.1** Build `clap-wrapper` to emit `Hydrogen.vst3` from the CLAP.
+* **T6.1 — ✅ DONE.** `clap-wrapper` (free-audio, `extern/clap-wrapper` submodule,
+  pinned **v0.10.1** — newer tags require CMake ≥ 3.27 via `CMP0149`; we're on
+  3.25) wraps the native CLAP (`clap/HydrogenClap.cpp` → `clap_entry`) into
+  `Hydrogen.vst3`. Behind `-DWANT_VST3=1` (opt-in; it fetches the Steinberg VST3
+  SDK via CPM at configure time), `src/plugin/CMakeLists.txt` points clap-wrapper
+  at our vendored CLAP SDK (`CLAP_SDK_ROOT`), `add_subdirectory`s it, and calls
+  `target_add_vst3_wrapper(TARGET hydrogen-vst3 OUTPUT_NAME Hydrogen)`. Build
+  details worked through: the CLAP entry is compiled in its own static lib so it
+  isn't subjected to clap-wrapper's PUBLIC `-Wall -Werror`; `-Wno-format-security`
+  on the SDK/wrapper targets suppresses the clash between the SDK's `-Wno-format`
+  and our global `-Werror=format-security` (suppressing the warning entirely, not
+  just demoting it to a per-TU error/warning); clap-wrapper's own **blanket
+  `-Werror`** (an INTERFACE option it forces, untoggleable) is stripped from
+  `clap-wrapper-compile-options` after `add_subdirectory` — otherwise its vendored
+  **fmt v9** fails to compile on GCC 13/14 (`-Wdangling-reference` /
+  `-Wtautological-compare`), and a per-target `-Wno-error` can't override an
+  INTERFACE flag (it lands last) — and on GCC the now-non-fatal fmt warnings are
+  also silenced (`-Wno-dangling-reference -Wno-tautological-compare`, guarded to
+  GNU since clang doesn't know them); and `CMAKE_POSITION_INDEPENDENT_CODE` makes
+  the wrapper static libs linkable into the shared module. Produces a valid Linux
+  bundle (`Hydrogen.vst3/Contents/x86_64-linux/Hydrogen.so` exporting
+  `GetPluginFactory`/`ModuleEntry`); `vst3-smoke` ctest checks the entry export.
+  (Full Steinberg validator + macOS/Windows bundle layout are CI/packaging,
+  T6.3/T6.2.) The CLAP gui (floating) / LV2 UI exposure from Phase 5 carries into
+  the VST3 since it wraps the same CLAP entry.
 * **T6.2** Packaging per platform: Linux relocatable `.tar.xz` (bundles +
   `hydrogen` binary + Qt); macOS bundles folded into `.dmg`
   (`macos/build_dmg.sh`); Windows NSIS installer (extend `cpack -G NSIS`) placing

@@ -13,3 +13,6 @@
 [submodule "extern/lv2lint"]
 	path = extern/lv2lint
 	url = https://git.ventosus.ch/lv2lint
+[submodule "extern/clap-wrapper"]
+	path = extern/clap-wrapper
+	url = https://github.com/free-audio/clap-wrapper.git

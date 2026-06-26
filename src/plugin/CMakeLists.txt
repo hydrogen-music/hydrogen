@@ -155,3 +155,107 @@ if(WANT_LV2)
         message(STATUS "  - lv2lint not found; using in-process LV2 smoke only")
     endif()
 endif()
+
+# ── Native VST3 plugin via clap-wrapper (ADR 0014, T6.1) ───────────────────
+# Wraps the native CLAP (clap/HydrogenClap.cpp → `clap_entry`) as a VST3 with
+# free-audio/clap-wrapper (extern/clap-wrapper submodule, v0.14.0). The VST3 SDK
+# is fetched at configure time via CPM (CLAP_WRAPPER_DOWNLOAD_DEPENDENCIES); the
+# CLAP SDK is reused from our own submodule rather than re-downloaded. Opt-in
+# (WANT_VST3=OFF by default) because pulling + building the Steinberg VST3 SDK is
+# heavy; enable with -DWANT_VST3=1.
+if(WANT_VST3)
+    # Point clap-wrapper at our vendored CLAP SDK; let it fetch the VST3 SDK.
+    set(CLAP_SDK_ROOT "${CMAKE_SOURCE_DIR}/extern/clap" CACHE PATH "" FORCE)
+    set(CLAP_WRAPPER_DOWNLOAD_DEPENDENCIES ON CACHE BOOL "" FORCE)
+    set(CLAP_WRAPPER_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+
+    # clap-wrapper's static libs (VST3 SDK + wrapper) get linked into our shared
+    # VST3 module, so they must be position-independent.
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+    add_subdirectory(
+        "${CMAKE_SOURCE_DIR}/extern/clap-wrapper"
+        "${CMAKE_BINARY_DIR}/clap-wrapper"
+        EXCLUDE_FROM_ALL )
+
+    # clap-wrapper forces a blanket -Werror on its own targets via the INTERFACE
+    # target clap-wrapper-compile-options (no toggle). That breaks on newer
+    # compilers against its vendored fmt v9 — e.g. GCC 13/14 flag
+    # -Wdangling-reference / -Wtautological-compare inside fmt and -Werror turns
+    # them fatal. A per-target -Wno-error can't fix it: INTERFACE options land
+    # after the target's own flags on the command line, so -Werror wins. Strip the
+    # blanket -Werror from the interface instead — vendored code must not gate our
+    # build (it propagates to every clap-wrapper target).
+    if(TARGET clap-wrapper-compile-options)
+        get_target_property(_cw_opts clap-wrapper-compile-options
+            INTERFACE_COMPILE_OPTIONS)
+        if(_cw_opts)
+            list(REMOVE_ITEM _cw_opts "-Werror")
+            set_target_properties(clap-wrapper-compile-options PROPERTIES
+                INTERFACE_COMPILE_OPTIONS "${_cw_opts}")
+        endif()
+    endif()
+
+    # Compile the CLAP entry (clap_entry) in its own static lib with OUR flags.
+    # If it were a source of the wrapped module it would inherit clap-wrapper's
+    # strict -Wall/-Werror (PUBLIC on its wrapper lib), which flags unused helpers
+    # in our shared headers — and interface -Werror can't be overridden per-target
+    # since it lands last on the command line.
+    add_library( hydrogen-vst3-entry STATIC clap/HydrogenClap.cpp )
+    target_include_directories( hydrogen-vst3-entry PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/clap/include )
+    target_compile_definitions( hydrogen-vst3-entry PRIVATE
+        H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES} )
+    target_link_libraries( hydrogen-vst3-entry PUBLIC hydrogen-plugin )
+    set_target_properties( hydrogen-vst3-entry PROPERTIES
+        CXX_STANDARD 17 POSITION_INDEPENDENT_CODE ON )
+
+    # The VST3 module: clap-wrapper adds its export glue (which references
+    # clap_entry, pulled from the entry lib) -> one CLAP plugin, one VST3.
+    add_library( hydrogen-vst3 MODULE )
+    target_link_libraries( hydrogen-vst3 PRIVATE hydrogen-vst3-entry )
+
+    target_add_vst3_wrapper(
+        TARGET hydrogen-vst3
+        OUTPUT_NAME "Hydrogen" )
+
+    # The vendored Steinberg VST3 SDK + clap-wrapper sources don't compile cleanly
+    # under our strict warning policy. Relaxations for these third-party targets
+    # only (created by target_add_vst3_wrapper above):
+    #   * -Wno-format-security: the SDK builds with -Wno-format, which against our
+    #     global -Wformat -Werror=format-security leaves -Wformat-security "ignored
+    #     without -Wformat". Disabling -Wformat-security removes the diagnostic
+    #     entirely - merely demoting it (-Wno-error=format-security) would leave a
+    #     warning spamming every SDK TU.
+    #   * -Wno-error: relaxes clap-wrapper's own blanket -Werror (GCC) for the
+    #     vendored code.
+    # hydrogen-vst3 needs it too: base-sdk-vst3 exports -Wno-format PUBLICly, so
+    # the wrapper export entry compiled into the module hits the same clash.
+    set(_cw_relax -Wno-error -Wno-format-security)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # GCC 13/14 flag clap-wrapper's vendored fmt v9 (-Wdangling-reference /
+        # -Wtautological-compare). Silence them so third-party code is quiet as
+        # well as non-fatal. Harmless on older GCC, which ignores unknown -Wno-*.
+        list(APPEND _cw_relax -Wno-dangling-reference -Wno-tautological-compare)
+    endif()
+    foreach(cw_target
+            base-sdk-vst3
+            hydrogen-vst3-clap-wrapper-vst3-lib
+            clap-wrapper-shared-detail
+            hydrogen-vst3)
+        if(TARGET ${cw_target})
+            target_compile_options(${cw_target} PRIVATE ${_cw_relax})
+        endif()
+    endforeach()
+
+    # Smoke test: the built VST3 module exports the VST3 entry point. A full
+    # Steinberg validator run is left to CI (T6.3), which builds the SDK's
+    # validator; this catches a broken wrap cheaply in any build.
+    if(UNIX AND NOT APPLE)
+        add_test( NAME vst3-smoke
+            COMMAND sh -c
+                "nm -D '$<TARGET_FILE:hydrogen-vst3>' | grep -q GetPluginFactory" )
+    endif()
+
+    message(STATUS "Building VST3 plugin via clap-wrapper (buses=${H2_PLUGIN_OUTPUT_BUSES})")
+endif()
