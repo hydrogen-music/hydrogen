@@ -110,7 +110,7 @@ for:
 
       echo $DISPLAY_VERSION
 
-      cache_tag=usr_cache_online # this can be modified to rebuild deps
+      cache_tag=usr_cache_plugin # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -135,6 +135,10 @@ for:
         sudo apt-get update
         sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libqt6svg6-dev
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libxml2-utils
+        # Toolchains + libs for the plugin conformance tools built by `build.sh
+        # deps`: clap-validator (cargo) and lv2lint (meson/ninja; needs lv2 +
+        # lilv, with curl/elf/x11 for its optional test groups).
+        sudo apt-get install -y cargo meson ninja-build lv2-dev liblilv-dev libcurl4-openssl-dev libelf-dev libx11-dev
 
         # Install a recent PortMidi version
         git clone https://github.com/PortMidi/PortMidi || exit 1
@@ -164,6 +168,15 @@ for:
 
     build_script: |-
       git submodule init && git submodule update
+
+      # Build the CLAP/LV2 conformance tools so the clap-validate and lv2lint
+      # CTests actually run (CMake find_program picks them up from
+      # extern/clap-validator/target/release and extern/lv2lint/build). Without
+      # them those tests are silently skipped. CARGO_HOME points at the cached
+      # dir so the crate registry persists across runs. Must run before the cmake
+      # configure below (find_program resolves at configure time).
+      export CARGO_HOME="$HOME/cache_dir/cargo"
+      ./build.sh deps
 
       export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 

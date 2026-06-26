@@ -1002,9 +1002,18 @@ T6.3 CI wiring landed in `.appveyor.yml` (pending a real CI run to confirm).
   possible enhancement; the current "bundle under install dir" matches Linux.)
 * **T6.3 — 🚧 wired in `.appveyor.yml` (CI is AppVeyor, not GH Actions).**
   **CLAP + LV2** are built on every Linux (Ubuntu 22.04 test job), macOS and
-  Windows run — `-DWANT_CLAP=ON -DWANT_LV2=ON` — so the plugin CTest suite
-  (`lv2-smoke`; `clap-validate`/`lv2lint` when those tools are present) runs
+  Windows run — `-DWANT_CLAP=ON -DWANT_LV2=ON` — so the plugin CTest suite runs
   alongside the unit tests on all three (extended the `ctest -R` regex on each).
+  On the **Linux test job** the conformance tools themselves are built so those
+  tests actually execute (not skipped): the job apt-installs `cargo` + `meson`/
+  `ninja-build` + `lv2-dev`/`liblilv-dev` (+ curl/elf/x11 for lv2lint's optional
+  groups) and runs `./build.sh deps` before configure, which builds clap-validator
+  (cargo) and lv2lint (meson) into the paths CMake `find_program`s. `CARGO_HOME`
+  points at the cached dir so the crate registry persists (the Rust *target* still
+  recompiles per run — caching it via `CARGO_TARGET_DIR`+PATH is a possible
+  speed-up follow-up). macOS/Windows don't build the tools (would need brew/MSYS
+  toolchains; conformance is platform-agnostic and covered on Linux), so
+  `clap-validate`/`lv2lint` stay skipped there.
   The bundles ride the existing artifacts: into the macOS `.dmg` (via
   `build_dmg.sh -p .`) and the Windows NSIS installer (via the `install()` rules);
   the AppImage job stays the standalone-app artifact. **VST3** is **gated behind
