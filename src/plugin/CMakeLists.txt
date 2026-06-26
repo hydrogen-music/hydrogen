@@ -53,7 +53,12 @@ if(WANT_CLAP)
 
     # Install into the conventional CLAP location (<prefix>/lib/clap; T6.2). The
     # editor binary at <prefix>/bin is found by HydrogenPlugin's relative search.
-    install(TARGETS hydrogen-clap LIBRARY DESTINATION "${H2_LIB_PATH}/clap")
+    # MODULE library: the .clap is a LIBRARY artifact on Linux/macOS but a RUNTIME
+    # artifact (DLL) on Windows, so both destinations are needed for the bundle to
+    # land in the package on every platform.
+    install(TARGETS hydrogen-clap
+        LIBRARY DESTINATION "${H2_LIB_PATH}/clap"
+        RUNTIME DESTINATION "${H2_LIB_PATH}/clap")
 
     # 8c smoke: run clap-validator on the built .clap if it is available (built
     # from extern/clap-validator or installed on PATH). This is the CI
