@@ -29,8 +29,6 @@
 #include <lv2/atom/atom.h>
 #include <lv2/urid/urid.h>
 
-#include <dlfcn.h>
-
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -38,6 +36,34 @@
 #include <map>
 #include <string>
 #include <vector>
+
+// Cross-platform dynamic-loading shim: POSIX dlopen on Linux/macOS, the Win32
+// loader on Windows (MinGW has no <dlfcn.h>). LV2 is built on all CI platforms,
+// so this host must compile everywhere.
+#if defined( _WIN32 )
+#include <windows.h>
+namespace {
+void* dlOpen( const char* path ) {
+	return reinterpret_cast<void*>( LoadLibraryA( path ) );
+}
+void* dlSym( void* handle, const char* name ) {
+	return reinterpret_cast<void*>(
+		GetProcAddress( reinterpret_cast<HMODULE>( handle ), name ) );
+}
+void dlClose( void* handle ) {
+	FreeLibrary( reinterpret_cast<HMODULE>( handle ) );
+}
+const char* dlErr() { return "LoadLibrary/GetProcAddress failed"; }
+} // namespace
+#else
+#include <dlfcn.h>
+namespace {
+void* dlOpen( const char* path ) { return dlopen( path, RTLD_NOW | RTLD_LOCAL ); }
+void* dlSym( void* handle, const char* name ) { return dlsym( handle, name ); }
+void dlClose( void* handle ) { dlclose( handle ); }
+const char* dlErr() { return dlerror(); }
+} // namespace
+#endif
 
 namespace {
 std::map<std::string, uint32_t> g_uris;
@@ -58,14 +84,14 @@ int main( int argc, char** argv ) {
 		std::fprintf( stderr, "usage: %s <hydrogen.so>\n", argv[0] );
 		return 2;
 	}
-	void* h = dlopen( argv[1], RTLD_NOW | RTLD_LOCAL );
+	void* h = dlOpen( argv[1] );
 	if ( h == nullptr ) {
-		std::fprintf( stderr, "dlopen failed: %s\n", dlerror() );
+		std::fprintf( stderr, "dlopen failed: %s\n", dlErr() );
 		return 1;
 	}
 
 	using DescFn = const LV2_Descriptor* ( * )( uint32_t );
-	auto lv2_descriptor = reinterpret_cast<DescFn>( dlsym( h, "lv2_descriptor" ) );
+	auto lv2_descriptor = reinterpret_cast<DescFn>( dlSym( h, "lv2_descriptor" ) );
 	if ( lv2_descriptor == nullptr ) {
 		std::fprintf( stderr, "no lv2_descriptor symbol\n" );
 		return 1;
@@ -124,7 +150,7 @@ int main( int argc, char** argv ) {
 			}
 		}
 	}
-	dlclose( h );
+	dlClose( h );
 
 	std::printf( bOk ? "LV2 SMOKE: PASSED\n" : "LV2 SMOKE: FAILED\n" );
 	return bOk ? 0 : 1;
