@@ -641,7 +641,7 @@ class JackDriver : public NullDriver {
 	 */
 	JackDriver( Hydrogen* pHydrogen, audioProcessCallback m_processCallback,
 				Mode mode )
-		: NullDriver( m_processCallback )
+		: NullDriver( pHydrogen, m_processCallback )
 	{
 	}
 
