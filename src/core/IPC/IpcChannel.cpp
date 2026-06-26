@@ -22,15 +22,48 @@
 #include <core/IPC/IpcChannel.h>
 
 #include <QtCore/QElapsedTimer>
+#include <QtGlobal>
 #include <QtNetwork/QLocalSocket>
 
+#if defined( Q_OS_UNIX )
+#include <sys/socket.h>
+#endif
+
 namespace H2Core {
+
+namespace {
+// Enlarge the OS socket buffers so a whole frame (object payloads — Song /
+// Drumkit XML — can be tens of KB) can be handed off in one flush even when the
+// peer is not draining concurrently. Without this, a synchronous send()-then-
+// receive() on a single thread (as the tests do) deadlocks once the frame
+// exceeds the buffer: the write can't complete until the peer reads, but the peer
+// only reads after the write. Linux's large default Unix-socket buffers hid this;
+// macOS defaults are ~8 KB, smaller than even an empty song's XML. On Windows a
+// QLocalSocket is a named pipe (no SO_*BUF); its buffering does not have the same
+// limit, so this is a no-op there.
+void enlargeSocketBuffers( QLocalSocket* pSocket ) {
+#if defined( Q_OS_UNIX )
+	const qintptr fd = pSocket->socketDescriptor();
+	if ( fd < 0 ) {
+		return;
+	}
+	const int nSize = 8 * 1024 * 1024; // OS clamps to its max if smaller
+	setsockopt( static_cast<int>( fd ), SOL_SOCKET, SO_SNDBUF,
+				&nSize, sizeof( nSize ) );
+	setsockopt( static_cast<int>( fd ), SOL_SOCKET, SO_RCVBUF,
+				&nSize, sizeof( nSize ) );
+#else
+	(void)pSocket;
+#endif
+}
+} // namespace
 
 IpcChannel::IpcChannel( QLocalSocket* pSocket, QObject* pParent )
 	: QObject( pParent )
 	, m_pSocket( pSocket ) {
 	if ( m_pSocket != nullptr ) {
 		m_pSocket->setParent( this );
+		enlargeSocketBuffers( m_pSocket );
 		connect( m_pSocket, &QLocalSocket::readyRead,
 				 this, &IpcChannel::onReadyRead );
 		connect( m_pSocket, &QLocalSocket::disconnected,
