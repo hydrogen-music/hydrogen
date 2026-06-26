@@ -167,7 +167,7 @@ endif()
 
 # ── Native VST3 plugin via clap-wrapper (ADR 0014, T6.1) ───────────────────
 # Wraps the native CLAP (clap/HydrogenClap.cpp → `clap_entry`) as a VST3 with
-# free-audio/clap-wrapper (extern/clap-wrapper submodule, v0.14.0). The VST3 SDK
+# free-audio/clap-wrapper (extern/clap-wrapper submodule, v0.10.1). The VST3 SDK
 # is fetched at configure time via CPM (CLAP_WRAPPER_DOWNLOAD_DEPENDENCIES); the
 # CLAP SDK is reused from our own submodule rather than re-downloaded. Opt-in
 # (WANT_VST3=OFF by default) because pulling + building the Steinberg VST3 SDK is
@@ -205,16 +205,28 @@ if(WANT_VST3)
         endif()
     endif()
 
-    # Compile the CLAP entry (clap_entry) in its own static lib with OUR flags.
+    # Compile the CLAP entry (clap_entry) in its own OBJECT lib with OUR flags.
     # If it were a source of the wrapped module it would inherit clap-wrapper's
     # strict -Wall/-Werror (PUBLIC on its wrapper lib), which flags unused helpers
     # in our shared headers — and interface -Werror can't be overridden per-target
     # since it lands last on the command line.
-    add_library( hydrogen-vst3-entry STATIC clap/HydrogenClap.cpp )
+    # OBJECT (not STATIC): clap-wrapper's shared-detail lib references `clap_entry`
+    # (with STATICALLY_LINKED_CLAP_ENTRY), and from a STATIC lib that object would
+    # be dropped unless it happened to be link-ordered after the reference. An
+    # OBJECT lib's objects are always linked into the module, so clap_entry is
+    # guaranteed present regardless of order (portable across linkers / CMake
+    # versions, unlike --whole-archive or the 3.24+ LINK_GROUP genex).
+    add_library( hydrogen-vst3-entry OBJECT clap/HydrogenClap.cpp )
     target_include_directories( hydrogen-vst3-entry PRIVATE
         ${CMAKE_SOURCE_DIR}/extern/clap/include )
+    # H2_CLAP_FOR_VST3 enables the empty CLAP params extension in HydrogenClap.cpp
+    # — needed only so clap-wrapper sets up its VST3 IMidiMapping (see the comment
+    # there). The native CLAP plugin (hydrogen-clap) is built WITHOUT this define,
+    # so it stays parameterless and clap-validator does not run its param/state
+    # suites against it.
     target_compile_definitions( hydrogen-vst3-entry PRIVATE
-        H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES} )
+        H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES}
+        H2_CLAP_FOR_VST3=1 )
     target_link_libraries( hydrogen-vst3-entry PUBLIC hydrogen-plugin )
     set_target_properties( hydrogen-vst3-entry PROPERTIES
         CXX_STANDARD 17 POSITION_INDEPENDENT_CODE ON )
@@ -227,6 +239,23 @@ if(WANT_VST3)
     target_add_vst3_wrapper(
         TARGET hydrogen-vst3
         OUTPUT_NAME "Hydrogen" )
+
+    # Tell clap-wrapper that the CLAP entry is statically linked into this module
+    # (our clapfirst model — the CLAP plugin is compiled in via hydrogen-vst3-entry,
+    # not loaded from a separate .clap). Without this, clap-wrapper's Library ctor
+    # (detail/clap/fsutil.cpp) skips `_pluginEntry = &clap_entry` and instead hunts
+    # for an external .clap on disk; finding none, its GetPluginFactory returns
+    # nullptr and the Steinberg validator rejects the bundle ("Invalid Module").
+    # target_add_vst3_wrapper exposes no option for this (only the standalone
+    # wrapper does). The macro guard lives in fsutil.cpp, which is compiled into the
+    # shared-detail lib (NOT the per-target vst3 lib), so the define must land
+    # there; set it on the vst3 lib too for any future call sites.
+    foreach(cw_entry_target clap-wrapper-shared-detail hydrogen-vst3-clap-wrapper-vst3-lib)
+        if(TARGET ${cw_entry_target})
+            target_compile_definitions( ${cw_entry_target}
+                PRIVATE STATICALLY_LINKED_CLAP_ENTRY=1 )
+        endif()
+    endforeach()
 
     # The vendored Steinberg VST3 SDK + clap-wrapper sources don't compile cleanly
     # under our strict warning policy. Relaxations for these third-party targets
@@ -258,12 +287,32 @@ if(WANT_VST3)
     endforeach()
 
     # Smoke test: the built VST3 module exports the VST3 entry point. A full
-    # Steinberg validator run is left to CI (T6.3), which builds the SDK's
-    # validator; this catches a broken wrap cheaply in any build.
+    # Steinberg validator run is the conformance step below; this catches a broken
+    # wrap cheaply in any build.
     if(UNIX AND NOT APPLE)
         add_test( NAME vst3-smoke
             COMMAND sh -c
                 "nm -D '$<TARGET_FILE:hydrogen-vst3>' | grep -q GetPluginFactory" )
+    endif()
+
+    # Full Steinberg VST3 validator as a CTest (UNIX only), alongside
+    # clap-validate / lv2-smoke / vst3-smoke. clap-wrapper does not build the SDK's
+    # validator tool, so tools/run_vst3_validator.sh builds it on demand from the
+    # SDK source clap-wrapper already fetched, then runs it on the built bundle.
+    # The build root is passed (not a per-config path) so the helper finds the
+    # bundle regardless of Debug/Release. Heavy on first run (compiles the
+    # validator), idempotent afterwards.
+    # NB: CTest hides a passing test's stdout under --output-on-failure, so the
+    # "N tests passed" summary surfaces on failure (and always in
+    # <build>/vst3-validator/validator-output.log); build.sh echoes it after the
+    # suite so the counts stay visible on success too.
+    if(UNIX)
+        add_test( NAME vst3-validate
+            COMMAND ${CMAKE_SOURCE_DIR}/tools/run_vst3_validator.sh
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk"
+                "${CMAKE_BINARY_DIR}"
+                "${CMAKE_BINARY_DIR}/vst3-validator" )
+        message(STATUS "  + Steinberg VST3 validator CTest enabled (vst3-validate)")
     endif()
 
     # Install the .vst3 bundle (a folder on Linux/Windows, a bundle on macOS)

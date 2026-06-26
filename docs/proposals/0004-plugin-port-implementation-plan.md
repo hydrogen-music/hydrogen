@@ -921,8 +921,9 @@ Linux.
 
 ADR 0014, proposal 0003 §9.
 
-**Status: 🚧 IN PROGRESS** — T6.1 (VST3 via clap-wrapper) DONE; T6.2 Linux
-relocatable `.tar.xz` DONE (macOS/Windows installers + T6.3 pending).
+**Status: 🚧 IN PROGRESS** — T6.1 (VST3 via clap-wrapper) DONE; T6.2 packaging
+DONE (Linux `.tar.xz`, macOS `.dmg` staging, Windows NSIS via install rules);
+T6.3 CI wiring landed in `.appveyor.yml` (pending a real CI run to confirm).
 
 **Tests first**
 * VST3 validator smoke step in CI; reuse the Windows installer verification
@@ -952,10 +953,26 @@ relocatable `.tar.xz` DONE (macOS/Windows installers + T6.3 pending).
   the wrapper static libs linkable into the shared module. Produces a valid Linux
   bundle (`Hydrogen.vst3/Contents/x86_64-linux/Hydrogen.so` exporting
   `GetPluginFactory`/`ModuleEntry`); `vst3-smoke` ctest checks the entry export.
-  (Full Steinberg validator + macOS/Windows bundle layout are CI/packaging,
-  T6.3/T6.2.) The CLAP gui (floating) / LV2 UI exposure from Phase 5 carries into
-  the VST3 since it wraps the same CLAP entry.
-* **T6.2 — 🚧 Linux DONE; macOS/Windows pending.** Packaging per platform.
+  The CLAP gui (floating) / LV2 UI exposure from Phase 5 carries into the VST3
+  since it wraps the same CLAP entry.
+  **VST3 conformance (passes the full Steinberg validator, 47/47):** wiring the
+  validator (T6.3) surfaced three issues, all fixed on our side (clap-wrapper kept
+  pristine): (a) **null factory** — clap-wrapper only binds our statically-linked
+  `clap_entry` under `STATICALLY_LINKED_CLAP_ENTRY`, which `target_add_vst3_wrapper`
+  never defines; we set it on `clap-wrapper-shared-detail` (the target that
+  compiles `fsutil.cpp`) + the vst3 lib; (b) **link** — that reference would drop
+  the entry from a STATIC lib, so `hydrogen-vst3-entry` became an OBJECT library
+  (its objects are always linked; portable, no `--whole-archive`); (c) **MIDI
+  Mapping** — clap-wrapper registers its MIDI-CC→VST3 mapping params inside
+  `setupParameters()`, called only when the CLAP plugin exposes a params
+  extension; Hydrogen had none (ADR 0021), so we add a minimal empty params
+  extension (count 0), **scoped to the VST3 build only** (`H2_CLAP_FOR_VST3`,
+  set on `hydrogen-vst3-entry`). It must NOT be exposed by the native CLAP plugin:
+  doing so makes clap-validator enable its param-fuzz / state-reproducibility test
+  suites (skipped for a parameterless plugin), which is out of scope and breaks
+  `clap-validate`. Net: `build.sh t` is green — clap-validate passes, VST3
+  validator 47/47.
+* **T6.2 — 🚧 Linux + macOS DONE; Windows via existing NSIS.** Packaging per platform.
   **Linux**: `install(TARGETS/DIRECTORY ...)` rules in `src/plugin/CMakeLists.txt`
   stage all three bundles under the standard plugin dirs (`lib/clap/Hydrogen.clap`,
   `lib/lv2/hydrogen.lv2/`, `lib/vst3/Hydrogen.vst3/` — the VST3 source path uses a
@@ -970,11 +987,57 @@ relocatable `.tar.xz` DONE (macOS/Windows installers + T6.3 pending).
   layout and the 46 MB `.tar.xz` contains `bin/hydrogen`, all 3 plugin bundles, and
   the 21 `.qm` translations. (Packages against **system Qt** — full Qt bundling for
   true relocatability rides the existing AppImage/linuxdeploy path, follow-up.)
-  **macOS** `.dmg` (`macos/build_dmg.sh`) and **Windows** NSIS installer (extend
-  `cpack -G NSIS`) placing `.clap`/`.vst3`/`.lv2` in standard locations — pending
-  (can't be built/verified in the Linux dev env).
-* **T6.3** Wire plugin bundles into the **artifact-gated** CI jobs (behind
-  `UPLOAD_ARTIFACTS`), keeping per-commit jobs lean (§10).
+  **macOS**: `macos/build_dmg.sh` gained a `-p <dir>` option that discovers the
+  built `Hydrogen.clap` / `Hydrogen.vst3` / `hydrogen.lv2` bundles (top-level or
+  under a per-config subdir) and stages them into a `Plugins/` folder in the disk
+  image, with a `README.txt` telling the user which `~/Library/Audio/Plug-Ins/`
+  dir each goes in. Like Linux, the bundles ship against the app's Qt (fully
+  Qt-bundled, self-contained plugins are the same follow-up). Logic unit-tested on
+  Linux; the `hdiutil`/`macdeployqt` parts can only run on macOS CI.
+  **Windows**: no new code — the `src/plugin` `install()` rules already place the
+  bundles under the install root (`H2_LIB_PATH="."` on MINGW → `clap/`, `lv2/`,
+  `vst3/` next to `hydrogen.exe`), so the existing `cpack -G NSIS` packages them
+  automatically once the plugins are built. (Placing them into the system plugin
+  scan dirs — `%COMMONPROGRAMFILES%\{VST3,CLAP}` — via NSIS extra commands is a
+  possible enhancement; the current "bundle under install dir" matches Linux.)
+* **T6.3 — 🚧 wired in `.appveyor.yml` (CI is AppVeyor, not GH Actions).**
+  **CLAP + LV2** are built on every Linux (Ubuntu 22.04 test job), macOS and
+  Windows run — `-DWANT_CLAP=ON -DWANT_LV2=ON` — so the plugin CTest suite
+  (`lv2-smoke`; `clap-validate`/`lv2lint` when those tools are present) runs
+  alongside the unit tests on all three (extended the `ctest -R` regex on each).
+  The bundles ride the existing artifacts: into the macOS `.dmg` (via
+  `build_dmg.sh -p .`) and the Windows NSIS installer (via the `install()` rules);
+  the AppImage job stays the standalone-app artifact. **VST3** is **gated behind
+  `UPLOAD_ARTIFACTS`** on every platform (heavy — clap-wrapper fetches the
+  Steinberg VST3 SDK at configure): on macOS/Windows it is built, packaged and
+  uploaded on artifact builds; on Linux it is built **only as a clean-compile
+  check** (no bundle/archive uploaded — but it *is* validated, see below).
+  **Full Steinberg VST3 validator**: `tools/run_vst3_validator.sh <sdk-src>
+  <bundle.vst3>` configures the SDK source clap-wrapper already fetched
+  (`<build>/clap-wrapper/cpm/vst3sdk`, v3.7.6) as a standalone project — which
+  builds the SDK's `validator` tool unconditionally — with VSTGUI + plug-in
+  samples off, then runs it on the bundle (non-zero exit on any failed test).
+  Wrapped as a CTest **`vst3-validate`** (UNIX, registered under `WANT_VST3`)
+  alongside `clap-validate`/`lv2-smoke`/`vst3-smoke`: its command is
+  `run_vst3_validator.sh`, which builds the SDK validator on demand and runs it on
+  the bundle. So it runs from the normal ctest suite — `build.sh t` (which echoes
+  the validator's `N tests passed` summary afterwards, since CTest hides a passing
+  test's stdout) and the CI `ctest -R …|vst3-validate` (registered only on the
+  artifact builds that build VST3, so it no-ops elsewhere). Verified on Linux:
+  ctest 7/7, and the Steinberg validator reports **47 tests passed, 0 failed** on
+  the Hydrogen VST3 bundle (after the T6.1 conformance fixes). The helper needed
+  three robustness fixes found during verification: it fetches the SDK's `cmake`
+  submodule on demand (clap-wrapper omits it), configures with
+  `-DSMTG_ADD_VST3_HOSTING_SAMPLES=OFF` (drops the GTK-dependent editorhost
+  sample), and force-includes `<cstdint>` (`-DCMAKE_CXX_FLAGS=-include cstdint`)
+  because the pinned SDK's `moduleinfo.h` uses `uint32_t` without the include and
+  GCC 13+ no longer pulls it in transitively; it also accepts a build root and
+  locates the `.vst3` itself (robust to Debug/Release). Windows (MinGW) validator left as a follow-up — building the
+  Steinberg validator under MinGW is unproven.
+  Unverifiable from the Linux dev box — the first real AppVeyor run is the
+  validation; known risks to watch: Ubuntu 22.04's CMake (3.22) vs clap-wrapper's
+  floor, clap-wrapper/Steinberg-SDK on MinGW, and the SDK hosting-utilities
+  subdir building cleanly with VSTGUI off. Remaining: confirm on a real CI run.
 
 **Done when:** CLAP/LV2/VST3 all pass validators; installers place bundles
 correctly; artifacts produced only on tag/`*-artifacts` builds.

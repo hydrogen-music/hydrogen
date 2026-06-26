@@ -194,9 +194,10 @@ function cmake_tests() {
     echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests || exit 1
     # Run the full CTest suite registered by the current build. This always
     # covers the GUI startup smoke test (src/gui, ADR 0015/0016) and, when the
-    # plugins are enabled, the CLAP/LV2 conformance tests (clap-validate,
-    # lv2-smoke, lv2lint - src/plugin). Running the whole suite keeps
-    # `build.sh t` in sync with whatever tests the build registered.
+    # plugins are enabled, the CLAP/LV2/VST3 conformance tests (clap-validate,
+    # lv2-smoke, lv2lint, vst3-smoke, vst3-validate - src/plugin). Running the
+    # whole suite keeps `build.sh t` in sync with whatever tests the build
+    # registered. CTest shows each test's output on failure (--output-on-failure).
     echo -e "\n * execute ctest suite\n" && \
         ( cd $BUILD_DIR && ctest --output-on-failure ) || exit 1
 }

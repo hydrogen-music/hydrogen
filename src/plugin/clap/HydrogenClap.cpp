@@ -131,6 +131,44 @@ bool CLAP_ABI notePortsGet( const clap_plugin_t*, uint32_t index, bool is_input,
 }
 const clap_plugin_note_ports_t kNotePorts = { notePortsCount, notePortsGet };
 
+// ── params extension (VST3-wrap only) ─────────────────────────────────────
+// Hydrogen exposes no automatable CLAP parameters (ADR 0021 — the host drives
+// the engine over IPC, not via params), so the native CLAP/LV2 plugins do NOT
+// advertise this extension. It is compiled in ONLY for the clap-wrapper VST3
+// build (H2_CLAP_FOR_VST3): clap-wrapper sets up its MIDI-CC → VST3 mapping
+// (IMidiMapping) inside its setupParameters() path, which it skips entirely when
+// the wrapped CLAP plugin has no params extension — leaving
+// getMidiControllerAssignment to return an unregistered ParamID 0 that the
+// Steinberg VST3 validator rejects ("Unknown ParamID [0] returned for MIDI
+// Mapping"). Advertising the (empty) extension is what unlocks that path.
+//
+// We deliberately do NOT expose it for the native CLAP plugin: it is unnecessary
+// there (no params, MIDI handled via the note port) and advertising it makes
+// clap-validator enable its param/state-reproducibility test suites, which are
+// out of scope for the parameterless engine.
+#if defined( H2_CLAP_FOR_VST3 )
+uint32_t CLAP_ABI paramsCount( const clap_plugin_t* ) {
+	return 0;
+}
+bool CLAP_ABI paramsGetInfo( const clap_plugin_t*, uint32_t, clap_param_info_t* ) {
+	return false;
+}
+bool CLAP_ABI paramsGetValue( const clap_plugin_t*, clap_id, double* ) {
+	return false;
+}
+bool CLAP_ABI paramsValueToText( const clap_plugin_t*, clap_id, double, char*, uint32_t ) {
+	return false;
+}
+bool CLAP_ABI paramsTextToValue( const clap_plugin_t*, clap_id, const char*, double* ) {
+	return false;
+}
+void CLAP_ABI paramsFlush( const clap_plugin_t*, const clap_input_events_t*,
+						   const clap_output_events_t* ) {
+}
+const clap_plugin_params_t kParams = { paramsCount, paramsGetInfo, paramsGetValue,
+									   paramsValueToText, paramsTextToValue, paramsFlush };
+#endif
+
 // ── state extension ───────────────────────────────────────────────────────
 bool CLAP_ABI stateSave( const clap_plugin_t* plugin, const clap_ostream_t* stream ) {
 	auto* p = self( plugin );
@@ -395,6 +433,11 @@ const void* CLAP_ABI pluginGetExtension( const clap_plugin_t*, const char* id ) 
 	if ( std::strcmp( id, CLAP_EXT_NOTE_PORTS ) == 0 ) {
 		return &kNotePorts;
 	}
+#if defined( H2_CLAP_FOR_VST3 )
+	if ( std::strcmp( id, CLAP_EXT_PARAMS ) == 0 ) {
+		return &kParams;
+	}
+#endif
 	if ( std::strcmp( id, CLAP_EXT_GUI ) == 0 ) {
 		return &kGui;
 	}

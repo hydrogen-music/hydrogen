@@ -171,11 +171,22 @@ for:
       echo "Building with $CPUS cpus"
       mkdir build || exit 1
       cd build || exit 1
+
+      # Plugins: CLAP + LV2 are always built so the plugin CTest suite runs
+      # (lv2-smoke; clap-validate / lv2lint when those tools are present). VST3 is
+      # heavy (clap-wrapper fetches the Steinberg VST3 SDK at configure), so it is
+      # built only on artifact builds and on Linux purely as a clean-compile check
+      # — its bundle is never packaged or uploaded here.
+      VST3_FLAG=""
+      if [ "$UPLOAD_ARTIFACTS" == "true" ]; then VST3_FLAG="-DWANT_VST3=1"; fi
       cmake -DWANT_JACK:BOOL=OFF \
             -DWANT_QT6:BOOL=ON \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
             -DWANT_RUBBERBAND=1 \
+            -DWANT_CLAP=ON \
+            -DWANT_LV2=ON \
+            ${VST3_FLAG} \
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache .. || exit 1
       make -j $CPUS || exit 1
@@ -200,8 +211,12 @@ for:
       # GUI startup smoke test: launch the full GUI headless (Qt offscreen) and
       # require a clean startup + teardown (catches construction/teardown
       # crashes). The test is registered via CTest in src/gui/CMakeLists.txt.
-      echo "GUI startup smoke test"
-      ctest --output-on-failure -R GuiStartup || exit 1
+      echo "GUI startup smoke test + plugin conformance suite"
+      # vst3-validate (the full Steinberg validator) is registered only when the
+      # VST3 bundle was built (artifact builds); on other builds the -R simply
+      # finds no such test. It builds the SDK validator on demand and validates
+      # the bundle (not uploaded on Linux — clean-compile + conformance only).
+      ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate" || exit 1
 
       echo "Validating desktop file."
       desktop-file-validate ../linux/org.hydrogenmusic.Hydrogen.desktop || exit 1
@@ -495,20 +510,27 @@ for:
 
       git submodule init && git submodule update
 
+      # Plugins: CLAP + LV2 always (so the plugin CTest suite runs); VST3 only on
+      # artifact builds (heavy: clap-wrapper fetches the Steinberg VST3 SDK). When
+      # built, all available bundles are staged into the .dmg by build_dmg.sh -p.
+      VST3_FLAG=""
+      if [ "$UPLOAD_ARTIFACTS" == "true" ]; then VST3_FLAG="-DWANT_VST3=1"; fi
+
       # Do the build
       (
           mkdir build &&                                                        \
               cd build &&                                                       \
               cmake -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION}               \
-                    -DWANT_RUBBERBAND=1 .. &&                                   \
+                    -DWANT_RUBBERBAND=1                                         \
+                    -DWANT_CLAP=ON -DWANT_LV2=ON ${VST3_FLAG} .. &&             \
               make -j $CPUS
       ) || exit 1
 
-      # Build installation DMG
+      # Build installation DMG (-p . stages any built plugin bundles into it)
       (
         cd build
         PATH="$(brew --prefix qt5)/bin:$PATH"
-        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen-${DISPLAY_VERSION}.dmg
+        ../macos/build_dmg.sh -v -p . src/gui/hydrogen.app Hydrogen-${DISPLAY_VERSION}.dmg
 
         if [ "$UPLOAD_ARTIFACTS" == "true" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
@@ -533,8 +555,11 @@ for:
       # require a clean startup + teardown. Registered via CTest in
       # src/gui/CMakeLists.txt.
       if [ "$res" == "0" ]; then
-          echo "GUI startup smoke test"
-          ctest --output-on-failure -R GuiStartup
+          echo "GUI startup smoke test + plugin conformance suite"
+          # vst3-validate (full Steinberg validator) is registered only when the
+          # VST3 bundle was built (artifact builds); it builds the SDK validator
+          # on demand and validates the bundle that ships in the .dmg.
+          ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate"
           res=$?
       fi
 
@@ -664,7 +689,12 @@ for:
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          REM *** Plugins: CLAP + LV2 always (so the plugin CTest suite runs and the
+          REM     bundles are packaged by cpack/NSIS); VST3 only on artifact builds
+          REM     (heavy: clap-wrapper fetches the Steinberg VST3 SDK). ***
+          set VST3_FLAG=
+          if %UPLOAD_ARTIFACTS%=="true" set VST3_FLAG=-DWANT_VST3=1
+          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DWANT_CLAP=ON -DWANT_LV2=ON %VST3_FLAG% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
@@ -683,6 +713,10 @@ for:
           REM *** In case the test passed, we delete its output. If it fails, the
           REM     script won't reach this point and the output will be uploaded later on ***
           IF %ERRORLEVEL% EQU 0 (del testOutput.log)
+
+          REM *** Plugin conformance suite (lv2-smoke etc.; needs WANT_CLAP/LV2). ***
+          ctest --output-on-failure -R "clap-validate|lv2-smoke|lv2lint|vst3-smoke"
+          if %ERRORLEVEL% NEQ 0 exit /b 1
 
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 1"
           if %UPLOAD_ARTIFACTS%=="true" appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
