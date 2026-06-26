@@ -64,7 +64,10 @@ else()
             # last one (feature branch, develop branch, main after splitting of
             # a dedicated release branch). We just add the commit hash to the
             # display version.
-            execute_process(COMMAND git log --pretty=format:'%h' -n 1
+            # No quotes around %h: execute_process runs git without a shell, so
+            # shell-style quotes would end up literally in the hash (and in the
+            # version string / package filenames).
+            execute_process(COMMAND git log --pretty=format:%h -n 1
                 OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
             set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
             message(STATUS "MIS")
@@ -641,7 +644,7 @@ install(DIRECTORY data DESTINATION ${H2_DATA_PATH} PATTERN ".git" EXCLUDE PATTER
 if(NOT MINGW AND NOT APPLE)
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.metainfo.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo")
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
-	install(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/hicolor/scalable/apps" RENAME "org.hydrogenmusic.Hydrogen.svg")
+	install(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps" RENAME "org.hydrogenmusic.Hydrogen.svg")
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 endif()
 
@@ -714,6 +717,16 @@ if(MINGW)
     #end NSIS customizations
 else(MINGW)
     #apple stuff was moved to src/gui/CMakeLists.txt
+endif()
+
+# Linux: a relocatable .tar.xz of the install tree — the hydrogen binaries, the
+# CLAP/LV2/VST3 plugin bundles (under lib/{clap,lv2,vst3}) and the shared data
+# (T6.2). NB: this packages against the *system* Qt; a fully self-contained
+# bundle that ships Qt is produced via the AppImage path (WANT_APPIMAGE).
+if(NOT MINGW AND NOT APPLE)
+    set(CPACK_GENERATOR "TXZ")
+    set(CPACK_PACKAGE_FILE_NAME
+        "hydrogen-${DISPLAY_VERSION}-linux-${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "hydrogen")

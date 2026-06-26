@@ -13,5 +13,9 @@ ADD_CUSTOM_TARGET(translations ALL DEPENDS ${QM_FILES})
 IF(MINGW)
 	INSTALL(FILES ${QM_FILES} DESTINATION "./data/i18n")
 ELSE()
-	INSTALL(FILES ${QM_FILES} DESTINATION "${H2_SYS_PATH}/data/i18n")
+	# Relative (H2_DATA_PATH = share/hydrogen) so the install relocates with
+	# CMAKE_INSTALL_PREFIX / DESTDIR / CPack staging — resolves to the runtime
+	# system data path (H2_SYS_PATH) at the default prefix. Was H2_SYS_PATH (an
+	# absolute path), which broke staged/packaged installs (T6.2).
+	INSTALL(FILES ${QM_FILES} DESTINATION "${H2_DATA_PATH}/data/i18n")
 ENDIF()

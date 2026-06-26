@@ -225,22 +225,28 @@ QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
 	const QString sExe = QStringLiteral( "hydrogen" );
 #endif
 
-	// Look for the editor bundled alongside the installed plugin. The exact
-	// layout is set by packaging (T6.2); these are the candidates it may use.
+	// Look for the editor relative to the installed plugin. The plugin can sit at
+	// various depths (dev build dir, or e.g. <prefix>/lib/{clap,vst3,lv2}/... while
+	// the editor is at <prefix>/bin), so walk up a few levels and, at each, look
+	// for the editor next to it or under a sibling bin/ (T6.2 install layout).
 	if ( ! sSearchDir.isEmpty() ) {
-		const QDir dir( sSearchDir );
-		const QStringList candidates = {
-			dir.filePath( sExe ),                                   // same dir
-			dir.filePath( QStringLiteral( "../bin/" ) + sExe ),     // relocatable bin/
+		QDir dir( sSearchDir );
+		for ( int nLevel = 0; nLevel < 6; ++nLevel ) {
+			const QStringList candidates = {
+				dir.filePath( sExe ),                       // same dir
+				dir.filePath( QStringLiteral( "bin/" ) + sExe ), // sibling bin/
 #if defined( __APPLE__ )
-			dir.filePath( "Hydrogen.app/Contents/MacOS/Hydrogen" ), // macOS .app
-			dir.filePath( "../MacOS/Hydrogen" ),
+				dir.filePath( "Hydrogen.app/Contents/MacOS/Hydrogen" ),
 #endif
-		};
-		for ( const QString& sCandidate : candidates ) {
-			const QFileInfo info( sCandidate );
-			if ( info.isFile() && info.isExecutable() ) {
-				return info.absoluteFilePath();
+			};
+			for ( const QString& sCandidate : candidates ) {
+				const QFileInfo info( sCandidate );
+				if ( info.isFile() && info.isExecutable() ) {
+					return info.absoluteFilePath();
+				}
+			}
+			if ( ! dir.cdUp() ) {
+				break;
 			}
 		}
 	}

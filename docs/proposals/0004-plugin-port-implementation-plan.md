@@ -921,7 +921,8 @@ Linux.
 
 ADR 0014, proposal 0003 §9.
 
-**Status: 🚧 IN PROGRESS** — T6.1 (VST3 via clap-wrapper) DONE; T6.2/T6.3 pending.
+**Status: 🚧 IN PROGRESS** — T6.1 (VST3 via clap-wrapper) DONE; T6.2 Linux
+relocatable `.tar.xz` DONE (macOS/Windows installers + T6.3 pending).
 
 **Tests first**
 * VST3 validator smoke step in CI; reuse the Windows installer verification
@@ -954,10 +955,24 @@ ADR 0014, proposal 0003 §9.
   (Full Steinberg validator + macOS/Windows bundle layout are CI/packaging,
   T6.3/T6.2.) The CLAP gui (floating) / LV2 UI exposure from Phase 5 carries into
   the VST3 since it wraps the same CLAP entry.
-* **T6.2** Packaging per platform: Linux relocatable `.tar.xz` (bundles +
-  `hydrogen` binary + Qt); macOS bundles folded into `.dmg`
-  (`macos/build_dmg.sh`); Windows NSIS installer (extend `cpack -G NSIS`) placing
-  `.clap`/`.vst3`/`.lv2` in standard locations.
+* **T6.2 — 🚧 Linux DONE; macOS/Windows pending.** Packaging per platform.
+  **Linux**: `install(TARGETS/DIRECTORY ...)` rules in `src/plugin/CMakeLists.txt`
+  stage all three bundles under the standard plugin dirs (`lib/clap/Hydrogen.clap`,
+  `lib/lv2/hydrogen.lv2/`, `lib/vst3/Hydrogen.vst3/` — the VST3 source path uses a
+  `$<CONFIG>` genex), alongside `bin/hydrogen` (the editor) which the installed
+  plugin discovers by walking up to `bin/` (ADR 0016). CPack `TXZ` generator emits
+  a relocatable `hydrogen-<ver>-linux-<arch>.tar.xz`. Required fixing several
+  **pre-existing absolute-path install bugs** that broke staged/CPack installs:
+  icon (`CMAKE_INSTALL_FULL_DATAROOTDIR`→`DATAROOTDIR`), i18n + doc
+  (`H2_SYS_PATH`→`H2_DATA_PATH`), and a literal-quote bug in the version string
+  (`git log --pretty=format:'%h'` → `:%h`; `execute_process` runs git without a
+  shell). Verified: `cmake --install --prefix /tmp/h2stage` produces the correct
+  layout and the 46 MB `.tar.xz` contains `bin/hydrogen`, all 3 plugin bundles, and
+  the 21 `.qm` translations. (Packages against **system Qt** — full Qt bundling for
+  true relocatability rides the existing AppImage/linuxdeploy path, follow-up.)
+  **macOS** `.dmg` (`macos/build_dmg.sh`) and **Windows** NSIS installer (extend
+  `cpack -G NSIS`) placing `.clap`/`.vst3`/`.lv2` in standard locations — pending
+  (can't be built/verified in the Linux dev env).
 * **T6.3** Wire plugin bundles into the **artifact-gated** CI jobs (behind
   `UPLOAD_ARTIFACTS`), keeping per-commit jobs lean (§10).
 

@@ -51,6 +51,10 @@ if(WANT_CLAP)
     )
     message(STATUS "Building CLAP plugin (buses=${H2_PLUGIN_OUTPUT_BUSES})")
 
+    # Install into the conventional CLAP location (<prefix>/lib/clap; T6.2). The
+    # editor binary at <prefix>/bin is found by HydrogenPlugin's relative search.
+    install(TARGETS hydrogen-clap LIBRARY DESTINATION "${H2_LIB_PATH}/clap")
+
     # 8c smoke: run clap-validator on the built .clap if it is available (built
     # from extern/clap-validator or installed on PATH). This is the CI
     # conformance step from the implementation plan.
@@ -130,6 +134,11 @@ if(WANT_LV2)
         COMMENT "Assembling hydrogen.lv2 bundle" )
 
     message(STATUS "Building LV2 plugin (buses=${H2_PLUGIN_OUTPUT_BUSES})")
+
+    # Install the assembled .lv2 bundle into the conventional LV2 location
+    # (<prefix>/lib/lv2/hydrogen.lv2; T6.2).
+    install(DIRECTORY "${H2_LV2_BUNDLE}/"
+        DESTINATION "${H2_LIB_PATH}/lv2/hydrogen.lv2")
 
     # 8c smoke: a tiny in-process LV2 host that drives the built module through
     # its full lifecycle (stands in for lv2lint where meson/lilv are absent).
@@ -256,6 +265,12 @@ if(WANT_VST3)
             COMMAND sh -c
                 "nm -D '$<TARGET_FILE:hydrogen-vst3>' | grep -q GetPluginFactory" )
     endif()
+
+    # Install the .vst3 bundle (a folder on Linux/Windows, a bundle on macOS)
+    # into the conventional VST3 location (<prefix>/lib/vst3; T6.2). clap-wrapper
+    # emits the bundle under <build>/<Config>/Hydrogen.vst3.
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3"
+        DESTINATION "${H2_LIB_PATH}/vst3")
 
     message(STATUS "Building VST3 plugin via clap-wrapper (buses=${H2_PLUGIN_OUTPUT_BUSES})")
 endif()
