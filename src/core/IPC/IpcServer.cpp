@@ -51,7 +51,10 @@ IpcChannel* IpcServer::nextPendingChannel() {
 	if ( pSocket == nullptr ) {
 		return nullptr;
 	}
-	return new IpcChannel( pSocket, this );
+	// Server side: this accepted channel's sends (initial state, replies,
+	// forwarded events) run on the engine's event-loop-less serve thread, so they
+	// must be pushed to completion. See IpcChannel's constructor.
+	return new IpcChannel( pSocket, this, /*bPushWrites=*/true );
 }
 
 IpcChannel* IpcServer::waitForChannel( int nTimeoutMs ) {

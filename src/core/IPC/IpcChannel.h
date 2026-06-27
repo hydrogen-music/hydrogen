@@ -45,8 +45,18 @@ namespace H2Core {
 class IpcChannel : public QObject {
 	Q_OBJECT
 public:
-	/** Wrap an already-connected socket (server side). Takes ownership. */
-	explicit IpcChannel( QLocalSocket* pSocket, QObject* pParent = nullptr );
+	/** Wrap an already-connected socket. Takes ownership.
+	 *
+	 * @param bPushWrites when true, send() drives each write to completion via
+	 * waitForBytesWritten(). This is needed only on the engine/server side, whose
+	 * sending threads (the EngineSession serve loop, request responders) run no Qt
+	 * event loop, so a bare flush() does not push the overlapped write to the peer
+	 * on Windows. The editor/client side runs a Qt event loop (or, in white-box
+	 * tests, its peer reads synchronously), so it leaves this false and keeps
+	 * send() non-blocking — otherwise a fire-and-forget editor send (hello,
+	 * commands) with no concurrent reader would stall for the whole timeout. */
+	explicit IpcChannel( QLocalSocket* pSocket, QObject* pParent = nullptr,
+						 bool bPushWrites = false );
 	~IpcChannel() override;
 
 	/** Connect to a named server as a client. Returns nullptr on failure. */
@@ -79,6 +89,8 @@ private:
 	void pump();
 
 	QLocalSocket* m_pSocket;
+	/** See the constructor: drive writes to completion (server side only). */
+	bool m_bPushWrites;
 	IpcFrameReader m_reader;
 	std::queue<IpcMessage> m_pending;
 	/** Monotonic source of request ids; 0 is reserved for "no correlation". */

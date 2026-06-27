@@ -23,6 +23,7 @@
 #include <core/Object.h>
 
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QThread>
 #include <QtGlobal>
 #include <QtNetwork/QLocalSocket>
 
@@ -117,9 +118,11 @@ void enlargeSocketBuffers( QLocalSocket* pSocket ) {
 }
 } // namespace
 
-IpcChannel::IpcChannel( QLocalSocket* pSocket, QObject* pParent )
+IpcChannel::IpcChannel( QLocalSocket* pSocket, QObject* pParent,
+						bool bPushWrites )
 	: QObject( pParent )
-	, m_pSocket( pSocket ) {
+	, m_pSocket( pSocket )
+	, m_bPushWrites( bPushWrites ) {
 	if ( m_pSocket != nullptr ) {
 		m_pSocket->setParent( this );
 		enlargeSocketBuffers( m_pSocket );
@@ -156,20 +159,23 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 	const qint64 nWritten = m_pSocket->write( frame );
 	m_pSocket->flush();
 
-	// Drive the write to completion before returning.
-	//
-	// On Windows a QLocalSocket is an *overlapped* named pipe: write()/flush()
-	// only INITIATE the I/O; the bytes are handed to the OS when the overlapped
-	// operation completes, which needs either the owning thread's Qt event loop
-	// or an explicit waitForBytesWritten(). Every thread that sends here — the
-	// engine bridge (EngineSession::serve), the test responder thread, and
-	// request() callers — runs a tight loop with NO event loop, so without this
-	// wait a frame can sit half-sent indefinitely: forwarded events never reach
-	// the editor, and payload-bearing requests are never seen by the peer.
-	// On Unix flush() writes straight to the fd, so bytesToWrite() is normally
-	// already 0 here and the loop is a no-op (the macOS path relies on the
-	// enlarged SO_*BUF above to absorb the whole frame). Bounded by a timeout so
-	// a genuinely stuck write is surfaced below rather than hanging forever.
+	if ( ! m_bPushWrites ) {
+		// Client/editor side: fire-and-forget. The editor runs a Qt event loop
+		// (or, in white-box tests, its peer reads synchronously) which pushes the
+		// write out, so we must NOT block here — a send with no concurrent reader
+		// (e.g. the connect-time hello, or a command issued before the peer
+		// reads) would otherwise stall for the whole timeout.
+		return nWritten == static_cast<qint64>( frame.size() );
+	}
+
+	// Server/engine side: drive the write to completion. On Windows a QLocalSocket
+	// is an *overlapped* named pipe — write()/flush() only INITIATE the I/O, and
+	// the engine's sending threads (EngineSession::serve, request responders) run
+	// no Qt event loop, so without this push a forwarded event/reply can sit
+	// half-sent and never reach the editor. The peer is always reading, so this
+	// returns promptly. On Unix flush() already wrote to the fd, so bytesToWrite()
+	// is 0 and the loop is a no-op. Bounded so a peer that vanished mid-send (a
+	// closing pipe at teardown) is surfaced below instead of hanging.
 	QElapsedTimer timer;
 	timer.start();
 	while ( m_pSocket->bytesToWrite() > 0 ) {
@@ -182,10 +188,9 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 
 	const qint64 nPending = m_pSocket->bytesToWrite();
 	if ( nWritten != static_cast<qint64>( frame.size() ) || nPending != 0 ) {
-		___WARNINGLOG( QString( "incomplete send: opcode=%1 frame=%2 written=%3 "
-								"bytesToWrite-after-wait=%4 (frame could not be "
-								"fully handed to the OS within %5 ms — peer will "
-								"not see this message)" )
+		___WARNINGLOG( QString( "incomplete server send: opcode=%1 frame=%2 "
+								"written=%3 bytesToWrite-after-push=%4 (peer gone "
+								"or unresponsive within %5 ms)" )
 						   .arg( static_cast<int>( msg.getOpcode() ) )
 						   .arg( frame.size() ).arg( nWritten )
 						   .arg( nPending ).arg( kSendTimeoutMs ) );
@@ -263,12 +268,18 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 	}
 	IpcMessage r = req;
 	r.setRequestId( nId );
-	if ( ! send( r ) ) {
+	const bool bSent = send( r );
+	___INFOLOG( QString( "request sent: opcode=%1 reqId=%2 payloadBytes=%3 "
+						 "sendOk=%4" )
+					.arg( static_cast<int>( r.getOpcode() ) ).arg( nId )
+					.arg( r.getPayload().size() ).arg( bSent ) );
+	if ( ! bSent ) {
 		return false;
 	}
 
 	QElapsedTimer timer;
 	timer.start();
+	int nFramesSeen = 0;
 	while ( true ) {
 		// Pull our reply out of the pending queue, preserving the order of any
 		// other (event/command) frames so receive()/messageReceived() still get
@@ -278,11 +289,20 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 		while ( ! m_pending.empty() ) {
 			IpcMessage m = m_pending.front();
 			m_pending.pop();
+			++nFramesSeen;
 			if ( ! bFound && m.getRequestId() == nId ) {
 				reply = m;
 				bFound = true;
 			}
 			else {
+				// A frame arrived but it is not our reply — log its correlation
+				// so a lost/mis-correlated reply is distinguishable from "nothing
+				// ever arrived".
+				___INFOLOG( QString( "request awaiting reqId=%1: requeuing "
+									 "non-matching frame opcode=%2 reqId=%3" )
+								.arg( nId )
+								.arg( static_cast<int>( m.getOpcode() ) )
+								.arg( m.getRequestId() ) );
 				rest.push( m );
 			}
 		}
@@ -294,17 +314,31 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 		const int nRemaining =
 			nTimeoutMs - static_cast<int>( timer.elapsed() );
 		if ( nRemaining <= 0 ) {
+			// Genuine deadline. Report what the socket looked like so a future run
+			// shows whether the reply bytes never arrived (bytesAvailable /
+			// readerBuffered == 0) or arrived but failed to correlate (logged
+			// above).
+			___WARNINGLOG( QString( "request timed out after %1 ms awaiting "
+									"reqId=%2: framesSeen=%3 socketState=%4 "
+									"bytesAvailable=%5 readerBuffered=%6 pending=%7" )
+							   .arg( nTimeoutMs ).arg( nId ).arg( nFramesSeen )
+							   .arg( static_cast<int>( m_pSocket->state() ) )
+							   .arg( m_pSocket->bytesAvailable() )
+							   .arg( m_reader.bufferedBytes() )
+							   .arg( static_cast<int>( m_pending.size() ) ) );
 			return false;
 		}
+		// Wait for more bytes, then pump. Do NOT bail just because a single
+		// waitForReadyRead() returned false: on Windows it can return false
+		// before the timeout actually elapses (spurious/!hasPendingData), and
+		// bailing early would abandon the reply. Only the deadline check above
+		// ends the loop. A brief nap on a false wait keeps us from busy-spinning
+		// if it returns immediately. (pump() still drains anything that slipped
+		// in via the readyRead signal.)
 		if ( ! m_pSocket->waitForReadyRead( nRemaining ) ) {
-			pump(); // last chance: bytes may already be buffered
-			if ( m_pending.empty() ) {
-				return false;
-			}
+			QThread::msleep( 2 );
 		}
-		else {
-			pump();
-		}
+		pump();
 	}
 }
 

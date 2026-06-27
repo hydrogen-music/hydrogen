@@ -449,13 +449,22 @@ void IpcTransportTest::testProxyAddInstrumentRequestResponse() {
 
 	QThread* pResponder = startResponderThread( conn, [conn]() {
 		IpcMessage r;
-		if ( conn->receive( r, 5000 ) &&
+		const bool bReceived = conn->receive( r, 5000 );
+		___INFOLOG( QString( "responder: received=%1 opcode=%2 reqId=%3 "
+							 "payloadBytes=%4" )
+						.arg( bReceived )
+						.arg( bReceived ? static_cast<int>( r.getOpcode() ) : -1 )
+						.arg( bReceived ? r.getRequestId() : 0 )
+						.arg( bReceived ? r.getPayload().size() : 0 ) );
+		if ( bReceived &&
 			 r.getOpcode() == IpcOpcode::AddInstrument &&
 			 r.getRequestId() != 0 ) {
 			IpcMessage rep( IpcOpcode::Reply );
 			rep.setRequestId( r.getRequestId() );
 			rep.arg( static_cast<qlonglong>( 4242 ) );
-			conn->send( rep );
+			const bool bReplied = conn->send( rep );
+			___INFOLOG( QString( "responder: reply sent ok=%1 for reqId=%2" )
+							.arg( bReplied ).arg( r.getRequestId() ) );
 		}
 	} );
 
