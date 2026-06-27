@@ -35,6 +35,11 @@
 namespace H2Core {
 
 namespace {
+// Upper bound for draining a single frame to the OS in send() (see the
+// waitForBytesWritten() loop). Generous: a healthy peer drains far faster; this
+// only caps a pathological stall so send() never hangs a thread forever.
+constexpr int kSendTimeoutMs = 3000;
+
 // Enlarge the OS socket buffers so a whole frame (object payloads — Song /
 // Drumkit XML — can be tens of KB) can be handed off in one flush even when the
 // peer is not draining concurrently. Without this, a synchronous send()-then-
@@ -151,21 +156,39 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 	const qint64 nWritten = m_pSocket->write( frame );
 	m_pSocket->flush();
 
-	// After flush(), bytesToWrite() is what the OS send buffer could NOT absorb
-	// and still sits in Qt's user-space write buffer. In normal cross-thread use
-	// the peer drains it shortly; but a single-threaded synchronous
-	// send()→receive() (the tests) has no concurrent drainer, so a non-zero
-	// remainder here is exactly the deadlock condition. Surface it so a future
-	// run pinpoints an undersized socket buffer rather than failing opaquely.
-	const qint64 nRemaining = m_pSocket->bytesToWrite();
-	if ( nWritten != static_cast<qint64>( frame.size() ) || nRemaining != 0 ) {
+	// Drive the write to completion before returning.
+	//
+	// On Windows a QLocalSocket is an *overlapped* named pipe: write()/flush()
+	// only INITIATE the I/O; the bytes are handed to the OS when the overlapped
+	// operation completes, which needs either the owning thread's Qt event loop
+	// or an explicit waitForBytesWritten(). Every thread that sends here — the
+	// engine bridge (EngineSession::serve), the test responder thread, and
+	// request() callers — runs a tight loop with NO event loop, so without this
+	// wait a frame can sit half-sent indefinitely: forwarded events never reach
+	// the editor, and payload-bearing requests are never seen by the peer.
+	// On Unix flush() writes straight to the fd, so bytesToWrite() is normally
+	// already 0 here and the loop is a no-op (the macOS path relies on the
+	// enlarged SO_*BUF above to absorb the whole frame). Bounded by a timeout so
+	// a genuinely stuck write is surfaced below rather than hanging forever.
+	QElapsedTimer timer;
+	timer.start();
+	while ( m_pSocket->bytesToWrite() > 0 ) {
+		const int nRemaining =
+			kSendTimeoutMs - static_cast<int>( timer.elapsed() );
+		if ( nRemaining <= 0 || ! m_pSocket->waitForBytesWritten( nRemaining ) ) {
+			break;
+		}
+	}
+
+	const qint64 nPending = m_pSocket->bytesToWrite();
+	if ( nWritten != static_cast<qint64>( frame.size() ) || nPending != 0 ) {
 		___WARNINGLOG( QString( "incomplete send: opcode=%1 frame=%2 written=%3 "
-								"bytesToWrite-after-flush=%4 (a non-zero "
-								"remainder deadlocks a synchronous receive() on "
-								"the same thread)" )
+								"bytesToWrite-after-wait=%4 (frame could not be "
+								"fully handed to the OS within %5 ms — peer will "
+								"not see this message)" )
 						   .arg( static_cast<int>( msg.getOpcode() ) )
 						   .arg( frame.size() ).arg( nWritten )
-						   .arg( nRemaining ) );
+						   .arg( nPending ).arg( kSendTimeoutMs ) );
 	}
 	return nWritten == static_cast<qint64>( frame.size() );
 }
