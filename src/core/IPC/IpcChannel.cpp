@@ -20,6 +20,7 @@
  */
 
 #include <core/IPC/IpcChannel.h>
+#include <core/Object.h>
 
 #include <QtCore/QElapsedTimer>
 #include <QtGlobal>
@@ -27,6 +28,8 @@
 
 #if defined( Q_OS_UNIX )
 #include <sys/socket.h>
+#include <cerrno>
+#include <cstring>
 #endif
 
 namespace H2Core {
@@ -41,17 +44,68 @@ namespace {
 // macOS defaults are ~8 KB, smaller than even an empty song's XML. On Windows a
 // QLocalSocket is a named pipe (no SO_*BUF); its buffering does not have the same
 // limit, so this is a no-op there.
+#if defined( Q_OS_UNIX )
+// Raise one SO_*BUF option as high as the kernel will accept.
+//
+// macOS/BSD does NOT silently clamp an over-large request: sbreserve() rejects
+// anything above kern.ipc.maxsockbuf scaled by MCLBYTES/(MSIZE+MCLBYTES) (~7 MB
+// for an 8 MB max), so setsockopt() fails outright with ENOBUFS and the buffer
+// keeps its ~8 KB default. The previous code requested a flat 8 MB and ignored
+// the return value, so on macOS it was a silent no-op — leaving the buffer far
+// too small for a Song/Drumkit XML frame, which then deadlocks a single-threaded
+// synchronous send()→receive() (the failing IPC tests). Walk a descending list
+// and keep the first size the kernel accepts. Returns the size actually in
+// effect (read back via getsockopt), or -1 if even the smallest request failed.
+int raiseSocketBuffer( int fd, int optname, const char* optlabel ) {
+	static const int candidates[] = {
+		8 * 1024 * 1024, 4 * 1024 * 1024, 2 * 1024 * 1024,
+		1 * 1024 * 1024, 512 * 1024,     256 * 1024, 128 * 1024 };
+
+	int nApplied = -1;
+	int nLastErrno = 0;
+	for ( const int nSize : candidates ) {
+		if ( setsockopt( fd, SOL_SOCKET, optname, &nSize,
+						 sizeof( nSize ) ) == 0 ) {
+			nApplied = nSize;
+			break;
+		}
+		nLastErrno = errno;
+	}
+
+	int nReadback = -1;
+	socklen_t len = sizeof( nReadback );
+	getsockopt( fd, SOL_SOCKET, optname, &nReadback, &len );
+
+	// One-time, per-connection diagnostic (control channel, not a hot path) so a
+	// future macOS run shows the buffer size actually obtained rather than the
+	// requested one — the key signal for the synchronous-transfer deadlock.
+	if ( nApplied < 0 ) {
+		___WARNINGLOG( QString( "%1: all setsockopt attempts failed (last "
+								"errno=%2 '%3'); buffer stays at default "
+								"readback=%4 — large frames may deadlock a "
+								"synchronous receive()" )
+						   .arg( optlabel )
+						   .arg( nLastErrno )
+						   .arg( strerror( nLastErrno ) )
+						   .arg( nReadback ) );
+	}
+	else {
+		___INFOLOG( QString( "%1: applied=%2 readback=%3" )
+						.arg( optlabel ).arg( nApplied ).arg( nReadback ) );
+	}
+	return nReadback;
+}
+#endif
+
 void enlargeSocketBuffers( QLocalSocket* pSocket ) {
 #if defined( Q_OS_UNIX )
 	const qintptr fd = pSocket->socketDescriptor();
 	if ( fd < 0 ) {
+		___WARNINGLOG( "no socket descriptor available; cannot enlarge buffers" );
 		return;
 	}
-	const int nSize = 8 * 1024 * 1024; // OS clamps to its max if smaller
-	setsockopt( static_cast<int>( fd ), SOL_SOCKET, SO_SNDBUF,
-				&nSize, sizeof( nSize ) );
-	setsockopt( static_cast<int>( fd ), SOL_SOCKET, SO_RCVBUF,
-				&nSize, sizeof( nSize ) );
+	raiseSocketBuffer( static_cast<int>( fd ), SO_SNDBUF, "SO_SNDBUF" );
+	raiseSocketBuffer( static_cast<int>( fd ), SO_RCVBUF, "SO_RCVBUF" );
 #else
 	(void)pSocket;
 #endif
@@ -96,6 +150,23 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 	const QByteArray frame = msg.encode();
 	const qint64 nWritten = m_pSocket->write( frame );
 	m_pSocket->flush();
+
+	// After flush(), bytesToWrite() is what the OS send buffer could NOT absorb
+	// and still sits in Qt's user-space write buffer. In normal cross-thread use
+	// the peer drains it shortly; but a single-threaded synchronous
+	// send()→receive() (the tests) has no concurrent drainer, so a non-zero
+	// remainder here is exactly the deadlock condition. Surface it so a future
+	// run pinpoints an undersized socket buffer rather than failing opaquely.
+	const qint64 nRemaining = m_pSocket->bytesToWrite();
+	if ( nWritten != static_cast<qint64>( frame.size() ) || nRemaining != 0 ) {
+		___WARNINGLOG( QString( "incomplete send: opcode=%1 frame=%2 written=%3 "
+								"bytesToWrite-after-flush=%4 (a non-zero "
+								"remainder deadlocks a synchronous receive() on "
+								"the same thread)" )
+						   .arg( static_cast<int>( msg.getOpcode() ) )
+						   .arg( frame.size() ).arg( nWritten )
+						   .arg( nRemaining ) );
+	}
 	return nWritten == static_cast<qint64>( frame.size() );
 }
 
@@ -134,6 +205,18 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs ) {
 		if ( ! m_pSocket->waitForReadyRead( nTimeoutMs ) ) {
 			pump(); // last chance: bytes may have arrived with the connect
 			if ( m_pending.empty() ) {
+				// Distinguish "nothing arrived" from "a partial frame arrived but
+				// the rest is stuck in the sender" (the buffer-deadlock symptom):
+				// bufferedBytes()>0 with no complete message means a frame was cut
+				// off mid-flight — i.e. the sender could not flush it all.
+				___WARNINGLOG( QString( "receive timed out after %1 ms: "
+										"socketState=%2 bytesAvailable=%3 "
+										"readerBuffered=%4 pending=%5" )
+								   .arg( nTimeoutMs )
+								   .arg( static_cast<int>( m_pSocket->state() ) )
+								   .arg( m_pSocket->bytesAvailable() )
+								   .arg( m_reader.bufferedBytes() )
+								   .arg( static_cast<int>( m_pending.size() ) ) );
 				return false;
 			}
 			break;
