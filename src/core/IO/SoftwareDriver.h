@@ -77,6 +77,19 @@ public:
 		return m_bProducesAudio;
 	}
 
+	/** AudioDriver capability hook (ADR 0031): headless ⇒ the Sampler takes the
+	 * silent-render fast path (no sample interpolation / mixing). */
+	bool producesAudio() const override {
+		return m_bProducesAudio;
+	}
+
+	/** Toggle audio output on this running driver. The flag is read by the Sampler
+	 * inside the (locked) process cycle, so call this with the audio engine locked
+	 * (or stopped) to avoid racing it. */
+	void setProducesAudio( bool bProducesAudio ) {
+		m_bProducesAudio = bProducesAudio;
+	}
+
 	/** Stop the clock thread without tearing down the buffers. Used by unit tests
 	 * that drive the process cycle synchronously (former
 	 * `FakeAudioDriver::deactivate`). */

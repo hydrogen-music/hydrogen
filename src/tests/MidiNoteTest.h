@@ -39,6 +39,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testMidiInstrumentOutputMapping );
 	CPPUNIT_TEST( testMidiInstrumentGlobalMapping );
 	CPPUNIT_TEST( testSendNoteOff );
+	CPPUNIT_TEST( testSendNoteOffNoRender );
 	CPPUNIT_TEST( testMidiOutRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -49,6 +50,10 @@ class MidiNoteTest : public CppUnit::TestCase {
 	void testMidiInstrumentOutputMapping();
 	void testMidiInstrumentGlobalMapping();
 	void testSendNoteOff();
+	// Silent-render parity (ADR 0031): the MIDI Note-On/Off stream produced for a
+	// note must be identical whether the audio is rendered or skipped (headless
+	// software driver), since only the discarded sample math differs.
+	void testSendNoteOffNoRender();
 	void testMidiOutRoundTrip();
 
    private:

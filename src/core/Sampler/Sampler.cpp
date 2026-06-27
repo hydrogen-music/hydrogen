@@ -1784,23 +1784,42 @@ bool Sampler::renderNote(
 		}
 	}
 
+	// Silent-render fast path (ADR 0031): when the driver does not consume audio
+	// (a headless software driver — MIDI-only / editor mirror), the interpolated
+	// samples and the whole mix below would be discarded, so skip them. We still
+	// run applyADSR() (its envelope/release state and return value drive note
+	// lifecycle and Note-Off scheduling, and depend only on frame counts, not on
+	// the buffer contents) on a zero-filled buffer covering the same range the
+	// resample/copy would have written, so the result is bit-for-bit identical to
+	// the rendered path as far as MIDI / note lifecycle is concerned.
+	const bool bProduceAudio = pAudioDriver->producesAudio();
+
 	float buffer_L[nBufferSize];
 	float buffer_R[nBufferSize];
 
-	if ( bResample ) {
-		resample(
-			getInterpolateMode(), &buffer_L[nInitialBufferPos],
-			&buffer_R[nInitialBufferPos], pSample_data_L, pSample_data_R,
-			nFinalBufferPos - nInitialBufferPos, fSamplePos, fFrequencyRatio,
-			nSampleFrames
-		);
+	if ( bProduceAudio ) {
+		if ( bResample ) {
+			resample(
+				getInterpolateMode(), &buffer_L[nInitialBufferPos],
+				&buffer_R[nInitialBufferPos], pSample_data_L, pSample_data_R,
+				nFinalBufferPos - nInitialBufferPos, fSamplePos, fFrequencyRatio,
+				nSampleFrames
+			);
+		}
+		else {
+			copySample(
+				&buffer_L[nInitialBufferPos], &buffer_R[nInitialBufferPos],
+				pSample_data_L, pSample_data_R, nFinalBufferPos - nInitialBufferPos,
+				fSamplePos, nSampleFrames
+			);
+		}
 	}
 	else {
-		copySample(
-			&buffer_L[nInitialBufferPos], &buffer_R[nInitialBufferPos],
-			pSample_data_L, pSample_data_R, nFinalBufferPos - nInitialBufferPos,
-			fSamplePos, nSampleFrames
-		);
+		const int nFill = nFinalBufferPos - nInitialBufferPos;
+		if ( nFill > 0 ) {
+			memset( &buffer_L[nInitialBufferPos], 0, nFill * sizeof( float ) );
+			memset( &buffer_R[nInitialBufferPos], 0, nFill * sizeof( float ) );
+		}
 	}
 
 	if ( pADSR->applyADSR(
@@ -1810,8 +1829,10 @@ bool Sampler::renderNote(
 	}
 
 	float fSamplePeak_L = 0.0, fSamplePeak_R = 0.0;
-	// Only process audio in case we do actually plan to use it.
-	if ( !bIsMuted ) {
+	// Only process audio in case we do actually plan to use it: not muted, and the
+	// driver actually consumes output (silent render skips the mix entirely — peaks
+	// then stay 0, matching a discarded output).
+	if ( !bIsMuted && bProduceAudio ) {
 		// Low pass resonant filter
 		if ( pInstrument->isFilterActive() ) {
 			for ( int nBufferPos = nInitialBufferPos;

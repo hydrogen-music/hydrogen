@@ -35,12 +35,15 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/IO/LoopBackMidiDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/Helpers/Time.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
+
+#include <vector>
 
 using namespace H2Core;
 
@@ -907,6 +910,146 @@ void MidiNoteTest::testSendNoteOff()
 				nCustomLengthDurationMs
 			) < nDurationTolerance
 		);
+	}
+
+	pPref->setMidiSendNoteOff( oldMidiSendNoteOff );
+
+	___INFOLOG( "passed" );
+}
+
+void MidiNoteTest::testSendNoteOffNoRender()
+{
+	___INFOLOG( "" );
+
+	// Same rendering harness as testSendNoteOff, but the assertion is a *parity*
+	// one: the MIDI Note-On/Off stream a note produces must be identical whether
+	// the Sampler renders the audio or takes the silent-render fast path of a
+	// headless software driver (ADR 0031). Only the discarded sample math differs;
+	// note lifecycle, Note-Off scheduling and timing must not.
+
+	auto pPref = pTestPreferences();
+	const auto oldMidiSendNoteOff = pPref->getMidiSendNoteOff();
+
+	auto pAudioEngine = pTestHydrogen()->getAudioEngine();
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+	auto pAudioDriver = pAudioEngine->getAudioDriver();
+	CPPUNIT_ASSERT( pAudioDriver != nullptr );
+
+	// The test engine runs on a SoftwareDriver (the "Fake" driver). We flip its
+	// producesAudio flag to switch between the rendered and silent paths on the
+	// very same driver/clock/MIDI setup, so the only variable is the sample math.
+	auto pSoftware = std::dynamic_pointer_cast<SoftwareDriver>( pAudioDriver );
+	CPPUNIT_ASSERT( pSoftware != nullptr );
+	auto setProducesAudio = [&]( bool bProduce ) {
+		// The flag is read by the Sampler inside the locked process cycle.
+		pAudioEngine->lock( RIGHT_HERE );
+		pSoftware->setProducesAudio( bProduce );
+		pAudioEngine->unlock();
+	};
+
+	auto pSampler = pAudioEngine->getSampler();
+	auto renderNote = [&]( std::shared_ptr<Note> pNote ) {
+		auto pCopiedNote = std::make_shared<Note>( pNote );
+		pAudioEngine->lock( RIGHT_HERE );
+		pCopiedNote->setPosition( Transport::computeTickFromFrame(
+			pAudioEngine->getRealtimeFrame() +
+			pAudioEngine->getAudioDriver()->getBufferSize(),
+			0, pTestHydrogen()
+		) );
+		pCopiedNote->computeNoteStart( pTestHydrogen() );
+		const bool bReturn = pSampler->noteOn( pCopiedNote );
+		pAudioEngine->unlock();
+
+		std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+		return bReturn;
+	};
+
+	const auto pSong =
+		Song::load( H2TEST_FILE( "song/midi-send-note-off.h2song" ), false, pTestHydrogen() );
+	CPPUNIT_ASSERT( pSong != nullptr && pSong->getDrumkit() != nullptr );
+
+	auto clearSampler = [&]() {
+		pSampler->releasePlayingNotes();
+		for ( int ii = 0; ii < 60; ++ii ) {
+			if ( !pSampler->isRenderingNotes() ) {
+				std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+				return;
+			}
+			std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+		}
+		CPPUNIT_FAIL(
+			"[clearSampler] timed out: sampler is still rendering notes" );
+	};
+	clearSampler();
+	CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+
+	auto pLoopBackMidiDriver = std::dynamic_pointer_cast<LoopBackMidiDriver>(
+		pAudioEngine->getMidiDriver()
+	);
+	CPPUNIT_ASSERT( pLoopBackMidiDriver != nullptr );
+
+	const auto pInstrumentWithSample =
+		pSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pInstrumentWithSample != nullptr );
+	CPPUNIT_ASSERT( pInstrumentWithSample->hasSamples() );
+	pInstrumentWithSample->loadSamples(
+		pAudioEngine->getPlayhead()->getBpm(),
+		pTestHydrogen()->getPreferences().get() );
+
+	auto pNoteWithSample = std::make_shared<Note>( pInstrumentWithSample );
+	const int nCustomLengthInTicks = 108;
+	auto pNoteWithSampleCustomLength =
+		std::make_shared<Note>( pInstrumentWithSample );
+	pNoteWithSampleCustomLength->setLength( nCustomLengthInTicks );
+
+	// Render the two-note scenario and return the resulting MIDI backlog.
+	auto collect = [&]( Preferences::MidiSendNoteOff mode ) {
+		pPref->setMidiSendNoteOff( mode );
+		pLoopBackMidiDriver->clearBacklogMessages();
+		CPPUNIT_ASSERT( renderNote( pNoteWithSample ) );
+		clearSampler();
+		CPPUNIT_ASSERT( renderNote( pNoteWithSampleCustomLength ) );
+		clearSampler();
+		CPPUNIT_ASSERT( !pSampler->isRenderingNotes() );
+		return pLoopBackMidiDriver->getBacklogMessages();
+	};
+	auto typesOf = []( const std::vector<MidiMessage>& backlog ) {
+		std::vector<MidiMessage::Type> types;
+		for ( const auto& mmessage : backlog ) {
+			types.push_back( mmessage.getType() );
+		}
+		return types;
+	};
+
+	// A full-length sample note's Note-Off is sent when the sample finishes — the
+	// silent path must still advance the sample to detect this, not send it early.
+	const int nMinimalNoteDurationMs = 10;
+
+	for ( const auto mode : { Preferences::MidiSendNoteOff::Always,
+							  Preferences::MidiSendNoteOff::Never,
+							  Preferences::MidiSendNoteOff::OnCustomLengths } ) {
+		setProducesAudio( true );
+		const auto rendered = collect( mode );
+		setProducesAudio( false );
+		const auto silent = collect( mode );
+		setProducesAudio( true ); // restore for the next iteration / other tests
+
+		// Same Note-On/Off message stream regardless of whether audio was rendered.
+		CPPUNIT_ASSERT( typesOf( rendered ) == typesOf( silent ) );
+
+		// And the silent path did not collapse the sample-end Note-Off timing: for
+		// the full-length sample note (Always mode: NoteOn[1] → its NoteOff[2]) the
+		// Note-Off still trails its Note-On by the sample's playback duration.
+		if ( mode == Preferences::MidiSendNoteOff::Always ) {
+			CPPUNIT_ASSERT( silent.size() == 6 );
+			CPPUNIT_ASSERT( silent[1].getType() == MidiMessage::Type::NoteOn );
+			CPPUNIT_ASSERT( silent[2].getType() == MidiMessage::Type::NoteOff );
+			CPPUNIT_ASSERT(
+				std::chrono::duration_cast<std::chrono::milliseconds>(
+					silent[2].getTimePoint() - silent[1].getTimePoint()
+				).count() >= nMinimalNoteDurationMs
+			);
+		}
 	}
 
 	pPref->setMidiSendNoteOff( oldMidiSendNoteOff );

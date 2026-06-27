@@ -71,6 +71,13 @@ public:
 	virtual float* getOut_L() = 0;
 	virtual float* getOut_R() = 0;
 
+	/** Whether this driver consumes the rendered audio. When false (a headless
+	 * software driver, ADR 0031), the Sampler still advances note state / envelopes
+	 * and emits MIDI exactly as usual, but skips the sample interpolation and
+	 * mixing — the "silent render" fast path, since the output would be discarded.
+	 * Real output drivers leave this true. */
+	virtual bool producesAudio() const { return true; }
+
 	virtual QStringList getDevices() { return QStringList(); }
 
 protected:

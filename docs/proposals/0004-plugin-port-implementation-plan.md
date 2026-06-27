@@ -1295,8 +1295,34 @@ headless `SoftwareDriver` that `AudioDriver::Null` now routes to. `SoftwareDrive
 replaced `FakeAudioDriver` outright and the old class's inert *fallback-instance*
 role — not the stub-base class itself.
 
-**Later optimisation (not in this phase):** a true "silent render" path that
-advances note lifetime without the sample math, replacing render-to-scratch.
+**✅ Silent-render fast path (2026-06-27).** The headless software driver no longer
+renders to a discarded scratch buffer — the Sampler skips the sample math outright
+when the driver does not consume audio, while keeping note lifecycle and MIDI
+bit-for-bit identical:
+- `AudioDriver::producesAudio()` — new `virtual bool` capability (default `true`;
+  `SoftwareDriver` overrides it with its `producesAudio` flag, plus a
+  `setProducesAudio()` to toggle a running driver). Real output / Disk / Plugin /
+  hardware drivers stay `true`.
+- `Sampler::renderNote` gates the *output-only* work behind it: the
+  resample/copySample interpolation, the resonant filter, and the mix into the
+  master / track / bus buffers + peaks are skipped when `!producesAudio()`. What
+  still runs every cycle (so behaviour is unchanged): sample-exhaustion end
+  detection, `nNoteEnd`, `applyADSR` (its envelope/release state and return depend
+  only on frame counts, not buffer contents — fed a zero-filled scratch over the
+  same range), the `fSamplePosition` advance, and the Note-Off offset frame. So a
+  full-length sample note's Note-Off still fires when the sample *would* have
+  finished, custom-length Note-Offs keep their scheduled timing, and
+  `releasePlayingNotes()` still ends notes.
+- TDD: `MidiNoteTest::testSendNoteOffNoRender` renders the two-note scenario across
+  all three `MidiSendNoteOff` modes once with audio rendered and once silent (the
+  same `SoftwareDriver` toggled, so the only variable is the sample math) and
+  requires an identical MIDI Note-On/Off type stream, plus that the silent path
+  keeps the full-length sample Note-Off trailing its Note-On by the sample duration
+  (i.e. it advanced the sample rather than sending the Note-Off early).
+
+  Verified: unit suite **OK (332 tests)** (the new parity test is the +1) and the
+  editor/GUI ctests (`GuiStartup`, `EditorBadEndpoint`, `EditorReporterCleanFailure`)
+  green.
 
 ---
 
