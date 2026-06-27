@@ -87,6 +87,11 @@ private slots:
 
 private:
 	void pump();
+	/** Drive the socket's pending write bytes to completion (bounded). Needed on
+	 * Windows where an overlapped pipe write only progresses via the event loop or
+	 * an explicit wait; used by the server-side send() and by request() (whose
+	 * caller's thread may run no event loop while a separate peer reads). */
+	void drainWrite();
 
 	QLocalSocket* m_pSocket;
 	/** See the constructor: drive writes to completion (server side only). */

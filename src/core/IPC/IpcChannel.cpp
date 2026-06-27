@@ -176,15 +176,7 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 	// returns promptly. On Unix flush() already wrote to the fd, so bytesToWrite()
 	// is 0 and the loop is a no-op. Bounded so a peer that vanished mid-send (a
 	// closing pipe at teardown) is surfaced below instead of hanging.
-	QElapsedTimer timer;
-	timer.start();
-	while ( m_pSocket->bytesToWrite() > 0 ) {
-		const int nRemaining =
-			kSendTimeoutMs - static_cast<int>( timer.elapsed() );
-		if ( nRemaining <= 0 || ! m_pSocket->waitForBytesWritten( nRemaining ) ) {
-			break;
-		}
-	}
+	drainWrite();
 
 	const qint64 nPending = m_pSocket->bytesToWrite();
 	if ( nWritten != static_cast<qint64>( frame.size() ) || nPending != 0 ) {
@@ -196,6 +188,21 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 						   .arg( nPending ).arg( kSendTimeoutMs ) );
 	}
 	return nWritten == static_cast<qint64>( frame.size() );
+}
+
+void IpcChannel::drainWrite() {
+	if ( m_pSocket == nullptr ) {
+		return;
+	}
+	QElapsedTimer timer;
+	timer.start();
+	while ( m_pSocket->bytesToWrite() > 0 ) {
+		const int nRemaining =
+			kSendTimeoutMs - static_cast<int>( timer.elapsed() );
+		if ( nRemaining <= 0 || ! m_pSocket->waitForBytesWritten( nRemaining ) ) {
+			break;
+		}
+	}
 }
 
 void IpcChannel::pump() {
@@ -269,13 +276,21 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 	IpcMessage r = req;
 	r.setRequestId( nId );
 	const bool bSent = send( r );
-	___INFOLOG( QString( "request sent: opcode=%1 reqId=%2 payloadBytes=%3 "
-						 "sendOk=%4" )
-					.arg( static_cast<int>( r.getOpcode() ) ).arg( nId )
-					.arg( r.getPayload().size() ).arg( bSent ) );
 	if ( ! bSent ) {
 		return false;
 	}
+	// Push the request out now. send() is non-blocking on the client side, but a
+	// request is a synchronous round-trip whose peer is already reading; if the
+	// caller's thread runs no Qt event loop (white-box tests, headless callers)
+	// the overlapped write would otherwise not progress until the peer happens to
+	// pull it — observed as a multi-second delay that outran the reply timeout on
+	// Windows. The reader drains it immediately, so this returns at once.
+	drainWrite();
+	___INFOLOG( QString( "request sent: opcode=%1 reqId=%2 payloadBytes=%3 "
+						 "bytesToWrite=%4" )
+					.arg( static_cast<int>( r.getOpcode() ) ).arg( nId )
+					.arg( r.getPayload().size() )
+					.arg( m_pSocket->bytesToWrite() ) );
 
 	QElapsedTimer timer;
 	timer.start();
