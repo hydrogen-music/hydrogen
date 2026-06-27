@@ -38,6 +38,8 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
+#include <QtCore/QDir>
+
 #include <map>
 
 using namespace H2Core;
@@ -178,8 +180,16 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 
 	// --- Playlist ---
 	auto pPlaylist = std::make_shared<Playlist>();
+	// Use an OS-absolute base so the path round-trips verbatim on every platform.
+	// "/tmp/..." is absolute on Unix but NOT on Windows (no drive letter): there
+	// load_from() treats it as relative and resolves it against the CWD, yielding
+	// "C:/tmp/...". QDir::rootPath() is "/" on Unix and "C:/" (current drive) on
+	// Windows, so the entry is genuinely absolute — and thus preserved as-is —
+	// everywhere.
+	const QString sEntrySongPath = QDir::rootPath() + "tmp/ipc-playlist-song.h2song";
+	const QString sEntryScriptPath = QDir::rootPath() + "tmp/ipc-playlist-script.sh";
 	auto pEntry = std::make_shared<PlaylistEntry>(
-		"/tmp/ipc-playlist-song.h2song", "/tmp/ipc-playlist-script.sh", true );
+		sEntrySongPath, sEntryScriptPath, true );
 	CPPUNIT_ASSERT( pPlaylist->add( pEntry ) );
 	const auto plBuffer = pPlaylist->toXmlBuffer();
 	CPPUNIT_ASSERT( ! plBuffer.isEmpty() );
