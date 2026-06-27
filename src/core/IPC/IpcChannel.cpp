@@ -23,7 +23,6 @@
 #include <core/Object.h>
 
 #include <QtCore/QElapsedTimer>
-#include <QtCore/QThread>
 #include <QtGlobal>
 #include <QtNetwork/QLocalSocket>
 
@@ -40,6 +39,15 @@ namespace {
 // waitForBytesWritten() loop). Generous: a healthy peer drains far faster; this
 // only caps a pathological stall so send() never hangs a thread forever.
 constexpr int kSendTimeoutMs = 3000;
+
+// receive()/request() poll the socket in slices of this size rather than issuing
+// one long waitForReadyRead(). On Windows a socket moved to an event-loop-less
+// thread (the test responder) — and any multi-read frame — may not get a
+// readyRead signal for every chunk, so a single long wait can block the entire
+// timeout while bytes sit unread; a short wait still pumps the pipe read, and
+// pump() reassembles what has arrived. Small enough to keep latency low, large
+// enough to avoid busy-spinning.
+constexpr int kPollSliceMs = 25;
 
 // Enlarge the OS socket buffers so a whole frame (object payloads — Song /
 // Drumkit XML — can be tens of KB) can be handed off in one flush even when the
@@ -230,33 +238,37 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs ) {
 		m_pending.pop();
 		return true;
 	}
+	QElapsedTimer timer;
+	timer.start();
 	while ( m_pending.empty() ) {
 		if ( m_pSocket == nullptr ) {
 			return false;
 		}
-		// waitForReadyRead pumps the socket and (in Qt) emits readyRead, which
-		// runs onReadyRead()/pump(); call pump() again to cover the case where
-		// it does not.
-		if ( ! m_pSocket->waitForReadyRead( nTimeoutMs ) ) {
-			pump(); // last chance: bytes may have arrived with the connect
-			if ( m_pending.empty() ) {
-				// Distinguish "nothing arrived" from "a partial frame arrived but
-				// the rest is stuck in the sender" (the buffer-deadlock symptom):
-				// bufferedBytes()>0 with no complete message means a frame was cut
-				// off mid-flight — i.e. the sender could not flush it all.
-				___WARNINGLOG( QString( "receive timed out after %1 ms: "
-										"socketState=%2 bytesAvailable=%3 "
-										"readerBuffered=%4 pending=%5" )
-								   .arg( nTimeoutMs )
-								   .arg( static_cast<int>( m_pSocket->state() ) )
-								   .arg( m_pSocket->bytesAvailable() )
-								   .arg( m_reader.bufferedBytes() )
-								   .arg( static_cast<int>( m_pending.size() ) ) );
-				return false;
-			}
+		// Drain whatever bytes have already arrived first, then poll in short
+		// slices. A single long waitForReadyRead() can block the whole timeout
+		// while data sits unread on an event-loop-less / moved socket (or between
+		// the chunks of a large frame); a short wait still pumps the pipe read and
+		// pump() reassembles. See kPollSliceMs.
+		pump();
+		if ( ! m_pending.empty() ) {
 			break;
 		}
-		pump();
+		const int nRemaining = nTimeoutMs - static_cast<int>( timer.elapsed() );
+		if ( nRemaining <= 0 ) {
+			// bufferedBytes()>0 with no complete message means a frame arrived
+			// only partially (sender could not flush it all); 0 means nothing came.
+			___WARNINGLOG( QString( "receive timed out after %1 ms: "
+									"socketState=%2 bytesAvailable=%3 "
+									"readerBuffered=%4 pending=%5" )
+							   .arg( nTimeoutMs )
+							   .arg( static_cast<int>( m_pSocket->state() ) )
+							   .arg( m_pSocket->bytesAvailable() )
+							   .arg( m_reader.bufferedBytes() )
+							   .arg( static_cast<int>( m_pending.size() ) ) );
+			return false;
+		}
+		m_pSocket->waitForReadyRead(
+			nRemaining < kPollSliceMs ? nRemaining : kPollSliceMs );
 	}
 	out = m_pending.front();
 	m_pending.pop();
@@ -343,16 +355,14 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 							   .arg( static_cast<int>( m_pending.size() ) ) );
 			return false;
 		}
-		// Wait for more bytes, then pump. Do NOT bail just because a single
-		// waitForReadyRead() returned false: on Windows it can return false
-		// before the timeout actually elapses (spurious/!hasPendingData), and
-		// bailing early would abandon the reply. Only the deadline check above
-		// ends the loop. A brief nap on a false wait keeps us from busy-spinning
-		// if it returns immediately. (pump() still drains anything that slipped
-		// in via the readyRead signal.)
-		if ( ! m_pSocket->waitForReadyRead( nRemaining ) ) {
-			QThread::msleep( 2 );
-		}
+		// Poll for the reply in short slices, then pump. A single long
+		// waitForReadyRead() is unreliable here: on Windows it can return false
+		// before the timeout elapses, and it may not signal data on an
+		// event-loop-less / moved peer socket — so we never treat one false wait
+		// as terminal. Only the deadline check above ends the loop. See
+		// kPollSliceMs.
+		m_pSocket->waitForReadyRead(
+			nRemaining < kPollSliceMs ? nRemaining : kPollSliceMs );
 		pump();
 	}
 }
