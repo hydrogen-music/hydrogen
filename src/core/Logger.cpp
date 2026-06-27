@@ -50,6 +50,23 @@ thread_local Logger* Logger::__pCurrent = nullptr;
 const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors", "Locks" };
 thread_local QString *Logger::pCrashContext = nullptr;
 
+// Defined out-of-line (rather than inline in Logger.h) so the only references
+// to the __pCurrent thread_local live inside the core DLL. MinGW's
+// --export-all-symbols does not export TLS data symbols, so inlining these into
+// a DLL consumer (h2cli, tests, gui) leaves __pCurrent undefined at link time.
+Logger* Logger::currentLogger() {
+	return __pCurrent != nullptr ? __pCurrent : __instance;
+}
+
+Logger::Scope::Scope( Logger* pLogger )
+	: m_pPrevious( Logger::__pCurrent ) {
+	Logger::__pCurrent = pLogger;
+}
+
+Logger::Scope::~Scope() {
+	Logger::__pCurrent = m_pPrevious;
+}
+
 void* loggerThread_func( void* param ) {
 	if ( param == nullptr ) {
 		return nullptr;

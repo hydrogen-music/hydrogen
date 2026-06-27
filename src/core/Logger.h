@@ -108,23 +108,29 @@ class Logger {
 		 * contexts) — the process-default logger (#__instance, set at
 		 * bootstrap). The log macros resolve through this **at log time**, so a
 		 * wrong or absent context can only misroute a log line to the default,
-		 * never change behaviour. */
-		static Logger* currentLogger() {
-			return __pCurrent != nullptr ? __pCurrent : __instance;
-		}
+		 * never change behaviour.
+		 *
+		 * Defined out-of-line in Logger.cpp on purpose: it reads the
+		 * #__pCurrent `thread_local`, and MinGW's `--export-all-symbols` does
+		 * not export TLS data symbols across the core DLL boundary. Keeping the
+		 * only access inside the DLL lets consumers link against this ordinary
+		 * (exported) function instead of an undefined TLS symbol. */
+		static Logger* currentLogger();
 
 		/**
 		 * RAII guard pushing @a pLogger as the current-thread logger for the
 		 * lifetime of the scope (restoring the previous one on destruction).
 		 * Set at the per-instance entry points (audio process callback, command
-		 * dispatch, song/kit load, per-instance workers). */
+		 * dispatch, song/kit load, per-instance workers).
+		 *
+		 * The constructor/destructor are defined out-of-line in Logger.cpp for
+		 * the same reason as #currentLogger(): they touch the #__pCurrent
+		 * `thread_local`, which cannot be referenced from a DLL consumer on
+		 * MinGW. */
 		class Scope {
 		public:
-			explicit Scope( Logger* pLogger )
-				: m_pPrevious( Logger::__pCurrent ) {
-				Logger::__pCurrent = pLogger;
-			}
-			~Scope() { Logger::__pCurrent = m_pPrevious; }
+			explicit Scope( Logger* pLogger );
+			~Scope();
 			Scope( const Scope& ) = delete;
 			Scope& operator=( const Scope& ) = delete;
 		private:
