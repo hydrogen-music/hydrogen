@@ -8,10 +8,11 @@
 # continuously logs "Failed to lock audioEngine"; the abort path then freed the
 # Logger while that thread was still logging → use-after-free.
 #
-# This test runs the (child) editor against a non-existent endpoint and asserts:
-#   1. it exits cleanly with code 1 (the "couldn't connect" abort) — NOT a crash,
-#   2. it did NOT run an audio-processing thread on the mirror (no "Failed to lock
-#      audioEngine" output) — the precondition for the use-after-free.
+# This test runs the (child) editor against a non-existent endpoint and asserts it
+# exits cleanly with the expected code (the "couldn't connect" abort) — NOT a
+# crash. The mirror now intentionally runs a headless clock thread (ADR 0031), so
+# crash-safety comes from clean teardown ordering (the engine — and its driver
+# thread — is destroyed before the Logger), which this exercises end to end.
 #
 # Usage: test_editor_bad_endpoint.sh <hydrogen-binary> <data-dir> [expected-code]
 # expected-code defaults to 3 = Reporter::EXIT_CODE_CLEAN_FAILURE (keep in sync).
@@ -54,12 +55,5 @@ if [ "$EC" -ne "$EXPECTED" ]; then
 	exit 1
 fi
 
-if printf '%s\n' "$OUT" | grep -q 'Failed to lock audioEngine'; then
-	echo "FAIL: the editor mirror ran an audio-processing thread (it should use" \
-		"the passive Null driver); this is the thread that raced the Logger" \
-		"teardown and caused the segfault." >&2
-	exit 1
-fi
-
-echo "OK: editor aborted cleanly (exit 1), no rogue audio-processing thread"
+echo "OK: editor aborted cleanly (exit $EXPECTED), no crash"
 exit 0

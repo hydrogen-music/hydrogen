@@ -1172,6 +1172,75 @@ required for a proper integration.)
 
 ---
 
+## 11.6 Phase 8 — Engine clock decoupled from the audio driver — ADR 0031
+
+The `AudioDriver` conflates the audio-output sink with the engine **clock** (the
+caller of `audioEngine_process(nframes)` that advances transport + runs
+notes/MIDI). So "no audio driver" means "no clock" and the engine freezes — which
+blocks MIDI-only operation and leaves the editor mirror's transport dead.
+[ADR 0031](/docs/decisions/0031-decouple-engine-clock-from-audio-driver.md)
+decouples them: one **always-clocked software driver** whose audio output is
+optional, headless as the new fallback, and a hybrid editor-transport sync.
+Depends on Phase 3 (PluginAudioDriver / host-transport follower) and Phase 5
+(editor split + telemetry block).
+
+**Tests first**
+* Software driver advances transport on its own clock: a `Hydrogen` with the
+  software driver, set Playing, observe the transport frame increase over real
+  time with no real audio — and stop cleanly (thread joined, no leak; extends
+  `PluginLifecycleTest`/`AudioDriverTest`).
+* `audioEngine_process` is output-optional: with `producesAudio=false`, notes
+  still process and `handleNote` still emits MIDI / advances note lifetime, but no
+  real output buffer is written.
+* **MIDI-only standalone**: software audio driver + a MIDI driver → a played note
+  emits MIDI note-on/off, transport advances, no audio buffers touched.
+* **Headless fallback**: a failing real driver (forced) falls back to a *clocked*
+  headless driver — the engine still processes — not a frozen `NullDriver`;
+  `AudioDriverInfo` reports `isPresent && !isRunning`.
+* **Editor hybrid sync**: the mirror's transport free-runs at the host rate, a
+  transport event relocates it immediately, and a telemetry frame forces a re-sync
+  (drift bounded) — new `EditorMirrorTest`/`EditorModeTest` cases.
+
+**Tasks**
+* **T8.1 — ✅ consolidate the software driver.** Added `SoftwareDriver`
+  (`src/core/IO/SoftwareDriver.{h,cpp}`, the generalised `FakeAudioDriver`): the
+  always-clocked timer pump with `{sampleRate, bufferSize, producesAudio}` and a
+  clean join in `disconnect()`/dtor. `createAudioDriver` routes `Fake` →
+  `SoftwareDriver(producesAudio=true)`; `getDriverNames` + the `AudioDriverInfo`
+  descriptor recognise it. Render-to-scratch (output always valid). Behaviour-
+  preserving: the `FakeAudioDriver` casts in the tests (`TransportTest`,
+  `AudioEngineTest`, `MidiActionTest`) were migrated to `SoftwareDriver`. Suite
+  green, OK(329).
+* **T8.2 — ✅ headless fallback.** `createAudioDriver` routes `Null` →
+  `SoftwareDriver(producesAudio=false)`, so the audio-init-failure fallback and
+  the editor mirror are now **clocked but output-less** (engine no longer freezes
+  for lack of audio). `AudioDriverInfo` reports `isPresent && !isRunning` for it.
+  `EditorModeTest::testMirrorUsesHeadlessDriver` asserts the mirror is a headless
+  `SoftwareDriver` with valid rate/buffer (was the inert `NullDriver`); the
+  `EditorBadEndpoint` guard now checks clean teardown only (the clock thread is
+  expected). `startMidiDriver` already runs independently of audio.
+* **T8.3 — MIDI-only mode.** First-class "no audio" standalone selection: software
+  driver (fixed fallback rate/buffer from `Preferences`) + real MIDI driver;
+  notes process on the clock, MIDI in/out works, no audio output.
+* **T8.4 — editor hybrid sync.** Mirror uses the software driver at the
+  host-provided rate/buffer (override config / IPC bootstrap, ADR 0022/0029);
+  inbound transport **events** relocate the mirror; **consume the telemetry block**
+  (ADR 0018, currently unconsumed) to force a periodic re-sync (~30 000 frames /
+  ~5 s). Replace the `EditorSession::configureMirrorPreferences` Null driver with
+  the clocked software driver.
+* **T8.5 — remove the old classes.** Delete `NullDriver` and `FakeAudioDriver`
+  once all callers migrate; tidy the `Preferences::AudioDriver` enum.
+
+**Done when:** standalone MIDI-only works (own clock, MIDI in/out, no audio);
+audio-device failure degrades to a responsive headless engine; the editor mirror's
+transport advances locally and stays drift-bounded against the host; a single
+software driver replaces `NullDriver`+`FakeAudioDriver`; suite + ctest green.
+
+**Later optimisation (not in this phase):** a true "silent render" path that
+advances note lifetime without the sample math, replacing render-to-scratch.
+
+---
+
 ## 12. Test traceability (proposal 0003 §11 → phase)
 
 | Test | Phase | Scope |

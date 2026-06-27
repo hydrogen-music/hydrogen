@@ -2510,14 +2510,8 @@ void MainForm::action_file_export_lilypond()
 
 void MainForm::errorEvent( int nErrorCode )
 {
-	//ERRORLOG( "[errorEvent]" );
-
 	QString msg;
 	switch (nErrorCode) {
-	case Hydrogen::UNKNOWN_DRIVER:
-		msg = tr( "Unknown audio driver" );
-		break;
-
 	case Hydrogen::ERROR_STARTING_DRIVER:
 		msg = tr( "Error starting audio driver" );
 		break;

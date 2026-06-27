@@ -31,6 +31,7 @@
 #include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/NullDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PulseAudioDriver.h>
@@ -56,6 +57,16 @@ AudioDriverInfo LocalEngineAccess::getAudioDriverInfo() const {
 	// from it — means no real audio output is connected.
 	info.isRunning =
 		std::dynamic_pointer_cast<NullDriver>( pDriver ) == nullptr;
+
+	// The consolidated software driver (ADR 0031) clocks the engine but may be
+	// headless (no real output). Its producesAudio flag is the authoritative
+	// "running" signal: false → headless (former Null), reported as kind Null.
+	if ( const auto pSw = std::dynamic_pointer_cast<SoftwareDriver>( pDriver ) ) {
+		info.isRunning = pSw->getProducesAudio();
+		info.kind = pSw->getProducesAudio() ?
+			Preferences::AudioDriver::Fake : Preferences::AudioDriver::Null;
+		return info;
+	}
 
 	// Resolve the concrete kind. Each cast is guarded by the same H2CORE_HAVE_*
 	// flag the GUI used, so a selected-but-not-compiled backend falls through to

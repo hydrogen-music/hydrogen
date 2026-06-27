@@ -46,6 +46,7 @@
 #include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiMessage.h>
@@ -161,7 +162,7 @@ void MidiActionTest::testBpmCcRelativeAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -212,7 +213,7 @@ void MidiActionTest::testBpmDecreaseAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -264,7 +265,7 @@ void MidiActionTest::testBpmFineCcRelativeAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -315,7 +316,7 @@ void MidiActionTest::testBpmIncreaseAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -1286,7 +1287,7 @@ void MidiActionTest::testPauseAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -1382,7 +1383,7 @@ void MidiActionTest::testPlayAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -1607,7 +1608,7 @@ void MidiActionTest::testPlayPauseToggleAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -1656,7 +1657,7 @@ void MidiActionTest::testPlayStopToggleAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -1788,7 +1789,7 @@ void MidiActionTest::testRecordReadyAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -1942,7 +1943,7 @@ void MidiActionTest::testSelectAndPlayPatternAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );
@@ -2202,7 +2203,7 @@ void MidiActionTest::testStopAction()
 	auto pMidiEventMap = pTestPreferences()->getMidiEventMap();
 	pMidiEventMap->reset();
 
-	auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	CPPUNIT_ASSERT( pDriver != nullptr );

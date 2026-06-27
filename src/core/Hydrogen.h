@@ -95,11 +95,6 @@ public:
 
 	enum ErrorMessages {
 		/**
-		 * The provided input in createDriver() does not match any of the
-		 * choices for #H2Core::Preferences::AudioDriver.
-		 */
-		UNKNOWN_DRIVER,
-		/**
 		 * Unable to connect the audio driver stored. The NullDriver will be
 		 * used as a fallback instead.
 		 */

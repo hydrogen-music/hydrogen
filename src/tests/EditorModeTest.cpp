@@ -26,8 +26,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
-#include <core/IO/FakeAudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcEngineAccess.h>
@@ -110,24 +109,28 @@ void EditorModeTest::testFailedConnectionReported() {
 	___INFOLOG( "passed" );
 }
 
-// The headless editor mirror must NOT run an audio-processing thread: it only
-// reflects the state the host engine pushes over IPC (ADR 0016/0018). It used the
-// Fake driver, whose connect() spawns a std::thread that loops the audio process
-// callback (spamming "Failed to lock audioEngine"). On editor abort (e.g. a bad
-// endpoint) that thread raced the Logger/QApplication teardown and dereferenced
-// the freed Logger → segfault. The mirror must use the passive Null driver, which
-// spawns no thread.
-void EditorModeTest::testMirrorUsesPassiveAudioDriver() {
+// The editor mirror uses the HEADLESS software driver (ADR 0031): it clocks the
+// engine — so the local transport / playing-pattern display can advance — but
+// produces no audio (producesAudio == false). This replaces both the old Fake
+// driver (real scratch output) and the inert Null driver (no clock → frozen
+// transport). Crash-safety on the --plugin-editor abort no longer relies on
+// avoiding a thread: the driver's clock thread is joined in its destructor and
+// the engine is torn down before the Logger.
+void EditorModeTest::testMirrorUsesHeadlessDriver() {
 	___INFOLOG( "" );
 
 	auto* pMirror = makeMirrorEngine();
 	auto pDriver = pMirror->getAudioDriver();
 	CPPUNIT_ASSERT( pDriver != nullptr );
-	// Passive driver (no processing thread) ...
-	CPPUNIT_ASSERT( std::dynamic_pointer_cast<NullDriver>( pDriver ) != nullptr );
-	// ... and specifically NOT the thread-spawning Fake driver.
-	CPPUNIT_ASSERT(
-		std::dynamic_pointer_cast<FakeAudioDriver>( pDriver ) == nullptr );
+	auto pSoftware = std::dynamic_pointer_cast<SoftwareDriver>( pDriver );
+	CPPUNIT_ASSERT( pSoftware != nullptr );
+	// Headless: clocks the engine but feeds no real audio sink.
+	CPPUNIT_ASSERT( ! pSoftware->getProducesAudio() );
+	// A real clock with valid parameters, unlike the old inert Null driver
+	// (which returned 0 / 0 / nullptr).
+	CPPUNIT_ASSERT( pDriver->getSampleRate() > 0 );
+	CPPUNIT_ASSERT( pDriver->getBufferSize() > 0 );
+	CPPUNIT_ASSERT( pDriver->getOut_L() != nullptr );
 
 	delete pMirror;
 

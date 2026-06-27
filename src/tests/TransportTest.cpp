@@ -29,7 +29,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/AudioEngine/Transport.h>
 #include <core/Hydrogen.h>
-#include <core/IO/FakeAudioDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/Preferences/Preferences.h>
 
 #include <cstdlib>
@@ -345,7 +345,7 @@ void TransportTest::perform( std::function<void()> func ) {
 	try {
 		// Stop the processing of the callback of the AudioEngine. TransportTest
 		// was written before `FakeAudioDriver` was a proper driver.
-		auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+		auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 			pTestHydrogen()->getAudioEngine()->getAudioDriver()
 		);
 		if ( pDriver != nullptr ) {

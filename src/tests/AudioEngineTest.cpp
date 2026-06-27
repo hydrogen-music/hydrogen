@@ -26,7 +26,7 @@
 #include <core/AudioEngine/Transport.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/IO/FakeAudioDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -43,7 +43,7 @@ void AudioEngineTest::testMidiNoteOrdering()
 	auto pPref = pTestPreferences();
 	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pAudioDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pAudioDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	auto pLoopBackDriver = std::dynamic_pointer_cast<LoopBackMidiDriver>(
@@ -185,7 +185,7 @@ void AudioEngineTest::testNotePickup()
 	auto pPref = pTestPreferences();
 	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pAudioDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
+	auto pAudioDriver = std::dynamic_pointer_cast<SoftwareDriver>(
 		pAudioEngine->getAudioDriver()
 	);
 	auto pMidiDriver = std::dynamic_pointer_cast<LoopBackMidiDriver>(

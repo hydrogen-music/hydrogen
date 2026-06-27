@@ -52,6 +52,7 @@
 #include <core/IO/PluginMidiDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/IO/PulseAudioDriver.h>
 #include <core/Midi/Midi.h>
 #include <core/Timeline.h>
@@ -1088,26 +1089,26 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 			std::make_shared<PulseAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Fake ) {
-		AE_WARNINGLOG( "*** Using FAKE audio driver ***" );
-		pAudioDriver =
-			std::make_shared<FakeAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
+		// Self-clocked software driver with scratch output (ADR 0031; the former
+		// FakeAudioDriver) — profiling and unit tests.
+		pAudioDriver = std::make_shared<SoftwareDriver>(
+			m_pHydrogen, m_AudioProcessCallback, /*bProducesAudio=*/true );
 	}
 	else if ( driver == Preferences::AudioDriver::Disk ) {
 		pAudioDriver =
 			std::make_shared<DiskWriterDriver>( m_pHydrogen, m_AudioProcessCallback );
-	}
-	else if ( driver == Preferences::AudioDriver::Null ) {
-		pAudioDriver = std::make_shared<NullDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
 	else if ( driver == Preferences::AudioDriver::Plugin ) {
 		pAudioDriver =
 			std::make_shared<PluginAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
 	else {
-		AE_ERRORLOG( QString( "Unknown driver [%1]" )
-						 .arg( Preferences::audioDriverToQString( driver ) ) );
-		raiseError( Hydrogen::UNKNOWN_DRIVER );
-		return nullptr;
+		AE_WARNINGLOG( "Falling back to pure software driverUnknown driver" );
+		// Headless software driver (ADR 0031): clocks the engine (transport, notes,
+		// MIDI) but delivers no audio to a real sink. The former inert NullDriver;
+		// also the audio-device-failure fallback (below) and the editor mirror.
+		pAudioDriver = std::make_shared<SoftwareDriver>(
+			m_pHydrogen, m_AudioProcessCallback, /*bProducesAudio=*/false );
 	}
 
 	if ( pAudioDriver == nullptr ) {
@@ -1248,7 +1249,7 @@ void AudioEngine::startAudioDriver( Event::Trigger trigger ) {
 	}
 
 	if ( m_pAudioDriver == nullptr ) {
-		AE_ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to NullDriver" )
+		AE_ERRORLOG( QString( "Couldn't start audio driver [%1], falling back to pure software driver" )
 				  .arg( Preferences::audioDriverToQString( audioDriver ) ) );
 		createAudioDriver( Preferences::AudioDriver::Null,
 						   Event::Trigger::Suppress );
@@ -3601,6 +3602,13 @@ QString AudioEngine::getDriverNames() const {
 			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Alsa;
 	}
+	else if ( const auto pSw =
+				  std::dynamic_pointer_cast<SoftwareDriver>( m_pAudioDriver ) ) {
+		// One software driver (ADR 0031): producesAudio == the former Fake,
+		// otherwise the former (now clocked) Null/headless.
+		audioDriver = pSw->getProducesAudio() ?
+			Preferences::AudioDriver::Fake : Preferences::AudioDriver::Null;
+	}
 	else if ( std::dynamic_pointer_cast<FakeAudioDriver>( m_pAudioDriver ) !=
 			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Fake;
@@ -3646,9 +3654,13 @@ QString AudioEngine::getDriverNames() const {
 		sMidiDriver = "LoopBack";
 	}
 
-	auto res = QString( "%1|%2" )
-		.arg( Preferences::audioDriverToQString( audioDriver ) )
-		.arg( sMidiDriver );
+	QString sAudioDriver( Preferences::audioDriverToQString( audioDriver ) );
+	if ( audioDriver == Preferences::AudioDriver::Null ||
+		 audioDriver == Preferences::AudioDriver::Fake ) {
+		sAudioDriver = "Soft";
+	}
+
+	auto res = QString( "%1|%2" ).arg( sAudioDriver ).arg( sMidiDriver );
 
 	return std::move( res );
 }
