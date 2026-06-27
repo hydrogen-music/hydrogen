@@ -21,6 +21,8 @@
 
 #include <core/IPC/EngineSession.h>
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
@@ -29,6 +31,8 @@
 #include <core/IPC/IpcEngineBridge.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcServer.h>
+#include <core/IPC/PluginTelemetry.h>
+#include <core/IPC/PluginTelemetryShm.h>
 
 #include <chrono>
 
@@ -40,7 +44,8 @@ EngineSession::EngineSession( Hydrogen* pEngine, const QString& sEndpoint )
 	: m_pEngine( pEngine )
 	, m_sEndpoint( sEndpoint )
 	, m_bRunning( true )
-	, m_pThread( nullptr ) {
+	, m_pThread( nullptr )
+	, m_pTelemetry( nullptr ) {
 }
 
 EngineSession::~EngineSession() {
@@ -95,11 +100,22 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 		return;
 	}
 
+	// Publish a telemetry block keyed off the endpoint so an editor that knows only
+	// `--plugin-editor <endpoint>` can attach and follow the host playhead (ADR
+	// 0018/0031). Lives on this bridge thread; failure is non-fatal (the editor
+	// then falls back to events-only sync).
+	m_pTelemetry = std::make_unique<PluginTelemetryShm>();
+	if ( ! m_pTelemetry->create(
+			 PluginTelemetryShm::keyForEndpoint( m_sEndpoint ) ) ) {
+		m_pTelemetry.reset();
+	}
+
 	while ( m_bRunning.load() ) {
 		IpcChannel* pConn = server.waitForChannel( m_nPollTimeoutMs );
 		if ( pConn == nullptr ) {
 			// No editor attached: keep the EventQueue from overflowing.
 			discardEvents();
+			publishTelemetry();
 			continue;
 		}
 
@@ -112,6 +128,7 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 				handleMessage( pConn, msg );
 			}
 			forwardEvents( pConn );
+			publishTelemetry();
 		}
 
 		// The editor went away; drop our end and loop back to accept a respawn
@@ -170,6 +187,36 @@ void EngineSession::sendInitialState( IpcChannel* pConn ) {
 	IpcMessage msg( IpcOpcode::SetSong );
 	msg.setPayload( m_pEngine->getSong()->toXmlBuffer() );
 	pConn->send( msg );
+}
+
+PluginTelemetrySnapshot EngineSession::buildTransportSnapshot( Hydrogen* pEngine ) {
+	PluginTelemetrySnapshot snapshot;
+	if ( pEngine == nullptr ) {
+		return snapshot;
+	}
+	auto pAudioEngine = pEngine->getAudioEngine();
+	if ( pAudioEngine == nullptr ) {
+		return snapshot;
+	}
+	auto pPlayhead = pAudioEngine->getPlayhead();
+	if ( pPlayhead != nullptr ) {
+		snapshot.frame = pPlayhead->getFrame();
+		snapshot.tick = static_cast<int32_t>( pPlayhead->getTick() );
+		snapshot.bpm = pPlayhead->getBpm();
+	}
+	snapshot.playing =
+		( pAudioEngine->getState() == AudioEngine::State::Playing ) ? 1 : 0;
+	return snapshot;
+}
+
+void EngineSession::publishTelemetry() {
+	if ( m_pTelemetry == nullptr ) {
+		return;
+	}
+	// Read off the bridge thread without the engine lock: the values are advisory
+	// (the editor only uses them for a coarse ~5 s drift correction) and the
+	// seqlock store keeps the reader's copy tear-free.
+	m_pTelemetry->store( buildTransportSnapshot( m_pEngine ) );
 }
 
 }

@@ -2504,10 +2504,6 @@ MIDI = %2</source>
         <translation>Öppna sång</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Okänd ljud drivrutin</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Kunde inte starta ljud drivrutin</translation>
     </message>

@@ -46,7 +46,7 @@
 #include <core/IO/CoreMidiDriver.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/MidiBaseDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PluginAudioDriver.h>
 #include <core/IO/PluginMidiDriver.h>
@@ -1105,7 +1105,7 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 	else {
 		AE_WARNINGLOG( "Falling back to pure software driverUnknown driver" );
 		// Headless software driver (ADR 0031): clocks the engine (transport, notes,
-		// MIDI) but delivers no audio to a real sink. The former inert NullDriver;
+		// MIDI) but delivers no audio to a real sink. The former inert StubAudioDriver;
 		// also the audio-device-failure fallback (below) and the editor mirror.
 		pAudioDriver = std::make_shared<SoftwareDriver>(
 			m_pHydrogen, m_AudioProcessCallback, /*bProducesAudio=*/false );
@@ -3609,11 +3609,10 @@ QString AudioEngine::getDriverNames() const {
 		audioDriver = pSw->getProducesAudio() ?
 			Preferences::AudioDriver::Fake : Preferences::AudioDriver::Null;
 	}
-	else if ( std::dynamic_pointer_cast<FakeAudioDriver>( m_pAudioDriver ) !=
-			  nullptr ) {
-		audioDriver = Preferences::AudioDriver::Fake;
-	}
-	else if ( std::dynamic_pointer_cast<NullDriver>( m_pAudioDriver ) !=
+	// StubAudioDriver is no longer instantiated as a fallback (→ SoftwareDriver), but it
+	// remains the base of not-compiled backend stubs (Alsa/Jack/… without their
+	// libs), which a real instance would surface here as their own kind above.
+	else if ( std::dynamic_pointer_cast<StubAudioDriver>( m_pAudioDriver ) !=
 			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Null;
 	}

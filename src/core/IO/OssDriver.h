@@ -24,7 +24,7 @@
 #define OSS_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 // check if OSS support is enabled
 #if defined(H2CORE_HAVE_OSS) || _DOXYGEN_
@@ -95,11 +95,11 @@ private:
 
 namespace H2Core {
 
-class OssDriver : public Object<OssDriver>, public NullDriver
+class OssDriver : public Object<OssDriver>, public StubAudioDriver
 {
 	H2_OBJECT(OssDriver)
 public:
-	OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
+	OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 };
 

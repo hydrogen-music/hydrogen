@@ -30,7 +30,7 @@
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 #include <core/IO/SoftwareDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
@@ -53,10 +53,10 @@ AudioDriverInfo LocalEngineAccess::getAudioDriverInfo() const {
 		return info;
 	}
 	info.isPresent = true;
-	// A NullDriver — including a selected-but-not-compiled backend stub deriving
+	// A StubAudioDriver — including a selected-but-not-compiled backend stub deriving
 	// from it — means no real audio output is connected.
 	info.isRunning =
-		std::dynamic_pointer_cast<NullDriver>( pDriver ) == nullptr;
+		std::dynamic_pointer_cast<StubAudioDriver>( pDriver ) == nullptr;
 
 	// The consolidated software driver (ADR 0031) clocks the engine but may be
 	// headless (no real output). Its producesAudio flag is the authoritative
@@ -114,7 +114,7 @@ AudioDriverInfo LocalEngineAccess::getAudioDriverInfo() const {
 		return info;
 	}
 
-	// Present but unmatched: the NullDriver fallback (or a backend not surfaced
+	// Present but unmatched: the StubAudioDriver fallback (or a backend not surfaced
 	// in the UI, e.g. the plugin/fake drivers).
 	info.kind = Preferences::AudioDriver::Null;
 	return info;

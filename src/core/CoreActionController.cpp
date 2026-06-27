@@ -2903,6 +2903,24 @@ bool CoreActionController::locateToTick( long nTick, bool bWithJackBroadcast )
 	return true;
 }
 
+bool CoreActionController::relocateToFrame( long long nFrame )
+{
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+
+	if ( m_pHydrogen->getSong() == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	pAudioEngine->lock( RIGHT_HERE );
+	// locateToFrame() queues the Relocation event itself (it is the low-level
+	// frame relocate); no JACK broadcast / MIDI feedback, as befits a follow.
+	pAudioEngine->locateToFrame( nFrame );
+	pAudioEngine->unlock();
+
+	return true;
+}
+
 bool CoreActionController::newPattern( const QString& sPatternName )
 {
 	auto pPatternList = m_pHydrogen->getSong()->getPatternList();

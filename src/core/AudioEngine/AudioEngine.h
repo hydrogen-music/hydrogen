@@ -32,7 +32,6 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeAudioDriver.h>
 #include <core/IO/JackDriver.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -297,7 +296,7 @@ public:
 	 *
 	 * \param driver Specific audio driver.
 	 * \return Pointer to the freshly created audio driver. If the
-	 * creation resulted in a NullDriver, the corresponding object will be
+	 * creation resulted in a StubAudioDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
 	std::shared_ptr<AudioDriver> createAudioDriver(
@@ -475,6 +474,8 @@ public:
 	/** Uses handleTimelineChange() */
 	friend bool CoreActionController::deleteTempoMarker( int );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
+	/** Uses the private locateToFrame() for the editor-mirror follow relocate. */
+	friend bool CoreActionController::relocateToFrame( long long );
 	friend bool CoreActionController::activateSongMode( bool );
 	friend bool CoreActionController::activateLoopMode( bool );
 	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> );
@@ -485,8 +486,6 @@ public:
 	friend bool CoreActionController::replacePlaybackTrackInstrument(
 		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
 	friend bool CoreActionController::startCountIn();
-	/** Is allowed to set m_state to State::Ready via setState()*/
-	friend int FakeAudioDriver::connect();
 
 	friend class AudioEngineTests;
 		friend class JackDriver;

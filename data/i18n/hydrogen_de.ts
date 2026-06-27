@@ -2505,10 +2505,6 @@ MIDI = %2</translation>
         <translation>&amp;Über Hydrogen</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Unbekannter Audiotreiber</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Fehler beim Starten des Audiotreibers</translation>
     </message>

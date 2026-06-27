@@ -483,6 +483,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	virtual bool locateToTick( long nTick, bool bWithJackBroadcast = true );
 
+	/** Relocates transport to an absolute frame. Unlike #locateToTick this issues
+	 * no JACK broadcast and no MIDI SongPos feedback: it is the read-only
+	 * "follow" relocation used by the editor mirror to track the host engine's
+	 * playhead (ADR 0026/0031), never a user-initiated seek.
+	 *
+	 * @param nFrame Destination frame.
+	 * @return bool true on success
+	 */
+	virtual bool relocateToFrame( long long nFrame );
+
 	/** Creates an empty pattern and adds it to the pattern list.
 	 *
 	 * @param sPath Name for the created pattern.

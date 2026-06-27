@@ -29,6 +29,7 @@
 class AudioDriverTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( AudioDriverTest );
 	CPPUNIT_TEST( testDriverSwitching );
+	CPPUNIT_TEST( testMidiOnlyMode );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -37,6 +38,11 @@ class AudioDriverTest : public CppUnit::TestCase {
 
 		// Check that drivers can be switched without any crashes.
 		void testDriverSwitching();
+
+		// Standalone MIDI-only mode (ADR 0031): no audio output device (headless
+		// software driver) paired with a real MIDI driver. The engine must still
+		// clock and advance its transport.
+		void testMidiOnlyMode();
 
 	private:
 		int m_nPrevBufferSize;

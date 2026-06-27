@@ -34,20 +34,27 @@ void EditorSession::configureMirrorPreferences(
 	if ( pPreferences == nullptr ) {
 		return;
 	}
-	// Passive, threadless audio driver: the mirror reflects state the host engine
-	// pushes over IPC and must not run an audio process loop. The Fake driver
-	// spawns a processing thread (FakeAudioDriver::connect) whose late logging
-	// raced — and crashed against — the Logger teardown on editor abort.
+	// Headless software driver (ADR 0031): `Null` now routes to a clocked but
+	// output-less SoftwareDriver, so the mirror's transport advances locally for a
+	// smooth playhead while it follows the host via telemetry (EditorStateMirror).
+	// Its clock thread is joined in the driver's destructor and the engine is torn
+	// down before the Logger, so the editor-abort race that crashed the old
+	// thread-spawning Fake driver no longer applies. No MIDI / no OSC: the host
+	// owns control surfaces (ADR 0016/0026).
 	pPreferences->m_audioDriver = Preferences::AudioDriver::Null;
 	pPreferences->m_midiDriver = Preferences::MidiDriver::None;
 	pPreferences->setOscServerEnabled( false );
 }
 
-EditorSession::EditorSession( Hydrogen* pMirror, IpcChannel* pChannel )
+EditorSession::EditorSession( Hydrogen* pMirror, IpcChannel* pChannel,
+							  const QString& sEndpoint )
 	: m_pMirror( pMirror )
 	, m_pChannel( pChannel )
 	, m_pStateMirror( std::make_unique<EditorStateMirror>( pMirror ) ) {
 	m_pStateMirror->attach( pChannel );
+	// Follow the host transport via the telemetry block keyed off the same
+	// endpoint we connected to (ADR 0031). Absent block → events-only sync.
+	m_pStateMirror->attachTelemetry( sEndpoint );
 }
 
 EditorSession::~EditorSession() {
@@ -69,7 +76,7 @@ std::unique_ptr<EditorSession> EditorSession::connect(
 	// Attach inbound sync first, then announce ourselves: the engine's hello
 	// reply and its initial song snapshot then flow straight onto the mirror.
 	std::unique_ptr<EditorSession> pSession(
-		new EditorSession( pMirror, pChannel ) );
+		new EditorSession( pMirror, pChannel, sEndpoint ) );
 	pChannel->send( IpcMessage::hello() );
 	return pSession;
 }

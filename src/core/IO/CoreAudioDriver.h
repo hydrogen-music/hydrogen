@@ -30,7 +30,7 @@
 #define COREAUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 #include <AudioUnit/AudioUnit.h>
@@ -102,11 +102,11 @@ private:
 #else
 
 /** \ingroup docCore docAudioDriver */
-class CoreAudioDriver : public Object<CoreAudioDriver>, public NullDriver
+class CoreAudioDriver : public Object<CoreAudioDriver>, public StubAudioDriver
 {
 	H2_OBJECT(CoreAudioDriver)
 public:
-	CoreAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
+	CoreAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 };
 

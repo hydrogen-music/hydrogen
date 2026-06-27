@@ -95,7 +95,7 @@ public:
 
 	enum ErrorMessages {
 		/**
-		 * Unable to connect the audio driver stored. The NullDriver will be
+		 * Unable to connect the audio driver stored. The StubAudioDriver will be
 		 * used as a fallback instead.
 		 */
 		ERROR_STARTING_DRIVER,

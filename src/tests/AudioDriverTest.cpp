@@ -23,8 +23,13 @@
 #include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
 #include <core/Hydrogen.h>
+#include <core/IO/SoftwareDriver.h>
+
+#include <chrono>
+#include <thread>
 
 void AudioDriverTest::setUp() {
 	auto pPref = pTestPreferences();
@@ -100,6 +105,55 @@ void AudioDriverTest::testDriverSwitching() {
 	}
 
 	___INFOLOG("done");
+}
+
+void AudioDriverTest::testMidiOnlyMode() {
+	___INFOLOG("");
+
+	// A standalone MIDI-only configuration (ADR 0031): no audio output device
+	// (the headless software driver, selected as `Null`) paired with a real MIDI
+	// driver (LoopBack — software, needs no hardware). This is its own isolated
+	// instance so it does not disturb the shared test engine.
+	auto pPref = H2Core::Preferences::create_instance();
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Null;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
+	pPref->setOscServerEnabled( false );
+
+	auto* pHydrogen = new H2Core::Hydrogen( pPref, -1 );
+	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
+	auto pAudioEngine = pHydrogen->getAudioEngine();
+
+	// Audio side: a headless software driver — it clocks the engine but feeds no
+	// real audio sink.
+	auto pDriver = std::dynamic_pointer_cast<H2Core::SoftwareDriver>(
+		pAudioEngine->getAudioDriver() );
+	CPPUNIT_ASSERT( pDriver != nullptr );
+	CPPUNIT_ASSERT( ! pDriver->getProducesAudio() );
+	CPPUNIT_ASSERT( pDriver->getSampleRate() > 0 );
+	CPPUNIT_ASSERT( pDriver->getBufferSize() > 0 );
+
+	// MIDI side: a real driver is up alongside the silent audio driver — the whole
+	// point of MIDI-only mode (previously impossible: the inert Null driver left
+	// the engine frozen, so a MIDI driver had no clock to run against).
+	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
+
+	// The headless clock actually advances the transport: start playback and watch
+	// the playhead move. With the old inert Null driver this stayed at 0 forever.
+	const long long nStartFrame = pAudioEngine->getPlayhead()->getFrame();
+	pHydrogen->sequencerPlay();
+	bool bAdvanced = false;
+	for ( int ii = 0; ii < 200 && ! bAdvanced; ++ii ) { // poll up to ~2 s
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+		if ( pAudioEngine->getPlayhead()->getFrame() > nStartFrame ) {
+			bAdvanced = true;
+		}
+	}
+	pHydrogen->sequencerStop();
+	CPPUNIT_ASSERT( bAdvanced );
+
+	delete pHydrogen;
+
+	___INFOLOG("passed");
 }
 
 void AudioDriverTest::tearDown() {

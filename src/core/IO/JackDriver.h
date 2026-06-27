@@ -26,7 +26,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 // check if jack support is disabled
 #if defined( H2CORE_HAVE_JACK ) || _DOXYGEN_
@@ -615,7 +615,7 @@ inline int JackDriver::getXRuns() const
 
 namespace H2Core {
 /** \ingroup docCore docAudioDriver docMIDI */
-class JackDriver : public NullDriver {
+class JackDriver : public StubAudioDriver {
 	H2_OBJECT( JackDriver )
    public:
 	/** Whether Hydrogen or another program is in Timebase control. */
@@ -641,7 +641,7 @@ class JackDriver : public NullDriver {
 	 */
 	JackDriver( Hydrogen* pHydrogen, audioProcessCallback m_processCallback,
 				Mode mode )
-		: NullDriver( pHydrogen, m_processCallback )
+		: StubAudioDriver( pHydrogen, m_processCallback )
 	{
 	}
 

@@ -20,14 +20,14 @@
  *
  */
 
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 #include <core/Globals.h>
 
 
 namespace H2Core
 {
 
-NullDriver::NullDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+StubAudioDriver::StubAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
 		: AudioDriver( pHydrogen )
 {
 	UNUSED( processCallback );
@@ -35,65 +35,65 @@ NullDriver::NullDriver( Hydrogen* pHydrogen, audioProcessCallback processCallbac
 }
 
 
-NullDriver::~NullDriver()
+StubAudioDriver::~StubAudioDriver()
 {
 //	INFOLOG( "DESTROY" );
 }
 
 
-int NullDriver::init( unsigned nBufferSize )
+int StubAudioDriver::init( unsigned nBufferSize )
 {
 	UNUSED( nBufferSize );
 	return 0;
 }
 
 
-int NullDriver::connect()
+int StubAudioDriver::connect()
 {
 	INFOLOG( "connect" );
 	return 0;
 }
 
 
-void NullDriver::disconnect()
+void StubAudioDriver::disconnect()
 {
 	INFOLOG( "disconnect" );
 }
 
 
-unsigned NullDriver::getBufferSize()
+unsigned StubAudioDriver::getBufferSize()
 {
 //	infoLog( "[getBufferSize()] not implemented yet");
 	return 0;
 }
 
 
-unsigned NullDriver::getSampleRate()
+unsigned StubAudioDriver::getSampleRate()
 {
 //	infoLog("[getSampleRate()] not implemented yet");
 	return 0;
 }
 
-float* NullDriver::getOut_L()
+float* StubAudioDriver::getOut_L()
 {
 	INFOLOG( "not implemented yet" );
 	return nullptr;
 }
 
 
-float* NullDriver::getOut_R()
+float* StubAudioDriver::getOut_R()
 {
 	INFOLOG( "not implemented yet" );
 	return nullptr;
 }
 
-QString NullDriver::toQString( const QString& sPrefix, bool bShort ) const {
+QString StubAudioDriver::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
-		sOutput = QString( "%1[NullDriver]" ).arg( sPrefix );
+		sOutput = QString( "%1[StubAudioDriver]" ).arg( sPrefix );
 	} else {
-		sOutput = "[NullDriver]";
+		sOutput = "[StubAudioDriver]";
 	}
 
 	return sOutput;

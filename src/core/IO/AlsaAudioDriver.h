@@ -23,7 +23,7 @@
 #define ALSA_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
@@ -72,11 +72,11 @@ private:
 namespace H2Core {
 
 /** \ingroup docCore docAudioDriver */
-class AlsaAudioDriver : public NullDriver
+class AlsaAudioDriver : public StubAudioDriver
 {
 	H2_OBJECT(AlsaAudioDriver)
 public:
-	AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
+	AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 };
 

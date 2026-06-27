@@ -2516,10 +2516,6 @@ MIDI = %2</source>
         <translation>Otwórz utwór</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Nieznany sterownik audio</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Błąd podczas uruchamiania sterownika audio</translation>
     </message>

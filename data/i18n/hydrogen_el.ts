@@ -2526,10 +2526,6 @@ MIDI = %2</source>
         <translation>Άνοιγμα τραγουδιού</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Άγνωστος οδηγός ήχου</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Σφάλμα στο ξεκίνημα του οδηγού ήχου</translation>
     </message>

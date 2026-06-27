@@ -43,11 +43,11 @@ namespace H2Core {
 struct AudioDriverInfo {
 	/** Concrete kind of the running driver (None when no driver object exists). */
 	Preferences::AudioDriver kind = Preferences::AudioDriver::None;
-	/** A driver object exists (including the #NullDriver fallback). Mirrors the
+	/** A driver object exists (including the #StubAudioDriver fallback). Mirrors the
 	 * old `getAudioDriver() != nullptr` check. */
 	bool isPresent = false;
-	/** A real (non-#NullDriver) audio driver is connected. Replaces the GUI's
-	 * `dynamic_pointer_cast<NullDriver>(...) == nullptr` "is it real?" gate. */
+	/** A real (non-#StubAudioDriver) audio driver is connected. Replaces the GUI's
+	 * `dynamic_pointer_cast<StubAudioDriver>(...) == nullptr` "is it real?" gate. */
 	bool isRunning = false;
 	/** Device the running driver is connected to, where the driver exposes one
 	 * (e.g. ALSA); empty otherwise. For display only. */

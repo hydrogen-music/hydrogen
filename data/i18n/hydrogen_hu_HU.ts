@@ -2480,10 +2480,6 @@ MIDI = %2</source>
         <translation>Szám megnyitása</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Ismeretlen audió meghajtó</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Audió meghajtó indítási hiba</translation>
     </message>

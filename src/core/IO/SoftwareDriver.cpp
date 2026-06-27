@@ -51,10 +51,15 @@ SoftwareDriver::~SoftwareDriver() {
 
 int SoftwareDriver::init( unsigned nBufferSize ) {
 
-	m_nBufferSize = nBufferSize;
-	m_nSampleRate = m_pHydrogen->getPreferences()->m_nSampleRate;
-	m_pOut_L = new float[ nBufferSize ];
-	m_pOut_R = new float[ nBufferSize ];
+	// Fixed fallbacks (ADR 0031): a headless / MIDI-only instance may have no
+	// configured audio device, so the buffer size / sample rate could be 0. The
+	// clock needs valid values — a 0 rate divides by zero and a 0 buffer makes the
+	// pump busy-loop (interval 0). Fall back to sane defaults.
+	m_nBufferSize = nBufferSize > 0 ? nBufferSize : 1024;
+	const int nPrefSampleRate = m_pHydrogen->getPreferences()->m_nSampleRate;
+	m_nSampleRate = nPrefSampleRate > 0 ? nPrefSampleRate : 48000;
+	m_pOut_L = new float[ m_nBufferSize ];
+	m_pOut_R = new float[ m_nBufferSize ];
 
 	m_processInterval = std::chrono::duration<float>(
 		static_cast<float>(m_nBufferSize) /

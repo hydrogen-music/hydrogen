@@ -2568,10 +2568,6 @@ MIDI = %2</translation>
         <translation>导出 LilyPond 文件</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>未知音频驱动</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>启动音频驱动时出错</translation>
     </message>

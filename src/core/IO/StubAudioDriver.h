@@ -21,8 +21,8 @@
  */
 
 
-#ifndef NULL_AUDIO_DRIVER_H
-#define NULL_AUDIO_DRIVER_H
+#ifndef STUB_AUDIO_DRIVER_H
+#define STUB_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
 
@@ -34,12 +34,12 @@ namespace H2Core
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 /** \ingroup docCore docAudioDriver */
-class NullDriver : public Object<NullDriver>, public AudioDriver
+class StubAudioDriver : public Object<StubAudioDriver>, public AudioDriver
 {
-	H2_OBJECT(NullDriver)
+	H2_OBJECT(StubAudioDriver)
 public:
-	NullDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
-	~NullDriver();
+	StubAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
+	~StubAudioDriver();
 
 	int init( unsigned nBufferSize ) override; 
 	int connect() override;

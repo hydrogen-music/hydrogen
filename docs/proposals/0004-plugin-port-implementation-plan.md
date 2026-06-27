@@ -1219,22 +1219,81 @@ Depends on Phase 3 (PluginAudioDriver / host-transport follower) and Phase 5
   `SoftwareDriver` with valid rate/buffer (was the inert `NullDriver`); the
   `EditorBadEndpoint` guard now checks clean teardown only (the clock thread is
   expected). `startMidiDriver` already runs independently of audio.
-* **T8.3 — MIDI-only mode.** First-class "no audio" standalone selection: software
-  driver (fixed fallback rate/buffer from `Preferences`) + real MIDI driver;
-  notes process on the clock, MIDI in/out works, no audio output.
-* **T8.4 — editor hybrid sync.** Mirror uses the software driver at the
-  host-provided rate/buffer (override config / IPC bootstrap, ADR 0022/0029);
-  inbound transport **events** relocate the mirror; **consume the telemetry block**
-  (ADR 0018, currently unconsumed) to force a periodic re-sync (~30 000 frames /
-  ~5 s). Replace the `EditorSession::configureMirrorPreferences` Null driver with
-  the clocked software driver.
-* **T8.5 — remove the old classes.** Delete `NullDriver` and `FakeAudioDriver`
-  once all callers migrate; tidy the `Preferences::AudioDriver` enum.
+* **T8.3 — ✅ MIDI-only mode.** First-class "no audio" standalone selection
+  (`AudioDriver::Null` → headless `SoftwareDriver`) paired with a real MIDI driver;
+  notes process on the clock, MIDI in/out works, no audio output. Added a
+  fixed-fallback guard to `SoftwareDriver::init` (buffer → 1024, rate → 48000 when
+  `Preferences` has no configured audio device — a 0 rate would divide by zero, a 0
+  buffer would busy-loop the pump). New `AudioDriverTest::testMidiOnlyMode` spins up
+  an isolated `Null`+`LoopBack` instance and asserts: headless software driver
+  (`!producesAudio`, valid rate/buffer), a live MIDI driver alongside it, and that
+  `sequencerPlay()` advances the transport (the headless clock runs — impossible
+  with the old inert `NullDriver`).
+* **T8.4 — ✅ editor hybrid sync.** The mirror's clocked software driver free-runs
+  the playhead; the host is followed by **consuming the telemetry block** (ADR
+  0018, previously unwritten/unconsumed — now both sides are wired):
+  - *Writer*: `EngineSession` creates the telemetry segment keyed off its endpoint
+    (`PluginTelemetryShm::keyForEndpoint`, derived identically both sides — no
+    handshake negotiation) and `store()`s a transport snapshot
+    (`buildTransportSnapshot`: frame / bpm / playing / tick) each ~50 ms serve-loop
+    tick. Off the audio thread — advisory precision is enough for a ~5 s drift
+    correction; the seqlock keeps reads tear-free.
+  - *Reader / apply*: `EditorStateMirror::attachTelemetry` attaches the block and
+    starts a 5 s re-sync `QTimer`; inbound transport **events** (`State`,
+    `Relocation`, `TempoChanged`, `BbtChanged`) trigger an immediate
+    `syncTransportFromTelemetry`. `applyTransportSnapshot` follows play/stop
+    (`sequencerPlay/Stop`), tempo (`setNextBpm`, best-effort — a mirror timeline
+    would override), and frame: relocate **only when stopped (exact)** or on a
+    large divergence (> ~0.5 s) — snapping a rolling playhead to a slightly-stale
+    telemetry frame would jerk it backward by the read latency, so routine lag is
+    ignored while seeks / accumulated drift are corrected.
+  - Relocation uses a new read-only `CoreActionController::relocateToFrame` (locks +
+    the private `AudioEngine::locateToFrame`; no JACK broadcast / MIDI feedback) —
+    the mirror calls its *own* controller (local follow, never forwarded; the editor
+    never initiates transport, ADR 0026). Absent/mismatched block ⇒ events-only
+    fallback. Tests: `EditorModeTest::testEngineBuildsTransportSnapshot` (snapshot
+    reflects engine + key determinism + shm round-trip) and
+    `testMirrorFollowsTransportTelemetry` (mirror follows play/stop/tempo and
+    relocates to the host frame).
+* **T8.5 — ✅ remove the old classes (FakeAudioDriver only).** Deleted
+  `FakeAudioDriver.{h,cpp}` (no longer instantiated → `SoftwareDriver`, not a base
+  of anything): removed its `AudioEngine.h` include + the vestigial
+  `friend FakeAudioDriver::connect()` (SoftwareDriver needs no friendship), its
+  `Hydrogen.cpp` include, and the now-dead `dynamic_pointer_cast<FakeAudioDriver>`
+  branch in `getDriverNames`. Refreshed the stale `configureMirrorPreferences`
+  comment (the mirror is clocked now, not "threadless").
+  **`NullDriver` is retained but renamed to `StubAudioDriver`** — contrary to the
+  original plan it is *not* dead: it is the inert (Null Object) base class of the
+  not-compiled backend stubs (`AlsaAudioDriver`, `PortAudioDriver`, `OssDriver`,
+  `PulseAudioDriver`, `CoreAudioDriver`, `JackDriver` all `: public StubAudioDriver`
+  in their backend-absent `#else` branch), and `LocalEngineAccess::getAudioDriverInfo`
+  relies on `dynamic_pointer_cast<StubAudioDriver>` to classify such a stub as
+  present-but-not-running. Only its use as the inert *fallback instance* was retired
+  (→ headless `SoftwareDriver`). It was renamed (`NullDriver.{h,cpp}` →
+  `StubAudioDriver.{h,cpp}`, class + guard + `H2_OBJECT`) because after ADR 0031
+  "Null" was overloaded: the `Preferences::AudioDriver::Null` selection now routes
+  to the *active* headless `SoftwareDriver`, while this class is the *inert*
+  unavailable-backend placeholder — keeping the name would conflate the two.
+  Deleting it outright is not worth it: the stubs would otherwise each duplicate the
+  inert method bodies, or `AudioDriver`'s pure virtuals would have to be demoted to
+  defaulted ones (losing the compile-time "you must implement this" check for real
+  drivers). The one untouched reference is a non-translated `"NullDriver"` UI label
+  in `PreferencesDialog` (left as-is per the i18n string policy — flag for a
+  separate UX/translation pass). The `Preferences::AudioDriver` enum keeps
+  `Fake`/`Null` — they are the selection/routing keys into `createAudioDriver`.
 
 **Done when:** standalone MIDI-only works (own clock, MIDI in/out, no audio);
 audio-device failure degrades to a responsive headless engine; the editor mirror's
 transport advances locally and stays drift-bounded against the host; a single
 software driver replaces `NullDriver`+`FakeAudioDriver`; suite + ctest green.
+
+**✅ DONE (2026-06-27).** All of T8.1–T8.5 landed; unit suite OK (331 tests) and the
+editor/GUI ctests (`GuiStartup`, `EditorBadEndpoint`, `EditorReporterCleanFailure`)
+green. One scope correction: the inert backend-stub base class is retained (see
+T8.5), renamed `NullDriver` → `StubAudioDriver` to disambiguate it from the active
+headless `SoftwareDriver` that `AudioDriver::Null` now routes to. `SoftwareDriver`
+replaced `FakeAudioDriver` outright and the old class's inert *fallback-instance*
+role — not the stub-base class itself.
 
 **Later optimisation (not in this phase):** a true "silent render" path that
 advances note lifetime without the sample math, replacing render-to-scratch.

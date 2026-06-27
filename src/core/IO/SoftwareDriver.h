@@ -43,7 +43,7 @@ namespace H2Core {
  *  - `producesAudio == false` — a **headless** driver: the engine still advances
  *    transport, schedules notes and sends/handles MIDI, but no audio is delivered
  *    to a real sink (the audio-device-failure fallback, standalone MIDI-only mode,
- *    and the out-of-process editor mirror). The former inert `NullDriver`.
+ *    and the out-of-process editor mirror). The former inert `StubAudioDriver`.
  *
  * Even when headless it returns valid scratch buffers from #getOut_L()/#getOut_R()
  * so the render path stays uniform (render-to-scratch; a true silent-render that

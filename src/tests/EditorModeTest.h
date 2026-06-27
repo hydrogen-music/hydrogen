@@ -34,6 +34,8 @@ class EditorModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testReceivesEngineState );
 	CPPUNIT_TEST( testIssuesCommands );
 	CPPUNIT_TEST( testEngineSurvivesEditorDisconnect );
+	CPPUNIT_TEST( testEngineBuildsTransportSnapshot );
+	CPPUNIT_TEST( testMirrorFollowsTransportTelemetry );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +45,8 @@ public:
 	void testReceivesEngineState();
 	void testIssuesCommands();
 	void testEngineSurvivesEditorDisconnect();
+	void testEngineBuildsTransportSnapshot();
+	void testMirrorFollowsTransportTelemetry();
 };
 
 #endif

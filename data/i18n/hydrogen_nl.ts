@@ -2508,10 +2508,6 @@ MIDI = %2</source>
         <translation>Open opname</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Onbekende audio driver</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Fout bij het starten van de audio driver</translation>
     </message>

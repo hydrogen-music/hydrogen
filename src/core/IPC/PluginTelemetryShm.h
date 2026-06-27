@@ -46,6 +46,14 @@ public:
 	PluginTelemetryShm();
 	~PluginTelemetryShm();
 
+	/** Deterministic shared-memory key for a given IPC control endpoint, derived
+	 * identically on both sides so the editor can attach to the engine's telemetry
+	 * block knowing only the `--plugin-editor <endpoint>` it was launched with — no
+	 * separate key negotiation in the handshake (ADR 0018/0031). */
+	static QString keyForEndpoint( const QString& sEndpoint ) {
+		return QString( "h2-telemetry-%1" ).arg( sEndpoint );
+	}
+
 	/** Engine side: create and zero-initialize the segment. */
 	bool create( const QString& sKey );
 	/** Editor side: attach to an existing segment (read-only). */

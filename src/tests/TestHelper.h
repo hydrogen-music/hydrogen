@@ -65,8 +65,8 @@ class TestHelper {
 
 	/**
 	 * Picks different combinations of sample rate and buffer size of
-	 * the FakeAudioDriver, stores them in the Preferences instance, and
-	 * restarts the FakeAudioDriver.
+	 * the SoftwareDriver, stores them in the Preferences instance, and
+	 * restarts the SoftwareDriver.
 	 *
 	 * \param nIndex Numbers 0 till 10 correspond to hard-coded
 	 * parameter combinations. For all others random values will be

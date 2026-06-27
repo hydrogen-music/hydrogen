@@ -2471,10 +2471,6 @@ MIDI = %2</source>
 <context>
     <name>MainForm</name>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Непознат зв. посредник</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Грешка при покретању зв. посредника</translation>
     </message>

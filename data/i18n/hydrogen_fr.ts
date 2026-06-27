@@ -2502,10 +2502,6 @@ MIDI = %2</translation>
         <translation>À &amp;propos</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Pilote audio inconnu</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Erreur au lancement du pilote audio</translation>
     </message>

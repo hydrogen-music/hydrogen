@@ -80,7 +80,8 @@ public:
 	std::unique_ptr<IpcEngineAccess> createEngineAccess() const;
 
 private:
-	EditorSession( Hydrogen* pMirror, IpcChannel* pChannel );
+	EditorSession( Hydrogen* pMirror, IpcChannel* pChannel,
+				   const QString& sEndpoint );
 
 	/** Editor-side headless engine serving reads; not owned. */
 	Hydrogen* m_pMirror;

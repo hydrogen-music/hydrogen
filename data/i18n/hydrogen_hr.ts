@@ -2504,10 +2504,6 @@ MIDI = %2</source>
         <translation>&amp;Informacije</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Nepoznati audio driver</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Problem pri pokretanju drivera zvuka</translation>
     </message>

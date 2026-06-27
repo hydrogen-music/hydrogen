@@ -2508,10 +2508,6 @@ MIDI = %2</translation>
         <translation>&amp;Acerca de</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Controlador de audio desconocido</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Error iniciando controlador de audio</translation>
     </message>

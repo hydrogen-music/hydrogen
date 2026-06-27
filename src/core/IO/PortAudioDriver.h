@@ -24,7 +24,7 @@
 #define PORT_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 #include <unistd.h>
 
@@ -77,11 +77,11 @@ private:
 namespace H2Core
 {
 
-class PortAudioDriver : public NullDriver
+class PortAudioDriver : public StubAudioDriver
 {
 	H2_OBJECT(PortAudioDriver)
 public:
-	PortAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
+	PortAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 };
 
 };

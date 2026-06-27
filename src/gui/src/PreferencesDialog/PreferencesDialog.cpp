@@ -1319,7 +1319,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 		}
 		
 		// Display the selected driver as well.
-		sInfo.append( "NullDriver" )
+		sInfo.append( "Software Driver" )
 			.append( "<br><br><b><font color=" )
 			.append( m_sColorRed ).append( ">")
 			.append( pCommonStrings->getAudioDriverNotPresent() )

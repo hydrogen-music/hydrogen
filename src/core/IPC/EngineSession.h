@@ -35,6 +35,8 @@ namespace H2Core {
 class Hydrogen;
 class IpcChannel;
 class IpcMessage;
+class PluginTelemetryShm;
+struct PluginTelemetrySnapshot;
 
 /**
  * \ingroup docCore
@@ -77,6 +79,13 @@ public:
 	/** Stop the serve loop and join the bridge thread (idempotent). */
 	void stop();
 
+	/** Build a transport-only telemetry snapshot (frame / bpm / playing / tick)
+	 * from @a pEngine. Peaks and full BBT are left at 0 here — they are the
+	 * separate ADR 0018 metering concern; this carries what the editor mirror needs
+	 * to follow the host playhead (ADR 0031). Static so it is unit-testable without
+	 * a running serve loop. */
+	static PluginTelemetrySnapshot buildTransportSnapshot( Hydrogen* pEngine );
+
 private:
 	EngineSession( Hydrogen* pEngine, const QString& sEndpoint );
 
@@ -92,6 +101,8 @@ private:
 	void discardEvents();
 	/** Send the current song to a freshly attached editor as initial state. */
 	void sendInitialState( IpcChannel* pConn );
+	/** Publish the engine's current transport into the telemetry block, if any. */
+	void publishTelemetry();
 
 	/** Authoritative engine being served; not owned. */
 	Hydrogen* m_pEngine;
@@ -99,6 +110,9 @@ private:
 	std::atomic<bool> m_bRunning;
 	/** Bridge thread owning the IpcServer + accepted channel; owned. */
 	QThread* m_pThread;
+	/** Telemetry block written for an attached editor (ADR 0018/0031); created on
+	 * the bridge thread, keyed off the endpoint. Owned. */
+	std::unique_ptr<PluginTelemetryShm> m_pTelemetry;
 	/** Poll/accept granularity; also bounds stop() latency. */
 	int m_nPollTimeoutMs = 50;
 };

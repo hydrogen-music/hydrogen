@@ -2507,10 +2507,6 @@ MIDI = %2</translation>
         <translation>&amp;Про програму</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>Невідомий звуковий драйвер</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>Помилка при завантаженні звукового драйвера</translation>
     </message>

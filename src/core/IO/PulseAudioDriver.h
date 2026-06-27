@@ -87,15 +87,15 @@ private:
 
 #else
 
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 namespace H2Core {
 /** \ingroup docCore docAudioDriver */
-	class PulseAudioDriver : public NullDriver
+	class PulseAudioDriver : public StubAudioDriver
 	{
 		H2_OBJECT(PulseAudioDriver)
 	public:
-		PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : NullDriver( pHydrogen, processCallback ) {}
+		PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 	};
 }

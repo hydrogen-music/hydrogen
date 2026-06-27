@@ -2507,10 +2507,6 @@ MIDI = %2</source>
         <translation>このプログラムについて(&amp;A)</translation>
     </message>
     <message>
-        <source>Unknown audio driver</source>
-        <translation>不明なオーディオドライバー</translation>
-    </message>
-    <message>
         <source>Error starting audio driver</source>
         <translation>オーディオドライバーにエラーが発生</translation>
     </message>
