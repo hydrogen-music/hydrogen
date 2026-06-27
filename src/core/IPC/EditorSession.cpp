@@ -25,8 +25,23 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/IPC/IpcMessage.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core {
+
+void EditorSession::configureMirrorPreferences(
+	std::shared_ptr<Preferences> pPreferences ) {
+	if ( pPreferences == nullptr ) {
+		return;
+	}
+	// Passive, threadless audio driver: the mirror reflects state the host engine
+	// pushes over IPC and must not run an audio process loop. The Fake driver
+	// spawns a processing thread (FakeAudioDriver::connect) whose late logging
+	// raced — and crashed against — the Logger teardown on editor abort.
+	pPreferences->m_audioDriver = Preferences::AudioDriver::Null;
+	pPreferences->m_midiDriver = Preferences::MidiDriver::None;
+	pPreferences->setOscServerEnabled( false );
+}
 
 EditorSession::EditorSession( Hydrogen* pMirror, IpcChannel* pChannel )
 	: m_pMirror( pMirror )

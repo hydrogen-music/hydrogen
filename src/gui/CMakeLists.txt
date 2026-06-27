@@ -119,6 +119,39 @@ set_tests_properties( GuiStartup PROPERTIES
 	TIMEOUT 120
 )
 
+# Editor-mode abort smoke test (ADR 0016): `hydrogen --plugin-editor <endpoint>`
+# against an endpoint with no engine must abort cleanly (exit 1), NOT crash, and
+# must not run an audio-processing thread on the mirror (the regression that
+# segfaulted via a Logger use-after-free). The wrapper asserts both. Shell script
+# → Unix only, like WriteSurfaceGuard. (The deterministic unit-level guard is
+# EditorModeTest::testMirrorUsesPassiveAudioDriver.)
+if ( UNIX )
+	# 3 = Reporter::EXIT_CODE_CLEAN_FAILURE (the editor's clean "couldn't connect"
+	# abort code). Passed to the wrappers so the shell and C++ stay in sync.
+	add_test(
+		NAME EditorBadEndpoint
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/test_editor_bad_endpoint.sh
+				$<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data 3
+	)
+	set_tests_properties( EditorBadEndpoint PROPERTIES
+		ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
+		TIMEOUT 120
+	)
+
+	# The crash Reporter must treat that clean failed-connect as a normal exit
+	# (propagate the code, no crash dialog), not a crash. Runs the full command
+	# (no --child) so the Reporter wrapper is exercised end to end.
+	add_test(
+		NAME EditorReporterCleanFailure
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/test_editor_reporter.sh
+				$<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data 3
+	)
+	set_tests_properties( EditorReporterCleanFailure PROPERTIES
+		ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
+		TIMEOUT 120
+	)
+endif()
+
 # Write-surface guard (ADR 0027, Phase 4.5 step 7): static source check that the
 # GUI does not mutate engine-owned Basics objects directly but routes edits
 # through CoreActionController. Pure source scan; needs no build artefacts.

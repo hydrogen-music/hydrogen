@@ -70,6 +70,20 @@ class Reporter : public QObject
 
  public:
 
+	/** Exit code used by the child to signal a clean, already-reported failure
+	 * (e.g. the out-of-process editor could not reach its engine endpoint). It is
+	 * a normal exit — NOT a crash — so the Reporter must propagate it without
+	 * popping the "Hydrogen exited abnormally" crash dialog. Distinct from a
+	 * generic non-zero exit (which is still treated as unexpected and reported).
+	 * Kept in sync with tools/test_editor_bad_endpoint.sh. */
+	static constexpr int EXIT_CODE_CLEAN_FAILURE = 3;
+
+	/** Whether a finished child should raise the crash-report dialog. True for an
+	 * actual crash (signal → QProcess::CrashExit) or an unexpected non-zero exit;
+	 * false for a clean exit (0) or a deliberate, already-reported clean failure
+	 * (#EXIT_CODE_CLEAN_FAILURE). */
+	static bool shouldReportCrash( QProcess::ExitStatus exitStatus, int exitCode );
+
 	Reporter( QProcess *child );
 	~Reporter();
 

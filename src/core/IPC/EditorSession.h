@@ -32,6 +32,7 @@ class Hydrogen;
 class IpcChannel;
 class EditorStateMirror;
 class IpcEngineAccess;
+class Preferences;
 
 /**
  * \ingroup docCore
@@ -53,6 +54,16 @@ class IpcEngineAccess;
  */
 class EditorSession {
 public:
+	/** Configure @a pPreferences for the editor-side headless mirror: a passive
+	 * audio driver (Null — it must NOT process audio or spawn a processing
+	 * thread; the authoritative engine in the host does that), no MIDI driver and
+	 * no OSC server (the host owns control surfaces, ADR 0016/0026). Using the
+	 * thread-spawning Fake driver here previously raced the Logger teardown on
+	 * abort and segfaulted. main()'s editor branch and the mirror tests share this
+	 * so the two cannot drift. */
+	static void configureMirrorPreferences(
+		std::shared_ptr<Preferences> pPreferences );
+
 	/** Connect to @a sEndpoint and wire the editor stack around @a pMirror.
 	 * Returns nullptr if @a pMirror is null, @a sEndpoint is empty, or the socket
 	 * connection fails within @a nTimeoutMs. */

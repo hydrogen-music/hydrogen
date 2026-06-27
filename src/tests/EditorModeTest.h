@@ -30,6 +30,7 @@ class EditorModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( EditorModeTest );
 	CPPUNIT_TEST( testAttachesToEngineEndpoint );
 	CPPUNIT_TEST( testFailedConnectionReported );
+	CPPUNIT_TEST( testMirrorUsesPassiveAudioDriver );
 	CPPUNIT_TEST( testReceivesEngineState );
 	CPPUNIT_TEST( testIssuesCommands );
 	CPPUNIT_TEST( testEngineSurvivesEditorDisconnect );
@@ -38,6 +39,7 @@ class EditorModeTest : public CppUnit::TestFixture {
 public:
 	void testAttachesToEngineEndpoint();
 	void testFailedConnectionReported();
+	void testMirrorUsesPassiveAudioDriver();
 	void testReceivesEngineState();
 	void testIssuesCommands();
 	void testEngineSurvivesEditorDisconnect();

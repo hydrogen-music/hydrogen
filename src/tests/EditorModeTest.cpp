@@ -26,6 +26,8 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
+#include <core/IO/FakeAudioDriver.h>
+#include <core/IO/NullDriver.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcEngineAccess.h>
@@ -55,9 +57,9 @@ QString uniqueServerName() {
 // GUI would read from. Caller owns it.
 Hydrogen* makeMirrorEngine() {
 	auto pPref = Preferences::create_instance();
-	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
-	pPref->m_midiDriver = Preferences::MidiDriver::None;
-	pPref->setOscServerEnabled( false );
+	// Same headless-mirror configuration main()'s editor branch uses (passive
+	// Null audio driver — no processing thread, no MIDI, no OSC).
+	EditorSession::configureMirrorPreferences( pPref );
 	auto* pHydrogen = new Hydrogen( pPref, -1 );
 	pHydrogen->setGUIState( Hydrogen::GUIState::headless );
 	return pHydrogen;
@@ -102,6 +104,30 @@ void EditorModeTest::testFailedConnectionReported() {
 	auto pSession = EditorSession::connect(
 		uniqueServerName(), pMirror, 200 /*ms*/ );
 	CPPUNIT_ASSERT( pSession == nullptr );
+
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// The headless editor mirror must NOT run an audio-processing thread: it only
+// reflects the state the host engine pushes over IPC (ADR 0016/0018). It used the
+// Fake driver, whose connect() spawns a std::thread that loops the audio process
+// callback (spamming "Failed to lock audioEngine"). On editor abort (e.g. a bad
+// endpoint) that thread raced the Logger/QApplication teardown and dereferenced
+// the freed Logger → segfault. The mirror must use the passive Null driver, which
+// spawns no thread.
+void EditorModeTest::testMirrorUsesPassiveAudioDriver() {
+	___INFOLOG( "" );
+
+	auto* pMirror = makeMirrorEngine();
+	auto pDriver = pMirror->getAudioDriver();
+	CPPUNIT_ASSERT( pDriver != nullptr );
+	// Passive driver (no processing thread) ...
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<NullDriver>( pDriver ) != nullptr );
+	// ... and specifically NOT the thread-spawning Fake driver.
+	CPPUNIT_ASSERT(
+		std::dynamic_pointer_cast<FakeAudioDriver>( pDriver ) == nullptr );
 
 	delete pMirror;
 

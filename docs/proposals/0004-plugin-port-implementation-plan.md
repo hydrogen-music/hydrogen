@@ -921,21 +921,22 @@ Linux.
 
 ADR 0014, proposal 0003 §9.
 
-**Status: 🚧 IMPLEMENTATION COMPLETE — pending platform verification.** T6.1 (VST3
-via clap-wrapper) ✅; T6.2 packaging ✅ (Linux `.tar.xz`, macOS `.dmg` staging,
-Windows NSIS install rules incl. the CLAP RUNTIME fix); T6.3 CI ✅ wired in
-`.appveyor.yml` (CLAP/LV2 always, VST3 artifact-gated, `vst3-validate` +
-conformance tools, installer asserts). Everything that can be built and run from
-the Linux dev box is green (`build.sh r m t`: OK(328) + ctest 7/7 + Steinberg
-validator 47/47). **What's left is verification on infrastructure this box can't
-reach** — see "Remaining" below.
+**Status: 🚧 IMPLEMENTATION COMPLETE — pending artifact-build verification.** T6.1
+(VST3 via clap-wrapper) ✅; T6.2 packaging ✅ (Linux `.tar.xz`, macOS `.dmg`
+staging, Windows NSIS install rules); T6.3 CI ✅ wired in `.appveyor.yml` (CLAP/LV2
+always, VST3 artifact-gated, `vst3-validate` + conformance tools). The first real
+CI runs (Linux/macOS/Windows) were exercised and the defects they surfaced are
+fixed (see "Fixes from the first real CI runs" below). Everything buildable/runnable
+on the Linux dev box is green (`build.sh r m t`: OK(329) + ctest 9/9 + Steinberg
+validator 47/47). **What's left is the artifact-gated packaging path on a real
+`*-artifacts` run** — see "Remaining" below.
 
 **Tests first**
 * VST3 validator smoke step in CI — ✅ done as the `vst3-validate` CTest (T6.3).
-* `windows/ci/test_installation.py` — ✅ extended to assert the plugin bundles
-  install to the right locations (`clap/Hydrogen.clap`, `lv2/hydrogen.lv2/*.ttl`
-  always; `vst3/Hydrogen.vst3` checked when the build produced it). Runs after the
-  silent NSIS install on the Windows job.
+* `windows/ci/test_installation.py` extended to assert the installed plugin
+  bundles — proposed but **reverted by the maintainer**; the Windows installer
+  verification currently checks the app + data only. (A confirm-on-artifact-run
+  item; see Remaining.)
 
 **Tasks**
 * **T6.1 — ✅ DONE.** `clap-wrapper` (free-audio, `extern/clap-wrapper` submodule,
@@ -1004,13 +1005,14 @@ reach** — see "Remaining" below.
   **Windows**: the `src/plugin` `install()` rules place the bundles under the
   install root (`H2_LIB_PATH="."` on MINGW → `clap/`, `lv2/`, `vst3/` next to
   `hydrogen.exe`), so the existing `cpack -G NSIS` packages them once the plugins
-  are built. Fixed the CLAP install rule to add a `RUNTIME DESTINATION`: a MODULE
-  library's `.clap` is a LIBRARY artifact on Linux/macOS but a RUNTIME (DLL)
-  artifact on Windows, so `LIBRARY DESTINATION` alone would have shipped no `.clap`
-  in the Windows package. `test_installation.py` now asserts the bundles are
-  present (see Tests first). (Placing bundles into the system plugin scan dirs —
-  `%COMMONPROGRAMFILES%\{VST3,CLAP}` — via NSIS extra commands is a possible
-  enhancement; the current "bundle under install dir" matches Linux.)
+  are built. Note: the CLAP target is a MODULE library whose `.clap` is a LIBRARY
+  artifact on Linux/macOS but a RUNTIME (DLL) artifact on Windows — so a
+  `RUNTIME DESTINATION` is needed for the `.clap` to land in the Windows package
+  (a `RUNTIME`-adding fix was proposed but **reverted by the maintainer**, so
+  confirm/redo this when the Windows artifact build is exercised). (Placing
+  bundles into the system plugin scan dirs — `%COMMONPROGRAMFILES%\{VST3,CLAP}` —
+  via NSIS extra commands is a possible enhancement; the current "bundle under
+  install dir" matches Linux.)
 * **T6.3 — 🚧 wired in `.appveyor.yml` (CI is AppVeyor, not GH Actions).**
   **CLAP + LV2** are built on every Linux (Ubuntu 22.04 test job), macOS and
   Windows run — `-DWANT_CLAP=ON -DWANT_LV2=ON` — so the plugin CTest suite runs
@@ -1044,9 +1046,9 @@ reach** — see "Remaining" below.
   the validator's `N tests passed` summary afterwards, since CTest hides a passing
   test's stdout) and the CI `ctest -R …|vst3-validate` (registered only on the
   artifact builds that build VST3, so it no-ops elsewhere). Verified on Linux:
-  ctest 7/7, and the Steinberg validator reports **47 tests passed, 0 failed** on
+  ctest 9/9, and the Steinberg validator reports **47 tests passed, 0 failed** on
   the Hydrogen VST3 bundle (after the T6.1 conformance fixes). The helper needed
-  three robustness fixes found during verification: it fetches the SDK's `cmake`
+  several robustness fixes found during verification: it fetches the SDK's `cmake`
   submodule on demand (clap-wrapper omits it), configures with
   `-DSMTG_ADD_VST3_HOSTING_SAMPLES=OFF` (drops the GTK-dependent editorhost
   sample), and force-includes `<cstdint>` (`-DCMAKE_CXX_FLAGS=-include cstdint`)
@@ -1059,15 +1061,47 @@ reach** — see "Remaining" below.
   floor, clap-wrapper/Steinberg-SDK on MinGW, and the SDK hosting-utilities
   subdir building cleanly with VSTGUI off. Remaining: confirm on a real CI run.
 
+**Fixes from the first real CI runs & editor runtime testing (2026-06-26/27).**
+The CI was exercised and several real defects surfaced and were fixed (all green
+again — `build.sh r m t`: OK(329) + ctest 9/9):
+* **macOS unit tests (IPC large payloads).** `EditorModeTest::testReceivesEngineState`
+  + `IpcTransportTest::testProxySetSongPayload`/`testProxyObjectPayloadCommands`
+  failed on macOS: a synchronous `send()`-then-`receive()` of a payload larger
+  than the socket buffer deadlocks when the peer isn't draining concurrently.
+  macOS's default Unix-socket buffer (~8 KB) is far smaller than a Song/Drumkit
+  XML (~66–76 KB); Linux's ~208 KB hid it. Fix: `IpcChannel` enlarges
+  `SO_SNDBUF`/`SO_RCVBUF` (8 MB, OS-clamped) on Unix so the frame fits in one
+  flush (`src/core/IPC/IpcChannel.cpp`).
+* **Windows build (LV2 smoke host).** Enabling `WANT_LV2` on Windows for the first
+  time compiled `lv2_smoke.cpp`, which used POSIX `<dlfcn.h>` (absent on MinGW).
+  Fix: a cross-platform `dlOpen/dlSym/dlClose` shim (Win32 `LoadLibrary` / POSIX
+  `dlopen`). The rest of `src/plugin` is Qt-based and portable.
+* **`vst3-validate` picked the wrong bundle.** clap-wrapper also emits an example
+  `clapasvst3.vst3` (its `.so` not built); `run_vst3_validator.sh` now matches the
+  specific `Hydrogen.vst3` name (a bare `*.vst3` glob `dlopen`-failed on it).
+* **Linux validator on GCC 13+.** The pinned SDK's `moduleinfo.h` uses `uint32_t`
+  without `<cstdint>`; the helper force-includes it (`-include cstdint`).
+* **`--plugin-editor <bad-endpoint>` segfault (editor mode, Phase 5).** The
+  headless mirror was created with the *Fake* audio driver, which spawns a
+  processing thread; on the failed-connect abort, `main()` freed the Logger while
+  that thread was still logging → use-after-free. Fix:
+  `EditorSession::configureMirrorPreferences()` gives the mirror the passive
+  **Null** driver (no thread), no MIDI, no OSC — shared by `main()` and the tests;
+  the abort path also deletes the engine before the Logger/QApplication. Guarded by
+  `EditorModeTest::testMirrorUsesPassiveAudioDriver` + the `EditorBadEndpoint` ctest.
+* **Reporter treated a clean failed-connect as a crash.** The crash reporter
+  popped "Hydrogen exited abnormally" for any non-zero child exit. Fix:
+  `Reporter::EXIT_CODE_CLEAN_FAILURE` (used by the editor abort) +
+  `Reporter::shouldReportCrash()` — report only actual crashes (`CrashExit`) or
+  *unexpected* non-zero exits. Guarded by the `EditorReporterCleanFailure` ctest.
+
 **Remaining (verification on infrastructure the Linux dev box can't reach — for
 the maintainer to run):**
-1. **A real AppVeyor run** — the single biggest item; it validates everything
-   below at once. Trigger a `*-artifacts` branch (or tag) so the VST3 + packaging
-   paths exercise. Watch the flagged risks: Ubuntu 22.04 CMake (3.22) vs
-   clap-wrapper's floor; clap-wrapper + Steinberg SDK building under **MinGW**
-   (Windows VST3 is unproven); the SDK validator compiling on the CI GCC (the
-   `-include cstdint` fix is in); and the conformance-tool build (cargo/meson)
-   completing in the Linux job.
+1. **An artifact AppVeyor run** (`*-artifacts` branch / tag). The per-commit
+   Linux/macOS/Windows builds + tests now pass (the fixes above); what's still
+   unexercised is the artifact-gated VST3 + packaging path. Watch the flagged
+   risks: Ubuntu 22.04 CMake (3.22) vs clap-wrapper's floor, and clap-wrapper +
+   Steinberg SDK building under **MinGW** (Windows VST3 still unproven).
 2. **macOS `.dmg`** — confirm `build_dmg.sh -p` + `macdeployqt`/`hdiutil` produce a
    working image with the `Plugins/` folder on a real macOS runner.
 3. **Windows VST3** — confirm clap-wrapper's VST3 wrapper builds under MinGW at
@@ -1083,11 +1117,12 @@ the maintainer to run):**
 * Optional CI speed-up: cache the Rust `CARGO_TARGET_DIR` (+PATH) so clap-validator
   builds incrementally instead of recompiling each Linux run.
 
-**Done when:** CLAP/LV2/VST3 all pass validators (✅ Linux; ⏳ confirm in CI);
-installers place bundles correctly (✅ Linux `.tar.xz` + install rules incl. the
-Windows CLAP fix; ⏳ macOS/Windows on a real run, asserted by
-`test_installation.py`); artifacts produced only on tag/`*-artifacts` builds
-(logic in place; ⏳ confirm on a real run).
+**Done when:** CLAP/LV2/VST3 all pass validators (✅ Linux, incl. the
+Steinberg validator 47/47; ⏳ confirm on a CI artifact run); installers place
+bundles correctly (✅ Linux `.tar.xz`; ⏳ macOS `.dmg` + Windows NSIS on an
+artifact run — incl. the Windows CLAP `RUNTIME DESTINATION` to redo); artifacts
+produced only on tag/`*-artifacts` builds (logic in place; ⏳ confirm on a real
+run).
 
 ---
 

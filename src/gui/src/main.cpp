@@ -448,7 +448,10 @@ int main(int argc, char *argv[])
 
 		H2Core::Hydrogen* pHydrogen = nullptr;
 		if ( bEditorMode ) {
-			pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+			// Headless mirror: passive (Null) audio driver, no MIDI, no OSC. It
+			// must not spawn an audio-processing thread (the host engine owns
+			// audio); a thread here would race the teardown below on abort.
+			H2Core::EditorSession::configureMirrorPreferences( pPref );
 			pHydrogen =
 				H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
 			pEditorSession = H2Core::EditorSession::connect(
@@ -457,9 +460,14 @@ int main(int argc, char *argv[])
 				___ERRORLOG( QString( "Unable to attach plugin editor to engine "
 									  "endpoint [%1]. Aborting..." )
 								 .arg( sPluginEditorEndpoint ) );
+				// Stop the engine (joins any driver threads) before tearing down
+				// the QApplication and the Logger those threads log through.
+				delete pHydrogen;
 				delete pQApp;
 				delete H2Core::Logger::get_instance();
-				exit( 1 );
+				// Clean, already-reported failure (not a crash): exit with the
+				// dedicated code so the Reporter does not pop the crash dialog.
+				exit( Reporter::EXIT_CODE_CLEAN_FAILURE );
 			}
 			HydrogenApp::setEditorBootstrap(
 				pHydrogen, pEditorSession->createEngineAccess(), pPref );
