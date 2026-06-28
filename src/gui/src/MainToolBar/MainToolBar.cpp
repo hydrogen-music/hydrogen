@@ -737,18 +737,6 @@ void MainToolBar::playBtnClicked()
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pPref = HydrogenApp::pPreferences();
 
-	// Hint that something is wrong in case there is no proper audio
-	// driver set.
-	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
-		QMessageBox::warning(
-			this, "Hydrogen",
-			QString( "%1\n%2" )
-				.arg( pCommonStrings->getAudioDriverNotPresent() )
-				.arg( pCommonStrings->getAudioDriverErrorHint() )
-		);
-		return;
-	}
-
 	if ( pHydrogen->getAudioEngine()->getState() !=
 		 AudioEngine::State::Playing ) {
 		if ( pPref->getCountIn() ) {
@@ -770,18 +758,6 @@ void MainToolBar::playBtnClicked()
 void MainToolBar::stopBtnClicked()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-
-	// Hint that something is wrong in case there is no proper audio
-	// driver set.
-	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
-		QMessageBox::warning(
-			this, "Hydrogen",
-			QString( "%1\n%2" )
-				.arg( pCommonStrings->getAudioDriverNotPresent() )
-				.arg( pCommonStrings->getAudioDriverErrorHint() )
-		);
-		return;
-	}
 
 	HydrogenApp::pEngine()->sequencerStop();
 	HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );

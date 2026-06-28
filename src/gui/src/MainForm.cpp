@@ -2215,21 +2215,6 @@ void MainForm::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 	}
 }
 	
-bool MainForm::nullDriverCheck() {
-	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
-		QMessageBox::warning(
-			this, "Hydrogen",
-			QString( "%1\n%2" )
-				.arg( pCommonStrings->getAudioDriverNotPresent() )
-				.arg( pCommonStrings->getAudioDriverErrorHint() )
-		);
-		return false;
-	}
-
-	return true;
-}
-
 bool MainForm::handleUnsavedChangesDuringShutdown() {
 	if ( ! m_bUnsavedChangesHandled &&
 		 ( ! HydrogenApp::handleUnsavedChanges( Filesystem::Artifact::Song ) ||
@@ -3330,9 +3315,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 					MidiAction::Type::PlayStopToggle );
 				break;
 			case Shortcuts::Action::PlayPauseToggleAtCursor:
-				if ( nullDriverCheck() ) {
-					startPlaybackAtCursor( pQObject );
-				}
+				startPlaybackAtCursor( pQObject );
 				break;
 				
 			case Shortcuts::Action::RecordReady:

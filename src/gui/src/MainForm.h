@@ -344,8 +344,6 @@ class MainForm :  public QMainWindow,
 	 *   not, it will be passed on to other widgets.
 	 */
 	bool handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent );
-
-	bool nullDriverCheck();
 };
 inline void MainForm::setPreviousAutoSavePlaylistFile( const QString& sFile ) {
 	m_sPreviousAutoSavePlaylistFile = sFile;
