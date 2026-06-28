@@ -152,6 +152,35 @@ if ( UNIX )
 	)
 endif()
 
+# Plugin-editor attach integration test (ADR 0016/0018): the success counterpart
+# to EditorBadEndpoint and GuiStartup. A small host harness stands up the engine
+# exactly as a DAW does — a HydrogenPlugin serving its engine over IPC
+# (EngineSession, production serve path) — then launches the real GUI in
+# out-of-process editor mode (`hydrogen --plugin-editor <endpoint>`) against that
+# live endpoint. With --quit-after-startup the editor connects, builds MainForm
+# over the IPC-backed engine handle, shows the window and quits cleanly; a clean
+# (zero) exit proves the whole spawn->connect->show->teardown chain. The harness
+# links the engine wrapper (hydrogen-plugin) and drives the spawn itself so it can
+# pass --quit-after-startup; the GUI binary is the editor under test.
+add_executable( plugin_editor_smoke PluginEditorSmoke.cpp )
+set_property( TARGET plugin_editor_smoke PROPERTY CXX_STANDARD 17 )
+target_link_libraries( plugin_editor_smoke
+	hydrogen-plugin
+	Qt${QT_VERSION_MAJOR}::Core
+)
+# Needs the GUI binary present (it is the editor that gets spawned).
+add_dependencies( plugin_editor_smoke hydrogen )
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-attach-test-home)
+add_test(
+	NAME EditorAttach
+	COMMAND plugin_editor_smoke $<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( EditorAttach PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-attach-test-home"
+	TIMEOUT 120
+)
+
 # Write-surface guard (ADR 0027, Phase 4.5 step 7): static source check that the
 # GUI does not mutate engine-owned Basics objects directly but routes edits
 # through CoreActionController. Pure source scan; needs no build artefacts.
