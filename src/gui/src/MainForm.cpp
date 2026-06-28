@@ -211,8 +211,13 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 								 .arg( pCommonStrings->getUndoHistoryTitle() ) );
 
 	// Check whether the audio driver could be loaded based on the
-	// content of the config file (ADR 0029).
-	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
+	// content of the config file (ADR 0029). In plugin-editor mode the engine
+	// (and its audio driver) live in the host process; the editor only mirrors
+	// it through a passive driver that never "runs", so this warning does not
+	// apply — and as a *modal* dialog it would block the editor's startup
+	// forever (headless, no user to dismiss it), so the window never appears.
+	if ( ! HydrogenApp::isEditorMode() &&
+		 ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			QString( "%1 [%2]\n%3" )
@@ -2349,8 +2354,12 @@ void MainForm::checkNecessaryDirectories()
 {
 	//Make sure that all directories which are needed by Hydrogen are existing and usable.
 	QString sTempDir = Filesystem::tmpDir();
-	
-	if( !Filesystem::dirWritable(sTempDir))
+
+	// In plugin-editor mode this modal warning would block the editor's startup
+	// forever (headless, no user to dismiss it), so the window never appears —
+	// the same hazard as the audio-driver warning above. Skip it; the editor
+	// shares the host's environment and is not the right place to surface this.
+	if( !HydrogenApp::isEditorMode() && !Filesystem::dirWritable(sTempDir))
 	{
 		QMessageBox::warning( this, "Hydrogen", tr("Could not write to temporary directory %1.").arg(sTempDir) );
 	}
@@ -2573,7 +2582,7 @@ void MainForm::showDevelWarning()
 
 	//set this to 'false' for the case that you want to make a release..
 	if ( H2CORE_IS_DEVEL_BUILD ) {
-		if(isDevelWarningEnabled) {
+		if ( !HydrogenApp::isEditorMode() && isDevelWarningEnabled ) {
 			auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
