@@ -309,6 +309,8 @@ All notable changes to this project will be documented in this file.
   frame accurate (#535).
 - Support samples of arbitrary length.
 - Persist interpolation mode in preferences.
+- Hydrogen is can now be run with MIDI-drivers only or neither audio nor MIDI
+  drivers at all (#1505).
 
 ### Removed
 
