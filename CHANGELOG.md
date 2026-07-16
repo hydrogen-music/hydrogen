@@ -35,9 +35,10 @@ All notable changes to this project will be documented in this file.
 - Online drumkit download from SourceForge when compiled with Qt6 (none of our
   release artifacts).
 - Segfault on Port-MIDI host error by @rrrapha.
-- Fix linker error on OpenBSD by @rrrapha.
+- Fixed linker error on OpenBSD by @rrrapha.
 - Fixed performance issue when using JACK audio with rubberband.
 - Parameter loss in the MIDI table within the preferences (#2328).
+- Fixed XDG app ID by @City-busz.
 
 ## [1.2.6] - 2025-07-29
 
