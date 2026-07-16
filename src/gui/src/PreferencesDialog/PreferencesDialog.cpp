@@ -2403,10 +2403,13 @@ void PreferencesDialog::updateAppearanceTab( const std::shared_ptr<H2Core::Theme
 		}
 	}
 
-	// Fonts
-	applicationFontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sApplicationFontFamily ) );
-	level2FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel2FontFamily ) );
-	level3FontComboBox->setCurrentFont( QFont( pTheme->getFontTheme()->m_sLevel3FontFamily ) );
+	// Font families are now validated by Preferences::getApplicationFontFamily() et al.
+	// which fall back to the system default if the stored family is not available.
+	auto pPref = Preferences::get_instance();
+	applicationFontComboBox->setCurrentFont( QFont( pPref->getApplicationFontFamily() ) );
+	level2FontComboBox->setCurrentFont( QFont( pPref->getLevel2FontFamily() ) );
+	level3FontComboBox->setCurrentFont( QFont( pPref->getLevel3FontFamily() ) );
+
 	switch( pTheme->getFontTheme()->m_fontSize ) {
 	case FontTheme::FontSize::Small:
 		fontSizeComboBox->setCurrentIndex( 0 );

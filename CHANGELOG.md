@@ -22,6 +22,10 @@ All notable changes to this project will be documented in this file.
   tempo changes via keyboard shortcuts, MIDI, or OSC commands as well as
   Beat Counter and Tap Tempo are now discarded.
 - Big update of the `hydrogen` man page.
+- Instead of using the raw font family names of the config file, they are
+  validated first and might trigger a fallback to a safer font. This was done to
+  prevent crashes of `libfontconfig` on Linux (#2343).
+- Default font was changed to "Sans Serif" (#2343).
 
 ### Fixed
 
