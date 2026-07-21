@@ -54,6 +54,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QThread>
 
 #include <iostream>
 
@@ -70,11 +71,18 @@ static int fail( const QString& sMsg ) {
 int main( int argc, char** argv ) {
 	if ( argc < 3 ) {
 		std::cerr << "usage: " << argv[0]
-				  << " <hydrogen-binary> <data-dir>" << std::endl;
+				  << " <hydrogen-binary> <data-dir> [--plugin-launch]\n"
+				  << "  (default)        host serves + we spawn the editor with "
+					 "--quit-after-startup (the EditorAttach CTest)\n"
+				  << "  --plugin-launch  drive the plugin's OWN spawn path "
+					 "(launchEditorProcess), as a DAW does — diagnostic only"
+				  << std::endl;
 		return 2;
 	}
 	const QString sEditorBinary = QString::fromLocal8Bit( argv[1] );
 	const QString sDataDir = QString::fromLocal8Bit( argv[2] );
+	const bool bPluginLaunch =
+		argc >= 4 && QString::fromLocal8Bit( argv[3] ) == "--plugin-launch";
 
 	// QProcess and the IPC local sockets both need a QCoreApplication in the
 	// process. We never run its event loop: the EngineSession serve loop lives on
@@ -94,6 +102,45 @@ int main( int argc, char** argv ) {
 	// production serve path: EngineSession::start() binds the endpoint on a bridge
 	// thread.
 	H2Core::HydrogenPlugin plugin( 44100, 1024, 0 );
+
+	// ── Diagnostic mode: exercise the plugin's OWN spawn path ────────────────
+	// `--plugin-launch` runs exactly what guiShow/uiShow do in a DAW:
+	// openEditor(true) → launchEditorProcess() resolves the editor binary and
+	// QProcess-spawns it. This is where the real-world "editor never opens"
+	// failures live (binary not found, no exec permission, host sandbox). The
+	// [hydrogen-plugin] trace reports each step. Not the CTest (the spawned
+	// editor has no --quit-after-startup), so we close it once it is up.
+	if ( bPluginLaunch ) {
+		// Pin to the built GUI unless the user is deliberately testing binary
+		// resolution via $HYDROGEN_EDITOR_PATH (then let resolveEditorBinary use
+		// it — e.g. point it at a bad path to see the failure trace).
+		if ( ! qEnvironmentVariableIsSet( "HYDROGEN_EDITOR_PATH" ) ) {
+			plugin.setEditorBinary( sEditorBinary );
+		}
+		std::cout << "host: openEditor(true) — letting the plugin spawn the editor"
+				  << std::endl;
+		if ( ! plugin.openEditor( /*bLaunchProcess=*/true ) ) {
+			return fail( "openEditor(true) returned false "
+						 "(see the [hydrogen-plugin] trace above)" );
+		}
+		// Pump our event loop so QProcess started/errorOccurred/finished signals
+		// fire while we wait for the spawn + connect.
+		bool bRunning = false;
+		for ( int ii = 0; ii < 30 && ! bRunning; ++ii ) {
+			app.processEvents();
+			bRunning = plugin.isEditorProcessRunning();
+			QThread::msleep( 100 );
+		}
+		std::cout << "host: editor process running = "
+				  << ( bRunning ? "yes" : "no" ) << std::endl;
+		QThread::msleep( 300 );
+		plugin.closeEditor();
+		return bRunning
+			? 0
+			: fail( "the plugin did not spawn a running editor process "
+					"(see the [hydrogen-plugin] trace for why)" );
+	}
+
 	if ( ! plugin.openEditor( /*bLaunchProcess=*/false ) ) {
 		return fail( "engine could not start serving the editor IPC endpoint" );
 	}
