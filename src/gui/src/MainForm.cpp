@@ -217,6 +217,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	// apply — and as a *modal* dialog it would block the editor's startup
 	// forever (headless, no user to dismiss it), so the window never appears.
 	if ( ! HydrogenApp::isEditorMode() &&
+		 ! HydrogenApp::pHydrogen()->isUnderPluginHost() &&
 		 ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
@@ -2359,7 +2360,9 @@ void MainForm::checkNecessaryDirectories()
 	// forever (headless, no user to dismiss it), so the window never appears —
 	// the same hazard as the audio-driver warning above. Skip it; the editor
 	// shares the host's environment and is not the right place to surface this.
-	if( !HydrogenApp::isEditorMode() && !Filesystem::dirWritable(sTempDir))
+	if( !HydrogenApp::isEditorMode() &&
+		!HydrogenApp::pHydrogen()->isUnderPluginHost() &&
+		!Filesystem::dirWritable(sTempDir))
 	{
 		QMessageBox::warning( this, "Hydrogen", tr("Could not write to temporary directory %1.").arg(sTempDir) );
 	}
