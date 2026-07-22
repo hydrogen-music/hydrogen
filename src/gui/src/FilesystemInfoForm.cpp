@@ -23,7 +23,6 @@
 #include <QDesktopServices>
 
 #include "FilesystemInfoForm.h"
-#include "ui_FilesystemInfoForm_UI.h"
 #include "HydrogenApp.h"
 #include "Skin.h"
 
@@ -31,11 +30,9 @@
 #include "core/Preferences/Preferences.h"
 
 FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
-	QWidget( parent ),
-	H2Core::Object<FilesystemInfoForm>(),
-	ui(new Ui::FilesystemInfoForm)
+	QWidget( parent )
 {
-	ui->setupUi(this);
+	setupUi( this );
 
 	const auto pPref = HydrogenApp::pPreferences();
 	QString sIconPath( Skin::getSvgImagePath() );
@@ -49,27 +46,26 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 	const QColor windowColor = pPref->getColorTheme()->m_windowColor;
 	const QColor windowTextColor = pPref->getColorTheme()->m_windowTextColor;
 
-	ui->tmpDirWarningButton->setIcon( QIcon( sIconPath + "warning.svg" ) );
-	ui->tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );
-	ui->tmpDirWarningButton->setType( Button::Type::Icon );
-	ui->tmpDirWarningButton->setSize( QSize( 16, 14 ) );
+	tmpDirWarningButton->setIcon( QIcon( sIconPath + "warning.svg" ) );
+	tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );
+	tmpDirWarningButton->setType( Button::Type::Icon );
+	tmpDirWarningButton->setSize( QSize( 16, 14 ) );
 	
-	ui->tmpDirLineEdit->setReadOnly( true );
+	tmpDirLineEdit->setReadOnly( true );
 	
-	ui->usrDataDirWarningButton->setIcon( QIcon( sIconPath + "warning.svg" ) );
-	ui->usrDataDirWarningButton->setToolTip( tr( "User data folder is not writable!" ) );
-	ui->usrDataDirWarningButton->setType( Button::Type::Icon );
-	ui->usrDataDirWarningButton->setSize( QSize( 16, 14 ) );
+	usrDataDirWarningButton->setIcon( QIcon( sIconPath + "warning.svg" ) );
+	usrDataDirWarningButton->setToolTip( tr( "User data folder is not writable!" ) );
+	usrDataDirWarningButton->setType( Button::Type::Icon );
+	usrDataDirWarningButton->setSize( QSize( 16, 14 ) );
 	
-	ui->usrDataDirLineEdit->setReadOnly( true );
-	ui->sysDataDirLineEdit->setReadOnly( true );
+	usrDataDirLineEdit->setReadOnly( true );
+	sysDataDirLineEdit->setReadOnly( true );
 	
 	updateInfo();
 }
 
 FilesystemInfoForm::~FilesystemInfoForm()
 {
-	delete ui;
 }
 
 void FilesystemInfoForm::showEvent ( QShowEvent* )
@@ -82,26 +78,26 @@ void FilesystemInfoForm::updateInfo()
 	const QString usrDataDir = H2Core::Filesystem::userDataPath();
 	const QString sysDataDir = H2Core::Filesystem::systemDataPath();
 	
-	ui->tmpDirLineEdit->setText( tmpDir);
-	ui->tmpDirLineEdit->setToolTip( tmpDir );
+	tmpDirLineEdit->setText( tmpDir);
+	tmpDirLineEdit->setToolTip( tmpDir );
 	
 	if(!H2Core::Filesystem::dirWritable( tmpDir, true)) {
-		ui->tmpDirWarningButton->show();
+		tmpDirWarningButton->show();
 	} else {
-		ui->tmpDirWarningButton->hide();
+		tmpDirWarningButton->hide();
 	}
 	
-	ui->usrDataDirLineEdit->setText( usrDataDir );
-	ui->usrDataDirLineEdit->setToolTip( usrDataDir );
+	usrDataDirLineEdit->setText( usrDataDir );
+	usrDataDirLineEdit->setToolTip( usrDataDir );
 	
 	if(!H2Core::Filesystem::dirWritable( usrDataDir, true)) {
-		ui->usrDataDirWarningButton->show();
+		usrDataDirWarningButton->show();
 	} else {
-		ui->usrDataDirWarningButton->hide();
+		usrDataDirWarningButton->hide();
 	}
 	
-	ui->sysDataDirLineEdit->setText( sysDataDir );
-	ui->sysDataDirLineEdit->setToolTip( sysDataDir );
+	sysDataDirLineEdit->setText( sysDataDir );
+	sysDataDirLineEdit->setToolTip( sysDataDir );
 	
 	//System data dir is not writable for the user, so no warning here...
 }

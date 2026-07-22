@@ -26,12 +26,10 @@
 #include <QWidget>
 #include "core/Object.h"
 
-namespace Ui {
-class FilesystemInfoForm;
-}
+#include "ui_FilesystemInfoForm_UI.h"
 
 /** \ingroup docGUI docDebugging*/
-class FilesystemInfoForm :  public QWidget,  public H2Core::Object<FilesystemInfoForm>
+class FilesystemInfoForm :  public QWidget, public Ui_FilesystemInfoForm, public H2Core::Object<FilesystemInfoForm>
 {
 	H2_OBJECT(FilesystemInfoForm)
 	Q_OBJECT
@@ -41,8 +39,6 @@ public:
 	~FilesystemInfoForm();
 	
 private:
-	Ui::FilesystemInfoForm *ui;
-	
 	void updateInfo();
 
 private slots:
