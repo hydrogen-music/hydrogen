@@ -75,6 +75,40 @@ features or refactor code.
 
 2. You can reference the github issue number in your pull request if you want to fix a bug which is already known in our bugtracker
 
+## Notes on Plugin Release
+
+Our plugin release should be build of the release tags.
+
+But this is not done within our AppVeyor Pipeline. The reason for this is our
+underlying Qt toolkit. Although the plugin is a headless version of the Hydrogen
+engine starting the GUI in an external process, it still uses some parts of the
+Qt library. In case the version between plugin and host (or another plugin)
+mismatch, e.g. Qt5 and Qt6, the host process would crash due to a symbol clash.
+In order to prevent you must build Qt locally and static with a dedicated
+namespace derived from the release version.
+
+```bash
+# For the Hydrogen X.Y.Z release, download qt and build it using. In Qt tree
+./configure -static -qtnamespace H2_X_Y_Z -prefix /tmp/qt-static -release
+cmake --build . --parallel
+cmake --build . --target install
+```
+
+With this in place you have to rebuild Hydrogen.
+
+```bash
+# In Hydrogen tree
+mkdir build-static
+cd build-static
+cmake .. -DWANT_CLAP=1 -DWANT_LV2=1 -DWANT_VST3=1 -DCMAKE_PREFIX_PATH=/tmp/qt-static
+make -j $(nproc)
+```
+
+Since we already maxed out our cache usage within AppVeyor, we can not build a
+static version of Qt in there without wasting too much resources.
+
+**Attention**: Only the plugins are built with static Qt. The `hydrogen` binary must
+not be built statically!
 
 ## Making A Release
 
