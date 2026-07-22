@@ -28,7 +28,9 @@
 #include <future>
 #include <memory>
 
+QT_BEGIN_NAMESPACE
 class QThread;
+QT_END_NAMESPACE
 
 namespace H2Core {
 

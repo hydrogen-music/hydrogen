@@ -40,7 +40,9 @@
 
 class HydrogenApp;
 class InfoBar;
+QT_BEGIN_NAMESPACE
 class QUndoView;///debug only
+QT_END_NAMESPACE
 
 namespace H2Core {
 	class Drumkit;

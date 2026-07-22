@@ -31,9 +31,11 @@
 #include <QUrl>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
 class QNetworkReply;
 class QTimer;
+QT_END_NAMESPACE
 
 namespace H2Core {
 

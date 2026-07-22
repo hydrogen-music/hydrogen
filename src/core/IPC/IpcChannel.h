@@ -29,7 +29,9 @@
 
 #include <queue>
 
+QT_BEGIN_NAMESPACE
 class QLocalSocket;
+QT_END_NAMESPACE
 
 namespace H2Core {
 

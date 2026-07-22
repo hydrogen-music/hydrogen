@@ -28,7 +28,9 @@
 
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
 class QProcess;
+QT_END_NAMESPACE
 
 namespace H2Core {
 

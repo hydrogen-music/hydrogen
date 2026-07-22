@@ -31,6 +31,7 @@
 #include <QSortFilterProxyModel>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -40,6 +41,7 @@ class QPushButton;
 class QTableView;
 class QToolButton;
 class QWidget;
+QT_END_NAMESPACE
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OnlineArtifactTableModel

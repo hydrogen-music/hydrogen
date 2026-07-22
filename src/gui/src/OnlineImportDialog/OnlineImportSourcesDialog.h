@@ -26,8 +26,10 @@
 #include <QDialog>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
 class QPushButton;
 class QTableWidget;
+QT_END_NAMESPACE
 
 /**
  * Dialog for managing online import source URLs.
