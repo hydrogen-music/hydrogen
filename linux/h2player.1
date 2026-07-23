@@ -1,22 +1,67 @@
-.TH H2PLAYER "1" "October 17, 2025" "Hydrogen 2.0.0-pre-alpha" "User Commands"
+.TH H2PLAYER "1" "July 23, 2026" "Hydrogen 2.0.0-pre-alpha" "User Commands"
 .SH NAME
-h2player \- a CLI player for \fBHydrogen\fR songs.
+h2player \- headless Hydrogen song player with IPC server
 .SH SYNOPSIS
 .PP
-\fBh2player\fR \fI*.h2song\fR
+\fBh2player\fR [\fIOPTIONS\fR] \fI*.h2song\fR
 .SH DESCRIPTION
 .PP
 \fBh2player\fR can play a song created with \fBHydrogen\fR without starting its
-GUI. It does not support any options but can be controlled via keyboard inputs
-while running.
+GUI. By default, it starts an IPC server that allows the Hydrogen GUI to
+connect and control playback remotely. The GUI can be attached manually using
+the \fBhydrogen -c\fR command.
 .PP
 You start \fBh2player\fR using a particular song file. It will use all its
-solo/mute settings as well as audio driver and transport settings from your last
-Hydrogen session. If you do not hear any sounds, make sure you get some when
-opening the song in plain Hydrogen and hitting play right away.
+solo/mute settings as well as transport settings from your last Hydrogen
+session.
+.SH MODES
+.TP
+\fBDefault mode\fR
+Starts IPC server and prints connection information. The Hydrogen GUI can be
+connected manually using the \fBhydrogen -c\fR command. Runs an event loop to
+handle IPC communication.
+.TP
+\fBInteractive mode\fR (\fB--interactive\fR)
+Keyboard-controlled mode with simple commands: play (p), stop (s), rewind (b),
+show frame (f), debug (d), quit (q). Can be combined with IPC server for
+simultaneous keyboard and GUI control.
+.TP
+\fBNo-IPC mode\fR (\fB--no-ipc\fR)
+Disables IPC server for pure headless operation. Useful for automation and
+testing where no external control is needed.
+.SH OPTIONS
+.TP
+\fB\-i\fR, \fB\-\-interactive\fR
+Enable keyboard-interactive mode.
+.TP
+\fB\-n\fR, \fB\-\-no-ipc\fR
+Disable IPC server (pure headless mode).
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display help message and exit.
+.SH IPC CONNECTION
 .PP
-While running, the application can be controlled using your keyboard. Typing one
-of the characters below will result in the following actions:
+By default, h2player starts an IPC server and prints connection information:
+.PP
+.nf
+  ========================================
+  IPC Server Started
+  ========================================
+  Endpoint: hydrogen-headless-1234-0
+
+  To connect the Hydrogen GUI, run:
+    hydrogen -c hydrogen-headless-1234-0
+    hydrogen --connect-via-ipc hydrogen-headless-1234-0
+
+  Press Ctrl+C to stop the server
+  ========================================
+.fi
+.PP
+To connect the GUI, run the displayed command in another terminal. The GUI will
+attach to the running h2player instance and provide full visual control.
+.SH KEYBOARD COMMANDS
+.PP
+In interactive mode, the following keyboard commands are available:
 .IP
 .B b
 \- Rewind to the beginning of the song.
@@ -27,11 +72,53 @@ of the characters below will result in the following actions:
 .B s
 \- Stop playback.
 .IP
-.B q
-\- Quit h2player.
-.IP
 .B f
 \- Show the current transport position in frames.
+.IP
+.B d
+\- Show debug information (object count).
+.IP
+.B q
+\- Quit h2player.
+.SH EXIT STATUS
+.TP
+0
+Success.
+.TP
+1
+Command-line syntax error.
+.TP
+2
+Song file loading error.
+.SH EXAMPLES
+.PP
+Start h2player with IPC server (default):
+.RS
+.PP
+h2player mysong.h2song
+.RE
+.PP
+Start h2player in interactive mode:
+.RS
+.PP
+h2player mysong.h2song --interactive
+.RE
+.PP
+Start h2player without IPC server:
+.RS
+.PP
+h2player mysong.h2song --no-ipc
+.RE
+.PP
+Connect GUI to running h2player:
+.RS
+.PP
+# In terminal 1:
+h2player mysong.h2song
+.PP
+# In terminal 2:
+hydrogen -c <endpoint-from-terminal-1>
+.RE
 .SH FILES
 For a comprehensive list of files, configuration, and environmental variables, please see the man page of \fBhydrogen\fR itself.
 .SH BUGS & FEATURES REQUEST

@@ -60,6 +60,8 @@ All notable changes to this project will be documented in this file.
   - `--online-import <url>`: to download all artifacts from an online index.
   - `--online-import-type <type>`:  to filter by `pattern`, `song`, `drumkit`,
 	or `all`.
+  - `-c/--connect-via-ipc <endpoint>`: start GUI instance without drivers and
+    connect to a headless instance instead.
 - Patterns are now independent of Drumkits and the latter can switched without
   the need to adjust the patterns. Mapping between the two will be done using
   "instrument types".
@@ -103,6 +105,13 @@ All notable changes to this project will be documented in this file.
 - Changes in the Sample Editor can now be undone.
 - Hydrogen does now ship 267 example patterns (1.9MB).
 - All user interaction in the mixer can now be undone/redone (#1374).
+- `h2player` now automatically starts an IPC server by default, allowing the
+  Hydrogen GUI to connect and control playback remotely using `hydrogen -c
+  <endpoint>`.
+- `h2player` `--no-ipc` option to disable the IPC server for pure headless
+  mode.
+- `h2player` `--interactive` flag for keyboard-controlled mode (can be combined
+  with IPC server for simultaneous keyboard and GUI control).
 
 ### Changed
 
