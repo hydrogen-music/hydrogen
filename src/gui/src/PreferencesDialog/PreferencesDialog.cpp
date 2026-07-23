@@ -689,7 +689,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// the host provides, but cannot be edited here (editing would not reach the
 	// host-driven engine, and these fields are excluded from the editor's config
 	// override layer anyway; see PluginConfig::isOverridePath).
-	if ( HydrogenApp::isEditorMode() ) {
+	if ( HydrogenApp::isConnectViaIpcMode() ) {
 		const QList<QWidget*> hostOwnedWidgets = {
 			// Audio driver, device, sample rate / buffer size, and JACK options
 			driverComboBox, portaudioHostAPIComboBox, m_pAudioDeviceTxt,

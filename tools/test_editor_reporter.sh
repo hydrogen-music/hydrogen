@@ -1,7 +1,7 @@
 #!/bin/sh
 # Regression test for the crash Reporter vs. a clean editor failed-connect.
 #
-# `hydrogen --plugin-editor <endpoint>` (NO --child) runs through the crash
+# `hydrogen --connect-via-ipc <endpoint>` (NO --child) runs through the crash
 # Reporter, which re-spawns the real app as a child and watches it. When the
 # editor cannot reach its engine endpoint it aborts cleanly with
 # Reporter::EXIT_CODE_CLEAN_FAILURE — a NORMAL exit, not a crash. The Reporter
@@ -40,7 +40,7 @@ if [ -z "$BIN" ] || [ -z "$DATA" ]; then
 fi
 
 timeout 30 "$BIN" --nosplash \
-	--plugin-editor h2-nonexistent-editor-endpoint-for-test \
+	--connect-via-ipc h2-nonexistent-editor-endpoint-for-test \
 	-P "$DATA" >/dev/null 2>&1
 EC=$?
 

@@ -1,7 +1,7 @@
 #!/bin/sh
-# Regression test for the --plugin-editor bootstrap (ADR 0016).
+# Regression test for the --connect-via-ipc bootstrap (ADR 0016).
 #
-# `hydrogen --plugin-editor <endpoint>` starts the out-of-process editor, which
+# `hydrogen --connect-via-ipc <endpoint>` starts the out-of-process editor, which
 # connects to the engine over IPC. When the endpoint has no engine listening, the
 # editor must abort cleanly. Historically it segfaulted: the headless mirror was
 # created with the *Fake* audio driver, which spawns a processing thread that
@@ -43,7 +43,7 @@ if [ -z "$BIN" ] || [ -z "$DATA" ]; then
 fi
 
 OUT=$( "$BIN" --nosplash --child \
-		--plugin-editor h2-nonexistent-editor-endpoint-for-test \
+		--connect-via-ipc h2-nonexistent-editor-endpoint-for-test \
 		-P "$DATA" 2>&1 )
 EC=$?
 

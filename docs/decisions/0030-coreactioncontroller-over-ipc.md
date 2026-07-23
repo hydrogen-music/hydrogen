@@ -157,3 +157,8 @@ command) — the cost option 4 was rejected to preserve. Args reuse the existing
   `src/core/IPC/IpcMessage.h` (`IpcOpcode`), `src/core/IPC/IpcChannel.{h,cpp}`.
 * Plan: [proposal 0004 §9](/docs/proposals/0004-plugin-port-implementation-plan.md)
   (T5.2-cont / T5.3 / T5.4).
+
+## Addition 2026-07-23
+
+* The CLI option `--plugin-editor` was renamed to `--connect-via-ipc`.
+* The unit test `EditorModeTest.cpp` was renamed to `ConnectViaIpcModeTest.cpp`.

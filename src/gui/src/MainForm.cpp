@@ -216,7 +216,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	// it through a passive driver that never "runs", so this warning does not
 	// apply — and as a *modal* dialog it would block the editor's startup
 	// forever (headless, no user to dismiss it), so the window never appears.
-	if ( ! HydrogenApp::isEditorMode() &&
+	if ( ! HydrogenApp::isConnectViaIpcMode() &&
 		 ! HydrogenApp::pHydrogen()->isUnderPluginHost() &&
 		 ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		QMessageBox::warning(
@@ -2360,7 +2360,7 @@ void MainForm::checkNecessaryDirectories()
 	// forever (headless, no user to dismiss it), so the window never appears —
 	// the same hazard as the audio-driver warning above. Skip it; the editor
 	// shares the host's environment and is not the right place to surface this.
-	if( !HydrogenApp::isEditorMode() &&
+	if( !HydrogenApp::isConnectViaIpcMode() &&
 		!HydrogenApp::pHydrogen()->isUnderPluginHost() &&
 		!Filesystem::dirWritable(sTempDir))
 	{
@@ -2585,7 +2585,7 @@ void MainForm::showDevelWarning()
 
 	//set this to 'false' for the case that you want to make a release..
 	if ( H2CORE_IS_DEVEL_BUILD ) {
-		if ( !HydrogenApp::isEditorMode() && isDevelWarningEnabled ) {
+		if ( !HydrogenApp::isConnectViaIpcMode() && isDevelWarningEnabled ) {
 			auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );

@@ -233,3 +233,8 @@ Negative / risks:
   config; driver stays engine-side), [ADR 0030](0030-coreactioncontroller-over-ipc.md)
   (dual-apply on the mirror).
 * Implementation phasing to be tracked in proposal 0004 (the plugin-port plan).
+
+## Addition 2026-07-23
+
+* The CLI option `--plugin-editor` was renamed to `--connect-via-ipc`.
+* The unit test `EditorModeTest.cpp` was renamed to `ConnectViaIpcModeTest.cpp`.

@@ -119,12 +119,12 @@ set_tests_properties( GuiStartup PROPERTIES
 	TIMEOUT 120
 )
 
-# Editor-mode abort smoke test (ADR 0016): `hydrogen --plugin-editor <endpoint>`
-# against an endpoint with no engine must abort cleanly (exit 1), NOT crash, and
-# must not run an audio-processing thread on the mirror (the regression that
-# segfaulted via a Logger use-after-free). The wrapper asserts both. Shell script
-# → Unix only, like WriteSurfaceGuard. (The deterministic unit-level guard is
-# EditorModeTest::testMirrorUsesPassiveAudioDriver.)
+# Connect-via-IPC mode abort smoke test (ADR 0016): `hydrogen --connect-via-ipc
+# <endpoint>` against an endpoint with no engine must abort cleanly (exit 1),
+# NOT crash, and must not run an audio-processing thread on the mirror (the
+# regression that segfaulted via a Logger use-after-free). The wrapper asserts
+# both. Shell script → Unix only, like WriteSurfaceGuard. (The deterministic
+# unit-level guard is ConnectViaIpcModeTest::testMirrorUsesPassiveAudioDriver.)
 if ( UNIX )
 	# 3 = Reporter::EXIT_CODE_CLEAN_FAILURE (the editor's clean "couldn't connect"
 	# abort code). Passed to the wrappers so the shell and C++ stay in sync.
@@ -152,11 +152,11 @@ if ( UNIX )
 	)
 endif()
 
-# Plugin-editor attach integration test (ADR 0016/0018): the success counterpart
+# Connect-via-IPC attach integration test (ADR 0016/0018): the success counterpart
 # to EditorBadEndpoint and GuiStartup. A small host harness stands up the engine
 # exactly as a DAW does — a HydrogenPlugin serving its engine over IPC
 # (EngineSession, production serve path) — then launches the real GUI in
-# out-of-process editor mode (`hydrogen --plugin-editor <endpoint>`) against that
+# out-of-process editor mode (`hydrogen --connect-via-ipc <endpoint>`) against that
 # live endpoint. With --quit-after-startup the editor connects, builds MainForm
 # over the IPC-backed engine handle, shows the window and quits cleanly; a clean
 # (zero) exit proves the whole spawn->connect->show->teardown chain. The harness

@@ -19,7 +19,7 @@
  *
  */
 
-#include "EditorModeTest.h"
+#include "ConnectViaIpcModeTest.h"
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
@@ -77,9 +77,9 @@ Hydrogen* makeMirrorEngine() {
 
 } // namespace
 
-// --plugin-editor <endpoint>: the editor attaches to the engine's control socket
+// --connect-via-ipc <endpoint>: the editor attaches to the engine's control socket
 // and announces itself with a hello (ADR 0016/0018).
-void EditorModeTest::testAttachesToEngineEndpoint() {
+void ConnectViaIpcModeTest::testAttachesToEngineEndpoint() {
 	___INFOLOG( "" );
 
 	IpcServer server;
@@ -106,7 +106,7 @@ void EditorModeTest::testAttachesToEngineEndpoint() {
 
 // A bad endpoint fails gracefully (nullptr), so main() can abort with a message
 // instead of building a half-wired GUI.
-void EditorModeTest::testFailedConnectionReported() {
+void ConnectViaIpcModeTest::testFailedConnectionReported() {
 	___INFOLOG( "" );
 
 	auto* pMirror = makeMirrorEngine();
@@ -124,10 +124,10 @@ void EditorModeTest::testFailedConnectionReported() {
 // engine — so the local transport / playing-pattern display can advance — but
 // produces no audio (producesAudio == false). This replaces both the old Fake
 // driver (real scratch output) and the inert Null driver (no clock → frozen
-// transport). Crash-safety on the --plugin-editor abort no longer relies on
+// transport). Crash-safety on the --connect-via-ipc abort no longer relies on
 // avoiding a thread: the driver's clock thread is joined in its destructor and
 // the engine is torn down before the Logger.
-void EditorModeTest::testMirrorUsesHeadlessDriver() {
+void ConnectViaIpcModeTest::testMirrorUsesHeadlessDriver() {
 	___INFOLOG( "" );
 
 	auto* pMirror = makeMirrorEngine();
@@ -150,7 +150,7 @@ void EditorModeTest::testMirrorUsesHeadlessDriver() {
 
 // Inbound engine state (song snapshot + events) is applied to the mirror, where
 // the GUI would read it locally.
-void EditorModeTest::testReceivesEngineState() {
+void ConnectViaIpcModeTest::testReceivesEngineState() {
 	___INFOLOG( "" );
 
 	IpcServer server;
@@ -200,7 +200,7 @@ void EditorModeTest::testReceivesEngineState() {
 
 // The GUI's engine-access handle forwards commands over the channel to the
 // engine (here, the server end).
-void EditorModeTest::testIssuesCommands() {
+void ConnectViaIpcModeTest::testIssuesCommands() {
 	___INFOLOG( "" );
 
 	IpcServer server;
@@ -231,7 +231,7 @@ void EditorModeTest::testIssuesCommands() {
 
 // The engine keeps running when the editor disconnects/crashes: tearing down the
 // session closes only the editor's end; the engine's server + connection survive.
-void EditorModeTest::testEngineSurvivesEditorDisconnect() {
+void ConnectViaIpcModeTest::testEngineSurvivesEditorDisconnect() {
 	___INFOLOG( "" );
 
 	IpcServer server;
@@ -267,7 +267,7 @@ void EditorModeTest::testEngineSurvivesEditorDisconnect() {
 // editor can attach knowing only the endpoint it connected to. A stopped engine
 // reports playing == 0 with a valid (> 0) BPM; the snapshot round-trips through the
 // shared block.
-void EditorModeTest::testEngineBuildsTransportSnapshot() {
+void ConnectViaIpcModeTest::testEngineBuildsTransportSnapshot() {
 	___INFOLOG( "" );
 
 	auto* pEngine = makeMirrorEngine(); // a headless engine stands in for the host
@@ -303,7 +303,7 @@ void EditorModeTest::testEngineBuildsTransportSnapshot() {
 // state, adopts the host tempo, and snaps to the host frame (exactly when stopped;
 // on a large divergence while rolling). The mirror never initiates transport
 // itself (ADR 0026), it only follows.
-void EditorModeTest::testMirrorFollowsTransportTelemetry() {
+void ConnectViaIpcModeTest::testMirrorFollowsTransportTelemetry() {
 	___INFOLOG( "" );
 
 	auto* pMirror = makeMirrorEngine();

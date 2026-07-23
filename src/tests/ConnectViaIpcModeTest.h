@@ -19,15 +19,15 @@
  *
  */
 
-#ifndef H2C_EDITOR_MODE_TEST_H
-#define H2C_EDITOR_MODE_TEST_H
+#ifndef H2C_CONNECT_VIA_IPC_MODE_TEST_H
+#define H2C_CONNECT_VIA_IPC_MODE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <core/Object.h>
 
-class EditorModeTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( EditorModeTest );
+class ConnectViaIpcModeTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( ConnectViaIpcModeTest );
 	CPPUNIT_TEST( testAttachesToEngineEndpoint );
 	CPPUNIT_TEST( testFailedConnectionReported );
 	CPPUNIT_TEST( testMirrorUsesHeadlessDriver );

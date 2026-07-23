@@ -103,7 +103,7 @@ public:
 	// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────
 	/** Open the editor for this instance: start serving the engine over IPC
 	 * (#EngineSession) and, when @a bLaunchProcess, spawn the editor process
-	 * `hydrogen --plugin-editor <endpoint>`. Idempotent; returns false only if the
+	 * `hydrogen --connect-via-ipc <endpoint>`. Idempotent; returns false only if the
 	 * serve loop could not bind. @a bLaunchProcess == false starts serving without
 	 * spawning (used by tests, which act as the editor themselves). */
 	bool openEditor( bool bLaunchProcess = true );

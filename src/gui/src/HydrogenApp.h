@@ -124,11 +124,11 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 * the engine lives. */
 		static H2Core::IEngineAccess* pEngine();
 
-		/** True when the GUI runs as the out-of-process editor attached to an
-		 * engine in a plugin host (started via `--plugin-editor`, injected through
-		 * setEditorBootstrap()); false in standalone. Used to present host-owned
-		 * configuration (audio/MIDI driver, JACK, OSC) read-only (ADR 0016/0022). */
-		static bool isEditorMode() { return m_bEditorMode; }
+		/** True when the GUI connects to a headless engine via IPC (started via
+		 * `-c/--connect-via-ipc`, injected through setEditorBootstrap()); false in
+		 * standalone. Used to present host-owned configuration (audio/MIDI driver,
+		 * JACK, OSC) read-only (ADR 0016/0022/0032). */
+		static bool isConnectViaIpcMode() { return m_bConnectViaIpcMode; }
 
 		/** Injects the engine + preferences handles used by the static accessors
 		 * during early startup, before HydrogenApp exists. main() calls this with
@@ -141,7 +141,7 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		 * @a pMirror (the GUI reads its live objects) together with a pre-built
 		 * IPC-backed engine-access handle @a pEngineAccess (writes are forwarded to
 		 * the authoritative engine in the plugin host). Used by main() in place of
-		 * setBootstrap() when started with `--plugin-editor`; takes ownership of the
+		 * setBootstrap() when started with `--connect-via-ipc`; takes ownership of the
 		 * access handle, and (like standalone) of the mirror engine. */
 		static void setEditorBootstrap(
 			H2Core::Hydrogen* pMirror,
@@ -292,8 +292,8 @@ signals:
 		 * setBootstrap() once the engine exists. Editor mode (P5): an IPC-backed
 		 * IpcEngineAccess injected by setEditorBootstrap(). */
 		static std::unique_ptr<H2Core::IEngineAccess> m_pEngineAccess;
-		/** Set once by setEditorBootstrap(); backs isEditorMode(). */
-		static bool m_bEditorMode;
+		/** Set once by setEditorBootstrap(); backs isConnectViaIpcMode(). */
+		static bool m_bConnectViaIpcMode;
 
 		/** Used for accessibility reasons to show scroll bars in case Hydrogen
 		 * has to be shrunk below its minimum size - magnified using the Qt

@@ -31,6 +31,7 @@
 #include "AutomationPathTest.h"
 #include "CliTest.h"
 #include "ConfigConcurrencyTest.h"
+#include "ConnectViaIpcModeTest.h"
 #include "CoreActionControllerTest.h"
 #include "DrumkitExportTest.h"
 #include "EngineAccessTest.h"
@@ -39,7 +40,6 @@
 #include "FilesystemTest.h"
 #include "DrumkitTest.h"
 #include "EditorMirrorTest.h"
-#include "EditorModeTest.h"
 #include "EngineSessionTest.h"
 #include "H2ProjectTest.h"
 #include "IpcProtocolTest.h"
@@ -95,7 +95,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EditorMirrorTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( EditorModeTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ConnectViaIpcModeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EngineSessionTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );

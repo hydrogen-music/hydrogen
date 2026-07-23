@@ -437,17 +437,16 @@ int main(int argc, char *argv[])
 			pPref->setShowDevelWarning( false );
 		}
 
-		// Out-of-process editor mode (ADR 0016/0018): when an endpoint was given,
-		// the authoritative engine + audio driver live in the plugin host. Here
-		// we build only a headless mirror, attach to that engine over IPC, and let
-		// the GUI fan out from the IPC-backed engine-access handle. No local
-		// driver, no NSM (the host owns the session).
-		const QString sPluginEditorEndpoint = parser.getPluginEditorEndpoint();
-		const bool bEditorMode = ! sPluginEditorEndpoint.isEmpty();
+		// Connect-to-headless-engine mode (ADR 0016/0018/0032): when an endpoint was given,
+		// the GUI connects to a headless engine at this IPC endpoint instead of creating
+		// its own authoritative engine + audio driver. No local driver, no NSM (the
+		// headless engine owns the session).
+		const QString sConnectViaIpcEndpoint = parser.getConnectViaIpcEndpoint();
+		const bool bConnectViaIpc = ! sConnectViaIpcEndpoint.isEmpty();
 		std::unique_ptr<H2Core::EditorSession> pEditorSession;
 
 		H2Core::Hydrogen* pHydrogen = nullptr;
-		if ( bEditorMode ) {
+		if ( bConnectViaIpc ) {
 			// Headless mirror: passive (Null) audio driver, no MIDI, no OSC. It
 			// must not spawn an audio-processing thread (the host engine owns
 			// audio); a thread here would race the teardown below on abort.
@@ -455,11 +454,11 @@ int main(int argc, char *argv[])
 			pHydrogen =
 				H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
 			pEditorSession = H2Core::EditorSession::connect(
-				sPluginEditorEndpoint, pHydrogen );
+				sConnectViaIpcEndpoint, pHydrogen );
 			if ( pEditorSession == nullptr ) {
-				___ERRORLOG( QString( "Unable to attach plugin editor to engine "
+				___ERRORLOG( QString( "Unable to connect to headless engine "
 									  "endpoint [%1]. Aborting..." )
-								 .arg( sPluginEditorEndpoint ) );
+								 .arg( sConnectViaIpcEndpoint ) );
 				// Stop the engine (joins any driver threads) before tearing down
 				// the QApplication and the Logger those threads log through.
 				delete pHydrogen;

@@ -149,7 +149,7 @@ QCommandLineOption connectIpcOption(
 
 * **New dependency:** h2player gains Qt dependency for IPC (already present in core)
 * **Shared code:** `HeadlessEngineLauncher` can be reused by plugins, h2player, and future tools
-* **Testing:** IPC mode can be tested using existing `EditorModeTest` infrastructure
+* **Testing:** IPC mode can be tested using existing `EditorModeTest` -> `ConnectViaIpcModeTest` infrastructure
 * **Documentation:** h2player manpage and help text need updates; hydrogen CLI option rename requires documentation updates
 * **Backward compatibility:** Existing scripts using h2player without flags now get IPC server (can be disabled with `--no-ipc`)
 * **Breaking change:** `--plugin-editor` option (not part of any release) renamed to `-c/--connect-via-ipc` (affects automation/scripts)

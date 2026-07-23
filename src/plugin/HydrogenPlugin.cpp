@@ -300,7 +300,7 @@ void HydrogenPlugin::launchEditorProcess() {
 		} );
 	m_pEditorProcess->start(
 		editorBinary(),
-		QStringList() << QStringLiteral( "--plugin-editor" ) << m_sEditorEndpoint );
+		QStringList() << QStringLiteral( "--connect-via-ipc" ) << m_sEditorEndpoint );
 }
 
 void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {

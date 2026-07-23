@@ -118,11 +118,11 @@ bool Parser::parse( int argc, char* argv[] ) {
 		"Quit immediately after startup (startup smoke test)" );
 	quitAfterStartupOption.setFlags( QCommandLineOption::HiddenFromHelp );
 
-	QCommandLineOption pluginEditorOption(
-		QStringList() << "plugin-editor",
-		"Run as an out-of-process plugin editor attached to the engine at the "
-		"given IPC endpoint", "Endpoint" );
-	pluginEditorOption.setFlags( QCommandLineOption::HiddenFromHelp );
+	QCommandLineOption connectViaIpcOption(
+		QStringList() << "c" << "connect-via-ipc",
+		"Connect to a headless engine at the given IPC endpoint instead of "
+		"creating a new engine", "Endpoint" );
+	connectViaIpcOption.setFlags( QCommandLineOption::HiddenFromHelp );
 
 	parser.addHelpOption();
 	parser.addVersionOption();
@@ -155,7 +155,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	parser.addOption( quitAfterStartupOption );
 
-	parser.addOption( pluginEditorOption );
+	parser.addOption( connectViaIpcOption );
 
 	parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 
@@ -222,7 +222,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	m_bQuitAfterStartup = parser.isSet( quitAfterStartupOption );
 
-	m_sPluginEditorEndpoint = parser.value( pluginEditorOption );
+	m_sConnectViaIpcEndpoint = parser.value( connectViaIpcOption );
 
 	// Operating system GUIs typically pass documents to open as simple
 	// positional arguments to the process command line. Handling this here

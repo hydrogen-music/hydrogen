@@ -116,3 +116,8 @@ maintain.
 * LV2 UI model: <https://lv2plug.in/ns/extensions/ui>
 * Related: [ADR 0014](0014-plugin-format-strategy.md),
   [ADR 0015](0015-per-instance-engine-context.md)
+
+## Addition 2026-07-23
+
+* The CLI option `--plugin-editor` was renamed to `--connect-via-ipc`.
+* The unit test `EditorModeTest.cpp` was renamed to `ConnectViaIpcModeTest.cpp`.

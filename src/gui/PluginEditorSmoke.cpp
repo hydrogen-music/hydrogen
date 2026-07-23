@@ -25,7 +25,7 @@
 // up the engine side exactly as a plugin host (DAW) does — a HydrogenPlugin that
 // owns a headless engine and serves it over IPC via EngineSession — and then
 // launches the *real* Hydrogen GUI in out-of-process editor mode
-// (`hydrogen --plugin-editor <endpoint>`) against that live endpoint, just like
+// (`hydrogen --connect-via-ipc <endpoint>`) against that live endpoint, just like
 // HydrogenPlugin::launchEditorProcess() would when the host calls "show GUI".
 //
 // The one deviation from the production spawn is that we add `--quit-after-startup`
@@ -163,7 +163,7 @@ int main( int argc, char** argv ) {
 				  << QStringLiteral( "--nosplash" )
 				  << QStringLiteral( "--child" )
 				  << QStringLiteral( "--quit-after-startup" )
-				  << QStringLiteral( "--plugin-editor" ) << sEndpoint
+				  << QStringLiteral( "--connect-via-ipc" ) << sEndpoint
 				  << QStringLiteral( "-P" ) << sDataDir );
 
 	if ( ! editor.waitForStarted( 15000 ) ) {
