@@ -105,13 +105,18 @@ All notable changes to this project will be documented in this file.
 - Changes in the Sample Editor can now be undone.
 - Hydrogen does now ship 267 example patterns (1.9MB).
 - All user interaction in the mixer can now be undone/redone (#1374).
-- `h2player` now automatically starts an IPC server by default, allowing the
-  Hydrogen GUI to connect and control playback remotely using `hydrogen -c
-  <endpoint>`.
-- `h2player` `--no-ipc` option to disable the IPC server for pure headless
+- `h2player`:
+  - does now automatically starts an IPC server by default, allowing the
+	Hydrogen GUI to connect and control playback remotely using `hydrogen -c
+	<endpoint>`.
+  - supports similar CLI options as `hydrogen` and `h2cli`: `-d/--driver`,
+    `-p/--playlist`, `-P/--data`, `--user-data`, `--config`, `-k/--kit`, `-O,
+    --osc-port`, `-V/--verbose`, `-L/--log-file`, `-T/--log-timestamps`,
+    `-h/--help`, `-v/--version`.
+  - new CLI option `--no-ipc` option to disable the IPC server for pure headless
   mode.
-- `h2player` `--interactive` flag for keyboard-controlled mode (can be combined
-  with IPC server for simultaneous keyboard and GUI control).
+  - new CLI option `--interactive` flag for keyboard-controlled mode (can be
+  combined with IPC server for simultaneous keyboard and GUI control).
 
 ### Changed
 
@@ -287,6 +292,8 @@ All notable changes to this project will be documented in this file.
 - Song, drumkit, and pattern "Save As" is now done via a property dialog with a
   freely edible path field (allowing you to store the artifact wherever you
   like).
+ - `h2player` must be started with `--interactive` for previous keyboard-driver
+   transport control.
 
 ### Fixed
 

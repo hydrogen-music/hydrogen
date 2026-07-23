@@ -32,35 +32,26 @@
 #include <memory>
 #include <atomic>
 
-#include <core/Object.h>
-#include <core/Hydrogen.h>
-#include <core/Preferences/Preferences.h>
-#include <core/EventQueue.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
-#include <core/Helpers/Filesystem.h>
-#include <core/IPC/HeadlessEngineLauncher.h>
-#include <core/IPC/EngineSession.h>
+#include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
+#include <core/EventQueue.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/IPC/EngineSession.h>
+#include <core/IPC/HeadlessEngineLauncher.h>
+#include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/Version.h>
 
 using std::cout;
 using std::endl;
+using namespace H2Core;
 
 #include <QCoreApplication>
 #include <QThread>
-
-void usage()
-{
-	cout << "Usage: h2player [OPTIONS] song.h2song" << endl;
-	cout << "Options:" << endl;
-	cout << "  -i, --interactive  Keyboard-interactive mode (legacy)" << endl;
-	cout << "  -n, --no-ipc       Disable IPC server (pure headless mode)" << endl;
-	cout << "  -h, --help         Show this help message" << endl;
-	cout << endl;
-	cout << "By default, h2player starts an IPC server and prints connection info." << endl;
-	cout << "Connect the GUI with: hydrogen -c <endpoint>" << endl;
-	exit(1);
-}
 
 void runHeadlessMode( H2Core::Hydrogen* pHydrogen )
 {
@@ -172,69 +163,268 @@ int main( int argc, char** argv )
 	}
 #endif
 
-	bool bInteractive = false;
-	bool bNoIpc = false;
+	QCoreApplication* pApp = new QCoreApplication( argc, argv );
+	pApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 
-	static struct option long_options[] = {
-		{ "interactive", no_argument, 0, 'i' },
-		{ "no-ipc", no_argument, 0, 'n' },
-		{ "help", no_argument, 0, 'h' },
-		{ 0, 0, 0, 0 }
-	};
+	QCommandLineParser parser;
+	parser.setApplicationDescription(
+		H2Core::getAboutText() +
+		"\nHeadless version of Hydrogen. By default, it starts an IPC server that "
+		"allows the Hydrogen GUI to connect and control playback remotely. The "
+		"GUI can be attached manually using the `hydrogen -c <ENDPOINT>` command "
+		"using the endpoint printed on startup."
+		"\n\nAdditionally, it can be started in interactive mode and be "
+		"keyboard-controlled mode with simple commands: play (p), stop (s), "
+		"rewind (b), show frame (f), debug (d), quit (q)."
+	);
 
-	int opt;
-	while ( ( opt = getopt_long( argc, argv, "inh", long_options, nullptr ) ) != -1 ) {
-		switch ( opt ) {
-			case 'i':
-				bInteractive = true;
-				break;
-			case 'n':
-				bNoIpc = true;
-				break;
-			case 'h':
-				usage();
-				break;
-			default:
-				usage();
+	QStringList availableAudioDrivers;
+	for ( const auto& ddriver :
+		  H2Core::Preferences::getSupportedAudioDrivers() ) {
+		availableAudioDrivers
+			<< H2Core::Preferences::audioDriverToQString( ddriver );
+	}
+	availableAudioDrivers << H2Core::Preferences::audioDriverToQString(
+		H2Core::Preferences::AudioDriver::Auto
+	);
+
+	QCommandLineOption interactiveOption(
+		QStringList() << "interactive", "Basic transport control using keyboard"
+	);
+	QCommandLineOption noIpcOption(
+		QStringList() << "no-ipc", "Disable IPC server (pure headless mode)"
+	);
+	QCommandLineOption audioDriverOption(
+		QStringList() << "d"
+					  << "driver",
+		QString( "Use the selected audio driver\n   - " )
+			.append( availableAudioDrivers.join( "\n   - " ) )
+			.append( " [default]" ),
+		"Audiodriver"
+	);
+	QCommandLineOption playlistFileNameOption(
+		QStringList() << "p" << "playlist",
+		"Load a playlist (*.h2playlist) at startup", "File" );
+	QCommandLineOption systemDataPathOption(
+		QStringList() << "P"
+					  << "data",
+		"Use an alternate system data path", "Path"
+	);
+	QCommandLineOption userDataPathOption(
+		QStringList() << "user-data", "Use an alternate user data path", "Path"
+	);
+	QCommandLineOption configFileOption(
+		QStringList() << "config", "Use an alternate config file", "Path"
+	);
+	QCommandLineOption kitOption(
+		QStringList() << "k"
+					  << "kit",
+		"Load a drumkit at startup", "DrumkitName"
+	);
+	QCommandLineOption verboseOption(
+		QStringList() << "V"
+					  << "verbose",
+		"Debug level, if present, may be\n   - None\n   - Error [default]\n   "
+		"- Warning\n   - Info\n   - Debug\n   - Constructors\n   - Locks",
+		"Level"
+	);
+	QCommandLineOption logFileOption(
+		QStringList() << "L"
+					  << "log-file",
+		"Alternative log file path", "Path"
+	);
+	QCommandLineOption logTimestampsOption(
+		QStringList() << "T"
+					  << "log-timestamps",
+		"Add timestamps to all log messages"
+	);
+#ifdef H2CORE_HAVE_OSC
+	QCommandLineOption oscPortOption(
+		QStringList() << "O"
+					  << "osc-port",
+		"Custom port for OSC connections", "int"
+	);
+#endif
+
+	parser.addPositionalArgument( "song", "Load a song (*.h2song) at startup" );
+	parser.addOption( interactiveOption );
+	parser.addOption( noIpcOption );
+	parser.addOption( audioDriverOption );
+	parser.addOption( playlistFileNameOption );
+	parser.addOption( systemDataPathOption );
+	parser.addOption( userDataPathOption );
+	parser.addOption( configFileOption );
+	parser.addOption( kitOption );
+#ifdef H2CORE_HAVE_OSC
+	parser.addOption( oscPortOption );
+#endif
+	parser.addOption( verboseOption );
+	parser.addOption( logFileOption );
+	parser.addOption( logTimestampsOption );
+	parser.addHelpOption();
+	parser.addVersionOption();
+	// Evaluate the options
+	parser.process( *pApp );
+
+	// Deal with the options
+	const auto positionalArgs = parser.positionalArguments();
+	if ( positionalArgs.isEmpty() ) {
+		std::cerr << "Error: missing song file!" << endl;
+		cout << parser.helpText().toUtf8().data() << endl;
+		return 1;
+	}
+	const QString sSongFileName = positionalArgs.first();
+	const bool bInteractive = parser.isSet( interactiveOption );
+	const bool bNoIpc = parser.isSet( noIpcOption );
+	const QString sSysDataPath = parser.value( systemDataPathOption );
+	const QString sPlaylistFileName = parser.value( playlistFileNameOption );
+	const QString sUsrDataPath = parser.value( userDataPathOption );
+	const QString sConfigFilePath = parser.value( configFileOption );
+	const QString sSelectedDriver = parser.value( audioDriverOption );
+	const QString sVerbosityString = parser.value( verboseOption );
+	const QString sDrumkitNameToLoad = parser.value( kitOption );
+	const QString sLogFile = parser.value( logFileOption );
+	const bool bLogTimestamps = parser.isSet( logTimestampsOption );
+
+	int nOscPort = -1;
+#ifdef H2CORE_HAVE_OSC
+	const QString sOscPort = parser.value( oscPortOption );
+	bool bOk;
+	if ( !sOscPort.isEmpty() ) {
+		nOscPort = parser.value( oscPortOption ).toInt( &bOk );
+		if ( !bOk ) {
+			std::cerr << "Unable to parse 'osc-port' option. Please provide an "
+						 "integer value"
+					  << std::endl;
+			exit( 1 );
+		}
+	}
+#endif
+
+	unsigned logLevelOpt = H2Core::Logger::Error;
+	if ( parser.isSet( verboseOption ) ) {
+		if ( !sVerbosityString.isEmpty() ) {
+			logLevelOpt =
+				H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit()
+				);
+		}
+		else {
+			logLevelOpt = H2Core::Logger::Error | H2Core::Logger::Warning;
 		}
 	}
 
-	if ( optind >= argc ) {
-		cout << "Error: No song file specified" << endl;
-		usage();
-	}
+	Logger* pLogger =
+		Logger::bootstrap( logLevelOpt, sLogFile, true, bLogTimestamps );
+	Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
+	H2Core::Filesystem::bootstrap(
+		pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sLogFile
+	);
+	auto pPref = Preferences::create_instance();
+#ifdef H2CORE_HAVE_OSC
+	pPref->setOscServerEnabled( true );
+#endif
+	// See below for Hydrogen.
 
-	const QString sFileName = argv[optind];
-
-	unsigned logLevelOpt = H2Core::Logger::Error;
-	H2Core::Logger::create_instance();
-	H2Core::Logger::set_bit_mask( logLevelOpt );
-	H2Core::Logger* logger = H2Core::Logger::get_instance();
-	H2Core::Base::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
-
-	QCoreApplication a( argc, argv );
-
-	H2Core::Filesystem::bootstrap( logger );
+	___INFOLOG( QString( "Using QT version " ) + QString( qVersion() ) );
+	___INFOLOG( "Using data path: " + Filesystem::systemDataPath() );
 
 	cout << "Hydrogen player starting..." << endl << endl;
 
-	// Create headless engine using shared infrastructure
-	auto pHydrogen = H2Core::HeadlessEngineLauncher::createHeadlessEngine();
-
-	// Load song
-	auto pSong = H2Core::Song::load( sFileName, false, pHydrogen );
-	if ( pSong == nullptr ) {
-		cout << "Error loading song!" << endl;
-		cleanup( pHydrogen );
-		exit( 2 );
+	if ( !sSelectedDriver.isEmpty() ) {
+		pPref->m_audioDriver = Preferences::parseAudioDriver( sSelectedDriver );
 	}
-	pHydrogen->setSong( pSong );
+
+	Hydrogen* pHydrogen = Hydrogen::create_instance( nOscPort, pPref );
+
+	// Create headless engine using shared infrastructure
+	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
+
+	std::shared_ptr<Song> pSong = nullptr;
+	std::shared_ptr<Playlist> pPlaylist = nullptr;
+
+	// Load playlist
+	if ( !sPlaylistFileName.isEmpty() ) {
+		pPlaylist =
+			Playlist::load( sPlaylistFileName, pHydrogen->getPreferences() );
+		if ( pPlaylist == nullptr ) {
+			std::cerr << "Error loading playlist" << endl;
+			___ERRORLOG( "Error loading playlist" );
+			delete pHydrogen;
+			delete pLogger;
+			return 1;
+		}
+
+		if ( !pHydrogen->getCoreActionController()->setPlaylist( pPlaylist ) ) {
+			std::cerr << "Error loading playlist" << endl;
+			___ERRORLOG( QString( "Unable to set playlist loaded from [%1]" )
+							 .arg( sPlaylistFileName ) );
+			delete pHydrogen;
+			delete pLogger;
+			return 1;
+		}
+
+		/* Load first song */
+		auto sSongPath = pPlaylist->getSongFileNameByNumber( 0 );
+		pSong = pHydrogen->getCoreActionController()->loadSong( sSongPath );
+
+		if ( pSong != nullptr &&
+			 pHydrogen->getCoreActionController()->setSong( pSong ) ) {
+			pHydrogen->getCoreActionController()->activatePlaylistSong( 0 );
+		}
+	}
+
+	// Load song - if wasn't already loaded with playlist
+	if ( pSong == nullptr ) {
+		if ( !sSongFileName.isEmpty() ) {
+			pSong = pHydrogen->getCoreActionController()->loadSong(
+				sSongFileName, ""
+			);
+		}
+		else {
+			/* Try load last song */
+			const QString sSongPath = pPref->getLastSongPath();
+			if ( !sSongPath.isEmpty() ) {
+				pSong = pHydrogen->getCoreActionController()->loadSong(
+					sSongPath, ""
+				);
+			}
+		}
+
+		/* Still not loaded */
+		if ( pSong == nullptr ) {
+			std::cerr << "Error loading song" << endl;
+			delete pHydrogen;
+			delete pLogger;
+			return 1;
+		}
+		else {
+			pHydrogen->getCoreActionController()->setSong( pSong );
+		}
+	}
+
+	if ( !sDrumkitNameToLoad.isEmpty() ) {
+		auto pDB = pHydrogen->getSoundLibraryDatabase();
+		auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+			Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User,
+			sDrumkitNameToLoad, true
+		) );
+		if ( pDrumkit != nullptr ) {
+			pHydrogen->getCoreActionController()->setDrumkit( pDrumkit );
+		}
+		else {
+			std::cerr << "Error loading drumkit" << endl;
+			___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
+							 .arg( sDrumkitNameToLoad ) );
+			delete pHydrogen;
+			delete pLogger;
+			return 1;
+		}
+	}
 
 	// Start IPC server by default (unless --no-ipc)
 	std::unique_ptr<H2Core::EngineSession> pEngineSession;
-	const bool bEnableIpc = !bNoIpc;
 
-	if ( bEnableIpc ) {
+	if ( !bNoIpc ) {
 		const QString sEndpoint = H2Core::HeadlessEngineLauncher::makeEndpoint();
 		pEngineSession = H2Core::EngineSession::start( pHydrogen, sEndpoint );
 

@@ -60,8 +60,8 @@ void H2PlayerTest::testHelpOption() {
 	QString sError = QString::fromUtf8( pProcess->readAllStandardError() );
 
 	// Check that help message is displayed
-	CPPUNIT_ASSERT( sOutput.contains( "Usage: h2player" ) ||
-	                sError.contains( "Usage: h2player" ) );
+	CPPUNIT_ASSERT( sOutput.contains( "Usage:" ) ||
+	                sError.contains( "Usage:" ) );
 	CPPUNIT_ASSERT( sOutput.contains( "--interactive" ) ||
 	                sError.contains( "--interactive" ) );
 	CPPUNIT_ASSERT( sOutput.contains( "--no-ipc" ) ||
