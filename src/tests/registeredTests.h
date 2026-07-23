@@ -38,6 +38,7 @@
 #include "EventQueueTest.h"
 #include "FakePluginHostTest.h"
 #include "FilesystemTest.h"
+#include "HeadlessEngineLauncherTest.h"
 #include "DrumkitTest.h"
 #include "H2PlayerTest.h"
 #include "EditorMirrorTest.h"
@@ -94,6 +95,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( EngineAccessTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( HeadlessEngineLauncherTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 #if not defined(WIN32) and not defined (__APPLE__)
   // For now h2player is just part of our Linux package.
