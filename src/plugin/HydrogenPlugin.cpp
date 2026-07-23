@@ -30,6 +30,7 @@
 #include <core/IO/PluginAudioDriver.h>
 #include <core/IO/PluginMidiDriver.h>
 #include <core/IPC/EngineSession.h>
+#include <core/IPC/HeadlessEngineLauncher.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
@@ -184,6 +185,7 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 // ── Out-of-process editor lifecycle (ADR 0016) ─────────────────────────────
 
 QString HydrogenPlugin::makeEditorEndpoint() const {
+	// Use shared endpoint generation with plugin-specific prefix
 	// Unique per editor open across this host process. IpcServer::listen clears a
 	// stale socket from a crashed run, so reuse-after-crash is safe.
 	static std::atomic<unsigned> s_nCounter{ 0 };
