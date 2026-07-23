@@ -39,6 +39,7 @@
 #include "FakePluginHostTest.h"
 #include "FilesystemTest.h"
 #include "DrumkitTest.h"
+#include "H2PlayerTest.h"
 #include "EditorMirrorTest.h"
 #include "EngineSessionTest.h"
 #include "H2ProjectTest.h"
@@ -94,6 +95,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
+#if not defined(WIN32) and not defined (__APPLE__)
+  // For now h2player is just part of our Linux package.
+  CPPUNIT_TEST_SUITE_REGISTRATION( H2PlayerTest );
+#endif
 CPPUNIT_TEST_SUITE_REGISTRATION( EditorMirrorTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( ConnectViaIpcModeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EngineSessionTest );
