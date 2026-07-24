@@ -189,10 +189,13 @@ int main( int argc, char** argv )
 	);
 
 	QCommandLineOption interactiveOption(
-		QStringList() << "interactive", "Basic transport control using keyboard"
+		QStringList() << "i"
+					  << "interactive",
+		"Basic transport control using keyboard"
 	);
 	QCommandLineOption noIpcOption(
-		QStringList() << "no-ipc", "Disable IPC server (pure headless mode)"
+		QStringList() << "n" << "no-ipc",
+		"Disable IPC server (pure headless mode)"
 	);
 	QCommandLineOption audioDriverOption(
 		QStringList() << "d"
