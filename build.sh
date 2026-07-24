@@ -191,7 +191,7 @@ function cmake_exec() {
 
 function cmake_tests() {
     cmake_init
-    echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests || exit 1
+    echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests -VDebug -o test.log || exit 1
     # Run the full CTest suite registered by the current build. This always
     # covers the GUI startup smoke test (src/gui, ADR 0015/0016) and, when the
     # plugins are enabled, the CLAP/LV2/VST3 conformance tests (clap-validate,
