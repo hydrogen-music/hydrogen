@@ -37,8 +37,47 @@ Enable keyboard-interactive mode.
 \fB\-n\fR, \fB\-\-no-ipc\fR
 Disable IPC server (pure headless mode).
 .TP
+\fB\-d\fR, \fB\-\-driver\fR=[\fIAUDIO_DRIVER\fR]
+Use the selected audio driver. The description of this option in the -\-help output contains all audio
+drivers available on your system.
+.TP
+\fB\-k\fR, \fB\-\-kit\fR=\fIDRUMKIT_NAME\fR
+Load a drumkit at startup.
+.TP
+\fB\-V\fR, \fB\-\-verbose\fR=[\fILEVEL\fR]
+Print a lot of debugging info
+.IP
+Level, if present, may be \fINone\fR, \fIError\fR, \fIWarning\fR, \fIInfo\fR, or \fIDebug\fR.
+.TP
+\fB\-L\fR, \fB\-\-log\-file\fR=\fIFILE\fR
+Use custom log file.
+.TP
+\fB\-T\fR, \fB\-\-log\-timestamps\fR
+Add timestamps to all log messages.
+.TP
+\fB\-\-log\-colors\fR
+Use ANSI colors in log messages (default).
+.TP
+\fB\-\-no\-log\-colors\fR
+Suppress ANSI colors in log messages.
+.TP
+\fB\-P\fR, \fB\-\-data\fR=\fIPATH\fR
+Use an alternate system data path.
+.TP
+\fB\-\-user\-data\fR=\fIPATH\fR
+Use an alternate user data path.
+.TP
+\fB\-\-config\fR=\fIPATH\fR
+Use an alternate path to the \fIhydrogen.conf\fR file.
+.TP
+\fB\-O\fR, \fB\-\-osc\-port\fR=\fIPORT\fR
+Use custom OSC port.
+.TP
 \fB\-h\fR, \fB\-\-help\fR
 Display help message and exit.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Show version info.
 .SH IPC CONNECTION
 .PP
 By default, h2player starts an IPC server and prints connection information:

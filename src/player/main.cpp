@@ -130,27 +130,6 @@ void runInteractiveMode( H2Core::Hydrogen* pHydrogen )
 	}
 }
 
-void cleanup( H2Core::Hydrogen* pHydrogen )
-{
-	if ( pHydrogen != nullptr ) {
-		pHydrogen->sequencerStop();
-
-		auto pPref = pHydrogen->getPreferences();
-		if ( pPref != nullptr ) {
-			pPref->save();
-		}
-
-		// Hydrogen owns its Preferences and EventQueue and frees them in
-		// ~Hydrogen (ADR 0015).
-		delete pHydrogen;
-	}
-
-	delete H2Core::Logger::get_instance();
-
-	cout << endl << endl << H2Core::Base::objects_count() << " alive objects" << endl << endl;
-	H2Core::Base::write_objects_map_to_cerr();
-}
-
 int main( int argc, char** argv )
 {
 #ifdef WIN32
@@ -205,9 +184,6 @@ int main( int argc, char** argv )
 			.append( " [default]" ),
 		"Audiodriver"
 	);
-	QCommandLineOption playlistFileNameOption(
-		QStringList() << "p" << "playlist",
-		"Load a playlist (*.h2playlist) at startup", "File" );
 	QCommandLineOption systemDataPathOption(
 		QStringList() << "P"
 					  << "data",
@@ -241,6 +217,11 @@ int main( int argc, char** argv )
 					  << "log-timestamps",
 		"Add timestamps to all log messages"
 	);
+	QCommandLineOption logColorsOption(
+		QStringList() << "log-colors", "Use ANSI colors in log messages" );
+	QCommandLineOption noLogColorsOption(
+		QStringList() << "no-log-colors",
+		"Suppress ANSI colors in log messages" );
 #ifdef H2CORE_HAVE_OSC
 	QCommandLineOption oscPortOption(
 		QStringList() << "O"
@@ -249,23 +230,29 @@ int main( int argc, char** argv )
 	);
 #endif
 
-	parser.addPositionalArgument( "song", "Load a song (*.h2song) at startup" );
+	parser.addPositionalArgument( "file", "Load a song (*.h2song) or playlist (*.h2playlist) at startup" );
 	parser.addOption( interactiveOption );
 	parser.addOption( noIpcOption );
 	parser.addOption( audioDriverOption );
-	parser.addOption( playlistFileNameOption );
-	parser.addOption( systemDataPathOption );
-	parser.addOption( userDataPathOption );
-	parser.addOption( configFileOption );
 	parser.addOption( kitOption );
-#ifdef H2CORE_HAVE_OSC
-	parser.addOption( oscPortOption );
-#endif
+
 	parser.addOption( verboseOption );
 	parser.addOption( logFileOption );
 	parser.addOption( logTimestampsOption );
+	parser.addOption( logColorsOption );
+	parser.addOption( noLogColorsOption );
+
+	parser.addOption( systemDataPathOption );
+	parser.addOption( userDataPathOption );
+	parser.addOption( configFileOption );
+
+#ifdef H2CORE_HAVE_OSC
+	parser.addOption( oscPortOption );
+#endif
+
 	parser.addHelpOption();
 	parser.addVersionOption();
+
 	// Evaluate the options
 	parser.process( *pApp );
 
@@ -276,11 +263,10 @@ int main( int argc, char** argv )
 		cout << parser.helpText().toUtf8().data() << endl;
 		return 1;
 	}
-	const QString sSongFileName = positionalArgs.first();
+	const QString sFileName = positionalArgs.first();
 	const bool bInteractive = parser.isSet( interactiveOption );
 	const bool bNoIpc = parser.isSet( noIpcOption );
 	const QString sSysDataPath = parser.value( systemDataPathOption );
-	const QString sPlaylistFileName = parser.value( playlistFileNameOption );
 	const QString sUsrDataPath = parser.value( userDataPathOption );
 	const QString sConfigFilePath = parser.value( configFileOption );
 	const QString sSelectedDriver = parser.value( audioDriverOption );
@@ -316,8 +302,23 @@ int main( int argc, char** argv )
 		}
 	}
 
-	Logger* pLogger =
-		Logger::bootstrap( logLevelOpt, sLogFile, true, bLogTimestamps );
+#ifdef WIN32
+	bool bLogColors = false;
+#else
+	bool bLogColors = true;
+#endif
+
+	// If both options are present, having colors wins.
+	if ( parser.isSet( logColorsOption ) ) {
+		bLogColors = true;
+	}
+	else if ( parser.isSet( noLogColorsOption ) ) {
+		bLogColors = false;
+	}
+
+	Logger* pLogger = Logger::bootstrap(
+		logLevelOpt, sLogFile, true, bLogTimestamps, bLogColors
+	);
 	Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 	H2Core::Filesystem::bootstrap(
 		pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sLogFile
@@ -346,9 +347,9 @@ int main( int argc, char** argv )
 	std::shared_ptr<Playlist> pPlaylist = nullptr;
 
 	// Load playlist
-	if ( !sPlaylistFileName.isEmpty() ) {
-		pPlaylist =
-			Playlist::load( sPlaylistFileName, pHydrogen->getPreferences() );
+	if ( !sFileName.isEmpty() &&
+		 sFileName.endsWith( Filesystem::sPlaylistSuffix ) ) {
+		pPlaylist = Playlist::load( sFileName, pHydrogen->getPreferences() );
 		if ( pPlaylist == nullptr ) {
 			std::cerr << "Error loading playlist" << endl;
 			___ERRORLOG( "Error loading playlist" );
@@ -360,7 +361,7 @@ int main( int argc, char** argv )
 		if ( !pHydrogen->getCoreActionController()->setPlaylist( pPlaylist ) ) {
 			std::cerr << "Error loading playlist" << endl;
 			___ERRORLOG( QString( "Unable to set playlist loaded from [%1]" )
-							 .arg( sPlaylistFileName ) );
+							 .arg( sFileName ) );
 			delete pHydrogen;
 			delete pLogger;
 			return 1;
@@ -378,9 +379,9 @@ int main( int argc, char** argv )
 
 	// Load song - if wasn't already loaded with playlist
 	if ( pSong == nullptr ) {
-		if ( !sSongFileName.isEmpty() ) {
+		if ( !sFileName.isEmpty() ) {
 			pSong = pHydrogen->getCoreActionController()->loadSong(
-				sSongFileName, ""
+				sFileName, ""
 			);
 		}
 		else {
@@ -448,8 +449,18 @@ int main( int argc, char** argv )
 		runHeadlessMode( pHydrogen );
 	}
 
-	// Cleanup
-	cleanup( pHydrogen );
+	pHydrogen->sequencerStop();
+	pPref->save();
+
+	// Hydrogen owns its Preferences and EventQueue and frees them in
+	// ~Hydrogen (ADR 0015).
+	delete pHydrogen;
+	delete pApp;
+	delete H2Core::Logger::get_instance();
+
+	if ( H2Core::Base::count_active() ) {
+		H2Core::Base::write_objects_map_to_cerr();
+	}
 
 	return 0;
 }

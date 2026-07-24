@@ -110,12 +110,12 @@ All notable changes to this project will be documented in this file.
 	Hydrogen GUI to connect and control playback remotely using `hydrogen -c
 	<endpoint>`.
   - supports similar CLI options as `hydrogen` and `h2cli`: `-d/--driver`,
-    `-p/--playlist`, `-P/--data`, `--user-data`, `--config`, `-k/--kit`, `-O,
-    --osc-port`, `-V/--verbose`, `-L/--log-file`, `-T/--log-timestamps`,
-    `-h/--help`, `-v/--version`.
-  - new CLI option `--no-ipc` option to disable the IPC server for pure headless
-  mode.
-  - new CLI option `--interactive` flag for keyboard-controlled mode (can be
+    `-P/--data`, `--user-data`, `--config`, `-k/--kit`, `-O, --osc-port`,
+    `-V/--verbose`, `-L/--log-file`, `-T/--log-timestamps`, `--log-colors`,
+    `--no-log-colors`, `-h/--help`, `-v/--version`.
+  - new CLI option `-n/--no-ipc` option to disable the IPC server for pure
+  headless mode.
+  - new CLI option `-i/--interactive` flag for keyboard-controlled mode (can be
   combined with IPC server for simultaneous keyboard and GUI control).
 
 ### Changed
