@@ -11,6 +11,7 @@ moc_*.cpp_parameters
 /.tags
 /build
 /build-appimage
+/build-static
 /cmake_opts
 /hydrogen
 /libs/hydrogen/include/hydrogen/config.h
