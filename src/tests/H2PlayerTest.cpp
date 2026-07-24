@@ -22,8 +22,12 @@
 
 #include "H2PlayerTest.h"
 
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QTimer>
 
 #include "TestHelper.h"
@@ -100,6 +104,8 @@ void H2PlayerTest::testDefaultIpcMode() {
 
 	// Check that IPC server started and connection info was printed
 	QString sCombinedOutput = sOutput + sError;
+	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Error" ) &&
+					!sCombinedOutput.contains( "error" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "IPC Server Started" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "Endpoint:" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "hydrogen-headless-" ) );
@@ -135,6 +141,8 @@ void H2PlayerTest::testNoIpcMode() {
 	QString sCombinedOutput = sOutput + sError;
 
 	// Check that IPC server was NOT started
+	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Error" ) &&
+					!sCombinedOutput.contains( "error" ) );
 	CPPUNIT_ASSERT( !sCombinedOutput.contains( "IPC Server Started" ) );
 	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Endpoint:" ) );
 	CPPUNIT_ASSERT( !sCombinedOutput.contains( "hydrogen -c" ) );
@@ -172,6 +180,8 @@ void H2PlayerTest::testInteractiveMode() {
 	QString sCombinedOutput = sOutput + sError;
 
 	// Check that interactive mode was started
+	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Error" ) &&
+					!sCombinedOutput.contains( "error" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "Interactive mode" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "Commands:" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "b - rewind" ) );
@@ -249,3 +259,297 @@ void H2PlayerTest::testInvalidSongFile() {
 	delete pProcess;
 	___INFOLOG( "passed" );
 }
+
+// =========================================================================
+// Helper methods
+// =========================================================================
+
+QString H2PlayerTest::runPlayerAndReadLog( const QStringList& args,
+										  unsigned nTimeoutMs )
+{
+	const QString sLogFile = Filesystem::tmpDir() + "h2player_test_" +
+		QString::number( QCoreApplication::applicationPid() ) + "_" +
+		QString::number( reinterpret_cast<quintptr>( this ) ) + ".log";
+
+	QStringList allArgs = args;
+	allArgs << "--no-ipc" << "-L" << sLogFile;
+
+	auto pProcess = new QProcess();
+	pProcess->start( m_sH2PlayerPath, allArgs );
+	CPPUNIT_ASSERT( pProcess->waitForStarted( 5000 ) );
+
+	QThread::msleep( nTimeoutMs );
+
+	if ( pProcess->state() != QProcess::NotRunning ) {
+		pProcess->kill();
+		pProcess->waitForFinished( 3000 );
+	}
+	else {
+		pProcess->waitForFinished( 3000 );
+	}
+
+	delete pProcess;
+
+	QString sLogContent;
+	QFile logFile( sLogFile );
+	if ( logFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+		sLogContent = QString::fromUtf8( logFile.readAll() );
+		logFile.close();
+	}
+
+	___DEBUGLOG( sLogFile );
+
+	//Filesystem::rm( sLogFile );
+
+	return sLogContent;
+}
+
+QString H2PlayerTest::prepareCustomConfig( const QString& sDestDir, int nNewPort )
+{
+	// Clean up any leftovers from a previous (possibly failed) run, then
+	// (re)create the destination folder.
+	Filesystem::rm( sDestDir, true, true );
+	QDir dir;
+	CPPUNIT_ASSERT( dir.mkpath( sDestDir ) );
+
+	const QString sSourceConfig = Filesystem::systemConfigPath();
+	const QString sDestConfig = sDestDir + "/hydrogen.default.conf";
+
+	CPPUNIT_ASSERT( QFile::copy( sSourceConfig, sDestConfig ) );
+
+	// Alter the oscServerPort value in the copied config.
+	QFile configFile( sDestConfig );
+	if ( !configFile.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+		CPPUNIT_FAIL( "Could not open copied config for reading" );
+	}
+	QString sContent = QString::fromUtf8( configFile.readAll() );
+	configFile.close();
+
+	sContent.replace(
+		QRegularExpression( "<oscServerPort>\\s*\\d+\\s*</oscServerPort>" ),
+		QString( "<oscServerPort>%1</oscServerPort>" ).arg( nNewPort )
+	);
+
+	if ( !configFile.open( QIODevice::WriteOnly | QIODevice::Text |
+						   QIODevice::Truncate ) ) {
+		CPPUNIT_FAIL( "Could not open copied config for writing" );
+	}
+	configFile.write( sContent.toUtf8() );
+	configFile.close();
+
+	return sDestConfig;
+}
+
+// =========================================================================
+// Tests
+// =========================================================================
+
+void H2PlayerTest::testLogFileOption() {
+	___INFOLOG( "" );
+
+	const QString sLogFile = Filesystem::tmpDir() + "h2player_logfile_test.log";
+
+	QStringList args;
+	args << "-V" << "Info" << "-L" << sLogFile << "--no-ipc"
+		<< m_sTestSongPath;
+
+	auto pProcess = new QProcess();
+	pProcess->start( m_sH2PlayerPath, args );
+	CPPUNIT_ASSERT( pProcess->waitForStarted( 5000 ) );
+
+	QThread::msleep( 2000 );
+
+	pProcess->kill();
+	CPPUNIT_ASSERT( pProcess->waitForFinished( 3000 ) );
+
+	delete pProcess;
+
+	CPPUNIT_ASSERT( QFileInfo::exists( sLogFile ) );
+
+	QString sLogContent;
+	QFile logFile( sLogFile );
+	CPPUNIT_ASSERT( logFile.open( QIODevice::ReadOnly | QIODevice::Text ) );
+	sLogContent = QString::fromUtf8( logFile.readAll() );
+	logFile.close();
+
+	CPPUNIT_ASSERT( !sLogContent.isEmpty() );
+	CPPUNIT_ASSERT( sLogContent.contains( "Using log file" ) );
+
+	Filesystem::rm( sLogFile );
+
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testLogTimestampsOption() {
+	___INFOLOG( "" );
+
+	QStringList args;
+	args << "-V" << "Info" << "-T" << "--no-ipc" << m_sTestSongPath;
+
+	QString sLogContent = runPlayerAndReadLog( args );
+
+	// With timestamps, log lines should contain "[hh:mm:ss.zzz]".
+	QRegularExpression re( "\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}\\]" );
+	CPPUNIT_ASSERT( sLogContent.contains( re ) );
+
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testLogColorsOption() {
+	___INFOLOG( "" );
+
+	QStringList args;
+	args << "-V" << "Info" << "--log-colors" << "--no-ipc"
+		<< m_sTestSongPath;
+
+	QString sLogContent = runPlayerAndReadLog( args );
+
+	// With colors, log lines should contain ANSI escape sequences (CSI).
+	CPPUNIT_ASSERT( sLogContent.contains( "\033[" ) );
+
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testNoLogColorsOption() {
+	___INFOLOG( "" );
+
+	QStringList args;
+	args << "-V" << "Info" << "--no-log-colors" << "--no-ipc"
+		<< m_sTestSongPath;
+
+	QString sLogContent = runPlayerAndReadLog( args );
+
+	// Without colors, log lines should NOT contain ANSI escape sequences.
+	CPPUNIT_ASSERT( !sLogContent.contains( "\033[" ) );
+
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testVerboseOption() {
+	___INFOLOG( "" );
+
+	// With -V Info, Info-level log lines (prefix "(I) ") should be present.
+	{
+		QStringList args;
+		args << "-V" << "Info" << "--no-ipc" << m_sTestSongPath;
+
+		QString sLogContent = runPlayerAndReadLog( args );
+
+		CPPUNIT_ASSERT( sLogContent.contains( "(I) " ) );
+	}
+
+	// With -V Warning, Info-level log lines should be absent.
+	{
+		QStringList args;
+		args << "-V" << "Warning" << "--no-ipc" << m_sTestSongPath;
+
+		QString sLogContent = runPlayerAndReadLog( args );
+
+		CPPUNIT_ASSERT( !sLogContent.contains( "(I) " ) );
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testConfigOption() {
+	___INFOLOG( "" );
+
+	const int nCustomPort = 9991;
+	const QString sTempDir = Filesystem::tmpDir() + "h2player_config_test/";
+	const QString sConfigPath = prepareCustomConfig( sTempDir, nCustomPort );
+
+	QStringList args;
+	args << "-V" << "Info" << "--config" << sConfigPath << m_sTestSongPath;
+
+	QString sLogContent = runPlayerAndReadLog( args );
+
+#ifdef H2CORE_HAVE_OSC
+	CPPUNIT_ASSERT( sLogContent.contains(
+		QString( "Osc server started. Listening on port %1" ).arg( nCustomPort )
+	) );
+#endif
+
+	CPPUNIT_ASSERT( sLogContent.contains(
+		QString( "Using custom user-level config file [%1]" ).arg( sConfigPath )
+	) );
+
+	Filesystem::rm( sTempDir, true );
+
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testUserDataOption() {
+	___INFOLOG( "" );
+
+	const int nCustomPort = 9992;
+	const QString sTempDir = Filesystem::tmpDir() + "h2player_userdata_test/";
+	const QString sConfigPath = prepareCustomConfig( sTempDir, nCustomPort );
+
+	QStringList args;
+	args << "-V" << "Info" << "--user-data" << sTempDir
+		<< "--config" << sConfigPath << m_sTestSongPath;
+
+	QString sLogContent = runPlayerAndReadLog( args );
+
+	CPPUNIT_ASSERT( sLogContent.contains(
+		QString( "Using custom user data folder [%1]" ).arg( sTempDir )
+	) );
+
+#ifdef H2CORE_HAVE_OSC
+	CPPUNIT_ASSERT( sLogContent.contains(
+		QString( "Osc server started. Listening on port %1" ).arg( nCustomPort )
+	) );
+#endif
+
+	Filesystem::rm( sTempDir, true );
+
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testSystemDataOption() {
+	___INFOLOG( "" );
+
+	const int nCustomPort = 9993;
+	const QString sTempDir = Filesystem::tmpDir() + "h2player_sysdata_test/";
+	const QString sConfigPath = prepareCustomConfig( sTempDir, nCustomPort );
+
+	QStringList args;
+	args << "-V" << "Info" << "-P" << sTempDir
+		<< "--config" << sConfigPath << m_sTestSongPath;
+
+	QString sLogContent = runPlayerAndReadLog( args );
+
+	CPPUNIT_ASSERT( sLogContent.contains(
+		QString( "Using custom system data folder [%1]" ).arg( sTempDir )
+	) );
+
+#ifdef H2CORE_HAVE_OSC
+	CPPUNIT_ASSERT( sLogContent.contains(
+		QString( "Osc server started. Listening on port %1" ).arg( nCustomPort )
+	) );
+#endif
+
+	Filesystem::rm( sTempDir, true );
+
+	___INFOLOG( "passed" );
+}
+
+#ifdef H2CORE_HAVE_OSC
+void H2PlayerTest::testOscPortOption() {
+	___INFOLOG( "" );
+
+	const int nCustomPort = 9994;
+
+	QStringList args;
+	args << "-V" << "Info" << "-O" << QString::number( nCustomPort )
+		<< "--no-ipc" << m_sTestSongPath;
+
+	QString sLogContent = runPlayerAndReadLog( args );
+
+	CPPUNIT_ASSERT( sLogContent.contains(
+		QString( "Osc server started. Listening on port %1" ).arg( nCustomPort )
+	) );
+
+	___INFOLOG( "passed" );
+}
+#endif // H2CORE_HAVE_OSC

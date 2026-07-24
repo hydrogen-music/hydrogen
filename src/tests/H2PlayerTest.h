@@ -35,6 +35,17 @@ class H2PlayerTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testInteractiveMode );
 	CPPUNIT_TEST( testMissingSongFile );
 	CPPUNIT_TEST( testInvalidSongFile );
+	CPPUNIT_TEST( testLogFileOption );
+	CPPUNIT_TEST( testLogTimestampsOption );
+	CPPUNIT_TEST( testLogColorsOption );
+	CPPUNIT_TEST( testNoLogColorsOption );
+	CPPUNIT_TEST( testVerboseOption );
+	CPPUNIT_TEST( testConfigOption );
+	CPPUNIT_TEST( testUserDataOption );
+	CPPUNIT_TEST( testSystemDataOption );
+#ifdef H2CORE_HAVE_OSC
+	CPPUNIT_TEST( testOscPortOption );
+#endif
 	CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -48,10 +59,27 @@ class H2PlayerTest : public CppUnit::TestCase {
 	void testInteractiveMode();
 	void testMissingSongFile();
 	void testInvalidSongFile();
+	void testLogFileOption();
+	void testLogTimestampsOption();
+	void testLogColorsOption();
+	void testNoLogColorsOption();
+	void testVerboseOption();
+	void testConfigOption();
+	void testUserDataOption();
+	void testSystemDataOption();
+	void testOscPortOption();
 
    private:
 	QString m_sH2PlayerPath;
 	QString m_sTestSongPath;
+
+	/** Start h2player with @a args (plus `-L` pointing at a temp log file and
+	 * `--no-ipc`), wait, kill it, and return the log file content. */
+	QString runPlayerAndReadLog( const QStringList& args,
+								unsigned nTimeoutMs = 2000 );
+	/** Copy the shipped default config to @a sDestPath and replace the
+	 * `<oscServerPort>` element value with @a nNewPort. */
+	QString prepareCustomConfig( const QString& sDestDir, int nNewPort );
 };
 
 #endif
