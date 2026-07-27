@@ -50,13 +50,14 @@ public:
 	/** Wrap an already-connected socket. Takes ownership.
 	 *
 	 * @param bPushWrites when true, send() drives each write to completion via
-	 * waitForBytesWritten(). This is needed only on the engine/server side, whose
-	 * sending threads (the EngineSession serve loop, request responders) run no Qt
-	 * event loop, so a bare flush() does not push the overlapped write to the peer
-	 * on Windows. The editor/client side runs a Qt event loop (or, in white-box
-	 * tests, its peer reads synchronously), so it leaves this false and keeps
-	 * send() non-blocking — otherwise a fire-and-forget editor send (hello,
-	 * commands) with no concurrent reader would stall for the whole timeout. */
+	 * waitForBytesWritten(). This is needed only on the engine/server side,
+	 * whose sending threads (the EngineSession serve loop, request responders)
+	 * run no Qt event loop, so a bare flush() does not push the overlapped
+	 * write to the peer on Windows. The editor/client side runs a Qt event loop
+	 * (or, in white-box tests, its peer reads synchronously), so it leaves this
+	 * false and keeps send() non-blocking — otherwise a fire-and-forget editor
+	 * send (hello, commands) with no concurrent reader would stall for the
+	 * whole timeout. */
 	explicit IpcChannel( QLocalSocket* pSocket, QObject* pParent = nullptr,
 						 bool bPushWrites = false );
 	~IpcChannel() override;
@@ -73,11 +74,11 @@ public:
 	bool receive( IpcMessage& out, int nTimeoutMs = 3000 );
 
 	/** Blocking request/response (ADR 0030 tier 3). Stamps @a req with a fresh
-	 * non-zero request id, sends it, and blocks until the matching reply (a frame
-	 * echoing that id) arrives, returning it in @a reply. Other frames received
-	 * while waiting stay queued for receive()/messageReceived(), in order.
-	 * Returns false on timeout/disconnect. Used editor-side for the few commands
-	 * that need an engine-computed result. */
+	 * non-zero request id, sends it, and blocks until the matching reply (a
+	 * frame echoing that id) arrives, returning it in @a reply. Other frames
+	 * received while waiting stay queued for receive()/messageReceived(), in
+	 * order. Returns false on timeout/disconnect. Used editor-side for the few
+	 * commands that need an engine-computed result. */
 	bool request( const IpcMessage& req, IpcMessage& reply, int nTimeoutMs = 5000 );
 
 signals:

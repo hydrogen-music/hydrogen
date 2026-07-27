@@ -54,13 +54,11 @@ class Preferences;
  */
 class EditorSession {
 public:
-	/** Configure @a pPreferences for the editor-side headless mirror: a passive
-	 * audio driver (Null — it must NOT process audio or spawn a processing
-	 * thread; the authoritative engine in the host does that), no MIDI driver and
-	 * no OSC server (the host owns control surfaces, ADR 0016/0026). Using the
-	 * thread-spawning Fake driver here previously raced the Logger teardown on
-	 * abort and segfaulted. main()'s editor branch and the mirror tests share this
-	 * so the two cannot drift. */
+	/** Configure @a pPreferences for the editor-side mirror: a passive audio
+	 * driver (Null — it must NOT process audio or spawn a processing thread;
+	 * the authoritative engine in the headless engine does that), no MIDI
+	 * driver and no OSC server (the headless engine owns control surfaces, ADR
+	 * 0016/0026). */
 	static void configureMirrorPreferences(
 		std::shared_ptr<Preferences> pPreferences );
 
@@ -83,7 +81,7 @@ private:
 	EditorSession( Hydrogen* pMirror, IpcChannel* pChannel,
 				   const QString& sEndpoint );
 
-	/** Editor-side headless engine serving reads; not owned. */
+	/** Editor-side headless engine mirror serving reads; not owned. */
 	Hydrogen* m_pMirror;
 	/** Control channel to the authoritative engine; owned. */
 	IpcChannel* m_pChannel;

@@ -437,19 +437,21 @@ int main(int argc, char *argv[])
 			pPref->setShowDevelWarning( false );
 		}
 
-		// Connect-to-headless-engine mode (ADR 0016/0018/0032): when an endpoint was given,
-		// the GUI connects to a headless engine at this IPC endpoint instead of creating
-		// its own authoritative engine + audio driver. No local driver, no NSM (the
-		// headless engine owns the session).
+		// Connect-to-headless-engine mode (ADR 0016/0018/0032): when an
+		// endpoint was given, the GUI connects to a headless engine at this IPC
+		// endpoint instead of creating its own authoritative engine + audio
+		// driver. No local driver, no NSM (the headless engine owns the
+		// session).
 		const QString sConnectViaIpcEndpoint = parser.getConnectViaIpcEndpoint();
 		const bool bConnectViaIpc = ! sConnectViaIpcEndpoint.isEmpty();
 		std::unique_ptr<H2Core::EditorSession> pEditorSession;
 
 		H2Core::Hydrogen* pHydrogen = nullptr;
 		if ( bConnectViaIpc ) {
-			// Headless mirror: passive (Null) audio driver, no MIDI, no OSC. It
-			// must not spawn an audio-processing thread (the host engine owns
-			// audio); a thread here would race the teardown below on abort.
+			// Local headless mirror: passive (Null) audio driver, no MIDI, no
+			// OSC. It must not spawn an audio-processing thread (the headless
+			// engine we want to connect to owns audio); a thread here would
+			// race the teardown below on abort.
 			H2Core::EditorSession::configureMirrorPreferences( pPref );
 			pHydrogen =
 				H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );

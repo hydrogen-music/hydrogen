@@ -125,24 +125,26 @@ class HydrogenApp :  public QObject, public EventListener,  public H2Core::Objec
 		static H2Core::IEngineAccess* pEngine();
 
 		/** True when the GUI connects to a headless engine via IPC (started via
-		 * `-c/--connect-via-ipc`, injected through setEditorBootstrap()); false in
-		 * standalone. Used to present host-owned configuration (audio/MIDI driver,
-		 * JACK, OSC) read-only (ADR 0016/0022/0032). */
+		 * `-c/--connect-via-ipc`, injected through setEditorBootstrap()); false
+		 * in standalone. Used to present (remote) headless engine-owned
+		 * configuration (audio/MIDI driver, JACK, OSC) read-only (ADR
+		 * 0016/0022/0032). */
 		static bool isConnectViaIpcMode() { return m_bConnectViaIpcMode; }
 
-		/** Injects the engine + preferences handles used by the static accessors
-		 * during early startup, before HydrogenApp exists. main() calls this with
-		 * the loaded Preferences first (engine still null), then again once the
-		 * Hydrogen instance has been created. */
+		/** Injects the engine + preferences handles used by the static
+		 * accessors during early startup, before HydrogenApp exists. main()
+		 * calls this with the loaded Preferences first (engine still null),
+		 * then again once the Hydrogen instance has been created. */
 		static void setBootstrap( H2Core::Hydrogen* pHydrogen,
 								  std::shared_ptr<H2Core::Preferences> pPreferences );
 
-		/** Editor-mode bootstrap (P5, ADR 0016): inject the headless mirror engine
-		 * @a pMirror (the GUI reads its live objects) together with a pre-built
-		 * IPC-backed engine-access handle @a pEngineAccess (writes are forwarded to
-		 * the authoritative engine in the plugin host). Used by main() in place of
-		 * setBootstrap() when started with `--connect-via-ipc`; takes ownership of the
-		 * access handle, and (like standalone) of the mirror engine. */
+		/** Editor-mode bootstrap (P5, ADR 0016): inject the headless mirror
+		 * engine @a pMirror (the GUI reads its live objects) together with a
+		 * pre-built IPC-backed engine-access handle @a pEngineAccess (writes
+		 * are forwarded to the authoritative (remote) headless engine). Used by
+		 * main() in place of setBootstrap() when started with
+		 * `--connect-via-ipc`; takes ownership of the access handle, and (like
+		 * standalone) of the mirror engine. */
 		static void setEditorBootstrap(
 			H2Core::Hydrogen* pMirror,
 			std::unique_ptr<H2Core::IEngineAccess> pEngineAccess,

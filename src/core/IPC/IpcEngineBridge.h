@@ -35,12 +35,12 @@ class IpcChannel;
  * Engine side of the editor↔engine bridge (ADR 0018).
  *
  * - dispatchCommand() maps an editor-issued IpcMessage (a CoreActionController
- *   opcode + typed args / XML payload) onto the live engine, so the host-side
- *   engine performs the action the editor requested.
+ *   opcode + typed args / XML payload) onto the live headless engine, so the
+ *   editor-side mirror engine performs the action the editor requested.
  * - forwardEvent() sends one engine-origin EventQueue event to the editor over
- *   the channel, dropping editor-internal events (isEngineOriginEvent). A bridge
- *   thread drains the EventQueue and calls this for each event, keeping the
- *   audio thread untouched.
+ *   the channel, dropping editor-internal events (isEngineOriginEvent). A
+ *   bridge thread drains the EventQueue and calls this for each event, keeping
+ *   the audio thread untouched.
  *
  * \ingroup docCore
  */

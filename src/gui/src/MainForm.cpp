@@ -210,12 +210,13 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	m_pUndoView->setWindowTitle( QString( "Hydrogen - %1" )
 								 .arg( pCommonStrings->getUndoHistoryTitle() ) );
 
-	// Check whether the audio driver could be loaded based on the
-	// content of the config file (ADR 0029). In plugin-editor mode the engine
-	// (and its audio driver) live in the host process; the editor only mirrors
-	// it through a passive driver that never "runs", so this warning does not
-	// apply — and as a *modal* dialog it would block the editor's startup
-	// forever (headless, no user to dismiss it), so the window never appears.
+	// Check whether the audio driver could be loaded based on the content of
+	// the config file (ADR 0029). When connected via IPC, the engine (and its
+	// audio driver) live in the headless engine process; the editor only
+	// mirrors it through a passive driver that never "runs", so this warning
+	// does not apply — and as a *modal* dialog it would block the editor's
+	// startup forever (headless, no user to dismiss it), so the window never
+	// appears.
 	if ( ! HydrogenApp::isConnectViaIpcMode() &&
 		 ! HydrogenApp::pHydrogen()->isUnderPluginHost() &&
 		 ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
@@ -2353,13 +2354,15 @@ void MainForm::checkMidiSetup()
 
 void MainForm::checkNecessaryDirectories()
 {
-	//Make sure that all directories which are needed by Hydrogen are existing and usable.
+	// Make sure that all directories which are needed by Hydrogen are existing
+	// and usable.
 	QString sTempDir = Filesystem::tmpDir();
 
 	// In plugin-editor mode this modal warning would block the editor's startup
 	// forever (headless, no user to dismiss it), so the window never appears —
 	// the same hazard as the audio-driver warning above. Skip it; the editor
-	// shares the host's environment and is not the right place to surface this.
+	// shares the headless engine's environment and is not the right place to
+	// surface this.
 	if( !HydrogenApp::isConnectViaIpcMode() &&
 		!HydrogenApp::pHydrogen()->isUnderPluginHost() &&
 		!Filesystem::dirWritable(sTempDir))

@@ -100,10 +100,10 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 		return;
 	}
 
-	// Publish a telemetry block keyed off the endpoint so an editor that knows only
-	// `--connect-via-ipc <endpoint>` can attach and follow the host playhead (ADR
-	// 0018/0031). Lives on this bridge thread; failure is non-fatal (the editor
-	// then falls back to events-only sync).
+	// Publish a telemetry block keyed off the endpoint so an editor that knows
+	// only `--connect-via-ipc <endpoint>` can attach and follow the headless
+	// engine's playhead (ADR 0018/0031). Lives on this bridge thread; failure
+	// is non-fatal (the editor then falls back to events-only sync).
 	m_pTelemetry = std::make_unique<PluginTelemetryShm>();
 	if ( ! m_pTelemetry->create(
 			 PluginTelemetryShm::keyForEndpoint( m_sEndpoint ) ) ) {

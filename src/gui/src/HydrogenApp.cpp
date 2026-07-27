@@ -262,8 +262,8 @@ void HydrogenApp::setBootstrap( H2Core::Hydrogen* pHydrogen,
 							   std::shared_ptr<H2Core::Preferences> pPreferences ) {
 	m_pBootstrapHydrogen = pHydrogen;
 	m_pBootstrapPreferences = pPreferences;
-	// Once the engine exists, wrap it in the access handle the GUI fans out from
-	// (ADR 0016). The GUI being single-instance, one handle suffices.
+	// Once the engine exists, wrap it in the access handle the GUI fans out
+	// from (ADR 0016). The GUI being single-instance, one handle suffices.
 	if ( pHydrogen != nullptr ) {
 		m_pEngineAccess =
 			std::make_unique<H2Core::LocalEngineAccess>( pHydrogen );

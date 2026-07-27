@@ -34,13 +34,13 @@ class IpcChannel;
  * \ingroup docCore
  *
  * #IEngineAccess for editor mode (ADR 0016): the GUI runs in a separate process
- * from the authoritative engine (which lives in the plugin host). Reads are
- * served from a local *headless* #Hydrogen mirror — kept in sync by
- * #EditorStateMirror from the inbound IPC stream — so the GUI dereferences live
- * local Song / Preferences / Playlist / SoundLibraryDatabase objects exactly as
- * in standalone. Transport commands are forwarded over the #IpcChannel to the
- * real engine; editor-local view state (selection, dirty flags, view modes) is
- * applied directly to the mirror.
+ * from the authoritative engine (which lives either in a plugin host or in its
+ * own process as `h2player`). Reads are served from a local *headless*
+ * #Hydrogen mirror — kept in sync by #EditorStateMirror from the inbound IPC
+ * stream — so the GUI dereferences live local Song / Preferences / Playlist /
+ * SoundLibraryDatabase objects exactly as in standalone. Transport commands are
+ * forwarded over the #IpcChannel to the real engine; editor-local view state
+ * (selection, dirty flags, view modes) is applied directly to the mirror.
  *
  * Neither the mirror nor the channel is owned by this object.
  *
@@ -99,10 +99,12 @@ public:
 		return m_pMirror->isUnderSessionManagement(); }
 
 	// --- audio driver (ADR 0029) ---
-	// The host owns audio I/O; in editor mode driver state crosses as config
-	// (override layer), query, and event. That query/event plumbing is a later
-	// editor-mode sub-step; until it exists the mirror has no real audio driver,
-	// so we report "no driver" rather than the mirror's headless one.
+	//
+	// The headless engine owns audio I/O; in editor mode driver state crosses
+	// as config (override layer), query, and event. That query/event plumbing
+	// is a later editor-mode sub-step; until it exists the mirror has no real
+	// audio driver, so we report "no driver" rather than the mirror's headless
+	// one.
 	AudioDriverInfo getAudioDriverInfo() const override { return AudioDriverInfo(); }
 	int getAudioSampleRate() const override { return 0; }
 	int getAudioBufferSize() const override { return 0; }

@@ -122,8 +122,9 @@ void EditorStateMirror::attachTelemetry( const QString& sEndpoint ) {
 	}
 
 	// Periodic forced re-sync (~5 s) bounds long-run drift between the mirror's
-	// own free-running clock and the host (ADR 0031). Event-driven syncs handle
-	// the immediate cases (play/stop/seek) between ticks.
+	// own free-running clock and the (remote) headless engine (ADR 0031).
+	// Event-driven syncs handle the immediate cases (play/stop/seek) between
+	// ticks.
 	m_pResyncTimer = new QTimer( this );
 	m_pResyncTimer->setInterval( EditorStateMirror::nResyncTimeoutMs );
 	connect( m_pResyncTimer, &QTimer::timeout,
@@ -150,17 +151,18 @@ void EditorStateMirror::applyTransportSnapshot(
 		return;
 	}
 
-	const bool bHostPlaying = snapshot.playing != 0;
+	const bool bRemoteEnginePlaying = snapshot.playing != 0;
 	const bool bMirrorPlaying =
 		pAudioEngine->getState() == AudioEngine::State::Playing;
 
-	// 1. Play/stop follow. The host is authoritative; the mirror never initiates
-	//    transport (ADR 0026), it only matches the host's rolling state so its own
-	//    clock advances (or holds) the local playhead.
-	if ( bHostPlaying && ! bMirrorPlaying ) {
+	// 1. Play/stop follow. The headless engine is authoritative; the mirror
+	//    never initiates transport (ADR 0026), it only matches the headless
+	//    engine's rolling state so its own clock advances (or holds) the local
+	//    playhead.
+	if ( bRemoteEnginePlaying && ! bMirrorPlaying ) {
 		m_pMirror->sequencerPlay();
 	}
-	else if ( ! bHostPlaying && bMirrorPlaying ) {
+	else if ( ! bRemoteEnginePlaying && bMirrorPlaying ) {
 		m_pMirror->sequencerStop();
 	}
 
@@ -173,12 +175,13 @@ void EditorStateMirror::applyTransportSnapshot(
 		pAudioEngine->unlock();
 	}
 
-	// 3. Frame follow / drift correction. The telemetry frame is up to one engine
-	//    write-cycle stale, so snapping it onto a *rolling* mirror would jerk the
-	//    playhead backwards by that latency every sync. Only correct when the
-	//    mirror is stopped (exact follow — no latency, frame is static) or when the
-	//    divergence is large enough to be a real desync (host seek / accumulated
-	//    drift), never the routine read lag.
+	// 3. Frame follow / drift correction. The telemetry frame is up to one
+	//    engine write-cycle stale, so snapping it onto a *rolling* mirror would
+	//    jerk the playhead backwards by that latency every sync. Only correct
+	//    when the mirror is stopped (exact follow — no latency, frame is
+	//    static) or when the divergence is large enough to be a real desync
+	//    (headless engine seek / accumulated drift), never the routine read
+	//    lag.
 	if ( pPlayhead != nullptr ) {
 		const long long nDrift =
 			std::llabs( pPlayhead->getFrame() - snapshot.frame );
@@ -188,7 +191,7 @@ void EditorStateMirror::applyTransportSnapshot(
 			nSampleRate = pAudioEngine->getAudioDriver()->getSampleRate();
 		}
 		const long long nThreshold = nSampleRate / 2; // ~0.5 s
-		if ( ( ! bHostPlaying && nDrift > 0 ) || nDrift > nThreshold ) {
+		if ( ( ! bRemoteEnginePlaying && nDrift > 0 ) || nDrift > nThreshold ) {
 			m_pMirror->getCoreActionController()->relocateToFrame( snapshot.frame );
 		}
 	}

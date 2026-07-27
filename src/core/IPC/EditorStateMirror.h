@@ -42,25 +42,27 @@ class IpcChannel;
  * \ingroup docCore
  *
  * Keeps an editor-process state mirror in sync with the authoritative engine
- * living in the plugin host process (ADR 0016). The editor runs a *headless*
- * #Hydrogen whose Song / Preferences / Playlist / SoundLibraryDatabase the GUI
- * reads locally (via #IpcEngineAccess), and this class applies the inbound IPC
- * stream onto that mirror so it tracks the engine:
+ * living in the plugin host or (remote) headless engine process (ADR 0016). The
+ * editor runs a (local) *headless* #Hydrogen whose Song / Preferences /
+ * Playlist / SoundLibraryDatabase the GUI reads locally (via #IpcEngineAccess),
+ * and this class applies the inbound IPC stream onto that mirror so it tracks
+ * the engine:
  *
  * - **Events** (engine → editor) are re-posted onto the mirror's #EventQueue, so
  *   the GUI reacts exactly as it would to a local engine.
  * - **Song / state snapshots** (#IpcOpcode::SetSong / ::LoadState) replace the
  *   mirror's song, so structural edits made engine-side appear in the editor.
  * - **Telemetry** snapshots (transport position / BPM / peaks) are read from the
- *   lock-free QSharedMemory block (not the socket) and used to keep the mirror's
- *   transport following the host (ADR 0031 hybrid sync): the mirror's own clock
- *   free-runs the playhead for smoothness, inbound transport events trigger an
- *   immediate correction, and a periodic timer bounds long-run drift.
+ *   lock-free QSharedMemory block (not the socket) and used to keep the
+ *   mirror's transport following the host/headless engine (ADR 0031 hybrid
+ *   sync): the mirror's own clock free-runs the playhead for smoothness,
+ *   inbound transport events trigger an immediate correction, and a periodic
+ *   timer bounds long-run drift.
  *
  * Only inbound (engine → editor) synchronisation lives here; outbound commands
- * (editor → engine) are issued by #IpcEngineAccess. The mirror never *initiates*
- * transport — play/stop/relocate are host-only and read-only here (ADR 0026); it
- * only follows.
+ * (editor → engine) are issued by #IpcEngineAccess. The mirror never
+ * *initiates* transport — play/stop/relocate are host/headless engine-only and
+ * read-only here (ADR 0026); it only follows.
  */
 class EditorStateMirror : public QObject {
 	Q_OBJECT

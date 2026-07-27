@@ -21,12 +21,13 @@
 
 // Plugin-editor attach integration test (ADR 0016/0018).
 //
-// This is the success counterpart to the EditorBadEndpoint smoke test. It stands
-// up the engine side exactly as a plugin host (DAW) does — a HydrogenPlugin that
-// owns a headless engine and serves it over IPC via EngineSession — and then
-// launches the *real* Hydrogen GUI in out-of-process editor mode
-// (`hydrogen --connect-via-ipc <endpoint>`) against that live endpoint, just like
-// HydrogenPlugin::launchEditorProcess() would when the host calls "show GUI".
+// This is the success counterpart to the EditorBadEndpoint smoke test. It
+// stands up the engine side exactly as a plugin host (DAW) does — a
+// HydrogenPlugin that owns a headless engine and serves it over IPC via
+// EngineSession — and then launches the *real* Hydrogen GUI out-of-process and
+// connect to it via IPC (`hydrogen --connect-via-ipc <endpoint>`) against that
+// live endpoint, just like HydrogenPlugin::launchEditorProcess() would when the
+// host calls "show GUI".
 //
 // The one deviation from the production spawn is that we add `--quit-after-startup`
 // so the editor, once it has connected, built MainForm over the IPC-backed engine

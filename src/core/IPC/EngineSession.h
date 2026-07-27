@@ -83,9 +83,9 @@ public:
 
 	/** Build a transport-only telemetry snapshot (frame / bpm / playing / tick)
 	 * from @a pEngine. Peaks and full BBT are left at 0 here — they are the
-	 * separate ADR 0018 metering concern; this carries what the editor mirror needs
-	 * to follow the host playhead (ADR 0031). Static so it is unit-testable without
-	 * a running serve loop. */
+	 * separate ADR 0018 metering concern; this carries what the editor mirror
+	 * needs to follow the headless engine's playhead (ADR 0031). Static so it is
+	 * unit-testable without a running serve loop. */
 	static PluginTelemetrySnapshot buildTransportSnapshot( Hydrogen* pEngine );
 
 private:

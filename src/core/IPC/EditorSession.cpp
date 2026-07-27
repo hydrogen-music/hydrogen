@@ -35,12 +35,11 @@ void EditorSession::configureMirrorPreferences(
 		return;
 	}
 	// Headless software driver (ADR 0031): `Null` now routes to a clocked but
-	// output-less SoftwareDriver, so the mirror's transport advances locally for a
-	// smooth playhead while it follows the host via telemetry (EditorStateMirror).
-	// Its clock thread is joined in the driver's destructor and the engine is torn
-	// down before the Logger, so the editor-abort race that crashed the old
-	// thread-spawning Fake driver no longer applies. No MIDI / no OSC: the host
-	// owns control surfaces (ADR 0016/0026).
+	// output-less SoftwareDriver, so the mirror's transport advances locally
+	// for a smooth playhead while it follows the headless engine via telemetry
+	// (EditorStateMirror). Its clock thread is joined in the driver's
+	// destructor. No MIDI / no OSC: the headless engine owns control surfaces
+	// (ADR 0016/0026).
 	pPreferences->m_audioDriver = Preferences::AudioDriver::Null;
 	pPreferences->m_midiDriver = Preferences::MidiDriver::None;
 	pPreferences->setOscServerEnabled( false );
@@ -52,8 +51,9 @@ EditorSession::EditorSession( Hydrogen* pMirror, IpcChannel* pChannel,
 	, m_pChannel( pChannel )
 	, m_pStateMirror( std::make_unique<EditorStateMirror>( pMirror ) ) {
 	m_pStateMirror->attach( pChannel );
-	// Follow the host transport via the telemetry block keyed off the same
-	// endpoint we connected to (ADR 0031). Absent block → events-only sync.
+	// Follow the headless engine's transport via the telemetry block keyed off
+	// the same endpoint we connected to (ADR 0031). Absent block → events-only
+	// sync.
 	m_pStateMirror->attachTelemetry( sEndpoint );
 }
 
