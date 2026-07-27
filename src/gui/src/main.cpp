@@ -367,10 +367,15 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! pPref->getLoadingSuccessful() ) {
+			QMessageBox::critical(
+				nullptr, "Hydrogen",
+				QString( QT_TRANSLATE_NOOP(
+					"Startup",
+					"No [hydrogen.conf] file found. Hydrogen was not installed "
+					"properly. Aborting..."
+				) )
+			);
 
-			QMessageBox::critical( nullptr, "Hydrogen",
-				QString( QT_TRANSLATE_NOOP( "Startup",															   "No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting..." ) ) );
-			
 			// Neither the Preferences on system level nor the ones at
 			// user level could be loaded successfully. Hydrogen was
 			// most probably not installed properly. Abort.
@@ -411,9 +416,7 @@ int main(int argc, char *argv[])
 		QDir::setCurrent( sCurrentDir );
 #endif
 
-
 		SplashScreen *pSplash = new SplashScreen();
-
 #ifdef H2CORE_HAVE_OSC
 		// Check for being under session management without the
 		// NsmClient class available yet.
@@ -423,8 +426,7 @@ int main(int argc, char *argv[])
 		else {
 			pSplash->show();
 		}
-#endif
-#ifndef H2CORE_HAVE_OSC
+#else
 		pSplash->show();
 #endif
 
