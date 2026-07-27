@@ -49,9 +49,13 @@ constexpr uint16_t QUEUE_TIMER_PERIOD = 50;
 
 namespace H2Core
 {
+	class EditorSession;
+	class EventQueue;
+	class Hydrogen;
 	class Instrument;
 	class InstrumentComponent;
 	class InstrumentLayer;
+	class LocalEngineAccess;
 	class Song;
 }
 
@@ -71,12 +75,6 @@ class PlaylistEditor;
 class SampleEditor;
 class SongEditorPanel;
 class SoundLibraryPanel;
-
-namespace H2Core {
-	class Hydrogen;
-	class EventQueue;
-	class LocalEngineAccess;
-}
 
 /** \ingroup docGUI*/
 class HydrogenApp : public QObject,
@@ -132,6 +130,24 @@ class HydrogenApp : public QObject,
 	 * 0016/0022/0032). */
 	static bool isConnectViaIpcMode() { return m_bConnectViaIpcMode; }
 
+	/** Actual connection state of the IPC channel (not the startup flag
+	 * #isConnectViaIpcMode). Returns false in standalone mode or when the
+	 * channel has been closed (user-initiated disconnect or connection loss). */
+	static bool isIpcConnected();
+
+	/** Endpoint of the current (or last) IPC session. Used for reconnection
+	 * without re-parsing the CLI. Empty in standalone mode. */
+	QString getIpcEndpoint() const { return m_sIpcEndpoint; }
+
+	/** Establishes an IPC connection to @a sEndpoint. Tears down any existing
+	 * session first. Shows an error dialog on failure. Only valid in IPC mode
+	 * (see #isConnectViaIpcMode). */
+	void connectToIpcEngine( const QString& sEndpoint );
+
+	/** Cleanly disconnects from the remote engine. The mirror engine remains
+	 * readable; writes silently fail until reconnect. Only valid in IPC mode. */
+	void disconnectFromIpcEngine();
+
 	/** Injects the engine + preferences handles used by the static
 	 * accessors during early startup, before HydrogenApp exists. main()
 	 * calls this with the loaded Preferences first (engine still null),
@@ -141,16 +157,16 @@ class HydrogenApp : public QObject,
 		std::shared_ptr<H2Core::Preferences> pPreferences
 	);
 
-	/** Editor-mode bootstrap (P5, ADR 0016): inject the headless mirror
-	 * engine @a pMirror (the GUI reads its live objects) together with a
-	 * pre-built IPC-backed engine-access handle @a pEngineAccess (writes
-	 * are forwarded to the authoritative (remote) headless engine). Used by
-	 * main() in place of setBootstrap() when started with
-	 * `--connect-via-ipc`; takes ownership of the access handle, and (like
+	/** Editor-mode bootstrap (P5, ADR 0016): inject the headless mirror engine
+	 * @a pMirror (the GUI reads its live objects) together with surroundign
+	 * session. The latter is used to create IPC-backed engine-access handle @a
+	 * pEngineAccess (writes are forwarded to the authoritative (remote)
+	 * headless engine). Used by main() in place of setBootstrap() when started
+	 * with `--connect-via-ipc`; takes ownership of the access handle, and (like
 	 * standalone) of the mirror engine. */
 	static void setEditorBootstrap(
 		H2Core::Hydrogen* pMirror,
-		std::unique_ptr<H2Core::IEngineAccess> pEngineAccess,
+		std::unique_ptr<H2Core::EditorSession> pEngineSession,
 		std::shared_ptr<H2Core::Preferences> pPreferences
 	);
 	/** @} */
@@ -297,6 +313,7 @@ class HydrogenApp : public QObject,
 
    private slots:
 	void propagatePreferences();
+	void onIpcConnectionLost();
 
 	friend class MainForm;
 
@@ -316,6 +333,20 @@ class HydrogenApp : public QObject,
 	static std::unique_ptr<H2Core::IEngineAccess> m_pEngineAccess;
 	/** Set once by setEditorBootstrap(); backs isConnectViaIpcMode(). */
 	static bool m_bConnectViaIpcMode;
+	/** Overall session this HydrogenApp instance was bootstrapped in. Use
+	 * to manage the connection to the connected peer. */
+	static std::unique_ptr<H2Core::EditorSession> m_pEditorSession;
+
+	/** Endpoint of the current (or last) IPC session, for reconnection. */
+	QString m_sIpcEndpoint;
+	/** When true, an upcoming IpcChannel::disconnected() signal is expected
+	 * (user-initiated disconnect or session teardown) and #onIpcConnectionLost
+	 * suppresses the warning dialog. */
+	bool m_bIpcDisconnectExpected = false;
+
+	/** Connects the current session's channel #disconnected signal to
+	 * #onIpcConnectionLost. Call after every (re)connect. */
+	void wireIpcDisconnectSignal();
 
 	/** Used for accessibility reasons to show scroll bars in case Hydrogen
 	 * has to be shrunk below its minimum size - magnified using the Qt

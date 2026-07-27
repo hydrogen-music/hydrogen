@@ -62,6 +62,8 @@ All notable changes to this project will be documented in this file.
 	or `all`.
   - `-c/--connect-via-ipc <endpoint>`: start GUI instance without drivers and
     connect to a headless instance instead.
+- The IPC connection button in the MainToolBar to toggle the connection to the
+  remote headless engine.
 - Patterns are now independent of Drumkits and the latter can switched without
   the need to adjust the patterns. Mapping between the two will be done using
   "instrument types".

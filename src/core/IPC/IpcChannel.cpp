@@ -159,6 +159,13 @@ bool IpcChannel::isConnected() const {
 		m_pSocket->state() == QLocalSocket::ConnectedState;
 }
 
+void IpcChannel::close() {
+	if ( m_pSocket != nullptr &&
+		 m_pSocket->state() != QLocalSocket::UnconnectedState ) {
+		m_pSocket->disconnectFromServer();
+	}
+}
+
 bool IpcChannel::send( const IpcMessage& msg ) {
 	if ( m_pSocket == nullptr ) {
 		return false;

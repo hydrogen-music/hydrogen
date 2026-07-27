@@ -22,8 +22,6 @@
 
 #include "HydrogenApp.h"
 
-#include <core/IEngineAccess.h>
-#include <core/LocalEngineAccess.h>
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
@@ -34,6 +32,11 @@
 #include <core/Basics/PatternList.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
+#include <core/IEngineAccess.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/IpcChannel.h>
+#include <core/IPC/IpcEngineAccess.h>
+#include <core/LocalEngineAccess.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
@@ -78,6 +81,7 @@ HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 H2Core::Hydrogen* HydrogenApp::m_pBootstrapHydrogen = nullptr;
 std::shared_ptr<H2Core::Preferences> HydrogenApp::m_pBootstrapPreferences = nullptr;
 std::unique_ptr<H2Core::IEngineAccess> HydrogenApp::m_pEngineAccess = nullptr;
+std::unique_ptr<H2Core::EditorSession> HydrogenApp::m_pEditorSession = nullptr;
 bool HydrogenApp::m_bConnectViaIpcMode = false;
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
@@ -97,6 +101,13 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  , m_pHydrogen( m_pBootstrapHydrogen )
 {
 	m_pInstance = this;
+
+	// In IPC mode the session was already created by setEditorBootstrap()
+	// in main(). Wire its disconnect signal so connection loss is surfaced.
+	if ( m_pEditorSession != nullptr ) {
+		m_sIpcEndpoint = m_pEditorSession->getEndpoint();
+		wireIpcDisconnectSignal();
+	}
 
 	m_pEventQueueTimer = new QTimer(this);
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
@@ -272,7 +283,7 @@ void HydrogenApp::setBootstrap( H2Core::Hydrogen* pHydrogen,
 
 void HydrogenApp::setEditorBootstrap(
 	H2Core::Hydrogen* pMirror,
-	std::unique_ptr<H2Core::IEngineAccess> pEngineAccess,
+	std::unique_ptr<H2Core::EditorSession> pEditorSession,
 	std::shared_ptr<H2Core::Preferences> pPreferences ) {
 	// Editor mode: pHydrogen() resolves to the headless mirror and pEngine() to
 	// the injected IPC-backed handle (ADR 0016). The mirror is owned like the
@@ -280,7 +291,8 @@ void HydrogenApp::setEditorBootstrap(
 	// access handle is owned by the EditorSession in main().
 	m_pBootstrapHydrogen = pMirror;
 	m_pBootstrapPreferences = pPreferences;
-	m_pEngineAccess = std::move( pEngineAccess );
+	m_pEditorSession = std::move( pEditorSession );
+	m_pEngineAccess = std::move( m_pEditorSession->createEngineAccess() );
 	m_bConnectViaIpcMode = true;
 }
 
@@ -306,6 +318,96 @@ std::shared_ptr<H2Core::Preferences> HydrogenApp::pPreferences() {
 
 H2Core::EventQueue* HydrogenApp::pEventQueue() {
 	return pEngine()->getEventQueue();
+}
+
+bool HydrogenApp::isIpcConnected() {
+	return m_pEditorSession != nullptr && m_pEditorSession->isConnected();
+}
+
+void HydrogenApp::wireIpcDisconnectSignal() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel != nullptr ) {
+		connect( pChannel, &H2Core::IpcChannel::disconnected,
+				 this, &HydrogenApp::onIpcConnectionLost );
+	}
+}
+
+void HydrogenApp::connectToIpcEngine( const QString& sEndpoint ) {
+	if ( ! m_bConnectViaIpcMode ) {
+		return;
+	}
+
+	m_sIpcEndpoint = sEndpoint;
+
+	// Tear down any existing session first. The flag suppresses the
+	// connection-loss dialog that the channel's disconnected() signal would
+	// otherwise fire during destruction.
+	m_bIpcDisconnectExpected = true;
+	m_pEngineAccess = nullptr;
+	m_pEditorSession = nullptr;
+	m_bIpcDisconnectExpected = false;
+
+	// Attempt a fresh connection. The flag also suppresses the dialog if the
+	// connect fails and the channel is torn down immediately.
+	m_bIpcDisconnectExpected = true;
+	m_pEditorSession = H2Core::EditorSession::connect( sEndpoint, m_pHydrogen );
+	m_bIpcDisconnectExpected = false;
+
+	if ( m_pEditorSession == nullptr ) {
+		ERRORLOG( QString( "Unable to connect to headless engine endpoint [%1]" )
+				  .arg( sEndpoint ) );
+		QMessageBox::warning(
+			m_pMainForm, "Hydrogen",
+			m_pCommonStrings->getIpcConnectionFailed() + "\n[" + sEndpoint + "]"
+		);
+		if ( m_pMainToolBar != nullptr ) {
+			m_pMainToolBar->updateIpcConnectionState();
+		}
+		return;
+	}
+
+	m_pEngineAccess = m_pEditorSession->createEngineAccess();
+	wireIpcDisconnectSignal();
+
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updateIpcConnectionState();
+	}
+	INFOLOG( QString( "Connected to headless engine endpoint [%1]" )
+			 .arg( sEndpoint ) );
+}
+
+void HydrogenApp::disconnectFromIpcEngine() {
+	if ( ! m_bConnectViaIpcMode || m_pEditorSession == nullptr ) {
+		return;
+	}
+
+	m_bIpcDisconnectExpected = true;
+	m_pEditorSession->disconnect();
+	m_bIpcDisconnectExpected = false;
+
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updateIpcConnectionState();
+	}
+	INFOLOG( "Disconnected from headless engine." );
+}
+
+void HydrogenApp::onIpcConnectionLost() {
+	if ( m_bIpcDisconnectExpected ) {
+		return;
+	}
+
+	ERRORLOG( "IPC connection to headless engine was lost." );
+	QMessageBox::warning(
+		m_pMainForm, "Hydrogen",
+		m_pCommonStrings->getIpcConnectionLost()
+	);
+
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updateIpcConnectionState();
+	}
 }
 
 

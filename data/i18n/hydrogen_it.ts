@@ -1901,6 +1901,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Playback track mute button - undo history entry and widget tooltip.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The connection to the remote headless engine was lost. Click the connection button to reconnect.</source>
+        <extracomment>Warning dialog shown when the IPC connection to the remote headless * engine is lost unexpectedly (not user-initiated).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not connect to the remote headless engine.</source>
+        <extracomment>Error dialog shown when connecting to a remote headless engine fails. * The endpoint is appended via concatenation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

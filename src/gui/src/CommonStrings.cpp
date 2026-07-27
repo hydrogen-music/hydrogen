@@ -569,6 +569,15 @@ CommonStrings::CommonStrings(){
 	 *  modified */
 	m_sIsModified = tr( "modified" );
 	m_sReadOnlyAdvice = tr( "Use 'Save as' to enable autosave." );
+	/*: Warning dialog shown when the IPC connection to the remote headless
+	 *  engine is lost unexpectedly (not user-initiated). */
+	m_sIpcConnectionLost = tr( "The connection to the remote headless engine "
+							   "was lost. Click the connection button to "
+							   "reconnect." );
+	/*: Error dialog shown when connecting to a remote headless engine fails.
+	 *  The endpoint is appended via concatenation. */
+	m_sIpcConnectionFailed = tr( "Could not connect to the remote headless "
+								 "engine." );
 
 	/*: Shown in table headers when referring to an instrument's id.*/
 	m_sInstrumentId = tr( "Id" );

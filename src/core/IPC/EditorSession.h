@@ -73,6 +73,14 @@ public:
 	IpcChannel* getChannel() const { return m_pChannel; }
 	bool isConnected() const;
 
+	/** Endpoint this session was connected to (stored for reconnection). */
+	const QString& getEndpoint() const { return m_sEndpoint; }
+
+	/** Close the control channel. Idempotent. The session and mirror engine
+	 * remain valid — reads still resolve to the mirror, writes silently fail
+	 * until a fresh session is created via connect(). */
+	void disconnect();
+
 	/** Build a fresh editor-mode engine-access handle bound to this session's
 	 * channel and mirror. Ownership transfers to the caller (the GUI). */
 	std::unique_ptr<IpcEngineAccess> createEngineAccess() const;
@@ -85,6 +93,9 @@ private:
 	Hydrogen* m_pMirror;
 	/** Control channel to the authoritative engine; owned. */
 	IpcChannel* m_pChannel;
+	/** Endpoint passed to connect(); stored so the GUI can reconnect without
+	 * re-parsing the CLI. */
+	QString m_sEndpoint;
 	/** Applies inbound (engine → editor) frames onto the mirror; owned. */
 	std::unique_ptr<EditorStateMirror> m_pStateMirror;
 };

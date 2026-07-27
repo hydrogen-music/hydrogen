@@ -137,7 +137,12 @@ MainToolBar::MainToolBar( QWidget* pParent )
 			createButton( tr( "Connection state to headless engine" ) );
 		m_pIpcConnectionButton->setObjectName( "IpcConnectionButton" );
 		connect( m_pIpcConnectionButton, &QToolButton::clicked, [&]() {
-			updateIpcConnectionState();
+			auto pApp = HydrogenApp::get_instance();
+			if ( HydrogenApp::isIpcConnected() ) {
+				pApp->disconnectFromIpcEngine();
+			} else {
+				pApp->connectToIpcEngine( pApp->getIpcEndpoint() );
+			}
 		} );
 		addWidget( m_pIpcConnectionButton );
 
@@ -1013,7 +1018,7 @@ void MainToolBar::updateIpcConnectionState() {
 	if ( ! HydrogenApp::isConnectViaIpcMode() ) {
 		return;
 	}
-	const bool bConnected = HydrogenApp::isConnectViaIpcMode();
+	const bool bConnected = HydrogenApp::isIpcConnected();
 	m_pIpcConnectionButton->setChecked( bConnected );
 
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();

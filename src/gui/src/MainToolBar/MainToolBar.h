@@ -80,6 +80,7 @@ class MainToolBar : public QToolBar,
 	void setPreferencesVisibilityState( bool bChecked );
 	void updateActions();
 	void updateInput();
+	void updateIpcConnectionState();
 
 	Editor::Input getInput() const;
 	void setInput( Editor::Input input );
@@ -168,7 +169,6 @@ class MainToolBar : public QToolBar,
 	QTimer* m_pTimer;
 
 	void updateBpmSpinBox();
-	void updateIpcConnectionState();
 	void updateJackTransport();
 	void updateJackTimebase();
 	void updateLoopMode();

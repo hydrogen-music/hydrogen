@@ -68,6 +68,11 @@ public:
 										QObject* pParent = nullptr );
 
 	bool isConnected() const;
+	/** Close the underlying socket. If the socket was connected, this emits
+	 * #disconnected (relayed from QLocalSocket). Idempotent: a no-op when
+	 * already disconnected. The channel object itself stays valid — only the
+	 * transport is torn down. */
+	void close();
 	bool send( const IpcMessage& msg );
 	/** Block until one message is available (or timeout). Returns false on
 	 * timeout/disconnect. */

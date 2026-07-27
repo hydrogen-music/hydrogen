@@ -409,6 +409,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getIsModified() const { return m_sIsModified; }
 	const QString& getReadOnlyAdvice() const { return m_sReadOnlyAdvice; }
 
+	const QString& getIpcConnectionLost() const { return m_sIpcConnectionLost; }
+	const QString& getIpcConnectionFailed() const { return m_sIpcConnectionFailed; }
+
 	const QString& getInstrumentId() const { return m_sInstrumentId; }
 	const QString& getInstrumentType() const { return m_sInstrumentType; }
 	const QString& getComponent() const { return m_sComponent; }
@@ -942,6 +945,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sPlaylistSaveFailure;
 	QString m_sIsModified;
 	QString m_sReadOnlyAdvice;
+	QString m_sIpcConnectionLost;
+	QString m_sIpcConnectionFailed;
 
 	QString m_sInstrumentId;
 	QString m_sInstrumentType;

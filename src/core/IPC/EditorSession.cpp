@@ -49,6 +49,7 @@ EditorSession::EditorSession( Hydrogen* pMirror, IpcChannel* pChannel,
 							  const QString& sEndpoint )
 	: m_pMirror( pMirror )
 	, m_pChannel( pChannel )
+	, m_sEndpoint( sEndpoint )
 	, m_pStateMirror( std::make_unique<EditorStateMirror>( pMirror ) ) {
 	m_pStateMirror->attach( pChannel );
 	// Follow the headless engine's transport via the telemetry block keyed off
@@ -83,6 +84,12 @@ std::unique_ptr<EditorSession> EditorSession::connect(
 
 bool EditorSession::isConnected() const {
 	return m_pChannel != nullptr && m_pChannel->isConnected();
+}
+
+void EditorSession::disconnect() {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->close();
+	}
 }
 
 std::unique_ptr<IpcEngineAccess> EditorSession::createEngineAccess() const {

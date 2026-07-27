@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
 				exit( Reporter::EXIT_CODE_CLEAN_FAILURE );
 			}
 			HydrogenApp::setEditorBootstrap(
-				pHydrogen, pEditorSession->createEngineAccess(), pPref );
+				pHydrogen, std::move( pEditorSession ), pPref );
 		}
 		else {
 			// Hydrogen here to honor all preferences.
@@ -600,10 +600,6 @@ int main(int argc, char *argv[])
 		pPref->save();
 		delete pSplash;
 		delete pMainForm;
-		// Editor mode: the mirror engine + IPC engine-access were freed via
-		// ~HydrogenApp (delete pMainForm) above; now drop the IPC transport
-		// (channel + inbound sync) it rode on (ADR 0016).
-		pEditorSession.reset();
 		delete pQApp;
 		// Hydrogen (deleted via ~HydrogenApp) owns its EventQueue and frees it
 		// in ~Hydrogen (ADR 0015).
