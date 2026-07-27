@@ -3020,6 +3020,10 @@ Deveria funcionar corretamente dado que você usou o GMRockKit e que você não 
         <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Connection state to headless engine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>

@@ -3022,6 +3022,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Connection state to headless engine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>

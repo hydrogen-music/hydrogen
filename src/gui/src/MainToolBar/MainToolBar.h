@@ -126,6 +126,7 @@ class MainToolBar : public QToolBar,
 
 	LCDDisplay* m_pTimeDisplay;
 
+	QToolButton* m_pIpcConnectionButton;
 	MidiLearnableToolButton* m_pRwdButton;
 	MidiLearnableToolButton* m_pRecButton;
 	MidiLearnableToolButton* m_pPlayButton;
@@ -167,6 +168,7 @@ class MainToolBar : public QToolBar,
 	QTimer* m_pTimer;
 
 	void updateBpmSpinBox();
+	void updateIpcConnectionState();
 	void updateJackTransport();
 	void updateJackTimebase();
 	void updateLoopMode();

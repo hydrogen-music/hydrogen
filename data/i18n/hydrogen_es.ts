@@ -3021,6 +3021,10 @@ Debería funcionar correctamente mientras utilices el GMRockKit, y no uses tresi
         <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Connection state to headless engine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>

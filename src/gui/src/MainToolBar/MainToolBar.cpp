@@ -132,6 +132,20 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	};
 	////////////////////////////////////////////////////////////////////////////
 
+	if ( HydrogenApp::isConnectViaIpcMode() ) {
+		m_pIpcConnectionButton =
+			createButton( tr( "Connection state to headless engine" ) );
+		m_pIpcConnectionButton->setObjectName( "IpcConnectionButton" );
+		connect( m_pIpcConnectionButton, &QToolButton::clicked, [&]() {
+			updateIpcConnectionState();
+		} );
+		addWidget( m_pIpcConnectionButton );
+
+		addCustomSeparator();
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
 	auto pInputModeGroup = new QActionGroup( this );
 	pInputModeGroup->setExclusive( true );
 
@@ -995,6 +1009,24 @@ void MainToolBar::updateBpmSpinBox()
 	}
 }
 
+void MainToolBar::updateIpcConnectionState() {
+	if ( ! HydrogenApp::isConnectViaIpcMode() ) {
+		return;
+	}
+	const bool bConnected = HydrogenApp::isConnectViaIpcMode();
+	m_pIpcConnectionButton->setChecked( bConnected );
+
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	const QColor color =
+		bConnected ? pColorTheme->m_accentColor : pColorTheme->m_buttonRedColor;
+	m_pIpcConnectionButton->setStyleSheet( QString( "\
+#IpcConnectionButton {									 \
+   background-color: %1;								 \
+   border: 1px solid #000;								 \
+}" )
+											   .arg( color.name() ) );
+}
+
 void MainToolBar::updateJackTransport()
 {
 	auto pHydrogen = HydrogenApp::pHydrogen();
@@ -1145,6 +1177,11 @@ void MainToolBar::updateIcons()
 		pColorTheme->m_songEditor_backgroundColor.darker( 110 )
 	);
 
+	if ( HydrogenApp::isConnectViaIpcMode() ) {
+		Skin::setToolButtonIcon(
+			m_pIpcConnectionButton, sIconPath + "remote-connected.svg", colorBackgroundInactive
+		);
+	}
 	Skin::setToolButtonIcon(
 		m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
 	);
@@ -1211,4 +1248,5 @@ QWidget#MainToolBarSeparator {                    \
 
 	m_pBpmTap->setBackgroundColor( colorBackground );
 	m_pBpmTap->updateStyleSheet();
+	updateIpcConnectionState();
 }

@@ -3015,6 +3015,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Show Rack</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Connection state to headless engine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
