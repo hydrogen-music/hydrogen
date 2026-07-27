@@ -81,6 +81,7 @@ HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 H2Core::Hydrogen* HydrogenApp::m_pBootstrapHydrogen = nullptr;
 std::shared_ptr<H2Core::Preferences> HydrogenApp::m_pBootstrapPreferences = nullptr;
 std::unique_ptr<H2Core::IEngineAccess> HydrogenApp::m_pEngineAccess = nullptr;
+std::unique_ptr<H2Core::IEngineAccess> HydrogenApp::m_pLocalFallback = nullptr;
 std::unique_ptr<H2Core::EditorSession> HydrogenApp::m_pEditorSession = nullptr;
 bool HydrogenApp::m_bConnectViaIpcMode = false;
 
@@ -259,6 +260,7 @@ HydrogenApp::~HydrogenApp()
 	m_pBootstrapHydrogen = nullptr;
 	m_pBootstrapPreferences = nullptr;
 	m_pEngineAccess = nullptr;
+	m_pLocalFallback = nullptr;
 }
 
 std::shared_ptr<H2Core::Preferences> HydrogenApp::getPreferences() const {
@@ -297,7 +299,18 @@ void HydrogenApp::setEditorBootstrap(
 }
 
 H2Core::IEngineAccess* HydrogenApp::pEngine() {
-	return m_pEngineAccess.get();
+	if ( m_pEngineAccess != nullptr ) {
+		return m_pEngineAccess.get();
+	}
+	// IPC handle absent (connection lost or reconnect in progress): fall back
+	// to local access over the mirror engine so the GUI stays alive — reads
+	// resolve to the same mirror, commands apply locally (degraded mode, no
+	// audio; ADR 0016). The fallback is lazily created and reused.
+	if ( m_pLocalFallback == nullptr ) {
+		m_pLocalFallback = std::make_unique<H2Core::LocalEngineAccess>(
+			pHydrogen() );
+	}
+	return m_pLocalFallback.get();
 }
 
 H2Core::Hydrogen* HydrogenApp::pHydrogen() {
@@ -388,6 +401,11 @@ void HydrogenApp::disconnectFromIpcEngine() {
 	m_pEditorSession->disconnect();
 	m_bIpcDisconnectExpected = false;
 
+	// Drop the IPC-backed handle so pEngine() falls back to local access over
+	// the mirror (degraded mode). The session itself stays alive (endpoint
+	// preserved for reconnection).
+	m_pEngineAccess = nullptr;
+
 	if ( m_pMainToolBar != nullptr ) {
 		m_pMainToolBar->updateIpcConnectionState();
 	}
@@ -404,6 +422,12 @@ void HydrogenApp::onIpcConnectionLost() {
 		m_pMainForm, "Hydrogen",
 		m_pCommonStrings->getIpcConnectionLost()
 	);
+
+	// Drop the dead IPC handle so pEngine() falls back to local access over
+	// the mirror. This destroys the IpcEngineAccess and its
+	// IpcCoreActionController, preventing further send() calls on the dead
+	// channel. The session stays alive (endpoint preserved for reconnection).
+	m_pEngineAccess = nullptr;
 
 	if ( m_pMainToolBar != nullptr ) {
 		m_pMainToolBar->updateIpcConnectionState();

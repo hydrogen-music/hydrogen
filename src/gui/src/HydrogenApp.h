@@ -329,8 +329,15 @@ class HydrogenApp : public QObject,
 	/** GUI-local engine-access handle backing pEngine() (ADR 0016). Standalone:
 	 * a LocalEngineAccess over the (single) GUI engine, created by
 	 * setBootstrap() once the engine exists. Editor mode (P5): an IPC-backed
-	 * IpcEngineAccess injected by setEditorBootstrap(). */
+	 * IpcEngineAccess injected by setEditorBootstrap(). Nulled when the IPC
+	 * connection is lost or torn down; pEngine() then falls back to
+	 * #m_pLocalFallback so the GUI stays responsive (ADR 0016). */
 	static std::unique_ptr<H2Core::IEngineAccess> m_pEngineAccess;
+	/** Local fallback backing pEngine() when the IPC handle is absent
+	 * (connection lost or reconnect in progress). Wraps the same mirror engine
+	 * the IpcEngineAccess read from; commands apply to the mirror only
+	 * (degraded mode — no audio, ADR 0016). Lazily created by pEngine(). */
+	static std::unique_ptr<H2Core::IEngineAccess> m_pLocalFallback;
 	/** Set once by setEditorBootstrap(); backs isConnectViaIpcMode(). */
 	static bool m_bConnectViaIpcMode;
 	/** Overall session this HydrogenApp instance was bootstrapped in. Use

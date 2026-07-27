@@ -40,6 +40,7 @@
 #include <core/IPC/IpcServer.h>
 #include <core/IPC/PluginTelemetry.h>
 #include <core/IPC/PluginTelemetryShm.h>
+#include <core/LocalEngineAccess.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -375,6 +376,53 @@ void ConnectViaIpcModeTest::testMirrorFollowsTransportTelemetry() {
 	CPPUNIT_ASSERT( bRelocated );
 	CPPUNIT_ASSERT_EQUAL( nExpected, pAudioEngine->getPlayhead()->getFrame() );
 
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// When the IPC connection is lost, HydrogenApp::onIpcConnectionLost() drops the
+// IpcEngineAccess and pEngine() falls back to a LocalEngineAccess wrapping the
+// same mirror engine (ADR 0016). This test verifies that core mechanism: after
+// destroying the IPC handle, a LocalEngineAccess on the same mirror serves
+// reads and commands without crashing — the GUI stays responsive in degraded
+// mode (no audio, mirror-only commands) until the user reconnects.
+void ConnectViaIpcModeTest::testEngineAccessFallsBackToLocal() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+
+	auto* pMirror = makeMirrorEngine();
+	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+	IpcMessage hello;
+	CPPUNIT_ASSERT( conn->receive( hello ) ); // consume handshake
+
+	// IPC-backed access works while connected.
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+	CPPUNIT_ASSERT( pIpcAccess->getSong() != nullptr );
+
+	// Simulate connection loss: the engine closes its end, then
+	// onIpcConnectionLost() drops the IPC handle.
+	conn->close();
+	pIpcAccess.reset();
+
+	// The fallback: LocalEngineAccess wrapping the same mirror. pEngine()
+	// creates this lazily when m_pEngineAccess is null.
+	LocalEngineAccess localAccess( pMirror );
+	CPPUNIT_ASSERT( localAccess.getSong() != nullptr );
+	CPPUNIT_ASSERT( localAccess.getSong().get() == pMirror->getSong().get() );
+	CPPUNIT_ASSERT( localAccess.getCoreActionController() != nullptr );
+	CPPUNIT_ASSERT( localAccess.getEventQueue() != nullptr );
+
+	// Commands must not crash in degraded mode (they apply to the mirror only).
+	localAccess.sequencerStop();
+
+	pSession.reset();
 	delete pMirror;
 
 	___INFOLOG( "passed" );
