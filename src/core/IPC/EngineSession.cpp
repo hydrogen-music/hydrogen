@@ -121,6 +121,8 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 
 		// An editor attached: prime its mirror with the current song, then serve
 		// the connection until it drops (or we are stopped).
+		___INFOLOG( QString( "Editor connected to endpoint [%1]" )
+					.arg( m_sEndpoint ) );
 		sendInitialState( pConn );
 		while ( m_bRunning.load() && pConn->isConnected() ) {
 			IpcMessage msg;
@@ -133,6 +135,7 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 
 		// The editor went away; drop our end and loop back to accept a respawn
 		// (the engine survives editor disconnect/crash, ADR 0016).
+		___INFOLOG( "Editor disconnected" );
 		delete pConn;
 	}
 }
