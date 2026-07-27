@@ -239,7 +239,7 @@ void IpcChannel::onReadyRead() {
 	pump();
 }
 
-bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs ) {
+bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 	if ( ! m_pending.empty() ) {
 		out = m_pending.front();
 		m_pending.pop();
@@ -264,14 +264,16 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs ) {
 		if ( nRemaining <= 0 ) {
 			// bufferedBytes()>0 with no complete message means a frame arrived
 			// only partially (sender could not flush it all); 0 means nothing came.
-			___WARNINGLOG( QString( "receive timed out after %1 ms: "
-									"socketState=%2 bytesAvailable=%3 "
-									"readerBuffered=%4 pending=%5" )
-							   .arg( nTimeoutMs )
-							   .arg( static_cast<int>( m_pSocket->state() ) )
-							   .arg( m_pSocket->bytesAvailable() )
-							   .arg( m_reader.bufferedBytes() )
-							   .arg( static_cast<int>( m_pending.size() ) ) );
+			if ( bLogTimeout ) {
+				___WARNINGLOG( QString( "receive timed out after %1 ms: "
+										"socketState=%2 bytesAvailable=%3 "
+										"readerBuffered=%4 pending=%5" )
+								   .arg( nTimeoutMs )
+								   .arg( static_cast<int>( m_pSocket->state() ) )
+								   .arg( m_pSocket->bytesAvailable() )
+								   .arg( m_reader.bufferedBytes() )
+								   .arg( static_cast<int>( m_pending.size() ) ) );
+			}
 			return false;
 		}
 		m_pSocket->waitForReadyRead(

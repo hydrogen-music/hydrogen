@@ -75,8 +75,11 @@ public:
 	void close();
 	bool send( const IpcMessage& msg );
 	/** Block until one message is available (or timeout). Returns false on
-	 * timeout/disconnect. */
-	bool receive( IpcMessage& out, int nTimeoutMs = 3000 );
+	 * timeout/disconnect. When @a bLogTimeout is false a timeout is silent —
+	 * used by the EngineSession serve loop, which polls with a short timeout
+	 * and a timeout is the normal idle case, not a warning. */
+	bool receive( IpcMessage& out, int nTimeoutMs = 3000,
+				  bool bLogTimeout = true );
 
 	/** Blocking request/response (ADR 0030 tier 3). Stamps @a req with a fresh
 	 * non-zero request id, sends it, and blocks until the matching reply (a

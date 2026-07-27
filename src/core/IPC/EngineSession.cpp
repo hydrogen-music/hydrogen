@@ -126,7 +126,7 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 		sendInitialState( pConn );
 		while ( m_bRunning.load() && pConn->isConnected() ) {
 			IpcMessage msg;
-			if ( pConn->receive( msg, m_nPollTimeoutMs ) ) {
+			if ( pConn->receive( msg, m_nPollTimeoutMs, false ) ) {
 				handleMessage( pConn, msg );
 			}
 			forwardEvents( pConn );
