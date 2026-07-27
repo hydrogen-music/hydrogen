@@ -122,7 +122,6 @@ bool Parser::parse( int argc, char* argv[] ) {
 		QStringList() << "c" << "connect-via-ipc",
 		"Connect to a headless engine at the given IPC endpoint instead of "
 		"creating a new engine", "Endpoint" );
-	connectViaIpcOption.setFlags( QCommandLineOption::HiddenFromHelp );
 
 	parser.addHelpOption();
 	parser.addVersionOption();
