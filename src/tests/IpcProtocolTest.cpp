@@ -224,6 +224,48 @@ void IpcProtocolTest::testTelemetryRoundTrip() {
 	___INFOLOG( "passed" );
 }
 
+void IpcProtocolTest::testOpcodeToQString() {
+	___INFOLOG( "" );
+
+	// A representative spread across the opcode vocabulary.
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::Hello ) )
+					== QString( "HELLO" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::Event ) )
+					== QString( "EVENT" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::Reply ) )
+					== QString( "REPLY" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString(
+						static_cast<quint16>( IpcOpcode::RescanSoundLibrary ) )
+					== QString( "RESCAN_SOUND_LIBRARY" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::Play ) )
+					== QString( "PLAY" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::Stop ) )
+					== QString( "STOP" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::SetBpm ) )
+					== QString( "SET_BPM" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString(
+						static_cast<quint16>( IpcOpcode::SetStripPan ) )
+					== QString( "SET_STRIP_PAN" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString(
+						static_cast<quint16>( IpcOpcode::EditNoteProperty ) )
+					== QString( "EDIT_NOTE_PROPERTY" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString(
+						static_cast<quint16>( IpcOpcode::RemoveFromPlaylist ) )
+					== QString( "REMOVE_FROM_PLAYLIST" ) );
+
+	// The sentinel is not a real opcode.
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::OpcodeCount ) )
+					== QString( "Unknown IPC opcode" ) );
+
+	// Out-of-range numbers are handled gracefully.
+	CPPUNIT_ASSERT( IpcOpcodeToQString( 0xFFFF ) == QString( "Unknown IPC opcode" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString(
+						static_cast<quint16>( IpcOpcode::OpcodeCount ) + 1 )
+					== QString( "Unknown IPC opcode" ) );
+
+	___INFOLOG( "passed" );
+}
+
 void IpcProtocolTest::testTelemetryTearFree() {
 	___INFOLOG( "" );
 

@@ -139,4 +139,360 @@ bool isEngineOriginEvent( Event::Type type ) {
 	}
 }
 
-};
+QString IpcOpcodeToQString( quint16 nOpcode ) {
+	if ( nOpcode >= static_cast<quint16>( IpcOpcode::OpcodeCount ) ) {
+		return QString( "Unknown IPC opcode" );
+	}
+
+	QString sOpcode;
+	switch ( static_cast<IpcOpcode>( nOpcode ) ) {
+	case IpcOpcode::Hello:
+		sOpcode = "HELLO";
+		break;
+	case IpcOpcode::Event:
+		sOpcode = "EVENT";
+		break;
+	case IpcOpcode::Reply:
+		sOpcode = "REPLY";
+		break;
+	case IpcOpcode::RescanSoundLibrary:
+		sOpcode = "RESCAN_SOUND_LIBRARY";
+		break;
+	case IpcOpcode::Play:
+		sOpcode = "PLAY";
+		break;
+	case IpcOpcode::Stop:
+		sOpcode = "STOP";
+		break;
+	case IpcOpcode::Quit:
+		sOpcode = "QUIT";
+		break;
+	case IpcOpcode::SetBpm:
+		sOpcode = "SET_BPM";
+		break;
+	case IpcOpcode::SetMasterVolume:
+		sOpcode = "SET_MASTER_VOLUME";
+		break;
+	case IpcOpcode::SetMasterIsMuted:
+		sOpcode = "SET_MASTER_IS_MUTED";
+		break;
+	case IpcOpcode::SetMetronomeIsActive:
+		sOpcode = "SET_METRONOME_IS_ACTIVE";
+		break;
+	case IpcOpcode::LocateToColumn:
+		sOpcode = "LOCATE_TO_COLUMN";
+		break;
+	case IpcOpcode::LocateToTick:
+		sOpcode = "LOCATE_TO_TICK";
+		break;
+	case IpcOpcode::SelectPattern:
+		sOpcode = "SELECT_PATTERN";
+		break;
+	case IpcOpcode::SetStripVolume:
+		sOpcode = "SET_STRIP_VOLUME";
+		break;
+	case IpcOpcode::SetStripPan:
+		sOpcode = "SET_STRIP_PAN";
+		break;
+	case IpcOpcode::ActivateLoopMode:
+		sOpcode = "ACTIVATE_LOOP_MODE";
+		break;
+	case IpcOpcode::ActivateSongMode:
+		sOpcode = "ACTIVATE_SONG_MODE";
+		break;
+	case IpcOpcode::ActivateRecordMode:
+		sOpcode = "ACTIVATE_RECORD_MODE";
+		break;
+	case IpcOpcode::AddTempoMarker:
+		sOpcode = "ADD_TEMPO_MARKER";
+		break;
+	case IpcOpcode::AddTag:
+		sOpcode = "ADD_TAG";
+		break;
+	case IpcOpcode::NewPattern:
+		sOpcode = "NEW_PATTERN";
+		break;
+	case IpcOpcode::SetSong:
+		sOpcode = "SET_SONG";
+		break;
+	case IpcOpcode::SetDrumkit:
+		sOpcode = "SET_DRUMKIT";
+		break;
+	case IpcOpcode::LoadState:
+		sOpcode = "LOAD_STATE";
+		break;
+	case IpcOpcode::SetInstrumentPitch:
+		sOpcode = "SET_INSTRUMENT_PITCH";
+		break;
+	case IpcOpcode::SetInstrumentGain:
+		sOpcode = "SET_INSTRUMENT_GAIN";
+		break;
+	case IpcOpcode::SetInstrumentRandomPitch:
+		sOpcode = "SET_INSTRUMENT_RANDOM_PITCH";
+		break;
+	case IpcOpcode::SetInstrumentFilterCutoff:
+		sOpcode = "SET_INSTRUMENT_FILTER_CUTOFF";
+		break;
+	case IpcOpcode::SetInstrumentFilterResonance:
+		sOpcode = "SET_INSTRUMENT_FILTER_RESONANCE";
+		break;
+	case IpcOpcode::SetInstrumentAttack:
+		sOpcode = "SET_INSTRUMENT_ATTACK";
+		break;
+	case IpcOpcode::SetInstrumentDecay:
+		sOpcode = "SET_INSTRUMENT_DECAY";
+		break;
+	case IpcOpcode::SetInstrumentSustain:
+		sOpcode = "SET_INSTRUMENT_SUSTAIN";
+		break;
+	case IpcOpcode::SetInstrumentRelease:
+		sOpcode = "SET_INSTRUMENT_RELEASE";
+		break;
+	case IpcOpcode::SetInstrumentFilterActive:
+		sOpcode = "SET_INSTRUMENT_FILTER_ACTIVE";
+		break;
+	case IpcOpcode::SetInstrumentMuteGroup:
+		sOpcode = "SET_INSTRUMENT_MUTE_GROUP";
+		break;
+	case IpcOpcode::SetInstrumentStopNotes:
+		sOpcode = "SET_INSTRUMENT_STOP_NOTES";
+		break;
+	case IpcOpcode::SetInstrumentApplyVelocity:
+		sOpcode = "SET_INSTRUMENT_APPLY_VELOCITY";
+		break;
+	case IpcOpcode::SetInstrumentHihatGroup:
+		sOpcode = "SET_INSTRUMENT_HIHAT_GROUP";
+		break;
+	case IpcOpcode::SetInstrumentLowerCc:
+		sOpcode = "SET_INSTRUMENT_LOWER_CC";
+		break;
+	case IpcOpcode::SetInstrumentHigherCc:
+		sOpcode = "SET_INSTRUMENT_HIGHER_CC";
+		break;
+	case IpcOpcode::SetComponentIsMuted:
+		sOpcode = "SET_COMPONENT_IS_MUTED";
+		break;
+	case IpcOpcode::SetComponentIsSoloed:
+		sOpcode = "SET_COMPONENT_IS_SOLOED";
+		break;
+	case IpcOpcode::SetComponentGain:
+		sOpcode = "SET_COMPONENT_GAIN";
+		break;
+	case IpcOpcode::SetComponentSelection:
+		sOpcode = "SET_COMPONENT_SELECTION";
+		break;
+	case IpcOpcode::SetLayerIsMuted:
+		sOpcode = "SET_LAYER_IS_MUTED";
+		break;
+	case IpcOpcode::SetLayerIsSoloed:
+		sOpcode = "SET_LAYER_IS_SOLOED";
+		break;
+	case IpcOpcode::SetLayerGain:
+		sOpcode = "SET_LAYER_GAIN";
+		break;
+	case IpcOpcode::SetLayerPitchOffset:
+		sOpcode = "SET_LAYER_PITCH_OFFSET";
+		break;
+	case IpcOpcode::SetLayerStartVelocity:
+		sOpcode = "SET_LAYER_START_VELOCITY";
+		break;
+	case IpcOpcode::SetLayerEndVelocity:
+		sOpcode = "SET_LAYER_END_VELOCITY";
+		break;
+	case IpcOpcode::SetStripIsMuted:
+		sOpcode = "SET_STRIP_IS_MUTED";
+		break;
+	case IpcOpcode::SetStripIsSoloed:
+		sOpcode = "SET_STRIP_IS_SOLOED";
+		break;
+	case IpcOpcode::SetStripPanSym:
+		sOpcode = "SET_STRIP_PAN_SYM";
+		break;
+	case IpcOpcode::SetHumanizeTime:
+		sOpcode = "SET_HUMANIZE_TIME";
+		break;
+	case IpcOpcode::SetHumanizeVelocity:
+		sOpcode = "SET_HUMANIZE_VELOCITY";
+		break;
+	case IpcOpcode::SetSwing:
+		sOpcode = "SET_SWING";
+		break;
+	case IpcOpcode::SetPanLaw:
+		sOpcode = "SET_PAN_LAW";
+		break;
+	case IpcOpcode::SetPlaybackTrackMuted:
+		sOpcode = "SET_PLAYBACK_TRACK_MUTED";
+		break;
+	case IpcOpcode::SetPlaybackTrackVolume:
+		sOpcode = "SET_PLAYBACK_TRACK_VOLUME";
+		break;
+	case IpcOpcode::PreviewInstrument:
+		sOpcode = "PREVIEW_INSTRUMENT";
+		break;
+	case IpcOpcode::ActivateTimeline:
+		sOpcode = "ACTIVATE_TIMELINE";
+		break;
+	case IpcOpcode::ToggleTimeline:
+		sOpcode = "TOGGLE_TIMELINE";
+		break;
+	case IpcOpcode::DeleteTempoMarker:
+		sOpcode = "DELETE_TEMPO_MARKER";
+		break;
+	case IpcOpcode::DeleteTag:
+		sOpcode = "DELETE_TAG";
+		break;
+	case IpcOpcode::ActivateJackTransport:
+		sOpcode = "ACTIVATE_JACK_TRANSPORT";
+		break;
+	case IpcOpcode::ToggleJackTransport:
+		sOpcode = "TOGGLE_JACK_TRANSPORT";
+		break;
+	case IpcOpcode::ActivateJackTimebaseControl:
+		sOpcode = "ACTIVATE_JACK_TIMEBASE_CONTROL";
+		break;
+	case IpcOpcode::ToggleJackTimebaseControl:
+		sOpcode = "TOGGLE_JACK_TIMEBASE_CONTROL";
+		break;
+	case IpcOpcode::ToggleSongMode:
+		sOpcode = "TOGGLE_SONG_MODE";
+		break;
+	case IpcOpcode::ToggleLoopMode:
+		sOpcode = "TOGGLE_LOOP_MODE";
+		break;
+	case IpcOpcode::MoveInstrument:
+		sOpcode = "MOVE_INSTRUMENT";
+		break;
+	case IpcOpcode::RenameComponent:
+		sOpcode = "RENAME_COMPONENT";
+		break;
+	case IpcOpcode::ToggleNextPattern:
+		sOpcode = "TOGGLE_NEXT_PATTERN";
+		break;
+	case IpcOpcode::MovePattern:
+		sOpcode = "MOVE_PATTERN";
+		break;
+	case IpcOpcode::RemovePattern:
+		sOpcode = "REMOVE_PATTERN";
+		break;
+	case IpcOpcode::SetPatternSize:
+		sOpcode = "SET_PATTERN_SIZE";
+		break;
+	case IpcOpcode::StartCountIn:
+		sOpcode = "START_COUNT_IN";
+		break;
+	case IpcOpcode::ActivatePlaylistSong:
+		sOpcode = "ACTIVATE_PLAYLIST_SONG";
+		break;
+	case IpcOpcode::SetMidiClockInputHandling:
+		sOpcode = "SET_MIDI_CLOCK_INPUT_HANDLING";
+		break;
+	case IpcOpcode::SetMidiClockOutputSend:
+		sOpcode = "SET_MIDI_CLOCK_OUTPUT_SEND";
+		break;
+	case IpcOpcode::ClearMidiInputLog:
+		sOpcode = "CLEAR_MIDI_INPUT_LOG";
+		break;
+	case IpcOpcode::ClearMidiOutputLog:
+		sOpcode = "CLEAR_MIDI_OUTPUT_LOG";
+		break;
+	case IpcOpcode::EditNoteProperty:
+		sOpcode = "EDIT_NOTE_PROPERTY";
+		break;
+	case IpcOpcode::ToggleGridCell:
+		sOpcode = "TOGGLE_GRID_CELL";
+		break;
+	case IpcOpcode::AddOrRemoveNote:
+		sOpcode = "ADD_OR_REMOVE_NOTE";
+		break;
+	case IpcOpcode::HandleNote:
+		sOpcode = "HANDLE_NOTE";
+		break;
+	case IpcOpcode::SetInstrumentMidiOutNote:
+		sOpcode = "SET_INSTRUMENT_MIDI_OUT_NOTE";
+		break;
+	case IpcOpcode::SetInstrumentMidiOutChannel:
+		sOpcode = "SET_INSTRUMENT_MIDI_OUT_CHANNEL";
+		break;
+	case IpcOpcode::SetSongProperties:
+		sOpcode = "SET_SONG_PROPERTIES";
+		break;
+	case IpcOpcode::SetPatternProperties:
+		sOpcode = "SET_PATTERN_PROPERTIES";
+		break;
+	case IpcOpcode::SetPattern:
+		sOpcode = "SET_PATTERN";
+		break;
+	case IpcOpcode::ReplaceInstrument:
+		sOpcode = "REPLACE_INSTRUMENT";
+		break;
+	case IpcOpcode::AddInstrument:
+		sOpcode = "ADD_INSTRUMENT";
+		break;
+	case IpcOpcode::SaveSong:
+		sOpcode = "SAVE_SONG";
+		break;
+	case IpcOpcode::SaveSongAs:
+		sOpcode = "SAVE_SONG_AS";
+		break;
+	case IpcOpcode::SavePlaylist:
+		sOpcode = "SAVE_PLAYLIST";
+		break;
+	case IpcOpcode::SavePlaylistAs:
+		sOpcode = "SAVE_PLAYLIST_AS";
+		break;
+	case IpcOpcode::SetPlaylist:
+		sOpcode = "SET_PLAYLIST";
+		break;
+	case IpcOpcode::AddToPlaylist:
+		sOpcode = "ADD_TO_PLAYLIST";
+		break;
+	case IpcOpcode::RemoveFromPlaylist:
+		sOpcode = "REMOVE_FROM_PLAYLIST";
+		break;
+	case IpcOpcode::OpcodeCount:
+	default:
+		sOpcode = "Unknown IPC opcode";
+	}
+
+	return std::move( sOpcode );
+}
+
+QString IpcMessage::toQString( const QString& sPrefix, bool bShort ) const
+{
+	QString s = Base::sPrintIndention;
+	QString sOutput;
+	if ( !bShort ) {
+	sOutput = QString( "%1[IpcMessage]\n" )
+				  .arg( sPrefix )
+				  .append( QString( "%1%2m_opcode: %3\n" )
+							   .arg( sPrefix )
+							   .arg( s )
+							   .arg( IpcOpcodeToQString(
+								   static_cast<quint16>( m_opcode )
+							   ) ) )
+				  .append( QString( "%1%2m_requestId: %3\n" )
+							   .arg( sPrefix )
+							   .arg( s )
+							   .arg( m_requestId ) )
+				  .append( QString( "%1%2m_payload size: %3\n" )
+							   .arg( sPrefix )
+							   .arg( s )
+							   .arg( m_payload.size() ) );
+	}
+	else {
+	sOutput =
+		QString( "[IpcMessage]" )
+			.append(
+				QString( " m_opcode: %1" )
+					.arg( IpcOpcodeToQString( static_cast<quint16>( m_opcode ) )
+					)
+			)
+			.append( QString( ", m_requestId: %1" ).arg( m_requestId ) )
+			.append( QString( ", m_payload size: %1" ).arg( m_payload.size() )
+			);
+	}
+
+	return sOutput;
+}
+
+};	// namespace H2Core

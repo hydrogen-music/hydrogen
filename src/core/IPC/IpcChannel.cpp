@@ -180,8 +180,8 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 		return false;
 	}
 
-	IPCLOG( QString( "Sending message [%1]" )
-				.arg( static_cast<int>( msg.getOpcode() ) ) );
+	IPCLOG( QString( "Sending [%1]" )
+				.arg( msg.toQString() ) );
 
 	const QByteArray frame = msg.encode();
 	const qint64 nWritten = m_pSocket->write( frame );
@@ -212,10 +212,10 @@ bool IpcChannel::send( const IpcMessage& msg ) {
 
 	const qint64 nPending = m_pSocket->bytesToWrite();
 	if ( nWritten != static_cast<qint64>( frame.size() ) || nPending != 0 ) {
-		WARNINGLOG( QString( "Incomplete server send: opcode=%1 frame=%2 "
-								"written=%3 bytesToWrite-after-push=%4 (peer gone "
-								"or unresponsive within %5 ms)" )
-						   .arg( static_cast<int>( msg.getOpcode() ) )
+		WARNINGLOG( QString( "Incomplete server send - msg: [%1], frame: [%2], "
+							 "written: [%3], bytesToWrite-after-push: [%4] (peer gone "
+							 "or unresponsive within [%5] ms)" )
+						   .arg( msg.toQString() )
 						   .arg( frame.size() ).arg( nWritten )
 						   .arg( nPending ).arg( kSendTimeoutMs ) );
 	}
@@ -268,8 +268,8 @@ void IpcChannel::onReadyRead() {
 bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 	if ( ! m_pending.empty() ) {
 		out = m_pending.front();
-		IPCLOG( QString( "Pop pending message [%1]" )
-					.arg( static_cast<int>( out.getOpcode() ) ) );
+		IPCLOG( QString( "Pop pending [%1]" )
+					.arg( out.toQString() ) );
 		m_pending.pop();
 		return true;
 	}
@@ -294,9 +294,9 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 			// bufferedBytes()>0 with no complete message means a frame arrived
 			// only partially (sender could not flush it all); 0 means nothing came.
 			if ( bLogTimeout ) {
-				WARNINGLOG( QString( "Receive timed out after %1 ms: "
-									 "socketState=%2 bytesAvailable=%3 "
-									 "readerBuffered=%4 pending=%5" )
+				WARNINGLOG( QString( "Receive timed out after [%1] ms - "
+									 "socketState: [%2], bytesAvailable: [%3], "
+									 "readerBuffered: [%4], pending: [%5]" )
 								   .arg( nTimeoutMs )
 								   .arg( static_cast<int>( m_pSocket->state() ) )
 								   .arg( m_pSocket->bytesAvailable() )
@@ -309,8 +309,8 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 			nRemaining < kPollSliceMs ? nRemaining : kPollSliceMs );
 	}
 	out = m_pending.front();
-	IPCLOG( QString( "Pop pending message [%1]" )
-			.arg( static_cast<int>( out.getOpcode() ) ) );
+	IPCLOG( QString( "Pop pending [%1]" )
+			.arg( out.toQString() ) );
 	m_pending.pop();
 	return true;
 }
@@ -330,8 +330,8 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 	r.setRequestId( nId );
 	const bool bSent = send( r );
 	if ( ! bSent ) {
-		IPCLOG( QString( "Failed to send message [%1]" )
-					.arg( static_cast<int>( r.getOpcode() ) ) );
+		IPCLOG( QString( "Failed to send [%1]" )
+					.arg( r.toQString() ) );
 		return false;
 	}
 	// Push the request out now. send() is non-blocking on the client side, but
@@ -342,11 +342,8 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 	// reply timeout on Windows. The reader drains it immediately, so this
 	// returns at once.
 	drainWrite();
-	IPCLOG( QString( "Request sent: opcode=%1 reqId=%2 payloadBytes=%3 "
-					 "bytesToWrite=%4" )
-			.arg( static_cast<int>( r.getOpcode() ) ).arg( nId )
-			.arg( r.getPayload().size() )
-			.arg( m_pSocket->bytesToWrite() ) );
+	IPCLOG( QString( "Request sent - msg: [%1], bytesToWrite: [%2]" )
+			.arg( r.toQString() ).arg( m_pSocket->bytesToWrite() ) );
 
 	QElapsedTimer timer;
 	timer.start();
@@ -370,11 +367,9 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 				// A frame arrived but it is not our reply — log its correlation
 				// so a lost/mis-correlated reply is distinguishable from
 				// "nothing ever arrived".
-				IPCLOG( QString( "Request awaiting reqId=%1: requeuing "
-								 "non-matching frame opcode=%2 reqId=%3" )
-						.arg( nId )
-						.arg( static_cast<int>( m.getOpcode() ) )
-						.arg( m.getRequestId() ) );
+				IPCLOG( QString( "Request awaiting reqId [%1]: requeuing "
+								 "non-matching [%2]" )
+						.arg( nId ).arg( m.toQString() ) );
 				rest.push( m );
 			}
 		}
@@ -390,9 +385,9 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 			// run shows whether the reply bytes never arrived (bytesAvailable /
 			// readerBuffered == 0) or arrived but failed to correlate (logged
 			// above).
-			WARNINGLOG( QString( "Request timed out after %1 ms awaiting "
-								 "reqId=%2: framesSeen=%3 socketState=%4 "
-								 "bytesAvailable=%5 readerBuffered=%6 pending=%7" )
+			WARNINGLOG( QString( "Request timed out after [%1] ms awaiting "
+								 "reqId [%2] - framesSeen: [%3], socketState: [%4], "
+								 "bytesAvailable: [%5], readerBuffered: [%6], pending: [%7]" )
 						.arg( nTimeoutMs ).arg( nId ).arg( nFramesSeen )
 						.arg( static_cast<int>( m_pSocket->state() ) )
 						.arg( m_pSocket->bytesAvailable() )

@@ -181,6 +181,12 @@ enum class IpcOpcode : quint16 {
 
 	OpcodeCount
 };
+/**
+ * Returns the human-readable name of an IPC opcode given its numeric value
+ * (the raw \c quint16 that travels on the wire). Out-of-range values and the
+ * \c OpcodeCount sentinel yield "Unknown IPC opcode".
+ */
+QString IpcOpcodeToQString( quint16 nOpcode );
 
 /**
  * One framed IPC message. The wire encoding (ADR 0018) is a length-prefixed
@@ -226,6 +232,16 @@ public:
 	static IpcMessage hello( quint16 nProtocolVersion = IPC_PROTOCOL_VERSION );
 	/** Protocol version from a Hello message (0 if not a Hello). */
 	quint16 helloProtocolVersion() const;
+
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 private:
 	IpcOpcode m_opcode = IpcOpcode::Hello;

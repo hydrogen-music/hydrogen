@@ -33,6 +33,7 @@ class IpcProtocolTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEventClassification );
 	CPPUNIT_TEST( testTelemetryRoundTrip );
 	CPPUNIT_TEST( testTelemetryTearFree );
+	CPPUNIT_TEST( testOpcodeToQString );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +44,7 @@ public:
 	void testEventClassification();
 	void testTelemetryRoundTrip();
 	void testTelemetryTearFree();
+	void testOpcodeToQString();
 };
 
 #endif
