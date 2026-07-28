@@ -30,16 +30,20 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
 #include <core/IEngineAccess.h>
 #include <core/IPC/EditorSession.h>
+#include <core/IPC/EditorStateMirror.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcEngineAccess.h>
+#include <core/IPC/IpcMessage.h>
 #include <core/LocalEngineAccess.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
 #include "AudioEngineInfoForm.h"
@@ -386,6 +390,9 @@ void HydrogenApp::connectToIpcEngine( const QString& sEndpoint ) {
 	m_pEngineAccess = m_pEditorSession->createEngineAccess();
 	wireIpcDisconnectSignal();
 
+	// Pull the full engine state so the mirror matches the headless engine.
+	syncViaIpc();
+
 	if ( m_pMainToolBar != nullptr ) {
 		m_pMainToolBar->updateIpcConnectionState();
 	}
@@ -411,6 +418,135 @@ void HydrogenApp::disconnectFromIpcEngine() {
 		m_pMainToolBar->updateIpcConnectionState();
 	}
 	INFOLOG( "Disconnected from headless engine." );
+}
+
+void HydrogenApp::syncViaIpc() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+	auto pStateMirror = m_pEditorSession->getStateMirror();
+
+	// 1. Song — apply via the state mirror so setSong() is called on the mirror
+	// engine. (Be sure to trigger the corresponding Event in order for the GUI
+	// to update as well)
+	{
+		IpcMessage reply;
+		if ( pChannel->request( IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) &&
+			 ! reply.getPayload().isEmpty() ) {
+			IpcMessage setSongMsg( IpcOpcode::SetSong );
+			setSongMsg.setPayload( reply.getPayload() );
+			if ( pStateMirror != nullptr ) {
+				pStateMirror->applyMessage( setSongMsg );
+			}
+		}
+	}
+
+	// 2. Playlist
+	{
+		IpcMessage reply;
+		if ( pChannel->request( IpcMessage( IpcOpcode::GetPlaylist ), reply, 3000 ) &&
+			 ! reply.getPayload().isEmpty() ) {
+			auto pPlaylist = Playlist::fromXmlBuffer( reply.getPayload() );
+			if ( pPlaylist != nullptr ) {
+				m_pHydrogen->getCoreActionController()->setPlaylist( pPlaylist );
+			}
+		}
+	}
+
+	// 3. Selected pattern
+	{
+		IpcMessage reply;
+		if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedPattern ),
+								reply, 3000 ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				m_pHydrogen->setSelectedPatternNumber( args[0].toInt() );
+			}
+		}
+	}
+
+	// 4. Selected instrument
+	{
+		IpcMessage reply;
+		if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedInstrument ),
+								reply, 3000 ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				m_pHydrogen->setSelectedInstrumentNumber( args[0].toInt() );
+			}
+		}
+	}
+
+	// 5. Record enabled
+	{
+		IpcMessage reply;
+		if ( pChannel->request( IpcMessage( IpcOpcode::GetRecordEnabled ),
+								reply, 3000 ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				m_pHydrogen->getCoreActionController()->activateRecordMode(
+					args[0].toBool()
+				);
+			}
+		}
+	}
+
+	// 6. Core preferences
+	{
+		IpcMessage reply;
+		if ( pChannel->request( IpcMessage( IpcOpcode::GetCorePreferences ),
+								reply, 3000 ) &&
+			 ! reply.getPayload().isEmpty() ) {
+			auto pPref = m_pHydrogen->getPreferences();
+			if ( pPref != nullptr ) {
+				pPref->applyCorePropsFromXml( reply.getPayload() );
+				m_pHydrogen->getEventQueue()->pushEvent(
+					Event::Type::UpdatePreferences, 0 );
+			}
+		}
+	}
+
+	// 7. Sound library info — register the engine's custom drumkit folders and
+	// paths, then rescan so the mirror's database matches the engine's.
+	{
+		IpcMessage reply;
+		if ( pChannel->request( IpcMessage( IpcOpcode::GetSoundLibraryInfo ),
+								reply, 3000 ) ) {
+			const auto& args = reply.getArgs();
+			if ( args.size() >= 3 ) {
+				auto pDb = m_pHydrogen->getSoundLibraryDatabase();
+				if ( pDb != nullptr ) {
+					for ( const auto& sFolder : args[1].toStringList() ) {
+						pDb->registerDrumkitFolder( sFolder );
+					}
+					for ( const auto& sPath : args[2].toStringList() ) {
+						pDb->registerCustomDrumkitPath( sPath );
+					}
+					pDb->update();
+				}
+			}
+		}
+	}
+
+	// 8. Force an immediate transport re-sync from telemetry.
+	if ( pStateMirror != nullptr ) {
+		pStateMirror->forceTransportSync();
+	}
+
+	// 9. Update Audio and Midi Driver-related widgets
+	{
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::AudioDriverChanged, 0 );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::MidiDriverChanged, 0 );
+
+	}
+
+	INFOLOG( "State synced from headless engine via IPC." );
 }
 
 void HydrogenApp::onIpcConnectionLost() {

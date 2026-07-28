@@ -129,22 +129,37 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 		return bRet;
 	};
 
-	//
-	// When using the Non Session Management system, the new Song
-	// will be loaded by the NSM client singleton itself and not
-	// by the MainForm. The latter will just access the already
-	// loaded Song.
-	if ( ! pHydrogen->isUnderSessionManagement() ) {
-		if ( ! openFile( Filesystem::Artifact::Song, sSongFileName,
-						 pPref->getLastSongPath() ) ) {
-			// Fall back to an empty song.
-			HydrogenApp::openSong( H2Core::Song::getEmptySong( HydrogenApp::pHydrogen() ) );		}
-	}
+	if ( ! HydrogenApp::isConnectViaIpcMode() ) {
+		// When using the Non Session Management system, the new Song
+		// will be loaded by the NSM client singleton itself and not
+		// by the MainForm. The latter will just access the already
+		// loaded Song.
+		if ( !pHydrogen->isUnderSessionManagement() ) {
+			if ( !openFile(
+					 Filesystem::Artifact::Song, sSongFileName,
+					 pPref->getLastSongPath()
+				 ) ) {
+				// Fall back to an empty song.
+				HydrogenApp::openSong(
+					H2Core::Song::getEmptySong( HydrogenApp::pHydrogen() )
+				);
+			}
+		}
 
-	// We need no fallback for the playlist as a new one corresponds to an empty
-	// one.
-	openFile( Filesystem::Artifact::Playlist, sPlaylistFileName,
-			  pPref->getLastPlaylistPath() );
+		// We need no fallback for the playlist as a new one corresponds to an
+		// empty one.
+		openFile(
+			Filesystem::Artifact::Playlist, sPlaylistFileName,
+			pPref->getLastPlaylistPath()
+		);
+	}
+	else {
+		// When connecting to a headless version of Hydrogen our (GUI) state is
+		// not authoritative but the one hold by the engine. We have to refetch
+		// everything to ensure we hold a valid representation within the
+		// mirror. The actual sync is performed after the HydrogenApp has been
+		// constructed (see below).
+	}
 
 	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 			   getPointSize( pPref->getFontTheme()->m_fontSize ) );
@@ -155,6 +170,14 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 	auto pUndoStack = new QUndoStack( this );
 
 	h2app = new HydrogenApp( this, pUndoStack );
+
+	// In IPC mode the song/playlist were not loaded from disk (the else branch
+	// above). Pull the full engine state from the headless engine so the
+	// mirror is in sync before the GUI is shown.
+	if ( HydrogenApp::isConnectViaIpcMode() ) {
+		h2app->syncViaIpc();
+	}
+
 	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();

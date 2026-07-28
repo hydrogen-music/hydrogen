@@ -148,6 +148,12 @@ class HydrogenApp : public QObject,
 	 * readable; writes silently fail until reconnect. Only valid in IPC mode. */
 	void disconnectFromIpcEngine();
 
+	/** Pull the full engine state from the headless engine via IPC requests
+	 * and apply it to the mirror: Song, Playlist, selected pattern/instrument,
+	 * record state, core Preferences, and SoundLibrary info. Called on
+	 * initial startup and on reconnect. */
+	void syncViaIpc();
+
 	/** Injects the engine + preferences handles used by the static
 	 * accessors during early startup, before HydrogenApp exists. main()
 	 * calls this with the loaded Preferences first (engine still null),

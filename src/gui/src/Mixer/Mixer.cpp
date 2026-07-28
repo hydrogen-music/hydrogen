@@ -203,7 +203,7 @@ void Mixer::updateMixer()
 		m_pFaderPanel->resize( nNewWidth, height() );
 	}
 
-		m_pMasterLine->updateLine();
+	m_pMasterLine->updateLine();
 }
 
 void Mixer::closeEvent( QCloseEvent* ev ) {

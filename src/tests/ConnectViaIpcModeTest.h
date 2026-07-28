@@ -37,6 +37,7 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEngineBuildsTransportSnapshot );
 	CPPUNIT_TEST( testMirrorFollowsTransportTelemetry );
 	CPPUNIT_TEST( testEngineAccessFallsBackToLocal );
+	CPPUNIT_TEST( testSyncViaIpc );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -49,6 +50,7 @@ public:
 	void testEngineBuildsTransportSnapshot();
 	void testMirrorFollowsTransportTelemetry();
 	void testEngineAccessFallsBackToLocal();
+	void testSyncViaIpc();
 };
 
 #endif

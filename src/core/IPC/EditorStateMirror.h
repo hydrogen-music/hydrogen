@@ -101,6 +101,11 @@ public:
 	 * it is unit-testable with an injected snapshot, bypassing shared memory. */
 	void applyTransportSnapshot( const PluginTelemetrySnapshot& snapshot );
 
+	/** Force an immediate transport re-sync from the telemetry block. Public so
+	 * the GUI can trigger it right after connecting, without waiting for the
+	 * periodic timer. No-op when no telemetry block is attached. */
+	void forceTransportSync();
+
 private slots:
 	void onMessageReceived( const H2Core::IpcMessage& msg );
 	/** Load the latest telemetry and apply it (timer tick / transport event). */

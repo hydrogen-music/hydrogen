@@ -141,6 +141,10 @@ void EditorStateMirror::syncTransportFromTelemetry() {
 	applyTransportSnapshot( snapshot );
 }
 
+void EditorStateMirror::forceTransportSync() {
+	syncTransportFromTelemetry();
+}
+
 void EditorStateMirror::applyTransportSnapshot(
 	const PluginTelemetrySnapshot& snapshot ) {
 	if ( m_pMirror == nullptr ) {

@@ -832,6 +832,8 @@ void MidiControlDialog::instrumentParametersChangedEvent( int ) {
 }
 
 void MidiControlDialog::midiDriverChangedEvent() {
+	updateInputTable();
+	updateOutputTable();
 }
 
 void MidiControlDialog::midiInputEvent() {

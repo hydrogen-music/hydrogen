@@ -427,3 +427,127 @@ void ConnectViaIpcModeTest::testEngineAccessFallsBackToLocal() {
 
 	___INFOLOG( "passed" );
 }
+
+// The editor pulls the full engine state via IPC request/response (ADR 0032):
+// GetSong, GetSelectedPattern, GetSelectedInstrument, GetRecordEnabled. Each
+// request is answered by IpcEngineBridge::handleRequest() on the engine side;
+// the editor applies the replies to its mirror so the GUI reads consistent
+// state. This test verifies the round-trip for the scalar state and the song
+// payload.
+//
+// The engine side uses EngineSession::start() — the production serve loop that
+// creates the IpcServer and IpcChannel on a Qt-managed bridge thread. A
+// QLocalSocket is thread-affine (its QSocketNotifier may only be pumped on the
+// thread that owns it), so the server and channel must live on the same
+// QThread; using EngineSession ensures this rather than manually spinning a
+// std::thread that Qt cannot manage.
+void ConnectViaIpcModeTest::testSyncViaIpc() {
+	___INFOLOG( "" );
+
+	const QString sEndpoint = uniqueServerName();
+
+	// Engine side: a headless engine with known state, served via the
+	// production EngineSession serve loop on its own QThread.
+	auto* pEngine = makeMirrorEngine();
+	auto pSong = pEngine->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	pSong->setName( "SYNC_TEST" );
+	pEngine->setSelectedPatternNumber( 2 );
+	pEngine->setSelectedInstrumentNumber( 1 );
+	pEngine->setRecordEnabled( true );
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	// Editor side: a fresh mirror with default state.
+	auto* pMirror = makeMirrorEngine();
+	CPPUNIT_ASSERT( pMirror->getSong() != nullptr );
+	CPPUNIT_ASSERT( pMirror->getSong()->getName().toStdString() != "SYNC_TEST" );
+
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( pSession->isConnected() );
+
+	auto pChannel = pSession->getChannel();
+	CPPUNIT_ASSERT( pChannel != nullptr );
+
+	// EngineSession::serve() sends the initial song snapshot on connect; drain
+	// it so it doesn't sit in the pending queue ahead of our replies.
+	IpcMessage initialState;
+	pChannel->receive( initialState, 500, false );
+
+	// 1. GetSong — reply carries the song XML payload.
+	{
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pChannel->request(
+			IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) );
+		CPPUNIT_ASSERT( ! reply.getPayload().isEmpty() );
+
+		// Apply to the mirror via the state mirror.
+		IpcMessage setSongMsg( IpcOpcode::SetSong );
+		setSongMsg.setPayload( reply.getPayload() );
+		pSession->getStateMirror()->applyMessage( setSongMsg );
+
+		CPPUNIT_ASSERT_EQUAL(
+			std::string( "SYNC_TEST" ),
+			pMirror->getSong()->getName().toStdString() );
+	}
+
+	// 2. GetSelectedPattern — reply carries an int arg.
+	{
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pChannel->request(
+			IpcMessage( IpcOpcode::GetSelectedPattern ), reply, 3000 ) );
+		const auto& args = reply.getArgs();
+		CPPUNIT_ASSERT( ! args.isEmpty() );
+		CPPUNIT_ASSERT_EQUAL( 2, args[0].toInt() );
+	}
+
+	// 3. GetSelectedInstrument — reply carries an int arg.
+	{
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pChannel->request(
+			IpcMessage( IpcOpcode::GetSelectedInstrument ), reply, 3000 ) );
+		const auto& args = reply.getArgs();
+		CPPUNIT_ASSERT( ! args.isEmpty() );
+		CPPUNIT_ASSERT_EQUAL( 1, args[0].toInt() );
+	}
+
+	// 4. GetRecordEnabled — reply carries a bool arg.
+	{
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pChannel->request(
+			IpcMessage( IpcOpcode::GetRecordEnabled ), reply, 3000 ) );
+		const auto& args = reply.getArgs();
+		CPPUNIT_ASSERT( ! args.isEmpty() );
+		CPPUNIT_ASSERT( args[0].toBool() );
+	}
+
+	// 5. GetCorePreferences — reply carries an XML payload.
+	{
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pChannel->request(
+			IpcMessage( IpcOpcode::GetCorePreferences ), reply, 3000 ) );
+		CPPUNIT_ASSERT( ! reply.getPayload().isEmpty() );
+	}
+
+	// 6. GetSoundLibraryInfo — reply carries three QStringLists.
+	{
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pChannel->request(
+			IpcMessage( IpcOpcode::GetSoundLibraryInfo ), reply, 3000 ) );
+		const auto& args = reply.getArgs();
+		CPPUNIT_ASSERT( args.size() >= 3 );
+		// drumkitFolders, customDrumkitFolders, customDrumkitPaths
+		CPPUNIT_ASSERT( ! args[0].toStringList().isEmpty() );
+	}
+
+	// Clean up: stop the serve loop (joins the bridge thread) before deleting
+	// the engines.
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

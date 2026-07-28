@@ -76,6 +76,10 @@ public:
 	IpcChannel* getChannel() const { return m_pChannel; }
 	bool isConnected() const;
 
+	/** Access the state mirror so the GUI can trigger a forced transport
+	 * re-sync after connecting. Returns nullptr before connect() completes. */
+	EditorStateMirror* getStateMirror() const { return m_pStateMirror.get(); }
+
 	/** Endpoint this session was connected to (stored for reconnection). */
 	const QString& getEndpoint() const { return m_sEndpoint; }
 
