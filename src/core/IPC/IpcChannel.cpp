@@ -139,15 +139,21 @@ IpcChannel::IpcChannel( QLocalSocket* pSocket, QObject* pParent,
 		connect( m_pSocket, &QLocalSocket::disconnected,
 				 this, &IpcChannel::disconnected );
 	}
+
+	IPCLOG( QString( "bPushWrites: %1" ).arg( bPushWrites ) );
 }
 
 IpcChannel::~IpcChannel() = default;
 
 IpcChannel* IpcChannel::connectToServer( const QString& sName, int nTimeoutMs,
 										 QObject* pParent ) {
+	IPCLOG( QString( "Connect to server [%1] with timeout [%2ms]" )
+			.arg( sName ).arg( nTimeoutMs ) );
+
 	auto* pSocket = new QLocalSocket();
 	pSocket->connectToServer( sName );
 	if ( ! pSocket->waitForConnected( nTimeoutMs ) ) {
+		IPCLOG( "Connection attempt failed" )
 		delete pSocket;
 		return nullptr;
 	}
@@ -160,6 +166,8 @@ bool IpcChannel::isConnected() const {
 }
 
 void IpcChannel::close() {
+	IPCLOG( "Closing channel" );
+
 	if ( m_pSocket != nullptr &&
 		 m_pSocket->state() != QLocalSocket::UnconnectedState ) {
 		m_pSocket->disconnectFromServer();
@@ -168,45 +176,61 @@ void IpcChannel::close() {
 
 bool IpcChannel::send( const IpcMessage& msg ) {
 	if ( m_pSocket == nullptr ) {
+		IPCLOG( "Invalid socket!" );
 		return false;
 	}
+
+	IPCLOG( QString( "Sending message [%1]" )
+				.arg( static_cast<int>( msg.getOpcode() ) ) );
+
 	const QByteArray frame = msg.encode();
 	const qint64 nWritten = m_pSocket->write( frame );
 	m_pSocket->flush();
 
 	if ( ! m_bPushWrites ) {
 		// Client/editor side: fire-and-forget. The editor runs a Qt event loop
-		// (or, in white-box tests, its peer reads synchronously) which pushes the
-		// write out, so we must NOT block here — a send with no concurrent reader
-		// (e.g. the connect-time hello, or a command issued before the peer
-		// reads) would otherwise stall for the whole timeout.
+		// (or, in white-box tests, its peer reads synchronously) which pushes
+		// the write out, so we must NOT block here — a send with no concurrent
+		// reader (e.g. the connect-time hello, or a command issued before the
+		// peer reads) would otherwise stall for the whole timeout.
+		IPCLOG( QString( "Sending [%1/%2] non-blocking without pushing" )
+					.arg( nWritten )
+					.arg( frame.size() ) );
 		return nWritten == static_cast<qint64>( frame.size() );
 	}
 
-	// Server/engine side: drive the write to completion. On Windows a QLocalSocket
-	// is an *overlapped* named pipe — write()/flush() only INITIATE the I/O, and
-	// the engine's sending threads (EngineSession::serve, request responders) run
-	// no Qt event loop, so without this push a forwarded event/reply can sit
-	// half-sent and never reach the editor. The peer is always reading, so this
-	// returns promptly. On Unix flush() already wrote to the fd, so bytesToWrite()
-	// is 0 and the loop is a no-op. Bounded so a peer that vanished mid-send (a
-	// closing pipe at teardown) is surfaced below instead of hanging.
+	// Server/engine side: drive the write to completion. On Windows a
+	// QLocalSocket is an *overlapped* named pipe — write()/flush() only
+	// INITIATE the I/O, and the engine's sending threads (EngineSession::serve,
+	// request responders) run no Qt event loop, so without this push a
+	// forwarded event/reply can sit half-sent and never reach the editor. The
+	// peer is always reading, so this returns promptly. On Unix flush() already
+	// wrote to the fd, so bytesToWrite() is 0 and the loop is a no-op. Bounded
+	// so a peer that vanished mid-send (a closing pipe at teardown) is surfaced
+	// below instead of hanging.
 	drainWrite();
 
 	const qint64 nPending = m_pSocket->bytesToWrite();
 	if ( nWritten != static_cast<qint64>( frame.size() ) || nPending != 0 ) {
-		___WARNINGLOG( QString( "incomplete server send: opcode=%1 frame=%2 "
+		WARNINGLOG( QString( "Incomplete server send: opcode=%1 frame=%2 "
 								"written=%3 bytesToWrite-after-push=%4 (peer gone "
 								"or unresponsive within %5 ms)" )
 						   .arg( static_cast<int>( msg.getOpcode() ) )
 						   .arg( frame.size() ).arg( nWritten )
 						   .arg( nPending ).arg( kSendTimeoutMs ) );
 	}
+	else {
+		IPCLOG( QString( "Sending [%1/%2] non-blocking with pushing" )
+				.arg( nWritten )
+				.arg( frame.size() ) );
+	}
+
 	return nWritten == static_cast<qint64>( frame.size() );
 }
 
 void IpcChannel::drainWrite() {
 	if ( m_pSocket == nullptr ) {
+		IPCLOG( "Invalid socket!" );
 		return;
 	}
 	QElapsedTimer timer;
@@ -214,6 +238,7 @@ void IpcChannel::drainWrite() {
 	while ( m_pSocket->bytesToWrite() > 0 ) {
 		const int nRemaining =
 			kSendTimeoutMs - static_cast<int>( timer.elapsed() );
+		IPCLOG( QString( "Drain remaining [%1]..." ).arg( nRemaining ) );
 		if ( nRemaining <= 0 || ! m_pSocket->waitForBytesWritten( nRemaining ) ) {
 			break;
 		}
@@ -222,6 +247,7 @@ void IpcChannel::drainWrite() {
 
 void IpcChannel::pump() {
 	if ( m_pSocket == nullptr ) {
+		IPCLOG( "Invalid socket!" );
 		return;
 	}
 	const QByteArray data = m_pSocket->readAll();
@@ -242,6 +268,8 @@ void IpcChannel::onReadyRead() {
 bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 	if ( ! m_pending.empty() ) {
 		out = m_pending.front();
+		IPCLOG( QString( "Pop pending message [%1]" )
+					.arg( static_cast<int>( out.getOpcode() ) ) );
 		m_pending.pop();
 		return true;
 	}
@@ -249,13 +277,14 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 	timer.start();
 	while ( m_pending.empty() ) {
 		if ( m_pSocket == nullptr ) {
+			IPCLOG( "Invalid socket!" );
 			return false;
 		}
 		// Drain whatever bytes have already arrived first, then poll in short
 		// slices. A single long waitForReadyRead() can block the whole timeout
-		// while data sits unread on an event-loop-less / moved socket (or between
-		// the chunks of a large frame); a short wait still pumps the pipe read and
-		// pump() reassembles. See kPollSliceMs.
+		// while data sits unread on an event-loop-less / moved socket (or
+		// between the chunks of a large frame); a short wait still pumps the
+		// pipe read and pump() reassembles. See kPollSliceMs.
 		pump();
 		if ( ! m_pending.empty() ) {
 			break;
@@ -265,9 +294,9 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 			// bufferedBytes()>0 with no complete message means a frame arrived
 			// only partially (sender could not flush it all); 0 means nothing came.
 			if ( bLogTimeout ) {
-				___WARNINGLOG( QString( "receive timed out after %1 ms: "
-										"socketState=%2 bytesAvailable=%3 "
-										"readerBuffered=%4 pending=%5" )
+				WARNINGLOG( QString( "Receive timed out after %1 ms: "
+									 "socketState=%2 bytesAvailable=%3 "
+									 "readerBuffered=%4 pending=%5" )
 								   .arg( nTimeoutMs )
 								   .arg( static_cast<int>( m_pSocket->state() ) )
 								   .arg( m_pSocket->bytesAvailable() )
@@ -280,6 +309,8 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 			nRemaining < kPollSliceMs ? nRemaining : kPollSliceMs );
 	}
 	out = m_pending.front();
+	IPCLOG( QString( "Pop pending message [%1]" )
+			.arg( static_cast<int>( out.getOpcode() ) ) );
 	m_pending.pop();
 	return true;
 }
@@ -287,6 +318,7 @@ bool IpcChannel::receive( IpcMessage& out, int nTimeoutMs, bool bLogTimeout ) {
 bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 						  int nTimeoutMs ) {
 	if ( m_pSocket == nullptr ) {
+		IPCLOG( "Invalid socket!" );
 		return false;
 	}
 
@@ -298,20 +330,23 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 	r.setRequestId( nId );
 	const bool bSent = send( r );
 	if ( ! bSent ) {
+		IPCLOG( QString( "Failed to send message [%1]" )
+					.arg( static_cast<int>( r.getOpcode() ) ) );
 		return false;
 	}
-	// Push the request out now. send() is non-blocking on the client side, but a
-	// request is a synchronous round-trip whose peer is already reading; if the
-	// caller's thread runs no Qt event loop (white-box tests, headless callers)
-	// the overlapped write would otherwise not progress until the peer happens to
-	// pull it — observed as a multi-second delay that outran the reply timeout on
-	// Windows. The reader drains it immediately, so this returns at once.
+	// Push the request out now. send() is non-blocking on the client side, but
+	// a request is a synchronous round-trip whose peer is already reading; if
+	// the caller's thread runs no Qt event loop (white-box tests, Hydrogen as
+	// plugin) the overlapped write would otherwise not progress until the peer
+	// happens to pull it — observed as a multi-second delay that outran the
+	// reply timeout on Windows. The reader drains it immediately, so this
+	// returns at once.
 	drainWrite();
-	___INFOLOG( QString( "request sent: opcode=%1 reqId=%2 payloadBytes=%3 "
-						 "bytesToWrite=%4" )
-					.arg( static_cast<int>( r.getOpcode() ) ).arg( nId )
-					.arg( r.getPayload().size() )
-					.arg( m_pSocket->bytesToWrite() ) );
+	IPCLOG( QString( "Request sent: opcode=%1 reqId=%2 payloadBytes=%3 "
+					 "bytesToWrite=%4" )
+			.arg( static_cast<int>( r.getOpcode() ) ).arg( nId )
+			.arg( r.getPayload().size() )
+			.arg( m_pSocket->bytesToWrite() ) );
 
 	QElapsedTimer timer;
 	timer.start();
@@ -327,18 +362,19 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 			m_pending.pop();
 			++nFramesSeen;
 			if ( ! bFound && m.getRequestId() == nId ) {
+				IPCLOG( "Found reply" );
 				reply = m;
 				bFound = true;
 			}
 			else {
 				// A frame arrived but it is not our reply — log its correlation
-				// so a lost/mis-correlated reply is distinguishable from "nothing
-				// ever arrived".
-				___INFOLOG( QString( "request awaiting reqId=%1: requeuing "
-									 "non-matching frame opcode=%2 reqId=%3" )
-								.arg( nId )
-								.arg( static_cast<int>( m.getOpcode() ) )
-								.arg( m.getRequestId() ) );
+				// so a lost/mis-correlated reply is distinguishable from
+				// "nothing ever arrived".
+				IPCLOG( QString( "Request awaiting reqId=%1: requeuing "
+								 "non-matching frame opcode=%2 reqId=%3" )
+						.arg( nId )
+						.arg( static_cast<int>( m.getOpcode() ) )
+						.arg( m.getRequestId() ) );
 				rest.push( m );
 			}
 		}
@@ -350,25 +386,25 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 		const int nRemaining =
 			nTimeoutMs - static_cast<int>( timer.elapsed() );
 		if ( nRemaining <= 0 ) {
-			// Genuine deadline. Report what the socket looked like so a future run
-			// shows whether the reply bytes never arrived (bytesAvailable /
+			// Genuine deadline. Report what the socket looked like so a future
+			// run shows whether the reply bytes never arrived (bytesAvailable /
 			// readerBuffered == 0) or arrived but failed to correlate (logged
 			// above).
-			___WARNINGLOG( QString( "request timed out after %1 ms awaiting "
-									"reqId=%2: framesSeen=%3 socketState=%4 "
-									"bytesAvailable=%5 readerBuffered=%6 pending=%7" )
-							   .arg( nTimeoutMs ).arg( nId ).arg( nFramesSeen )
-							   .arg( static_cast<int>( m_pSocket->state() ) )
-							   .arg( m_pSocket->bytesAvailable() )
-							   .arg( m_reader.bufferedBytes() )
-							   .arg( static_cast<int>( m_pending.size() ) ) );
+			WARNINGLOG( QString( "Request timed out after %1 ms awaiting "
+								 "reqId=%2: framesSeen=%3 socketState=%4 "
+								 "bytesAvailable=%5 readerBuffered=%6 pending=%7" )
+						.arg( nTimeoutMs ).arg( nId ).arg( nFramesSeen )
+						.arg( static_cast<int>( m_pSocket->state() ) )
+						.arg( m_pSocket->bytesAvailable() )
+						.arg( m_reader.bufferedBytes() )
+						.arg( static_cast<int>( m_pending.size() ) ) );
 			return false;
 		}
 		// Poll for the reply in short slices, then pump. A single long
 		// waitForReadyRead() is unreliable here: on Windows it can return false
 		// before the timeout elapses, and it may not signal data on an
-		// event-loop-less / moved peer socket — so we never treat one false wait
-		// as terminal. Only the deadline check above ends the loop. See
+		// event-loop-less / moved peer socket — so we never treat one false
+		// wait as terminal. Only the deadline check above ends the loop. See
 		// kPollSliceMs.
 		m_pSocket->waitForReadyRead(
 			nRemaining < kPollSliceMs ? nRemaining : kPollSliceMs );

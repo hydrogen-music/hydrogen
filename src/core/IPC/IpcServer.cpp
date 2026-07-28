@@ -32,6 +32,8 @@ IpcServer::IpcServer( QObject* pParent )
 	// Notify (do not auto-accept) so this never competes with waitForChannel().
 	connect( m_pServer, &QLocalServer::newConnection,
 			 this, &IpcServer::connectionPending );
+
+	IPCLOG( "" );
 }
 
 IpcServer::~IpcServer() = default;
@@ -39,6 +41,9 @@ IpcServer::~IpcServer() = default;
 bool IpcServer::listen( const QString& sName ) {
 	// Clear any stale socket file left by a crashed previous run.
 	QLocalServer::removeServer( sName );
+
+	IPCLOG( QString( "Listening to [%1]" ).arg( sName ) );
+
 	return m_pServer->listen( sName );
 }
 
