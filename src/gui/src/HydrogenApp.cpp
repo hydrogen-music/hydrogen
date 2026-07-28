@@ -261,6 +261,7 @@ HydrogenApp::~HydrogenApp()
 	m_pBootstrapPreferences = nullptr;
 	m_pEngineAccess = nullptr;
 	m_pLocalFallback = nullptr;
+	m_pEditorSession = nullptr;
 }
 
 std::shared_ptr<H2Core::Preferences> HydrogenApp::getPreferences() const {
