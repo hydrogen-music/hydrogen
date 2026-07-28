@@ -34,6 +34,7 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/License.h>
 #include <core/Midi/Midi.h>
+#include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 namespace H2Core {
@@ -648,6 +649,10 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 		reply.arg( pHydrogen->getRecordEnabled() );
 		break;
 	case IpcOpcode::GetCorePreferences: {
+		auto pPref = pHydrogen->getPreferences();
+		if ( pPref != nullptr ) {
+			reply.setPayload( pPref->corePropsToXml() );
+		}
 		break;
 	}
 	case IpcOpcode::GetSoundLibraryInfo: {

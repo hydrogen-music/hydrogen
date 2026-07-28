@@ -216,6 +216,18 @@ class Preferences : public H2Core::Object<Preferences> {
 	 * was never loaded from disk. See #m_baselineXml. */
 	const QByteArray& getBaselineXml() const { return m_baselineXml; }
 
+	/** Serialize only the core-related preferences (audio engine, MIDI, JACK,
+	 * OSC, export, beat-counter, rubberband, metronome, max bars, hear new
+	 * notes, quantize events, MIDI maps) to an XML fragment. Used by the
+	 * headless engine to send its preferences state to the GUI mirror over
+	 * IPC. */
+	QByteArray corePropsToXml() const;
+
+	/** Apply core-related preferences from an XML fragment (received from the
+	 * headless engine via IPC). Only the core-owned fields are overwritten; GUI
+	 * fields (window geometry, theme, shortcuts, recent files) are preserved. */
+	void applyCorePropsFromXml( const QByteArray& xml );
+
 	static std::vector<AudioDriver> getSupportedAudioDrivers();
 
 	/**

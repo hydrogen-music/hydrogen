@@ -2980,6 +2980,631 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 
 // -----------------------
 
+QByteArray Preferences::corePropsToXml() const
+{
+	XMLDoc doc;
+	XMLNode rootNode = doc.set_root( PreferencesKeys::Root );
+
+	// Root-level core fields
+	rootNode.write_int( "maxBars", m_nMaxBars );
+	rootNode.write_bool( "hearNewNotes", m_bHearNewNotes );
+	rootNode.write_bool( "quantizeEvents", m_bQuantizeEvents );
+
+	// Rubberband executable path (same executable check as saveTo)
+	QString rubberBandCLIexecutable( m_sRubberBandCLIexecutable );
+	if ( !Filesystem::
+			 fileExecutable( rubberBandCLIexecutable, true /* silent */ ) ) {
+		rubberBandCLIexecutable = "Path to Rubberband-CLI";
+	}
+	rootNode.write_string( "path_to_rubberband", rubberBandCLIexecutable );
+	rootNode.write_bool(
+		"useTheRubberbandBpmChangeEvent", m_bUseTheRubberbandBpmChangeEvent
+	);
+	rootNode.write_bool(
+		"useRelativeFilenamesForPlaylists", m_bUseRelativeFileNamesForPlaylists
+	);
+
+	// Recent used songs
+	XMLNode recentUsedSongsNode =
+		rootNode.createNode( PreferencesKeys::RecentUsedSongs );
+	{
+		unsigned nSongs = 5;
+		if ( m_recentFiles.size() < 5 ) {
+			nSongs = m_recentFiles.size();
+		}
+		for ( unsigned i = 0; i < nSongs; i++ ) {
+			recentUsedSongsNode.write_string( "song", m_recentFiles[i] );
+		}
+	}
+
+	//---- AUDIO ENGINE ----
+	XMLNode audioEngineNode = rootNode.createNode( PreferencesKeys::AudioEngine );
+	{
+		// audio driver
+		audioEngineNode.write_string(
+			PreferencesKeys::AudioDriver, audioDriverToQString( m_audioDriver )
+		);
+
+		// use metronome
+		audioEngineNode.write_bool( "use_metronome", m_bUseMetronome );
+		audioEngineNode.write_float( "metronome_volume", m_fMetronomeVolume );
+		audioEngineNode.write_int( "maxNotes", m_nMaxNotes );
+		audioEngineNode.write_int(
+			"interpolateMode", static_cast<int>( m_interpolateMode )
+		);
+		audioEngineNode.write_int( PreferencesKeys::BufferSize, m_nBufferSize );
+		audioEngineNode.write_int( PreferencesKeys::SampleRate, m_nSampleRate );
+		audioEngineNode.write_bool( "countIn", m_bCountIn );
+
+		//// OSS DRIVER ////
+		XMLNode ossDriverNode =
+			audioEngineNode.createNode( PreferencesKeys::OssDriver );
+		{
+			ossDriverNode.write_string( "ossDevice", m_sOSSDevice );
+		}
+
+		//// PORTAUDIO DRIVER ////
+		XMLNode portAudioDriverNode =
+			audioEngineNode.createNode( PreferencesKeys::PortAudioDriver );
+		{
+			portAudioDriverNode.write_string(
+				"portAudioDevice", m_sPortAudioDevice
+			);
+			portAudioDriverNode.write_string(
+				"portAudioHostAPI", m_sPortAudioHostAPI
+			);
+			portAudioDriverNode.write_int( "latencyTarget", m_nLatencyTarget );
+		}
+
+		//// COREAUDIO DRIVER ////
+		XMLNode coreAudioDriverNode =
+			audioEngineNode.createNode( PreferencesKeys::CoreAudioDriver );
+		{
+			coreAudioDriverNode.write_string(
+				"coreAudioDevice", m_sCoreAudioDevice
+			);
+		}
+
+		//// JACK DRIVER ////
+		XMLNode jackDriverNode =
+			audioEngineNode.createNode( PreferencesKeys::JackDriver );
+		{
+			jackDriverNode.write_string(
+				"jack_port_name_1", m_sJackPortName1
+			);
+			jackDriverNode.write_string(
+				"jack_port_name_2", m_sJackPortName2
+			);
+
+			// jack transport client
+			QString sMode;
+			if ( m_nJackTransportMode == NO_JACK_TRANSPORT ) {
+				sMode = "NO_JACK_TRANSPORT";
+			}
+			else if ( m_nJackTransportMode == USE_JACK_TRANSPORT ) {
+				sMode = "USE_JACK_TRANSPORT";
+			}
+			jackDriverNode.write_string( "jack_transport_mode", sMode );
+
+			jackDriverNode.write_bool(
+				"jack_timebase_enabled", m_bJackTimebaseEnabled
+			);
+			QString tmMode;
+			if ( m_bJackTimebaseMode == NO_JACK_TIMEBASE_CONTROL ) {
+				tmMode = "NO_JACK_TIME_MASTER";
+			}
+			else if ( m_bJackTimebaseMode == USE_JACK_TIMEBASE_CONTROL ) {
+				tmMode = "USE_JACK_TIME_MASTER";
+			}
+			jackDriverNode.write_string(
+				"jack_transport_mode_master", tmMode
+			);
+
+			// jack default connection
+			jackDriverNode.write_bool(
+				"jack_connect_defaults", m_bJackConnectDefaults
+			);
+
+			int nJackTrackOutputMode;
+			if ( m_JackTrackOutputMode == JackTrackOutputMode::postFader ) {
+				nJackTrackOutputMode = 0;
+			}
+			else if ( m_JackTrackOutputMode == JackTrackOutputMode::preFader ) {
+				nJackTrackOutputMode = 1;
+			}
+			jackDriverNode.write_int(
+				"jack_track_output_mode", nJackTrackOutputMode
+			);
+
+			// jack track outs
+			jackDriverNode.write_bool( "jack_track_outs", m_bJackTrackOuts );
+			jackDriverNode.write_bool(
+				"jack_enforce_instrument_name", m_bJackEnforceInstrumentName
+			);
+		}
+
+		//// ALSA AUDIO DRIVER ////
+		XMLNode alsaAudioDriverNode =
+			audioEngineNode.createNode( PreferencesKeys::AlsaAudioDriver );
+		{
+			alsaAudioDriverNode.write_string(
+				"alsa_audio_device", m_sAlsaAudioDevice
+			);
+		}
+
+		/// MIDI DRIVER ///
+		XMLNode midiDriverNode =
+			audioEngineNode.createNode( PreferencesKeys::MidiDriver );
+		{
+			midiDriverNode.write_string(
+				PreferencesKeys::MidiDriverName,
+				Preferences::midiDriverToQString( m_midiDriver )
+			);
+			midiDriverNode.write_string(
+				PreferencesKeys::MidiPortName, m_sMidiPortName
+			);
+			midiDriverNode.write_string(
+				PreferencesKeys::MidiOutputPortName, m_sMidiOutputPortName
+			);
+
+			int nChannelFilter = static_cast<int>( m_midiActionChannel ) - 1;
+			if ( m_midiActionChannel == Midi::ChannelAll ) {
+				nChannelFilter = -1;
+			}
+			else if ( m_midiActionChannel == Midi::ChannelOff ) {
+				nChannelFilter = -2;
+			}
+			midiDriverNode.write_int( "channel_filter", nChannelFilter );
+			midiDriverNode.write_bool(
+				"ignore_note_off", m_bMidiNoteOffIgnore
+			);
+			midiDriverNode.write_bool(
+				"enable_midi_feedback", m_bEnableMidiFeedback
+			);
+			midiDriverNode.write_int(
+				"midi_feedback_channel",
+				static_cast<int>( getMidiFeedbackChannel() ) - 1
+			);
+			midiDriverNode.write_bool(
+				"midi_clock_input_handling", getMidiClockInputHandling()
+			);
+			midiDriverNode.write_bool(
+				"midi_transport_input_handling",
+				getMidiTransportInputHandling()
+			);
+			midiDriverNode.write_bool(
+				"midi_clock_output_send", getMidiClockOutputSend()
+			);
+			midiDriverNode.write_bool(
+				"midi_transport_output_send", getMidiTransportOutputSend()
+			);
+			midiDriverNode.write_int(
+				"midi_send_note_off", static_cast<int>( getMidiSendNoteOff() )
+			);
+		}
+
+		/// OSC ///
+		XMLNode oscNode =
+			audioEngineNode.createNode( PreferencesKeys::OscConfiguration );
+		{
+			oscNode.write_bool( "oscEnabled", m_bOscServerEnabled );
+			oscNode.write_bool(
+				"oscFeedbackEnabled", m_bOscFeedbackEnabled
+			);
+			oscNode.write_int( "oscServerPort", m_nOscServerPort );
+		}
+	}
+
+	//---- GUI (core-owned fields only) ----
+	XMLNode guiNode = rootNode.createNode( "gui" );
+	{
+		// beatcounter
+		QString setPlay( "SET_PLAY_OFF" );
+		if ( m_beatCounter == BeatCounter::TapAndPlay ) {
+			setPlay = "SET_PLAY_ON";
+		}
+		guiNode.write_string( "setplay", setPlay );
+
+		guiNode.write_int( "countoffset", m_nBeatCounterDriftCompensation );
+		guiNode.write_int( "playoffset", m_nBeatCounterStartOffset );
+		// ~ beatcounter
+
+		guiNode.write_int(
+			"patternEditorGridResolution", m_nPatternEditorGridResolution
+		);
+		guiNode.write_bool(
+			"patternEditorUsingTriplets", m_bPatternEditorUsingTriplets
+		);
+	}
+
+	//---- FILES (core-owned fields only) ----
+	XMLNode filesNode = rootNode.createNode( PreferencesKeys::Files );
+	{
+		filesNode.write_string(
+			PreferencesKeys::LastSongFilename, m_sLastSongPath
+		);
+		filesNode.write_string(
+			PreferencesKeys::LastPlaylistFilename, m_sLastPlaylistPath
+		);
+
+		XMLNode customDirsNode =
+			filesNode.createNode( "customSoundLibraryDirs" );
+		for ( const auto& sDir : m_customSoundLibraryDirs ) {
+			if ( !sDir.isEmpty() ) {
+				customDirsNode.write_string( "dir", sDir );
+			}
+		}
+	}
+
+	// MIDI maps
+	m_pMidiEventMap->saveTo( rootNode, true /* bSilent */ );
+	m_pMidiInstrumentMap->saveTo( rootNode );
+
+	return doc.toString().toUtf8();
+}
+
+void Preferences::applyCorePropsFromXml( const QByteArray& xml )
+{
+	const bool bSilent = true;
+
+	XMLDoc doc;
+	if ( !doc.setContent( xml ) ) {
+		ERRORLOG( "Unable to parse core preferences XML" );
+		return;
+	}
+	const XMLNode rootNode = doc.firstChildElement( PreferencesKeys::Root );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( "Core preferences XML: no root node found" );
+		return;
+	}
+
+	//////// GENERAL ///////////
+	m_nMaxBars = rootNode.read_int(
+		"maxBars", m_nMaxBars, false, false, bSilent
+	);
+	m_bHearNewNotes = rootNode.read_bool(
+		"hearNewNotes", m_bHearNewNotes, false, false, bSilent
+	);
+	m_bQuantizeEvents = rootNode.read_bool(
+		"quantizeEvents", m_bQuantizeEvents, false, false, bSilent
+	);
+
+	m_bUseTheRubberbandBpmChangeEvent = rootNode.read_bool(
+		"useTheRubberbandBpmChangeEvent",
+		m_bUseTheRubberbandBpmChangeEvent, false, false, bSilent
+	);
+
+	m_bUseRelativeFileNamesForPlaylists = rootNode.read_bool(
+		"useRelativeFilenamesForPlaylists",
+		m_bUseRelativeFileNamesForPlaylists, false, false, bSilent
+	);
+
+	// Recent used songs
+	const XMLNode recentUsedSongsNode =
+		rootNode.firstChildElement( PreferencesKeys::RecentUsedSongs );
+	if ( !recentUsedSongsNode.isNull() ) {
+		m_recentFiles.clear();
+		QDomElement songElement =
+			recentUsedSongsNode.firstChildElement( "song" );
+		while ( !songElement.isNull() && !songElement.text().isEmpty() ) {
+			m_recentFiles.push_back( songElement.text() );
+			songElement = songElement.nextSiblingElement( "song" );
+		}
+	}
+
+	if ( m_bSearchForRubberbandOnLoad ) {
+		const QString sRubberbandPath = rootNode.read_string(
+			"path_to_rubberband", "", false, false, bSilent
+		);
+		if ( !sRubberbandPath.isEmpty() && QFile( sRubberbandPath ).exists() ) {
+			m_sRubberBandCLIexecutable = sRubberbandPath;
+		}
+		else {
+			m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
+		}
+	}
+
+	/////////////// AUDIO ENGINE //////////////
+	const XMLNode audioEngineNode =
+		rootNode.firstChildElement( PreferencesKeys::AudioEngine );
+	if ( !audioEngineNode.isNull() ) {
+		const QString sAudioDriver = audioEngineNode.read_string(
+			PreferencesKeys::AudioDriver,
+			Preferences::audioDriverToQString( m_audioDriver ), false, false,
+			bSilent
+		);
+		m_audioDriver = parseAudioDriver( sAudioDriver );
+		if ( m_audioDriver == AudioDriver::None ) {
+			m_audioDriver = AudioDriver::Auto;
+		}
+		m_bUseMetronome = audioEngineNode.read_bool(
+			"use_metronome", m_bUseMetronome, false, false, bSilent
+		);
+		m_fMetronomeVolume = audioEngineNode.read_float(
+			"metronome_volume", m_fMetronomeVolume, false, false, bSilent
+		);
+		m_nMaxNotes = audioEngineNode.read_int(
+			"maxNotes", m_nMaxNotes, false, false, bSilent
+		);
+		m_interpolateMode = static_cast<Interpolation::InterpolateMode>(
+			audioEngineNode.read_int(
+				"interpolateMode",
+				static_cast<int>( m_interpolateMode ), true, false, bSilent
+			)
+		);
+		m_nBufferSize = audioEngineNode.read_int(
+			PreferencesKeys::BufferSize, m_nBufferSize, false, false, bSilent
+		);
+		m_nSampleRate = audioEngineNode.read_int(
+			PreferencesKeys::SampleRate, m_nSampleRate, false, false, bSilent
+		);
+		setCountIn( audioEngineNode.read_bool(
+			"countIn", getCountIn(), true, false, bSilent
+		) );
+
+		//// OSS DRIVER ////
+		const XMLNode ossDriverNode =
+			audioEngineNode.firstChildElement( PreferencesKeys::OssDriver );
+		if ( !ossDriverNode.isNull() ) {
+			m_sOSSDevice = ossDriverNode.read_string(
+				"ossDevice", m_sOSSDevice, false, false, bSilent
+			);
+		}
+
+		//// PORTAUDIO DRIVER ////
+		const XMLNode portAudioDriverNode =
+			audioEngineNode.firstChildElement( PreferencesKeys::PortAudioDriver );
+		if ( !portAudioDriverNode.isNull() ) {
+			m_sPortAudioDevice = portAudioDriverNode.read_string(
+				"portAudioDevice", m_sPortAudioDevice, false, true, bSilent
+			);
+			m_sPortAudioHostAPI = portAudioDriverNode.read_string(
+				"portAudioHostAPI", m_sPortAudioHostAPI, false, true, bSilent
+			);
+			m_nLatencyTarget = portAudioDriverNode.read_int(
+				"latencyTarget", m_nLatencyTarget, false, false, bSilent
+			);
+		}
+
+		//// COREAUDIO DRIVER ////
+		const XMLNode coreAudioDriverNode =
+			audioEngineNode.firstChildElement( PreferencesKeys::CoreAudioDriver );
+		if ( !coreAudioDriverNode.isNull() ) {
+			m_sCoreAudioDevice = coreAudioDriverNode.read_string(
+				"coreAudioDevice", m_sCoreAudioDevice, false, true, bSilent
+			);
+		}
+
+		//// JACK DRIVER ////
+		const XMLNode jackDriverNode =
+			audioEngineNode.firstChildElement( PreferencesKeys::JackDriver );
+		if ( !jackDriverNode.isNull() ) {
+			m_sJackPortName1 = jackDriverNode.read_string(
+				"jack_port_name_1", m_sJackPortName1, false, false, bSilent
+			);
+			m_sJackPortName2 = jackDriverNode.read_string(
+				"jack_port_name_2", m_sJackPortName2, false, false, bSilent
+			);
+			const QString sMode = jackDriverNode.read_string(
+				"jack_transport_mode", "", false, false, bSilent
+			);
+			if ( sMode == "NO_JACK_TRANSPORT" ) {
+				m_nJackTransportMode = NO_JACK_TRANSPORT;
+			}
+			else if ( sMode == "USE_JACK_TRANSPORT" ) {
+				m_nJackTransportMode = USE_JACK_TRANSPORT;
+			}
+
+			m_bJackTimebaseEnabled = jackDriverNode.read_bool(
+				"jack_timebase_enabled", m_bJackTimebaseEnabled, false, false,
+				bSilent
+			);
+			const QString sJackMasterMode = jackDriverNode.read_string(
+				"jack_transport_mode_master", "", false, false, bSilent
+			);
+			if ( sJackMasterMode == "NO_JACK_TIME_MASTER" ) {
+				m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
+			}
+			else if ( sJackMasterMode == "USE_JACK_TIME_MASTER" ) {
+				m_bJackTimebaseMode = USE_JACK_TIMEBASE_CONTROL;
+			}
+
+			m_bJackConnectDefaults = jackDriverNode.read_bool(
+				"jack_connect_defaults", m_bJackConnectDefaults, false, false,
+				bSilent
+			);
+
+			const int nJackTrackOutputMode = jackDriverNode.read_int(
+				"jack_track_output_mode", -255, false, false, bSilent
+			);
+			if ( nJackTrackOutputMode == 0 ) {
+				m_JackTrackOutputMode = JackTrackOutputMode::postFader;
+			}
+			else if ( nJackTrackOutputMode == 1 ) {
+				m_JackTrackOutputMode = JackTrackOutputMode::preFader;
+			}
+
+			m_bJackTrackOuts = jackDriverNode.read_bool(
+				"jack_track_outs", m_bJackTrackOuts, false, false, bSilent
+			);
+			m_bJackEnforceInstrumentName = jackDriverNode.read_bool(
+				"jack_enforce_instrument_name",
+				m_bJackEnforceInstrumentName, true, false, bSilent
+			);
+		}
+
+		/// ALSA AUDIO DRIVER ///
+		const XMLNode alsaAudioDriverNode =
+			audioEngineNode.firstChildElement( PreferencesKeys::AlsaAudioDriver );
+		if ( !alsaAudioDriverNode.isNull() ) {
+			m_sAlsaAudioDevice = alsaAudioDriverNode.read_string(
+				"alsa_audio_device", m_sAlsaAudioDevice, false, false, bSilent
+			);
+		}
+
+		/// MIDI DRIVER ///
+		const XMLNode midiDriverNode =
+			audioEngineNode.firstChildElement( PreferencesKeys::MidiDriver );
+		if ( !midiDriverNode.isNull() ) {
+			const auto sMidiDriver = midiDriverNode.read_string(
+				PreferencesKeys::MidiDriverName,
+				Preferences::midiDriverToQString( m_midiDriver ), false, false,
+				bSilent
+			);
+			m_midiDriver = Preferences::parseMidiDriver( sMidiDriver );
+			m_sMidiPortName = midiDriverNode.read_string(
+				PreferencesKeys::MidiPortName, m_sMidiPortName, false, false,
+				bSilent
+			);
+			m_sMidiOutputPortName = midiDriverNode.read_string(
+				PreferencesKeys::MidiOutputPortName, m_sMidiOutputPortName,
+				false, false, bSilent
+			);
+
+			const int nMidiActionChannel = midiDriverNode.read_int(
+				"channel_filter", -1, false, false, bSilent
+			);
+			if ( nMidiActionChannel == -1 ) {
+				m_midiActionChannel = Midi::ChannelAll;
+			}
+			else if ( nMidiActionChannel == -2 ) {
+				m_midiActionChannel = Midi::ChannelOff;
+			}
+			else {
+				m_midiActionChannel =
+					Midi::channelFromIntClamp( nMidiActionChannel + 1 );
+			}
+
+			m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
+				"ignore_note_off", m_bMidiNoteOffIgnore, false, false, bSilent
+			);
+			m_bEnableMidiFeedback = midiDriverNode.read_bool(
+				"enable_midi_feedback", m_bEnableMidiFeedback, false, true,
+				bSilent
+			);
+			setMidiFeedbackChannel( Midi::channelFromInt(
+				midiDriverNode.read_int(
+					"midi_feedback_channel",
+					static_cast<int>( getMidiFeedbackChannel() ) - 1,
+					true, false, bSilent
+				) +
+				1
+			) );
+			setMidiClockInputHandling( midiDriverNode.read_bool(
+				"midi_clock_input_handling", getMidiClockInputHandling(), true,
+				true, bSilent
+			) );
+			setMidiTransportInputHandling( midiDriverNode.read_bool(
+				"midi_transport_input_handling",
+				getMidiTransportInputHandling(), true, true, bSilent
+			) );
+			setMidiClockOutputSend( midiDriverNode.read_bool(
+				"midi_clock_output_send", getMidiClockOutputSend(), true, true,
+				bSilent
+			) );
+			setMidiTransportOutputSend( midiDriverNode.read_bool(
+				"midi_transport_output_send", getMidiTransportOutputSend(), true,
+				true, bSilent
+			) );
+			setMidiSendNoteOff(
+				static_cast<MidiSendNoteOff>( midiDriverNode.read_int(
+					"midi_send_note_off",
+					static_cast<int>( getMidiSendNoteOff() ), true, true, bSilent
+				) )
+			);
+		}
+
+		/// OSC ///
+		const XMLNode oscServerNode =
+			audioEngineNode.firstChildElement( PreferencesKeys::OscConfiguration );
+		if ( !oscServerNode.isNull() ) {
+			m_bOscServerEnabled = oscServerNode.read_bool(
+				"oscEnabled", m_bOscServerEnabled, false, false, bSilent
+			);
+			m_bOscFeedbackEnabled = oscServerNode.read_bool(
+				"oscFeedbackEnabled", m_bOscFeedbackEnabled, false, false,
+				bSilent
+			);
+			m_nOscServerPort = oscServerNode.read_int(
+				"oscServerPort", m_nOscServerPort, false, false, bSilent
+			);
+		}
+	}
+
+	/////////////// GUI (core-owned fields only) //////////////
+	const XMLNode guiNode = rootNode.firstChildElement( "gui" );
+	if ( !guiNode.isNull() ) {
+		// beatcounter
+		const QString sBeatCounterSetPlay =
+			guiNode.read_string( "setplay", "", false, false, bSilent );
+		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
+			m_beatCounter = BeatCounter::Tap;
+		}
+		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
+			m_beatCounter = BeatCounter::TapAndPlay;
+		}
+
+		m_nBeatCounterDriftCompensation = guiNode.read_int(
+			"countoffset", m_nBeatCounterDriftCompensation, false, false,
+			bSilent
+		);
+		m_nBeatCounterStartOffset = guiNode.read_int(
+			"playoffset", m_nBeatCounterStartOffset, false, false, bSilent
+		);
+		// ~ beatcounter
+
+		m_nPatternEditorGridResolution = guiNode.read_int(
+			"patternEditorGridResolution",
+			m_nPatternEditorGridResolution, false, false, bSilent
+		);
+		m_bPatternEditorUsingTriplets = guiNode.read_bool(
+			"patternEditorUsingTriplets", m_bPatternEditorUsingTriplets,
+			false, false, bSilent
+		);
+	}
+
+	/////////////// FILES (core-owned fields only) //////////////
+	const XMLNode filesNode =
+		rootNode.firstChildElement( PreferencesKeys::Files );
+	if ( !filesNode.isNull() ) {
+		m_sLastSongPath = filesNode.read_string(
+			PreferencesKeys::LastSongFilename, m_sLastSongPath, false, true,
+			bSilent
+		);
+		m_sLastPlaylistPath = filesNode.read_string(
+			PreferencesKeys::LastPlaylistFilename, m_sLastPlaylistPath, false,
+			true, bSilent
+		);
+
+		const XMLNode customDirsNode =
+			filesNode.firstChildElement( "customSoundLibraryDirs" );
+		if ( !customDirsNode.isNull() ) {
+			m_customSoundLibraryDirs.clear();
+			auto customDirNode = customDirsNode.firstChildElement( "dir" );
+			while ( !customDirNode.isNull() && !customDirNode.text().isEmpty()
+			) {
+				m_customSoundLibraryDirs << customDirNode.text();
+				customDirNode = customDirNode.nextSiblingElement( "dir" );
+			}
+		}
+	}
+
+	// MIDI maps
+	const XMLNode midiEventMapNode =
+		rootNode.firstChildElement( "midiEventMap" );
+	if ( !midiEventMapNode.isNull() ) {
+		m_pMidiEventMap =
+			MidiEventMap::loadFrom( midiEventMapNode, bSilent, nullptr );
+	}
+
+	const XMLNode midiInstrumentMapNode =
+		rootNode.firstChildElement( "midiInstrumentMap" );
+	if ( !midiInstrumentMapNode.isNull() ) {
+		m_pMidiInstrumentMap =
+			MidiInstrumentMap::loadFrom( midiInstrumentMapNode, bSilent );
+	}
+}
+
 QString Preferences::ChangesToQString( Preferences::Changes changes )
 {
 	QStringList changesList;
