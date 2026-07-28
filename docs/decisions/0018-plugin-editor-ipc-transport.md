@@ -94,13 +94,21 @@ struct PluginTelemetry {            // single-writer (engine) / single-reader (e
     std::atomic<uint32_t> seq;           // seqlock
     int64_t           frame;             // playhead
     int32_t           bar, beat, tick;   float bpm;
-    uint8_t           playing, looping;
+    uint8_t           playing;
     float             masterPeakL, masterPeakR;
     float             procTimeCur, procTimeMax;
+    float             playbackTrackPeakL, playbackTrackPeakR;  // playback-track meters
     uint16_t          instPeakCount;     // valid entries below
     float             peakL[256], peakR[256];   // per-instrument meters
 };
 ```
+
+The `looping` field was present in the original layout but has been removed:
+loop mode is seldom-changing, already carried on the Song object, and
+event-forwarded over the control socket — duplicating it in the high-rate
+telemetry block was unnecessary. The `playbackTrackPeakL/R` fields were added
+so the editor can render the playback-track waveform display from telemetry
+instead of accessing the engine's instrument layer directly.
 
 The per-instrument peak array is a **fixed cap of 256** (there is no
 `MAX_INSTRUMENTS`; at 8 bytes/entry this is ~2 KB — negligible). Instruments

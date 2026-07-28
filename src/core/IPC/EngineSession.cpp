@@ -24,6 +24,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -209,6 +210,19 @@ PluginTelemetrySnapshot EngineSession::buildTransportSnapshot( Hydrogen* pEngine
 	}
 	snapshot.playing =
 		( pAudioEngine->getState() == AudioEngine::State::Playing ) ? 1 : 0;
+
+	// Playback-track peaks: read from the playback-track instrument so the
+	// editor can render the playback-track waveform without accessing the
+	// engine's instrument layer directly.
+	auto pSong = pEngine->getSong();
+	if ( pSong != nullptr ) {
+		auto pPlaybackTrack = pSong->getPlaybackTrackInstrument();
+		if ( pPlaybackTrack != nullptr ) {
+			snapshot.playbackTrackPeakL = pPlaybackTrack->getPeak_L();
+			snapshot.playbackTrackPeakR = pPlaybackTrack->getPeak_R();
+		}
+	}
+
 	return snapshot;
 }
 

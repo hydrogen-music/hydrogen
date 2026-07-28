@@ -196,7 +196,7 @@ void IpcProtocolTest::testTelemetryRoundTrip() {
 	in.frame = 123456789;
 	in.bar = 5; in.beat = 3; in.tick = 42;
 	in.bpm = 128.0f;
-	in.playing = 1; in.looping = 1;
+	in.playing = 1;
 	in.masterPeakL = 0.5f; in.masterPeakR = 0.75f;
 	in.procTimeCur = 1.2f; in.procTimeMax = 3.4f;
 	in.instPeakCount = 3;

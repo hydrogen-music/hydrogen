@@ -45,11 +45,15 @@ struct PluginTelemetrySnapshot {
 	int32_t  tick = 0;
 	float    bpm = 0.0f;
 	uint8_t  playing = 0;
-	uint8_t  looping = 0;
 	float    masterPeakL = 0.0f;
 	float    masterPeakR = 0.0f;
 	float    procTimeCur = 0.0f;
 	float    procTimeMax = 0.0f;
+	/// Playback-track meter peaks, filled by Sampler::processPlaybackTrack()
+	/// so the editor can render the playback-track waveform without accessing
+	/// the engine's instrument layer directly.
+	float    playbackTrackPeakL = 0.0f;
+	float    playbackTrackPeakR = 0.0f;
 	uint16_t instPeakCount = 0;    ///< number of valid entries in peakL/peakR
 	float    peakL[ PLUGIN_TELEMETRY_MAX_INSTRUMENTS ] = { 0.0f };
 	float    peakR[ PLUGIN_TELEMETRY_MAX_INSTRUMENTS ] = { 0.0f };
