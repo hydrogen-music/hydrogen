@@ -467,9 +467,6 @@ public:
 		bool getRecordEnabled() const;
 		void setRecordEnabled( bool bEnabled );
 
-	void			setSessionIsExported( bool bIsExported );
-	bool			getSessionIsExported() const;
-
 	/**
 	 * Add @a pInstr to death row.
 	 *
@@ -598,11 +595,6 @@ private:
 	 * Index of the pattern selected in the GUI or by a MIDI event.
 	 */
 	int				m_nSelectedPatternNumber;
-	/**
-	 * Indicates whether NSM session is saved or exported when entering
-	 * the H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong() function.
-	 */
-	bool			m_bSessionIsExported;
 
 	/**
 	 * Onset of the recorded last in addRealtimeNote(). It is used to
@@ -675,12 +667,6 @@ inline void Hydrogen::setRecordEnabled( bool bEnabled ) {
 	m_bRecordEnabled = bEnabled;
 }
 
-inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
-	m_bSessionIsExported = bSessionIsExported;
-}
-inline bool Hydrogen::getSessionIsExported() const {
-	return m_bSessionIsExported;
-}
 inline const MidiEvent::Type& Hydrogen::getLastMidiEvent() const {
 	return m_lastMidiEvent;
 }

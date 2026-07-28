@@ -791,9 +791,7 @@ bool MainForm::action_file_save_as()
 	// the original.
 	if ( bUnderSessionManagement ) {
 		pSong->setPath( sLastPath );
-
 		h2app->showStatusBarMessage( tr( "Song exported as: " ) + sLastPath );
-		pHydrogen->setSessionIsExported( false );
 	}
 	else {
 		h2app->showStatusBarMessage(
