@@ -22,9 +22,10 @@
 #ifndef H2C_IPC_ENGINE_ACCESS_H
 #define H2C_IPC_ENGINE_ACCESS_H
 
-#include <core/IEngineAccess.h>
 #include <core/Hydrogen.h>
+#include <core/IEngineAccess.h>
 #include <core/IPC/IpcCoreActionController.h>
+#include <core/Object.h>
 
 namespace H2Core {
 
@@ -49,8 +50,10 @@ class IpcChannel;
  *   editor-mode sub-step. This class establishes the read mirror + the direct
  *   command surface (#IEngineAccess) over IPC.
  */
-class IpcEngineAccess : public IEngineAccess {
-public:
+class IpcEngineAccess : public IEngineAccess,
+						public H2Core::Object<IpcEngineAccess> {
+	H2_OBJECT( IpcEngineAccess )
+   public:
 	IpcEngineAccess( Hydrogen* pMirror, IpcChannel* pChannel )
 		: m_pMirror( pMirror ), m_pChannel( pChannel )
 		, m_pController(
@@ -162,7 +165,6 @@ private:
 	 * here; returned (as the base type) from getCoreActionController(). */
 	std::shared_ptr<CoreActionController> m_pController;
 };
-
 }
 
 #endif

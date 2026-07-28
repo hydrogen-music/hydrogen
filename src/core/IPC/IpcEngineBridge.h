@@ -22,9 +22,9 @@
 #ifndef H2C_IPC_ENGINE_BRIDGE_H
 #define H2C_IPC_ENGINE_BRIDGE_H
 
-#include <core/Object.h>
 #include <core/Basics/Event.h>
 #include <core/IPC/IpcMessage.h>
+#include <core/Object.h>
 
 namespace H2Core {
 

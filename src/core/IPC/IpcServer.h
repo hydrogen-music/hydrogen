@@ -23,6 +23,7 @@
 #define H2C_IPC_SERVER_H
 
 #include <core/IPC/IpcChannel.h>
+#include <core/Object.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -39,7 +40,8 @@ namespace H2Core {
  *
  * \ingroup docCore
  */
-class IpcServer : public QObject {
+class IpcServer : public QObject, public H2Core::Object<IpcServer> {
+	H2_OBJECT( IpcServer )
 	Q_OBJECT
 public:
 	explicit IpcServer( QObject* pParent = nullptr );
@@ -62,7 +64,6 @@ signals:
 private:
 	QLocalServer* m_pServer;
 };
-
 };
 
 #endif

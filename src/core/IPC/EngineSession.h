@@ -22,6 +22,8 @@
 #ifndef H2C_IPC_ENGINE_SESSION_H
 #define H2C_IPC_ENGINE_SESSION_H
 
+#include <core/Object.h>
+
 #include <QtCore/QString>
 
 #include <atomic>
@@ -64,7 +66,8 @@ struct PluginTelemetrySnapshot;
  * \note A QCoreApplication must exist in the process (Qt's local-socket classes
  *   require it). In a real plugin host the plugin bootstrap provides one.
  */
-class EngineSession {
+class EngineSession : public H2Core::Object<EngineSession> {
+	H2_OBJECT( EngineSession )
 public:
 	/** Listen on @a sEndpoint and start serving @a pEngine on a bridge thread.
 	 * Blocks up to @a nListenTimeoutMs for the listen to bind. Returns nullptr if

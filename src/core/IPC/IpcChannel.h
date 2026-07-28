@@ -23,6 +23,7 @@
 #define H2C_IPC_CHANNEL_H
 
 #include <core/IPC/IpcMessage.h>
+#include <core/Object.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -44,7 +45,8 @@ namespace H2Core {
  *
  * \ingroup docCore
  */
-class IpcChannel : public QObject {
+class IpcChannel : public QObject, public H2Core::Object<IpcChannel> {
+	H2_OBJECT( IpcChannel )
 	Q_OBJECT
 public:
 	/** Wrap an already-connected socket. Takes ownership.

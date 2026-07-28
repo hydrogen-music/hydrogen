@@ -22,6 +22,8 @@
 #ifndef H2C_IPC_EDITOR_SESSION_H
 #define H2C_IPC_EDITOR_SESSION_H
 
+#include <core/Object.h>
+
 #include <QtCore/QString>
 
 #include <memory>
@@ -52,7 +54,8 @@ class Preferences;
  * keeps running if this session (the editor process) goes away: the channel just
  * closes on its end (ADR 0016 — engine survives editor crash).
  */
-class EditorSession {
+class EditorSession : public H2Core::Object<EditorSession> {
+	H2_OBJECT( EditorSession )
 public:
 	/** Configure @a pPreferences for the editor-side mirror: a passive audio
 	 * driver (Null — it must NOT process audio or spawn a processing thread;

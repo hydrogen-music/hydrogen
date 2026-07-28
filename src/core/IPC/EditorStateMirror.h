@@ -25,6 +25,7 @@
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/PluginTelemetry.h>
 #include <core/IPC/PluginTelemetryShm.h>
+#include <core/Object.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
@@ -64,7 +65,9 @@ class IpcChannel;
  * *initiates* transport — play/stop/relocate are host/headless engine-only and
  * read-only here (ADR 0026); it only follows.
  */
-class EditorStateMirror : public QObject {
+class EditorStateMirror : public QObject,
+						  public H2Core::Object<EditorStateMirror> {
+	H2_OBJECT( EditorStateMirror )
 	Q_OBJECT
 public:
 
@@ -112,7 +115,6 @@ private:
 	/** Periodic forced re-sync (~5 s) to bound drift; owned via QObject parenting. */
 	QTimer* m_pResyncTimer = nullptr;
 };
-
 }
 
 #endif

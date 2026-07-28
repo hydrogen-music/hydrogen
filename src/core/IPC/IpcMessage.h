@@ -22,8 +22,8 @@
 #ifndef H2C_IPC_MESSAGE_H
 #define H2C_IPC_MESSAGE_H
 
-#include <core/Object.h>
 #include <core/Basics/Event.h>
+#include <core/Object.h>
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDataStream>
@@ -189,7 +189,8 @@ enum class IpcOpcode : quint16 {
  *
  * \ingroup docCore
  */
-class IpcMessage {
+class IpcMessage : public H2Core::Object<IpcMessage> {
+	H2_OBJECT( IpcMessage )
 public:
 	IpcMessage() = default;
 	explicit IpcMessage( IpcOpcode opcode ) : m_opcode( opcode ) {}
@@ -237,7 +238,8 @@ private:
  * Incremental frame reader for a byte stream (e.g. QLocalSocket), which delivers
  * data in arbitrary chunks. Append received bytes and pull complete messages.
  */
-class IpcFrameReader {
+class IpcFrameReader : public H2Core::Object<IpcFrameReader> {
+	H2_OBJECT( IpcFrameReader )
 public:
 	void append( const QByteArray& bytes ) { m_buffer.append( bytes ); }
 	/** Pull the next complete message, if a full frame is buffered. */
