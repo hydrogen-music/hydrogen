@@ -88,10 +88,8 @@ class IpcEngineAccess : public IEngineAccess,
 		return m_pMirror->getMode(); }
 	std::shared_ptr<Instrument> getSelectedInstrument() const override {
 		return m_pMirror->getSelectedInstrument(); }
-	int getSelectedInstrumentNumber() const override {
-		return m_pMirror->getSelectedInstrumentNumber(); }
-	int getSelectedPatternNumber() const override {
-		return m_pMirror->getSelectedPatternNumber(); }
+	int getSelectedInstrumentNumber() const override;
+	int getSelectedPatternNumber() const override;
 	bool hasJackDriver() const override {
 		return m_pMirror->hasJackDriver(); }
 	bool hasJackTransport() const override {
@@ -100,6 +98,7 @@ class IpcEngineAccess : public IEngineAccess,
 		return m_pMirror->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {
 		return m_pMirror->isUnderSessionManagement(); }
+	bool getRecordEnabled() const override;
 
 	// --- audio driver (ADR 0029) ---
 	//

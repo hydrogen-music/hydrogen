@@ -103,6 +103,15 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	QStringList getDrumkitFolders() const;
 	QStringList getCustomDrumkitFolders() const;
 
+	/** Returns the list of individual drumkit paths registered via
+	 * #registerCustomDrumkitPath (not folder-scanned — exact kit paths). */
+	QStringList getCustomDrumkitPaths() const;
+
+	/** Register an individual drumkit path to be scanned on the next
+	 * updateDrumkits(). Unlike #registerDrumkitFolder (which scans a whole
+	 * folder), this points at a single drumkit directory. */
+	void registerCustomDrumkitPath( const QString& sPath );
+
 	/** Retrieves all #H2Core::Instrument::Type found in the registered
 	 * drumkits.
 	 *
@@ -181,6 +190,17 @@ SoundLibraryDatabase::getSongInfos() const
 inline QStringList SoundLibraryDatabase::getCustomDrumkitFolders() const
 {
 	return m_customDrumkitFolders;
+}
+inline QStringList SoundLibraryDatabase::getCustomDrumkitPaths() const
+{
+	return m_customDrumkitPaths;
+}
+inline void SoundLibraryDatabase::registerCustomDrumkitPath(
+	const QString& sPath )
+{
+	if ( ! sPath.isEmpty() && ! m_customDrumkitPaths.contains( sPath ) ) {
+		m_customDrumkitPaths.append( sPath );
+	}
 }
 };	// namespace H2Core
 

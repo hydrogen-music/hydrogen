@@ -449,6 +449,27 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::RemoveFromPlaylist:
 		sOpcode = "REMOVE_FROM_PLAYLIST";
 		break;
+	case IpcOpcode::GetSong:
+		sOpcode = "GET_SONG";
+		break;
+	case IpcOpcode::GetPlaylist:
+		sOpcode = "GET_PLAYLIST";
+		break;
+	case IpcOpcode::GetSelectedPattern:
+		sOpcode = "GET_SELECTED_PATTERN";
+		break;
+	case IpcOpcode::GetSelectedInstrument:
+		sOpcode = "GET_SELECTED_INSTRUMENT";
+		break;
+	case IpcOpcode::GetRecordEnabled:
+		sOpcode = "GET_RECORD_ENABLED";
+		break;
+	case IpcOpcode::GetCorePreferences:
+		sOpcode = "GET_CORE_PREFERENCES";
+		break;
+	case IpcOpcode::GetSoundLibraryInfo:
+		sOpcode = "GET_SOUND_LIBRARY_INFO";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

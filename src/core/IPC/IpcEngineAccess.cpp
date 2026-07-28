@@ -44,4 +44,47 @@ void IpcEngineAccess::sequencerStop() {
 	m_pMirror->sequencerStop();
 }
 
+int IpcEngineAccess::getSelectedPatternNumber() const {
+	if ( m_pChannel != nullptr ) {
+		IpcMessage reply;
+		if ( m_pChannel->request( IpcMessage( IpcOpcode::GetSelectedPattern ),
+								  reply ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				return args[0].toInt();
+			}
+		}
+	}
+	// Fall back to the mirror's (possibly stale) value on failure.
+	return m_pMirror->getSelectedPatternNumber();
+}
+
+int IpcEngineAccess::getSelectedInstrumentNumber() const {
+	if ( m_pChannel != nullptr ) {
+		IpcMessage reply;
+		if ( m_pChannel->request( IpcMessage( IpcOpcode::GetSelectedInstrument ),
+								  reply ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				return args[0].toInt();
+			}
+		}
+	}
+	return m_pMirror->getSelectedInstrumentNumber();
+}
+
+bool IpcEngineAccess::getRecordEnabled() const {
+	if ( m_pChannel != nullptr ) {
+		IpcMessage reply;
+		if ( m_pChannel->request( IpcMessage( IpcOpcode::GetRecordEnabled ),
+								  reply ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				return args[0].toBool();
+			}
+		}
+	}
+	return m_pMirror->getRecordEnabled();
+}
+
 };

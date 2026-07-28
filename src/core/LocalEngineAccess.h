@@ -79,6 +79,8 @@ public:
 		return m_pHydrogen->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {
 		return m_pHydrogen->isUnderSessionManagement(); }
+	bool getRecordEnabled() const override {
+		return m_pHydrogen->getRecordEnabled(); }
 
 	// Audio-driver value views (ADR 0029). Defined out-of-line in
 	// LocalEngineAccess.cpp: they read the live driver and so need the concrete

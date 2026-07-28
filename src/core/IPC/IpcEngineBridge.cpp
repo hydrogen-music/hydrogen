@@ -622,6 +622,43 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 			reply.arg( static_cast<qlonglong>( nEventId ) );
 		}
 		break;
+
+	// ── State-sync requests (ADR 0032): editor pulls authoritative state ──
+	case IpcOpcode::GetSong: {
+		auto pSong = pHydrogen->getSong();
+		if ( pSong != nullptr ) {
+			reply.setPayload( pSong->toXmlBuffer() );
+		}
+		break;
+	}
+	case IpcOpcode::GetPlaylist: {
+		auto pPlaylist = pHydrogen->getPlaylist();
+		if ( pPlaylist != nullptr ) {
+			reply.setPayload( pPlaylist->toXmlBuffer() );
+		}
+		break;
+	}
+	case IpcOpcode::GetSelectedPattern:
+		reply.arg( pHydrogen->getSelectedPatternNumber() );
+		break;
+	case IpcOpcode::GetSelectedInstrument:
+		reply.arg( pHydrogen->getSelectedInstrumentNumber() );
+		break;
+	case IpcOpcode::GetRecordEnabled:
+		reply.arg( pHydrogen->getRecordEnabled() );
+		break;
+	case IpcOpcode::GetCorePreferences: {
+		break;
+	}
+	case IpcOpcode::GetSoundLibraryInfo: {
+		auto pDb = pHydrogen->getSoundLibraryDatabase();
+		if ( pDb != nullptr ) {
+			reply.arg( pDb->getDrumkitFolders() )
+				.arg( pDb->getCustomDrumkitFolders() )
+				.arg( pDb->getCustomDrumkitPaths() );
+		}
+		break;
+	}
 	default:
 		break; // unknown request → empty Reply (correlated by id)
 	}

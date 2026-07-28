@@ -179,6 +179,21 @@ enum class IpcOpcode : quint16 {
 	AddToPlaylist,          ///< args: [QString entryMimeText, int nIndex]
 	RemoveFromPlaylist,     ///< args: [QString entryMimeText, int nIndex]
 
+	// ── State-sync requests (editor → engine, ADR 0032) ──
+	// Pull-based full-state sync: the editor sends these on connect/reconnect
+	// to mirror the headless engine's authoritative state. Each is a
+	// request/response opcode (IpcChannel::request()); the reply carries the
+	// result in args or payload.
+	GetSong,                ///< reply: payload = song XML
+	GetPlaylist,            ///< reply: payload = playlist XML (empty if none)
+	GetSelectedPattern,     ///< reply: args = [int]
+	GetSelectedInstrument,  ///< reply: args = [int]
+	GetRecordEnabled,       ///< reply: args = [bool]
+	GetCorePreferences,     ///< reply: payload = core-preferences XML
+	GetSoundLibraryInfo,    ///< reply: args = [QStringList drumkitFolders,
+	                        ///<         QStringList customDrumkitFolders,
+	                        ///<         QStringList customDrumkitPaths]
+
 	OpcodeCount
 };
 /**
