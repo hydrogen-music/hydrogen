@@ -204,7 +204,7 @@ int main( int argc, char** argv )
 		QStringList() << "V"
 					  << "verbose",
 		"Debug level, if present, may be\n   - None\n   - Error [default]\n   "
-		"- Warning\n   - Info\n   - Debug\n   - Constructors\n   - Locks",
+		"- Warning\n   - Info\n   - Debug\n   - Ipc\n   - Constructors\n   - Locks",
 		"Level"
 	);
 	QCommandLineOption logFileOption(

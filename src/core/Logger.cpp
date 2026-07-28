@@ -47,7 +47,7 @@ namespace H2Core {
 unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=nullptr;
 thread_local Logger* Logger::__pCurrent = nullptr;
-const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors", "Locks" };
+const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Ipc", "Constructors", "Locks" };
 thread_local QString *Logger::pCrashContext = nullptr;
 
 // Defined out-of-line (rather than inline in Logger.h) so the only references
@@ -206,16 +206,28 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 	, m_bUseStdout( bUseStdout )
 	, m_bLogTimestamps( bLogTimestamps )
 	, m_bLogColors( bLogColors ) {
+	m_prefixList << ""
+				 << "(E) "
+				 << "(W) "
+				 << "(I) "
+				 << "(D) "
+				 << "(IPC) "
+				 << "(C) "
+				 << "(L) ";
 
-	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
-
-	if ( ! m_bLogColors ) {
-		m_colorList << "" << "" << "" << "" << "" << "" << "";
+	if ( !m_bLogColors ) {
+		m_colorList << "" << "" << "" << "" << "" << "" << "" << "";
 		m_sColorOff = "";
 	}
 	else {
-		m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
-					<< "\033[35;1m" << "\033[35;1m";
+		m_colorList << ""
+					<< "\033[31m"
+					<< "\033[36m"
+					<< "\033[32m"
+					<< "\033[35m"
+					<< "\033[33m"
+					<< "\033[35;1m"
+					<< "\033[35;1m";
 		m_sColorOff = "\033[0m";
 	}
 
@@ -272,11 +284,14 @@ void Logger::log( unsigned level, const QString& sClassName, const char* func_na
 	case Debug:
 		i = 4;
 		break;
-	case Constructors:
+	case Ipc:
 		i = 5;
 		break;
-	case Locks:
+	case Constructors:
 		i = 6;
+		break;
+	case Locks:
+		i = 7;
 		break;
 	default:
 		i = 0;
@@ -319,21 +334,35 @@ void Logger::flush() const {
 
 unsigned Logger::parse_log_level( const char* level ) {
 	unsigned log_level = Logger::None;
-	if( 0 == strncasecmp( level, __levels[0], strlen( __levels[0] ) ) ) {
+	if ( 0 == strncasecmp( level, __levels[0], strlen( __levels[0] ) ) ) {
 		log_level = Logger::None;
-	} else if ( 0 == strncasecmp( level, __levels[1], strlen( __levels[1] ) ) ) {
+	}
+	else if ( 0 == strncasecmp( level, __levels[1], strlen( __levels[1] ) ) ) {
 		log_level = Logger::Error;
-	} else if ( 0 == strncasecmp( level, __levels[2], strlen( __levels[2] ) ) ) {
+	}
+	else if ( 0 == strncasecmp( level, __levels[2], strlen( __levels[2] ) ) ) {
 		log_level = Logger::Error | Logger::Warning;
-	} else if ( 0 == strncasecmp( level, __levels[3], strlen( __levels[3] ) ) ) {
+	}
+	else if ( 0 == strncasecmp( level, __levels[3], strlen( __levels[3] ) ) ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info;
-	} else if ( 0 == strncasecmp( level, __levels[4], strlen( __levels[4] ) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
-	} else if ( 0 == strncasecmp( level, __levels[5], strlen( __levels[5] ) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug | Logger::Constructors;
-	} else if ( 0 == strncasecmp( level, __levels[6], strlen( __levels[6] ) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug | Logger::Locks;
-	} else {
+	}
+	else if ( 0 == strncasecmp( level, __levels[4], strlen( __levels[4] ) ) ) {
+		log_level =
+			Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
+	}
+	else if ( 0 == strncasecmp( level, __levels[5], strlen( __levels[5] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info |
+					Logger::Debug | Logger::Ipc;
+	}
+	else if ( 0 == strncasecmp( level, __levels[6], strlen( __levels[6] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info |
+					Logger::Debug | Logger::Ipc | Logger::Constructors;
+	}
+	else if ( 0 == strncasecmp( level, __levels[7], strlen( __levels[7] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info |
+					Logger::Debug | Logger::Ipc | Logger::Locks;
+	}
+	else {
 #ifdef HAVE_SSCANF
 		int val = sscanf( level,"%x",&log_level );
 		if( val != 1 ) {

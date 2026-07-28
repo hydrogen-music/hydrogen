@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 			"Load a drumkit at startup", "DrumkitName" );
 		QCommandLineOption verboseOption(
 			QStringList() << "V" << "verbose",
-			"Debug level, if present, may be\n   - None\n   - Error [default]\n   - Warning\n   - Info\n   - Debug\n   - Constructors\n   - Locks", "Level" );
+			"Debug level, if present, may be\n   - None\n   - Error [default]\n   - Warning\n   - Info\n   - Debug\n   - Ipc\n   - Constructors\n   - Locks", "Level" );
 		QCommandLineOption logFileOption(
 			QStringList() << "L" << "log-file",
 			"Alternative log file path", "Path" );

@@ -47,8 +47,9 @@ class Logger {
 			Warning         = 0x02,
 			Info            = 0x04,
 			Debug           = 0x08,
-			Constructors    = 0x10,
-			Locks   = 0x20
+			Ipc             = 0x10,
+			Constructors    = 0x20,
+			Locks           = 0x40
 		};
 
 		/** message queue type */

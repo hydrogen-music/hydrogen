@@ -310,28 +310,32 @@ template<typename T> atomic_obj_cpt_t Object<T>::counters;
 #define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }
 
 // Object instance method logging macros
+#define IPCLOG(x)       __LOG_METHOD( H2Core::Logger::Ipc,     (x) );
 #define DEBUGLOG(x)     __LOG_METHOD( H2Core::Logger::Debug,   (x) );
 #define INFOLOG(x)      __LOG_METHOD( H2Core::Logger::Info,    (x) );
 #define WARNINGLOG(x)   __LOG_METHOD( H2Core::Logger::Warning, (x) );
 #define ERRORLOG(x)     __LOG_METHOD( H2Core::Logger::Error,   (x) );
 
 // Object class method logging macros
+#define _IPCLOG(x)      __LOG_CLASS( H2Core::Logger::Ipc,     (x) );
 #define _DEBUGLOG(x)    __LOG_CLASS( H2Core::Logger::Debug,   (x) );
 #define _INFOLOG(x)     __LOG_CLASS( H2Core::Logger::Info,    (x) );
 #define _WARNINGLOG(x)  __LOG_CLASS( H2Core::Logger::Warning, (x) );
 #define _ERRORLOG(x)    __LOG_CLASS( H2Core::Logger::Error,   (x) );
 
 // logging macros using an Base *__object ( thread :  Base * __object = ( Base * )param; )
+#define __IPCLOG(x)     __LOG_OBJ( H2Core::Logger::Ipc,        (x) );
 #define __DEBUGLOG(x)   __LOG_OBJ( H2Core::Logger::Debug,      (x) );
 #define __INFOLOG(x)    __LOG_OBJ( H2Core::Logger::Info,       (x) );
 #define __WARNINGLOG(x) __LOG_OBJ( H2Core::Logger::Warning,    (x) );
 #define __ERRORLOG(x)   __LOG_OBJ( H2Core::Logger::Error,      (x) );
 
 // logging macros using  ( thread :  Base * __object = ( Base * )param; )
-#define ___DEBUGLOG(x)  __LOG_STATIC( H2Core::Logger::Debug,    (x) );
-#define ___INFOLOG(x)   __LOG_STATIC( H2Core::Logger::Info,     (x) );
-#define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,  (x) );
-#define ___ERRORLOG(x)  __LOG_STATIC( H2Core::Logger::Error,    (x) );
+#define ___IPCLOG(x)     __LOG_STATIC( H2Core::Logger::Ipc,      (x) );
+#define ___DEBUGLOG(x)   __LOG_STATIC( H2Core::Logger::Debug,    (x) );
+#define ___INFOLOG(x)    __LOG_STATIC( H2Core::Logger::Info,     (x) );
+#define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,   (x) );
+#define ___ERRORLOG(x)   __LOG_STATIC( H2Core::Logger::Error,    (x) );
 
 // Can be called without or with a single argument
 #define CLOCK(...)      __LOG_METHOD( H2Core::Logger::Debug, base_clock( QString( "%1" ).arg( #__VA_ARGS__ ) ) );

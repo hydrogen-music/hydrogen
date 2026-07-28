@@ -77,7 +77,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	QCommandLineOption verboseOption(
 		QStringList() << "V" <<
-		"verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
+		"verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Ipc, Constructors, Locks, or 0xHHHH", "Level" );
 	QCommandLineOption logFileOption(
 		QStringList() << "L" << "log-file", "Alternative log file path", "Path" );
 	QCommandLineOption logTimestampsOption(
