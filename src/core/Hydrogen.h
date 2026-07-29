@@ -639,6 +639,35 @@ private:
 
 };
 
+	/** Whenever Hydrogen is started in editor mode - connecting its GUI to an
+	 * authorative (remote) headless engine via IPC - it also starts a local
+	 * engine mirror for smooth transport control but without any audio, MIDI,
+	 * or OSC access. This assert marks methods directly accessing audio and
+	 * MIDI drivers as well as other things that _must_ be accessed from the
+	 * authorative engine and not from the mirrored one. */
+#if defined(H2CORE_HAVE_DEBUG) and !defined(NDEBUG)
+  #define ASSERT_NO_EDITOR_MODE(pHydrogen)	\
+	QString sMsg;								\
+	if ( pHydrogen == nullptr ) {				\
+		sMsg = "Invalid Hydrogen object. Wrong setup!";	\
+	}											\
+	else if ( pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) { \
+		sMsg = "Hydrogen must not be in editor mode in this context!";	\
+	};											\
+	if ( ! sMsg.isEmpty() ) {					\
+		std::stringstream tmpStream;				\
+		tmpStream << std::this_thread::get_id();	\
+		ERRORLOG( QString( "[thread id: %1] %2" )	\
+				  .arg( QString::fromStdString( tmpStream.str() ) )	\
+				  .arg( sMsg ) );	\
+		__logger->flush();							\
+		assert( false );							\
+	}
+#else
+  #define ASSERT_NO_EDITOR_MODE(x)
+#endif
+
+
 inline bool Hydrogen::getIsExportSessionActive() const
 {
 	return m_bExportSessionIsActive;
