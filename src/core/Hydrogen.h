@@ -124,6 +124,13 @@ public:
 		Headless = 0,
 		/** Hydrogen is up and running and there is a working GUI. */
 		Full = 1,
+		/** The Hydrogen GUI was started to connect via IPC to a headless
+		 * version of Hydrogen running in a different process. While this
+		 * project will spawn an engine too (driver-less), its sole purpose is
+		 * to serve as a mirror in order to ensure smooth playback and
+		 * transport. But the engine running in the other process is authorative
+		 * and the mirror one is synced to it periodically. */
+		Editor,
 		/** Teardown of Hydrogen was initialized and the Event handling system
 		 * might not work anymore. */
 		Shutdown

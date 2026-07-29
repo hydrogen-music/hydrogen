@@ -1402,7 +1402,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 
 	// Be sure to not make GUI render its content twice by triggering this
 	// during startup.
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Full ) {
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Startup ) {
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 0 );
 	}
 
@@ -1539,7 +1539,7 @@ bool CoreActionController::setPreferences(
 
 	// If the GUI is active, we have to update it to reflect the
 	// changes in the preferences.
-	if ( m_pHydrogen->getProcessMode() == H2Core::Hydrogen::ProcessMode::Full ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::Hydrogen::ProcessMode::Startup ) {
 		m_pHydrogen->getEventQueue()->pushEvent(
 			H2Core::Event::Type::UpdatePreferences, 1
 		);

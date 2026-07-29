@@ -937,7 +937,7 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 		// Non session management all ports have to be registered _prior_
 		// to the activation of the client.
 		if ( isUnderSessionManagement() &&
-			 getProcessMode() != Hydrogen::ProcessMode::Full ) {
+			 getProcessMode() == Hydrogen::ProcessMode::Startup ) {
 			return;
 		}
 
@@ -1872,6 +1872,8 @@ QString Hydrogen::ProcessModeToQString( const ProcessMode& state ) {
 		return "Headless";
 	case ProcessMode::Full:
 		return "Full";
+	case ProcessMode::Editor:
+		return "Editor";
 	case ProcessMode::Shutdown:
 		return "Shutdown";
 	default:

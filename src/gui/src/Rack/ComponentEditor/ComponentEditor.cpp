@@ -386,12 +386,12 @@ void ComponentEditor::updateSize() {
 
 	int nMaxHeight;
 	if ( HydrogenApp::pEngine()->getProcessMode() ==
-		 Hydrogen::ProcessMode::Full ) {
-        const auto pRack = HydrogenApp::get_instance()->getRack();
-        nMaxHeight = pRack->height() - pRack->tabBar()->height();
+		 Hydrogen::ProcessMode::Startup ) {
+        nMaxHeight = HydrogenApp::pPreferences()->getRackProperties().height - 30;
 	}
 	else {
-        nMaxHeight = HydrogenApp::pPreferences()->getRackProperties().height - 30;
+        const auto pRack = HydrogenApp::get_instance()->getRack();
+        nMaxHeight = pRack->height() - pRack->tabBar()->height();
 	}
 
 	resize( width(), std::min( nNewHeight, nMaxHeight ) );
