@@ -2918,10 +2918,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	auto pShortcuts = pPref->getShortcuts();
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
-	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	const auto pSoundLibraryDataBase = pHydrogen->getSoundLibraryDatabase();
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );
@@ -2956,32 +2954,23 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 		}
 
 		const QString sTitle = actionInfoMap.at( action ).sDescription;
-		
+		ShortcutArgs args;
+
 		if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
 			 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
-			// Virtual keyboard
-
-			HydrogenApp::pEngine()->getCoreActionController()->handleNote(
-				Midi::noteFromIntClamp(
-					static_cast<int>( action ) -
-					static_cast<int>( Shortcuts::Action::VK_36_C2 ) +
-					static_cast<int>( Midi::NoteOffset )
-				),
-				Midi::ChannelAll, VELOCITY_DEFAULT, false
-			);
+			// Virtual keyboard — no arguments needed
 		}
 		else if ( static_cast<int>(action) >
 				  static_cast<int>(Shortcuts::Action::FirstWith1Args) &&
 				  static_cast<int>(action) <
 				  static_cast<int>(Shortcuts::Action::LastWith1Args) ) {
 			// Core actions with a single input argument
-			
+
 			auto inputType = InputCaptureDialog::Type::IntMidi;
 			float fMax = 1;
 			float fMin = 0;
 			QString sLabel;
-			auto midiActionType = MidiAction::Type::Null;
-			
+
 			switch ( action ) {
 			case Shortcuts::Action::BPM:
 				inputType = InputCaptureDialog::Type::Float;
@@ -2991,7 +2980,6 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				break;
 
 			case Shortcuts::Action::MasterVolume:
-				midiActionType = MidiAction::Type::MasterVolumeAbsolute;
 				sLabel = pCommonStrings->getInputCaptureVolume();
 				break;
 
@@ -3000,26 +2988,16 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				sLabel = pCommonStrings->getInputCaptureColumn();
 				fMax = static_cast<float>(pSong->getPatternGroupVector()->size()) - 1;
 				break;
-				
+
 			case Shortcuts::Action::SelectNextPattern:
 			case Shortcuts::Action::SelectOnlyNextPattern:
 			case Shortcuts::Action::SelectAndPlayPattern:
-				if ( action == Shortcuts::Action::SelectNextPattern ) {
-					midiActionType = MidiAction::Type::SelectNextPattern;
-				}
-				else if ( action == Shortcuts::Action::SelectOnlyNextPattern ) {
-					midiActionType = MidiAction::Type::SelectOnlyNextPattern;
-				}
-				else if ( action == Shortcuts::Action::SelectAndPlayPattern ) {
-					midiActionType = MidiAction::Type::SelectAndPlayPattern;
-				}
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCapturePattern();
 				fMax = static_cast<float>(pSong->getPatternList()->size()) - 1;
 				break;
 
 			case Shortcuts::Action::PlaylistSong:
-				midiActionType = MidiAction::Type::PlaylistSong;
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCapturePattern();
 				fMax = static_cast<float>(pHydrogen->getPlaylist()->size()) - 1;
@@ -3031,24 +3009,12 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 				sLabel = pCommonStrings->getInputCaptureColumn();
 				fMax = static_cast<float>(pPref->getMaxBars()) - 1;
 				break;
-				
+
 			case Shortcuts::Action::SelectInstrument:
 			case Shortcuts::Action::StripVolumeIncrease:
 			case Shortcuts::Action::StripVolumeDecrease:
 			case Shortcuts::Action::StripMuteToggle:
 			case Shortcuts::Action::StripSoloToggle:
-				if ( action == Shortcuts::Action::SelectInstrument ) {
-					midiActionType = MidiAction::Type::SelectInstrument;
-				}
-				else if ( action == Shortcuts::Action::StripMuteToggle ) {
-					midiActionType = MidiAction::Type::StripMuteToggle;
-				}
-				else if ( action == Shortcuts::Action::StripSoloToggle ) {
-					midiActionType = MidiAction::Type::StripSoloToggle;
-				}
-				else {
-					midiActionType = MidiAction::Type::StripVolumeRelative;
-				}
 				inputType = InputCaptureDialog::Type::Int;
 				sLabel = pCommonStrings->getInputCaptureInstrument();
 				fMax = static_cast<float>(pSong->getDrumkit()->getInstruments()->size()) - 1;
@@ -3063,79 +3029,15 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
-			const QString sArg = pInputCaptureDialog->text();
+			args.sArg1 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
-
-			switch ( action ) {
-			case Shortcuts::Action::BPM:
-				HydrogenApp::pEngine()->getCoreActionController()->setBpm( sArg.toFloat() );
-				break;
-			case Shortcuts::Action::JumpToBar:
-				HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( sArg.toInt() );
-				break;
-			case Shortcuts::Action::SelectInstrument:
-			case Shortcuts::Action::MasterVolume: {
-				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setValue( sArg.toInt() );
-				pMidiActionManager->handleMidiActionSync( pAction );
-				break;
-			}
-
-			case Shortcuts::Action::SelectNextPattern:
-			case Shortcuts::Action::SelectOnlyNextPattern:
-			case Shortcuts::Action::SelectAndPlayPattern: {
-				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setPattern( sArg.toInt() );
-				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
-					pAction->setValue( 1 );
-				}
-				else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
-					pAction->setValue( -1 );
-				}
-				pMidiActionManager->handleMidiActionSync( pAction );
-				break;
-			}
-
-			case Shortcuts::Action::PlaylistSong: {
-				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setSong( sArg.toInt() );
-				pMidiActionManager->handleMidiActionSync( pAction );
-				break;
-			}
-
-			case Shortcuts::Action::StripVolumeIncrease:
-			case Shortcuts::Action::StripVolumeDecrease:
-			case Shortcuts::Action::StripMuteToggle:
-			case Shortcuts::Action::StripSoloToggle: {
-				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setInstrument( sArg.toInt() );
-				if ( action == Shortcuts::Action::StripVolumeIncrease ) {
-					pAction->setValue( 1 );
-				}
-				else if ( action == Shortcuts::Action::StripVolumeDecrease ) {
-					pAction->setValue( -1 );
-				}
-				pMidiActionManager->handleMidiActionSync( pAction );
-				break;
-			}
-
-			case Shortcuts::Action::TimelineDeleteMarker:
-				HydrogenApp::pEngine()->getCoreActionController()->deleteTempoMarker( sArg.toInt() );
-				break;
-			case Shortcuts::Action::TimelineDeleteTag:
-				HydrogenApp::pEngine()->getCoreActionController()->deleteTag( sArg.toInt() );
-				break;
-			default:
-				WARNINGLOG( QString( "Action [%1] not properly handled" )
-							.arg( static_cast<int>(action) ) );
-			}
 		}
 		else if ( static_cast<int>(action) >
 				  static_cast<int>(Shortcuts::Action::FirstWith2Args) &&
 				  static_cast<int>(action) <
 				  static_cast<int>(Shortcuts::Action::LastWith2Args) ) {
 			// Core actions with two input arguments
-			
+
 			auto inputType1 = InputCaptureDialog::Type::IntMidi;
 			auto inputType2 = InputCaptureDialog::Type::IntMidi;
 			float fMax1 = 1;
@@ -3143,22 +3045,18 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			float fMax2 = 1;
 			float fMin2 = 0;
 			QString sLabel1, sLabel2;
-			auto midiActionType = MidiAction::Type::Null;
 
 			switch ( action ) {
 			case Shortcuts::Action::StripVolume:
 			case Shortcuts::Action::StripPan:
 			case Shortcuts::Action::StripFilterCutoff:
 				if ( action == Shortcuts::Action::StripVolume ) {
-					midiActionType = MidiAction::Type::StripVolumeAbsolute;
 					sLabel1 = pCommonStrings->getInputCaptureVolume();
 				}
 				else if ( action == Shortcuts::Action::StripPan ) {
-					midiActionType = MidiAction::Type::PanAbsolute;
 					sLabel1 = pCommonStrings->getNotePropertyPan();
 				}
 				else if ( action == Shortcuts::Action::StripFilterCutoff ) {
-					midiActionType = MidiAction::Type::FilterCutoffLevelAbsolute;
 					sLabel1 = pCommonStrings->getInputCaptureFilterCutoff();
 				}
 				inputType2 = InputCaptureDialog::Type::Int;
@@ -3200,57 +3098,26 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
-			const QString sArg1 = pInputCaptureDialog->text();
+			args.sArg1 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
-			
+
 			pInputCaptureDialog = new InputCaptureDialog(
 				this, sTitle, sLabel2, inputType2, fMin2, fMax2 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
-			const QString sArg2 = pInputCaptureDialog->text();
+			args.sArg2 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
-
-			switch ( action ) {
-			case Shortcuts::Action::StripVolume:
-			case Shortcuts::Action::StripPan:
-			case Shortcuts::Action::StripFilterCutoff: {
-				auto pAction = std::make_shared<MidiAction>( midiActionType );
-				pAction->setValue( sArg1.toInt() );
-				pAction->setInstrument( sArg2.toInt() );
-				pMidiActionManager->handleMidiActionSync( pAction );
-				break;
-			}
-
-			case Shortcuts::Action::TimelineAddMarker:
-				HydrogenApp::pEngine()->getCoreActionController()->addTempoMarker(
-					sArg1.toInt(), sArg2.toFloat() );
-				break;
-			case Shortcuts::Action::TimelineAddTag:
-				HydrogenApp::pEngine()->getCoreActionController()->addTag( sArg1.toInt(), sArg2 );
-				break;
-			case Shortcuts::Action::ToggleGridCell:
-				HydrogenApp::pEngine()->getCoreActionController()->toggleGridCell(
-					GridPoint( sArg1.toInt(), sArg2.toInt() ) );
-				break;
-			default:
-				WARNINGLOG( QString( "Action [%1] not properly handled" )
-							.arg( static_cast<int>(action) ) );
-			}
 		}
 		else if ( action == Shortcuts::Action::LayerPitch ||
 				  action == Shortcuts::Action::LayerGain ) {
 			// Core actions with more than three input arguments
-			
-			QString sLabel;
-			auto midiActionType = MidiAction::Type::Null;
 
+			QString sLabel;
 			if ( action == Shortcuts::Action::LayerPitch ) {
-				midiActionType = MidiAction::Type::PitchLevelAbsolute;
 				sLabel = pCommonStrings->getPitchLabel();
 			}
-			else if ( action == Shortcuts::Action::LayerGain ) {
-				midiActionType = MidiAction::Type::GainLevelAbsolute;
+			else {
 				sLabel = pCommonStrings->getGainLabel();
 			}
 
@@ -3260,7 +3127,7 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
-			const QString sValue = pInputCaptureDialog->text();
+			args.sArg1 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
 
 			// Capture instrument number
@@ -3271,12 +3138,14 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
-			const int nInstrument = pInputCaptureDialog->text().toInt();
+			args.sArg2 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
-			auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
+
+			auto pInstrument = pSong->getDrumkit()->getInstruments()
+				->get( args.sArg2.toInt() );
 			if ( pInstrument == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
-						  .arg( nInstrument ) );
+						  .arg( args.sArg2.toInt() ) );
 				return true;
 			}
 
@@ -3284,16 +3153,17 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog = new InputCaptureDialog(
 				this, sTitle, pCommonStrings->getInputCaptureComponent(),
 				InputCaptureDialog::Type::Int, 0,
-				pInstrument->getComponents()->size() - 1);
+				static_cast<float>( pInstrument->getComponents()->size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
-			const int nComponent = pInputCaptureDialog->text().toInt();
+			args.sArg3 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
-			auto pComponent = pInstrument->getComponents()->at( nComponent );
+
+			auto pComponent = pInstrument->getComponents()->at( args.sArg3.toInt() );
 			if ( pComponent == nullptr ) {
 				ERRORLOG( QString( "Unable to retrieve component [%1] of instrument [%2]" )
-						  .arg( nComponent ).arg( nInstrument ) );
+						  .arg( args.sArg3.toInt() ).arg( args.sArg2.toInt() ) );
 				return true;
 			}
 
@@ -3301,387 +3171,15 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 			pInputCaptureDialog = new InputCaptureDialog(
 				this, sTitle, pCommonStrings->getInputCaptureLayer(),
 				InputCaptureDialog::Type::Int, 0,
-				pComponent->getLayers().size() - 1);
+				static_cast<float>( pComponent->getLayers().size()) - 1 );
 			if ( pInputCaptureDialog->exec() == QDialog::Rejected ) {
 				return true;
 			}
-			const int nLayer = pInputCaptureDialog->text().toInt();
+			args.sArg4 = pInputCaptureDialog->text();
 			delete pInputCaptureDialog;
-			auto pLayer = pComponent->getLayer( nLayer );
-			if ( pLayer == nullptr ) {
-				ERRORLOG( QString( "Unable to retrieve layer [%1] of component [%2] of instrument [%3]" )
-						  .arg( nLayer ).arg( nComponent ).arg( nInstrument ) );
-				return true;
-			}
-
-			// Deploy action
-			auto pAction = std::make_shared<MidiAction>( midiActionType );
-			pAction->setValue( sValue.toInt() );
-			pAction->setInstrument( nInstrument );
-			pAction->setComponent( nComponent );
-			pAction->setLayer( nLayer );
-			pMidiActionManager->handleMidiActionSync( pAction );
 		}
-		else {
-			std::shared_ptr<MidiAction> pAction = nullptr;
-			
-			// Actions without input arguments
-			switch ( action ) {
-				
-			case Shortcuts::Action::Panic:
-				//panic button stop all playing notes
-				pHydrogen->panic();
-				break;
 
-			case Shortcuts::Action::Play:
-				pAction = std::make_shared<MidiAction>( MidiAction::Type::Play );
-				break;
-			case Shortcuts::Action::Pause:
-				pAction = std::make_shared<MidiAction>( MidiAction::Type::Pause );
-				break;
-			case Shortcuts::Action::Stop:
-				pAction = std::make_shared<MidiAction>( MidiAction::Type::Stop );
-				break;
-			case Shortcuts::Action::PlayPauseToggle:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::PlayPauseToggle );
-				break;
-			case Shortcuts::Action::PlayStopToggle:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::PlayStopToggle );
-				break;
-			case Shortcuts::Action::PlayPauseToggleAtCursor:
-				startPlaybackAtCursor( pQObject );
-				break;
-				
-			case Shortcuts::Action::RecordReady:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::RecordReady );
-				break;
-			case Shortcuts::Action::RecordStrobe:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::RecordStrobe );
-				break;
-			case Shortcuts::Action::RecordStrobeToggle:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::RecordStrobeToggle );
-				break;
-			case Shortcuts::Action::RecordExit:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::RecordExit );
-				break;
-
-			case Shortcuts::Action::MasterMute:
-				pAction = std::make_shared<MidiAction>( MidiAction::Type::Mute );
-				break;
-			case Shortcuts::Action::MasterUnmute:
-				pAction = std::make_shared<MidiAction>( MidiAction::Type::Unmute );
-				break;
-			case Shortcuts::Action::MasterMuteToggle:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::MuteToggle );
-				break;
-			case Shortcuts::Action::MasterVolumeIncrease:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::MasterVolumeRelative );
-				pAction->setValue( 1 );
-				break;
-			case Shortcuts::Action::MasterVolumeDecrease:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::MasterVolumeRelative );
-				pAction->setValue( -1 );
-				break;
-
-			case Shortcuts::Action::JumpToStart:
-				HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
-				break;
-			case Shortcuts::Action::JumpBarForward:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::NextBar );
-				break;
-			case Shortcuts::Action::JumpBarBackward:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::PreviousBar );
-				break;
-
-			case Shortcuts::Action::BPMIncreaseCoarse:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::BpmIncr );
-				pAction->setFactor( 0.1 );
-				break;
-			case Shortcuts::Action::BPMDecreaseCoarse:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::BpmDecr );
-				pAction->setFactor( 0.1 );
-				break;
-			case Shortcuts::Action::BPMIncreaseFine:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::BpmIncr );
-				pAction->setFactor( 0.01 );
-				break;
-			case Shortcuts::Action::BPMDecreaseFine:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::BpmDecr );
-				pAction->setFactor( 0.01 );
-				break;
-
-			case Shortcuts::Action::BeatCounter:
-				pHydrogen->handleBeatCounter();
-				break;
-
-			case Shortcuts::Action::TapTempo:
-				pHydrogen->onTapTempoAccelEvent();
-				break;
-
-			case Shortcuts::Action::PlaylistNextSong:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::PlaylistNextSong );
-				break;
-			case Shortcuts::Action::PlaylistPrevSong:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::PlaylistPrevSong );
-				break;
-
-			case Shortcuts::Action::TimelineToggle:
-				HydrogenApp::pEngine()->getCoreActionController()->toggleTimeline();
-				break;
-			case Shortcuts::Action::MetronomeToggle:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::ToggleMetronome );
-				break;
-			case Shortcuts::Action::JackTransportToggle:
-				HydrogenApp::pEngine()->getCoreActionController()->toggleJackTransport();
-				break;
-			case Shortcuts::Action::JackTimebaseToggle:
-				HydrogenApp::pEngine()->getCoreActionController()->toggleJackTimebaseControl();
-				break;
-			case Shortcuts::Action::SongModeToggle:
-				HydrogenApp::pEngine()->getCoreActionController()->toggleSongMode();
-				break;
-			case Shortcuts::Action::LoopModeToggle:
-				HydrogenApp::pEngine()->getCoreActionController()->toggleLoopMode();
-				break;
-
-			case Shortcuts::Action::LoadNextDrumkit:
-				// Pass copy to not alter the original kit.
-				switchDrumkit( std::shared_ptr<Drumkit>(
-								   pSoundLibraryDataBase->getNextDrumkit() ) );
-				break;
-			case Shortcuts::Action::LoadPrevDrumkit:
-				// Pass copy to not alter the original kit.
-				switchDrumkit( std::shared_ptr<Drumkit>(
-								   pSoundLibraryDataBase->getPreviousDrumkit() ) );
-				break;
-
-			case Shortcuts::Action::CountIn:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::CountIn );
-				break;
-			case Shortcuts::Action::CountInPauseToggle:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::CountInPauseToggle );
-				break;
-			case Shortcuts::Action::CountInStopToggle:
-				pAction = std::make_shared<MidiAction>(
-					MidiAction::Type::CountInStopToggle );
-				break;
-
-				//////////////////////////////////////////////////////
-				// GUI Actions
-
-			case Shortcuts::Action::NewSong:
-				action_file_new();
-				break;
-			case Shortcuts::Action::OpenSong:
-				action_file_open();
-				break;
-			case Shortcuts::Action::EditSongProperties:
-				action_file_songProperties();
-				break;
-			case Shortcuts::Action::OpenDemoSong:
-				action_file_openDemo();
-				break;
-			case Shortcuts::Action::SaveSong:
-				action_file_save();
-				break;
-			case Shortcuts::Action::SaveAsSong:
-				action_file_save_as();
-				break;
-			case Shortcuts::Action::OpenPattern:
-				action_pattern_open();
-				break;
-			case Shortcuts::Action::ExportPattern:
-				action_pattern_save_as();
-				break;
-			case Shortcuts::Action::ExportSong:
-				action_file_export();
-				break;
-			case Shortcuts::Action::ExportMIDI:
-				action_file_export_midi();
-				break;
-			case Shortcuts::Action::ExportLilyPond:
-				action_file_export_lilypond();
-				break;
-			case Shortcuts::Action::Quit:
-				action_file_exit();
-				break;
-
-			case Shortcuts::Action::Undo:
-				action_undo();
-				break;
-			case Shortcuts::Action::Redo:
-				action_redo();
-				break;
-			case Shortcuts::Action::ShowUndoHistory:
-				openUndoStack();
-				break;
-
-			case Shortcuts::Action::NewDrumkit:
-				action_drumkit_new();
-				break;
-			case Shortcuts::Action::OpenDrumkit:
-				action_drumkit_open();
-				break;
-			case Shortcuts::Action::EditDrumkitProperties:
-				action_drumkit_properties();
-				break;
-			case Shortcuts::Action::SaveDrumkitToSoundLibrary:
-				action_drumkit_save();
-				break;
-			case Shortcuts::Action::ExportDrumkit:
-				action_drumkit_export();
-				break;
-			case Shortcuts::Action::ImportDrumkit:
-				action_drumkit_import();
-				break;
-			case Shortcuts::Action::ImportOnlineDrumkit:
-				action_drumkit_onlineImport();
-				break;
-
-			case Shortcuts::Action::AddInstrument:
-				action_drumkit_addInstrument();
-				break;
-			case Shortcuts::Action::ClearAllInstruments:
-				action_drumkit_new();
-				break;
-			case Shortcuts::Action::AddComponent: {
-				auto pComponentEditor = pHydrogenApp->getComponentEditor();
-				if ( pComponentEditor != nullptr ) {
-					pComponentEditor->addComponent();
-				}
-				break;
-			}
-
-			case Shortcuts::Action::ShowPlaylist:
-				action_window_showPlaylistEditor();
-				break;
-			case Shortcuts::Action::ShowDirector:
-				action_window_show_DirectorWidget();
-				break;
-			case Shortcuts::Action::ShowMixer:
-				action_window_showMixer();
-				break;
-			case Shortcuts::Action::ShowRack:
-				action_window_showRack();
-				break;
-			case Shortcuts::Action::ShowAutomation:
-				action_window_showAutomationArea();
-				break;
-			case Shortcuts::Action::ShowPlaybackTrack:
-				action_window_showPlaybackTrack();
-				break;
-			case Shortcuts::Action::ShowFullscreen:
-				action_window_toggleFullscreen();
-				break;
-			case Shortcuts::Action::ShowPreferencesDialog:
-				showPreferencesDialog();
-				break;
-
-			case Shortcuts::Action::ShowAudioEngineInfo:
-				action_debug_showAudioEngineInfo();
-				break;
-			case Shortcuts::Action::ShowFilesystemInfo:
-				action_debug_showFilesystemInfo();
-				break;
-			case Shortcuts::Action::LogLevelNone:
-				action_debug_logLevel_none();
-				break;
-			case Shortcuts::Action::LogLevelError:
-				action_debug_logLevel_error();
-				break;
-			case Shortcuts::Action::LogLevelWarning:
-				action_debug_logLevel_warn();
-				break;
-			case Shortcuts::Action::LogLevelInfo:
-				action_debug_logLevel_info();
-				break;
-			case Shortcuts::Action::LogLevelDebug:
-				action_debug_logLevel_debug();
-				break;
-			case Shortcuts::Action::OpenLogFile:
-				action_debug_openLogfile();
-				break;
-			case Shortcuts::Action::DebugPrintObjects:
-				action_debug_printObjects();
-				break;
-
-			case Shortcuts::Action::OpenManual:
-				showUserManual();
-				break;
-			case Shortcuts::Action::ShowAbout:
-				action_help_about();
-				break;
-			case Shortcuts::Action::ShowReportBug:
-				action_report_bug();
-				break;
-			case Shortcuts::Action::ShowDonate:
-				action_donate();
-				break;
-
-			// Playlist dialog related actions
-			case Shortcuts::Action::PlaylistAddSong:
-				pHydrogenApp->getPlaylistEditor()->addSong();
-				break;
-			case Shortcuts::Action::PlaylistAddCurrentSong:
-				pHydrogenApp->getPlaylistEditor()->addCurrentSong();
-				break;
-			case Shortcuts::Action::PlaylistRemoveSong:
-				pHydrogenApp->getPlaylistEditor()->removeSong();
-				break;
-			case Shortcuts::Action::NewPlaylist:
-				pHydrogenApp->getPlaylistEditor()->newPlaylist();
-				break;
-			case Shortcuts::Action::OpenPlaylist:
-				pHydrogenApp->getPlaylistEditor()->openPlaylist();
-				break;
-			case Shortcuts::Action::SavePlaylist:
-				pHydrogenApp->getPlaylistEditor()->savePlaylist();
-				break;
-			case Shortcuts::Action::SaveAsPlaylist:
-				pHydrogenApp->getPlaylistEditor()->savePlaylistAs();
-				break;
-			case Shortcuts::Action::PlaylistAddScript:
-				pHydrogenApp->getPlaylistEditor()->loadScript();
-				break;
-			case Shortcuts::Action::PlaylistEditScript:
-				pHydrogenApp->getPlaylistEditor()->editScript();
-				break;
-			case Shortcuts::Action::PlaylistRemoveScript:
-				pHydrogenApp->getPlaylistEditor()->removeScript();
-				break;
-			case Shortcuts::Action::PlaylistCreateScript:
-				pHydrogenApp->getPlaylistEditor()->newScript();
-				break;
-
-			default:
-				WARNINGLOG( QString( "Action [%1] not properly handled" )
-							.arg( static_cast<int>(action) ) );
-			}
-
-			if ( pAction != nullptr ) {
-				pMidiActionManager->handleMidiActionSync( pAction );
-			}
-		}
+		executeShortcut( action, args, pQObject );
 	}
 
 	if ( actions.size() > 0 ) {
@@ -3691,4 +3189,591 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	}
 
 	return false;
+}
+
+void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
+								 const ShortcutArgs& args,
+								 QObject* pQObject ) {
+
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	auto pSong = pHydrogen->getSong();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	auto pHydrogenApp = HydrogenApp::get_instance();
+	auto pCommonStrings = pHydrogenApp->getCommonStrings();
+	const auto pSoundLibraryDataBase = pHydrogen->getSoundLibraryDatabase();
+
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song" );
+		return;
+	}
+
+	if ( static_cast<int>(action) >= static_cast<int>(Shortcuts::Action::VK_36_C2) &&
+		 static_cast<int>(action) <= static_cast<int>(Shortcuts::Action::VK_59_B3) ) {
+		// Virtual keyboard
+		HydrogenApp::pEngine()->getCoreActionController()->handleNote(
+			Midi::noteFromIntClamp(
+				static_cast<int>( action ) -
+				static_cast<int>( Shortcuts::Action::VK_36_C2 ) +
+				static_cast<int>( Midi::NoteOffset )
+			),
+			Midi::ChannelAll, VELOCITY_DEFAULT, false
+		);
+		return;
+	}
+
+	if ( static_cast<int>(action) >
+		 static_cast<int>(Shortcuts::Action::FirstWith1Args) &&
+		 static_cast<int>(action) <
+		 static_cast<int>(Shortcuts::Action::LastWith1Args) ) {
+		// Core actions with a single input argument
+		const QString& sArg = args.sArg1;
+
+		switch ( action ) {
+		case Shortcuts::Action::BPM:
+			HydrogenApp::pEngine()->getCoreActionController()->setBpm( sArg.toFloat() );
+			break;
+		case Shortcuts::Action::JumpToBar:
+			HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( sArg.toInt() );
+			break;
+		case Shortcuts::Action::SelectInstrument: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::SelectInstrument );
+			pAction->setValue( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::MasterVolume: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::MasterVolumeAbsolute );
+			pAction->setValue( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+
+		case Shortcuts::Action::SelectNextPattern: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::SelectNextPattern );
+			pAction->setPattern( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::SelectOnlyNextPattern: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::SelectOnlyNextPattern );
+			pAction->setPattern( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::SelectAndPlayPattern: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::SelectAndPlayPattern );
+			pAction->setPattern( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+
+		case Shortcuts::Action::PlaylistSong: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::PlaylistSong );
+			pAction->setSong( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+
+		case Shortcuts::Action::StripVolumeIncrease: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripVolumeRelative );
+			pAction->setInstrument( sArg.toInt() );
+			pAction->setValue( 1 );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::StripVolumeDecrease: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripVolumeRelative );
+			pAction->setInstrument( sArg.toInt() );
+			pAction->setValue( -1 );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::StripMuteToggle: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripMuteToggle );
+			pAction->setInstrument( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::StripSoloToggle: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripSoloToggle );
+			pAction->setInstrument( sArg.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+
+		case Shortcuts::Action::TimelineDeleteMarker:
+			HydrogenApp::pEngine()->getCoreActionController()->deleteTempoMarker( sArg.toInt() );
+			break;
+		case Shortcuts::Action::TimelineDeleteTag:
+			HydrogenApp::pEngine()->getCoreActionController()->deleteTag( sArg.toInt() );
+			break;
+		default:
+			WARNINGLOG( QString( "Action [%1] not properly handled" )
+						.arg( static_cast<int>(action) ) );
+		}
+		return;
+	}
+
+	if ( static_cast<int>(action) >
+		 static_cast<int>(Shortcuts::Action::FirstWith2Args) &&
+		 static_cast<int>(action) <
+		 static_cast<int>(Shortcuts::Action::LastWith2Args) ) {
+		// Core actions with two input arguments
+		const QString& sArg1 = args.sArg1;
+		const QString& sArg2 = args.sArg2;
+
+		switch ( action ) {
+		case Shortcuts::Action::StripVolume: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::StripVolumeAbsolute );
+			pAction->setValue( sArg1.toInt() );
+			pAction->setInstrument( sArg2.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::StripPan: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::PanAbsolute );
+			pAction->setValue( sArg1.toInt() );
+			pAction->setInstrument( sArg2.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+		case Shortcuts::Action::StripFilterCutoff: {
+			auto pAction = std::make_shared<MidiAction>(
+				MidiAction::Type::FilterCutoffLevelAbsolute );
+			pAction->setValue( sArg1.toInt() );
+			pAction->setInstrument( sArg2.toInt() );
+			pMidiActionManager->handleMidiActionSync( pAction );
+			break;
+		}
+
+		case Shortcuts::Action::TimelineAddMarker:
+			HydrogenApp::pEngine()->getCoreActionController()->addTempoMarker(
+				sArg1.toInt(), sArg2.toFloat() );
+			break;
+		case Shortcuts::Action::TimelineAddTag:
+			HydrogenApp::pEngine()->getCoreActionController()->addTag(
+				sArg1.toInt(), sArg2 );
+			break;
+		case Shortcuts::Action::ToggleGridCell:
+			HydrogenApp::pEngine()->getCoreActionController()->toggleGridCell(
+				GridPoint( sArg1.toInt(), sArg2.toInt() ) );
+			break;
+		default:
+			WARNINGLOG( QString( "Action [%1] not properly handled" )
+						.arg( static_cast<int>(action) ) );
+		}
+		return;
+	}
+
+	if ( action == Shortcuts::Action::LayerPitch ||
+		 action == Shortcuts::Action::LayerGain ) {
+		// Core actions with more than three input arguments
+		auto midiActionType = MidiAction::Type::Null;
+		if ( action == Shortcuts::Action::LayerPitch ) {
+			midiActionType = MidiAction::Type::PitchLevelAbsolute;
+		}
+		else {
+			midiActionType = MidiAction::Type::GainLevelAbsolute;
+		}
+
+		const int nInstrument = args.sArg2.toInt();
+		auto pInstrument = pSong->getDrumkit()->getInstruments()->get( nInstrument );
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve instrument [%1]" )
+					  .arg( nInstrument ) );
+			return;
+		}
+
+		const int nComponent = args.sArg3.toInt();
+		auto pComponent = pInstrument->getComponents()->at( nComponent );
+		if ( pComponent == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve component [%1] of instrument [%2]" )
+					  .arg( nComponent ).arg( nInstrument ) );
+			return;
+		}
+
+		const int nLayer = args.sArg4.toInt();
+		auto pLayer = pComponent->getLayer( nLayer );
+		if ( pLayer == nullptr ) {
+			ERRORLOG( QString( "Unable to retrieve layer [%1] of component [%2] of instrument [%3]" )
+					  .arg( nLayer ).arg( nComponent ).arg( nInstrument ) );
+			return;
+		}
+
+		auto pAction = std::make_shared<MidiAction>( midiActionType );
+		pAction->setValue( args.sArg1.toInt() );
+		pAction->setInstrument( nInstrument );
+		pAction->setComponent( nComponent );
+		pAction->setLayer( nLayer );
+		pMidiActionManager->handleMidiActionSync( pAction );
+		return;
+	}
+
+	// Actions without input arguments
+	std::shared_ptr<MidiAction> pAction = nullptr;
+
+	switch ( action ) {
+
+	case Shortcuts::Action::Panic:
+		pHydrogen->panic();
+		break;
+
+	case Shortcuts::Action::Play:
+		pAction = std::make_shared<MidiAction>( MidiAction::Type::Play );
+		break;
+	case Shortcuts::Action::Pause:
+		pAction = std::make_shared<MidiAction>( MidiAction::Type::Pause );
+		break;
+	case Shortcuts::Action::Stop:
+		pAction = std::make_shared<MidiAction>( MidiAction::Type::Stop );
+		break;
+	case Shortcuts::Action::PlayPauseToggle:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::PlayPauseToggle );
+		break;
+	case Shortcuts::Action::PlayStopToggle:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::PlayStopToggle );
+		break;
+	case Shortcuts::Action::PlayPauseToggleAtCursor:
+		startPlaybackAtCursor( pQObject );
+		break;
+
+	case Shortcuts::Action::RecordReady:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::RecordReady );
+		break;
+	case Shortcuts::Action::RecordStrobe:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::RecordStrobe );
+		break;
+	case Shortcuts::Action::RecordStrobeToggle:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::RecordStrobeToggle );
+		break;
+	case Shortcuts::Action::RecordExit:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::RecordExit );
+		break;
+
+	case Shortcuts::Action::MasterMute:
+		pAction = std::make_shared<MidiAction>( MidiAction::Type::Mute );
+		break;
+	case Shortcuts::Action::MasterUnmute:
+		pAction = std::make_shared<MidiAction>( MidiAction::Type::Unmute );
+		break;
+	case Shortcuts::Action::MasterMuteToggle:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::MuteToggle );
+		break;
+	case Shortcuts::Action::MasterVolumeIncrease:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::MasterVolumeRelative );
+		pAction->setValue( 1 );
+		break;
+	case Shortcuts::Action::MasterVolumeDecrease:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::MasterVolumeRelative );
+		pAction->setValue( -1 );
+		break;
+
+	case Shortcuts::Action::JumpToStart:
+		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
+		break;
+	case Shortcuts::Action::JumpBarForward:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::NextBar );
+		break;
+	case Shortcuts::Action::JumpBarBackward:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::PreviousBar );
+		break;
+
+	case Shortcuts::Action::BPMIncreaseCoarse:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::BpmIncr );
+		pAction->setFactor( 0.1 );
+		break;
+	case Shortcuts::Action::BPMDecreaseCoarse:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::BpmDecr );
+		pAction->setFactor( 0.1 );
+		break;
+	case Shortcuts::Action::BPMIncreaseFine:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::BpmIncr );
+		pAction->setFactor( 0.01 );
+		break;
+	case Shortcuts::Action::BPMDecreaseFine:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::BpmDecr );
+		pAction->setFactor( 0.01 );
+		break;
+
+	case Shortcuts::Action::BeatCounter:
+		pHydrogen->handleBeatCounter();
+		break;
+
+	case Shortcuts::Action::TapTempo:
+		pHydrogen->onTapTempoAccelEvent();
+		break;
+
+	case Shortcuts::Action::PlaylistNextSong:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::PlaylistNextSong );
+		break;
+	case Shortcuts::Action::PlaylistPrevSong:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::PlaylistPrevSong );
+		break;
+
+	case Shortcuts::Action::TimelineToggle:
+		HydrogenApp::pEngine()->getCoreActionController()->toggleTimeline();
+		break;
+	case Shortcuts::Action::MetronomeToggle:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::ToggleMetronome );
+		break;
+	case Shortcuts::Action::JackTransportToggle:
+		HydrogenApp::pEngine()->getCoreActionController()->toggleJackTransport();
+		break;
+	case Shortcuts::Action::JackTimebaseToggle:
+		HydrogenApp::pEngine()->getCoreActionController()->toggleJackTimebaseControl();
+		break;
+	case Shortcuts::Action::SongModeToggle:
+		HydrogenApp::pEngine()->getCoreActionController()->toggleSongMode();
+		break;
+	case Shortcuts::Action::LoopModeToggle:
+		HydrogenApp::pEngine()->getCoreActionController()->toggleLoopMode();
+		break;
+
+	case Shortcuts::Action::LoadNextDrumkit:
+		switchDrumkit( std::shared_ptr<Drumkit>(
+						   pSoundLibraryDataBase->getNextDrumkit() ) );
+		break;
+	case Shortcuts::Action::LoadPrevDrumkit:
+		switchDrumkit( std::shared_ptr<Drumkit>(
+						   pSoundLibraryDataBase->getPreviousDrumkit() ) );
+		break;
+
+	case Shortcuts::Action::CountIn:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::CountIn );
+		break;
+	case Shortcuts::Action::CountInPauseToggle:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::CountInPauseToggle );
+		break;
+	case Shortcuts::Action::CountInStopToggle:
+		pAction = std::make_shared<MidiAction>(
+			MidiAction::Type::CountInStopToggle );
+		break;
+
+		//////////////////////////////////////////////////////
+		// GUI Actions
+
+	case Shortcuts::Action::NewSong:
+		action_file_new();
+		break;
+	case Shortcuts::Action::OpenSong:
+		action_file_open();
+		break;
+	case Shortcuts::Action::EditSongProperties:
+		action_file_songProperties();
+		break;
+	case Shortcuts::Action::OpenDemoSong:
+		action_file_openDemo();
+		break;
+	case Shortcuts::Action::SaveSong:
+		action_file_save();
+		break;
+	case Shortcuts::Action::SaveAsSong:
+		action_file_save_as();
+		break;
+	case Shortcuts::Action::OpenPattern:
+		action_pattern_open();
+		break;
+	case Shortcuts::Action::ExportPattern:
+		action_pattern_save_as();
+		break;
+	case Shortcuts::Action::ExportSong:
+		action_file_export();
+		break;
+	case Shortcuts::Action::ExportMIDI:
+		action_file_export_midi();
+		break;
+	case Shortcuts::Action::ExportLilyPond:
+		action_file_export_lilypond();
+		break;
+	case Shortcuts::Action::Quit:
+		action_file_exit();
+		break;
+
+	case Shortcuts::Action::Undo:
+		action_undo();
+		break;
+	case Shortcuts::Action::Redo:
+		action_redo();
+		break;
+	case Shortcuts::Action::ShowUndoHistory:
+		openUndoStack();
+		break;
+
+	case Shortcuts::Action::NewDrumkit:
+		action_drumkit_new();
+		break;
+	case Shortcuts::Action::OpenDrumkit:
+		action_drumkit_open();
+		break;
+	case Shortcuts::Action::EditDrumkitProperties:
+		action_drumkit_properties();
+		break;
+	case Shortcuts::Action::SaveDrumkitToSoundLibrary:
+		action_drumkit_save();
+		break;
+	case Shortcuts::Action::ExportDrumkit:
+		action_drumkit_export();
+		break;
+	case Shortcuts::Action::ImportDrumkit:
+		action_drumkit_import();
+		break;
+	case Shortcuts::Action::ImportOnlineDrumkit:
+		action_drumkit_onlineImport();
+		break;
+
+	case Shortcuts::Action::AddInstrument:
+		action_drumkit_addInstrument();
+		break;
+	case Shortcuts::Action::ClearAllInstruments:
+		action_drumkit_new();
+		break;
+	case Shortcuts::Action::AddComponent: {
+		auto pComponentEditor = pHydrogenApp->getComponentEditor();
+		if ( pComponentEditor != nullptr ) {
+			pComponentEditor->addComponent();
+		}
+		break;
+	}
+
+	case Shortcuts::Action::ShowPlaylist:
+		action_window_showPlaylistEditor();
+		break;
+	case Shortcuts::Action::ShowDirector:
+		action_window_show_DirectorWidget();
+		break;
+	case Shortcuts::Action::ShowMixer:
+		action_window_showMixer();
+		break;
+	case Shortcuts::Action::ShowRack:
+		action_window_showRack();
+		break;
+	case Shortcuts::Action::ShowAutomation:
+		action_window_showAutomationArea();
+		break;
+	case Shortcuts::Action::ShowPlaybackTrack:
+		action_window_showPlaybackTrack();
+		break;
+	case Shortcuts::Action::ShowFullscreen:
+		action_window_toggleFullscreen();
+		break;
+	case Shortcuts::Action::ShowPreferencesDialog:
+		showPreferencesDialog();
+		break;
+
+	case Shortcuts::Action::ShowAudioEngineInfo:
+		action_debug_showAudioEngineInfo();
+		break;
+	case Shortcuts::Action::ShowFilesystemInfo:
+		action_debug_showFilesystemInfo();
+		break;
+	case Shortcuts::Action::LogLevelNone:
+		action_debug_logLevel_none();
+		break;
+	case Shortcuts::Action::LogLevelError:
+		action_debug_logLevel_error();
+		break;
+	case Shortcuts::Action::LogLevelWarning:
+		action_debug_logLevel_warn();
+		break;
+	case Shortcuts::Action::LogLevelInfo:
+		action_debug_logLevel_info();
+		break;
+	case Shortcuts::Action::LogLevelDebug:
+		action_debug_logLevel_debug();
+		break;
+	case Shortcuts::Action::OpenLogFile:
+		action_debug_openLogfile();
+		break;
+	case Shortcuts::Action::DebugPrintObjects:
+		action_debug_printObjects();
+		break;
+
+	case Shortcuts::Action::OpenManual:
+		showUserManual();
+		break;
+	case Shortcuts::Action::ShowAbout:
+		action_help_about();
+		break;
+	case Shortcuts::Action::ShowReportBug:
+		action_report_bug();
+		break;
+	case Shortcuts::Action::ShowDonate:
+		action_donate();
+		break;
+
+	// Playlist dialog related actions
+	case Shortcuts::Action::PlaylistAddSong:
+		pHydrogenApp->getPlaylistEditor()->addSong();
+		break;
+	case Shortcuts::Action::PlaylistAddCurrentSong:
+		pHydrogenApp->getPlaylistEditor()->addCurrentSong();
+		break;
+	case Shortcuts::Action::PlaylistRemoveSong:
+		pHydrogenApp->getPlaylistEditor()->removeSong();
+		break;
+	case Shortcuts::Action::NewPlaylist:
+		pHydrogenApp->getPlaylistEditor()->newPlaylist();
+		break;
+	case Shortcuts::Action::OpenPlaylist:
+		pHydrogenApp->getPlaylistEditor()->openPlaylist();
+		break;
+	case Shortcuts::Action::SavePlaylist:
+		pHydrogenApp->getPlaylistEditor()->savePlaylist();
+		break;
+	case Shortcuts::Action::SaveAsPlaylist:
+		pHydrogenApp->getPlaylistEditor()->savePlaylistAs();
+		break;
+	case Shortcuts::Action::PlaylistAddScript:
+		pHydrogenApp->getPlaylistEditor()->loadScript();
+		break;
+	case Shortcuts::Action::PlaylistEditScript:
+		pHydrogenApp->getPlaylistEditor()->editScript();
+		break;
+	case Shortcuts::Action::PlaylistRemoveScript:
+		pHydrogenApp->getPlaylistEditor()->removeScript();
+		break;
+	case Shortcuts::Action::PlaylistCreateScript:
+		pHydrogenApp->getPlaylistEditor()->newScript();
+		break;
+
+	default:
+		WARNINGLOG( QString( "Action [%1] not properly handled" )
+					.arg( static_cast<int>(action) ) );
+	}
+
+	if ( pAction != nullptr ) {
+		pMidiActionManager->handleMidiActionSync( pAction );
+	}
 }
