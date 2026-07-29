@@ -42,6 +42,7 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
+#include "EditorPathExerciser.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "Parser.h"
@@ -590,6 +591,17 @@ int main(int argc, char *argv[])
 		// during construction or teardown surfaces as a non-zero exit code.
 		if ( parser.getQuitAfterStartup() ) {
 			QTimer::singleShot( 0, pQApp, &QApplication::quit );
+		}
+
+		// Editor-mode assert guard (ADR 0033): exercise all safe shortcut
+		// actions through executeShortcut to surface any code path that
+		// reaches an ASSERT_NO_EDITOR_MODE site. The exerciser dispatches
+		// one action per timer tick, then quits the application. A crash
+		// (SIGABRT from assert(false)) shows up as a non-zero/signal exit.
+		if ( parser.getExerciseEditorPaths() ) {
+			auto* pExerciser = new EditorPathExerciser( pMainForm, pQApp );
+			QTimer::singleShot( 500, pExerciser,
+								&EditorPathExerciser::start );
 		}
 
 		pQApp->exec();

@@ -181,6 +181,33 @@ set_tests_properties( EditorAttach PROPERTIES
 	TIMEOUT 120
 )
 
+# Editor-mode assert guard integration test (ADR 0033): spawns the GUI in
+# editor mode with --exercise-editor-paths, which dispatches every safe
+# Shortcuts::Action through MainForm::executeShortcut. If any action reaches
+# an ASSERT_NO_EDITOR_MODE site, the macro calls assert(false) → SIGABRT,
+# killing the process — the test detects this as a crash and fails.
+# Debug-only: ASSERT_NO_EDITOR_MODE is a no-op in release builds.
+if ( H2CORE_HAVE_DEBUG AND NOT NDEBUG )
+	add_executable( plugin_editor_assert_guard PluginEditorAssertGuard.cpp )
+	set_property( TARGET plugin_editor_assert_guard PROPERTY CXX_STANDARD 17 )
+	target_link_libraries( plugin_editor_assert_guard
+		hydrogen-plugin
+		Qt${QT_VERSION_MAJOR}::Core
+	)
+	add_dependencies( plugin_editor_assert_guard hydrogen )
+
+	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-assert-guard-test-home)
+	add_test(
+		NAME EditorModeAssertGuard
+		COMMAND plugin_editor_assert_guard
+				$<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+	)
+	set_tests_properties( EditorModeAssertGuard PROPERTIES
+		TIMEOUT 120
+		ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-assert-guard-test-home"
+	)
+endif()
+
 # Write-surface guard (ADR 0027, Phase 4.5 step 7): static source check that the
 # GUI does not mutate engine-owned Basics objects directly but routes edits
 # through CoreActionController. Pure source scan; needs no build artefacts.

@@ -102,6 +102,13 @@ class Parser {
 		bool getQuitAfterStartup() const {
 			return m_bQuitAfterStartup; }
 
+		/** When set, the GUI — after connecting to a headless engine via IPC
+		 * and entering editor mode — exercises all safe shortcut actions to
+		 * check whether any code path reaches an ASSERT_NO_EDITOR_MODE site
+		 * (ADR 0033). */
+		bool getExerciseEditorPaths() const {
+			return m_bExerciseEditorPaths; }
+
 	private:
 		QString  m_sAudioDriver;
 		QString  m_sPlaylistFileName;
@@ -129,6 +136,8 @@ class Parser {
 		bool     m_bNoReporter;
 
 		bool     m_bQuitAfterStartup;
+
+		bool     m_bExerciseEditorPaths;
 };
 
 #endif

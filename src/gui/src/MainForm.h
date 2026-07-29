@@ -370,6 +370,8 @@ class MainForm :  public QMainWindow,
 	void executeShortcut( H2Core::Shortcuts::Action action,
 						  const ShortcutArgs& args,
 						  QObject* pQObject = nullptr );
+
+	friend class EditorPathExerciser;
 };
 inline void MainForm::setPreviousAutoSavePlaylistFile( const QString& sFile ) {
 	m_sPreviousAutoSavePlaylistFile = sFile;

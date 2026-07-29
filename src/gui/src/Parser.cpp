@@ -118,6 +118,12 @@ bool Parser::parse( int argc, char* argv[] ) {
 		"Quit immediately after startup (startup smoke test)" );
 	quitAfterStartupOption.setFlags( QCommandLineOption::HiddenFromHelp );
 
+	QCommandLineOption exerciseEditorPathsOption(
+		QStringList() << "exercise-editor-paths",
+		"Exercise all safe shortcut actions in editor mode "
+		"(ASSERT_NO_EDITOR_MODE integration test; ADR 0033)" );
+	exerciseEditorPathsOption.setFlags( QCommandLineOption::HiddenFromHelp );
+
 	QCommandLineOption connectViaIpcOption(
 		QStringList() << "c" << "connect-via-ipc",
 		"Connect to a headless engine at the given IPC endpoint instead of "
@@ -153,6 +159,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addOption( noReporterOption );
 
 	parser.addOption( quitAfterStartupOption );
+
+	parser.addOption( exerciseEditorPathsOption );
 
 	parser.addOption( connectViaIpcOption );
 
@@ -220,6 +228,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	m_bNoReporter = parser.isSet( noReporterOption );
 
 	m_bQuitAfterStartup = parser.isSet( quitAfterStartupOption );
+
+	m_bExerciseEditorPaths = parser.isSet( exerciseEditorPathsOption );
 
 	m_sConnectViaIpcEndpoint = parser.value( connectViaIpcOption );
 
