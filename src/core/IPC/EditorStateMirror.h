@@ -23,8 +23,8 @@
 #define H2C_IPC_EDITOR_STATE_MIRROR_H
 
 #include <core/IPC/IpcMessage.h>
-#include <core/IPC/PluginTelemetry.h>
-#include <core/IPC/PluginTelemetryShm.h>
+#include <core/IPC/EngineTelemetry.h>
+#include <core/IPC/EngineTelemetryShm.h>
 #include <core/Object.h>
 
 #include <QtCore/QObject>
@@ -87,9 +87,9 @@ public:
 	 * mirror does not consume (e.g. Hello, command opcodes). */
 	bool applyMessage( const IpcMessage& msg );
 
-	void setTelemetry( const PluginTelemetrySnapshot& snapshot ) {
+	void setTelemetry( const EngineTelemetrySnapshot& snapshot ) {
 		m_telemetry = snapshot; }
-	const PluginTelemetrySnapshot& getTelemetry() const { return m_telemetry; }
+	const EngineTelemetrySnapshot& getTelemetry() const { return m_telemetry; }
 
 	/** Attach to the engine's telemetry block (keyed off the IPC endpoint) and
 	 * start the periodic drift-correction timer. No-op / events-only fallback if
@@ -99,7 +99,7 @@ public:
 	/** Apply one transport snapshot to the mirror: follow play/stop, tempo, and
 	 * (only when stopped, or on a large divergence) the absolute frame. Public so
 	 * it is unit-testable with an injected snapshot, bypassing shared memory. */
-	void applyTransportSnapshot( const PluginTelemetrySnapshot& snapshot );
+	void applyTransportSnapshot( const EngineTelemetrySnapshot& snapshot );
 
 	/** Force an immediate transport re-sync from the telemetry block. Public so
 	 * the GUI can trigger it right after connecting, without waiting for the
@@ -114,9 +114,9 @@ private slots:
 private:
 	/** Editor-side headless engine kept in sync; not owned. */
 	Hydrogen* m_pMirror;
-	PluginTelemetrySnapshot m_telemetry;
+	EngineTelemetrySnapshot m_telemetry;
 	/** Reader for the engine's telemetry block; invalid until attachTelemetry(). */
-	PluginTelemetryShm m_telemetryShm;
+	EngineTelemetryShm m_telemetryShm;
 	/** Periodic forced re-sync (~5 s) to bound drift; owned via QObject parenting. */
 	QTimer* m_pResyncTimer = nullptr;
 };

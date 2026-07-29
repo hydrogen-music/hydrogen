@@ -37,8 +37,8 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/Midi/Midi.h>
 #include <core/IPC/IpcServer.h>
-#include <core/IPC/PluginTelemetry.h>
-#include <core/IPC/PluginTelemetryShm.h>
+#include <core/IPC/EngineTelemetry.h>
+#include <core/IPC/EngineTelemetryShm.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -602,10 +602,10 @@ void IpcTransportTest::testTelemetrySharedMemory() {
 	const QString sKey = QString( "h2-telemetry-test-%1" )
 		.arg( QCoreApplication::applicationPid() );
 
-	PluginTelemetryShm writer;
+	EngineTelemetryShm writer;
 	CPPUNIT_ASSERT( writer.create( sKey ) );
 
-	PluginTelemetrySnapshot in;
+	EngineTelemetrySnapshot in;
 	in.frame = 987654;
 	in.bar = 4; in.beat = 2; in.tick = 11;
 	in.bpm = 124.0f;
@@ -616,10 +616,10 @@ void IpcTransportTest::testTelemetrySharedMemory() {
 	CPPUNIT_ASSERT( writer.store( in ) );
 
 	// A second attachment (the editor side) reads a consistent snapshot.
-	PluginTelemetryShm reader;
+	EngineTelemetryShm reader;
 	CPPUNIT_ASSERT( reader.attach( sKey ) );
 
-	PluginTelemetrySnapshot out;
+	EngineTelemetrySnapshot out;
 	CPPUNIT_ASSERT( reader.load( out ) );
 	CPPUNIT_ASSERT_EQUAL( in.frame, out.frame );
 	CPPUNIT_ASSERT_EQUAL( in.bar, out.bar );

@@ -32,8 +32,8 @@
 #include <core/IPC/IpcEngineBridge.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcServer.h>
-#include <core/IPC/PluginTelemetry.h>
-#include <core/IPC/PluginTelemetryShm.h>
+#include <core/IPC/EngineTelemetry.h>
+#include <core/IPC/EngineTelemetryShm.h>
 
 #include <chrono>
 
@@ -105,9 +105,9 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 	// only `--connect-via-ipc <endpoint>` can attach and follow the headless
 	// engine's playhead (ADR 0018/0031). Lives on this bridge thread; failure
 	// is non-fatal (the editor then falls back to events-only sync).
-	m_pTelemetry = std::make_unique<PluginTelemetryShm>();
+	m_pTelemetry = std::make_unique<EngineTelemetryShm>();
 	if ( ! m_pTelemetry->create(
-			 PluginTelemetryShm::keyForEndpoint( m_sEndpoint ) ) ) {
+			 EngineTelemetryShm::keyForEndpoint( m_sEndpoint ) ) ) {
 		m_pTelemetry.reset();
 	}
 
@@ -193,8 +193,8 @@ void EngineSession::sendInitialState( IpcChannel* pConn ) {
 	pConn->send( msg );
 }
 
-PluginTelemetrySnapshot EngineSession::buildTransportSnapshot( Hydrogen* pEngine ) {
-	PluginTelemetrySnapshot snapshot;
+EngineTelemetrySnapshot EngineSession::buildTransportSnapshot( Hydrogen* pEngine ) {
+	EngineTelemetrySnapshot snapshot;
 	if ( pEngine == nullptr ) {
 		return snapshot;
 	}

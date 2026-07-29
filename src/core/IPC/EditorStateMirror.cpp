@@ -115,7 +115,7 @@ bool EditorStateMirror::applyMessage( const IpcMessage& msg ) {
 
 void EditorStateMirror::attachTelemetry( const QString& sEndpoint ) {
 	if ( ! m_telemetryShm.attach(
-			 PluginTelemetryShm::keyForEndpoint( sEndpoint ) ) ) {
+			 EngineTelemetryShm::keyForEndpoint( sEndpoint ) ) ) {
 		// No block (or version mismatch): the mirror still follows play/stop via
 		// the event-triggered path; it just gets no frame/drift correction.
 		return;
@@ -133,7 +133,7 @@ void EditorStateMirror::attachTelemetry( const QString& sEndpoint ) {
 }
 
 void EditorStateMirror::syncTransportFromTelemetry() {
-	PluginTelemetrySnapshot snapshot;
+	EngineTelemetrySnapshot snapshot;
 	if ( ! m_telemetryShm.load( snapshot ) ) {
 		return; // not attached / version mismatch
 	}
@@ -146,7 +146,7 @@ void EditorStateMirror::forceTransportSync() {
 }
 
 void EditorStateMirror::applyTransportSnapshot(
-	const PluginTelemetrySnapshot& snapshot ) {
+	const EngineTelemetrySnapshot& snapshot ) {
 	if ( m_pMirror == nullptr ) {
 		return;
 	}

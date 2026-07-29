@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef H2C_PLUGIN_TELEMETRY_H
-#define H2C_PLUGIN_TELEMETRY_H
+#ifndef H2C_ENGINE_TELEMETRY_H
+#define H2C_ENGINE_TELEMETRY_H
 
 #include <atomic>
 #include <cstdint>
@@ -28,17 +28,17 @@
 
 namespace H2Core {
 
-/** Bumped whenever the PluginTelemetry layout changes; validated at attach. A
+/** Bumped whenever the EngineTelemetry layout changes; validated at attach. A
  * mismatch disables telemetry (editor falls back to events-only). */
-constexpr uint32_t PLUGIN_TELEMETRY_VERSION = 1;
+constexpr uint32_t ENGINE_TELEMETRY_VERSION = 1;
 
 /** Fixed per-instrument meter cap (ADR 0018). Independent of the output-bus
  * count; instruments beyond this get no meter. */
-constexpr int PLUGIN_TELEMETRY_MAX_INSTRUMENTS = 256;
+constexpr int ENGINE_TELEMETRY_MAX_INSTRUMENTS = 256;
 
 /** Plain, copyable snapshot of the telemetry payload (no seqlock field). The
  * audio thread fills one of these and stores it; the editor loads one. */
-struct PluginTelemetrySnapshot {
+struct EngineTelemetrySnapshot {
 	int64_t  frame = 0;            ///< playhead frame
 	int32_t  bar = 0;
 	int32_t  beat = 0;
@@ -55,8 +55,8 @@ struct PluginTelemetrySnapshot {
 	float    playbackTrackPeakL = 0.0f;
 	float    playbackTrackPeakR = 0.0f;
 	uint16_t instPeakCount = 0;    ///< number of valid entries in peakL/peakR
-	float    peakL[ PLUGIN_TELEMETRY_MAX_INSTRUMENTS ] = { 0.0f };
-	float    peakR[ PLUGIN_TELEMETRY_MAX_INSTRUMENTS ] = { 0.0f };
+	float    peakL[ ENGINE_TELEMETRY_MAX_INSTRUMENTS ] = { 0.0f };
+	float    peakR[ ENGINE_TELEMETRY_MAX_INSTRUMENTS ] = { 0.0f };
 };
 
 /**
@@ -68,22 +68,22 @@ struct PluginTelemetrySnapshot {
  *
  * Use the three functions below rather than touching @a seq directly.
  */
-struct PluginTelemetry {
+struct EngineTelemetry {
 	uint32_t formatVersion;
 	std::atomic<uint32_t> seq;
-	PluginTelemetrySnapshot data;
+	EngineTelemetrySnapshot data;
 };
 
 /** Prepare a freshly-mapped block: stamp the version and clear the seqlock. */
-inline void telemetryInit( PluginTelemetry& block ) {
-	block.formatVersion = PLUGIN_TELEMETRY_VERSION;
+inline void telemetryInit( EngineTelemetry& block ) {
+	block.formatVersion = ENGINE_TELEMETRY_VERSION;
 	block.seq.store( 0, std::memory_order_relaxed );
-	block.data = PluginTelemetrySnapshot();
+	block.data = EngineTelemetrySnapshot();
 }
 
 /** Publish a snapshot (engine side). Wait-free; safe on the audio thread. */
-inline void telemetryStore( PluginTelemetry& block,
-							const PluginTelemetrySnapshot& snapshot ) {
+inline void telemetryStore( EngineTelemetry& block,
+							const EngineTelemetrySnapshot& snapshot ) {
 	const uint32_t s = block.seq.load( std::memory_order_relaxed );
 	block.seq.store( s + 1, std::memory_order_release );   // begin (odd)
 	std::atomic_thread_fence( std::memory_order_release );
@@ -97,9 +97,9 @@ inline void telemetryStore( PluginTelemetry& block,
  * version does not match (telemetry must then be disabled). On success @a out
  * holds a consistent copy from a single writer generation.
  */
-inline bool telemetryLoad( const PluginTelemetry& block,
-						   PluginTelemetrySnapshot& out ) {
-	if ( block.formatVersion != PLUGIN_TELEMETRY_VERSION ) {
+inline bool telemetryLoad( const EngineTelemetry& block,
+						   EngineTelemetrySnapshot& out ) {
+	if ( block.formatVersion != ENGINE_TELEMETRY_VERSION ) {
 		return false;
 	}
 	for ( ;; ) {

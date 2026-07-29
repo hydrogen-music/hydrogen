@@ -636,7 +636,7 @@ classification are implemented in `src/core/IPC/` and covered by
 `IpcProtocolTest` (7 cases): length-prefixed `QDataStream` framing
 (`IpcMessage`/`IpcFrameReader`) with the CoreActionController opcode vocabulary +
 typed args + XML payloads; `hello` handshake versioning; full `Event::Type`
-round-trip; the seqlock'd `PluginTelemetry` POD (`telemetryStore`/`Load`, version
+round-trip; the seqlock'd `EngineTelemetry` POD (`telemetryStore`/`Load`, version
 gate, threaded tear-free check); and `isEngineOriginEvent()` (OnlineImportProgress
 stays editor-internal). T5.5 (layered config, ADR 0022) and T5.6 (concurrency-safe persistence, ADR
 0023) also landed (2026-06-17), suite `OK (279 tests)`: `PluginConfig`
@@ -1233,7 +1233,7 @@ Depends on Phase 3 (PluginAudioDriver / host-transport follower) and Phase 5
   the playhead; the host is followed by **consuming the telemetry block** (ADR
   0018, previously unwritten/unconsumed — now both sides are wired):
   - *Writer*: `EngineSession` creates the telemetry segment keyed off its endpoint
-    (`PluginTelemetryShm::keyForEndpoint`, derived identically both sides — no
+    (`EngineTelemetryShm::keyForEndpoint`, derived identically both sides — no
     handshake negotiation) and `store()`s a transport snapshot
     (`buildTransportSnapshot`: frame / bpm / playing / tick) each ~50 ms serve-loop
     tick. Off the audio thread — advisory precision is enough for a ~5 s drift

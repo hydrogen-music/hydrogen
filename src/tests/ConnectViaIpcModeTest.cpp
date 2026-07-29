@@ -38,8 +38,8 @@
 #include <core/IPC/IpcEngineBridge.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcServer.h>
-#include <core/IPC/PluginTelemetry.h>
-#include <core/IPC/PluginTelemetryShm.h>
+#include <core/IPC/EngineTelemetry.h>
+#include <core/IPC/EngineTelemetryShm.h>
 #include <core/LocalEngineAccess.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -277,19 +277,19 @@ void ConnectViaIpcModeTest::testEngineBuildsTransportSnapshot() {
 	CPPUNIT_ASSERT( snapshot.bpm > 0.0f );
 
 	const QString sEndpoint = uniqueServerName();
-	const QString sKey = PluginTelemetryShm::keyForEndpoint( sEndpoint );
+	const QString sKey = EngineTelemetryShm::keyForEndpoint( sEndpoint );
 	// Same endpoint → same key on both sides (no separate negotiation).
 	CPPUNIT_ASSERT_EQUAL(
 		sKey.toStdString(),
-		PluginTelemetryShm::keyForEndpoint( sEndpoint ).toStdString() );
+		EngineTelemetryShm::keyForEndpoint( sEndpoint ).toStdString() );
 
-	PluginTelemetryShm writer;
+	EngineTelemetryShm writer;
 	CPPUNIT_ASSERT( writer.create( sKey ) );
 	CPPUNIT_ASSERT( writer.store( snapshot ) );
 
-	PluginTelemetryShm reader;
+	EngineTelemetryShm reader;
 	CPPUNIT_ASSERT( reader.attach( sKey ) );
-	PluginTelemetrySnapshot out;
+	EngineTelemetrySnapshot out;
 	CPPUNIT_ASSERT( reader.load( out ) );
 	CPPUNIT_ASSERT_EQUAL( snapshot.frame, out.frame );
 	CPPUNIT_ASSERT( snapshot.playing == out.playing );
@@ -312,7 +312,7 @@ void ConnectViaIpcModeTest::testMirrorFollowsTransportTelemetry() {
 	auto pAudioEngine = pMirror->getAudioEngine();
 
 	// --- Play + tempo follow: host starts rolling at a new tempo. ---
-	PluginTelemetrySnapshot rolling;
+	EngineTelemetrySnapshot rolling;
 	rolling.playing = 1;
 	rolling.frame = 40000;
 	rolling.bpm = 140.0f;
@@ -334,7 +334,7 @@ void ConnectViaIpcModeTest::testMirrorFollowsTransportTelemetry() {
 	CPPUNIT_ASSERT( bTempo );
 
 	// --- Stop follow: host stops. ---
-	PluginTelemetrySnapshot stopped;
+	EngineTelemetrySnapshot stopped;
 	stopped.playing = 0;
 	stopped.frame = 0;
 	stopped.bpm = 140.0f;
@@ -358,7 +358,7 @@ void ConnectViaIpcModeTest::testMirrorFollowsTransportTelemetry() {
 
 	// Drain pending events, then apply the target through the telemetry path.
 	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
-	PluginTelemetrySnapshot atTarget;
+	EngineTelemetrySnapshot atTarget;
 	atTarget.playing = 0;
 	atTarget.frame = nTarget;
 	atTarget.bpm = 140.0f;

@@ -89,7 +89,7 @@ thread. The block is a POD struct, attached once and validated by a
 `formatVersion` constant:
 
 ```cpp
-struct PluginTelemetry {            // single-writer (engine) / single-reader (editor)
+struct EngineTelemetry {            // single-writer (engine) / single-reader (editor)
     uint32_t          formatVersion;     // checked once at attach
     std::atomic<uint32_t> seq;           // seqlock
     int64_t           frame;             // playhead

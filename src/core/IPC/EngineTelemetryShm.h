@@ -19,11 +19,11 @@
  *
  */
 
-#ifndef H2C_PLUGIN_TELEMETRY_SHM_H
-#define H2C_PLUGIN_TELEMETRY_SHM_H
+#ifndef H2C_ENGINE_TELEMETRY_SHM_H
+#define H2C_ENGINE_TELEMETRY_SHM_H
 
 #include <core/Object.h>
-#include <core/IPC/PluginTelemetry.h>
+#include <core/IPC/EngineTelemetry.h>
 
 #include <QtCore/QSharedMemory>
 #include <QtCore/QString>
@@ -31,20 +31,20 @@
 namespace H2Core {
 
 /**
- * Shared-memory carrier for the PluginTelemetry block (ADR 0018). The engine
+ * Shared-memory carrier for the EngineTelemetry block (ADR 0018). The engine
  * side create()s the segment and store()s a snapshot every audio buffer; the
  * editor side attach()es and load()s it at its own refresh rate. Reads are
- * tear-free via the seqlock in PluginTelemetry (no mutex on the audio thread);
+ * tear-free via the seqlock in EngineTelemetry (no mutex on the audio thread);
  * a formatVersion mismatch makes load() fail so the editor falls back to
  * events-only telemetry.
  *
  * \ingroup docCore
  */
-class PluginTelemetryShm : public H2Core::Object<PluginTelemetryShm> {
-	H2_OBJECT(PluginTelemetryShm)
+class EngineTelemetryShm : public H2Core::Object<EngineTelemetryShm> {
+	H2_OBJECT(EngineTelemetryShm)
 public:
-	PluginTelemetryShm();
-	~PluginTelemetryShm();
+	EngineTelemetryShm();
+	~EngineTelemetryShm();
 
 	/** Deterministic shared-memory key for a given IPC control endpoint, derived
 	 * identically on both sides so the editor can attach to the engine's telemetry
@@ -62,9 +62,9 @@ public:
 	bool isValid() const;
 
 	/** Engine side: publish a snapshot (wait-free, audio-thread safe). */
-	bool store( const PluginTelemetrySnapshot& snapshot );
+	bool store( const EngineTelemetrySnapshot& snapshot );
 	/** Editor side: read a tear-free snapshot; false on version mismatch. */
-	bool load( PluginTelemetrySnapshot& out ) const;
+	bool load( EngineTelemetrySnapshot& out ) const;
 
 private:
 	QSharedMemory m_shm;

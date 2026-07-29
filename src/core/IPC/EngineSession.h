@@ -39,8 +39,8 @@ namespace H2Core {
 class Hydrogen;
 class IpcChannel;
 class IpcMessage;
-class PluginTelemetryShm;
-struct PluginTelemetrySnapshot;
+class EngineTelemetryShm;
+struct EngineTelemetrySnapshot;
 
 /**
  * \ingroup docCore
@@ -89,7 +89,7 @@ public:
 	 * separate ADR 0018 metering concern; this carries what the editor mirror
 	 * needs to follow the headless engine's playhead (ADR 0031). Static so it
 	 * is unit-testable without a running serve loop. */
-	static PluginTelemetrySnapshot buildTransportSnapshot( Hydrogen* pEngine );
+	static EngineTelemetrySnapshot buildTransportSnapshot( Hydrogen* pEngine );
 
 private:
 	EngineSession( Hydrogen* pEngine, const QString& sEndpoint );
@@ -117,7 +117,7 @@ private:
 	QThread* m_pThread;
 	/** Telemetry block written for an attached editor (ADR 0018/0031); created on
 	 * the bridge thread, keyed off the endpoint. Owned. */
-	std::unique_ptr<PluginTelemetryShm> m_pTelemetry;
+	std::unique_ptr<EngineTelemetryShm> m_pTelemetry;
 	/** Poll/accept granularity; also bounds stop() latency. */
 	int m_nPollTimeoutMs = 50;
 };

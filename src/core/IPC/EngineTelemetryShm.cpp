@@ -19,19 +19,19 @@
  *
  */
 
-#include <core/IPC/PluginTelemetryShm.h>
+#include <core/IPC/EngineTelemetryShm.h>
 
 namespace H2Core {
 
-PluginTelemetryShm::PluginTelemetryShm()
+EngineTelemetryShm::EngineTelemetryShm()
 	: m_bOwner( false ) {
 }
 
-PluginTelemetryShm::~PluginTelemetryShm() {
+EngineTelemetryShm::~EngineTelemetryShm() {
 	detach();
 }
 
-bool PluginTelemetryShm::create( const QString& sKey ) {
+bool EngineTelemetryShm::create( const QString& sKey ) {
 	detach();
 	m_shm.setKey( sKey );
 	// A stale segment from a crashed run would make create() fail with
@@ -39,17 +39,17 @@ bool PluginTelemetryShm::create( const QString& sKey ) {
 	if ( m_shm.attach() ) {
 		m_shm.detach();
 	}
-	if ( ! m_shm.create( sizeof( PluginTelemetry ) ) ) {
+	if ( ! m_shm.create( sizeof( EngineTelemetry ) ) ) {
 		___ERRORLOG( QString( "Unable to create telemetry shm [%1]: %2" )
 					 .arg( sKey ).arg( m_shm.errorString() ) );
 		return false;
 	}
 	m_bOwner = true;
-	telemetryInit( *static_cast<PluginTelemetry*>( m_shm.data() ) );
+	telemetryInit( *static_cast<EngineTelemetry*>( m_shm.data() ) );
 	return true;
 }
 
-bool PluginTelemetryShm::attach( const QString& sKey ) {
+bool EngineTelemetryShm::attach( const QString& sKey ) {
 	detach();
 	m_shm.setKey( sKey );
 	if ( ! m_shm.attach( QSharedMemory::ReadOnly ) ) {
@@ -61,31 +61,31 @@ bool PluginTelemetryShm::attach( const QString& sKey ) {
 	return true;
 }
 
-void PluginTelemetryShm::detach() {
+void EngineTelemetryShm::detach() {
 	if ( m_shm.isAttached() ) {
 		m_shm.detach();
 	}
 	m_bOwner = false;
 }
 
-bool PluginTelemetryShm::isValid() const {
+bool EngineTelemetryShm::isValid() const {
 	return m_shm.isAttached();
 }
 
-bool PluginTelemetryShm::store( const PluginTelemetrySnapshot& snapshot ) {
+bool EngineTelemetryShm::store( const EngineTelemetrySnapshot& snapshot ) {
 	if ( ! m_shm.isAttached() || m_shm.data() == nullptr ) {
 		return false;
 	}
-	telemetryStore( *static_cast<PluginTelemetry*>( m_shm.data() ), snapshot );
+	telemetryStore( *static_cast<EngineTelemetry*>( m_shm.data() ), snapshot );
 	return true;
 }
 
-bool PluginTelemetryShm::load( PluginTelemetrySnapshot& out ) const {
+bool EngineTelemetryShm::load( EngineTelemetrySnapshot& out ) const {
 	if ( ! m_shm.isAttached() || m_shm.constData() == nullptr ) {
 		return false;
 	}
 	return telemetryLoad(
-		*static_cast<const PluginTelemetry*>( m_shm.constData() ), out );
+		*static_cast<const EngineTelemetry*>( m_shm.constData() ), out );
 }
 
 };

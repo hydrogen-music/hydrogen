@@ -23,7 +23,7 @@
 
 #include <core/Basics/Event.h>
 #include <core/IPC/IpcMessage.h>
-#include <core/IPC/PluginTelemetry.h>
+#include <core/IPC/EngineTelemetry.h>
 #include <core/Object.h>
 
 #include <atomic>
@@ -189,10 +189,10 @@ void IpcProtocolTest::testEventClassification() {
 void IpcProtocolTest::testTelemetryRoundTrip() {
 	___INFOLOG( "" );
 
-	PluginTelemetry block;
+	EngineTelemetry block;
 	telemetryInit( block );
 
-	PluginTelemetrySnapshot in;
+	EngineTelemetrySnapshot in;
 	in.frame = 123456789;
 	in.bar = 5; in.beat = 3; in.tick = 42;
 	in.bpm = 128.0f;
@@ -205,7 +205,7 @@ void IpcProtocolTest::testTelemetryRoundTrip() {
 
 	telemetryStore( block, in );
 
-	PluginTelemetrySnapshot out;
+	EngineTelemetrySnapshot out;
 	CPPUNIT_ASSERT( telemetryLoad( block, out ) );
 	CPPUNIT_ASSERT_EQUAL( in.frame, out.frame );
 	CPPUNIT_ASSERT_EQUAL( in.bar, out.bar );
@@ -218,7 +218,7 @@ void IpcProtocolTest::testTelemetryRoundTrip() {
 
 	// A layout-version mismatch disables telemetry (load fails) rather than
 	// returning garbage.
-	block.formatVersion = PLUGIN_TELEMETRY_VERSION + 1;
+	block.formatVersion = ENGINE_TELEMETRY_VERSION + 1;
 	CPPUNIT_ASSERT( ! telemetryLoad( block, out ) );
 
 	___INFOLOG( "passed" );
@@ -269,7 +269,7 @@ void IpcProtocolTest::testOpcodeToQString() {
 void IpcProtocolTest::testTelemetryTearFree() {
 	___INFOLOG( "" );
 
-	PluginTelemetry block;
+	EngineTelemetry block;
 	telemetryInit( block );
 
 	std::atomic<bool> bDone{ false };
@@ -280,7 +280,7 @@ void IpcProtocolTest::testTelemetryTearFree() {
 	// at once, mimicking the audio thread publishing every buffer.
 	std::thread writer( [&]() {
 		for ( int64_t g = 1; g <= nIterations; ++g ) {
-			PluginTelemetrySnapshot s;
+			EngineTelemetrySnapshot s;
 			s.frame = g;
 			s.bar = static_cast<int32_t>( g & 0x7fffffff );
 			s.bpm = static_cast<float>( g % 100000 );
@@ -293,7 +293,7 @@ void IpcProtocolTest::testTelemetryTearFree() {
 	// Reader: every load must be internally consistent (all fields from the same
 	// generation) - never a torn mix of two writes.
 	while ( ! bDone.load() ) {
-		PluginTelemetrySnapshot s;
+		EngineTelemetrySnapshot s;
 		if ( telemetryLoad( block, s ) ) {
 			const int64_t expectedMod = s.frame % 100000;
 			if ( s.bar != static_cast<int32_t>( s.frame & 0x7fffffff ) ||
