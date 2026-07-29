@@ -80,7 +80,7 @@ public:
 	virtual std::shared_ptr<Song> getSong() const = 0;
 
 	// --- live state reads ---
-	virtual const Hydrogen::GUIState& getGUIState() const = 0;
+	virtual const Hydrogen::ProcessMode& getProcessMode() const = 0;
 	virtual JackDriver::Timebase getJackTimebaseState() const = 0;
 	virtual Song::Mode getMode() const = 0;
 	virtual std::shared_ptr<Instrument> getSelectedInstrument() const = 0;

@@ -1402,7 +1402,7 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 
 	// Be sure to not make GUI render its content twice by triggering this
 	// during startup.
-	if ( m_pHydrogen->getGUIState() == Hydrogen::GUIState::ready ) {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Full ) {
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 0 );
 	}
 
@@ -1449,7 +1449,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	}
 
 	// Update the status bar.
-	if ( m_pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Headless ) {
 		if ( !bKeepMissingSamples && bHadMissingSamples ) {
 			// Some instrument layers might have been discarded. Reload the
 			// entire drumkit.
@@ -1539,7 +1539,7 @@ bool CoreActionController::setPreferences(
 
 	// If the GUI is active, we have to update it to reflect the
 	// changes in the preferences.
-	if ( m_pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::Hydrogen::ProcessMode::Full ) {
 		m_pHydrogen->getEventQueue()->pushEvent(
 			H2Core::Event::Type::UpdatePreferences, 1
 		);
@@ -1551,7 +1551,7 @@ bool CoreActionController::setPreferences(
 bool CoreActionController::savePreferences()
 {
 
-	if ( m_pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Headless ) {
 		// Update the status bar and let the GUI save the preferences
 		// (after writing its current settings to disk).
 		m_pHydrogen->getEventQueue()->pushEvent(
@@ -3802,7 +3802,7 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
 	m_pHydrogen->setSongModified( true );
 
 	// Update the SongEditor.
-	if ( m_pHydrogen->getGUIState() != Hydrogen::GUIState::headless ) {
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Headless ) {
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::GridCellToggled, 0
 		);

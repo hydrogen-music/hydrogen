@@ -385,8 +385,8 @@ void ComponentEditor::updateSize() {
     m_pComponentsWidget->resize( width(), nNewHeight );
 
 	int nMaxHeight;
-	if ( HydrogenApp::pEngine()->getGUIState() ==
-		 Hydrogen::GUIState::ready ) {
+	if ( HydrogenApp::pEngine()->getProcessMode() ==
+		 Hydrogen::ProcessMode::Full ) {
         const auto pRack = HydrogenApp::get_instance()->getRack();
         nMaxHeight = pRack->height() - pRack->tabBar()->height();
 	}

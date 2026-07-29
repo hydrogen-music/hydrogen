@@ -72,7 +72,7 @@ Hydrogen* makeMirrorEngine() {
 	// Null audio driver — no processing thread, no MIDI, no OSC).
 	EditorSession::configureMirrorPreferences( pPref );
 	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setGUIState( Hydrogen::GUIState::headless );
+	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
 	return pHydrogen;
 }
 

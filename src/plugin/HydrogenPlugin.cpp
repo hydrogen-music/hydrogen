@@ -65,7 +65,7 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 
 	m_pHydrogen = new Hydrogen(
 		makePluginPreferences( fSampleRate, nMaxBlockSize ), -1 );
-	m_pHydrogen->setGUIState( Hydrogen::GUIState::headless );
+	m_pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
 
 	m_pAudioDriver = std::dynamic_pointer_cast<PluginAudioDriver>(
 		m_pHydrogen->getAudioDriver() );

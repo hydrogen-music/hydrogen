@@ -62,7 +62,7 @@ Hydrogen* makeEngine() {
 	pPref->m_midiDriver = Preferences::MidiDriver::None;
 	pPref->setOscServerEnabled( false );
 	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setGUIState( Hydrogen::GUIState::headless );
+	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
 	return pHydrogen;
 }
 

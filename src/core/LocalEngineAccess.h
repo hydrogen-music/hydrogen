@@ -59,8 +59,8 @@ public:
 	std::shared_ptr<Song> getSong() const override {
 		return m_pHydrogen->getSong(); }
 
-	const Hydrogen::GUIState& getGUIState() const override {
-		return m_pHydrogen->getGUIState(); }
+	const Hydrogen::ProcessMode& getProcessMode() const override {
+		return m_pHydrogen->getProcessMode(); }
 	JackDriver::Timebase getJackTimebaseState() const override {
 		return m_pHydrogen->getJackTimebaseState(); }
 	Song::Mode getMode() const override {

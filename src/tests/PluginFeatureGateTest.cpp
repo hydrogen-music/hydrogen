@@ -50,7 +50,7 @@ static Hydrogen* makePluginInstanceWithOscEnabled() {
 	pPref->m_nBufferSize = 1024;
 	pPref->setOscServerEnabled( true );
 	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setGUIState( Hydrogen::GUIState::headless );
+	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
 	return pHydrogen;
 }
 

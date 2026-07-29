@@ -80,8 +80,8 @@ class IpcEngineAccess : public IEngineAccess,
 	std::shared_ptr<Song> getSong() const override {
 		return m_pMirror->getSong(); }
 
-	const Hydrogen::GUIState& getGUIState() const override {
-		return m_pMirror->getGUIState(); }
+	const Hydrogen::ProcessMode& getProcessMode() const override {
+		return m_pMirror->getProcessMode(); }
 	JackDriver::Timebase getJackTimebaseState() const override {
 		return m_pMirror->getJackTimebaseState(); }
 	Song::Mode getMode() const override {

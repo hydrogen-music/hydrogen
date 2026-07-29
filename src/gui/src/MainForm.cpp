@@ -2198,7 +2198,7 @@ void MainForm::closeAll(){
 	}
 
 	auto pHydrogen = HydrogenApp::pHydrogen();
-	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::shutdown );
+	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Shutdown );
 
 	disconnect( h2app->m_pUndoStack, nullptr, nullptr, nullptr );
 

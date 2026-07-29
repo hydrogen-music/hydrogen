@@ -120,7 +120,7 @@ void AudioDriverTest::testMidiOnlyMode() {
 	pPref->setOscServerEnabled( false );
 
 	auto* pHydrogen = new H2Core::Hydrogen( pPref, -1 );
-	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
+	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Headless );
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	// Audio side: a headless software driver — it clocks the engine but feeds no

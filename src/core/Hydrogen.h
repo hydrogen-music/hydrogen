@@ -116,19 +116,19 @@ public:
 	};
 
 	/** Specifies the state of the Qt GUI*/
-	enum class GUIState {
+	enum class ProcessMode {
 		/** Hydrogen is still starting up. Core maybe already somewhat ready but
 		 * GUI is most probably not.*/
-		startup = -1,
+		Startup = -1,
 		/** Hydrogen is up and running but there is no GUI available. */
-		headless = 0,
+		Headless = 0,
 		/** Hydrogen is up and running and there is a working GUI. */
-		ready = 1,
+		Full = 1,
 		/** Teardown of Hydrogen was initialized and the Event handling system
 		 * might not work anymore. */
-		shutdown
+		Shutdown
 	};
-		static QString GUIStateToQString( const GUIState& state );
+	static QString ProcessModeToQString( const ProcessMode& state );
 
 	/**
 	 * Standalone helper: loads the process-current Preferences and constructs
@@ -416,11 +416,11 @@ public:
 	void			loadPlaybackTrack( const QString& sFileName );
 	/************************************************************/
 
-	/**\return #m_GUIState*/
-	const GUIState&	getGUIState() const;
+	/**\return #m_ProcessMode*/
+	const ProcessMode&	getProcessMode() const;
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
-	   #m_GUIState.*/
-	void			setGUIState( const GUIState& state );
+	   #m_ProcessMode.*/
+	void			setProcessMode( const ProcessMode& state );
 	bool			hasJackDriver() const;
 	/**
 	 * \return Whether #H2Core::JackDriver is used as current audio driver and
@@ -572,9 +572,9 @@ private:
 	 * the context of session management, the std::shared_ptr<Song> must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
-	 * Set by setGUIState() and accessed via getGUIState().
+	 * Set by setProcessMode() and accessed via getProcessMode().
 	 */
-	GUIState		m_GUIState;
+	ProcessMode		m_ProcessMode;
 
 	/** Helper class for time-specific methods. */
 	std::shared_ptr<TimeHelper> m_pTimeHelper;
@@ -644,12 +644,12 @@ inline std::shared_ptr<MidiActionManager> Hydrogen::getMidiActionManager() const
 	return m_pMidiActionManager;
 }
 
-inline const Hydrogen::GUIState& Hydrogen::getGUIState() const {
-	return m_GUIState;
+inline const Hydrogen::ProcessMode& Hydrogen::getProcessMode() const {
+	return m_ProcessMode;
 }
 
-inline void Hydrogen::setGUIState( const Hydrogen::GUIState& state ) {
-	m_GUIState = state;
+inline void Hydrogen::setProcessMode( const Hydrogen::ProcessMode& state ) {
+	m_ProcessMode = state;
 }
 inline int Hydrogen::getSelectedPatternNumber() const
 {

@@ -103,7 +103,7 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 					 , m_nSelectedInstrumentNumber( 0 )
 					 , m_nSelectedPatternNumber( 0 )
 					 , m_bExportSessionIsActive( false )
-					 , m_GUIState( GUIState::startup )
+					 , m_ProcessMode( ProcessMode::Startup )
 					 , m_lastMidiEvent( MidiEvent::Type::Null )
 					 , m_lastMidiEventParameter( Midi::ParameterInvalid )
 					 , m_oldEngineMode( Song::Mode::Song )
@@ -937,7 +937,7 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 		// Non session management all ports have to be registered _prior_
 		// to the activation of the client.
 		if ( isUnderSessionManagement() &&
-			 getGUIState() != Hydrogen::GUIState::ready ) {
+			 getProcessMode() != Hydrogen::ProcessMode::Full ) {
 			return;
 		}
 
@@ -1730,8 +1730,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bOldLoopEnabled ) )
 			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bExportSessionIsActive ) )
-			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( GUIStateToQString( m_GUIState ) ) )
+			.append( QString( "%1%2m_ProcessMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( ProcessModeToQString( m_ProcessMode ) ) )
 			.append( QString( "%1%2m_instrumentDeathRow:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
@@ -1816,8 +1816,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
-			.append( QString( ", m_GUIState: %1" ).
-					 arg( GUIStateToQString( m_GUIState ) ) )
+			.append( QString( ", m_ProcessMode: %1" ).
+					 arg( ProcessModeToQString( m_ProcessMode ) ) )
 			.append( QString( ", m_instrumentDeathRow: [" ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
@@ -1864,18 +1864,18 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-QString Hydrogen::GUIStateToQString( const GUIState& state ) {
+QString Hydrogen::ProcessModeToQString( const ProcessMode& state ) {
 	switch( state ) {
-	case GUIState::startup:
-		return "startup";
-	case GUIState::headless:
-		return "headless";
-	case GUIState::ready:
-		return "ready";
-	case GUIState::shutdown:
-		return "shutdown";
+	case ProcessMode::Startup:
+		return "Startup";
+	case ProcessMode::Headless:
+		return "Headless";
+	case ProcessMode::Full:
+		return "Full";
+	case ProcessMode::Shutdown:
+		return "Shutdown";
 	default:
-		return QString( "Unknown GUIState [%1]" )
+		return QString( "Unknown ProcessMode [%1]" )
 			.arg( static_cast<int>(state) );
 	}
 }

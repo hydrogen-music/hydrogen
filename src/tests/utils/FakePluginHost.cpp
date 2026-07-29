@@ -65,7 +65,7 @@ FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize,
 	m_pHydrogen = new Hydrogen( makeHostPreferences( nSampleRate, nBlockSize ), -1 );
 	// Without a GUI the event queue drops events while in the startup state; a
 	// headless instance keeps them so MIDI/transport tests can observe them.
-	m_pHydrogen->setGUIState( Hydrogen::GUIState::headless );
+	m_pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
 
 	// The engine created a PluginAudioDriver from the preferences above; grab it
 	// so we can point it at our host-owned buffers each block.

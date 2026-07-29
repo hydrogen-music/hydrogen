@@ -124,8 +124,8 @@ void Footer::XRunEvent() {
 
 void Footer::showStatusBarMessage( const QString& sMessage,
 										  const QString& sCaller ) {
-	if ( HydrogenApp::pEngine()->getGUIState() ==
-		 H2Core::Hydrogen::GUIState::ready ) {
+	if ( HydrogenApp::pEngine()->getProcessMode() ==
+		 H2Core::Hydrogen::ProcessMode::Full ) {
 		m_pStatusMessageDisplay->showMessage( sMessage, sCaller );
 	}
 }

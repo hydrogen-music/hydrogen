@@ -44,8 +44,8 @@ long EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 
 	auto pHydrogen = m_pHydrogen;
 	if ( pHydrogen == nullptr ||
-		 pHydrogen->getGUIState() == Hydrogen::GUIState::startup ||
-		 pHydrogen->getGUIState() == Hydrogen::GUIState::shutdown ) {
+		 pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Startup ||
+		 pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Shutdown ) {
 		return Event::nInvalidId;
 	}
 

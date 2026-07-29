@@ -341,7 +341,7 @@ int main( int argc, char** argv )
 	Hydrogen* pHydrogen = Hydrogen::create_instance( nOscPort, pPref );
 
 	// Create headless engine using shared infrastructure
-	pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::headless );
+	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Headless );
 
 	std::shared_ptr<Song> pSong = nullptr;
 	std::shared_ptr<Playlist> pPlaylist = nullptr;

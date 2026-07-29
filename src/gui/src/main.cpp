@@ -517,7 +517,7 @@ int main(int argc, char *argv[])
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
-		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
+		pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Full );
 
 		// The drumkit assigned via the command line must be applied _after_ the
 		// GUI is fully set up. We rely on our core events to reflect changes

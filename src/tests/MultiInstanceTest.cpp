@@ -73,9 +73,9 @@ void MultiInstanceTest::testTwoIndependentInstances() {
 	auto* pB = new Hydrogen( makePluginPreferences(), -1 );
 
 	// EventQueue::pushEvent() drops events while an instance is still in the
-	// startup GUIState; a headless/plugin instance runs in 'headless'.
-	pA->setGUIState( Hydrogen::GUIState::headless );
-	pB->setGUIState( Hydrogen::GUIState::headless );
+	// startup ProcessMode; a headless/plugin instance runs in 'headless'.
+	pA->setProcessMode( Hydrogen::ProcessMode::Headless );
+	pB->setProcessMode( Hydrogen::ProcessMode::Headless );
 
 	// Distinct instances own distinct context objects.
 	CPPUNIT_ASSERT( pA != pB );
