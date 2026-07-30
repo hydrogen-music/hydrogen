@@ -111,6 +111,7 @@ class Playlist : public H2Core::Object<Playlist>
 		bool	remove( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
 
 		int		getActiveSongNumber() const;
+		void setActiveSongNumber( int ActiveSongNumber );
 
 		QString	getSongFileNameByNumber( int nSongNumber ) const;
 
@@ -150,8 +151,6 @@ class Playlist : public H2Core::Object<Playlist>
 		void saveTo( XMLNode& node, bool bUseRelativePaths ) const;
 
 		void execScript( int index ) const;
-
-		void setActiveSongNumber( int ActiveSongNumber );
 
 		/** Absolute path to the underlying artifact serving as an unique
 		 * identifier of the artifact throughout Hydrogen.
