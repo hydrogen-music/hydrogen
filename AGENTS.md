@@ -51,3 +51,30 @@ codebase.
 - When making changes, update `CHANGELOG.md`:
   - user-facing changes only; no internal/meta notes.
   - Pure test additions/fixes generally do not need a changelog entry unless they alter user-facing behavior or the user asks for one.
+
+### Members changes in basic classes
+
+When adding, renaming, or deleting a member variable in `src/core/Basics/Song`,
+`Drumkit`, `Instrument`, `InstrumentComponent`, `InstrumentLayer`, `Pattern`,
+`Note`, `Playlist`, `PlaylistEntry`, `src/core/Timeline`, or
+`src/core/Preferences/Preferences` you MUST update the following test artifacts
+so the IPC serialization round-trip remains covered and all unit tests do pass:
+
+1. **Serialization** — `saveTo()` / `loadFrom()` (or `toXmlBuffer()` /
+   `fromXmlBuffer()`) in the class itself. The member must round-trip through
+   XML.
+2. **Stringification** - if the class contains a `toQString()` method overwrite,
+   the member needs to be adopted for debugging.
+3. **Comparison** — `RoundTripAssertions` in `src/tests/RoundTripAssertions.h`
+   / `.cpp`. Add a field-by-field check so a lost member fails the test.
+4. **Factory** — `IpcRoundTripTest` in `src/tests/IpcRoundTripTest.h` / `.cpp`.
+   The non-trivial factory for the affected type must set the new member to a
+   non-default value so the round-trip actually exercises it.
+5. **Shipped artifacts** - in `data/` needs to be updated to the latest
+   version.
+6. **Test artifacts** - in `src/tests/data` needs to be updated for the unit
+   tests to pass.
+
+Members that are intentionally not serialized (e.g. `m_sPath`, `m_bIsModified`,
+`m_bIsEdited`, `m_context`) for file operations must be included during XML
+buffer serialization.
