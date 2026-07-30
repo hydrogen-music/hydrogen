@@ -1928,6 +1928,15 @@ Preferences::AudioDriver Preferences::parseAudioDriver( const QString& sDriver )
 	else if ( s == "portaudio" || s == "port" ) {
 		return AudioDriver::PortAudio;
 	}
+	else if ( s == "plugin" ) {
+		return AudioDriver::Plugin;
+	}
+	else if ( s == "fake" ) {
+		return AudioDriver::Fake;
+	}
+	else if ( s == "null" ) {
+		return AudioDriver::Null;
+	}
 	else {
 		if ( Logger::isAvailable() ) {
 			ERRORLOG( QString( "Unable to parse driver [%1]" ).arg( sDriver ) );
@@ -1986,6 +1995,9 @@ Preferences::MidiDriver Preferences::parseMidiDriver( const QString& sDriver )
 	}
 	else if ( s == "coremidi" ) {
 		return MidiDriver::CoreMidi;
+	}
+	else if ( s == "plugin" ) {
+		return MidiDriver::Plugin;
 	}
 	else {
 		// The LoopBack driver is only used in unit tests. Thus, it should not
