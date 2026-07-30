@@ -157,6 +157,7 @@ public:
 	// ADR 0030 batch 2e — object-payload (setSong: song XML) / value-struct
 	// (*Properties: strings + License + tags) commands.
 	bool setSong( std::shared_ptr<Song> pSong ) override;
+	bool setPreferences( std::shared_ptr<Preferences> pPreferences ) override;
 	bool setSongProperties( const QString& sNewPath, const int nNewVersion,
 		const QString& sNewName, const QString& sNewAuthor,
 		const QString& sNewNotes, const H2Core::License& newLicense,

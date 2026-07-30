@@ -30,6 +30,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/License.h>
@@ -559,6 +560,17 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return false;
 		}
 		return pController->setPlaylist( pPlaylist );
+	}
+	case IpcOpcode::SetPreferences: {
+		// The headless engine only needs the engine-core subset of
+		// Preferences (audio driver, MIDI maps, metronome, etc.).
+		// GUI-only fields are not relevant and not sent.
+		auto pPref = pHydrogen->getPreferences();
+		if ( pPref == nullptr ) {
+			return false;
+		}
+		pPref->applyCorePropsFromXml( msg.getPayload() );
+		return pController->setPreferences( pPref );
 	}
 	case IpcOpcode::AddToPlaylist:
 		if ( args.size() >= 2 ) {

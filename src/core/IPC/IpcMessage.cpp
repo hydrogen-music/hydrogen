@@ -221,6 +221,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::LoadState:
 		sOpcode = "LOAD_STATE";
 		break;
+	case IpcOpcode::SetPreferences:
+		sOpcode = "SET_PREFERENCES";
+		break;
 	case IpcOpcode::SetInstrumentPitch:
 		sOpcode = "SET_INSTRUMENT_PITCH";
 		break;

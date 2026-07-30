@@ -75,6 +75,7 @@ enum class IpcOpcode : quint16 {
 	SetSong,                ///< payload: song XML
 	SetDrumkit,             ///< payload: drumkit XML
 	LoadState,              ///< payload: .h2project / song-only state
+	SetPreferences,         ///< payload: core-preferences XML (editor→engine)
 
 	// ── ADR 0030 batch 2a: scalar Instrument/Component/Layer/strip/song setters ──
 	SetInstrumentPitch,

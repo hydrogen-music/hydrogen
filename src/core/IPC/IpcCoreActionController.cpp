@@ -32,6 +32,7 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/License.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core {
 
@@ -718,6 +719,22 @@ bool IpcCoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	}
 	// Dual-apply: the mirror takes the live object directly (no round-trip).
 	return CoreActionController::setSong( pSong );
+}
+
+bool IpcCoreActionController::setPreferences(
+	std::shared_ptr<Preferences> pPreferences )
+{
+	if ( m_pChannel != nullptr && pPreferences != nullptr ) {
+		// In editor mode only the engine-core subset of Preferences is
+		// relevant to the headless engine; GUI-only fields (window
+		// geometry, theme, shortcuts) are not. The engine applies them
+		// via Preferences::applyCorePropsFromXml().
+		IpcMessage msg( IpcOpcode::SetPreferences );
+		msg.setPayload( pPreferences->corePropsToXml() );
+		m_pChannel->send( msg );
+	}
+	// Dual-apply: the mirror gets the full Preferences object.
+	return CoreActionController::setPreferences( pPreferences );
 }
 
 bool IpcCoreActionController::setSongProperties(
