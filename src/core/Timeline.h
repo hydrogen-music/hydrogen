@@ -116,6 +116,7 @@ public:
 	 */
 	void deactivate();
 
+	float getDefaultBpm() const;
 		/** Has to be called while the #H2Core::AudioEngine is locked. */
 		void setDefaultBpm( float fDefaultBpm );
 
@@ -250,7 +251,10 @@ private:
 		}
 	};
 };
-	
+
+inline float Timeline::getDefaultBpm() const {
+	return m_fDefaultBpm;
+}
 inline const std::vector<std::shared_ptr<const Timeline::TempoMarker>>& Timeline::getAllTempoMarkers() const {
 	return m_allTempoMarkers;
 }
