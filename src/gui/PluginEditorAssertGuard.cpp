@@ -71,10 +71,13 @@ int main( int argc, char** argv ) {
 
 	QCoreApplication app( argc, argv );
 
+	const QString sHeadlessLogFile =
+		H2Core::Filesystem::tmpDir() + "headless-assert-guard.log";
+
 	auto* pLogger = H2Core::Logger::bootstrap(
 		H2Core::Logger::Error | H2Core::Logger::Warning | H2Core::Logger::Info |
 			H2Core::Logger::Debug | H2Core::Logger::Ipc,
-		"", true, true
+		sHeadlessLogFile, true, true
 	);
 	H2Core::Base::bootstrap( pLogger, false );
 	H2Core::Filesystem::bootstrap( pLogger, sDataDir );
@@ -92,6 +95,9 @@ int main( int argc, char** argv ) {
 	std::cout << "host: serving engine on endpoint [" << sEndpoint.toStdString()
 			  << "]" << std::endl;
 
+	const QString sEditorLogFile =
+		H2Core::Filesystem::tmpDir() + "editor-assert-guard.log";
+
 	// Editor role: launch the real GUI in editor mode with the exerciser.
 	QProcess editor;
 	editor.setProcessChannelMode( QProcess::ForwardedChannels );
@@ -99,6 +105,7 @@ int main( int argc, char** argv ) {
 				  << QStringLiteral( "--nosplash" )
 				  << QStringLiteral( "--child" )
 				  << QStringLiteral( "-V" ) << QStringLiteral( "Ipc" )
+				  << QStringLiteral( "-L" ) << sEditorLogFile
 				  << QStringLiteral( "--exercise-editor-paths" )
 				  << QStringLiteral( "--connect-via-ipc" ) << sEndpoint
 				  << QStringLiteral( "-P" ) << sDataDir );
@@ -138,6 +145,9 @@ int main( int argc, char** argv ) {
 		return fail( QString( "editor exited with non-zero code %1" )
 						 .arg( nExitCode ) );
 	}
+
+	H2Core::Filesystem::rm( sHeadlessLogFile );
+	H2Core::Filesystem::rm( sEditorLogFile );
 
 	std::cout << "OK: editor exercised all safe shortcut paths in editor mode "
 				 "without hitting any ASSERT_NO_EDITOR_MODE" << std::endl;
