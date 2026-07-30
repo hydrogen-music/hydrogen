@@ -22,11 +22,18 @@
 
 #include "EditorPathExerciser.h"
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
-#include <core/Preferences/Shortcuts.h>
+#include <core/Lilipond/Lilypond.h>
 #include <core/Logger.h>
+#include <core/Midi/SMF.h>
+#include <core/Preferences/Shortcuts.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "HydrogenApp.h"
 #include "MainForm.h"
@@ -63,23 +70,17 @@ void EditorPathExerciser::buildActionList()
 	static const std::set<Shortcuts::Action> skipSet = {
 		// File dialogs / modal dialogs
 		Shortcuts::Action::NewSong,
-		Shortcuts::Action::OpenSong,
 		Shortcuts::Action::EditSongProperties,
 		Shortcuts::Action::OpenDemoSong,
 		Shortcuts::Action::SaveSong,
 		Shortcuts::Action::SaveAsSong,
 		Shortcuts::Action::OpenPattern,
-		Shortcuts::Action::ExportPattern,
-		Shortcuts::Action::ExportSong,
-		Shortcuts::Action::ExportMIDI,
-		Shortcuts::Action::ExportLilyPond,
 		// Drumkit dialogs
 		Shortcuts::Action::NewDrumkit,
 		Shortcuts::Action::OpenDrumkit,
 		Shortcuts::Action::EditDrumkitProperties,
 		Shortcuts::Action::SaveDrumkitToSoundLibrary,
 		Shortcuts::Action::SaveDrumkitToSession,
-		Shortcuts::Action::ExportDrumkit,
 		Shortcuts::Action::ImportDrumkit,
 		Shortcuts::Action::ImportOnlineDrumkit,
 		Shortcuts::Action::AddComponent,
@@ -239,8 +240,8 @@ void EditorPathExerciser::exerciseNextAction()
 	if ( m_nIndex >= m_actions.size() ) {
 		___INFOLOG( "EditorPathExerciser: all actions exercised successfully — "
 					"quitting" );
-		auto pHydrogen = HydrogenApp::pHydrogen();
 		// Avoid  handle unsaved changes modal on shutdown
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		pHydrogen->setSongModified( false );
 		pHydrogen->getEventQueue()->pushEvent( Event::Type::Quit, 0 );
 		return;
@@ -255,7 +256,108 @@ void EditorPathExerciser::exerciseNextAction()
 				.arg( actionName( action ) )
 				.arg( static_cast<int>( action ) ) );
 
-	m_pMainForm->executeShortcut( action, args );
+	switch( action ) {
+		case Shortcuts::Action::OpenSong: {
+			const QString sTmpFile = Filesystem::tmpFilePath(
+				"editor-path-exerciser-open-song.h2song"
+			);
+			HydrogenApp::pEngine()->isUnderSessionManagement();
+			auto pSong = HydrogenApp::pHydrogen()->getSong();
+			// Ensure the path of the song is writable. Else a modal will open
+			// an block the test.
+			pSong->setPath( sTmpFile );
+			HydrogenApp::pEngine()->getCoreActionController()->setSong(
+				pSong
+			);
+			Filesystem::rm( sTmpFile );
+			break;
+		}
+
+		case Shortcuts::Action::ExportPattern: {
+			const QString sTmpFile = Filesystem::tmpFilePath(
+				"editor-path-exerciser-export-pattern.h2pattern"
+			);
+			auto pNewPattern = std::make_shared<Pattern>(
+				HydrogenApp::pHydrogen()->getSong()->getPatternList()->get( 0 )
+			);
+			pNewPattern->setPath( sTmpFile );
+			pNewPattern->save(
+				sTmpFile, HydrogenApp::pHydrogen()->getSong()->getDrumkit()
+			);
+			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updatePatterns(
+				Event::Trigger::Default
+			);
+			Filesystem::rm( sTmpFile );
+			break;
+		}
+
+		case Shortcuts::Action::ExportSong: {
+			const QString sTmpFile = Filesystem::tmpFilePath(
+				"editor-path-exerciser-export-song.h2song"
+			);
+			HydrogenApp::pHydrogen()->startExportSession( 48000, 16, 0 );
+			HydrogenApp::pHydrogen()->startExportSong( sTmpFile );
+			HydrogenApp::pHydrogen()->stopExportSong();
+			HydrogenApp::pHydrogen()->stopExportSession();
+			HydrogenApp::pHydrogen()
+				->getSong()
+				->getDrumkit()
+				->recalculateRubberband( 120, HydrogenApp::pHydrogen() );
+			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateSongs(
+				Event::Trigger::Default
+			);
+			Filesystem::rm( sTmpFile );
+			break;
+		}
+
+		case Shortcuts::Action::ExportMIDI: {
+			const QString sTmpFile =
+				Filesystem::tmpFilePath( "editor-path-exerciser-export-midi.mid"
+				);
+			auto pSmfWriter = std::make_shared<SMF1WriterSingle>();
+			pSmfWriter->save(
+				sTmpFile, HydrogenApp::pHydrogen()->getSong(), true,
+				HydrogenApp::pHydrogen()
+			);
+			Filesystem::rm( sTmpFile );
+			break;
+		}
+
+		case Shortcuts::Action::ExportLilyPond: {
+			const QString sTmpFile = Filesystem::tmpFilePath(
+				"editor-path-exerciser-export-lilypond.ly"
+			);
+			LilyPond ly;
+			ly.extractData( *HydrogenApp::pHydrogen()->getSong() );
+			ly.write( sTmpFile );
+			Filesystem::rm( sTmpFile );
+			break;
+		}
+
+		case Shortcuts::Action::ExportDrumkit: {
+			const QString sTmpFile = Filesystem::tmpFilePath(
+				"editor-path-exerciser-export-drumkit.xml"
+			);
+			const QString sTmpArchive = Filesystem::tmpFilePath(
+				"editor-path-exerciser-export-drumkit.h2drumkit"
+			);
+			auto pNewDrumkit = std::make_shared<Drumkit>(
+				HydrogenApp::pHydrogen()->getSong()->getDrumkit()
+			);
+			pNewDrumkit->setPath( sTmpFile );
+			pNewDrumkit->save( sTmpFile );
+			pNewDrumkit->exportTo( sTmpArchive );
+			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateDrumkits(
+				Event::Trigger::Default
+			);
+			Filesystem::rm( sTmpArchive );
+			Filesystem::rm( sTmpFile );
+			break;
+		}
+
+		default:
+			m_pMainForm->executeShortcut( action, args );
+	}
 
 	++m_nIndex;
 	m_timer.start();
