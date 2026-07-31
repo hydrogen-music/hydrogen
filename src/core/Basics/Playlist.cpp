@@ -178,6 +178,11 @@ QByteArray Playlist::toXmlBuffer() const
 	// Always absolute paths: the buffer travels across the IPC split (ADR 0030),
 	// where there is no playlist file to resolve relative paths against.
 	saveTo( root, false /*bUseRelativePaths*/ );
+
+	// Additional members not present in .h2playlist but required for IPC.
+	root.write_string( "ipc-path", m_sPath );
+	root.write_bool( "ipc-isModified", m_bIsModified );
+
 	return doc.toByteArray();
 }
 
@@ -196,7 +201,18 @@ std::shared_ptr<Playlist> Playlist::fromXmlBuffer( const QByteArray& buffer,
 		return nullptr;
 	}
 
-	return load_from( root, sPath );
+	auto pPlaylist = load_from( root, sPath );
+
+	// Additional members not present in .h2playlist but required for IPC.
+	pPlaylist->setPath( root.read_string(
+		"ipc-path", Filesystem::emptyPath( Filesystem::Artifact::Playlist ),
+		false, false, false
+	) );
+	pPlaylist->setIsModified(
+		root.read_bool( "ipc-isModified", false, false, false, false )
+	);
+
+	return pPlaylist;
 }
 
 void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths ) const
