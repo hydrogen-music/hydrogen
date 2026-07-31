@@ -45,6 +45,7 @@
 #include "EngineSessionTest.h"
 #include "H2ProjectTest.h"
 #include "IpcProtocolTest.h"
+#include "IpcRoundTripTest.h"
 #include "IpcTransportTest.h"
 #include "PluginConfigTest.h"
 #include "LicenseTest.h"
@@ -106,6 +107,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( HeadlessEngineLauncherTest );
 #endif
 CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( IpcRoundTripTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcTransportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginConfigTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
