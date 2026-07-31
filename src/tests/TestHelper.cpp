@@ -31,6 +31,7 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/LoopBackMidiDriver.h>
+#include <core/IPC/EditorSession.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -47,6 +48,7 @@
 
 TestHelper* TestHelper::m_pInstance = nullptr;
 QString TestHelper::sRootDir = CMAKE_SOURCE_DIR;
+int TestHelper::nEndpointCounter = 1;
 
 void TestHelper::createInstance( bool bAppveyor )
 {
@@ -336,4 +338,32 @@ std::shared_ptr<H2Core::Preferences> pTestPreferences() {
 
 H2Core::EventQueue* pTestEventQueue() {
 	return TestHelper::get_instance()->getHydrogen()->getEventQueue();
+}
+
+// --- IPC helpers ---
+
+H2Core::Hydrogen* TestHelper::makeEngine() {
+	auto pPref = H2Core::Preferences::create_instance();
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::None;
+	pPref->setOscServerEnabled( false );
+	auto* pHydrogen = new H2Core::Hydrogen( pPref, -1 );
+	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Headless );
+	return pHydrogen;
+}
+
+H2Core::Hydrogen* TestHelper::makeMirror() {
+	auto pPref = H2Core::Preferences::create_instance();
+	// Same headless-mirror configuration main()'s editor branch uses (passive
+	// Null audio driver — no processing thread, no MIDI, no OSC).
+	H2Core::EditorSession::configureMirrorPreferences( pPref );
+	auto pHydrogen = new H2Core::Hydrogen( pPref, -1 );
+	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Headless );
+	return pHydrogen;
+}
+
+QString TestHelper::uniqueEndpoint() {
+	return QString( "h2-roundtrip-test-%1-%2" )
+		.arg( QCoreApplication::applicationPid() )
+		.arg( TestHelper::nEndpointCounter++ );
 }

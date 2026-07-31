@@ -21,6 +21,8 @@
 
 #include "ConnectViaIpcModeTest.h"
 
+#include "TestHelper.h"
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
@@ -54,39 +56,15 @@
 
 using namespace H2Core;
 
-namespace {
-
-int g_nNameCounter = 0;
-
-QString uniqueServerName() {
-	return QString( "h2-editor-mode-test-%1-%2" )
-		.arg( QCoreApplication::applicationPid() )
-		.arg( g_nNameCounter++ );
-}
-
-// A standalone headless engine standing in for the editor-side mirror that the
-// GUI would read from. Caller owns it.
-Hydrogen* makeMirrorEngine() {
-	auto pPref = Preferences::create_instance();
-	// Same headless-mirror configuration main()'s editor branch uses (passive
-	// Null audio driver — no processing thread, no MIDI, no OSC).
-	EditorSession::configureMirrorPreferences( pPref );
-	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
-	return pHydrogen;
-}
-
-} // namespace
-
 // --connect-via-ipc <endpoint>: the editor attaches to the engine's control socket
 // and announces itself with a hello (ADR 0016/0018).
 void ConnectViaIpcModeTest::testAttachesToEngineEndpoint() {
 	___INFOLOG( "" );
 
 	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pSession = EditorSession::connect( server.serverName(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	CPPUNIT_ASSERT( pSession->isConnected() );
@@ -110,10 +88,10 @@ void ConnectViaIpcModeTest::testAttachesToEngineEndpoint() {
 void ConnectViaIpcModeTest::testFailedConnectionReported() {
 	___INFOLOG( "" );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	// No server listening on this name → connection must fail fast.
 	auto pSession = EditorSession::connect(
-		uniqueServerName(), pMirror, 200 /*ms*/ );
+		TestHelper::uniqueEndpoint(), pMirror, 200 /*ms*/ );
 	CPPUNIT_ASSERT( pSession == nullptr );
 
 	delete pMirror;
@@ -131,7 +109,7 @@ void ConnectViaIpcModeTest::testFailedConnectionReported() {
 void ConnectViaIpcModeTest::testMirrorUsesHeadlessDriver() {
 	___INFOLOG( "" );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pDriver = pMirror->getAudioDriver();
 	CPPUNIT_ASSERT( pDriver != nullptr );
 	auto pSoftware = std::dynamic_pointer_cast<SoftwareDriver>( pDriver );
@@ -155,9 +133,9 @@ void ConnectViaIpcModeTest::testReceivesEngineState() {
 	___INFOLOG( "" );
 
 	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pSession = EditorSession::connect( server.serverName(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	IpcChannel* conn = server.waitForChannel();
@@ -205,9 +183,9 @@ void ConnectViaIpcModeTest::testIssuesCommands() {
 	___INFOLOG( "" );
 
 	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pSession = EditorSession::connect( server.serverName(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	IpcChannel* conn = server.waitForChannel();
@@ -236,9 +214,9 @@ void ConnectViaIpcModeTest::testEngineSurvivesEditorDisconnect() {
 	___INFOLOG( "" );
 
 	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pSession = EditorSession::connect( server.serverName(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	IpcChannel* conn = server.waitForChannel();
@@ -251,7 +229,7 @@ void ConnectViaIpcModeTest::testEngineSurvivesEditorDisconnect() {
 	// The engine side is untouched: the server still listens and can hand out a
 	// fresh connection to a reattaching editor.
 	CPPUNIT_ASSERT( ! server.serverName().isEmpty() );
-	auto* pMirror2 = makeMirrorEngine();
+	auto* pMirror2 = TestHelper::makeMirror();
 	auto pSession2 = EditorSession::connect( server.serverName(), pMirror2 );
 	CPPUNIT_ASSERT( pSession2 != nullptr );
 	IpcChannel* conn2 = server.waitForChannel();
@@ -271,12 +249,12 @@ void ConnectViaIpcModeTest::testEngineSurvivesEditorDisconnect() {
 void ConnectViaIpcModeTest::testEngineBuildsTransportSnapshot() {
 	___INFOLOG( "" );
 
-	auto* pEngine = makeMirrorEngine(); // a headless engine stands in for the host
+	auto* pEngine = TestHelper::makeMirror(); // a headless engine stands in for the host
 	auto snapshot = EngineSession::buildTransportSnapshot( pEngine );
 	CPPUNIT_ASSERT( snapshot.playing == 0 );
 	CPPUNIT_ASSERT( snapshot.bpm > 0.0f );
 
-	const QString sEndpoint = uniqueServerName();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
 	const QString sKey = EngineTelemetryShm::keyForEndpoint( sEndpoint );
 	// Same endpoint → same key on both sides (no separate negotiation).
 	CPPUNIT_ASSERT_EQUAL(
@@ -307,7 +285,7 @@ void ConnectViaIpcModeTest::testEngineBuildsTransportSnapshot() {
 void ConnectViaIpcModeTest::testMirrorFollowsTransportTelemetry() {
 	___INFOLOG( "" );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	EditorStateMirror mirror( pMirror );
 	auto pAudioEngine = pMirror->getAudioEngine();
 
@@ -391,9 +369,9 @@ void ConnectViaIpcModeTest::testEngineAccessFallsBackToLocal() {
 	___INFOLOG( "" );
 
 	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pSession = EditorSession::connect( server.serverName(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	IpcChannel* conn = server.waitForChannel();
@@ -444,11 +422,11 @@ void ConnectViaIpcModeTest::testEngineAccessFallsBackToLocal() {
 void ConnectViaIpcModeTest::testSyncViaIpc() {
 	___INFOLOG( "" );
 
-	const QString sEndpoint = uniqueServerName();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
 
 	// Engine side: a headless engine with known state, served via the
 	// production EngineSession serve loop on its own QThread.
-	auto* pEngine = makeMirrorEngine();
+	auto* pEngine = TestHelper::makeMirror();
 	auto pSong = pEngine->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
 	pSong->setName( "SYNC_TEST" );
@@ -460,7 +438,7 @@ void ConnectViaIpcModeTest::testSyncViaIpc() {
 	CPPUNIT_ASSERT( pEngineSession != nullptr );
 
 	// Editor side: a fresh mirror with default state.
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	CPPUNIT_ASSERT( pMirror->getSong() != nullptr );
 	CPPUNIT_ASSERT( pMirror->getSong()->getName().toStdString() != "SYNC_TEST" );
 

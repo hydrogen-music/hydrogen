@@ -39,15 +39,6 @@ namespace H2Core {
 }
 
 class TestHelper {
-	static TestHelper*	m_pInstance;
-	QString m_sDataDir;
-	QString m_sTestDataDir;
-	bool m_bAppveyor;
-	/** The process-current Hydrogen instance the suite runs against (ADR 0015,
-	 * T1.5 test-instance fixture). Held here so tests reach it without the
-	 * Hydrogen::get_instance() shim. */
-	H2Core::Hydrogen* m_pHydrogen = nullptr;
-
 	public:
 		TestHelper();
 
@@ -132,6 +123,24 @@ class TestHelper {
 
 	static void			createInstance( bool bAppveyor );
 	static TestHelper*	get_instance();
+
+	static H2Core::Hydrogen* makeEngine();
+	/** A standalone headless engine standing in for the editor-side mirror that
+	 * the GUI would read from. Caller owns it. */
+	static H2Core::Hydrogen* makeMirror();
+	static QString uniqueEndpoint();
+
+private:
+	static TestHelper*	m_pInstance;
+	QString m_sDataDir;
+	QString m_sTestDataDir;
+	bool m_bAppveyor;
+	/** The process-current Hydrogen instance the suite runs against (ADR 0015,
+	 * T1.5 test-instance fixture). Held here so tests reach it without the
+	 * Hydrogen::get_instance() shim. */
+	H2Core::Hydrogen* m_pHydrogen = nullptr;
+
+	static int nEndpointCounter;
 };
 
 inline TestHelper*	TestHelper::get_instance() 
