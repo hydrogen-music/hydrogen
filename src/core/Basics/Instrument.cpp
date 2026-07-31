@@ -82,7 +82,8 @@ Instrument::Instrument(
 	  m_bHasMissingSamples( false ),
 	  m_pComponents(
 		  std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>()
-	  )
+	  ),
+	  m_fLastSampleLoadBpm( MIN_BPM )
 {
 	/*: Name assigned to an Instrument created either as part of a fresh kit
 	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
@@ -587,6 +588,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 
 void Instrument::loadSamples( float fBpm, Preferences* pPreferences )
 {
+	m_fLastSampleLoadBpm = fBpm;
 	for ( auto& ppComponent : *m_pComponents ) {
 		if ( ppComponent == nullptr ) {
 			continue;

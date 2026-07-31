@@ -362,6 +362,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	Instrument::Type getType() const;
 	void setType( Instrument::Type type );
 
+	float getLastSampleLoadBpm() const;
+
 	/** Iteration */
 	std::vector<std::shared_ptr<InstrumentComponent>>::iterator begin();
 	std::vector<std::shared_ptr<InstrumentComponent>>::iterator end();
@@ -453,6 +455,12 @@ class Instrument : public H2Core::Object<Instrument> {
 									///< files?
 	std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>>
 		m_pComponents;
+
+	/** Whenever samples are loaded, this is done for a specific BPM. This
+	 * variable keeps track of the used value to allow to recreate the samples
+	 * exactly instead of having slight differences when always working with the
+	 * audio engine's current tempo. */
+	float m_fLastSampleLoadBpm;
 };
 
 inline void Instrument::setName( const QString& name )
@@ -752,6 +760,10 @@ inline Instrument::Type Instrument::getType() const
 inline void Instrument::setType( Instrument::Type type )
 {
 	m_type = type;
+}
+
+inline float Instrument::getLastSampleLoadBpm() const {
+	return m_fLastSampleLoadBpm;
 }
 
 };	// namespace H2Core
