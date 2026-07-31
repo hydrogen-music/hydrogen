@@ -147,6 +147,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
+	bool bIpcXml,
 	const License& drumkitLicense,
 	bool bSilent,
 	Hydrogen* pHydrogen )
@@ -179,8 +180,9 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	while ( ! layer_node.isNull() ) {
 		auto pLayer = InstrumentLayer::loadFrom(
-			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent,
-			pHydrogen );
+			layer_node, sDrumkitPath, sSongPath, bIpcXml, drumkitLicense,
+			bSilent, pHydrogen
+		);
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->addLayer( pLayer, -1 );
 		}
@@ -195,6 +197,7 @@ void InstrumentComponent::saveTo(
 	bool bSongKit,
 	bool bKeepMissingSamples,
     const QString& sDrumkitPath,
+	bool bIpcXml,
 	bool bSilent
 )
 {
@@ -222,7 +225,9 @@ void InstrumentComponent::saveTo(
 		auto pLayer = m_layers[nn];
 		if ( pLayer != nullptr ) {
 			if ( pLayer->getSample() != nullptr || bKeepMissingSamples ) {
-				pLayer->saveTo( component_node, bSongKit, sDrumkitPath );
+				pLayer->saveTo(
+					component_node, bSongKit, sDrumkitPath, bIpcXml
+				);
 			}
 			else {
 				if ( !bSilent ) {

@@ -63,12 +63,14 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			bool bSongKit,
 			bool bKeepMissingSamples,
             const QString& sDrumkitPath,
+			bool bIpcXml,
 			bool bSilent
 		);
 		static std::shared_ptr<InstrumentComponent> loadFrom(
 			const XMLNode& pNode,
 			const QString& sDrumkitPath,
 			const QString& sSongPath,
+			bool bIpcXml,
 			const License& drumkitLicense,
 			bool bSilent,
 			Hydrogen* pHydrogen

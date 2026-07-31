@@ -108,6 +108,9 @@ class Instrument : public H2Core::Object<Instrument> {
 	 *   filenames. In the former case, each instrument might be
 	 *   associated with a different kit and the lookup folder for the
 	 *   samples are stored on a per-instrument basis.
+	 * @param bIpcXml When serializing the class to a IPC message, we
+	 *   have to handle some members not written to disk directly.
+	 *   Otherwise, there would be a loss of information.
 	 * @param bKeepMissingSamples Whether layers containing a missing sample
 	 *   should be kept or discarded.
 	 * \param bSilent if set to true, all log messages except of errors and
@@ -117,6 +120,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		XMLNode& node,
 		bool bSongKit,
 		bool bKeepMissingSamples,
+		bool bIpcXml,
 		bool bSilent );
 
 	/** Serialize the instrument to an in-memory XML buffer (samples by path, not
@@ -144,6 +148,9 @@ class Instrument : public H2Core::Object<Instrument> {
 	 * @param sSongPath If not empty, absolute path to the .h2song file the
 	 *   instrument is contained in. It is used to resolve sample paths
 	 *   relative to the .h2song file.
+	 * @param bIpcXml When deserializing the class from a IPC message, we
+	 *   have to handle some members not written to disk directly.
+	 *   Otherwise, there would be a loss of information.
 	 * \param license License assigned to all Samples that will be
 	 *   loaded. If empty, the license will be read from @a
 	 *   sDrumkitPath.
@@ -166,6 +173,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		const QString& sDrumkitPath,
 		const QString& sDrumkitName,
 		const QString& sSongPath,
+		bool bIpcXml,
 		const License& license,
 		bool bSongKit,
 		bool* pLegacyFormatEncountered,

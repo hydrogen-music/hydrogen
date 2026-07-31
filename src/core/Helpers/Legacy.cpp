@@ -290,8 +290,9 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		XMLNode layerNode = node.firstChildElement( "layer" );
 		while ( ! layerNode.isNull() ) {
 			auto pLayer = InstrumentLayer::loadFrom(
-				layerNode, sDrumkitPath, sSongPath, drumkitLicense, bSilent,
-				pHydrogen );
+				layerNode, sDrumkitPath, sSongPath, false, drumkitLicense,
+				bSilent, pHydrogen
+			);
 			if ( pLayer != nullptr ) {
 				pCompo->addLayer( pLayer, -1 );
 			}

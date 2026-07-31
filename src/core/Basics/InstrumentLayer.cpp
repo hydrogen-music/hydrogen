@@ -118,6 +118,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
+	bool bIpcXml,
 	const License& drumkitLicense,
 	bool bSilent,
 	Hydrogen* pHydrogen )
@@ -202,6 +203,12 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	std::shared_ptr<Sample> pSample = nullptr;
 	if ( ! sFilePath.isEmpty() && Filesystem::fileExists( sFilePath, true ) ) {
 		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
+
+		if ( bIpcXml ) {
+			pSample->setLicense( License( node.read_string(
+				"license", drumkitLicense.getLicenseString(), true, false, true
+			) ) );
+		}
 
 		const bool bIsModified =
 			node.read_bool( "ismodified", false, true, false, true );
@@ -288,7 +295,8 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 void InstrumentLayer::saveTo(
 	XMLNode& node,
 	bool bSongKit,
-	const QString& sDrumkitPath
+	const QString& sDrumkitPath,
+	bool bIpcXml
 ) const
 {
 	auto pSample = getSample();
@@ -356,6 +364,12 @@ void InstrumentLayer::saveTo(
 		XMLNode panNode = layer_node.createNode( "pan" );
 		panNode.write_int( "pan-position", pan.nFrame );
 		panNode.write_int( "pan-value", pan.nValue );
+	}
+
+	if ( bIpcXml ) {
+		layer_node.write_string(
+			"license", pSample->getLicense().getLicenseString()
+		);
 	}
 }
 

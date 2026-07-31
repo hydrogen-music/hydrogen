@@ -386,7 +386,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 			// In case the node is null the user did not provide a playback
 			// track.
 			pPlaybackTrackInstrument = Instrument::loadFrom(
-				playbackTrackInstrumentNode, "", "", sSongPath,
+				playbackTrackInstrumentNode, "", "", sSongPath, false,
 				pSong->getLicense(), true, nullptr, bSilent, pHydrogen
 			);
 		}
@@ -883,7 +883,7 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 	auto playbackTrackNode = rootNode.createNode( "playbackTrack" );
 	if ( m_pPlaybackTrackInstrument != nullptr ) {
 		m_pPlaybackTrackInstrument->saveTo(
-			playbackTrackNode, true, false, bSilent
+			playbackTrackNode, true, false, false, bSilent
 		);
 	}
 

@@ -90,7 +90,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	while ( !instrumentNode.isNull() ) {
 		nCount++;
 		auto pInstrument = Instrument::loadFrom(
-			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
+			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, false,
 			license, bSongKit, pLegacyFormatEncountered, bSilent, pHydrogen );
 		if ( pInstrument != nullptr ) {
 			pInstrumentList->add( pInstrument );
@@ -117,7 +117,7 @@ void InstrumentList::saveTo( XMLNode& node, bool bSongKit,
 	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
 			pInstrument->saveTo( instruments_node, bSongKit,
-								bKeepMissingSamples, bSilent );
+								bKeepMissingSamples, false, bSilent );
 		}
 		else {
 			ERRORLOG( "Invalid instrument!" );

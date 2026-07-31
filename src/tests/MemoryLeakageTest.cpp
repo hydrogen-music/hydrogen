@@ -365,7 +365,9 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "instrumentComponent" );
 		auto pInstrumentComponent = H2Core::InstrumentComponent::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "", H2Core::License(), false, pTestHydrogen() );
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "", false,
+			H2Core::License(), false, pTestHydrogen()
+		);
 		CPPUNIT_ASSERT( pInstrumentComponent != nullptr );
 		pInstrumentComponent = nullptr;
 		CPPUNIT_ASSERT(
@@ -378,8 +380,8 @@ void MemoryLeakageTest::testLoading()
 		) );
 		node = doc.firstChildElement( "instrument" );
 		auto pInstrument = H2Core::Instrument::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "", "", H2Core::License(), false,
-			nullptr, false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "", "", false,
+			H2Core::License(), false, nullptr, false, pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrument != nullptr );
 		pInstrument = nullptr;
@@ -394,8 +396,8 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "instrumentLayer" );
 		auto pInstrumentLayer = H2Core::InstrumentLayer::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "", H2Core::License(), false,
-			pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "", false,
+			H2Core::License(), false, pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentLayer != nullptr );
 		pInstrumentLayer = nullptr;

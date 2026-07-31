@@ -187,7 +187,30 @@ QByteArray Instrument::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "instrument_buffer" );
-	saveTo( root, bSongKit, bKeepMissingSamples, bSilent );
+	saveTo( root, bSongKit, bKeepMissingSamples, true, bSilent );
+
+	// Additional members not present in files written to disk but required for
+	// IPC.
+	root.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
+	bool bSamplesLoaded = false;
+	for ( auto& ppComponent : *m_pComponents ) {
+		if ( ppComponent == nullptr ) {
+			continue;
+		}
+		for ( auto& ppLayer : *ppComponent ) {
+			if ( ppLayer != nullptr && ppLayer->getSample() != nullptr &&
+				 ppLayer->getSample()->isLoaded() ) {
+				bSamplesLoaded = true;
+				break;
+			}
+		}
+		if ( bSamplesLoaded ) {
+			break;
+		}
+	}
+	root.write_bool( "ipc-samplesLoaded", bSamplesLoaded );
+	root.write_float( "ipc-lastUsedSampleLoadBpm", m_fLastSampleLoadBpm );
+
 	return doc.toByteArray();
 }
 
@@ -210,8 +233,31 @@ std::shared_ptr<Instrument> Instrument::fromXmlBuffer(
 		return nullptr;
 	}
 	bool bLegacyFormatEncountered = false;
-	return loadFrom( instrumentNode, "", "", "", License(), bSongKit,
-					 &bLegacyFormatEncountered, bSilent, pHydrogen );
+	const QString sDrumkitPath =
+		instrumentNode.read_string( "drumkitPath", "", false, false, false );
+	auto pInstrument = loadFrom(
+		instrumentNode, sDrumkitPath,
+		instrumentNode.read_string( "drumkit", "", false, false, false ), "",
+		true, License(), bSongKit, &bLegacyFormatEncountered, bSilent, pHydrogen
+	);
+
+	// Additional members not present in files written to disk but required for
+	// IPC.
+	pInstrument->setIsPreviewInstrument(
+		root.read_bool( "ipc-isPreviewInstrument", false, false, false, false )
+	);
+	if ( root.read_bool( "ipc-samplesLoaded", false, false, false, false ) ) {
+		pInstrument->loadSamples(
+			root.read_float(
+				"ipc-lastUsedSampleLoadBpm", MIN_BPM, false, false, false
+			),
+			pHydrogen->getPreferences().get()
+		);
+	}
+	// Circumvent path mangling
+	pInstrument->setDrumkitPath( sDrumkitPath );
+
+	return pInstrument;
 }
 
 std::shared_ptr<Instrument> Instrument::loadFrom(
@@ -219,6 +265,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
+	bool bIpcXml,
 	const License& license,
 	bool bSongKit,
 	bool* pLegacyFormatEncountered,
@@ -509,7 +556,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		while ( !componentNode.isNull() ) {
 			auto ppComponent = InstrumentComponent::loadFrom(
 				componentNode, pInstrument->getDrumkitPath(), sSongPath,
-				instrumentLicense, bSilent, pHydrogen
+				bIpcXml, instrumentLicense, bSilent, pHydrogen
 			);
 			if ( ppComponent != nullptr ) {
 				componentsLoaded.push_back( ppComponent );
@@ -619,6 +666,7 @@ void Instrument::saveTo(
 	XMLNode& node,
 	bool bSongKit,
 	bool bKeepMissingSamples,
+	bool bIpcXml,
 	bool bSilent )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
@@ -679,7 +727,7 @@ void Instrument::saveTo(
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
 			pComponent->saveTo(
-				InstrumentNode, bSongKit, bKeepMissingSamples, m_sDrumkitPath,
+				InstrumentNode, bSongKit, bKeepMissingSamples, m_sDrumkitPath, bIpcXml,
 				bSilent
 			);
 		}
