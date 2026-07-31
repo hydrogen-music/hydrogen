@@ -163,13 +163,6 @@ QByteArray Drumkit::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 	saveTo( root, bSongKit, bKeepMissingSamples, true, bSilent );
-
-	// Additional members not present in files written to disk but required for
-	// IPC.
-	root.write_int( "ipc-context", static_cast<int>(m_context) );
-	root.write_string( "ipc-path", m_sPath );
-	root.write_bool( "ipc-isModified", m_bIsModified );
-
 	return doc.toByteArray();
 }
 
@@ -191,24 +184,10 @@ std::shared_ptr<Drumkit> Drumkit::fromXmlBuffer(
 		return nullptr;
 	}
 	bool bLegacyFormatEncountered = false;
-	auto pDrumkit = loadFrom(
+	return loadFrom(
 		root, sDrumkitPath, "", true, bSongKit, &bLegacyFormatEncountered,
 		bSilent, pHydrogen
 	);
-
-	// Additional members not present in files written to disk but required for
-	// IPC.
-	pDrumkit->setContext( static_cast<Filesystem::Context>( root.read_int(
-		"ipc-context", static_cast<int>( Filesystem::Context::Song ), false,
-		false, false
-	) ) );
-	pDrumkit->setPath( root.read_string( "ipc-path", "", false, false, false )
-	);
-	pDrumkit->setIsModified(
-		root.read_bool( "ipc-isModified", false, false, false, false )
-	);
-
-	return pDrumkit;
 }
 
 std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
@@ -326,6 +305,21 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	}
 
 	pDrumkit->fixupTypes( bSilent );
+
+	if ( bIpcXml ) {
+		// Additional members not present in files written to disk but required
+		// for IPC.
+		pDrumkit->setContext( static_cast<Filesystem::Context>( node.read_int(
+			"ipc-context", static_cast<int>( Filesystem::Context::Song ), false,
+			false, false
+		) ) );
+		pDrumkit->setPath(
+			node.read_string( "ipc-path", "", false, false, false )
+		);
+		pDrumkit->setIsModified(
+			node.read_bool( "ipc-isModified", false, false, false, false )
+		);
+	}
 
 	return pDrumkit;
 }
@@ -536,6 +530,14 @@ void Drumkit::saveTo(
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
 		pInstrumentList->saveTo( node, bSongKit, true, bIpcXml, bSilent );
+	}
+
+	if ( bIpcXml ) {
+		// Additional members not present in files written to disk but required
+		// for IPC.
+		node.write_int( "ipc-context", static_cast<int>( m_context ) );
+		node.write_string( "ipc-path", m_sPath );
+		node.write_bool( "ipc-isModified", m_bIsModified );
 	}
 }
 

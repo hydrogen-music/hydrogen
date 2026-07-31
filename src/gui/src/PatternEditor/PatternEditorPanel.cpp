@@ -3081,7 +3081,7 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns(
 	// Serialize & put to clipboard
 	H2Core::XMLDoc doc;
 	auto rootNode = doc.set_root( "serializedPatternList" );
-	pSong->getPatternList()->saveTo( rootNode, row.id, row.sType, pitch );
+	pSong->getPatternList()->saveTo( rootNode, row.id, row.sType, pitch, false );
 
 	const QString sSerialized = doc.toString();
 	if ( sSerialized.isEmpty() ) {
@@ -3139,7 +3139,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns(
 	}
 
 	const auto pPatternList = PatternList::loadFrom(
-		rootNode, "", pSong->getDrumkit(), false,
+		rootNode, "", pSong->getDrumkit(), false, false,
 		HydrogenApp::pHydrogen()->getSoundLibraryDatabase()
 	);
 	if ( pPatternList == nullptr ) {

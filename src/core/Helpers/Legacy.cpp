@@ -157,6 +157,7 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 													 "", // sDrumkitPath
 													 "", // sDrumkitName
 													 sSongPath,
+													 false, // bIpcXml
 													 license, // per-instrument licenses
 													 true, // allow composition
 													 nullptr,

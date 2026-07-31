@@ -267,8 +267,7 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 		return nullptr;
 	}
 
-	auto pSong = Song::fromXmlBuffer( entries[ SONG_ENTRY ], "<h2project>",
-									  bSilent, pHydrogen );
+	auto pSong = Song::fromXmlBuffer( entries[SONG_ENTRY], bSilent, pHydrogen );
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to reconstruct song from .h2project" );
 		return nullptr;
@@ -413,7 +412,7 @@ std::shared_ptr<Song> H2Project::fromState(
 	const QByteArray xml(
 		reinterpret_cast<const char*>( data.data() ),
 		static_cast<int>( data.size() ) );
-	return Song::fromXmlBuffer( xml, "<plugin-state>", bSilent, pHydrogen );
+	return Song::fromXmlBuffer( xml, bSilent, pHydrogen );
 }
 
 bool H2Project::looksLikeArchive( const std::vector<unsigned char>& data ) {

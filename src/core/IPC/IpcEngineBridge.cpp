@@ -139,8 +139,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		}
 		return false;
 	case IpcOpcode::SetSong: {
-		auto pSong = Song::fromXmlBuffer( msg.getPayload(), "<ipc>", true,
-										  pHydrogen );
+		auto pSong = Song::fromXmlBuffer( msg.getPayload(), true, pHydrogen );
 		if ( pSong == nullptr ) {
 			return false;
 		}

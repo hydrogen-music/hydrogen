@@ -63,6 +63,9 @@ class XMLNode;
 		 * \param pDrumkit In case the PatternList is loaded as part of a song,
 		 *   the current drumkit used to retrieve the types of all contained
 		 *   notes.
+		 * @param bIpcXml When deserializing the class from a IPC message, we
+		 *   have to handle some members not written to disk directly.
+		 *   Otherwise, there would be a loss of information.
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
@@ -71,6 +74,7 @@ class XMLNode;
 			const XMLNode& pNode,
 			const QString& sDrumkitName,
 			std::shared_ptr<Drumkit> pDrumkit,
+			bool bIpcXml,
 			bool bSilent,
 			std::shared_ptr<SoundLibraryDatabase> pDB
 		);
@@ -84,12 +88,16 @@ class XMLNode;
 		 * @param sType If set to a non-empty value, it is used to filter
 		 *   serialized notess by requiring a matching type.
 		 * @param nPitch If a valid one is provided, one those notes matching
-		 *   this particular pitch will be stored. */
+		 *   this particular pitch will be stored.
+		 * @param bIpcXml When serializing the class to a IPC message, we
+		 *   have to handle some members not written to disk directly.
+		 *   Otherwise, there would be a loss of information. */
 		void saveTo(
 			XMLNode& pNode,
 			Instrument::Id id = Instrument::EmptyId,
 			const QString& sType = "",
-			Note::Pitch pitch = Note::Pitch::Invalid
+			Note::Pitch pitch = Note::Pitch::Invalid,
+			bool bIpcXml = false
 		) const;
 
 		/** returns the numbers of patterns */

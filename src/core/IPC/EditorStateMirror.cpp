@@ -99,8 +99,9 @@ bool EditorStateMirror::applyMessage( const IpcMessage& msg ) {
 
 	case IpcOpcode::SetSong:
 	case IpcOpcode::LoadState: {
-		auto pSong = Song::fromXmlBuffer( msg.getPayload(), QString(),
-										  true /*bSilent*/, m_pMirror );
+		auto pSong = Song::fromXmlBuffer(
+			msg.getPayload(), true /*bSilent*/, m_pMirror
+		);
 		if ( pSong == nullptr ) {
 			return false;
 		}

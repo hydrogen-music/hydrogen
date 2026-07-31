@@ -138,8 +138,8 @@ Pattern::load( const QString& sPatternPath, bool bSilent, std::shared_ptr<SoundL
 	const QString sDrumkitName =
 		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
 
-	auto pPattern = loadFrom( patternNode, sDrumkitName, nullptr, bSilent,
-							  pDB );
+	auto pPattern =
+		loadFrom( patternNode, sDrumkitName, nullptr, false, bSilent, pDB );
 	if ( pPattern != nullptr ) {
 		pPattern->setPath( sPatternPath );
 	}
@@ -151,6 +151,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitName,
 	std::shared_ptr<Drumkit> pDrumkit,
+	bool bIpcXml,
 	bool bSilent,
 	std::shared_ptr<SoundLibraryDatabase> pDB
 )
@@ -174,7 +175,6 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 		"denominator", pPattern->getDenominator(), false, false, bSilent
 	) );
 
-	pPattern->setDrumkitName( sDrumkitName );
 	pPattern->m_nVersion = node.read_int(
 		"userVersion", pPattern->m_nVersion, false, false, bSilent
 	);
@@ -241,6 +241,25 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 		}
 	}
 
+	if ( bIpcXml ) {
+		// Additional members not present in .h2pattern but required for IPC.
+		pPattern->setPath(
+			node.read_string( "ipc-path", "", false, true, false )
+		);
+		pPattern->setIsModified(
+			node.read_bool( "ipc-isModified", false, false, false, false )
+		);
+		pPattern->setDrumkitName(
+			node.read_string( "ipc-drumkitName", "", false, true, false )
+		);
+		if ( node.read_bool( "ipc-notesMapped", false, false, false, false ) ) {
+			pPattern->mapToDrumkit( pDrumkit );
+		}
+	}
+	else {
+		pPattern->setDrumkitName( sDrumkitName );
+	}
+
 	pPattern->applyMissingTypes( pDB, pDrumkit, bSilent );
 
 	return pPattern;
@@ -267,7 +286,9 @@ bool Pattern::save(
 	else {
 		root.write_string( "drumkit_name", m_sDrumkitName );
 	}
-	saveTo( root, Instrument::EmptyId, "", Note::Pitch::Invalid, bSilent );
+	saveTo(
+		root, Instrument::EmptyId, "", Note::Pitch::Invalid, false, bSilent
+	);
 	return doc.write( sPatternPath );
 }
 
@@ -279,18 +300,9 @@ QByteArray Pattern::toXmlBuffer( std::shared_ptr<Drumkit> pDrumkit,
 	root.write_string( "drumkit_name",
 					   pDrumkit != nullptr ? pDrumkit->getExportName()
 										   : m_sDrumkitName );
-	saveTo( root, Instrument::EmptyId, "", Note::Pitch::Invalid, bSilent );
-
-	// Additional members not present in .h2pattern but required for IPC.
-	root.write_string( "ipc-path", m_sPath );
-	root.write_bool( "ipc-isModified", m_bIsModified );
-	bool bNotesMapped = false;
-	if ( m_notes.size() > 0 && m_notes.begin()->second != nullptr &&
-		 m_notes.begin()->second->getInstrument() != nullptr ){
-		bNotesMapped = true;
-	}
-	root.write_bool( "ipc-notesMapped", bNotesMapped );
-
+	saveTo(
+		root, Instrument::EmptyId, "", Note::Pitch::Invalid, true, bSilent
+	);
 	return doc.toByteArray();
 }
 
@@ -317,21 +329,7 @@ std::shared_ptr<Pattern> Pattern::fromXmlBuffer(
 	}
 	const QString sDrumkitName =
 		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
-	auto pPattern = loadFrom( patternNode, sDrumkitName, pDrumkit, bSilent, pDB );
-
-	// Additional members not present in .h2pattern but required for IPC.
-	pPattern->setPath( rootNode.read_string(
-		"ipc-path", Filesystem::emptyPath( Filesystem::Artifact::Playlist ),
-		false, false, false
-	) );
-	pPattern->setIsModified(
-		rootNode.read_bool( "ipc-isModified", false, false, false, false )
-	);
-	if ( rootNode.read_bool( "ipc-notesMapped", false, false, false, false ) ) {
-		pPattern->mapToDrumkit( pDrumkit );
-	}
-
-	return pPattern;
+	return loadFrom( patternNode, sDrumkitName, pDrumkit, true, bSilent, pDB );
 }
 
 void Pattern::saveTo(
@@ -339,6 +337,7 @@ void Pattern::saveTo(
 	Instrument::Id id,
 	const Instrument::Type& sType,
 	Note::Pitch pitch,
+	bool bIpcXml,
 	bool bSilent
 ) const
 {
@@ -381,6 +380,19 @@ void Pattern::saveTo(
 			XMLNode note_node = note_list_node.createNode( "note" );
 			pNote->saveTo( note_node );
 		}
+	}
+
+	if ( bIpcXml ) {
+		// Additional members not present in .h2pattern but required for IPC.
+		pattern_node.write_string( "ipc-path", m_sPath );
+		pattern_node.write_bool( "ipc-isModified", m_bIsModified );
+		pattern_node.write_string( "ipc-drumkitName", m_sDrumkitName );
+		bool bNotesMapped = false;
+		if ( m_notes.size() > 0 && m_notes.begin()->second != nullptr &&
+			 m_notes.begin()->second->getInstrument() != nullptr ) {
+			bNotesMapped = true;
+		}
+		pattern_node.write_bool( "ipc-notesMapped", bNotesMapped );
 	}
 }
 

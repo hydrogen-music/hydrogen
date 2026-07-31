@@ -157,7 +157,6 @@ class Song : public H2Core::Object<Song>,
 	/** Reconstruct a song from an in-memory `.h2song` XML buffer (no disk I/O).
 	 * Samples are referenced but not loaded - the same as load(). */
 	static std::shared_ptr<Song> fromXmlBuffer( const QByteArray& buffer,
-												const QString& sFileName,
 												bool bSilent,
 												Hydrogen* pHydrogen );
 
@@ -308,13 +307,15 @@ class Song : public H2Core::Object<Song>,
 	static std::shared_ptr<Song> loadFrom(
 		const XMLNode& pNode,
 		const QString& sFileName,
+		bool bIpcXml,
 		bool bSilent,
 		Hydrogen* pHydrogen
 	);
 	void saveTo(
 		XMLNode& pNode,
 		bool bKeepMissingSamples,
-		bool bSilent = false
+		bool bIpcXml,
+		bool bSilent
 	) const;
 
 	/** Whether the Timeline button was pressed in the GUI or it was

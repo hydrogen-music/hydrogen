@@ -206,7 +206,7 @@ std::shared_ptr<Playlist> Playlist::fromXmlBuffer( const QByteArray& buffer,
 	// Additional members not present in .h2playlist but required for IPC.
 	pPlaylist->setPath( root.read_string(
 		"ipc-path", Filesystem::emptyPath( Filesystem::Artifact::Playlist ),
-		false, false, false
+		false, true, false
 	) );
 	pPlaylist->setIsModified(
 		root.read_bool( "ipc-isModified", false, false, false, false )

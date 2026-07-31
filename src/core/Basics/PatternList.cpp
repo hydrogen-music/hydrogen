@@ -49,6 +49,7 @@ std::shared_ptr<PatternList> PatternList::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitName,
 	std::shared_ptr<Drumkit> pDrumkit,
+	bool bIpcXml,
 	bool bSilent,
 	std::shared_ptr<SoundLibraryDatabase> pDB
 )
@@ -66,7 +67,7 @@ std::shared_ptr<PatternList> PatternList::loadFrom(
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
 		auto pPattern = Pattern::loadFrom(
-			patternNode, sDrumkitName, pDrumkit, bSilent, pDB );
+			patternNode, sDrumkitName, pDrumkit, bIpcXml, bSilent, pDB );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -87,14 +88,15 @@ void PatternList::saveTo(
 	XMLNode& node,
 	Instrument::Id id,
 	const QString& sType,
-	Note::Pitch pitch
+	Note::Pitch pitch,
+	bool bIpcXml
 ) const
 {
 	XMLNode patternListNode = node.createNode( "patternList" );
 
 	for ( const auto& pPattern : m_pPatterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->saveTo( patternListNode, id, sType, pitch );
+			pPattern->saveTo( patternListNode, id, sType, pitch, bIpcXml );
 		}
 	}
 }
