@@ -108,11 +108,11 @@ class Instrument : public H2Core::Object<Instrument> {
 	 *   filenames. In the former case, each instrument might be
 	 *   associated with a different kit and the lookup folder for the
 	 *   samples are stored on a per-instrument basis.
+	 * @param bKeepMissingSamples Whether layers containing a missing sample
+	 *   should be kept or discarded.
 	 * @param bIpcXml When serializing the class to a IPC message, we
 	 *   have to handle some members not written to disk directly.
 	 *   Otherwise, there would be a loss of information.
-	 * @param bKeepMissingSamples Whether layers containing a missing sample
-	 *   should be kept or discarded.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
 	 */

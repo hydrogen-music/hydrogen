@@ -132,8 +132,8 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 
 	bool bLegacyFormatEncountered = false;
 	auto pDrumkit = Drumkit::loadFrom(
-		root, sDrumkitPathCleaned, "", false, &bLegacyFormatEncountered, bSilent,
-		pHydrogen
+		root, sDrumkitPathCleaned, "", false, false, &bLegacyFormatEncountered,
+		bSilent, pHydrogen
 	);
 
 	if ( pLegacyFormatEncountered != nullptr ) {
@@ -162,7 +162,14 @@ QByteArray Drumkit::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
-	saveTo( root, bSongKit, bKeepMissingSamples, bSilent );
+	saveTo( root, bSongKit, bKeepMissingSamples, true, bSilent );
+
+	// Additional members not present in files written to disk but required for
+	// IPC.
+	root.write_int( "ipc-context", static_cast<int>(m_context) );
+	root.write_string( "ipc-path", m_sPath );
+	root.write_bool( "ipc-isModified", m_bIsModified );
+
 	return doc.toByteArray();
 }
 
@@ -184,13 +191,30 @@ std::shared_ptr<Drumkit> Drumkit::fromXmlBuffer(
 		return nullptr;
 	}
 	bool bLegacyFormatEncountered = false;
-	return loadFrom( root, sDrumkitPath, "", bSongKit, &bLegacyFormatEncountered,
-					 bSilent, pHydrogen );
+	auto pDrumkit = loadFrom(
+		root, sDrumkitPath, "", true, bSongKit, &bLegacyFormatEncountered,
+		bSilent, pHydrogen
+	);
+
+	// Additional members not present in files written to disk but required for
+	// IPC.
+	pDrumkit->setContext( static_cast<Filesystem::Context>( root.read_int(
+		"ipc-context", static_cast<int>( Filesystem::Context::Song ), false,
+		false, false
+	) ) );
+	pDrumkit->setPath( root.read_string( "ipc-path", "", false, false, false )
+	);
+	pDrumkit->setIsModified(
+		root.read_bool( "ipc-isModified", false, false, false, false )
+	);
+
+	return pDrumkit;
 }
 
 std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											const QString& sDrumkitPath,
 											const QString& sSongPath,
+											bool bIpcXml,
 											bool bSongKit,
 											bool* pLegacyFormatEncountered,
 											bool bSilent,
@@ -251,8 +275,10 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 						  pDrumkit->getAuthor() ) );
 
 	auto pInstrumentList = InstrumentList::loadFrom(
-		node, sDrumkitPath, sDrumkitName, sSongPath, pDrumkit->getLicense(),
-		bSongKit, pLegacyFormatEncountered, false, pHydrogen );
+		node, sDrumkitPath, sDrumkitName, sSongPath, bIpcXml,
+		pDrumkit->getLicense(), bSongKit, pLegacyFormatEncountered, false,
+		pHydrogen
+	);
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
@@ -463,10 +489,13 @@ bool Drumkit::save( const QString& sPath, bool bSilent )
 	return doc.write( sDrumkitPath );
 }
 
-void Drumkit::saveTo( XMLNode& node,
-					 bool bSongKit,
-					 bool bKeepMissingSamples,
-					 bool bSilent ) const
+void Drumkit::saveTo(
+	XMLNode& node,
+	bool bSongKit,
+	bool bKeepMissingSamples,
+	bool bIpcXml,
+	bool bSilent
+) const
 {
 	node.write_int( "formatVersion", nCurrentFormatVersion );
 	node.write_string( "name", m_sName );
@@ -497,14 +526,16 @@ void Drumkit::saveTo( XMLNode& node,
 	node.write_string( "imageLicense", m_imageLicense.getLicenseString() );
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
-		m_pInstruments->saveTo( node, bSongKit, bKeepMissingSamples, bSilent );
+		m_pInstruments->saveTo(
+			node, bSongKit, bKeepMissingSamples, bIpcXml, bSilent
+		);
 	}
 	else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->saveTo( node, bSongKit, true, bSilent );
+		pInstrumentList->saveTo( node, bSongKit, true, bIpcXml, bSilent );
 	}
 }
 

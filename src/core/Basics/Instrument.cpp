@@ -189,28 +189,6 @@ QByteArray Instrument::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
 	XMLNode root = doc.set_root( "instrument_buffer" );
 	saveTo( root, bSongKit, bKeepMissingSamples, true, bSilent );
 
-	// Additional members not present in files written to disk but required for
-	// IPC.
-	root.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
-	bool bSamplesLoaded = false;
-	for ( auto& ppComponent : *m_pComponents ) {
-		if ( ppComponent == nullptr ) {
-			continue;
-		}
-		for ( auto& ppLayer : *ppComponent ) {
-			if ( ppLayer != nullptr && ppLayer->getSample() != nullptr &&
-				 ppLayer->getSample()->isLoaded() ) {
-				bSamplesLoaded = true;
-				break;
-			}
-		}
-		if ( bSamplesLoaded ) {
-			break;
-		}
-	}
-	root.write_bool( "ipc-samplesLoaded", bSamplesLoaded );
-	root.write_float( "ipc-lastUsedSampleLoadBpm", m_fLastSampleLoadBpm );
-
 	return doc.toByteArray();
 }
 
@@ -235,29 +213,11 @@ std::shared_ptr<Instrument> Instrument::fromXmlBuffer(
 	bool bLegacyFormatEncountered = false;
 	const QString sDrumkitPath =
 		instrumentNode.read_string( "drumkitPath", "", false, false, false );
-	auto pInstrument = loadFrom(
+	return loadFrom(
 		instrumentNode, sDrumkitPath,
 		instrumentNode.read_string( "drumkit", "", false, false, false ), "",
 		true, License(), bSongKit, &bLegacyFormatEncountered, bSilent, pHydrogen
 	);
-
-	// Additional members not present in files written to disk but required for
-	// IPC.
-	pInstrument->setIsPreviewInstrument(
-		root.read_bool( "ipc-isPreviewInstrument", false, false, false, false )
-	);
-	if ( root.read_bool( "ipc-samplesLoaded", false, false, false, false ) ) {
-		pInstrument->loadSamples(
-			root.read_float(
-				"ipc-lastUsedSampleLoadBpm", MIN_BPM, false, false, false
-			),
-			pHydrogen->getPreferences().get()
-		);
-	}
-	// Circumvent path mangling
-	pInstrument->setDrumkitPath( sDrumkitPath );
-
-	return pInstrument;
 }
 
 std::shared_ptr<Instrument> Instrument::loadFrom(
@@ -630,6 +590,28 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->checkForMissingSamples(
 		Event::Trigger::Suppress, pHydrogen );
 
+	if ( bIpcXml ) {
+		// Additional members not present in files written to disk but required
+		// for IPC.
+		pInstrument->setIsPreviewInstrument( node.read_bool(
+			"ipc-isPreviewInstrument", false, false, false, false
+		) );
+		// Circumvent path mangling
+		pInstrument->setDrumkitPath( node.read_string(
+			"drumkitPath", sDrumkitPath, false, true, bSilent
+		) );
+		if ( node.read_bool(
+				 "ipc-samplesLoaded", false, false, false, false
+			 ) ) {
+			pInstrument->loadSamples(
+				node.read_float(
+					"ipc-lastUsedSampleLoadBpm", MIN_BPM, false, false, false
+				),
+				pHydrogen->getPreferences().get()
+			);
+		}
+	}
+
 	return pInstrument;
 }
 
@@ -675,7 +657,7 @@ void Instrument::saveTo(
 
 	InstrumentNode.write_string( "type", m_type );
 
-	if ( bSongKit ) {
+	if ( bSongKit || bIpcXml ) {
 		InstrumentNode.write_string( "drumkitPath", m_sDrumkitPath );
 		InstrumentNode.write_string( "drumkit", m_sDrumkitName );
 	}
@@ -741,6 +723,30 @@ void Instrument::saveTo(
 		// Suppress trigger ⇒ checkForMissingSamples never dereferences the
 		// instance pointer, so saveTo need not thread one (ADR 0015).
 		checkForMissingSamples( Event::Trigger::Suppress, nullptr );
+	}
+
+	// Additional members not present in files written to disk but required for
+	// IPC.
+	if ( bIpcXml ) {
+		InstrumentNode.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
+		bool bSamplesLoaded = false;
+		for ( auto& ppComponent : *m_pComponents ) {
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+			for ( auto& ppLayer : *ppComponent ) {
+				if ( ppLayer != nullptr && ppLayer->getSample() != nullptr &&
+					 ppLayer->getSample()->isLoaded() ) {
+					bSamplesLoaded = true;
+					break;
+				}
+			}
+			if ( bSamplesLoaded ) {
+				break;
+			}
+		}
+		InstrumentNode.write_bool( "ipc-samplesLoaded", bSamplesLoaded );
+		InstrumentNode.write_float( "ipc-lastUsedSampleLoadBpm", m_fLastSampleLoadBpm );
 	}
 }
 

@@ -92,6 +92,9 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   drumkit is contained in. It is used to resolve sample paths
 		 *   relative to the .h2song file.
+		 * @param bIpcXml When deserializing the class from a IPC message, we
+		 *   have to handle some members not written to disk directly.
+		 *   Otherwise, there would be a loss of information.
 		 * @param bSongKit If true samples are loaded on a
 		 *   per-instrument basis. If the filename of the sample is a plain
 		 *   filename, it will be searched for in the folder associated with the
@@ -110,6 +113,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		static std::shared_ptr<Drumkit> loadFrom( const XMLNode& pNode,
 												  const QString& sDrumkitPath,
 												  const QString& sSongPath,
+												  bool bIpcXml,
 												  bool bSongKit,
 												  bool* pLegacyFormatEncountered,
 												  bool bSilent,
@@ -127,11 +131,17 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *   samples are stored on a per-instrument basis.
 		 * @param bKeepMissingSamples Whether layers containing a missing sample
 		 *   should be kept or discarded.
+		 * @param bIpcXml When serializing the class to a IPC message, we
+		 *   have to handle some members not written to disk directly.
+		 *   Otherwise, there would be a loss of information.
 		 */
-		void saveTo( XMLNode& pNode,
-					bool bSongKit,
-					bool bKeepMissingSamples,
-					bool bSilent = false ) const;
+		void saveTo(
+			XMLNode& pNode,
+			bool bSongKit,
+			bool bKeepMissingSamples,
+			bool bIpcXml,
+			bool bSilent = false
+		) const;
 
 		/** Serialize the drumkit to an in-memory XML buffer (samples referenced
 		 * by path, not embedded — ADR 0027/0030 bulk-load). Mirrors the on-disk

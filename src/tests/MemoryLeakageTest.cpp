@@ -412,7 +412,9 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", H2Core::License(), false, nullptr, false, pTestHydrogen() );
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
+			H2Core::License(), false, nullptr, false, pTestHydrogen()
+		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		pInstrumentList = nullptr;
 		CPPUNIT_ASSERT(
@@ -426,7 +428,9 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", H2Core::License(), false, nullptr, false, pTestHydrogen() );
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
+			H2Core::License(), false, nullptr, false, pTestHydrogen()
+		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
@@ -445,7 +449,9 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", H2Core::License(), false, nullptr, false, pTestHydrogen() );
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
+			H2Core::License(), false, nullptr, false, pTestHydrogen()
+		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
@@ -464,7 +470,7 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "",
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
 			H2Core::License(), false, nullptr, false, pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );

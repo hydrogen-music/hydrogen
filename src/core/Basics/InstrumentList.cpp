@@ -71,6 +71,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
+	bool bIpcXml,
 	const License& license,
 	bool bSongKit,
 	bool* pLegacyFormatEncountered,
@@ -90,7 +91,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	while ( !instrumentNode.isNull() ) {
 		nCount++;
 		auto pInstrument = Instrument::loadFrom(
-			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, false,
+			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, bIpcXml,
 			license, bSongKit, pLegacyFormatEncountered, bSilent, pHydrogen );
 		if ( pInstrument != nullptr ) {
 			pInstrumentList->add( pInstrument );
@@ -110,14 +111,19 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	return pInstrumentList;
 }
 
-void InstrumentList::saveTo( XMLNode& node, bool bSongKit,
-							bool bKeepMissingSamples, bool bSilent ) const
+void InstrumentList::saveTo(
+	XMLNode& node,
+	bool bSongKit,
+	bool bKeepMissingSamples,
+	bool bIpcXml,
+	bool bSilent
+) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
 			pInstrument->saveTo( instruments_node, bSongKit,
-								bKeepMissingSamples, false, bSilent );
+								bKeepMissingSamples, bIpcXml, bSilent );
 		}
 		else {
 			ERRORLOG( "Invalid instrument!" );

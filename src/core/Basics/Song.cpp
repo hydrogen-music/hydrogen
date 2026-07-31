@@ -539,7 +539,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent,
 	if ( !drumkitNode.isNull() ) {
 		// Current format (>= 2.0) storing a proper Drumkit
 		pDrumkit = Drumkit::loadFrom(
-			drumkitNode, "", sSongPath, true, nullptr, bSilent, pHydrogen
+			drumkitNode, "", sSongPath, false, true, nullptr, bSilent, pHydrogen
 		);
 		bCurrentDrumkitLoaded = true;
 	}
@@ -967,7 +967,9 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 	m_pDrumkit->saveTo(
 		drumkitNode,
 		true,  // Enable per-instrument sample loading
-		bKeepMissingSamples, bSilent
+		bKeepMissingSamples,
+		false, // Do not include IPC-only members
+		bSilent
 	);
 
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
