@@ -234,8 +234,11 @@ void RoundTripAssertions::assertLayerEqual( const InstrumentLayer& a,
 		// Rubberband
 		const auto& rbA = pSampleA->getRubberband();
 		const auto& rbB = pSampleB->getRubberband();
-		assertBoolEqual( "Sample::Rubberband::bUse",
-						 rbA.bUse, rbB.bUse );
+		// This bit is reset in InstrumentLayer whenever Hydrogen is not
+		// compiled with Rubberband support or the Rubberband CLI is not
+		// installed on the system.
+		// assertBoolEqual( "Sample::Rubberband::bUse",
+		// 				 rbA.bUse, rbB.bUse );
 		assertFloatEqual( "Sample::Rubberband::fLengthInBeats",
 						  rbA.fLengthInBeats, rbB.fLengthInBeats );
 		assertIntEqual( "Sample::Rubberband::nCrispness",
