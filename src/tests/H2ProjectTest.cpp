@@ -151,8 +151,6 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 	CPPUNIT_ASSERT( ! kitBuffer.isEmpty() );
 	auto pKit2 = Drumkit::fromXmlBuffer( kitBuffer, "", true, true, pHydrogen );
 	CPPUNIT_ASSERT( pKit2 != nullptr );
-	// CPPUNIT_ASSERT( pDrumkit->toQString( "", false ) ==
-	// 				pKit2->toQString( "", false ) );
 
 	// --- Instrument ---
 	auto pInstr = pDrumkit->getInstruments()->get( 0 );
@@ -161,8 +159,6 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 	CPPUNIT_ASSERT( ! instrBuffer.isEmpty() );
 	auto pInstr2 = Instrument::fromXmlBuffer( instrBuffer, true, true, pHydrogen );
 	CPPUNIT_ASSERT( pInstr2 != nullptr );
-	// CPPUNIT_ASSERT( pInstr->toQString( "", false ) ==
-	// 				pInstr2->toQString( "", false ) );
 
 	// --- Pattern ---
 	auto pPatternList = pSong->getPatternList();
@@ -175,8 +171,6 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 	auto pPattern2 = Pattern::fromXmlBuffer(
 		patBuffer, pDrumkit, true, pHydrogen->getSoundLibraryDatabase() );
 	CPPUNIT_ASSERT( pPattern2 != nullptr );
-	// CPPUNIT_ASSERT( pPattern->toQString( "", false ) ==
-	// 				pPattern2->toQString( "", false ) );
 
 	// --- Playlist ---
 	auto pPlaylist = std::make_shared<Playlist>();
@@ -195,8 +189,6 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 	CPPUNIT_ASSERT( ! plBuffer.isEmpty() );
 	auto pPlaylist2 = Playlist::fromXmlBuffer( plBuffer );
 	CPPUNIT_ASSERT( pPlaylist2 != nullptr );
-	// CPPUNIT_ASSERT( pPlaylist->toQString( "", false ) ==
-	// 				pPlaylist2->toQString( "", false ) );
 	CPPUNIT_ASSERT( pPlaylist2->get( 0 ) != nullptr );
 	// Absolute song path round-trips verbatim (no relative resolution).
 	CPPUNIT_ASSERT_EQUAL( pEntry->getSongPath().toStdString(),
