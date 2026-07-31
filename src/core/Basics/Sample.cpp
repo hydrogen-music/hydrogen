@@ -939,7 +939,12 @@ bool Sample::execRubberbandCli( float fBpm, Preferences* pPreferences )
 	Filesystem::rm( sTmpFilePathInput );
 	Filesystem::rm( sTmpFilePathProcessed );
 
+	unload();
+
 	m_nFrames = pSampleProcessed->getFrames();
+	m_data_L = new float[ m_nFrames ];
+	m_data_R = new float[ m_nFrames ];
+
 	memcpy( m_data_L, pSampleProcessed->getData_L(), m_nFrames * 4 );
 	memcpy( m_data_R, pSampleProcessed->getData_R(), m_nFrames * 4 );
 
