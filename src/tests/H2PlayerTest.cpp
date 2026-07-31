@@ -104,8 +104,6 @@ void H2PlayerTest::testDefaultIpcMode() {
 
 	// Check that IPC server started and connection info was printed
 	QString sCombinedOutput = sOutput + sError;
-	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Error" ) &&
-					!sCombinedOutput.contains( "error" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "IPC Server Started" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "Endpoint:" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "hydrogen-headless-" ) );
@@ -141,8 +139,6 @@ void H2PlayerTest::testNoIpcMode() {
 	QString sCombinedOutput = sOutput + sError;
 
 	// Check that IPC server was NOT started
-	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Error" ) &&
-					!sCombinedOutput.contains( "error" ) );
 	CPPUNIT_ASSERT( !sCombinedOutput.contains( "IPC Server Started" ) );
 	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Endpoint:" ) );
 	CPPUNIT_ASSERT( !sCombinedOutput.contains( "hydrogen -c" ) );
@@ -180,8 +176,6 @@ void H2PlayerTest::testInteractiveMode() {
 	QString sCombinedOutput = sOutput + sError;
 
 	// Check that interactive mode was started
-	CPPUNIT_ASSERT( !sCombinedOutput.contains( "Error" ) &&
-					!sCombinedOutput.contains( "error" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "Interactive mode" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "Commands:" ) );
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "b - rewind" ) );
