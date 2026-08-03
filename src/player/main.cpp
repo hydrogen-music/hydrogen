@@ -21,16 +21,16 @@
  */
 
 #ifdef WIN32
-#include <windows.h>
 #include <stdio.h>
+#include <windows.h>
 #endif
 
-#include <iostream>
+#include <getopt.h>
+#include <atomic>
 #include <cstdio>
 #include <cstdlib>
-#include <getopt.h>
+#include <iostream>
 #include <memory>
-#include <atomic>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
@@ -45,6 +45,8 @@
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
+
+#include "StdinReader.h"
 
 using std::cout;
 using std::endl;
@@ -76,33 +78,29 @@ void runInteractiveMode( H2Core::Hydrogen* pHydrogen )
 	cout << "  d - debug (show object count)" << endl;
 	cout << "  q - quit" << endl;
 
-	// Set stdin to non-blocking mode for keyboard input + event loop
-	// Note: This is a simplified implementation. For production use,
-	// platform-specific non-blocking I/O should be implemented.
+	// Read keyboard input in a dedicated worker thread so the main thread
+	// stays free to pump the Qt event loop (needed for IPC).  The worker
+	// blocks on getchar(), which is portable across all platforms, unlike
+	// the POSIX-only fd_set/select approach it replaces.
+	auto* pStdinThread = new QThread;
+	auto* pReader = new StdinReader;
+	pReader->moveToThread( pStdinThread );
 
-	char c;
-	while ( true ) {
-		// Process Qt events for IPC communication
-		QCoreApplication::processEvents();
+	std::atomic<bool> bRunning( true );
 
-		// Check for keyboard input (non-blocking check)
-		// For now, we'll use a simple approach that works on most platforms
-		fd_set fds;
-		struct timeval tv;
-		tv.tv_sec = 0;
-		tv.tv_usec = 0;
-
-		FD_ZERO( &fds );
-		FD_SET( STDIN_FILENO, &fds );
-
-		int retval = select( STDIN_FILENO + 1, &fds, nullptr, nullptr, &tv );
-		if ( retval > 0 && FD_ISSET( STDIN_FILENO, &fds ) ) {
-			c = getchar();
+	QCoreApplication* pApp = QCoreApplication::instance();
+	QObject::connect(
+		pStdinThread, &QThread::started, pReader, &StdinReader::run
+	);
+	QObject::connect(
+		pReader, &StdinReader::characterReceived, pApp,
+		[pHydrogen, &bRunning]( char c ) {
 			switch ( c ) {
 				case 'q':
 					cout << "Shutting down..." << endl;
 					pHydrogen->sequencerStop();
-					return;
+					bRunning = false;
+					break;
 				case 'p':
 					pHydrogen->sequencerPlay();
 					break;
@@ -113,20 +111,43 @@ void runInteractiveMode( H2Core::Hydrogen* pHydrogen )
 					pHydrogen->getCoreActionController()->locateToColumn( 0 );
 					break;
 				case 'f':
-					cout << "Frame = "
-					     << pHydrogen->getAudioEngine()->getPlayhead()->getFrame()
-					     << endl;
+					cout
+						<< "Frame = "
+						<< pHydrogen->getAudioEngine()->getPlayhead()->getFrame(
+						   )
+						<< endl;
 					break;
 				case 'd':
 					cout << "DEBUG" << endl;
 					H2Core::Base::write_objects_map_to_cerr();
 					int nObj = H2Core::Base::objects_count();
-					cout << endl << endl << nObj << " alive objects" << endl << endl;
+					cout << endl
+						 << endl
+						 << nObj << " alive objects" << endl
+						 << endl;
 					break;
 			}
 		}
+	);
 
+	pStdinThread->start();
+
+	while ( bRunning ) {
+		QCoreApplication::processEvents();
 		QThread::msleep( 50 );
+	}
+
+	// The worker thread is blocked on std::cin.get() and has no event
+	// loop, so quit() would be a no-op.  terminate() requests cancellation
+	// (pthread_cancel on Unix, TerminateThread on Windows).  On glibc the
+	// underlying read() is a cancellation point, so terminate() succeeds
+	// and wait() returns quickly.  If it doesn't on some platform, the
+	// bounded wait() times out and we leak the thread rather than hanging
+	// — the process is about to exit, so the OS reclaims it.
+	pStdinThread->terminate();
+	if ( pStdinThread->wait( 2000 ) ) {
+		delete pReader;
+		delete pStdinThread;
 	}
 }
 
@@ -143,14 +164,17 @@ int main( int argc, char** argv )
 #endif
 
 	QCoreApplication* pApp = new QCoreApplication( argc, argv );
-	pApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+	pApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() )
+	);
 
 	QCommandLineParser parser;
 	parser.setApplicationDescription(
 		H2Core::getAboutText() +
-		"\nHeadless version of Hydrogen. By default, it starts an IPC server that "
+		"\nHeadless version of Hydrogen. By default, it starts an IPC server "
+		"that "
 		"allows the Hydrogen GUI to connect and control playback remotely. The "
-		"GUI can be attached manually using the `hydrogen -c <ENDPOINT>` command "
+		"GUI can be attached manually using the `hydrogen -c <ENDPOINT>` "
+		"command "
 		"using the endpoint printed on startup."
 		"\n\nAdditionally, it can be started in interactive mode and be "
 		"keyboard-controlled mode with simple commands: play (p), stop (s), "
@@ -204,7 +228,8 @@ int main( int argc, char** argv )
 		QStringList() << "V"
 					  << "verbose",
 		"Debug level, if present, may be\n   - None\n   - Error [default]\n   "
-		"- Warning\n   - Info\n   - Debug\n   - Ipc\n   - Constructors\n   - Locks",
+		"- Warning\n   - Info\n   - Debug\n   - Ipc\n   - Constructors\n   - "
+		"Locks",
 		"Level"
 	);
 	QCommandLineOption logFileOption(
@@ -218,10 +243,11 @@ int main( int argc, char** argv )
 		"Add timestamps to all log messages"
 	);
 	QCommandLineOption logColorsOption(
-		QStringList() << "log-colors", "Use ANSI colors in log messages" );
+		QStringList() << "log-colors", "Use ANSI colors in log messages"
+	);
 	QCommandLineOption noLogColorsOption(
-		QStringList() << "no-log-colors",
-		"Suppress ANSI colors in log messages" );
+		QStringList() << "no-log-colors", "Suppress ANSI colors in log messages"
+	);
 #ifdef H2CORE_HAVE_OSC
 	QCommandLineOption oscPortOption(
 		QStringList() << "O"
@@ -230,7 +256,9 @@ int main( int argc, char** argv )
 	);
 #endif
 
-	parser.addPositionalArgument( "file", "Load a song (*.h2song) or playlist (*.h2playlist) at startup" );
+	parser.addPositionalArgument(
+		"file", "Load a song (*.h2song) or playlist (*.h2playlist) at startup"
+	);
 	parser.addOption( interactiveOption );
 	parser.addOption( noIpcOption );
 	parser.addOption( audioDriverOption );
@@ -380,9 +408,8 @@ int main( int argc, char** argv )
 	// Load song - if wasn't already loaded with playlist
 	if ( pSong == nullptr ) {
 		if ( !sFileName.isEmpty() ) {
-			pSong = pHydrogen->getCoreActionController()->loadSong(
-				sFileName, ""
-			);
+			pSong =
+				pHydrogen->getCoreActionController()->loadSong( sFileName, "" );
 		}
 		else {
 			/* Try load last song */
@@ -429,14 +456,19 @@ int main( int argc, char** argv )
 	std::unique_ptr<H2Core::EngineSession> pEngineSession;
 
 	if ( !bNoIpc ) {
-		const QString sEndpoint = H2Core::HeadlessEngineLauncher::makeEndpoint();
+		const QString sEndpoint =
+			H2Core::HeadlessEngineLauncher::makeEndpoint();
 		pEngineSession = H2Core::EngineSession::start( pHydrogen, sEndpoint );
 
 		if ( pEngineSession != nullptr ) {
 			// Print connection info for user
-			cout << H2Core::HeadlessEngineLauncher::formatConnectionInfo( sEndpoint ).toStdString()
-			     << endl;
-		} else {
+			cout << H2Core::HeadlessEngineLauncher::formatConnectionInfo(
+						sEndpoint
+					)
+						.toStdString()
+				 << endl;
+		}
+		else {
 			cout << "Warning: Failed to start IPC server" << endl;
 		}
 	}
@@ -444,7 +476,8 @@ int main( int argc, char** argv )
 	if ( bInteractive ) {
 		// Keyboard-interactive mode (with or without IPC)
 		runInteractiveMode( pHydrogen );
-	} else {
+	}
+	else {
 		// Headless mode (with or without IPC)
 		runHeadlessMode( pHydrogen );
 	}
