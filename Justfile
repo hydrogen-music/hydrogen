@@ -11,15 +11,15 @@ headless:
     TMP_OUT=$(mktemp)
 
     ./build/src/player/h2player \
-        -VDebug "$PWD/data/demo_songs/GM_kit_demo1.h2song" \
+        -VIpc "$PWD/data/demo_songs/GM_kit_demo1.h2song" \
         -T -L /tmp/hydrogen/headless.log > "$TMP_OUT" 2>&1 &
     HEADLESS_PID=$!
 
     GUI_PID=""
 
     cleanup() {
-        kill "$HEADLESS_PID" 2>/dev/null || true
         [ -n "$GUI_PID" ] && kill "$GUI_PID" 2>/dev/null || true
+        kill "$HEADLESS_PID" 2>/dev/null || true
         wait 2>/dev/null || true
         rm -f "$TMP_OUT"
     }
@@ -51,8 +51,8 @@ headless:
     echo ">>> Starting GUI..."
 
     ./build/src/gui/hydrogen \
-        -VDebug --connect-via-ipc "$ENDPOINT" \
-        -T -L /tmp/hydrogen/editor.log &
+        -VIpc --connect-via-ipc "$ENDPOINT" \
+        -T -L /tmp/hydrogen/editor.log --child &
     GUI_PID=$!
 
     # Block until either process exits; the trap cleans up the survivor.
