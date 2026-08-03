@@ -114,7 +114,11 @@ std::shared_ptr<InstrumentLayer> makeLayer( Hydrogen* pHydrogen ) {
 	pSample->setLoops( loops );
 
 	Sample::Rubberband rubberband;
+#ifdef H2CORE_HAVE_RUBBERBAND
 	rubberband.bUse = true;
+#else
+	rubberband.bUse = false;
+#endif
 	rubberband.fLengthInBeats = 10.5;
 	rubberband.fSemitonesToShift = 0.45;
 	rubberband.nCrispness = 2;
