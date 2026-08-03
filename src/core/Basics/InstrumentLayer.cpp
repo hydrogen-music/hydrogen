@@ -230,11 +230,13 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			rubberband.nCrispness = node.read_int( "rubberCsettings", 1, false, false, bSilent );
 			rubberband.fSemitonesToShift = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
 
-			// Check whether the rubberband executable is present.
+			// Check whether the rubberband executable is present in case Rubberband support was not compiled into Hydrogen.
+#ifndef H2CORE_HAVE_RUBBERBAND
 			if ( ! Filesystem::fileExists( pHydrogen->getPreferences()->
 											m_sRubberBandCLIexecutable ) ) {
 				rubberband.bUse = false;
 			}
+#endif
 			pSample->setRubberband( rubberband );
 	
 			// FIXME, kill EnvelopePoint, create Envelope class
