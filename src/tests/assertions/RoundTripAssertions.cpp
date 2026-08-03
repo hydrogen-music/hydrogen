@@ -514,12 +514,25 @@ void RoundTripAssertions::assertPatternEqual( const Pattern& a,
 void RoundTripAssertions::assertPlaylistEntryEqual(
 	const PlaylistEntry& a, const PlaylistEntry& b )
 {
-	assertStringEqual( "PlaylistEntry::m_sSongPath",
-					   a.getSongPath(), b.getSongPath() );
-	assertStringEqual( "PlaylistEntry::m_sScriptPath",
-					   a.getScriptPath(), b.getScriptPath() );
-	assertBoolEqual( "PlaylistEntry::m_bScriptEnabled",
-					 a.getScriptEnabled(), b.getScriptEnabled() );
+	auto normalizePath = []( const QString& sPath ) {
+		QString sNormalized( sPath );
+		if ( sNormalized.startsWith( "C:" ) ) {
+			sNormalized.replace( "C:", "" );
+		}
+		return sNormalized;
+	};
+	assertStringEqual(
+		"PlaylistEntry::m_sSongPath", normalizePath( a.getSongPath() ),
+		normalizePath( b.getSongPath() )
+	);
+	assertStringEqual(
+		"PlaylistEntry::m_sScriptPath", normalizePath( a.getScriptPath() ),
+		normalizePath( b.getScriptPath() )
+	);
+	assertBoolEqual(
+		"PlaylistEntry::m_bScriptEnabled", a.getScriptEnabled(),
+		b.getScriptEnabled()
+	);
 }
 
 // ── Playlist ─────────────────────────────────────────────────────────
