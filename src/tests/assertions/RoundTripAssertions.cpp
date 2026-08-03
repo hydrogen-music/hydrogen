@@ -33,6 +33,8 @@
 #include <core/License.h>
 
 #include <cmath>
+#include <cstdint>
+#include <cstring>
 
 using namespace H2Core;
 
@@ -49,7 +51,28 @@ void RoundTripAssertions::assertStringEqual( const QString& sLabel,
 void RoundTripAssertions::assertFloatEqual( const QString& sLabel,
 											float a, float b )
 {
-	if ( std::isnan( a ) && std::isnan( b ) ) {
+	// Under -ffast-math (which implies -ffinite-math-only) the compiler is
+	// allowed to assume that NaN never occurs. As a result std::isnan() is
+	// unconditionally folded to false at compile time and this guard would
+	// be silently eliminated — causing CPPUNIT_ASSERT_DOUBLES_EQUAL_MESSAGE
+	// to fail because |NaN - NaN| < delta is always false.
+	//
+	// We inspect the IEEE 754 bit pattern directly instead. Integer
+	// operations are not subject to -ffinite-math-only, so the optimizer
+	// cannot reason them away.
+	static_assert( sizeof( float ) == 4,
+				   "float must be 32-bit IEEE 754" );
+	uint32_t nBitsA, nBitsB;
+	std::memcpy( &nBitsA, &a, sizeof( nBitsA ) );
+	std::memcpy( &nBitsB, &b, sizeof( nBitsB ) );
+	// IEEE 754 binary32: NaN iff all exponent bits are set and mantissa != 0.
+	constexpr uint32_t nExponentMask = 0x7F800000u;
+	constexpr uint32_t nMantissaMask  = 0x007FFFFFu;
+	const bool bIsNanA = ( nBitsA & nExponentMask ) == nExponentMask &&
+		( nBitsA & nMantissaMask ) != 0;
+	const bool bIsNanB = ( nBitsB & nExponentMask ) == nExponentMask &&
+		( nBitsB & nMantissaMask ) != 0;
+	if ( bIsNanA && bIsNanB ) {
 		return;
 	}
 	CPPUNIT_ASSERT_ASSERTION_PASS(
