@@ -52,12 +52,12 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	H2Core::Logger* pLogger = nullptr;
 	if ( !sLogFilePath.isEmpty() ) {
 		pLogger = H2Core::Logger::bootstrap(
-			log_level, sLogFilePath, false, bUseLogColor
+			log_level, sLogFilePath, false, true, bUseLogColor
 		);
 	}
 	else {
 		pLogger =
-			H2Core::Logger::bootstrap( log_level, "", true, bUseLogColor );
+			H2Core::Logger::bootstrap( log_level, "", true, true, bUseLogColor );
 	}
 	/* Test helper */
 	auto pTestHelper = TestHelper::get_instance();
