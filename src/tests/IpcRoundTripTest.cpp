@@ -556,6 +556,7 @@ void IpcRoundTripTest::testPatternRoundTrip()
 		pAccess->getCoreActionController() );
 	CPPUNIT_ASSERT( pController != nullptr );
 
+	pMirrorSong->getDrumkit()->loadSamples( 120, pMirror->getPreferences().get() );
 	auto pPattern = makePattern( pMirrorSong->getDrumkit() );
 	pPattern->setName( "IPC_PATTERN_TEST" );
 	pController->setPattern( pPattern, 0, true );
