@@ -46,15 +46,18 @@
 #endif
 
 void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
-					  const QString& sUserDataFolder )
+					  const QString& sUserDataFolder, bool bUseLogColor )
 {
 	/* Logger */
 	H2Core::Logger* pLogger = nullptr;
-	if ( ! sLogFilePath.isEmpty() ) {
-		pLogger = H2Core::Logger::bootstrap( log_level, sLogFilePath, false, true );
+	if ( !sLogFilePath.isEmpty() ) {
+		pLogger = H2Core::Logger::bootstrap(
+			log_level, sLogFilePath, false, bUseLogColor
+		);
 	}
 	else {
-		pLogger = H2Core::Logger::bootstrap( log_level, "", true, true );
+		pLogger =
+			H2Core::Logger::bootstrap( log_level, "", true, bUseLogColor );
 	}
 	/* Test helper */
 	auto pTestHelper = TestHelper::get_instance();
@@ -113,12 +116,16 @@ int main( int argc, char **argv)
 	QCommandLineOption benchmarkOption( QStringList() << "b" << "benchmark", "Run audio system benchmark" );
 	QCommandLineOption outputFileOption( QStringList() << "o" << "output-file", "If specified the output of the logger will not be directed to stdout but instead stored in a file (either plain file name or with relative of absolute path)",
 										 "Output File", "");
+	QCommandLineOption noLogColorsOption(
+		QStringList() << "no-log-colors",
+		"Suppress ANSI colors in log messages" );
 	parser.addHelpOption();
 	parser.addOption( verboseOption );
 	parser.addOption( appveyorOption );
 	parser.addOption( childOption );
 	parser.addOption( benchmarkOption );
 	parser.addOption( outputFileOption );
+	parser.addOption( noLogColorsOption );
 	parser.process(app);
 	QString sVerbosityString = parser.value( verboseOption );
 
@@ -154,7 +161,10 @@ int main( int argc, char **argv)
 	qDebug() << "Using transient data dir: [" << userDataDir.path() << "]";
 
 	TestHelper::createInstance( parser.isSet( appveyorOption ) );
-	setupEnvironment( logLevelOpt, sLogFilePath, userDataDir.path() );
+	setupEnvironment(
+		logLevelOpt, sLogFilePath, userDataDir.path(),
+		! parser.isSet( noLogColorsOption )
+	);
 
 #ifdef HAVE_EXECINFO_H
 	if ( ! parser.isSet( childOption ) ) {

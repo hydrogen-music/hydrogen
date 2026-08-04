@@ -212,7 +212,7 @@ for:
     test_script: |-
 
       # Do not exit on test failure since we still need to upload artifacts.
-      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
+      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log -VIpc --no-log-colors
 
       res=$?;
       if [ "$res" != "0" ]; then
@@ -554,7 +554,7 @@ for:
     test_script: |-
       cd build
 
-      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
+      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log   -VIpc --no-log-colors
 
       res=$?
       wait
@@ -721,7 +721,7 @@ for:
           SET CORE_PATH=%cd%\src\core
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
-          src\tests\tests.exe --appveyor --output-file=testOutput.log
+          src\tests\tests.exe --appveyor --output-file=testOutput.log -VIpc --no-log-colors
 
           REM *** In case the test passed, we delete its output. If it fails, the
           REM     script won't reach this point and the output will be uploaded later on ***
