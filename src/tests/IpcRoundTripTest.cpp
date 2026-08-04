@@ -535,9 +535,11 @@ void IpcRoundTripTest::testPatternRoundTrip()
 		pAccess->getCoreActionController() );
 	CPPUNIT_ASSERT( pController != nullptr );
 
-	pMirrorSong->getDrumkit()->loadSamples( 120, pMirror->getPreferences().get() );
+	// Ensure the pattern is registered into the right song.
+	pController->setSong( pMirrorSong );
 	auto pPattern = makePattern( pMirrorSong->getDrumkit() );
 	pPattern->setName( "IPC_PATTERN_TEST" );
+	pPattern->mapToDrumkit( pMirrorSong->getDrumkit() );
 	pController->setPattern( pPattern, 0, true );
 
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
