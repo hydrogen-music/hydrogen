@@ -384,6 +384,7 @@ void IpcRoundTripTest::testSongRoundTrip()
 			->getLastSampleLoadBpm(),
 		pMirror->getPreferences().get()
 	);
+	pSong->getPatternList()->mapToDrumkit( pSong->getDrumkit() );
 	RoundTripAssertions::assertSongEqual( *pSong, *pEngine->getSong() );
 
 	pSession->stop();
