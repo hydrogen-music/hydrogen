@@ -221,10 +221,11 @@ void PluginLifecycleTest::testPluginRepeatedLifecycle() {
 void PluginLifecycleTest::testEditorOpenServesEngine() {
 	___INFOLOG( "" );
 
+	const int nSelectedPattern = 3;
 	HydrogenPlugin plugin( 44100, 512, 0 );
 	CPPUNIT_ASSERT( plugin.getHydrogen() != nullptr );
 	CPPUNIT_ASSERT( plugin.getHydrogen()->getSong() != nullptr );
-	plugin.getHydrogen()->getSong()->setName( "PLUGINSONG" );
+	plugin.getHydrogen()->setSelectedPatternNumber( nSelectedPattern );
 
 	// Open the editor without spawning the GUI process — this test acts as the
 	// editor itself by attaching an EditorSession to the served endpoint.
@@ -234,14 +235,11 @@ void PluginLifecycleTest::testEditorOpenServesEngine() {
 	const QString sEndpoint = plugin.getEditorEndpoint();
 
 	auto* pMirror = TestHelper::makeMirror();
+	CPPUNIT_ASSERT( pMirror->getSelectedPatternNumber() != nSelectedPattern );
 	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
-
-	// The plugin's engine sends its song as the initial snapshot.
-	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getSong() != nullptr &&
-			pMirror->getSong()->getName() == QString( "PLUGINSONG" );
-	} ) );
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess->getSelectedPatternNumber() == nSelectedPattern );
 
 	// Closing tears down the serve loop: the endpoint is no longer served.
 	pEditor.reset();

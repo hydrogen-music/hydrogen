@@ -31,7 +31,6 @@
 class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( EngineSessionTest );
 	CPPUNIT_TEST( testRejectsInvalidArguments );
-	CPPUNIT_TEST( testServesInitialState );
 	CPPUNIT_TEST( testCommandDispatchedToEngine );
 	CPPUNIT_TEST( testEventForwardedToEditor );
 	CPPUNIT_TEST( testEngineSurvivesEditorReconnect );
@@ -39,7 +38,6 @@ class EngineSessionTest : public CppUnit::TestFixture {
 
 public:
 	void testRejectsInvalidArguments();
-	void testServesInitialState();
 	void testCommandDispatchedToEngine();
 	void testEventForwardedToEditor();
 	void testEngineSurvivesEditorReconnect();

@@ -71,38 +71,6 @@ void EngineSessionTest::testRejectsInvalidArguments() {
 	___INFOLOG( "passed" );
 }
 
-// On attach the engine primes the editor's mirror with the current song.
-void EngineSessionTest::testServesInitialState() {
-	___INFOLOG( "" );
-
-	auto* pEngine = TestHelper::makeEngine();
-	pEngine->setSong( Song::getEmptySong( pEngine ) );
-	pEngine->getSong()->setName( "ENGINESONG" );
-
-	const QString sEndpoint = TestHelper::uniqueEndpoint();
-	auto pServer = EngineSession::start( pEngine, sEndpoint );
-	CPPUNIT_ASSERT( pServer != nullptr );
-
-	auto* pMirror = TestHelper::makeMirror();
-	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
-	CPPUNIT_ASSERT( pEditor != nullptr );
-
-	// The engine sends its song as the initial snapshot; the editor's mirror
-	// reconstructs it.
-	const bool bGotSong = TestHelper::pumpUntil( [&]() {
-		return pMirror->getSong() != nullptr &&
-			pMirror->getSong()->getName() == QString( "ENGINESONG" );
-	} );
-	CPPUNIT_ASSERT( bGotSong );
-
-	pEditor.reset();
-	pServer->stop();
-	delete pMirror;
-	delete pEngine;
-
-	___INFOLOG( "passed" );
-}
-
 // A command issued on the editor side reaches the engine and is applied there.
 void EngineSessionTest::testCommandDispatchedToEngine() {
 	___INFOLOG( "" );
@@ -177,9 +145,10 @@ void EngineSessionTest::testEventForwardedToEditor() {
 void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 	___INFOLOG( "" );
 
+	const int nSelectedPattern = 4;
 	auto* pEngine = TestHelper::makeEngine();
 	pEngine->setSong( Song::getEmptySong( pEngine ) );
-	pEngine->getSong()->setName( "PERSISTENT" );
+	pEngine->setSelectedPatternNumber( nSelectedPattern );
 
 	const QString sEndpoint = TestHelper::uniqueEndpoint();
 	auto pServer = EngineSession::start( pEngine, sEndpoint );
@@ -187,12 +156,11 @@ void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 
 	// First editor attaches and gets the song.
 	auto* pMirror1 = TestHelper::makeMirror();
+	CPPUNIT_ASSERT( pMirror1->getSelectedPatternNumber() != nSelectedPattern );
 	auto pEditor1 = EditorSession::connect( sEndpoint, pMirror1 );
 	CPPUNIT_ASSERT( pEditor1 != nullptr );
-	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror1->getSong() != nullptr &&
-			pMirror1->getSong()->getName() == QString( "PERSISTENT" );
-	} ) );
+	auto pAccess1 = pEditor1->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess1->getSelectedPatternNumber() == nSelectedPattern );
 
 	// Editor goes away (crash/exit).
 	pEditor1.reset();
@@ -201,12 +169,11 @@ void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 
 	// A respawned editor re-attaches and is primed anew.
 	auto* pMirror2 = TestHelper::makeMirror();
+	CPPUNIT_ASSERT( pMirror2->getSelectedPatternNumber() != nSelectedPattern );
 	auto pEditor2 = EditorSession::connect( sEndpoint, pMirror2, 5000 );
 	CPPUNIT_ASSERT( pEditor2 != nullptr );
-	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror2->getSong() != nullptr &&
-			pMirror2->getSong()->getName() == QString( "PERSISTENT" );
-	} ) );
+	auto pAccess2 = pEditor2->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess2->getSelectedPatternNumber() == nSelectedPattern );
 
 	pEditor2.reset();
 	pServer->stop();

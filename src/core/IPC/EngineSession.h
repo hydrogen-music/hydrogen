@@ -104,8 +104,6 @@ private:
 	/** Drain (and discard) the EventQueue while no editor is attached, so it does
 	 * not overflow. */
 	void discardEvents();
-	/** Send the current song to a freshly attached editor as initial state. */
-	void sendInitialState( IpcChannel* pConn );
 	/** Publish the engine's current transport into the telemetry block, if any. */
 	void publishTelemetry();
 

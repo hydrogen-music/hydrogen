@@ -364,15 +364,6 @@ void IpcRoundTripTest::testSongRoundTrip()
 			   pEngine->getSong()->getName() == sNewSongName;
 	} ) );
 
-	pSong->getDrumkit()->loadSamples(
-		pEngine->getSong()
-			->getDrumkit()
-			->getInstruments()
-			->get( 0 )
-			->getLastSampleLoadBpm(),
-		pMirror->getPreferences().get()
-	);
-	pSong->getPatternList()->mapToDrumkit( pSong->getDrumkit() );
 	RoundTripAssertions::assertSongEqual( *pSong, *pEngine->getSong() );
 
 	pSession->stop();

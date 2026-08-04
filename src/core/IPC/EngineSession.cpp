@@ -124,7 +124,6 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 		// the connection until it drops (or we are stopped).
 		IPCLOG( QString( "Editor connected to endpoint [%1]" )
 					.arg( m_sEndpoint ) );
-		sendInitialState( pConn );
 		while ( m_bRunning.load() && pConn->isConnected() ) {
 			IpcMessage msg;
 			if ( pConn->receive( msg, m_nPollTimeoutMs, false ) ) {
@@ -182,15 +181,6 @@ void EngineSession::discardEvents() {
 	while ( pQueue->popEvent() != nullptr ) {
 		// no editor to forward to; just keep the queue drained
 	}
-}
-
-void EngineSession::sendInitialState( IpcChannel* pConn ) {
-	if ( m_pEngine == nullptr || m_pEngine->getSong() == nullptr ) {
-		return;
-	}
-	IpcMessage msg( IpcOpcode::SetSong );
-	msg.setPayload( m_pEngine->getSong()->toXmlBuffer() );
-	pConn->send( msg );
 }
 
 EngineTelemetrySnapshot EngineSession::buildTransportSnapshot( Hydrogen* pEngine ) {
