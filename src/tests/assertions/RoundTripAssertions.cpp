@@ -109,8 +109,12 @@ void RoundTripAssertions::assertLicenseEqual( const License& a, const License& b
 	assertIntEqual( "License::m_license",
 					static_cast<int>( a.getType() ),
 					static_cast<int>( b.getType() ) );
-	assertStringEqual( "License::m_sCopyrightHolder",
-					   a.getCopyrightHolder(), b.getCopyrightHolder() );
+	// We do not compare copyright holders. This is not yet serialized, not yet
+	// supported on a per-sample level but right now it is only used to provide
+	// a summary in the SongPropertiesDialog by combining the license and
+	// authors of drumkits.
+	// assertStringEqual( "License::m_sCopyrightHolder",
+	//				   a.getCopyrightHolder(), b.getCopyrightHolder() );
 	if ( a.getType() == License::Other ) {
 		assertStringEqual( "License::m_sLicenseString",
 						   a.getLicenseString(), b.getLicenseString() );
