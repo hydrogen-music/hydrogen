@@ -22,6 +22,8 @@
 
 #include "PluginLifecycleTest.h"
 
+#include "TestHelper.h"
+
 #include <cmath>
 #include <functional>
 #include <memory>
@@ -79,29 +81,6 @@ bool allFinite( const std::vector<float>& buf, unsigned n ) {
 		}
 	}
 	return true;
-}
-
-// A headless engine standing in for the editor's read mirror. Caller owns it.
-Hydrogen* makeMirrorEngine() {
-	auto pPref = Preferences::create_instance();
-	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
-	pPref->m_midiDriver = Preferences::MidiDriver::None;
-	pPref->setOscServerEnabled( false );
-	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
-	return pHydrogen;
-}
-
-// Pump the (main-thread) editor channel via the event loop and yield to the
-// plugin's bridge thread, until @a cond holds or @a nTimeoutMs elapses.
-bool pumpUntil( std::function<bool()> cond, int nTimeoutMs = 4000 ) {
-	QElapsedTimer timer;
-	timer.start();
-	while ( ! cond() && timer.elapsed() < nTimeoutMs ) {
-		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
-		QThread::msleep( 5 );
-	}
-	return cond();
 }
 } // namespace
 
@@ -254,12 +233,12 @@ void PluginLifecycleTest::testEditorOpenServesEngine() {
 	CPPUNIT_ASSERT( ! plugin.getEditorEndpoint().isEmpty() );
 	const QString sEndpoint = plugin.getEditorEndpoint();
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 
 	// The plugin's engine sends its song as the initial snapshot.
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pMirror->getSong() != nullptr &&
 			pMirror->getSong()->getName() == QString( "PLUGINSONG" );
 	} ) );
@@ -270,7 +249,7 @@ void PluginLifecycleTest::testEditorOpenServesEngine() {
 	CPPUNIT_ASSERT( ! plugin.isEditorOpen() );
 	CPPUNIT_ASSERT( plugin.getEditorEndpoint().isEmpty() );
 
-	auto* pMirror2 = makeMirrorEngine();
+	auto* pMirror2 = TestHelper::makeMirror();
 	auto pLate = EditorSession::connect( sEndpoint, pMirror2, 300 );
 	CPPUNIT_ASSERT( pLate == nullptr ); // nothing listening anymore
 
@@ -286,7 +265,7 @@ void PluginLifecycleTest::testEditorCommandReachesEngine() {
 	HydrogenPlugin plugin( 44100, 512, 0 );
 	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pEditor = EditorSession::connect( plugin.getEditorEndpoint(), pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 
@@ -298,7 +277,7 @@ void PluginLifecycleTest::testEditorCommandReachesEngine() {
 	// volume, not BPM: under a plugin host the engine cedes tempo to the host, so
 	// setBpm is intentionally a no-op there.)
 	pAccess->getCoreActionController()->setMasterVolume( 0.25f );
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return std::abs(
 			plugin.getHydrogen()->getSong()->getVolume() - 0.25f ) < 0.001f;
 	} ) );
@@ -329,7 +308,7 @@ void PluginLifecycleTest::testEditorReopen() {
 	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
 	CPPUNIT_ASSERT( plugin.isEditorOpen() );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pEditor = EditorSession::connect( plugin.getEditorEndpoint(), pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 

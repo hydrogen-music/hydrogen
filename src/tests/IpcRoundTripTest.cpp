@@ -65,22 +65,10 @@ using namespace H2Core;
 
 namespace {
 
-int g_nNameCounter = 0;
-
 License makeLicense( License::LicenseType type ) {
 	License lic( "", "" );
 	lic.setType( type );
 	return lic;
-}
-
-bool pumpUntil( std::function<bool()> cond, int nTimeoutMs = 5000 ) {
-	QElapsedTimer timer;
-	timer.start();
-	while ( ! cond() && timer.elapsed() < nTimeoutMs ) {
-		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
-		QThread::msleep( 5 );
-	}
-	return cond();
 }
 
 } // namespace
@@ -371,7 +359,7 @@ void IpcRoundTripTest::testSongRoundTrip()
 	CPPUNIT_ASSERT( pEngine->getSong()->getName() != sNewSongName );
 	pController->setSong( pSong );
 
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getSong() != nullptr &&
 			   pEngine->getSong()->getName() == sNewSongName;
 	} ) );
@@ -431,7 +419,7 @@ void IpcRoundTripTest::testDrumkitRoundTrip()
 	pKit->setName( "IPC_KIT_TEST" );
 	pController->setDrumkit( pKit );
 
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getSong() != nullptr &&
 			   pEngine->getSong()->getDrumkit() != nullptr &&
 			   pEngine->getSong()->getDrumkit()->getName() ==
@@ -497,7 +485,7 @@ void IpcRoundTripTest::testInstrumentRoundTrip()
 	pNewInstr->setName( "IPC_INSTR_TEST" );
 	pController->replaceInstrument( pNewInstr, pOldInstr );
 
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		auto pInstrs = pEngine->getSong()->getDrumkit()->getInstruments();
 		return pInstrs->size() > 0 &&
 			   pInstrs->get( 0 )->getName() == QString( "IPC_INSTR_TEST" );
@@ -561,7 +549,7 @@ void IpcRoundTripTest::testPatternRoundTrip()
 	pPattern->setName( "IPC_PATTERN_TEST" );
 	pController->setPattern( pPattern, 0, true );
 
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		auto pList = pEngine->getSong()->getPatternList();
 		return pList->size() > 0 &&
 			   pList->get( 0 )->getName() == QString( "IPC_PATTERN_TEST" );
@@ -605,7 +593,7 @@ void IpcRoundTripTest::testPlaylistRoundTrip()
 	auto pPlaylist = makePlaylist();
 	pController->setPlaylist( pPlaylist );
 
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getPlaylist() != nullptr &&
 			   pEngine->getPlaylist()->size() == 2;
 	} ) );
@@ -652,7 +640,7 @@ void IpcRoundTripTest::testPlaylistEntryRoundTrip()
 	auto pEntry = makePlaylistEntry();
 	pController->addToPlaylist( pEntry, 0 );
 
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getPlaylist() != nullptr &&
 			   pEngine->getPlaylist()->size() == 1;
 	} ) );
@@ -718,7 +706,7 @@ void IpcRoundTripTest::testPreferencesRoundTrip()
 
 	pController->setPreferences( pMirrorPref );
 
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		auto pEnginePref = pEngine->getPreferences();
 		return pEnginePref->getMaxBars() == 777;
 	} ) );

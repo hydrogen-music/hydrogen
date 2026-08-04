@@ -21,6 +21,8 @@
 
 #include "EditorMirrorTest.h"
 
+#include "TestHelper.h"
+
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
@@ -39,34 +41,10 @@
 
 using namespace H2Core;
 
-namespace {
-
-int g_nNameCounter = 0;
-
-QString uniqueServerName() {
-	return QString( "h2-mirror-test-%1-%2" )
-		.arg( QCoreApplication::applicationPid() )
-		.arg( g_nNameCounter++ );
-}
-
-// A standalone headless engine standing in for the editor-side mirror. Caller
-// owns it.
-Hydrogen* makeMirrorEngine() {
-	auto pPref = Preferences::create_instance();
-	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
-	pPref->m_midiDriver = Preferences::MidiDriver::None;
-	pPref->setOscServerEnabled( false );
-	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
-	return pHydrogen;
-}
-
-} // namespace
-
 void EditorMirrorTest::testEventSyncsToMirror() {
 	___INFOLOG( "" );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	EditorStateMirror mirror( pMirror );
 
 	// An engine-origin event arrives over IPC and is re-posted onto the mirror's
@@ -87,7 +65,7 @@ void EditorMirrorTest::testEventSyncsToMirror() {
 void EditorMirrorTest::testSongSnapshotSyncsToMirror() {
 	___INFOLOG( "" );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	EditorStateMirror mirror( pMirror );
 
 	auto pOldSong = pMirror->getSong();
@@ -116,7 +94,7 @@ void EditorMirrorTest::testSongSnapshotSyncsToMirror() {
 void EditorMirrorTest::testEngineAccessReadsMirror() {
 	___INFOLOG( "" );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	IpcEngineAccess access( pMirror, nullptr );
 
 	// Reads resolve to the local mirror, so the GUI sees live local objects.
@@ -135,13 +113,13 @@ void EditorMirrorTest::testCommandForwardedOverIpc() {
 	___INFOLOG( "" );
 
 	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
 	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
 	CPPUNIT_ASSERT( client != nullptr );
 	IpcChannel* conn = server.waitForChannel();
 	CPPUNIT_ASSERT( conn != nullptr );
 
-	auto* pMirror = makeMirrorEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	IpcEngineAccess access( pMirror, client );
 
 	// A transport command issued on the editor side travels the socket to the

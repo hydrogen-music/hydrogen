@@ -130,6 +130,20 @@ class TestHelper {
 	static H2Core::Hydrogen* makeMirror();
 	static QString uniqueEndpoint();
 
+	/** Pump the (main-thread) editor channel via the event loop and yield to
+	 * the engine's bridge thread, until @a cond holds or @a nTimeoutMs
+	 * elapses. */
+	static bool pumpUntil( std::function<bool()> cond, int nTimeoutMs = 4000 );
+
+	/** Pump as above, draining the mirror's EventQueue and reporting whether
+	 * the given (type,value) event arrived (forwarded from the engine). */
+	static bool pumpUntilEvent(
+		H2Core::Hydrogen* pMirror,
+		H2Core::Event::Type type,
+		int nValue,
+		int nTimeoutMs = 4000
+	);
+
 private:
 	static TestHelper*	m_pInstance;
 	QString m_sDataDir;

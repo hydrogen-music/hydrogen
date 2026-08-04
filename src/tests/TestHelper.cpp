@@ -27,6 +27,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Song.h>
 #include <core/config.h>
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/IO/DiskWriterDriver.h>
@@ -358,7 +359,7 @@ H2Core::Hydrogen* TestHelper::makeMirror() {
 	// Null audio driver — no processing thread, no MIDI, no OSC).
 	H2Core::EditorSession::configureMirrorPreferences( pPref );
 	auto pHydrogen = new H2Core::Hydrogen( pPref, -1 );
-	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Headless );
+	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Editor );
 	return pHydrogen;
 }
 
@@ -366,4 +367,41 @@ QString TestHelper::uniqueEndpoint() {
 	return QString( "h2-roundtrip-test-%1-%2" )
 		.arg( QCoreApplication::applicationPid() )
 		.arg( TestHelper::nEndpointCounter++ );
+}
+
+bool TestHelper::pumpUntil( std::function<bool()> cond, int nTimeoutMs )
+{
+	QElapsedTimer timer;
+	timer.start();
+	while ( !cond() && timer.elapsed() < nTimeoutMs ) {
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
+		QThread::msleep( 5 );
+	}
+	return cond();
+}
+
+bool TestHelper::pumpUntilEvent(
+	H2Core::Hydrogen* pMirror,
+	H2Core::Event::Type type,
+	int nValue,
+	int nTimeoutMs
+)
+{
+	QElapsedTimer timer;
+	timer.start();
+	while ( timer.elapsed() < nTimeoutMs ) {
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
+		auto pQueue = pMirror->getEventQueue();
+		if ( pQueue != nullptr ) {
+			std::unique_ptr<H2Core::Event> pEvent;
+			while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+				if ( pEvent->getType() == type &&
+					 pEvent->getValue() == nValue ) {
+					return true;
+				}
+			}
+		}
+		QThread::msleep( 5 );
+	}
+	return false;
 }

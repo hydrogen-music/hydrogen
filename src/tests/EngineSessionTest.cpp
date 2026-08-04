@@ -21,6 +21,8 @@
 
 #include "EngineSessionTest.h"
 
+#include "TestHelper.h"
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Song.h>
@@ -44,77 +46,22 @@
 
 using namespace H2Core;
 
-namespace {
-
-int g_nNameCounter = 0;
-
-QString uniqueEndpoint() {
-	return QString( "h2-engine-session-test-%1-%2" )
-		.arg( QCoreApplication::applicationPid() )
-		.arg( g_nNameCounter++ );
-}
-
-// A headless engine standing in for the authoritative engine (engine side) or
-// the editor's read mirror (editor side). Caller owns it.
-Hydrogen* makeEngine() {
-	auto pPref = Preferences::create_instance();
-	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
-	pPref->m_midiDriver = Preferences::MidiDriver::None;
-	pPref->setOscServerEnabled( false );
-	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
-	return pHydrogen;
-}
-
-// Pump the (main-thread) editor channel via the event loop and yield to the
-// engine's bridge thread, until @a cond holds or @a nTimeoutMs elapses.
-bool pumpUntil( std::function<bool()> cond, int nTimeoutMs = 4000 ) {
-	QElapsedTimer timer;
-	timer.start();
-	while ( ! cond() && timer.elapsed() < nTimeoutMs ) {
-		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
-		QThread::msleep( 5 );
-	}
-	return cond();
-}
-
-// Pump as above, draining the mirror's EventQueue and reporting whether the given
-// (type,value) event arrived (forwarded from the engine).
-bool pumpUntilEvent( Hydrogen* pMirror, Event::Type type, int nValue,
-					 int nTimeoutMs = 4000 ) {
-	QElapsedTimer timer;
-	timer.start();
-	while ( timer.elapsed() < nTimeoutMs ) {
-		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
-		EventQueue* pQueue = pMirror->getEventQueue();
-		if ( pQueue != nullptr ) {
-			std::unique_ptr<Event> pEvent;
-			while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
-				if ( pEvent->getType() == type && pEvent->getValue() == nValue ) {
-					return true;
-				}
-			}
-		}
-		QThread::msleep( 5 );
-	}
-	return false;
-}
-
-} // namespace
-
 // Invalid arguments are rejected synchronously (nullptr), so a host can react
 // instead of believing it is serving. (A name collision is NOT a failure:
 // IpcServer::listen clears a stale socket from a crashed run and re-binds.)
 void EngineSessionTest::testRejectsInvalidArguments() {
 	___INFOLOG( "" );
 
-	auto* pEngine = makeEngine();
+	auto* pEngine = TestHelper::makeEngine();
 
-	CPPUNIT_ASSERT( EngineSession::start( nullptr, uniqueEndpoint() ) == nullptr );
+	CPPUNIT_ASSERT(
+		EngineSession::start( nullptr, TestHelper::uniqueEndpoint() ) == nullptr
+	);
 	CPPUNIT_ASSERT( EngineSession::start( pEngine, QString() ) == nullptr );
 
 	// A valid pair does start and serve.
-	auto pSession = EngineSession::start( pEngine, uniqueEndpoint() );
+	auto pSession =
+		EngineSession::start( pEngine, TestHelper::uniqueEndpoint() );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	CPPUNIT_ASSERT( pSession->isRunning() );
 	pSession->stop();
@@ -128,21 +75,21 @@ void EngineSessionTest::testRejectsInvalidArguments() {
 void EngineSessionTest::testServesInitialState() {
 	___INFOLOG( "" );
 
-	auto* pEngine = makeEngine();
+	auto* pEngine = TestHelper::makeEngine();
 	pEngine->setSong( Song::getEmptySong( pEngine ) );
 	pEngine->getSong()->setName( "ENGINESONG" );
 
-	const QString sEndpoint = uniqueEndpoint();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
 	auto pServer = EngineSession::start( pEngine, sEndpoint );
 	CPPUNIT_ASSERT( pServer != nullptr );
 
-	auto* pMirror = makeEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 
 	// The engine sends its song as the initial snapshot; the editor's mirror
 	// reconstructs it.
-	const bool bGotSong = pumpUntil( [&]() {
+	const bool bGotSong = TestHelper::pumpUntil( [&]() {
 		return pMirror->getSong() != nullptr &&
 			pMirror->getSong()->getName() == QString( "ENGINESONG" );
 	} );
@@ -160,14 +107,14 @@ void EngineSessionTest::testServesInitialState() {
 void EngineSessionTest::testCommandDispatchedToEngine() {
 	___INFOLOG( "" );
 
-	auto* pEngine = makeEngine();
+	auto* pEngine = TestHelper::makeEngine();
 	pEngine->setSong( Song::getEmptySong( pEngine ) );
 
-	const QString sEndpoint = uniqueEndpoint();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
 	auto pServer = EngineSession::start( pEngine, sEndpoint );
 	CPPUNIT_ASSERT( pServer != nullptr );
 
-	auto* pMirror = makeEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	pMirror->setSong( Song::getEmptySong( pMirror ) );
 	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
@@ -179,7 +126,7 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 	// setBpm flows editor → engine; the bridge thread dispatches it onto the
 	// authoritative engine.
 	pAccess->getCoreActionController()->setBpm( 152.0f );
-	const bool bApplied = pumpUntil( [&]() {
+	const bool bApplied = TestHelper::pumpUntil( [&]() {
 		return std::abs( pEngine->getAudioEngine()->getNextBpm() - 152.0 ) < 0.5;
 	} );
 	CPPUNIT_ASSERT( bApplied );
@@ -197,23 +144,25 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 void EngineSessionTest::testEventForwardedToEditor() {
 	___INFOLOG( "" );
 
-	auto* pEngine = makeEngine();
+	auto* pEngine = TestHelper::makeEngine();
 	pEngine->setSong( Song::getEmptySong( pEngine ) );
 
-	const QString sEndpoint = uniqueEndpoint();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
 	auto pServer = EngineSession::start( pEngine, sEndpoint );
 	CPPUNIT_ASSERT( pServer != nullptr );
 
-	auto* pMirror = makeEngine();
+	auto* pMirror = TestHelper::makeMirror();
 	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 
 	// Let the initial handshake/state settle first.
-	pumpUntil( [&]() { return pMirror->getSong() != nullptr; } );
+	TestHelper::pumpUntil( [&]() { return pMirror->getSong() != nullptr; } );
 
 	// The engine emits an event; it must surface on the editor's mirror.
 	pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, 7 );
-	CPPUNIT_ASSERT( pumpUntilEvent( pMirror, Event::Type::Metronome, 7 ) );
+	CPPUNIT_ASSERT(
+		TestHelper::pumpUntilEvent( pMirror, Event::Type::Metronome, 7 )
+	);
 
 	pEditor.reset();
 	pServer->stop();
@@ -228,19 +177,19 @@ void EngineSessionTest::testEventForwardedToEditor() {
 void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 	___INFOLOG( "" );
 
-	auto* pEngine = makeEngine();
+	auto* pEngine = TestHelper::makeEngine();
 	pEngine->setSong( Song::getEmptySong( pEngine ) );
 	pEngine->getSong()->setName( "PERSISTENT" );
 
-	const QString sEndpoint = uniqueEndpoint();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
 	auto pServer = EngineSession::start( pEngine, sEndpoint );
 	CPPUNIT_ASSERT( pServer != nullptr );
 
 	// First editor attaches and gets the song.
-	auto* pMirror1 = makeEngine();
+	auto* pMirror1 = TestHelper::makeMirror();
 	auto pEditor1 = EditorSession::connect( sEndpoint, pMirror1 );
 	CPPUNIT_ASSERT( pEditor1 != nullptr );
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pMirror1->getSong() != nullptr &&
 			pMirror1->getSong()->getName() == QString( "PERSISTENT" );
 	} ) );
@@ -251,10 +200,10 @@ void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 	CPPUNIT_ASSERT( pServer->isRunning() );
 
 	// A respawned editor re-attaches and is primed anew.
-	auto* pMirror2 = makeEngine();
+	auto* pMirror2 = TestHelper::makeMirror();
 	auto pEditor2 = EditorSession::connect( sEndpoint, pMirror2, 5000 );
 	CPPUNIT_ASSERT( pEditor2 != nullptr );
-	CPPUNIT_ASSERT( pumpUntil( [&]() {
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pMirror2->getSong() != nullptr &&
 			pMirror2->getSong()->getName() == QString( "PERSISTENT" );
 	} ) );
