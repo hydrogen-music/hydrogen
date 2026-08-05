@@ -131,17 +131,17 @@ void RoundTripAssertions::assertLicenseEqual( const License& a, const License& b
 // ── AutomationPath ────────────────────────────────────────────────────
 
 void RoundTripAssertions::assertAutomationPathEqual(
-	const AutomationPath& a, const AutomationPath& b )
+	std::shared_ptr<AutomationPath> a, std::shared_ptr<AutomationPath> b )
 {
-	assertFloatEqual( "AutomationPath::m_fMin", a.getMin(), b.getMin() );
-	assertFloatEqual( "AutomationPath::m_fMax", a.getMax(), b.getMax() );
-	assertFloatEqual( "AutomationPath::m_fDef", a.getDefault(), b.getDefault() );
+	assertFloatEqual( "AutomationPath::m_fMin", a->getMin(), b->getMin() );
+	assertFloatEqual( "AutomationPath::m_fMax", a->getMax(), b->getMax() );
+	assertFloatEqual( "AutomationPath::m_fDef", a->getDefault(), b->getDefault() );
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "AutomationPath point count",
-								  a.empty(), b.empty() );
-	auto itA = a.begin();
-	auto itB = b.begin();
+								  a->empty(), b->empty() );
+	auto itA = a->begin();
+	auto itB = b->begin();
 	std::size_t ii = 0;
-	while ( itA != a.end() && itB != b.end() ) {
+	while ( itA != a->end() && itB != b->end() ) {
 		assertFloatEqual( QString( "AutomationPath point[%1] x" ).arg( ii ),
 						  itA->first, itB->first );
 		assertFloatEqual( QString( "AutomationPath point[%1] y" ).arg( ii ),
@@ -152,89 +152,89 @@ void RoundTripAssertions::assertAutomationPathEqual(
 
 // ── ADSR ─────────────────────────────────────────────────────────────
 
-void RoundTripAssertions::assertAdsrEqual( const ADSR& a, const ADSR& b )
+void RoundTripAssertions::assertAdsrEqual( std::shared_ptr<ADSR> a, std::shared_ptr<ADSR> b )
 {
-	assertIntEqual( "Adsr::m_nAttack", a.getAttack(), b.getAttack() );
-	assertIntEqual( "Adsr::m_nDecay", a.getDecay(), b.getDecay() );
-	assertFloatEqual( "Adsr::m_fSustain", a.getSustain(), b.getSustain() );
-	assertIntEqual( "Adsr::m_nRelease", a.getRelease(), b.getRelease() );
+	assertIntEqual( "Adsr::m_nAttack", a->getAttack(), b->getAttack() );
+	assertIntEqual( "Adsr::m_nDecay", a->getDecay(), b->getDecay() );
+	assertFloatEqual( "Adsr::m_fSustain", a->getSustain(), b->getSustain() );
+	assertIntEqual( "Adsr::m_nRelease", a->getRelease(), b->getRelease() );
 	assertIntEqual( "Adsr::m_state",
-					static_cast<int>( a.getState() ),
-					static_cast<int>( b.getState() ) );
+					static_cast<int>( a->getState() ),
+					static_cast<int>( b->getState() ) );
 }
 
 // ── Note ─────────────────────────────────────────────────────────────
 
-void RoundTripAssertions::assertNoteEqual( const Note& a, const Note& b )
+void RoundTripAssertions::assertNoteEqual( std::shared_ptr<Note> a, std::shared_ptr<Note> b )
 {
-	assertUuidEqual( "Note::m_uuid", a.getUuid(), b.getUuid() );
-	assertIntEqual( "Note::m_nPosition", a.getPosition(), b.getPosition() );
-	assertFloatEqual( "Note::m_fLeadLag", a.getLeadLag(), b.getLeadLag() );
-	assertFloatEqual( "Note::m_fVelocity", a.getVelocity(), b.getVelocity() );
-	assertFloatEqual( "Note::m_fPan", a.getPan(), b.getPan() );
-	assertIntEqual( "Note::m_nLength", a.getLength(), b.getLength() );
+	assertUuidEqual( "Note::m_uuid", a->getUuid(), b->getUuid() );
+	assertIntEqual( "Note::m_nPosition", a->getPosition(), b->getPosition() );
+	assertFloatEqual( "Note::m_fLeadLag", a->getLeadLag(), b->getLeadLag() );
+	assertFloatEqual( "Note::m_fVelocity", a->getVelocity(), b->getVelocity() );
+	assertFloatEqual( "Note::m_fPan", a->getPan(), b->getPan() );
+	assertIntEqual( "Note::m_nLength", a->getLength(), b->getLength() );
 	assertIntEqual( "Note::m_instrumentId",
-					static_cast<int>( a.getInstrumentId() ),
-					static_cast<int>( b.getInstrumentId() ) );
+					static_cast<int>( a->getInstrumentId() ),
+					static_cast<int>( b->getInstrumentId() ) );
 	assertIntEqual( "Note::m_key",
-					static_cast<int>( a.getKey() ),
-					static_cast<int>( b.getKey() ) );
+					static_cast<int>( a->getKey() ),
+					static_cast<int>( b->getKey() ) );
 	assertIntEqual( "Note::m_octave",
-					static_cast<int>( a.getOctave() ),
-					static_cast<int>( b.getOctave() ) );
-	assertBoolEqual( "Note::m_bNoteOff", a.getNoteOff(), b.getNoteOff() );
+					static_cast<int>( a->getOctave() ),
+					static_cast<int>( b->getOctave() ) );
+	assertBoolEqual( "Note::m_bNoteOff", a->getNoteOff(), b->getNoteOff() );
 	assertFloatEqual( "Note::m_fProbability",
-					  a.getProbability(), b.getProbability() );
+					  a->getProbability(), b->getProbability() );
 	assertLongLongEqual( "Note::m_nNoteStart",
-						 a.getNoteStart(), b.getNoteStart() );
+						 a->getNoteStart(), b->getNoteStart() );
 	assertFloatEqual( "Note::m_fUsedTickSize",
-					  a.getUsedTickSize(), b.getUsedTickSize() );
+					  a->getUsedTickSize(), b->getUsedTickSize() );
 	assertFloatEqual( "Note::m_fPitchHumanization",
-					  a.getPitchHumanization(), b.getPitchHumanization() );
+					  a->getPitchHumanization(), b->getPitchHumanization() );
 	// m_sType is a QString
-	assertStringEqual( "Note::m_sType", a.getType(), b.getType() );
-	if ( ( a.getAdsr() == nullptr && b.getAdsr() != nullptr ) ||
-		 ( a.getAdsr() != nullptr && b.getAdsr() == nullptr ) ) {
+	assertStringEqual( "Note::m_sType", a->getType(), b->getType() );
+	if ( ( a->getAdsr() == nullptr && b->getAdsr() != nullptr ) ||
+		 ( a->getAdsr() != nullptr && b->getAdsr() == nullptr ) ) {
 		CPPUNIT_FAIL( "Note::m_pAdsr presence" );
 	}
-	else if ( ( a.getAdsr() != nullptr && b.getAdsr() != nullptr ) ) {
-		assertAdsrEqual( a.getAdsr(), b.getAdsr() );
+	else if ( ( a->getAdsr() != nullptr && b->getAdsr() != nullptr ) ) {
+		assertAdsrEqual( a->getAdsr(), b->getAdsr() );
 	}
-	if ( ( a.getInstrument() == nullptr && b.getInstrument() != nullptr ) ||
-		 ( a.getInstrument() != nullptr && b.getInstrument() == nullptr ) ) {
+	if ( ( a->getInstrument() == nullptr && b->getInstrument() != nullptr ) ||
+		 ( a->getInstrument() != nullptr && b->getInstrument() == nullptr ) ) {
 		CPPUNIT_FAIL( "Note::m_pInstrument presence" );
 	}
-	else if ( ( a.getInstrument() != nullptr && b.getInstrument() != nullptr
+	else if ( ( a->getInstrument() != nullptr && b->getInstrument() != nullptr
 			  ) ) {
-		assertInstrumentEqual( a.getInstrument(), b.getInstrument() );
+		assertInstrumentEqual( a->getInstrument(), b->getInstrument() );
 	}
 }
 
 // ── InstrumentLayer ──────────────────────────────────────────────────
 
-void RoundTripAssertions::assertLayerEqual( const InstrumentLayer& a,
-											const InstrumentLayer& b )
+void RoundTripAssertions::assertLayerEqual( std::shared_ptr<InstrumentLayer> a,
+											std::shared_ptr<InstrumentLayer> b )
 {
-	assertUuidEqual( "Layer::m_uuid", a.getUuid(), b.getUuid() );
+	assertUuidEqual( "Layer::m_uuid", a->getUuid(), b->getUuid() );
 	assertFloatEqual( "Layer::m_fStartVelocity",
-					  a.getStartVelocity(), b.getStartVelocity() );
+					  a->getStartVelocity(), b->getStartVelocity() );
 	assertFloatEqual( "Layer::m_fEndVelocity",
-					  a.getEndVelocity(), b.getEndVelocity() );
+					  a->getEndVelocity(), b->getEndVelocity() );
 	assertFloatEqual( "Layer::m_fPitchOffset",
-					  a.getPitchOffset(), b.getPitchOffset() );
-	assertFloatEqual( "Layer::m_fGain", a.getGain(), b.getGain() );
+					  a->getPitchOffset(), b->getPitchOffset() );
+	assertFloatEqual( "Layer::m_fGain", a->getGain(), b->getGain() );
 	assertBoolEqual( "Layer::m_bIsMuted",
-					 a.getIsMuted(), b.getIsMuted() );
+					 a->getIsMuted(), b->getIsMuted() );
 	assertBoolEqual( "Layer::m_bIsSoloed",
-					 a.getIsSoloed(), b.getIsSoloed() );
+					 a->getIsSoloed(), b->getIsSoloed() );
 	assertStringEqual(
-		"Layer::m_sFallbackSampleFileName", a.getFallbackSampleFileName(),
-		b.getFallbackSampleFileName()
+		"Layer::m_sFallbackSampleFileName", a->getFallbackSampleFileName(),
+		b->getFallbackSampleFileName()
 	);
 
 	// Sample — compare the file path (the serialized form)
-	const auto pSampleA = a.getSample();
-	const auto pSampleB = b.getSample();
+	const auto pSampleA = a->getSample();
+	const auto pSampleB = b->getSample();
 	if ( ( pSampleA == nullptr && pSampleB != nullptr ) ||
 		 ( pSampleA != nullptr && pSampleB == nullptr ) ) {
 		CPPUNIT_FAIL( "Layer::m_pSample presence" );
@@ -317,62 +317,62 @@ void RoundTripAssertions::assertLayerEqual( const InstrumentLayer& a,
 // ── InstrumentComponent ──────────────────────────────────────────────
 
 void RoundTripAssertions::assertComponentEqual(
-	const InstrumentComponent& a, const InstrumentComponent& b )
+	std::shared_ptr<InstrumentComponent> a, std::shared_ptr<InstrumentComponent> b )
 {
-	assertUuidEqual( "Component::m_uuid", a.getUuid(), b.getUuid() );
-	assertStringEqual( "Component::m_sName", a.getName(), b.getName() );
-	assertFloatEqual( "Component::m_fGain", a.getGain(), b.getGain() );
+	assertUuidEqual( "Component::m_uuid", a->getUuid(), b->getUuid() );
+	assertStringEqual( "Component::m_sName", a->getName(), b->getName() );
+	assertFloatEqual( "Component::m_fGain", a->getGain(), b->getGain() );
 	assertBoolEqual( "Component::m_bIsMuted",
-					 a.getIsMuted(), b.getIsMuted() );
+					 a->getIsMuted(), b->getIsMuted() );
 	assertBoolEqual( "Component::m_bIsSoloed",
-					 a.getIsSoloed(), b.getIsSoloed() );
+					 a->getIsSoloed(), b->getIsSoloed() );
 	assertIntEqual( "Component::m_selection",
-					static_cast<int>( a.getSelection() ),
-					static_cast<int>( b.getSelection() ) );
+					static_cast<int>( a->getSelection() ),
+					static_cast<int>( b->getSelection() ) );
 
-	const auto& layersA = a.getLayers();
-	const auto& layersB = b.getLayers();
+	const auto& layersA = a->getLayers();
+	const auto& layersB = b->getLayers();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Component layer count",
 								  layersA.size(), layersB.size() );
 	for ( std::size_t ii = 0; ii < layersA.size(); ++ii ) {
 		if ( layersA[ ii ] != nullptr && layersB[ ii ] != nullptr ) {
-			assertLayerEqual( *layersA[ ii ], *layersB[ ii ] );
+			assertLayerEqual( layersA[ ii ], layersB[ ii ] );
 		}
 	}
 }
 
 // ── Instrument ───────────────────────────────────────────────────────
 
-void RoundTripAssertions::assertInstrumentEqual( const Instrument& a,
-												 const Instrument& b )
+void RoundTripAssertions::assertInstrumentEqual( std::shared_ptr<Instrument> a,
+												 std::shared_ptr<Instrument> b )
 {
-	assertUuidEqual( "Instrument::m_uuid", a.getUuid(), b.getUuid() );
+	assertUuidEqual( "Instrument::m_uuid", a->getUuid(), b->getUuid() );
 	assertIntEqual( "Instrument::m_id",
-					static_cast<int>( a.getId() ),
-					static_cast<int>( b.getId() ) );
-	assertStringEqual( "Instrument::m_sName", a.getName(), b.getName() );
-	assertStringEqual( "Instrument::m_type", a.getType(), b.getType() );
-	assertFloatEqual( "Instrument::m_fVolume", a.getVolume(), b.getVolume() );
-	assertBoolEqual( "Instrument::m_bMuted", a.isMuted(), b.isMuted() );
-	assertBoolEqual( "Instrument::m_bSoloed", a.isSoloed(), b.isSoloed() );
-	assertFloatEqual( "Instrument::m_fPan", a.getPan(), b.getPan() );
+					static_cast<int>( a->getId() ),
+					static_cast<int>( b->getId() ) );
+	assertStringEqual( "Instrument::m_sName", a->getName(), b->getName() );
+	assertStringEqual( "Instrument::m_type", a->getType(), b->getType() );
+	assertFloatEqual( "Instrument::m_fVolume", a->getVolume(), b->getVolume() );
+	assertBoolEqual( "Instrument::m_bMuted", a->isMuted(), b->isMuted() );
+	assertBoolEqual( "Instrument::m_bSoloed", a->isSoloed(), b->isSoloed() );
+	assertFloatEqual( "Instrument::m_fPan", a->getPan(), b->getPan() );
 	assertFloatEqual( "Instrument::m_fPitchOffset",
-					  a.getPitchOffset(), b.getPitchOffset() );
+					  a->getPitchOffset(), b->getPitchOffset() );
 	assertFloatEqual( "Instrument::m_fRandomPitchFactor",
-					  a.getRandomPitchFactor(), b.getRandomPitchFactor() );
-	assertFloatEqual( "Instrument::m_fGain", a.getGain(), b.getGain() );
+					  a->getRandomPitchFactor(), b->getRandomPitchFactor() );
+	assertFloatEqual( "Instrument::m_fGain", a->getGain(), b->getGain() );
 	assertBoolEqual( "Instrument::m_bApplyVelocity",
-					 a.getApplyVelocity(), b.getApplyVelocity() );
+					 a->getApplyVelocity(), b->getApplyVelocity() );
 	assertBoolEqual( "Instrument::m_bFilterActive",
-					 a.isFilterActive(), b.isFilterActive() );
+					 a->isFilterActive(), b->isFilterActive() );
 	assertFloatEqual( "Instrument::m_fFilterCutoff",
-					  a.getFilterCutoff(), b.getFilterCutoff() );
+					  a->getFilterCutoff(), b->getFilterCutoff() );
 	assertFloatEqual( "Instrument::m_fFilterResonance",
-					  a.getFilterResonance(), b.getFilterResonance() );
+					  a->getFilterResonance(), b->getFilterResonance() );
 
 	// ADSR
-	const auto pAdsrA = a.getAdsr();
-	const auto pAdsrB = b.getAdsr();
+	const auto pAdsrA = a->getAdsr();
+	const auto pAdsrB = b->getAdsr();
 	if ( ( pAdsrA == nullptr && pAdsrB != nullptr ) ||
 		 ( pAdsrA != nullptr && pAdsrB == nullptr ) ) {
 		CPPUNIT_FAIL( "Instrument::m_pAdsr presence" );
@@ -382,64 +382,64 @@ void RoundTripAssertions::assertInstrumentEqual( const Instrument& a,
 	}
 
 	assertIntEqual( "Instrument::m_nMuteGroup",
-					a.getMuteGroup(), b.getMuteGroup() );
+					a->getMuteGroup(), b->getMuteGroup() );
 	assertIntEqual( "Instrument::m_midiOutChannel",
-					static_cast<int>( a.getMidiOutChannel() ),
-					static_cast<int>( b.getMidiOutChannel() ) );
+					static_cast<int>( a->getMidiOutChannel() ),
+					static_cast<int>( b->getMidiOutChannel() ) );
 	assertIntEqual( "Instrument::m_midiOutNote",
-					static_cast<int>( a.getMidiOutNote() ),
-					static_cast<int>( b.getMidiOutNote() ) );
+					static_cast<int>( a->getMidiOutNote() ),
+					static_cast<int>( b->getMidiOutNote() ) );
 	assertBoolEqual( "Instrument::m_bStopNotes",
-					 a.isStopNotes(), b.isStopNotes() );
+					 a->isStopNotes(), b->isStopNotes() );
 	assertIntEqual( "Instrument::m_nHihatGrp",
-					a.getHihatGrp(), b.getHihatGrp() );
+					a->getHihatGrp(), b->getHihatGrp() );
 	assertIntEqual( "Instrument::m_lowerCc",
-					static_cast<int>( a.getLowerCc() ),
-					static_cast<int>( b.getLowerCc() ) );
+					static_cast<int>( a->getLowerCc() ),
+					static_cast<int>( b->getLowerCc() ) );
 	assertIntEqual( "Instrument::m_higherCc",
-					static_cast<int>( a.getHigherCc() ),
-					static_cast<int>( b.getHigherCc() ) );
+					static_cast<int>( a->getHigherCc() ),
+					static_cast<int>( b->getHigherCc() ) );
 	assertBoolEqual( "Instrument::m_bIsPreviewInstrument",
-					 a.isPreviewInstrument(), b.isPreviewInstrument() );
+					 a->isPreviewInstrument(), b->isPreviewInstrument() );
 
 	// Components
-	const auto compsA = a.getComponents();
-	const auto compsB = b.getComponents();
+	const auto compsA = a->getComponents();
+	const auto compsB = b->getComponents();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Instrument component count",
 								  compsA->size(), compsB->size() );
 	for ( std::size_t ii = 0; ii < compsA->size(); ++ii ) {
 		if ( compsA->at( ii ) != nullptr && compsB->at( ii ) != nullptr ) {
-			assertComponentEqual( *compsA->at( ii ), *compsB->at( ii ) );
+			assertComponentEqual( compsA->at( ii ), compsB->at( ii ) );
 		}
 	}
 
 	// Song-kit context fields (only serialized when bSongKit=true)
 	assertStringEqual( "Instrument::m_sDrumkitPath",
-					   a.getDrumkitPath(), b.getDrumkitPath() );
+					   a->getDrumkitPath(), b->getDrumkitPath() );
 	assertStringEqual( "Instrument::m_sDrumkitName",
-					   a.getDrumkitName(), b.getDrumkitName() );
+					   a->getDrumkitName(), b->getDrumkitName() );
 }
 
 // ── Drumkit ──────────────────────────────────────────────────────────
 
-void RoundTripAssertions::assertDrumkitEqual( const Drumkit& a,
-											  const Drumkit& b )
+void RoundTripAssertions::assertDrumkitEqual( std::shared_ptr<Drumkit> a,
+											  std::shared_ptr<Drumkit> b )
 {
-	assertUuidEqual( "Drumkit::m_uuid", a.getUuid(), b.getUuid() );
+	assertUuidEqual( "Drumkit::m_uuid", a->getUuid(), b->getUuid() );
 	assertIntEqual(
-		"Drumkit::m_context", static_cast<int>( a.getContext() ),
-		static_cast<int>( b.getContext() )
+		"Drumkit::m_context", static_cast<int>( a->getContext() ),
+		static_cast<int>( b->getContext() )
 	);
-	assertStringEqual( "Drumkit::m_sPath", a.getPath(), b.getPath() );
-	assertStringEqual( "Drumkit::m_sName", a.getName(), b.getName() );
-	assertIntEqual( "Drumkit::m_nVersion", a.getVersion(), b.getVersion() );
-	assertStringEqual( "Drumkit::m_sAuthor", a.getAuthor(), b.getAuthor() );
-	assertStringEqual( "Drumkit::m_sInfo", a.getInfo(), b.getInfo() );
-	assertLicenseEqual( a.getLicense(), b.getLicense() );
+	assertStringEqual( "Drumkit::m_sPath", a->getPath(), b->getPath() );
+	assertStringEqual( "Drumkit::m_sName", a->getName(), b->getName() );
+	assertIntEqual( "Drumkit::m_nVersion", a->getVersion(), b->getVersion() );
+	assertStringEqual( "Drumkit::m_sAuthor", a->getAuthor(), b->getAuthor() );
+	assertStringEqual( "Drumkit::m_sInfo", a->getInfo(), b->getInfo() );
+	assertLicenseEqual( a->getLicense(), b->getLicense() );
 
 	// Tags
-	const auto& tagsA = a.getTags();
-	const auto& tagsB = b.getTags();
+	const auto& tagsA = a->getTags();
+	const auto& tagsB = b->getTags();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Drumkit tag count",
 								  tagsA.size(), tagsB.size() );
 	for ( int ii = 0; ii < tagsA.size(); ++ii ) {
@@ -447,48 +447,48 @@ void RoundTripAssertions::assertDrumkitEqual( const Drumkit& a,
 						   tagsA[ ii ], tagsB[ ii ] );
 	}
 
-	assertStringEqual( "Drumkit::m_sImage", a.getImage(), b.getImage() );
-	assertLicenseEqual( a.getImageLicense(), b.getImageLicense() );
+	assertStringEqual( "Drumkit::m_sImage", a->getImage(), b->getImage() );
+	assertLicenseEqual( a->getImageLicense(), b->getImageLicense() );
 	assertBoolEqual( "Drumkit::m_bIsModified",
-					 a.getIsModified(), b.getIsModified() );
+					 a->getIsModified(), b->getIsModified() );
 
 	// Instruments
-	const auto pInstrsA = a.getInstruments();
-	const auto pInstrsB = b.getInstruments();
+	const auto pInstrsA = a->getInstruments();
+	const auto pInstrsB = b->getInstruments();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Drumkit instrument count",
 								  pInstrsA->size(), pInstrsB->size() );
 	for ( int ii = 0; ii < pInstrsA->size(); ++ii ) {
 		const auto pInstrA = pInstrsA->get( ii );
 		const auto pInstrB = pInstrsB->get( ii );
 		if ( pInstrA != nullptr && pInstrB != nullptr ) {
-			assertInstrumentEqual( *pInstrA, *pInstrB );
+			assertInstrumentEqual( pInstrA, pInstrB );
 		}
 	}
 }
 
 // ── Pattern ──────────────────────────────────────────────────────────
 
-void RoundTripAssertions::assertPatternEqual( const Pattern& a,
-											  const Pattern& b )
+void RoundTripAssertions::assertPatternEqual( std::shared_ptr<Pattern> a,
+											  std::shared_ptr<Pattern> b )
 {
-	assertUuidEqual( "Pattern::m_uuid", a.getUuid(), b.getUuid() );
-	assertStringEqual( "Pattern::m_sPath", a.getPath(), b.getPath() );
-	assertIntEqual( "Pattern::m_nVersion", a.getVersion(), b.getVersion() );
+	assertUuidEqual( "Pattern::m_uuid", a->getUuid(), b->getUuid() );
+	assertStringEqual( "Pattern::m_sPath", a->getPath(), b->getPath() );
+	assertIntEqual( "Pattern::m_nVersion", a->getVersion(), b->getVersion() );
 	assertStringEqual( "Pattern::m_sDrumkitName",
-					   a.getDrumkitName(), b.getDrumkitName() );
-	assertStringEqual( "Pattern::m_sName", a.getName(), b.getName() );
-	assertStringEqual( "Pattern::m_sAuthor", a.getAuthor(), b.getAuthor() );
-	assertStringEqual( "Pattern::m_sInfo", a.getInfo(), b.getInfo() );
-	assertLicenseEqual( a.getLicense(), b.getLicense() );
-	assertIntEqual( "Pattern::m_nLength", a.getLength(), b.getLength() );
+					   a->getDrumkitName(), b->getDrumkitName() );
+	assertStringEqual( "Pattern::m_sName", a->getName(), b->getName() );
+	assertStringEqual( "Pattern::m_sAuthor", a->getAuthor(), b->getAuthor() );
+	assertStringEqual( "Pattern::m_sInfo", a->getInfo(), b->getInfo() );
+	assertLicenseEqual( a->getLicense(), b->getLicense() );
+	assertIntEqual( "Pattern::m_nLength", a->getLength(), b->getLength() );
 	assertIntEqual( "Pattern::m_nDenominator",
-					a.getDenominator(), b.getDenominator() );
+					a->getDenominator(), b->getDenominator() );
 	assertBoolEqual( "Pattern::m_bIsModified",
-					 a.getIsModified(), b.getIsModified() );
+					 a->getIsModified(), b->getIsModified() );
 
 	// Tags
-	const auto& tagsA = a.getTags();
-	const auto& tagsB = b.getTags();
+	const auto& tagsA = a->getTags();
+	const auto& tagsB = b->getTags();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Pattern tag count",
 								  tagsA.size(), tagsB.size() );
 	for ( int ii = 0; ii < tagsA.size(); ++ii ) {
@@ -497,8 +497,8 @@ void RoundTripAssertions::assertPatternEqual( const Pattern& a,
 	}
 
 	// Notes
-	const auto pNotesA = a.getNotes();
-	const auto pNotesB = b.getNotes();
+	const auto pNotesA = a->getNotes();
+	const auto pNotesB = b->getNotes();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Pattern note count",
 								  pNotesA->size(), pNotesB->size() );
 
@@ -512,14 +512,14 @@ void RoundTripAssertions::assertPatternEqual( const Pattern& a,
 			QString( "Pattern::note[%1] position" ).arg( nNoteIdx ),
 			itA->first, itB->first );
 		if ( itA->second != nullptr && itB->second != nullptr ) {
-			assertNoteEqual( *itA->second, *itB->second );
+			assertNoteEqual( itA->second, itB->second );
 		}
 		++itA; ++itB; ++nNoteIdx;
 	}
 
 	// Virtual patterns
-	const auto pVirtualPatternsA = a.getVirtualPatterns();
-	const auto pVirtualPatternsB = b.getVirtualPatterns();
+	const auto pVirtualPatternsA = a->getVirtualPatterns();
+	const auto pVirtualPatternsB = b->getVirtualPatterns();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(
 		"Virtual pattern count", pVirtualPatternsA->size(),
 		pVirtualPatternsB->size()
@@ -532,8 +532,8 @@ void RoundTripAssertions::assertPatternEqual( const Pattern& a,
 		++itVPA; ++itVPB;
 	}
 
-	const auto pFlattenedVirtualPatternsA = a.getFlattenedVirtualPatterns();
-	const auto pFlattenedVirtualPatternsB = b.getFlattenedVirtualPatterns();
+	const auto pFlattenedVirtualPatternsA = a->getFlattenedVirtualPatterns();
+	const auto pFlattenedVirtualPatternsB = b->getFlattenedVirtualPatterns();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(
 		"FlattenedVirtual pattern count", pFlattenedVirtualPatternsA->size(),
 		pFlattenedVirtualPatternsB->size()
@@ -552,7 +552,7 @@ void RoundTripAssertions::assertPatternEqual( const Pattern& a,
 // ── PlaylistEntry ────────────────────────────────────────────────────
 
 void RoundTripAssertions::assertPlaylistEntryEqual(
-	const PlaylistEntry& a, const PlaylistEntry& b )
+	std::shared_ptr<PlaylistEntry> a, std::shared_ptr<PlaylistEntry> b )
 {
 	auto normalizePath = []( const QString& sPath ) {
 		QString sNormalized( sPath );
@@ -562,58 +562,58 @@ void RoundTripAssertions::assertPlaylistEntryEqual(
 		return sNormalized;
 	};
 	assertStringEqual(
-		"PlaylistEntry::m_sSongPath", normalizePath( a.getSongPath() ),
-		normalizePath( b.getSongPath() )
+		"PlaylistEntry::m_sSongPath", normalizePath( a->getSongPath() ),
+		normalizePath( b->getSongPath() )
 	);
 	assertStringEqual(
-		"PlaylistEntry::m_sScriptPath", normalizePath( a.getScriptPath() ),
-		normalizePath( b.getScriptPath() )
+		"PlaylistEntry::m_sScriptPath", normalizePath( a->getScriptPath() ),
+		normalizePath( b->getScriptPath() )
 	);
 	assertBoolEqual(
-		"PlaylistEntry::m_bScriptEnabled", a.getScriptEnabled(),
-		b.getScriptEnabled()
+		"PlaylistEntry::m_bScriptEnabled", a->getScriptEnabled(),
+		b->getScriptEnabled()
 	);
 }
 
 // ── Playlist ─────────────────────────────────────────────────────────
 
-void RoundTripAssertions::assertPlaylistEqual( const Playlist& a,
-											   const Playlist& b )
+void RoundTripAssertions::assertPlaylistEqual( std::shared_ptr<Playlist> a,
+											   std::shared_ptr<Playlist> b )
 {
-	assertUuidEqual( "Playlist::m_uuid", a.getUuid(), b.getUuid() );
-	assertStringEqual( "Playlist::m_sPath", a.getPath(), b.getPath() );
+	assertUuidEqual( "Playlist::m_uuid", a->getUuid(), b->getUuid() );
+	assertStringEqual( "Playlist::m_sPath", a->getPath(), b->getPath() );
 	assertBoolEqual( "Playlist::m_bIsModified",
-					 a.getIsModified(), b.getIsModified() );
+					 a->getIsModified(), b->getIsModified() );
 	assertBoolEqual( "Playlist::m_nActiveSongNumber",
-					 a.getActiveSongNumber(), b.getActiveSongNumber() );
-	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Playlist entry count", a.size(), b.size() );
-	for ( int ii = 0; ii < a.size(); ++ii ) {
-		const auto pEntryA = a.get( ii );
-		const auto pEntryB = b.get( ii );
+					 a->getActiveSongNumber(), b->getActiveSongNumber() );
+	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Playlist entry count", a->size(), b->size() );
+	for ( int ii = 0; ii < a->size(); ++ii ) {
+		const auto pEntryA = a->get( ii );
+		const auto pEntryB = b->get( ii );
 		if ( pEntryA != nullptr && pEntryB != nullptr ) {
-			assertPlaylistEntryEqual( *pEntryA, *pEntryB );
+			assertPlaylistEntryEqual( pEntryA, pEntryB );
 		}
 	}
 }
 
 // ── Song ─────────────────────────────────────────────────────────────
 
-void RoundTripAssertions::assertSongEqual( const Song& a, const Song& b )
+void RoundTripAssertions::assertSongEqual( std::shared_ptr<Song> a, std::shared_ptr<Song> b )
 {
-	assertUuidEqual( "Song::m_uuid", a.getUuid(), b.getUuid() );
-	assertFloatEqual( "Song::m_fBpm", a.getBpm(), b.getBpm() );
-	assertFloatEqual( "Song::m_fVolume", a.getVolume(), b.getVolume() );
-	assertBoolEqual( "Song::m_bIsMuted", a.getIsMuted(), b.getIsMuted() );
-	assertIntEqual( "Song::m_nVersion", a.getVersion(), b.getVersion() );
-	assertStringEqual( "Song::m_sPath", a.getPath(), b.getPath() );
-	assertStringEqual( "Song::m_sName", a.getName(), b.getName() );
-	assertStringEqual( "Song::m_sAuthor", a.getAuthor(), b.getAuthor() );
-	assertStringEqual( "Song::m_sNotes", a.getNotes(), b.getNotes() );
-	assertLicenseEqual( a.getLicense(), b.getLicense() );
+	assertUuidEqual( "Song::m_uuid", a->getUuid(), b->getUuid() );
+	assertFloatEqual( "Song::m_fBpm", a->getBpm(), b->getBpm() );
+	assertFloatEqual( "Song::m_fVolume", a->getVolume(), b->getVolume() );
+	assertBoolEqual( "Song::m_bIsMuted", a->getIsMuted(), b->getIsMuted() );
+	assertIntEqual( "Song::m_nVersion", a->getVersion(), b->getVersion() );
+	assertStringEqual( "Song::m_sPath", a->getPath(), b->getPath() );
+	assertStringEqual( "Song::m_sName", a->getName(), b->getName() );
+	assertStringEqual( "Song::m_sAuthor", a->getAuthor(), b->getAuthor() );
+	assertStringEqual( "Song::m_sNotes", a->getNotes(), b->getNotes() );
+	assertLicenseEqual( a->getLicense(), b->getLicense() );
 
 	// Tags
-	const auto& tagsA = a.getTags();
-	const auto& tagsB = b.getTags();
+	const auto& tagsA = a->getTags();
+	const auto& tagsB = b->getTags();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Song tag count",
 								  tagsA.size(), tagsB.size() );
 	for ( int ii = 0; ii < tagsA.size(); ++ii ) {
@@ -623,54 +623,54 @@ void RoundTripAssertions::assertSongEqual( const Song& a, const Song& b )
 
 	// Loop mode
 	assertIntEqual( "Song::m_loopMode",
-					static_cast<int>( a.getLoopMode() ),
-					static_cast<int>( b.getLoopMode() ) );
+					static_cast<int>( a->getLoopMode() ),
+					static_cast<int>( b->getLoopMode() ) );
 	// Pattern mode
 	assertIntEqual( "Song::m_patternMode",
-					static_cast<int>( a.getPatternMode() ),
-					static_cast<int>( b.getPatternMode() ) );
+					static_cast<int>( a->getPatternMode() ),
+					static_cast<int>( b->getPatternMode() ) );
 	// Mode
 	assertIntEqual( "Song::m_mode",
-					static_cast<int>( a.getMode() ),
-					static_cast<int>( b.getMode() ) );
+					static_cast<int>( a->getMode() ),
+					static_cast<int>( b->getMode() ) );
 	// Action mode
 	assertIntEqual( "Song::m_actionMode",
-					static_cast<int>( a.getActionMode() ),
-					static_cast<int>( b.getActionMode() ) );
+					static_cast<int>( a->getActionMode() ),
+					static_cast<int>( b->getActionMode() ) );
 
 	assertBoolEqual( "Song::m_bIsPatternEditorLocked",
-					 a.getIsPatternEditorLocked(), b.getIsPatternEditorLocked() );
+					 a->getIsPatternEditorLocked(), b->getIsPatternEditorLocked() );
 	assertBoolEqual( "Song::m_bIsTimelineActivated",
-					 a.getIsTimelineActivated(), b.getIsTimelineActivated() );
+					 a->getIsTimelineActivated(), b->getIsTimelineActivated() );
 	// Since the methods involved do also set bIsModified themselves, we ignore
-	// this member for now.
+	// this member for now->
 	// assertBoolEqual( "Song::m_bIsModified",
-	// 				 a.getIsModified(), b.getIsModified() );
+	// 				 a->getIsModified(), b->getIsModified() );
 
 	assertIntEqual( "Song::m_nPanLawType",
-					a.getPanLawType(), b.getPanLawType() );
+					a->getPanLawType(), b->getPanLawType() );
 	assertFloatEqual( "Song::m_fPanLawKNorm",
-					  a.getPanLawKNorm(), b.getPanLawKNorm() );
+					  a->getPanLawKNorm(), b->getPanLawKNorm() );
 	assertFloatEqual( "Song::m_fHumanizeTimeValue",
-					  a.getHumanizeTimeValue(), b.getHumanizeTimeValue() );
+					  a->getHumanizeTimeValue(), b->getHumanizeTimeValue() );
 	assertFloatEqual( "Song::m_fHumanizeVelocityValue",
-					  a.getHumanizeVelocityValue(),
-					  b.getHumanizeVelocityValue() );
+					  a->getHumanizeVelocityValue(),
+					  b->getHumanizeVelocityValue() );
 	assertFloatEqual( "Song::m_fSwingFactor",
-					  a.getSwingFactor(), b.getSwingFactor() );
+					  a->getSwingFactor(), b->getSwingFactor() );
 
 	assertStringEqual( "Song::m_sLastLoadedDrumkitPath",
-					   a.getLastLoadedDrumkitPath(),
-					   b.getLastLoadedDrumkitPath() );
+					   a->getLastLoadedDrumkitPath(),
+					   b->getLastLoadedDrumkitPath() );
 	assertBoolEqual( "Song::m_bWasAskedAboutMissingSamples",
-					 a.getWasAskedAboutMissingSamples(),
-					 b.getWasAskedAboutMissingSamples() );
+					 a->getWasAskedAboutMissingSamples(),
+					 b->getWasAskedAboutMissingSamples() );
 
 	// Drumkit
-	const auto pKitA = a.getDrumkit();
-	const auto pKitB = b.getDrumkit();
+	const auto pKitA = a->getDrumkit();
+	const auto pKitB = b->getDrumkit();
 	if ( pKitA != nullptr && pKitB != nullptr ) {
-		assertDrumkitEqual( *pKitA, *pKitB );
+		assertDrumkitEqual( pKitA, pKitB );
 	}
 	else {
 		CPPUNIT_ASSERT_EQUAL_MESSAGE( "Song drumkit null-ness",
@@ -678,21 +678,21 @@ void RoundTripAssertions::assertSongEqual( const Song& a, const Song& b )
 	}
 
 	// Pattern list
-	const auto pPatternsA = a.getPatternList();
-	const auto pPatternsB = b.getPatternList();
+	const auto pPatternsA = a->getPatternList();
+	const auto pPatternsB = b->getPatternList();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Song pattern count",
 								  pPatternsA->size(), pPatternsB->size() );
 	for ( int ii = 0; ii < pPatternsA->size(); ++ii ) {
 		const auto pPatA = pPatternsA->get( ii );
 		const auto pPatB = pPatternsB->get( ii );
 		if ( pPatA != nullptr && pPatB != nullptr ) {
-			assertPatternEqual( *pPatA, *pPatB );
+			assertPatternEqual( pPatA, pPatB );
 		}
 	}
 
 	// Pattern group vector
-	const auto& pgvA = a.getPatternGroupVector();
-	const auto& pgvB = b.getPatternGroupVector();
+	const auto& pgvA = a->getPatternGroupVector();
+	const auto& pgvB = b->getPatternGroupVector();
 	CPPUNIT_ASSERT_EQUAL_MESSAGE(
 		"Song patternGroupVector size", pgvA->size(), pgvB->size()
 	);
@@ -711,15 +711,15 @@ void RoundTripAssertions::assertSongEqual( const Song& a, const Song& b )
 	}
 
 	// Automation path
-	const auto pAutoA = a.getAutomationPath();
-	const auto pAutoB = b.getAutomationPath();
+	const auto pAutoA = a->getAutomationPath();
+	const auto pAutoB = b->getAutomationPath();
 	if ( pAutoA != nullptr && pAutoB != nullptr ) {
-		assertAutomationPathEqual( *pAutoA, *pAutoB );
+		assertAutomationPathEqual( pAutoA, pAutoB );
 	}
 
 	// Timeline — tempo markers and tags
-	const auto pTimelineA = a.getTimeline();
-	const auto pTimelineB = b.getTimeline();
+	const auto pTimelineA = a->getTimeline();
+	const auto pTimelineB = b->getTimeline();
 	if ( pTimelineA != nullptr && pTimelineB != nullptr ) {
 		const auto& markersA = pTimelineA->getAllTempoMarkers();
 		const auto& markersB = pTimelineB->getAllTempoMarkers();
@@ -754,10 +754,10 @@ void RoundTripAssertions::assertSongEqual( const Song& a, const Song& b )
 	}
 
 	// Playback track instrument
-	const auto pPlaybackA = a.getPlaybackTrackInstrument();
-	const auto pPlaybackB = b.getPlaybackTrackInstrument();
+	const auto pPlaybackA = a->getPlaybackTrackInstrument();
+	const auto pPlaybackB = b->getPlaybackTrackInstrument();
 	if ( pPlaybackA != nullptr && pPlaybackB != nullptr ) {
-		assertInstrumentEqual( *pPlaybackA, *pPlaybackB );
+		assertInstrumentEqual( pPlaybackA, pPlaybackB );
 	}
 	else {
 		CPPUNIT_ASSERT_EQUAL_MESSAGE( "Song playback track null-ness",
@@ -769,8 +769,8 @@ void RoundTripAssertions::assertSongEqual( const Song& a, const Song& b )
 // ── Preferences (core props subset) ─────────────────────────────────
 
 void RoundTripAssertions::assertCorePreferencesEqual(
-	const Preferences& a, const Preferences& b )
+	std::shared_ptr<Preferences> a, std::shared_ptr<Preferences> b )
 {
 	assertStringEqual( "Preferences::coreProps",
-					a.corePropsToXml(), b.corePropsToXml() );
+					a->corePropsToXml(), b->corePropsToXml() );
 }

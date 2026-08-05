@@ -336,7 +336,7 @@ void IpcRoundTripTest::testSongRoundTrip()
 	const auto xml = pSongA->toXmlBuffer( true, false );
 	auto pSongB = Song::fromXmlBuffer( xml, false, pEngine );
 	CPPUNIT_ASSERT( pSongB != nullptr );
-	RoundTripAssertions::assertSongEqual( *pSongA, *pSongB );
+	RoundTripAssertions::assertSongEqual( pSongA, pSongB );
 
 	// ── IPC level: IpcCoreActionController → engine ──
 	auto pMirror = TestHelper::makeMirror();
@@ -364,7 +364,7 @@ void IpcRoundTripTest::testSongRoundTrip()
 			   pEngine->getSong()->getName() == sNewSongName;
 	} ) );
 
-	RoundTripAssertions::assertSongEqual( *pSong, *pEngine->getSong() );
+	RoundTripAssertions::assertSongEqual( pSong, pEngine->getSong() );
 
 	pSession->stop();
 	pEditorSession->disconnect();
@@ -383,7 +383,7 @@ void IpcRoundTripTest::testDrumkitRoundTrip()
 	const auto xml = pKitA->toXmlBuffer( true /* bSongKit */ );
 	auto pKitB = Drumkit::fromXmlBuffer( xml, "", true, false, pEngine );
 	CPPUNIT_ASSERT( pKitB != nullptr );
-	RoundTripAssertions::assertDrumkitEqual( *pKitA, *pKitB );
+	RoundTripAssertions::assertDrumkitEqual( pKitA, pKitB );
 
 	// ── IPC level ──
 	auto pMirror = TestHelper::makeMirror();
@@ -426,7 +426,7 @@ void IpcRoundTripTest::testDrumkitRoundTrip()
 	);
 
 	RoundTripAssertions::assertDrumkitEqual(
-		*pKit, *pEngine->getSong()->getDrumkit() );
+		pKit, pEngine->getSong()->getDrumkit() );
 
 	pSession->stop();
 	pEditorSession->disconnect();
@@ -446,7 +446,7 @@ void IpcRoundTripTest::testInstrumentRoundTrip()
 	auto pInstrB =
 		Instrument::fromXmlBuffer( xml, true /* bSongKit */, false, pEngine );
 	CPPUNIT_ASSERT( pInstrB != nullptr );
-	RoundTripAssertions::assertInstrumentEqual( *pInstrA, *pInstrB );
+	RoundTripAssertions::assertInstrumentEqual( pInstrA, pInstrB );
 
 	// ── IPC level: replaceInstrument ──
 	auto pMirror = TestHelper::makeMirror();
@@ -492,7 +492,7 @@ void IpcRoundTripTest::testInstrumentRoundTrip()
 	);
 
 	RoundTripAssertions::assertInstrumentEqual(
-		*pNewInstr, *pEngine->getSong()->getDrumkit()->getInstruments()->get( 0 ) );
+		pNewInstr, pEngine->getSong()->getDrumkit()->getInstruments()->get( 0 ) );
 
 	pSession->stop();
 	pEditorSession->disconnect();
@@ -517,7 +517,7 @@ void IpcRoundTripTest::testPatternRoundTrip()
 		xml, pKit, false, pEngine->getSoundLibraryDatabase()
 	);
 	CPPUNIT_ASSERT( pPatternB != nullptr );
-	RoundTripAssertions::assertPatternEqual( *pPatternA, *pPatternB );
+	RoundTripAssertions::assertPatternEqual( pPatternA, pPatternB );
 
 	// ── IPC level ──
 	auto pMirror = TestHelper::makeMirror();
@@ -549,7 +549,7 @@ void IpcRoundTripTest::testPatternRoundTrip()
 	} ) );
 
 	RoundTripAssertions::assertPatternEqual(
-		*pPattern, *pEngine->getSong()->getPatternList()->get( 0 ) );
+		pPattern, pEngine->getSong()->getPatternList()->get( 0 ) );
 
 	pSession->stop();
 	pEditorSession->disconnect();
@@ -566,7 +566,7 @@ void IpcRoundTripTest::testPlaylistRoundTrip()
 	const auto xml = pPlaylistA->toXmlBuffer();
 	auto pPlaylistB = Playlist::fromXmlBuffer( xml, "" );
 	CPPUNIT_ASSERT( pPlaylistB != nullptr );
-	RoundTripAssertions::assertPlaylistEqual( *pPlaylistA, *pPlaylistB );
+	RoundTripAssertions::assertPlaylistEqual( pPlaylistA, pPlaylistB );
 
 	// ── IPC level ──
 	auto pEngine = TestHelper::makeEngine();
@@ -592,7 +592,7 @@ void IpcRoundTripTest::testPlaylistRoundTrip()
 	} ) );
 
 	RoundTripAssertions::assertPlaylistEqual(
-		*pPlaylist, *pEngine->getPlaylist() );
+		pPlaylist, pEngine->getPlaylist() );
 
 	pSession->stop();
 	pEditorSession->disconnect();
@@ -609,7 +609,7 @@ void IpcRoundTripTest::testPlaylistEntryRoundTrip()
 	const auto mime = pEntryA->toMimeText();
 	auto pEntryB = PlaylistEntry::fromMimeText( mime );
 	CPPUNIT_ASSERT( pEntryB != nullptr );
-	RoundTripAssertions::assertPlaylistEntryEqual( *pEntryA, *pEntryB );
+	RoundTripAssertions::assertPlaylistEntryEqual( pEntryA, pEntryB );
 
 	// ── IPC level: addToPlaylist ──
 	auto pEngine = TestHelper::makeEngine();
@@ -639,7 +639,7 @@ void IpcRoundTripTest::testPlaylistEntryRoundTrip()
 	} ) );
 
 	RoundTripAssertions::assertPlaylistEntryEqual(
-		*pEntry, *pEngine->getPlaylist()->get( 0 ) );
+		pEntry, pEngine->getPlaylist()->get( 0 ) );
 
 	pSession->stop();
 	pEditorSession->disconnect();
@@ -668,7 +668,7 @@ void IpcRoundTripTest::testPreferencesRoundTrip()
 	auto pPrefB = Preferences::create_instance();
 	pPrefB->applyCorePropsFromXml( xml );
 
-	RoundTripAssertions::assertCorePreferencesEqual( *pPrefA, *pPrefB );
+	RoundTripAssertions::assertCorePreferencesEqual( pPrefA, pPrefB );
 
 	// ── IPC level: setPreferences via IpcCoreActionController ──
 	auto pEngine = TestHelper::makeEngine();
@@ -705,7 +705,7 @@ void IpcRoundTripTest::testPreferencesRoundTrip()
 	} ) );
 
 	RoundTripAssertions::assertCorePreferencesEqual(
-		*pMirrorPref, *pEngine->getPreferences() );
+		pMirrorPref, pEngine->getPreferences() );
 
 	pSession->stop();
 	pEditorSession->disconnect();
