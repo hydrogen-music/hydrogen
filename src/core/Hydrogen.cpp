@@ -292,14 +292,20 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		m_pAudioEngine->prepare( Event::Trigger::Suppress );
 
 		if ( pCurrentSong->getDrumkit() != nullptr ) {
-			pCurrentSong->getDrumkit()->unloadSamples();
+			if ( ! ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+					 pCurrentSong->getDrumkit()->getUuid() ==
+					 pSong->getDrumkit()->getUuid() ) ) {
+				// Only unload samples in case we do load a new drumkit.
+				pCurrentSong->getDrumkit()->unloadSamples();
+			}
 		}
 	}
 
 	renamePerTrackJackAudioPorts( pSong, m_pSong != nullptr ? m_pSong->getDrumkit() : nullptr );
 
 	m_pSong = pSong;
-	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 !pSong->getDrumkit()->areSamplesLoaded() ) {
 		pSong->getDrumkit()->loadSamples( 120, getPreferences().get() );
 	}
 
