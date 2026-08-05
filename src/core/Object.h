@@ -67,6 +67,10 @@ struct Uuid {
 	bool operator!=( const Uuid& other ) const { return !( *this == other ); }
 
 	QString toQString() const;
+	friend std::ostream& operator<<( std::ostream& out, const Uuid& u ) {
+		out << u.toQString().toStdString();
+		return out;
+	}
 
 	/** Mints a fresh, globally-unique id. Lock-free / real-time-safe. */
 	static Uuid mint();

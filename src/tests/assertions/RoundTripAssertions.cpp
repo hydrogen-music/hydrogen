@@ -88,6 +88,13 @@ void RoundTripAssertions::assertIntEqual( const QString& sLabel,
 		CPPUNIT_ASSERT_EQUAL_MESSAGE( sLabel.toStdString(), a, b ) );
 }
 
+void RoundTripAssertions::assertUuidEqual( const QString& sLabel,
+										   H2Core::Uuid a, H2Core::Uuid b )
+{
+	CPPUNIT_ASSERT_ASSERTION_PASS(
+		CPPUNIT_ASSERT_EQUAL_MESSAGE( sLabel.toStdString(), a, b ) );
+}
+
 void RoundTripAssertions::assertLongLongEqual( const QString& sLabel,
 											   long long a, long long b )
 {
@@ -160,6 +167,7 @@ void RoundTripAssertions::assertAdsrEqual( const ADSR& a, const ADSR& b )
 
 void RoundTripAssertions::assertNoteEqual( const Note& a, const Note& b )
 {
+	assertUuidEqual( "Note::m_uuid", a.getUuid(), b.getUuid() );
 	assertIntEqual( "Note::m_nPosition", a.getPosition(), b.getPosition() );
 	assertFloatEqual( "Note::m_fLeadLag", a.getLeadLag(), b.getLeadLag() );
 	assertFloatEqual( "Note::m_fVelocity", a.getVelocity(), b.getVelocity() );
@@ -207,6 +215,7 @@ void RoundTripAssertions::assertNoteEqual( const Note& a, const Note& b )
 void RoundTripAssertions::assertLayerEqual( const InstrumentLayer& a,
 											const InstrumentLayer& b )
 {
+	assertUuidEqual( "Layer::m_uuid", a.getUuid(), b.getUuid() );
 	assertFloatEqual( "Layer::m_fStartVelocity",
 					  a.getStartVelocity(), b.getStartVelocity() );
 	assertFloatEqual( "Layer::m_fEndVelocity",
@@ -310,6 +319,7 @@ void RoundTripAssertions::assertLayerEqual( const InstrumentLayer& a,
 void RoundTripAssertions::assertComponentEqual(
 	const InstrumentComponent& a, const InstrumentComponent& b )
 {
+	assertUuidEqual( "Component::m_uuid", a.getUuid(), b.getUuid() );
 	assertStringEqual( "Component::m_sName", a.getName(), b.getName() );
 	assertFloatEqual( "Component::m_fGain", a.getGain(), b.getGain() );
 	assertBoolEqual( "Component::m_bIsMuted",
@@ -336,6 +346,7 @@ void RoundTripAssertions::assertComponentEqual(
 void RoundTripAssertions::assertInstrumentEqual( const Instrument& a,
 												 const Instrument& b )
 {
+	assertUuidEqual( "Instrument::m_uuid", a.getUuid(), b.getUuid() );
 	assertIntEqual( "Instrument::m_id",
 					static_cast<int>( a.getId() ),
 					static_cast<int>( b.getId() ) );
@@ -414,6 +425,7 @@ void RoundTripAssertions::assertInstrumentEqual( const Instrument& a,
 void RoundTripAssertions::assertDrumkitEqual( const Drumkit& a,
 											  const Drumkit& b )
 {
+	assertUuidEqual( "Drumkit::m_uuid", a.getUuid(), b.getUuid() );
 	assertIntEqual(
 		"Drumkit::m_context", static_cast<int>( a.getContext() ),
 		static_cast<int>( b.getContext() )
@@ -459,6 +471,7 @@ void RoundTripAssertions::assertDrumkitEqual( const Drumkit& a,
 void RoundTripAssertions::assertPatternEqual( const Pattern& a,
 											  const Pattern& b )
 {
+	assertUuidEqual( "Pattern::m_uuid", a.getUuid(), b.getUuid() );
 	assertStringEqual( "Pattern::m_sPath", a.getPath(), b.getPath() );
 	assertIntEqual( "Pattern::m_nVersion", a.getVersion(), b.getVersion() );
 	assertStringEqual( "Pattern::m_sDrumkitName",
@@ -567,6 +580,7 @@ void RoundTripAssertions::assertPlaylistEntryEqual(
 void RoundTripAssertions::assertPlaylistEqual( const Playlist& a,
 											   const Playlist& b )
 {
+	assertUuidEqual( "Playlist::m_uuid", a.getUuid(), b.getUuid() );
 	assertStringEqual( "Playlist::m_sPath", a.getPath(), b.getPath() );
 	assertBoolEqual( "Playlist::m_bIsModified",
 					 a.getIsModified(), b.getIsModified() );
@@ -586,6 +600,7 @@ void RoundTripAssertions::assertPlaylistEqual( const Playlist& a,
 
 void RoundTripAssertions::assertSongEqual( const Song& a, const Song& b )
 {
+	assertUuidEqual( "Song::m_uuid", a.getUuid(), b.getUuid() );
 	assertFloatEqual( "Song::m_fBpm", a.getBpm(), b.getBpm() );
 	assertFloatEqual( "Song::m_fVolume", a.getVolume(), b.getVolume() );
 	assertBoolEqual( "Song::m_bIsMuted", a.getIsMuted(), b.getIsMuted() );

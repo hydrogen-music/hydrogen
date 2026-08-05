@@ -83,6 +83,8 @@ private:
 								 float a, float b );
 	static void assertIntEqual( const QString& sLabel,
 								int a, int b );
+	static void assertUuidEqual( const QString& sLabel,
+								 H2Core::Uuid a, H2Core::Uuid b );
 	static void assertLongLongEqual( const QString& sLabel,
 									 long long a, long long b );
 	static void assertBoolEqual( const QString& sLabel,
