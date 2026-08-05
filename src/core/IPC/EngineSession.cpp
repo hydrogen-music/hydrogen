@@ -141,6 +141,9 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 }
 
 void EngineSession::handleMessage( IpcChannel* pConn, const IpcMessage& msg ) {
+	if ( pConn == nullptr ) {
+		return;
+	}
 	if ( msg.getOpcode() == IpcOpcode::Hello ) {
 		pConn->send( IpcMessage::hello() );
 	}
