@@ -122,6 +122,48 @@ QColor XMLNode::read_color( const QString& node, const QColor& default_value,
 	}
 	return default_value;
 }
+Uuid XMLNode::read_uuid(
+	const QString& node,
+	bool inexistent_ok,
+	bool empty_ok,
+	bool bSilent
+) const
+{
+	const QString sText =
+		read_child_node( node, inexistent_ok, empty_ok, bSilent );
+
+	if ( !sText.isEmpty() ) {
+		QStringList textList = sText.split( QLatin1Char( '-' ) );
+		if ( textList.size() != 2 ) {
+			if ( !bSilent ) {
+				WARNINGLOG( QString( "Invalid UUid format [%1] for node [%2]. "
+									 "Using new one instead" )
+								.arg( sText )
+								.arg( node ) );
+			}
+			return Uuid::mint();
+		}
+
+		bool bOk, bOk2;
+		const uint64_t epoch = textList[0].toULongLong( &bOk, 16 );
+		const uint64_t counter = textList[1].toULongLong( &bOk2, 16 );
+		const Uuid uuid( epoch, counter );
+		if ( !bOk || !bOk2 || uuid.isNull() ) {
+			if ( !bSilent ) {
+				WARNINGLOG( QString( "Invalid uuid values for node [%2]. Using "
+									 "new one instead" )
+								.arg( node ) );
+			}
+			return Uuid::mint();
+		}
+		return uuid;
+	}
+
+	if ( !bSilent ) {
+		WARNINGLOG( QString( "Using new Uuid for node [%1]" ).arg( node ) );
+	}
+	return Uuid::mint();
+}
 
 float XMLNode::read_float( const QString& node, float default_value,
 						   bool inexistent_ok, bool empty_ok, bool bSilent ) const
@@ -272,6 +314,10 @@ void XMLNode::write_color( const QString& node, const QColor& color )
 					  .arg( color.red() )
 					  .arg( color.green() )
 					  .arg( color.blue() ) );
+}
+void XMLNode::write_uuid( const QString& node, const Uuid& uuid )
+{
+	write_child_node( node, uuid.toQString() );
 }
 void XMLNode::write_float( const QString& node, const float value )
 {

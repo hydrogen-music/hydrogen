@@ -1579,7 +1579,7 @@ void PatternEditor::copy() {
 			bWroteNote = true;
 		}
 		XMLNode note_node = noteList.createNode( "note" );
-		ppNote->saveTo( note_node );
+		ppNote->saveTo( note_node, false /*bIpcXml*/ );
 	}
 
 	if ( bWroteNote ) {
@@ -1701,7 +1701,7 @@ void PatternEditor::paste() {
 		pHydrogenApp->beginUndoMacro( tr( "paste notes" ) );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull();
 			  n = n.nextSiblingElement() ) {
-			auto pNote = Note::loadFrom( n );
+			auto pNote = Note::loadFrom( n, false /*bIpcXml*/, false /*bSilent*/ );
 			if ( pNote == nullptr ) {
 				ERRORLOG( QString( "Unable to load note from XML node [%1]" )
 						  .arg( n.toQString() ) );

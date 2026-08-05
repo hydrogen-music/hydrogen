@@ -81,6 +81,10 @@ std::shared_ptr<PatternList> PatternList::loadFrom(
 		WARNINGLOG( "0 patterns?" );
 	}
 
+	if ( bIpcXml ) {
+		pPatternList->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+	}
+
 	return pPatternList;
 }
 
@@ -98,6 +102,10 @@ void PatternList::saveTo(
 		if ( pPattern != nullptr ) {
 			pPattern->saveTo( patternListNode, id, sType, pitch, bIpcXml );
 		}
+	}
+
+	if ( bIpcXml ) {
+		node.write_uuid( "ipc-uuid", getUuid() );
 	}
 }
 

@@ -108,6 +108,12 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 		return nullptr;
 	}
 
+	if ( bIpcXml ) {
+		pInstrumentList->setUuid(
+			instrumentListNode.read_uuid( "ipc-uuid", false, false, false )
+		);
+	}
+
 	return pInstrumentList;
 }
 
@@ -128,6 +134,10 @@ void InstrumentList::saveTo(
 		else {
 			ERRORLOG( "Invalid instrument!" );
 		}
+	}
+
+	if ( bIpcXml ) {
+		instruments_node.write_uuid( "ipc-uuid", getUuid() );
 	}
 }
 

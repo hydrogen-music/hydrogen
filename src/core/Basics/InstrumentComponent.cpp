@@ -188,6 +188,10 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 		}
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}
+
+	if ( bIpcXml ) {
+		pInstrumentComponent->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+	}
 	
 	return pInstrumentComponent;
 }
@@ -252,6 +256,10 @@ void InstrumentComponent::saveTo(
 		}
 
 		m_layers = newLayers;
+	}
+
+	if ( bIpcXml ) {
+		component_node.write_uuid( "ipc-uuid", getUuid() );
 	}
 }
 

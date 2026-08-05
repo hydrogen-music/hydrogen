@@ -147,6 +147,9 @@ class Base {
 
 		/** \return the immutable per-instance identity (ADR 0028). */
 		const Uuid& getUuid() const { return m_uuid; }
+		/** Only intended to be used for reconstruction of an external objects
+		 * during IPC transport. */
+		void setUuid( const Uuid& uuid ) { m_uuid = uuid; }
 		static const char *_class_name() { return "Object"; }        ///< return the class name
 		virtual const char* class_name() const { return _class_name(); }
 		/**

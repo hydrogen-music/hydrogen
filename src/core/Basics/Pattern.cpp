@@ -211,7 +211,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			auto pNote = Note::loadFrom( note_node, bSilent );
+			auto pNote = Note::loadFrom( note_node, bIpcXml, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr &&
 				 ( pNote->getInstrumentId() != Instrument::EmptyId ||
@@ -231,7 +231,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 				sequenceNode.firstChildElement( "noteList" );
 			XMLNode noteNode = noteListNode.firstChildElement( "note" );
 			while ( !noteNode.isNull() ) {
-				const auto pNote = Note::loadFrom( noteNode, bSilent );
+				const auto pNote = Note::loadFrom( noteNode, bIpcXml, bSilent );
 				if ( pNote != nullptr ) {
 					pPattern->insertNote( pNote );
 				}
@@ -243,6 +243,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 
 	if ( bIpcXml ) {
 		// Additional members not present in .h2pattern but required for IPC.
+		pPattern->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
 		pPattern->setPath(
 			node.read_string( "ipc-path", "", false, true, false )
 		);
@@ -378,12 +379,13 @@ void Pattern::saveTo(
 				}
 			}
 			XMLNode note_node = note_list_node.createNode( "note" );
-			pNote->saveTo( note_node );
+			pNote->saveTo( note_node, bIpcXml );
 		}
 	}
 
 	if ( bIpcXml ) {
 		// Additional members not present in .h2pattern but required for IPC.
+		pattern_node.write_uuid( "ipc-uuid", getUuid() );
 		pattern_node.write_string( "ipc-path", m_sPath );
 		pattern_node.write_bool( "ipc-isModified", m_bIsModified );
 		pattern_node.write_string( "ipc-drumkitName", m_sDrumkitName );

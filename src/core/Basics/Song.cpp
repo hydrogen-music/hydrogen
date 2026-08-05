@@ -274,16 +274,6 @@ QByteArray Song::toXmlBuffer( bool bKeepMissingSamples, bool bSilent ) const
 
 	saveTo( rootNode, bKeepMissingSamples, true, bSilent );
 
-	// Additional members not present in .h2song but required for IPC.
-	rootNode.write_string( "ipc-path", m_sPath );
-	rootNode.write_bool( "ipc-isModified", m_bIsModified );
-	rootNode.write_string(
-		"ipc-lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath
-	);
-	rootNode.write_bool(
-		"ipc-wasAskedAboutMissingSamples", m_bWasAskedAboutMissingSamples
-	);
-
 	return doc.toByteArray();
 }
 
@@ -306,18 +296,6 @@ std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
 	const QString sPath =
 		songNode.read_string( "ipc-path", "", false, false, false );
 	auto pSong = Song::loadFrom( songNode, sPath, true, bSilent, pHydrogen );
-
-	// Additional members not present in .h2song but required for IPC.
-	pSong->setPath( sPath );
-	pSong->setIsModified(
-		songNode.read_bool( "ipc-isModified", false, false, false, false )
-	);
-	pSong->setLastLoadedDrumkitPath( songNode.read_string(
-		"ipc-lastLoadedDrumkitPath", "", false, false, false
-	) );
-	pSong->setWasAskedAboutMissingSamples( songNode.read_bool(
-		"ipc-wasAskedAboutMissingSamples", false, false, false, false
-	) );
 
 	return pSong;
 }
@@ -829,6 +807,21 @@ std::shared_ptr<Song> Song::loadFrom(
 		}
 	}
 
+	// Additional members not present in .h2song but required for IPC.
+	if ( bIpcXml ) {
+		pSong->setUuid( rootNode.read_uuid( "ipc-uuid", false, false, false ) );
+		pSong->setPath( sPath );
+		pSong->setIsModified(
+			rootNode.read_bool( "ipc-isModified", false, false, false, false )
+		);
+		pSong->setLastLoadedDrumkitPath( rootNode.read_string(
+			"ipc-lastLoadedDrumkitPath", "", false, false, false
+		) );
+		pSong->setWasAskedAboutMissingSamples( rootNode.read_bool(
+			"ipc-wasAskedAboutMissingSamples", false, false, false, false
+		) );
+	}
+
 	return pSong;
 }
 
@@ -1091,6 +1084,19 @@ void Song::saveTo(
 		XMLNode pathNode = automationPathsNode.createNode( "path" );
 		pathNode.write_attribute( "adjust", "velocity" );
 		pPath->saveTo( pathNode, bSilent );
+	}
+
+	// Additional members not present in .h2song but required for IPC.
+	if ( bIpcXml ) {
+		rootNode.write_uuid( "ipc-uuid", getUuid() );
+		rootNode.write_string( "ipc-path", m_sPath );
+		rootNode.write_bool( "ipc-isModified", m_bIsModified );
+		rootNode.write_string(
+			"ipc-lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath
+		);
+		rootNode.write_bool(
+			"ipc-wasAskedAboutMissingSamples", m_bWasAskedAboutMissingSamples
+		);
 	}
 }
 

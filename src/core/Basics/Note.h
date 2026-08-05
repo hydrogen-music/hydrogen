@@ -344,20 +344,26 @@ class Note : public H2Core::Object<Note> {
 
 	Note::Pitch toPitch() const;
 
-	/*
+	/**
 	 * save the note within the given XMLNode
 	 * \param node the XMLNode to feed
+	 * @param bIpcXml When serializing the class to a IPC message, we
+	 *   have to handle some members not written to disk directly.
+	 *   Otherwise, there would be a loss of information.
 	 */
-	void saveTo( XMLNode& node ) const;
+	void saveTo( XMLNode& node, bool bIpcXml ) const;
 	/**
 	 * load a note from an XMLNode
 	 * \param node the XMLDode to read from
+	 * @param bIpcXml When deserializing the class from a IPC message, we
+	 *   have to handle some members not written to disk directly.
+	 *   Otherwise, there would be a loss of information.
 	 * \param bSilent Whether infos, warnings, and errors should
 	 * be logged.
 	 * \return a new Note instance
 	 */
 	static std::shared_ptr<Note>
-	loadFrom( const XMLNode& node, bool bSilent = false );
+	loadFrom( const XMLNode& node, bool bIpcXml, bool bSilent );
 
 	/** #m_pInstrument accessor */
 	std::shared_ptr<Instrument> getInstrument() const;

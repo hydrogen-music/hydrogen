@@ -309,6 +309,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	if ( bIpcXml ) {
 		// Additional members not present in files written to disk but required
 		// for IPC.
+		pDrumkit->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
 		pDrumkit->setContext( static_cast<Filesystem::Context>( node.read_int(
 			"ipc-context", static_cast<int>( Filesystem::Context::Song ), false,
 			false, false
@@ -535,6 +536,7 @@ void Drumkit::saveTo(
 	if ( bIpcXml ) {
 		// Additional members not present in files written to disk but required
 		// for IPC.
+		node.write_uuid( "ipc-uuid", getUuid() );
 		node.write_int( "ipc-context", static_cast<int>( m_context ) );
 		node.write_string( "ipc-path", m_sPath );
 		node.write_bool( "ipc-isModified", m_bIsModified );

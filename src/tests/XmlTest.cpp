@@ -1309,6 +1309,31 @@ void XmlTest::testWriteToNonExistingDir() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testUuidSerialization() {
+	___INFOLOG( "" );
+
+	const Uuid uuidIn = Uuid::mint();
+	CPPUNIT_ASSERT( !uuidIn.isNull() );
+
+	const Uuid uuidCtrl = Uuid( uuidIn.epoch, uuidIn.counter );
+	CPPUNIT_ASSERT( uuidCtrl == uuidIn );
+
+	XMLDoc docIn;
+	XMLNode rootNodeIn = docIn.set_root( "test" );
+	rootNodeIn.write_uuid( "ipc-uuid", uuidIn );
+
+	const auto serialized = docIn.toByteArray();
+
+	XMLDoc docOut;
+	CPPUNIT_ASSERT( docOut.setContent( serialized ) );
+	XMLNode rootNodeOut = docOut.firstChildElement( "test" );
+	const Uuid uuidOut = rootNodeOut.read_uuid( "ipc-uuid", false, false, false );
+
+	CPPUNIT_ASSERT( uuidOut == uuidIn );
+
+	___INFOLOG( "passed" );
+}
+
 bool XmlTest::checkSampleData(
 	std::shared_ptr<H2Core::Drumkit> pKit,
 	bool bLoaded

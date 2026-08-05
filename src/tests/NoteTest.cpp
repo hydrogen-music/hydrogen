@@ -510,9 +510,9 @@ void NoteTest::testSerializeProbability() {
 
 	auto pNoteIn = std::make_shared<Note>( pSnare, 0, 1.0f, 0.5f, 1 );
 	pNoteIn->setProbability( 0.67f );
-	pNoteIn->saveTo( node );
+	pNoteIn->saveTo( node, false /*bIpcXml*/ );
 
-	auto pNoteOut = Note::loadFrom( node );
+	auto pNoteOut = Note::loadFrom( node, false /*bIpcXml*/, false /*bSilent*/ );
 	const auto pInstrumentMapped = pDrumkit->mapInstrument(
 		pNoteOut->getType(), pNoteOut->getInstrumentId() );
 	pNoteOut->mapToInstrument( pInstrumentMapped );

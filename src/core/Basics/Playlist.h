@@ -146,26 +146,26 @@ class Playlist : public H2Core::Object<Playlist>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+	 static std::shared_ptr<Playlist>
+	 load_from( const XMLNode& root, const QString& sPath, bool bIpcXml );
+	 void saveTo( XMLNode& node, bool bUseRelativePaths, bool bIpcXml ) const;
 
-		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
-		void saveTo( XMLNode& node, bool bUseRelativePaths ) const;
+	 void execScript( int index ) const;
 
-		void execScript( int index ) const;
+	 /** Absolute path to the underlying artifact serving as an unique
+	  * identifier of the artifact throughout Hydrogen.
+	  *
+	  * In case is no file backing the resource (yet), an path to an
+	  * non-existing file retrieved via #Filesystem::emptyPath will be used
+	  * instead. */
+	 QString m_sPath;
 
-		/** Absolute path to the underlying artifact serving as an unique
-		 * identifier of the artifact throughout Hydrogen.
-		 *
-		 * In case is no file backing the resource (yet), an path to an
-		 * non-existing file retrieved via #Filesystem::emptyPath will be used
-		 * instead. */
-		QString m_sPath;
+	 std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
+	 int m_nActiveSongNumber;
+	 bool m_bIsModified;
 
-		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
-		int m_nActiveSongNumber;
-		bool m_bIsModified;
-
-		/** Used to indicate changes in the underlying XML file. */
-		static constexpr int nCurrentFormatVersion = 2;
+	 /** Used to indicate changes in the underlying XML file. */
+	 static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline const QString& PlaylistEntry::getSongPath() const {

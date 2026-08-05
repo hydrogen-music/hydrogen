@@ -291,6 +291,15 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 		"isSoloed", pLayer->m_bIsSoloed, true, false, true );
 	pLayer->m_sFallbackSampleFileName = sFileName;
 
+	if ( bIpcXml ) {
+		pLayer->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		if ( pSample != nullptr ) {
+			pLayer->setUuid(
+				node.read_uuid( "uuid-sample", false, false, false )
+			);
+		}
+	}
+
 	return pLayer;
 }
 
@@ -369,6 +378,8 @@ void InstrumentLayer::saveTo(
 	}
 
 	if ( bIpcXml ) {
+		layer_node.write_uuid( "ipc-uuid", getUuid() );
+		layer_node.write_uuid( "uuid-sample", getUuid() );
 		layer_node.write_string(
 			"license", pSample->getLicense().getLicenseString()
 		);

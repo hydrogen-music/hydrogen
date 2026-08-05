@@ -61,6 +61,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testSamplePathPortability);
 	CPPUNIT_TEST(testSamplePathsWritten);
 	CPPUNIT_TEST(testWriteToNonExistingDir);
+	CPPUNIT_TEST(testUuidSerialization);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -140,6 +141,7 @@ class XmlTest : public CppUnit::TestCase {
 		void testSamplePathsWritten();
 
 		void testWriteToNonExistingDir();
+		void testUuidSerialization();
 
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,

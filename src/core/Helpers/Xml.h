@@ -120,6 +120,12 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 						   const QColor& defaultValue = QColor( 97, 167, 251 ),
 						   bool inexistent_ok = true, bool empty_ok = true,
 						   bool bSilent = false ) const;
+		Uuid read_uuid(
+			const QString& node,
+			bool inexistent_ok = true,
+			bool empty_ok = true,
+			bool bSilent = false
+		) const;
 
 		/**
 		 * reads an attribute from the node
@@ -167,6 +173,7 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 */
 		void write_string( const QString& node, const QString& value );
 	void write_color( const QString& node, const QColor& color );
+		void write_uuid( const QString& node, const Uuid& uuid );
 
 		/**
 		 * write a string as an attribute of the node

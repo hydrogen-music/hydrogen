@@ -593,6 +593,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	if ( bIpcXml ) {
 		// Additional members not present in files written to disk but required
 		// for IPC.
+		pInstrument->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
 		pInstrument->setIsPreviewInstrument( node.read_bool(
 			"ipc-isPreviewInstrument", false, false, false, false
 		) );
@@ -728,6 +729,7 @@ void Instrument::saveTo(
 	// Additional members not present in files written to disk but required for
 	// IPC.
 	if ( bIpcXml ) {
+		InstrumentNode.write_uuid( "ipc-uuid", getUuid() );
 		InstrumentNode.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
 		bool bSamplesLoaded = false;
 		for ( auto& ppComponent : *m_pComponents ) {

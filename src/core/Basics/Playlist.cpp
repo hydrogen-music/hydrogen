@@ -72,11 +72,12 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
 		return pPlaylist;
 	}
 
-	return load_from( rootNode, sPath );
+	return load_from( rootNode, sPath, false /*bIpcXml*/ );
 }
 
 std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
-											   const QString& sPath )
+											   const QString& sPath,
+											   bool bIpcXml )
 {
 	const QFileInfo fileInfo( sPath );
 
@@ -129,6 +130,11 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
 											  sScriptPath );
 					pEntry->setScriptPath( scriptPathInfo.absoluteFilePath() );
 				}
+				if ( bIpcXml ) {
+					pEntry->setUuid(
+						nextNode.read_uuid( "ipc-uuid", false, false, false )
+					);
+				}
 				pPlaylist->add( pEntry );
 			}
 
@@ -137,6 +143,19 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
 	} else {
 		WARNINGLOG( "songs node not found" );
 	}
+
+	// Additional members not present in .h2playlist but required for IPC.
+	if ( bIpcXml ) {
+		pPlaylist->setUuid( root.read_uuid( "ipc-uuid", false, false, false ) );
+		pPlaylist->setPath( root.read_string(
+			"ipc-path", Filesystem::emptyPath( Filesystem::Artifact::Playlist ),
+			false, true, false
+		) );
+		pPlaylist->setIsModified(
+			root.read_bool( "ipc-isModified", false, false, false, false )
+		);
+	}
+
 	return pPlaylist;
 }
 
@@ -166,7 +185,10 @@ bool Playlist::save( std::shared_ptr<Preferences> pPreferences, bool bSilent ) c
 
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 
-	saveTo( root, pPreferences->getUseRelativeFileNamesForPlaylists() );
+	saveTo(
+		root, pPreferences->getUseRelativeFileNamesForPlaylists(),
+		false /*bIpcXml*/
+	);
 	return doc.write( m_sPath );
 }
 
@@ -177,11 +199,7 @@ QByteArray Playlist::toXmlBuffer() const
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 	// Always absolute paths: the buffer travels across the IPC split (ADR 0030),
 	// where there is no playlist file to resolve relative paths against.
-	saveTo( root, false /*bUseRelativePaths*/ );
-
-	// Additional members not present in .h2playlist but required for IPC.
-	root.write_string( "ipc-path", m_sPath );
-	root.write_bool( "ipc-isModified", m_bIsModified );
+	saveTo( root, false /*bUseRelativePaths*/, true /*bIpcXml*/ );
 
 	return doc.toByteArray();
 }
@@ -201,21 +219,13 @@ std::shared_ptr<Playlist> Playlist::fromXmlBuffer( const QByteArray& buffer,
 		return nullptr;
 	}
 
-	auto pPlaylist = load_from( root, sPath );
-
-	// Additional members not present in .h2playlist but required for IPC.
-	pPlaylist->setPath( root.read_string(
-		"ipc-path", Filesystem::emptyPath( Filesystem::Artifact::Playlist ),
-		false, true, false
-	) );
-	pPlaylist->setIsModified(
-		root.read_bool( "ipc-isModified", false, false, false, false )
-	);
+	auto pPlaylist = load_from( root, sPath, true /* bIpcXml */ );
 
 	return pPlaylist;
 }
 
-void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths ) const
+void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths, bool bIpcXml )
+	const
 {
 	QFileInfo fileInfo( m_sPath );
 
@@ -236,6 +246,16 @@ void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths ) const
 		song_node.write_string( "path", sSongPath );
 		song_node.write_string( "scriptPath", sScriptPath );
 		song_node.write_bool( "scriptEnabled", pEntry->getScriptEnabled() );
+		if ( bIpcXml ) {
+			song_node.write_uuid( "ipc-uuid", getUuid() );
+		}
+	}
+
+	// Additional members not present in .h2playlist but required for IPC.
+	if ( bIpcXml ) {
+		node.write_uuid( "ipc-uuid", getUuid() );
+		node.write_string( "ipc-path", m_sPath );
+		node.write_bool( "ipc-isModified", m_bIsModified );
 	}
 }
 

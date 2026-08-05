@@ -597,7 +597,7 @@ void Note::swing( Hydrogen* pHydrogen )
 	}
 }
 
-void Note::saveTo( XMLNode& node ) const
+void Note::saveTo( XMLNode& node, bool bIpcXml ) const
 {
 	node.write_int( "position", m_nPosition );
 	node.write_float( "leadlag", m_fLeadLag );
@@ -613,9 +613,14 @@ void Note::saveTo( XMLNode& node ) const
 	node.write_string( "type", m_sType );
 	node.write_bool( "note_off", m_bNoteOff );
 	node.write_float( "probability", m_fProbability );
+
+	if ( bIpcXml ) {
+		node.write_uuid( "ipc-uuid", getUuid() );
+	}
 }
 
-std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
+std::shared_ptr<Note>
+Note::loadFrom( const XMLNode& node, bool bIpcXml, bool bSilent )
 {
 	auto pNote = std::make_shared<Note>();
 
@@ -708,6 +713,10 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 	pNote->setProbability( node.read_float(
 		"probability", pNote->getProbability(), false, false, bSilent
 	) );
+
+	if ( bIpcXml ) {
+		pNote->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+	}
 
 	return pNote;
 }
