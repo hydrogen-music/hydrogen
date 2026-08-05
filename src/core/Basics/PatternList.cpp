@@ -82,7 +82,7 @@ std::shared_ptr<PatternList> PatternList::loadFrom(
 	}
 
 	if ( bIpcXml ) {
-		pPatternList->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		pPatternList->setUuid( patternNode.read_uuid( "ipc-uuid", false, false, false ) );
 	}
 
 	return pPatternList;
@@ -105,7 +105,7 @@ void PatternList::saveTo(
 	}
 
 	if ( bIpcXml ) {
-		node.write_uuid( "ipc-uuid", getUuid() );
+		patternListNode.write_uuid( "ipc-uuid", getUuid() );
 	}
 }
 
