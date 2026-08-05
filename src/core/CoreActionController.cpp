@@ -1955,9 +1955,6 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 		return false;
 	}
 	auto pPreviousDrumkit = pSong->getDrumkit();
-	if ( sameObject( pPreviousDrumkit, pNewDrumkit ) ) {
-		return true;
-	}
 
 	QString sNewDrumkitLog;
 	if ( !pNewDrumkit->getPath().isEmpty() ) {
