@@ -269,9 +269,6 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	}
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
-	if ( sameObject( pSong, pCurrentSong ) ) {
-		return;
-	}
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
