@@ -1118,6 +1118,10 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[Sample]\n" )
 				.arg( sPrefix )
+				.append( QString( "%1%2m_uuid: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( getUuid().toQString() ) )
 				.append( QString( "%1%2m_bIsLoaded: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1176,7 +1180,8 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Sample]" )
-				.append( QString( " m_bIsLoaded: %1" ).arg( m_bIsLoaded ) )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+				.append( QString( ", m_bIsLoaded: %1" ).arg( m_bIsLoaded ) )
 				.append( QString( ", m_sFilePath: %1" ).arg( m_sFilePath ) )
 				.append( QString( ", m_nFrames: %1" ).arg( m_nFrames ) )
 				.append( QString( ", m_nSampleRate: %1" ).arg( m_nSampleRate ) )

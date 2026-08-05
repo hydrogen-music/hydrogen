@@ -391,6 +391,8 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fGain ) )
 			.append( QString( "%1%2m_fPitchOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPitchOffset ) )
 			.append( QString( "%1%2m_fStartVelocity: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fStartVelocity ) )
@@ -410,7 +412,8 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 }
 	else {
 		sOutput = QString( "[InstrumentLayer]" )
-			.append( QString( " m_fGain: %1" ).arg( m_fGain ) )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
 			.append( QString( ", m_fPitchOffset: %1" ).arg( m_fPitchOffset ) )
 			.append( QString( ", m_fStartVelocity: %1" ).arg( m_fStartVelocity ) )
 			.append( QString( ", m_fEndVelocity: %1" ).arg( m_fEndVelocity ) )

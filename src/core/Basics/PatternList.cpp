@@ -375,14 +375,17 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
-		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
+		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) );
 		for ( const auto& pp : m_pPatterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s, bShort ) ) );
 			}
 		}
 	} else {
-		sOutput = QString( "[PatternList] " );
+		sOutput = QString( "[PatternList] " )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) );
 		for ( const auto& pp : m_pPatterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "[%1] " ).arg( pp->getName() ) );

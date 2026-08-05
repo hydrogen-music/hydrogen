@@ -1351,6 +1351,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 	if ( !bShort ) {
 		sOutput = QString( "%1[Song]\n" )
 					  .arg( sPrefix )
+					  .append( QString( "%1%2m_uuid: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( getUuid().toQString() ) )
 					  .append( QString( "%1%2m_bIsTimelineActivated: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -1509,6 +1513,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Song]" )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
 				.append( QString( ", m_bIsTimelineActivated: %1" )
 							 .arg( m_bIsTimelineActivated ) )
 				.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )

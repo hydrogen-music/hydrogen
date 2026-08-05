@@ -415,6 +415,8 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
@@ -427,7 +429,8 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 		.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
 	} else {
 		sOutput = QString( "[Playlist]" )
-			.append( QString( " m_sPath: %1" ).arg( m_sPath ) )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {

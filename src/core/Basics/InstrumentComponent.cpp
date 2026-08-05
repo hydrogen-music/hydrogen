@@ -309,6 +309,8 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sName ) )
 			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s )
@@ -327,8 +329,9 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			}
 		}
 	} else {
-		sOutput = QString( "[InstrumentComponent] " )
-			.append( QString( "m_sName: %1" ).arg( m_sName ) )
+		sOutput = QString( "[InstrumentComponent]" )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_sName:i%1" ).arg( m_sName ) )
 			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) )

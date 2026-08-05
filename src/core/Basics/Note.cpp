@@ -745,6 +745,10 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 	if ( !bShort ) {
 		sOutput = QString( "%1[Note]\n" )
 					  .arg( sPrefix )
+					  .append( QString( "%1%2m_uuid: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( getUuid().toQString() ) )
 					  .append( QString( "%1%2m_nInstrumentId: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -880,6 +884,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Note]" )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
 				.append( QString( ", m_instrumentId: %1" )
 							 .arg( static_cast<int>( m_instrumentId ) ) )
 				.append( QString( ", m_sType: %1" ).arg( m_sType ) )

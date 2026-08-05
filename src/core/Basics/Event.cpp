@@ -152,6 +152,8 @@ QString Event::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Event]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_type: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( Event::TypeToQString( m_type ) ) )
 			.append( QString( "%1%2m_nValue: %3\n" ).arg( sPrefix ).arg( s )
@@ -161,7 +163,8 @@ QString Event::toQString( const QString& sPrefix, bool bShort ) const {
 	}
 	else {
 		sOutput = QString( "[Event]" )
-			.append( QString( " m_type: %1" ).arg( Event::TypeToQString( m_type ) ) )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_type: %1" ).arg( Event::TypeToQString( m_type ) ) )
 			.append( QString( ", m_nValue: %1" ).arg( m_nValue ) )
 			.append( QString( ", m_nId: %1" ).arg( m_nId ) );
 	}

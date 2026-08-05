@@ -191,7 +191,9 @@ QString DrumkitMap::toQString( const QString& sPrefix, bool bShort ) const
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( !bShort ) {
-		sOutput = QString( "%1[DrumkitMap]\n" ).arg( sPrefix );
+		sOutput = QString( "%1[DrumkitMap]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) );
 		for ( const auto& [iid, ssType] : m_mapping ) {
 			sOutput.append( QString( "%1%2instrument ID: %3 - type: %4\n" )
 								.arg( sPrefix )
@@ -201,7 +203,8 @@ QString DrumkitMap::toQString( const QString& sPrefix, bool bShort ) const
 		}
 	}
 	else {
-		sOutput = QString( "[DrumkitMap]" );
+		sOutput = QString( "[DrumkitMap]" )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) );
 		for ( const auto& [iid, ssType] : m_mapping ) {
 			sOutput.append( QString( " [ instrument ID: %1 - type: %2 ]," )
 								.arg( static_cast<int>( iid ) )

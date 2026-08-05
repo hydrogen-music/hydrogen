@@ -805,6 +805,10 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[Pattern]\n" )
 				.arg( sPrefix )
+				.append( QString( "%1%2m_uuid: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( getUuid().toQString() ) )
 				.append( QString( "%1%2m_sPath: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -878,12 +882,15 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const
 			}
 		}
 		sOutput.append( QString( "%1%2m_bIsModified: %3\n" )
-						.arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
+							.arg( sPrefix )
+							.arg( s )
+							.arg( m_bIsModified ) );
 	}
 	else {
 		sOutput =
 			QString( "[Pattern]" )
-				.append( QString( " m_sName: %1" ).arg( m_sName ) )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+				.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 				.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 				.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName )

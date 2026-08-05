@@ -133,6 +133,10 @@ QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[AutomationPath]\n" )
 				.arg( sPrefix )
+				.append( QString( "%1%2m_uuid: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( getUuid().toQString() ) )
 				.append( QString( "%1%2m_fMin: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -155,11 +159,13 @@ QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const
 		}
 	}
 	else {
-		sOutput = QString( "[AutomationPath]" )
-					  .append( QString( " m_fMin: %1" ).arg( m_fMin ) )
-					  .append( QString( ", m_fMax: %1" ).arg( m_fMax ) )
-					  .append( QString( ", m_fDef: %1" ).arg( m_fDef ) )
-					  .append( QString( ", m_points: [" ) );
+		sOutput =
+			QString( "[AutomationPath]" )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+				.append( QString( ", m_fMin: %1" ).arg( m_fMin ) )
+				.append( QString( ", m_fMax: %1" ).arg( m_fMax ) )
+				.append( QString( ", m_fDef: %1" ).arg( m_fDef ) )
+				.append( QString( ", m_points: [" ) );
 		for ( const auto& pp : m_points ) {
 			sOutput.append(
 				QString( "(%1: %4) " ).arg( pp.first ).arg( pp.second )
