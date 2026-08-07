@@ -43,6 +43,8 @@ All notable changes to this project will be documented in this file.
 - Fixed performance issue when using JACK audio with rubberband.
 - Parameter loss in the MIDI table within the preferences (#2328).
 - Fixed XDG app ID by @City-busz.
+- Rubberband support compiled into Hydrogen is no longer deactivated in case the
+  rubberband CLI is not installed on the system.
 
 ## [1.2.6] - 2025-07-29
 
