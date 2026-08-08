@@ -996,6 +996,11 @@ void AudioEngine::calculateTransportOffsetOnBpmChange(
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		// For the mirror engine this is a no-op as neither the peaks nor the
+		// audio buffer would ever be used.
+		return;
+	}
 	m_MutexOutputPointer.lock();
 	float *pBuffer_L, *pBuffer_R;
 
