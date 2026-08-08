@@ -194,6 +194,10 @@ enum class IpcOpcode : quint16 {
 	GetSoundLibraryInfo,    ///< reply: args = [QStringList drumkitFolders,
 	                        ///<         QStringList customDrumkitFolders,
 	                        ///<         QStringList customDrumkitPaths]
+	GetAudioDriverInfo,    ///< reply: args = [int kind, bool isPresent,
+	                        ///<         bool isRunning, QString connectedDevice,
+	                        ///<         int timebaseState,
+	                        ///<         bool jackTransportEnabled]
 
 	// ── Panic (stop all playback + send all-notes-off) ──
 	Panic,

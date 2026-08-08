@@ -33,6 +33,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcChannel.h>
+#include <core/IO/AudioDriverInfo.h>
 #include <core/License.h>
 #include <core/Midi/Midi.h>
 #include <core/Preferences/Preferences.h>
@@ -675,6 +676,16 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 				.arg( pDb->getCustomDrumkitFolders() )
 				.arg( pDb->getCustomDrumkitPaths() );
 		}
+		break;
+	}
+	case IpcOpcode::GetAudioDriverInfo: {
+		const auto info = pHydrogen->getAudioDriverInfo();
+		reply.arg( static_cast<int>( info.kind ) )
+			.arg( info.isPresent )
+			.arg( info.isRunning )
+			.arg( info.connectedDevice )
+			.arg( static_cast<int>( info.timebaseState ) )
+			.arg( info.jackTransportEnabled );
 		break;
 	}
 	default:

@@ -103,11 +103,12 @@ class IpcEngineAccess : public IEngineAccess,
 	// --- audio driver (ADR 0029) ---
 	//
 	// The headless engine owns audio I/O; in editor mode driver state crosses
-	// as config (override layer), query, and event. That query/event plumbing
-	// is a later editor-mode sub-step; until it exists the mirror has no real
-	// audio driver, so we report "no driver" rather than the mirror's headless
-	// one.
-	AudioDriverInfo getAudioDriverInfo() const override { return AudioDriverInfo(); }
+	// as config (override layer), query, and event. The mirror's
+	// AudioDriverInfo is populated via IPC (syncViaIpc + event-driven re-fetch
+	// on AudioDriverChanged / JackTimebaseStateChanged) and cached in the
+	// mirror Hydrogen; we serve reads from that cache.
+	AudioDriverInfo getAudioDriverInfo() const override {
+		return m_pMirror->getCachedAudioDriverInfo(); }
 	int getAudioSampleRate() const override { return 0; }
 	int getAudioBufferSize() const override { return 0; }
 	int getAudioLatencyFrames() const override { return 0; }

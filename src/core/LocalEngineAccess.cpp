@@ -43,81 +43,12 @@ namespace H2Core {
 // engine-side (ADR 0029). The GUI consumes the value views below — it never
 // holds or `dynamic_cast`s a driver pointer, so the same GUI code works against
 // an IPC-backed engine (#IpcEngineAccess) where the driver lives in another
-// process.
+// process. The driver-type resolution logic lives in
+// Hydrogen::getAudioDriverInfo(); the methods below provide the remaining
+// driver value views (sample rate, buffer size, devices, etc.).
 
 AudioDriverInfo LocalEngineAccess::getAudioDriverInfo() const {
-	AudioDriverInfo info;
-	const auto pDriver = m_pHydrogen->getAudioDriver();
-	if ( pDriver == nullptr ) {
-		// kind=None, isPresent=false, isRunning=false
-		return info;
-	}
-	info.isPresent = true;
-	// A StubAudioDriver — including a selected-but-not-compiled backend stub deriving
-	// from it — means no real audio output is connected.
-	info.isRunning =
-		std::dynamic_pointer_cast<StubAudioDriver>( pDriver ) == nullptr;
-
-	// The consolidated software driver (ADR 0031) clocks the engine but may be
-	// headless (no real output). Its producesAudio flag is the authoritative
-	// "running" signal: false → headless (former Null), reported as kind Null.
-	if ( const auto pSw = std::dynamic_pointer_cast<SoftwareDriver>( pDriver ) ) {
-		info.isRunning = pSw->getProducesAudio();
-		info.kind = pSw->getProducesAudio() ?
-			Preferences::AudioDriver::Fake : Preferences::AudioDriver::Null;
-		return info;
-	}
-
-	// Resolve the concrete kind. Each cast is guarded by the same H2CORE_HAVE_*
-	// flag the GUI used, so a selected-but-not-compiled backend falls through to
-	// Null below.
-#ifdef H2CORE_HAVE_JACK
-	if ( std::dynamic_pointer_cast<JackDriver>( pDriver ) != nullptr ) {
-		info.kind = Preferences::AudioDriver::Jack;
-		return info;
-	}
-#endif
-#ifdef H2CORE_HAVE_ALSA
-	if ( const auto pAlsa =
-			 std::dynamic_pointer_cast<AlsaAudioDriver>( pDriver ) ) {
-		info.kind = Preferences::AudioDriver::Alsa;
-		info.connectedDevice = pAlsa->m_sAlsaAudioDevice;
-		return info;
-	}
-#endif
-#ifdef H2CORE_HAVE_PORTAUDIO
-	if ( std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) != nullptr ) {
-		info.kind = Preferences::AudioDriver::PortAudio;
-		return info;
-	}
-#endif
-#ifdef H2CORE_HAVE_COREAUDIO
-	if ( std::dynamic_pointer_cast<CoreAudioDriver>( pDriver ) != nullptr ) {
-		info.kind = Preferences::AudioDriver::CoreAudio;
-		return info;
-	}
-#endif
-#ifdef H2CORE_HAVE_PULSEAUDIO
-	if ( std::dynamic_pointer_cast<PulseAudioDriver>( pDriver ) != nullptr ) {
-		info.kind = Preferences::AudioDriver::PulseAudio;
-		return info;
-	}
-#endif
-#ifdef H2CORE_HAVE_OSS
-	if ( std::dynamic_pointer_cast<OssDriver>( pDriver ) != nullptr ) {
-		info.kind = Preferences::AudioDriver::Oss;
-		return info;
-	}
-#endif
-	if ( std::dynamic_pointer_cast<DiskWriterDriver>( pDriver ) != nullptr ) {
-		info.kind = Preferences::AudioDriver::Disk;
-		return info;
-	}
-
-	// Present but unmatched: the StubAudioDriver fallback (or a backend not surfaced
-	// in the UI, e.g. the plugin/fake drivers).
-	info.kind = Preferences::AudioDriver::Null;
-	return info;
+	return m_pHydrogen->getAudioDriverInfo();
 }
 
 int LocalEngineAccess::getAudioSampleRate() const {

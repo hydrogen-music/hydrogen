@@ -26,6 +26,7 @@
 #include <core/Basics/Song.h>
 #include <core/config.h>
 #include <core/Helpers/Time.h>
+#include <core/IO/AudioDriverInfo.h>
 #include <core/IO/JackDriver.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
@@ -467,6 +468,19 @@ public:
 	 *   #H2Core::JackDriver::m_timebaseState).
 	 */
 	JackDriver::Timebase		getJackTimebaseState() const;
+
+	/** \return A value description of the active audio driver, resolved from
+	 * the live driver pointer (ADR 0029). In editor mode the mirror engine has
+	 * no real driver; use #getCachedAudioDriverInfo for the IPC-cached copy. */
+	AudioDriverInfo		getAudioDriverInfo() const;
+	/** \return The cached AudioDriverInfo populated via IPC in editor mode
+	 * (ADR 0029). In standalone mode this is default-constructed and unused. */
+	const AudioDriverInfo&	getCachedAudioDriverInfo() const;
+	/** Cache @a info as the current audio-driver state. Called by the GUI
+	 * after fetching AudioDriverInfo from the authoritative engine via IPC
+	 * (syncViaIpc / event-driven re-fetch). Editor mode only (ADR 0029). */
+	void			setCachedAudioDriverInfo( const AudioDriverInfo& info );
+
 	/** \return NsmClient::m_bUnderSessionManagement if NSM is
 		supported.*/
 	bool			isUnderSessionManagement() const;
@@ -636,6 +650,12 @@ private:
 	 * visible (probably most of the time) we do omit the corresponding
 	 * event for better performance. */
 	bool m_bSendBbtChangeEvents;
+
+	/** Cached audio-driver state for editor mode (ADR 0029). Populated via IPC
+	 * from the authoritative engine; read by hasJackDriver() /
+	 * hasJackTransport() / getJackTimebaseState() when m_ProcessMode ==
+	 * Editor. Unused (default-constructed) in standalone. */
+	AudioDriverInfo m_cachedAudioDriverInfo;
 
 };
 

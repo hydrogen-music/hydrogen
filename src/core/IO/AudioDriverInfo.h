@@ -24,6 +24,7 @@
 
 #include <QString>
 
+#include <core/IO/JackDriver.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core {
@@ -52,6 +53,15 @@ struct AudioDriverInfo {
 	/** Device the running driver is connected to, where the driver exposes one
 	 * (e.g. ALSA); empty otherwise. For display only. */
 	QString connectedDevice;
+	/** JACK timebase state of the running driver (#JackDriver::Timebase::None
+	 * when JACK is not the active driver or no timebase master/listener is
+	 * registered). Filled engine-side; in editor mode the mirror reads it from
+	 * the cached copy populated via IPC (ADR 0029). */
+	JackDriver::Timebase timebaseState = JackDriver::Timebase::None;
+	/** Whether JACK transport is enabled in the preferences
+	 * (#Preferences::USE_JACK_TRANSPORT) and a JackDriver is active. In editor
+	 * mode this comes from the cached AudioDriverInfo (ADR 0029). */
+	bool jackTransportEnabled = false;
 };
 
 }

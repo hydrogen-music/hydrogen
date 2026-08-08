@@ -325,6 +325,10 @@ class HydrogenApp : public QObject,
 
    private:
 	void updateEventListeners();
+	/** Re-fetch AudioDriverInfo from the authoritative engine via IPC and
+	 * cache it in the mirror Hydrogen. Called during syncViaIpc() and on
+	 * AudioDriverChanged / JackTimebaseStateChanged events (ADR 0029). */
+	void refreshCachedAudioDriverInfo();
 
 	static HydrogenApp* m_pInstance;  ///< HydrogenApp instance
 
@@ -398,8 +402,14 @@ class HydrogenApp : public QObject,
 	void engineError( uint nErrorCode );
 
 	void setupSinglePanedInterface();
-	virtual void songIsModifiedEvent() override;
-	virtual void XRunEvent() override;
+
+	///////////////////////////// EventListener ////////////////////////////////
+
+	void audioDriverChangedEvent() override;
+	void jackTimebaseStateChangedEvent( int nValue ) override;
+	void playlistChangedEvent( int nValue ) override;
+	void playlistLoadSongEvent() override;
+	void songIsModifiedEvent() override;
 
 	/** Handles the loading and saving of the H2Core::Preferences
 	 * from the core part of H2Core::Hydrogen.
@@ -414,7 +424,7 @@ class HydrogenApp : public QObject,
 	 * \param nValue If 0, Preferences was save. If 1, it was
 	 *     loaded.
 	 */
-	virtual void updatePreferencesEvent( int nValue ) override;
+	void updatePreferencesEvent( int nValue ) override;
 	/**
 	 * Refreshes and updates the GUI after the Song was changed in
 	 * the core part of Hydrogen.
@@ -429,9 +439,10 @@ class HydrogenApp : public QObject,
 	 *     Song. If 2, notifies the user that the current song is
 	 *     opened in read-only mode.
 	 */
-	virtual void updateSongEvent( int nValue ) override;
-	void playlistChangedEvent( int nValue ) override;
-	void playlistLoadSongEvent() override;
+	void updateSongEvent( int nValue ) override;
+	void XRunEvent() override;
+
+	////////////////////////////////////////////////////////////////////////////
 
 	/** Begins and ends nested macros based on @a sContext.
 	 *

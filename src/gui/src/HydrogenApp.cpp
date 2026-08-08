@@ -39,6 +39,7 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/IPC/IpcMessage.h>
+#include <core/IO/AudioDriverInfo.h>
 #include <core/LocalEngineAccess.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
@@ -537,7 +538,12 @@ void HydrogenApp::syncViaIpc() {
 		pStateMirror->forceTransportSync();
 	}
 
-	// 9. Update Audio and Midi Driver-related widgets
+	// 9. Audio driver info — cache the engine's driver state so the mirror's
+	// hasJackDriver() / hasJackTransport() / getJackTimebaseState() work in
+	// editor mode (ADR 0029).
+	refreshCachedAudioDriverInfo();
+
+	// 10. Update Audio and Midi Driver-related widgets
 	{
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::AudioDriverChanged, 0 );
@@ -547,6 +553,38 @@ void HydrogenApp::syncViaIpc() {
 	}
 
 	INFOLOG( "State synced from headless engine via IPC." );
+}
+
+void HydrogenApp::refreshCachedAudioDriverInfo() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+	IpcMessage reply;
+	if ( ! pChannel->request( IpcMessage( IpcOpcode::GetAudioDriverInfo ),
+							  reply, 3000 ) ) {
+		ERRORLOG( "Unable to fetch latest audio driver info" );
+		return;
+	}
+	const auto& args = reply.getArgs();
+	if ( args.size() < 6 ) {
+		ERRORLOG(
+			QString( "Ill-formatted reply [%1]" ).arg( reply.getPayload() )
+		);
+		return;
+	}
+
+	AudioDriverInfo info;
+	info.kind = static_cast<Preferences::AudioDriver>( args[0].toInt() );
+	info.isPresent = args[1].toBool();
+	info.isRunning = args[2].toBool();
+	info.connectedDevice = args[3].toString();
+	info.timebaseState = static_cast<JackDriver::Timebase>( args[4].toInt() );
+	info.jackTransportEnabled = args[5].toBool();
+	m_pHydrogen->setCachedAudioDriverInfo( info );
 }
 
 void HydrogenApp::onIpcConnectionLost() {
@@ -1285,7 +1323,7 @@ void HydrogenApp::onEventQueueTimer()
 			 m_eventListenersToRemove.size() > 0 ) {
 			updateEventListeners();
 		}
-		
+
 		// Provide the event to all EventListeners registered to
 		// HydrogenApp. By registering itself as EventListener and
 		// implementing at least on the methods used below a
@@ -1782,6 +1820,18 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 			.arg( tr("Song is read-only." ) )
 			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
 	}
+}
+
+void HydrogenApp::audioDriverChangedEvent() {
+	// In editor mode, re-fetch cached AudioDriverInfo before dispatching
+	// driver/timebase events so listeners read fresh state (ADR 0029).
+	refreshCachedAudioDriverInfo();
+}
+
+void HydrogenApp::jackTimebaseStateChangedEvent( int nValue ) {
+	// In editor mode, re-fetch cached AudioDriverInfo before dispatching
+	// driver/timebase events so listeners read fresh state (ADR 0029).
+	refreshCachedAudioDriverInfo();
 }
 
 void HydrogenApp::playlistChangedEvent( int nValue ) {
