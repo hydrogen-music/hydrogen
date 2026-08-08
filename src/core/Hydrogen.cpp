@@ -1081,30 +1081,6 @@ void Hydrogen::updateBeatCounterSettings() {
 	m_pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
 }
 
-void Hydrogen::releaseJackTimebaseControl()
-{
-#ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	if ( hasJackTransport() ) {
-		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->getAudioDriver() )
-			->releaseTimebaseControl();
-	}
-#endif
-}
-
-void Hydrogen::initJackTimebaseControl()
-{
-#ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	if ( hasJackTransport() ) {
-		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->getAudioDriver() )
-			->initTimebaseControl();
-	}
-#endif
-}
-
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr )
 {
 	m_instrumentDeathRow.push_back( pInstr );

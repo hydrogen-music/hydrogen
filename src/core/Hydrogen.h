@@ -385,9 +385,6 @@ public:
 	bool			handleBeatCounter( TimePoint start = TimePoint() );
 	void			updateBeatCounterSettings();
 
-	void			initJackTimebaseControl();
-	void			releaseJackTimebaseControl();
-
 	//export management
 	bool			getIsExportSessionActive() const;
 	/**

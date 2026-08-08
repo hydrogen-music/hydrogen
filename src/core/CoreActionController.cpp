@@ -1795,7 +1795,22 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate )
 {
 
 #ifdef H2CORE_HAVE_JACK
-	if ( !m_pHydrogen->hasJackDriver() ) {
+	if ( bActivate ) {
+		m_pHydrogen->getPreferences()->m_bJackTimebaseMode =
+			Preferences::USE_JACK_TIMEBASE_CONTROL;
+	}
+	else {
+		m_pHydrogen->getPreferences()->m_bJackTimebaseMode =
+			Preferences::NO_JACK_TIMEBASE_CONTROL;
+	}
+
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	if ( pAudioEngine->getAudioDriver() == nullptr ) {
+		return false;
+	}
+	auto pJackDriver =
+		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->getAudioDriver() );
+	if ( pJackDriver == nullptr ) {
 		ERRORLOG(
 			"Unable to (de)activate JACK Timebase support. Please select the "
 			"JACK driver first."
@@ -1803,18 +1818,17 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate )
 		return false;
 	}
 
-	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	if ( bActivate ) {
-		m_pHydrogen->getPreferences()->m_bJackTimebaseMode =
-			Preferences::USE_JACK_TIMEBASE_CONTROL;
-		m_pHydrogen->initJackTimebaseControl();
+	if ( m_pHydrogen->getPreferences()->m_nJackTransportMode ==
+		 Preferences::USE_JACK_TRANSPORT ) {
+		pAudioEngine->lock( RIGHT_HERE );
+		if ( bActivate ) {
+			pJackDriver->initTimebaseControl();
+		}
+		else {
+			pJackDriver->releaseTimebaseControl();
+		}
+		pAudioEngine->unlock();
 	}
-	else {
-		m_pHydrogen->getPreferences()->m_bJackTimebaseMode =
-			Preferences::NO_JACK_TIMEBASE_CONTROL;
-		m_pHydrogen->releaseJackTimebaseControl();
-	}
-	m_pHydrogen->getAudioEngine()->unlock();
 
 	return true;
 #else
