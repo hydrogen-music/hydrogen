@@ -1122,6 +1122,11 @@ void Hydrogen::killInstruments() {
 		}
 	}
 
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		// The mirror engine has no access to the actual audio drivers.
+		return;
+	}
+
 #ifdef H2CORE_HAVE_JACK
 	if ( hasJackDriver() ) {
 		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
