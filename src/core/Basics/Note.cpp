@@ -131,7 +131,7 @@ Note::Note(
 	  m_bNoteOff( false ),
 	  m_fProbability( PROBABILITY_DEFAULT ),
 	  m_nNoteStart( 0 ),
-	  m_fUsedTickSize( std::nan( "" ) ),
+	  m_fUsedTickSize( -999 ),
 	  m_fPitchHumanization( 0 ),
 	  m_nMidiNoteOnSentFrame( -1 ),
 	  m_nMidiNoteOffOffsetFrame( -1 ),
