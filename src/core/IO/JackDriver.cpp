@@ -801,14 +801,6 @@ void JackDriver::updateTransport()
 	return;
 }
 
-float JackDriver::getTimebaseControllerBpm() const
-{
-	if ( m_timebaseState != Timebase::Listener ) {
-		return std::nan( "no tempo, no masters" );
-	}
-	return m_fLastTimebaseBpm;
-}
-
 JackDriver::Timebase JackDriver::getTimebaseState() const
 {
 	if ( m_pHydrogen->getPreferences()->m_bJackTimebaseEnabled ) {

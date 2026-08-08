@@ -608,6 +608,10 @@ inline int JackDriver::getXRuns() const
 	return m_nJackServerXRuns;
 }
 
+inline float JackDriver::getTimebaseControllerBpm() const {
+	return m_fLastTimebaseBpm;
+}
+
 };	// namespace H2Core
 
 #else  // H2CORE_HAVE_JACK
