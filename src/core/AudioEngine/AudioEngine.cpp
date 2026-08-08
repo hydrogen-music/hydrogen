@@ -352,8 +352,6 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
-	const auto pHydrogen = m_pHydrogen;
-
 	if ( getState() == State::CountIn ) {
 		setState( State::Ready );
 	}
@@ -379,7 +377,8 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	updatePlayingPatterns( trigger );
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
+		 m_pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		// Tell the JACK server to locate to the beginning as well
 		// (done in the next run of audioEngine_process()).
 		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )
@@ -433,7 +432,8 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 	// is up to the server to relocate to a different position. It
 	// does so after the current cycle of audioEngine_process() and we
 	// will pick it up at the beginning of the next one.
-	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
+		 pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 
 		double fNewTick = fTick;
 		// As the tick mismatch is lost when converting a sought location from
@@ -599,7 +599,8 @@ void AudioEngine::createPerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 								  std::shared_ptr<Drumkit> pOldDrumkit ) {
 
 #ifdef H2CORE_HAVE_JACK
-	if ( m_pAudioDriver == nullptr ) {
+	if ( m_pAudioDriver == nullptr ||
+		 m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
         return;
 	}
 
@@ -1042,18 +1043,27 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 	Event::Trigger trigger
 )
 {
-	AE_INFOLOG( QString( "Creating driver [%1]" )
-				.arg( Preferences::audioDriverToQString( driver ) ) );
+	auto driverSane = driver;
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor &&
+		 driver != Preferences::AudioDriver::Disk ) {
+		driverSane = Preferences::AudioDriver::Fake;
+		AE_INFOLOG( "Creating Software driver" );
+	}
+	else {
+		AE_INFOLOG( QString( "Creating driver [%1]" )
+					.arg( Preferences::audioDriverToQString( driver ) ) );
+	}
+
 
 	const auto pPref = m_pHydrogen->getPreferences();
 	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	std::shared_ptr<AudioDriver> pAudioDriver = nullptr;
 
-	if ( driver == Preferences::AudioDriver::Oss ) {
+	if ( driverSane == Preferences::AudioDriver::Oss ) {
 		pAudioDriver = std::make_shared<OssDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
-	else if ( driver == Preferences::AudioDriver::Jack ) {
+	else if ( driverSane == Preferences::AudioDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
 		auto pJackDriver =
 			std::dynamic_pointer_cast<JackDriver>( m_pMidiDriver );
@@ -1078,33 +1088,33 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 		);
 #endif
 	}
-	else if ( driver == Preferences::AudioDriver::Alsa ) {
+	else if ( driverSane == Preferences::AudioDriver::Alsa ) {
 		pAudioDriver =
 			std::make_shared<AlsaAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
-	else if ( driver == Preferences::AudioDriver::PortAudio ) {
+	else if ( driverSane == Preferences::AudioDriver::PortAudio ) {
 		pAudioDriver =
 			std::make_shared<PortAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
-	else if ( driver == Preferences::AudioDriver::CoreAudio ) {
+	else if ( driverSane == Preferences::AudioDriver::CoreAudio ) {
 		pAudioDriver =
 			std::make_shared<CoreAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
-	else if ( driver == Preferences::AudioDriver::PulseAudio ) {
+	else if ( driverSane == Preferences::AudioDriver::PulseAudio ) {
 		pAudioDriver =
 			std::make_shared<PulseAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
-	else if ( driver == Preferences::AudioDriver::Fake ) {
+	else if ( driverSane == Preferences::AudioDriver::Fake ) {
 		// Self-clocked software driver with scratch output (ADR 0031; the former
 		// FakeAudioDriver) — profiling and unit tests.
 		pAudioDriver = std::make_shared<SoftwareDriver>(
 			m_pHydrogen, m_AudioProcessCallback, /*bProducesAudio=*/true );
 	}
-	else if ( driver == Preferences::AudioDriver::Disk ) {
+	else if ( driverSane == Preferences::AudioDriver::Disk ) {
 		pAudioDriver =
 			std::make_shared<DiskWriterDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
-	else if ( driver == Preferences::AudioDriver::Plugin ) {
+	else if ( driverSane == Preferences::AudioDriver::Plugin ) {
 		pAudioDriver =
 			std::make_shared<PluginAudioDriver>( m_pHydrogen, m_AudioProcessCallback );
 	}
@@ -1119,15 +1129,18 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 
 	if ( pAudioDriver == nullptr ) {
 		AE_INFOLOG( QString( "Unable to create driver [%1]" )
-				.arg( Preferences::audioDriverToQString( driver ) ) );
+				.arg( Preferences::audioDriverToQString( driverSane ) ) );
 		return nullptr;
 	}
 
 	// Initialize the audio driver
 	int nRes = pAudioDriver->init( pPref->m_nBufferSize );
 	if ( nRes != 0 ) {
-		AE_ERRORLOG( QString( "Error code [%2] while initializing audio driver [%1]." )
-				.arg( Preferences::audioDriverToQString( driver ) ).arg( nRes ) );
+		AE_ERRORLOG(
+			QString( "Error code [%2] while initializing audio driver [%1]." )
+				.arg( Preferences::audioDriverToQString( driverSane ) )
+				.arg( nRes )
+		);
 		return nullptr;
 	}
 
@@ -1152,8 +1165,11 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 	nRes = m_pAudioDriver->connect();
 	if ( nRes != 0 ) {
 		raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-		AE_ERRORLOG( QString( "Error code [%2] while connecting audio driver [%1]." )
-				.arg( Preferences::audioDriverToQString( driver ) ).arg( nRes ) );
+		AE_ERRORLOG(
+			QString( "Error code [%2] while connecting audio driver [%1]." )
+				.arg( Preferences::audioDriverToQString( driverSane ) )
+				.arg( nRes )
+		);
 
 		this->lock( RIGHT_HERE );
 		m_MutexOutputPointer.lock();
@@ -1353,25 +1369,30 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 
 	this->lock( RIGHT_HERE );
 
-	if ( pPref->m_midiDriver == Preferences::MidiDriver::Alsa ) {
+	auto driverSane = pPref->m_midiDriver;
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		driverSane = Preferences::MidiDriver::None;
+	}
+
+	if ( driverSane == Preferences::MidiDriver::Alsa ) {
 #ifdef H2CORE_HAVE_ALSA
 		m_pMidiDriver = std::make_shared<AlsaMidiDriver>( m_pHydrogen );
 		m_pMidiDriver->open();
 #endif
 	}
-	else if ( pPref->m_midiDriver == Preferences::MidiDriver::PortMidi ) {
+	else if ( driverSane == Preferences::MidiDriver::PortMidi ) {
 #ifdef H2CORE_HAVE_PORTMIDI
 		m_pMidiDriver = std::make_shared<PortMidiDriver>( m_pHydrogen );
 		m_pMidiDriver->open();
 #endif
 	}
-	else if ( pPref->m_midiDriver == Preferences::MidiDriver::CoreMidi ) {
+	else if ( driverSane == Preferences::MidiDriver::CoreMidi ) {
 #ifdef H2CORE_HAVE_COREMIDI
 		m_pMidiDriver = std::make_shared<CoreMidiDriver>( m_pHydrogen );
 		m_pMidiDriver->open();
 #endif
 	}
-	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Jack ) {
+	else if ( driverSane == Preferences::MidiDriver::Jack ) {
 #ifdef H2CORE_HAVE_JACK
 		if ( pPref->m_audioDriver == Preferences::AudioDriver::Jack ) {
 			auto pJackDriver = std::make_shared<JackDriver>(
@@ -1412,7 +1433,7 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 		}
 #endif
 	}
-	else if ( pPref->m_midiDriver == Preferences::MidiDriver::LoopBack ) {
+	else if ( driverSane == Preferences::MidiDriver::LoopBack ) {
 		// Seldomly the very slow AppVeyor blocked forever when switching
 		// drivers. We did introduce a timeout in open() and make several
 		// attempts to start the loop back driver.
@@ -1427,7 +1448,7 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 			m_pMidiDriver = nullptr;
 		}
 	}
-	else if ( pPref->m_midiDriver == Preferences::MidiDriver::Plugin ) {
+	else if ( driverSane == Preferences::MidiDriver::Plugin ) {
 		// Host-driven MIDI: events are injected per process block (ADR 0013).
 		m_pMidiDriver = std::make_shared<PluginMidiDriver>( m_pHydrogen );
 		m_pMidiDriver->open();
@@ -1997,22 +2018,16 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 			// infront of it during the next processing cycle.)
 
 #ifdef H2CORE_HAVE_JACK
-			if ( pHydrogen->hasJackTransport() ) {
+			if ( pJackDriver != nullptr && pHydrogen->hasJackTransport() ) {
 				// It takes a full processing cycle till JACK informs us about
 				// the state change to Playing. We reset the current state in
 				// here to Ready in order to ensure this section is only entered
 				// once at the end of the count in.
 				pAudioEngine->setState( State::Ready );
-
-				auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
-					pAudioEngine->m_pAudioDriver
-				);
-				if ( pJackDriver != nullptr ) {
-					// Tell all other JACK clients to start as well and wait for
-					// the JACK server to give the signal.
-					pJackDriver->locateTransport( nNewTransportFrame );
-					pJackDriver->startTransport();
-				}
+				// Tell all other JACK clients to start as well and wait for
+				// the JACK server to give the signal.
+				pJackDriver->locateTransport( nNewTransportFrame );
+				pJackDriver->startTransport();
 			}
 			else
 #endif
