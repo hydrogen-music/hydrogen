@@ -66,6 +66,7 @@ public:
 	bool addTag( int nPosition, const QString& sText ) override;
 	bool newPattern( const QString& sPatternName ) override;
 	bool quit() override;
+	bool panic() override;
 
 	// ADR 0030 batch 2a — scalar parameter setters.
 	bool setInstrumentPitch( int nInstrument, float fValue ) override;

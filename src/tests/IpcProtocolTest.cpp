@@ -71,6 +71,7 @@ void IpcProtocolTest::testCommandRoundTrip() {
 	std::vector<IpcMessage> commands;
 	commands.push_back( IpcMessage( IpcOpcode::Play ) );
 	commands.push_back( IpcMessage( IpcOpcode::RescanSoundLibrary ) );
+	commands.push_back( IpcMessage( IpcOpcode::Panic ) );
 	commands.push_back( IpcMessage( IpcOpcode::SetBpm ).arg( 137.5f ) );
 	commands.push_back( IpcMessage( IpcOpcode::LocateToTick )
 							.arg( static_cast<qlonglong>( 192000 ) ).arg( true ) );
@@ -241,6 +242,8 @@ void IpcProtocolTest::testOpcodeToQString() {
 					== QString( "PLAY" ) );
 	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::Stop ) )
 					== QString( "STOP" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::Panic ) )
+					== QString( "PANIC" ) );
 	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::SetBpm ) )
 					== QString( "SET_BPM" ) );
 	CPPUNIT_ASSERT( IpcOpcodeToQString(

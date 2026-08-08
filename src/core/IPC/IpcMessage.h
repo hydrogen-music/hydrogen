@@ -195,6 +195,9 @@ enum class IpcOpcode : quint16 {
 	                        ///<         QStringList customDrumkitFolders,
 	                        ///<         QStringList customDrumkitPaths]
 
+	// ── Panic (stop all playback + send all-notes-off) ──
+	Panic,
+
 	OpcodeCount
 };
 /**

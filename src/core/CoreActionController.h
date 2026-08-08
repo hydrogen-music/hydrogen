@@ -244,6 +244,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 */
 	virtual bool quit();
 
+	/** Stops all playback and sends an all-notes-off to the MIDI driver.
+	 *
+	 * This is the "panic" action triggered by the Panic shortcut. It stops
+	 * the sequencer, stops all playing notes in the sampler, and sends an
+	 * all-notes-off message via the MIDI driver (ADR 0027/0030 — routed
+	 * through CAC so editor mode can marshal it over IPC).
+	 *
+	 * \return true on success */
+	virtual bool panic();
+
 	// -----------------------------------------------------------
 	// Further OSC commands
 

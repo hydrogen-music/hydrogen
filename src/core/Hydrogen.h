@@ -388,8 +388,6 @@ public:
 	void			initJackTimebaseControl();
 	void			releaseJackTimebaseControl();
 
-	void			panic();
-
 	//export management
 	bool			getIsExportSessionActive() const;
 	/**

@@ -3427,7 +3427,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 	switch ( action ) {
 
 	case Shortcuts::Action::Panic:
-		pHydrogen->panic();
+		HydrogenApp::pEngine()->getCoreActionController()->panic();
 		break;
 
 	case Shortcuts::Action::Play:

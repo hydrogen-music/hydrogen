@@ -473,6 +473,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetSoundLibraryInfo:
 		sOpcode = "GET_SOUND_LIBRARY_INFO";
 		break;
+	case IpcOpcode::Panic:
+		sOpcode = "PANIC";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

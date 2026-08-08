@@ -1158,18 +1158,6 @@ void Hydrogen::killInstruments() {
 #endif
 }
 
-void Hydrogen::panic()
-{
-	m_pAudioEngine->lock( RIGHT_HERE );
-	sequencerStop();
-	m_pAudioEngine->getSampler()->stopPlayingNotes();
-	m_pAudioEngine->unlock();
-
-    if ( m_pAudioEngine->getMidiDriver() != nullptr ) {
-		m_pAudioEngine->getMidiDriver()->sendAllNotesOff();
-    }
-}
-
 bool Hydrogen::hasJackDriver() const
 {
 #ifdef H2CORE_HAVE_JACK

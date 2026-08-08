@@ -1570,6 +1570,21 @@ bool CoreActionController::quit()
 	return true;
 }
 
+bool CoreActionController::panic()
+{
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	m_pHydrogen->sequencerStop();
+	pAudioEngine->getSampler()->stopPlayingNotes();
+	pAudioEngine->unlock();
+
+	if ( pAudioEngine->getMidiDriver() != nullptr ) {
+		pAudioEngine->getMidiDriver()->sendAllNotesOff();
+	}
+
+	return true;
+}
+
 bool CoreActionController::toggleTimeline()
 {
 	if ( m_pHydrogen->isTimelineEnabled() ) {

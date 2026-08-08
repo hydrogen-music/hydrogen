@@ -176,6 +176,13 @@ bool IpcCoreActionController::quit() {
 	return CoreActionController::quit();
 }
 
+bool IpcCoreActionController::panic() {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::Panic ) );
+	}
+	return CoreActionController::panic();
+}
+
 bool IpcCoreActionController::setInstrumentPitch( int nInstrument, float fValue ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentPitch ).arg( nInstrument ).arg( fValue ) );

@@ -585,6 +585,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[1].toInt() );
 		}
 		return false;
+	case IpcOpcode::Panic:
+		return pController->panic();
 	default:
 		return false; // Hello / Event / unknown are not engine commands
 	}
