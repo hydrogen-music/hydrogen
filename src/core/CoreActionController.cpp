@@ -4164,7 +4164,9 @@ bool CoreActionController::activatePlaylistSong( int nSongNumber )
 
 bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 {
-
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return false;
+	}
 	auto pPref = m_pHydrogen->getPreferences();
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -4194,6 +4196,9 @@ bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 
 bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return false;
+	}
 
 	auto pPref = m_pHydrogen->getPreferences();
 	auto pSong = m_pHydrogen->getSong();
@@ -4226,6 +4231,9 @@ bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 
 bool CoreActionController::clearMidiInputLog()
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return false;
+	}
 	auto pMidiDriver = m_pHydrogen->getMidiDriver();
 	if ( pMidiDriver == nullptr ) {
 		return false;
@@ -4236,6 +4244,9 @@ bool CoreActionController::clearMidiInputLog()
 
 bool CoreActionController::clearMidiOutputLog()
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return false;
+	}
 	auto pMidiDriver = m_pHydrogen->getMidiDriver();
 	if ( pMidiDriver == nullptr ) {
 		return false;

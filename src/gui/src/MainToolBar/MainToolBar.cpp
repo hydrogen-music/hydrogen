@@ -824,7 +824,8 @@ void MainToolBar::bpmChanged( double fNewBpm )
 {
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
-	if ( pHydrogen->getTempoSource() == Hydrogen::Tempo::Song &&
+	if ( ( pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ||
+		   pHydrogen->getTempoSource() == Hydrogen::Tempo::Remote ) &&
 		 pSong != nullptr && m_pBpmSpinBox->getIsActive() ) {
 		const float fOldBpm = pSong->getBpm();
 
@@ -1006,11 +1007,13 @@ void MainToolBar::updateBpmSpinBox()
 				pCommonStrings->getTimelineDisabledMidiClock()
 			);
 			break;
-		case H2Core::Hydrogen::Tempo::Timeline:
-			m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
-			break;
 		default:
-			m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxToolTip );
+			if ( pHydrogen->isTimelineEnabled() ) {
+				m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
+			}
+			else {
+				m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxToolTip );
+			}
 	}
 }
 

@@ -90,7 +90,12 @@ public:
 		Jack = 3,
 		/** Hydrogen runs as a plugin and follows the tempo broadcast by the
 			host transport (ADR 0013). Takes precedence over the Timeline. */
-		Plugin = 4
+		Plugin = 4,
+		/** The engine is a mirror in editor mode (ADR 0016/0030). Tempo is
+		 * controlled by the authoritative engine instance and followed via
+		 * telemetry + IPC events. This is the highest-priority source: the
+		 * mirror never resolves tempo locally. */
+		Remote = 5
 	};
 
 	enum ErrorMessages {

@@ -1207,6 +1207,12 @@ bool Hydrogen::isUnderSessionManagement() const
 }
 
 bool Hydrogen::isTimelineEnabled() const {
+	// In editor mode this intentionally returns true when the Timeline is
+	// activated in Song mode. Even though tempo is controlled by the remote
+	// engine (Tempo::Remote), the mirror needs Timeline-based frame/tick
+	// conversion (Transport.cpp) and Timeline-aware GUI rendering
+	// (SongEditorPositionRuler) to stay consistent with the authoritative
+	// engine. The mirror has the Timeline data (synced via SetSong IPC).
 	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
 		 ! m_pPreferences->getMidiClockInputHandling() &&
@@ -1338,6 +1344,13 @@ void Hydrogen::clearInterpolateModeOverride() {
 }
 
 Hydrogen::Tempo Hydrogen::getTempoSource() const {
+	if ( getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		// The mirror engine does not own any audio/MIDI drivers or external
+		// tempo sources. Tempo is controlled by the authoritative engine and
+		// followed via telemetry + IPC events (ADR 0016/0030).
+		return Tempo::Remote;
+	}
+
 	if ( isUnderPluginHost() ) {
 		// The host transport owns tempo; it wins over the Timeline (ADR 0013).
 		return Tempo::Plugin;

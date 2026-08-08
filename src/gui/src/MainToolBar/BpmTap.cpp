@@ -388,25 +388,30 @@ void BpmTap::updateBpmTap() {
 			pCommonStrings->getTimelineDisabledMidiClock() );
 		m_pTapButton->setEnabled( false );
 		break;
-	case H2Core::Hydrogen::Tempo::Timeline:
-		m_pTapButton->setBaseToolTip( m_sTimelineActiveToolTip );
-		m_pTapButton->setEnabled( false );
-		break;
 	default:
-		if ( pPref->m_bpmTap == Preferences::BpmTap::TapTempo ) {
-			m_pTapButton->setBaseToolTip(
-				pCommonStrings->getTapTempoToolTip() );
+		if ( pHydrogen->isTimelineEnabled() ) {
+			m_pTapButton->setBaseToolTip( m_sTimelineActiveToolTip );
+			m_pTapButton->setEnabled( false );
 		}
-		else if ( pPref->m_beatCounter == Preferences::BeatCounter::Tap ) {
-			m_pTapButton->setBaseToolTip(
-				pCommonStrings->getBeatCounterTapToolTip() );
-		} else {
-			m_pTapButton->setBaseToolTip(
-				pCommonStrings->getBeatCounterTapAndPlayToolTip() );
+		else {
+			if ( pPref->m_bpmTap == Preferences::BpmTap::TapTempo ) {
+				m_pTapButton->setBaseToolTip(
+					pCommonStrings->getTapTempoToolTip()
+				);
+			}
+			else if ( pPref->m_beatCounter == Preferences::BeatCounter::Tap ) {
+				m_pTapButton->setBaseToolTip(
+					pCommonStrings->getBeatCounterTapToolTip()
+				);
+			}
+			else {
+				m_pTapButton->setBaseToolTip(
+					pCommonStrings->getBeatCounterTapAndPlayToolTip()
+				);
+			}
+			m_pTapButton->setEnabled( true );
 		}
-		m_pTapButton->setEnabled( true );
 	}
-
 }
 
 void BpmTap::updateIcons() {

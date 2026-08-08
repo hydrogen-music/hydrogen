@@ -864,6 +864,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<Transport> pPos,
 	// MIDI/OSC message.
 	const auto tempoSource = pHydrogen->getTempoSource();
 	if ( ( tempoSource == Hydrogen::Tempo::Midi ||
+		   tempoSource == Hydrogen::Tempo::Remote ||
 		   tempoSource == Hydrogen::Tempo::Song ) &&
 		 fNewBpm != m_fNextBpm ) {
 		fNewBpm = m_fNextBpm;
@@ -1515,6 +1516,14 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 	if ( pSong == nullptr ) {
 		AE_WARNINGLOG( "no song set yet" );
 		return MIN_BPM;
+	}
+
+	if ( pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		// The mirror engine does not own any audio/MIDI drivers or external
+		// tempo sources. The playhead BPM was set from the authoritative
+		// engine's telemetry by EditorStateMirror::applyTransportSnapshot()
+		// (ADR 0016/0030). No per-cycle IPC — just a local read.
+		return pAudioEngine->getPlayhead()->getBpm();
 	}
 
 	float fBpm = pAudioEngine->getPlayhead()->getBpm();
