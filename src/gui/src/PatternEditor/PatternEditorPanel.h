@@ -149,6 +149,8 @@ class PatternEditorPanel : public QWidget,
 	static constexpr int nToolBarScaling = 134;
 	static constexpr int nToolBarSpacing = 3;
 
+	static constexpr float fInvalidValue = -999;
+
 	enum class DragType { None, Length, Property };
 	static QString DragTypeToQString( DragType dragType );
 
@@ -303,7 +305,7 @@ class PatternEditorPanel : public QWidget,
 		H2Core::Note::Key key = H2Core::Note::Key::Invalid,
 		H2Core::Note::Octave octave = H2Core::Note::Octave::Invalid,
 		bool bIsNoteOff = false,
-		float fPropertyValue = std::nan( "" ),
+		float fPropertyValue = PatternEditorPanel::fInvalidValue,
 		PatternEditor::Property property = PatternEditor::Property::None,
 		Editor::Action action = Editor::Action::None,
 		Editor::ActionModifier modifier = Editor::ActionModifier::None,

@@ -2711,7 +2711,8 @@ void PatternEditorPanel::addOrRemoveNotes(
 				}
 				pNotePreview->setNoteOff( bIsNoteOff );
 
-				if ( !std::isnan( fYValue ) ) {
+				if ( std::abs( fYValue - PatternEditorPanel::fInvalidValue ) >
+					 0.01 ) {
 					NotePropertiesRuler::applyProperty(
 						pNotePreview, property, fYValue
 					);
@@ -2730,7 +2731,7 @@ void PatternEditorPanel::addOrRemoveNotes(
 		float fPan = PAN_DEFAULT;
 		float fLeadLag = LEAD_LAG_DEFAULT;
 		float fProbability = PROBABILITY_DEFAULT;
-		if ( !std::isnan( fYValue ) ) {
+		if ( std::abs( fYValue - PatternEditorPanel::fInvalidValue ) > 0.01 ) {
 			// We use a dummy note to retrieve the value.
 			auto pDummyNote = std::make_shared<Note>(
 				static_cast<std::shared_ptr<Instrument> >( nullptr )
@@ -2972,7 +2973,7 @@ void PatternEditorPanel::fillNotesInRow(
 		for ( int nnPosition : notePositions ) {
 			addOrRemoveNotes(
 				GridPoint( nnPosition, nRow ), key, octave,
-				false /* bIsNoteOff */, std::nan( "" ),
+				false /* bIsNoteOff */, PatternEditorPanel::fInvalidValue,
 				PatternEditor::Property::None, Editor::Action::Add,
 				Editor::ActionModifier::None
 			);

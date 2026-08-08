@@ -1320,7 +1320,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 
 	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
 
-	float fYValue = std::nan( "" );
+	float fYValue = PatternEditorPanel::fInvalidValue;
 	auto property = m_property;
 	if ( m_instance == Editor::Instance::NotePropertiesRuler &&
 		 m_property == Property::KeyOctave &&
@@ -2035,7 +2035,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			m_pPatternEditorPanel->addOrRemoveNotes(
 				gridPoint, key, octave,
 				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
-				std::nan( "" ), Property::None,
+				PatternEditorPanel::fInvalidValue, Property::None,
 				Editor::Action::Toggle,
 				Editor::ActionModifier::Playback, sUndoContext );
 			lastGridPoint = gridPoint;
