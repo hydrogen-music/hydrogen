@@ -198,6 +198,7 @@ enum class IpcOpcode : quint16 {
 	                        ///<         bool isRunning, QString connectedDevice,
 	                        ///<         int timebaseState,
 	                        ///<         bool jackTransportEnabled]
+	GetIsUnderSessionManagement, ///< reply: args = [bool]
 
 	// ── Panic (stop all playback + send all-notes-off) ──
 	Panic,

@@ -688,6 +688,9 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 			.arg( info.jackTransportEnabled );
 		break;
 	}
+	case IpcOpcode::GetIsUnderSessionManagement:
+		reply.arg( pHydrogen->isUnderSessionManagement() );
+		break;
 	default:
 		break; // unknown request → empty Reply (correlated by id)
 	}

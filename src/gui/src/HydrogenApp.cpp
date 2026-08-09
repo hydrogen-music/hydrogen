@@ -543,7 +543,22 @@ void HydrogenApp::syncViaIpc() {
 	// editor mode (ADR 0029).
 	refreshCachedAudioDriverInfo();
 
-	// 10. Update Audio and Midi Driver-related widgets
+	// 10. Session-management state — cache it so the mirror's
+	// isUnderSessionManagement() works in editor mode (ADR 0029).
+	{
+		IpcMessage reply;
+		if ( pChannel->request(
+				IpcMessage( IpcOpcode::GetIsUnderSessionManagement ),
+				reply, 3000 ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				m_pHydrogen->setCachedUnderSessionManagement(
+					args[0].toBool() );
+			}
+		}
+	}
+
+	// 11. Update Audio and Midi Driver-related widgets
 	{
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::AudioDriverChanged, 0 );

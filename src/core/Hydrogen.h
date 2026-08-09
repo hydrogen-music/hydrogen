@@ -481,9 +481,14 @@ public:
 	 * (syncViaIpc / event-driven re-fetch). Editor mode only (ADR 0029). */
 	void			setCachedAudioDriverInfo( const AudioDriverInfo& info );
 
-	/** \return NsmClient::m_bUnderSessionManagement if NSM is
-		supported.*/
+	/** \return Whether Hydrogen is under NSM session management. In standalone
+	 * this queries the live NsmClient; in editor mode the mirror has no NSM
+	 * client and this returns the IPC-cached value (ADR 0029). */
 	bool			isUnderSessionManagement() const;
+	/** Cache @a bValue as the session-management state. Called by the GUI
+	 * after fetching it from the authoritative engine via IPC (syncViaIpc).
+	 * Editor mode only (ADR 0029). */
+	void			setCachedUnderSessionManagement( bool bValue );
 
 		bool getRecordEnabled() const;
 		void setRecordEnabled( bool bEnabled );
@@ -656,6 +661,12 @@ private:
 	 * hasJackTransport() / getJackTimebaseState() when m_ProcessMode ==
 	 * Editor. Unused (default-constructed) in standalone. */
 	AudioDriverInfo m_cachedAudioDriverInfo;
+
+	/** Cached session-management state for editor mode (ADR 0029). Populated
+	 * via IPC from the authoritative engine; read by
+	 * isUnderSessionManagement() when m_ProcessMode == Editor. Unused
+	 * (false) in standalone. */
+	bool m_bCachedUnderSessionManagement;
 
 };
 

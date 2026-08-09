@@ -116,6 +116,7 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 					 , m_interpolateModeOverride( Interpolation::InterpolateMode::Linear )
 					 , m_bUseInterpolateModeOverride( false )
 					 , m_pEventQueue( nullptr )
+					 , m_bCachedUnderSessionManagement( false )
 {
 	// This instance owns its Preferences and EventQueue (ADR 0015); no
 	// process-wide singleton is involved.
@@ -1294,7 +1295,14 @@ void Hydrogen::setCachedAudioDriverInfo( const AudioDriverInfo& info ) {
 
 bool Hydrogen::isUnderSessionManagement() const
 {
+	// In editor mode the mirror has no NsmClient; return the IPC-cached
+	// value (ADR 0029).
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_bCachedUnderSessionManagement;
+	}
+
 #ifdef H2CORE_HAVE_OSC
+	ASSERT_NO_EDITOR_MODE( this );
 	if ( m_pNsmClient != nullptr ) {
 		if ( m_pNsmClient->getUnderSessionManagement() ) {
 			return true;
@@ -1307,6 +1315,10 @@ bool Hydrogen::isUnderSessionManagement() const
 #else
 	return false;
 #endif
+}
+
+void Hydrogen::setCachedUnderSessionManagement( bool bValue ) {
+	m_bCachedUnderSessionManagement = bValue;
 }
 
 bool Hydrogen::isTimelineEnabled() const {
@@ -1474,7 +1486,7 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 
 void Hydrogen::toggleOscServer( bool bEnable ) {
 	// No OSC server under a plugin host (ADR 0026): ignore enable requests.
-	if ( isUnderPluginHost() ) {
+	if ( isUnderPluginHost() || m_ProcessMode == ProcessMode::Editor ) {
 		return;
 	}
 #ifdef H2CORE_HAVE_OSC
