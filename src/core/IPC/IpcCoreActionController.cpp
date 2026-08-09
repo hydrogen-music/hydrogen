@@ -432,7 +432,7 @@ bool IpcCoreActionController::previewInstrument( int nInstrument, bool bStop ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::PreviewInstrument ).arg( nInstrument ).arg( bStop ) );
 	}
-	return CoreActionController::previewInstrument( nInstrument, bStop );
+	return true;
 }
 
 bool IpcCoreActionController::activateTimeline( bool bActivate ) {

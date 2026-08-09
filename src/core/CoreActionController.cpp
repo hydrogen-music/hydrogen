@@ -814,6 +814,10 @@ bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm )
 
 bool CoreActionController::previewInstrument( int nInstrument, bool bStop )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return false;
+	}
+
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
 		return false;
@@ -3881,6 +3885,10 @@ bool CoreActionController::handleNote(
 	QStringList* pMappedInstruments
 )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return false;
+	}
+
 	const auto pPref = m_pHydrogen->getPreferences();
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 	auto pSong = m_pHydrogen->getSong();

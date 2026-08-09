@@ -1686,6 +1686,8 @@ void AudioEngine::handleSongModeChanged( Event::Trigger trigger ) {
 
 void AudioEngine::processPlayNotes( unsigned long nframes )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
+
 	Hydrogen* pHydrogen = m_pHydrogen;
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -1962,11 +1964,15 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 		pAudioEngine->m_nRealtimeFrameScaled += static_cast<long long>(nframes);
 	}
 
-	// always update note queue.. could come from pattern or realtime input
-	// (midi, keyboard)
-	pAudioEngine->updateNoteQueue( nframes );
-
-	pAudioEngine->processAudio( nframes );
+	// In editor mode the mirror engine performs the overall transport
+	// processing for smooth GUI updates. The the actual audio processing and
+	// peak calculation is done by the authoritative engine.
+	if ( pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor	) {
+		// always update note queue.. could come from pattern or realtime input
+		// (midi, keyboard)
+		pAudioEngine->updateNoteQueue( nframes );
+		pAudioEngine->processAudio( nframes );
+	}
 
 	if ( pAudioEngine->getState() == AudioEngine::State::Playing ) {
 
@@ -2071,6 +2077,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 }
 
 void AudioEngine::processAudio( uint32_t nFrames ) {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -2949,6 +2956,8 @@ double AudioEngine::coarseGrainTick( double fTick ) {
 
 void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
+
 	Hydrogen* pHydrogen = m_pHydrogen;
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -3287,6 +3296,8 @@ void AudioEngine::updateNoteQueue( unsigned nIntervalLengthInFrames )
 
 void AudioEngine::noteOn( std::shared_ptr<Note> pNote )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
+
 	if ( ! ( getState() == State::Playing ||
 			 getState() == State::CountIn ||
 			 getState() == State::Ready ||

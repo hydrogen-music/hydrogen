@@ -358,6 +358,8 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 void Hydrogen::midiNoteOn( std::shared_ptr<Note> pNote )
 {
+	ASSERT_NO_EDITOR_MODE( this );
+
 	m_pAudioEngine->noteOn( pNote );
 }
 
@@ -368,6 +370,8 @@ bool Hydrogen::addRealtimeNote(
 	Midi::Note note
 )
 {
+	ASSERT_NO_EDITOR_MODE( this );
+
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
 	const auto pPref = m_pPreferences;
