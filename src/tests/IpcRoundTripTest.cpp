@@ -712,3 +712,83 @@ void IpcRoundTripTest::testPreferencesRoundTrip()
 	delete pMirror;
 	delete pEngine;
 }
+
+void IpcRoundTripTest::testNoteRoundTrip()
+{
+	___INFOLOG( "" );
+
+	auto pEngine = TestHelper::makeEngine();
+
+	// Engine needs a song with a drumkit containing an instrument
+	pEngine->getCoreActionController()->setSong(
+		Song::getEmptySong( pEngine ) );
+	auto pEngineSong = pEngine->getSong();
+	auto pEngineKit = pEngineSong->getDrumkit();
+	CPPUNIT_ASSERT( pEngineKit != nullptr );
+	CPPUNIT_ASSERT( pEngineKit->getInstruments()->size() > 0 );
+	auto pEngineInstr = pEngineKit->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pEngineInstr != nullptr );
+
+	// ── Serialization level: toXmlBuffer → fromXmlBuffer ──
+	auto pNoteA = std::make_shared<Note>( pEngineInstr, 16, 0.8f, 0.2f, 48 );
+	pNoteA->setNoteOff( false );
+	pNoteA->setProbability( 0.9f );
+	pNoteA->setKey( Note::Key::C );
+	pNoteA->setOctave( Note::Octave::P8C );
+	pNoteA->setType( "Kick" );
+	pNoteA->setHumanizeDelay( 14 );
+
+	// Set SelectedLayerInfo if the instrument has components/layers
+	CPPUNIT_ASSERT( pEngineInstr->getComponents()->size() > 0 );
+	auto pComponent = pEngineInstr->getComponent( 0 );
+	CPPUNIT_ASSERT( pComponent != nullptr && pComponent->getLayers().size() > 0 );
+	auto pSelInfo = std::make_shared<SelectedLayerInfo>();
+	pSelInfo->pLayer = pComponent->getLayer( 0 );
+	pNoteA->setSelectedLayerInfo( pSelInfo, pComponent );
+
+	const auto xml = pNoteA->toXmlBuffer();
+	auto pNoteB = Note::fromXmlBuffer( xml, false, pEngine );
+	CPPUNIT_ASSERT( pNoteB != nullptr );
+	CPPUNIT_ASSERT( pNoteB->getSelectedLayerInfo( pComponent ) != nullptr );
+	RoundTripAssertions::assertNoteEqual( pNoteA, pNoteB );
+	RoundTripAssertions::assertLayerEqual(
+		pSelInfo->pLayer, pNoteB->getSelectedLayerInfo( pComponent )->pLayer );
+
+	// ── IPC level: noteOn via IpcCoreActionController ──
+	auto pMirror = TestHelper::makeMirror();
+	auto pMirrorSong = Song::getEmptySong( pMirror );
+	pMirror->getCoreActionController()->setSong( pMirrorSong );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditorSession != nullptr );
+	auto pAccess = pEditorSession->createEngineAccess();
+	auto pController = std::dynamic_pointer_cast<IpcCoreActionController>(
+		pAccess->getCoreActionController() );
+	CPPUNIT_ASSERT( pController != nullptr );
+
+	// Build a note in the mirror context using the mirror's drumkit instrument
+	auto pMirrorInstr =
+		pMirrorSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pMirrorInstr != nullptr );
+	auto pNote = std::make_shared<Note>( pMirrorInstr, 16, 0.8f );
+	CPPUNIT_ASSERT( pEngine->getAudioEngine()->getSampler()
+			->getPlayingNotesNumber() == 0 );
+	pController->noteOn( pNote );
+
+	// Pump until the note arrives in the engine's sampler playing queue
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getSampler()
+			->getPlayingNotesNumber() > 0;
+	} ) );
+
+	pSession->stop();
+	pEditorSession->disconnect();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

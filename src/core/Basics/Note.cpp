@@ -28,8 +28,10 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
 #include <core/Basics/Adsr.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -499,7 +501,7 @@ void Note::selectLayers( const std::map<
 	}
 }
 
-std::shared_ptr<SelectedLayerInfo> Note::getSelecterLayerInfo(
+std::shared_ptr<SelectedLayerInfo> Note::getSelectedLayerInfo(
 	std::shared_ptr<InstrumentComponent> pComponent
 ) const
 {
@@ -616,6 +618,29 @@ void Note::saveTo( XMLNode& node, bool bIpcXml ) const
 
 	if ( bIpcXml ) {
 		node.write_uuid( "ipc-uuid", getUuid() );
+
+		// Serialize SelectedLayerInfo so the engine-side Sampler renders
+		// the same component/layer the user clicked (ADR 0030). We store
+		// the component index (within the instrument) and layer index
+		// (within the component) as a comma-separated pair per entry.
+		if ( m_pInstrument != nullptr && ! m_selectedLayerInfoMap.empty() ) {
+			XMLNode selNode = node.createNode( "ipc-selectedLayerInfos" );
+			for ( const auto& [pComponent, pSelInfo] :
+				  m_selectedLayerInfoMap ) {
+				if ( pComponent == nullptr || pSelInfo == nullptr ) {
+					continue;
+				}
+				const int nComponentIdx =
+					m_pInstrument->index( pComponent );
+				int nLayerIdx = -1;
+				if ( pSelInfo->pLayer != nullptr ) {
+					nLayerIdx = pComponent->index( pSelInfo->pLayer );
+				}
+				XMLNode entry = selNode.createNode( "entry" );
+				entry.write_int( "component", nComponentIdx );
+				entry.write_int( "layer", nLayerIdx );
+			}
+		}
 	}
 }
 
@@ -716,6 +741,85 @@ Note::loadFrom( const XMLNode& node, bool bIpcXml, bool bSilent )
 
 	if ( bIpcXml ) {
 		pNote->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		// SelectedLayerInfo is only required when serializing notes directly
+		// (via from/toXmlBuffer()) and not those which are part of a pattern.
+	}
+
+	return pNote;
+}
+
+QByteArray Note::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "note_buffer" );
+	saveTo( root, true /* bIpcXml */ );
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Note>
+Note::fromXmlBuffer( const QByteArray& buffer, bool bSilent, Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse note XML buffer" );
+		return nullptr;
+	}
+	XMLNode root = doc.firstChildElement( "note_buffer" );
+	if ( root.isNull() ) {
+		ERRORLOG( "'note_buffer' node not found in buffer" );
+		return nullptr;
+	}
+
+	auto pNote = Note::loadFrom( root, true /* bIpcXml */, bSilent );
+	if ( pNote == nullptr ) {
+		return nullptr;
+	}
+
+	// Read SelectedLayerInfo entries (component index + layer index). These are
+	// resolved to actual component/layer pointers in fromXmlBuffer() after the
+	// instrument is attached.
+	std::vector<std::pair<int, int>> m_pendingSelectedLayers;
+	const XMLNode selNode =
+		root.firstChildElement( "ipc-selectedLayerInfos" );
+	if ( ! selNode.isNull() ) {
+		XMLNode entry = selNode.firstChildElement( "entry" );
+		while ( ! entry.isNull() ) {
+			m_pendingSelectedLayers.emplace_back(
+				entry.read_int( "component", -1, false, false, bSilent ),
+				entry.read_int( "layer", -1, false, false, bSilent )
+			);
+			entry = entry.nextSiblingElement( "entry" );
+		}
+	}
+
+	// Resolve the instrument from the engine's drumkit by ID.
+	if ( pHydrogen != nullptr && pHydrogen->getSong() != nullptr &&
+		 pHydrogen->getSong()->getDrumkit() != nullptr ) {
+		auto pInstrs = pHydrogen->getSong()->getDrumkit()->getInstruments();
+		auto pInstr = pInstrs->find( pNote->getInstrumentId() );
+		if ( pInstr != nullptr ) {
+			pNote->mapToInstrument( pInstr );
+
+			// Resolve pending SelectedLayerInfo entries to actual
+			// component/layer pointers.
+			for ( const auto& [nCompIdx, nLayerIdx] :
+				  m_pendingSelectedLayers ) {
+				if ( nCompIdx < 0 ||
+					 nCompIdx >= pInstr->getComponents()->size() ) {
+					continue;
+				}
+				auto pComponent = pInstr->getComponent( nCompIdx );
+				if ( pComponent == nullptr ) {
+					continue;
+				}
+
+				auto pSelInfo = std::make_shared<SelectedLayerInfo>();
+				if ( nLayerIdx >= 0 ) {
+					pSelInfo->pLayer = pComponent->getLayer( nLayerIdx );
+				}
+				pNote->setSelectedLayerInfo( pSelInfo, pComponent );
+			}
+		}
 	}
 
 	return pNote;

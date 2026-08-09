@@ -365,6 +365,17 @@ class Note : public H2Core::Object<Note> {
 	static std::shared_ptr<Note>
 	loadFrom( const XMLNode& node, bool bIpcXml, bool bSilent );
 
+	/** Serialize this note as a standalone XML document suitable for IPC
+	 * transport (ADR 0030). Uses #saveTo with bIpcXml = true so IPC-only
+	 * members (uuid, selected layer info) are included. */
+	QByteArray toXmlBuffer() const;
+	/** Reconstruct a note from a buffer produced by #toXmlBuffer. The
+	 * instrument is resolved from @a pHydrogen's current drumkit by
+	 * m_instrumentId; if not found, the note is returned with a null
+	 * instrument pointer (the caller must handle this). */
+	static std::shared_ptr<Note> fromXmlBuffer(
+		const QByteArray& buffer, bool bSilent, Hydrogen* pHydrogen );
+
 	/** #m_pInstrument accessor */
 	std::shared_ptr<Instrument> getInstrument() const;
 	/**
@@ -448,7 +459,7 @@ class Note : public H2Core::Object<Note> {
 	/** Returns the #H2Core::InstrumentLayer and some additional rendering
 	 * meta data for a given component. If no selection took place yet,
 	 * `nullptr` will be returned. */
-	std::shared_ptr<SelectedLayerInfo> getSelecterLayerInfo(
+	std::shared_ptr<SelectedLayerInfo> getSelectedLayerInfo(
 		std::shared_ptr<InstrumentComponent> pComponent
 	) const;
 	/** Can be used for custom layer selection.

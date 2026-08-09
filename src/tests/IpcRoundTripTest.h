@@ -34,6 +34,7 @@ class IpcRoundTripTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPlaylistRoundTrip );
 	CPPUNIT_TEST( testPlaylistEntryRoundTrip );
 	CPPUNIT_TEST( testPreferencesRoundTrip );
+	CPPUNIT_TEST( testNoteRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -44,6 +45,7 @@ public:
 	void testPlaylistRoundTrip();
 	void testPlaylistEntryRoundTrip();
 	void testPreferencesRoundTrip();
+	void testNoteRoundTrip();
 };
 
 #endif // IPC_ROUND_TRIP_TEST_H

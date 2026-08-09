@@ -1859,7 +1859,7 @@ void AudioEngineTests::checkAudioConsistency( const std::vector<std::shared_ptr<
 						}
 
 						auto pNewSelectedLayerInfo =
-							ppNewNote->getSelecterLayerInfo( ppComponent );
+							ppNewNote->getSelectedLayerInfo( ppComponent );
 						if ( pNewSelectedLayerInfo == nullptr ||
 							 pNewSelectedLayerInfo->pLayer == nullptr ||
 							 pNewSelectedLayerInfo->pLayer->getSample() == nullptr ) {

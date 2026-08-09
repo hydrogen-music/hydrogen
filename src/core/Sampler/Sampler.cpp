@@ -928,7 +928,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 			continue;
 		}
 
-		auto pSelectedLayerInfo = pNote->getSelecterLayerInfo( pCompo );
+		auto pSelectedLayerInfo = pNote->getSelectedLayerInfo( pCompo );
 		if ( pSelectedLayerInfo == nullptr ) {
 			// Component skipped
 			returnValues[ii] = true;
