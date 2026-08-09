@@ -432,8 +432,13 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 	// is up to the server to relocate to a different position. It
 	// does so after the current cycle of audioEngine_process() and we
 	// will pick it up at the beginning of the next one.
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
-		 pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+		if ( m_pHydrogen->getProcessMode() ==
+			 Hydrogen::ProcessMode::Editor ) {
+			// The authoritative engine handles communication with the JACK
+			// server. We just wait till it reports back.
+			return;
+		}
 
 		double fNewTick = fTick;
 		// As the tick mismatch is lost when converting a sought location from
@@ -1016,12 +1021,10 @@ void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 	}
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( m_pHydrogen->hasJackDriver() ) {
-		auto pJackDriver =
-			std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
-		if ( pJackDriver != nullptr ) {
-			pJackDriver->clearPerTrackAudioBuffers( nFrames );
-		}
+	auto pJackDriver =
+		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
+	if ( pJackDriver != nullptr ) {
+		pJackDriver->clearPerTrackAudioBuffers( nFrames );
 	}
 #endif
 
@@ -1182,14 +1185,14 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 		return nullptr;
 	}
 
-	if ( pSong != nullptr && pHydrogen->hasJackDriver() ) {
+	auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
+	if ( pSong != nullptr && pJackDriver != nullptr ) {
 		pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
 	}
 
 	lock( RIGHT_HERE );
 
 #ifdef H2CORE_HAVE_JACK
-	auto pJackDriver = std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver );
 	if ( pJackDriver != nullptr &&
 		 pJackDriver->getMode() == JackDriver::Mode::Combined ) {
 		INFOLOG( "Reusing JACK audio driver as MIDI driver." );
@@ -3302,6 +3305,12 @@ void AudioEngine::play() {
 
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->hasJackTransport() ) {
+		if ( m_pHydrogen->getProcessMode() ==
+			 Hydrogen::ProcessMode::Editor ) {
+			// The authoritative engine handles communication with the JACK
+			// server. We just wait till it reports back.
+			return;
+		}
 		// Tell all other JACK clients to start as well and wait for
 		// the JACK server to give the signal.
 		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )->startTransport();
@@ -3317,6 +3326,12 @@ void AudioEngine::stop() {
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->hasJackTransport() ) {
+		if ( m_pHydrogen->getProcessMode() ==
+			 Hydrogen::ProcessMode::Editor ) {
+			// The authoritative engine handles communication with the JACK
+			// server. We just wait till it reports back.
+			return;
+		}
 
 #if AUDIO_ENGINE_DEBUG
 		AE_DEBUGLOG( "Stopping engine via JACK server" );
