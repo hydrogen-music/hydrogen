@@ -1029,6 +1029,9 @@ bool CoreActionController::sendMasterVolumeFeedback()
 		ERRORLOG( "no song set" );
 		return false;
 	}
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
 
 	float fMasterVolume = pSong->getVolume();
 
@@ -1056,6 +1059,10 @@ bool CoreActionController::sendMasterVolumeFeedback()
 
 bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 		float fStripVolume = pInstr->getVolume();
@@ -1087,6 +1094,10 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 
 bool CoreActionController::sendMetronomeIsActiveFeedback()
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 	const auto pPref = m_pHydrogen->getPreferences();
 
 #ifdef H2CORE_HAVE_OSC
@@ -1119,6 +1130,10 @@ bool CoreActionController::sendMasterIsMutedFeedback()
 		return false;
 	}
 
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 #ifdef H2CORE_HAVE_OSC
 	if ( m_pHydrogen->getPreferences()->getOscFeedbackEnabled() ) {
 		m_pHydrogen->getOscServer()->sendFeedbackMessage(
@@ -1143,6 +1158,10 @@ bool CoreActionController::sendMasterIsMutedFeedback()
 
 bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
@@ -1173,6 +1192,10 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 
 bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
@@ -1202,6 +1225,10 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 
 bool CoreActionController::sendStripPanFeedback( int nStrip )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr != nullptr ) {
 #ifdef H2CORE_HAVE_OSC
@@ -1234,6 +1261,10 @@ bool CoreActionController::handleOutgoingControlChanges(
 	Midi::Parameter value
 )
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 	const auto pPref = m_pHydrogen->getPreferences();
 	if ( pPref->getMidiFeedbackChannel() == Midi::ChannelOff ) {
 		return true;
@@ -1265,6 +1296,10 @@ bool CoreActionController::handleOutgoingControlChanges(
 
 bool CoreActionController::initExternalControlInterfaces()
 {
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return true;
+	}
+
 	/*
 	 * Push the current state of Hydrogen to the attached control interfaces
 	 * (e.g. OSC clients)
