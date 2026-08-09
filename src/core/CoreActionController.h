@@ -148,6 +148,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return true on success. */
 	virtual bool previewInstrument( int nInstrument, bool bStop );
+
+	/** Triggers a note for immediate playback through the #H2Core::Sampler
+	 * (ADR 0030). The note carries its own instrument pointer, velocity,
+	 * key/octave, and optional SelectedLayerInfo (component/layer
+	 * selection). In editor mode this is forwarded over IPC to the
+	 * authoritative engine; in standalone it calls Sampler::noteOn()
+	 * directly.
+	 *
+	 * @return true on success. */
+	virtual bool noteOn( std::shared_ptr<Note> pNote );
 	/** Mutes/unmutes the song's playback-track instrument (and its sole
 	 * component/layer), which is not part of the drumkit instrument list. */
 	virtual bool setPlaybackTrackMuted( bool bMuted );

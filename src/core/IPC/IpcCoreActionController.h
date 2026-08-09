@@ -108,6 +108,11 @@ public:
 
 	// ADR 0030 batch 2b — simple commands.
 	bool previewInstrument( int nInstrument, bool bStop ) override;
+
+	// Note preview: the note rides as an XML-buffer payload and is forwarded
+	// to the authoritative engine's Sampler (ADR 0030). No dual-apply — the
+	// mirror has no real sampler.
+	bool noteOn( std::shared_ptr<Note> pNote ) override;
 	bool activateTimeline( bool bActivate ) override;
 	bool toggleTimeline(  ) override;
 	bool deleteTempoMarker( int nPosition ) override;

@@ -435,6 +435,16 @@ bool IpcCoreActionController::previewInstrument( int nInstrument, bool bStop ) {
 	return true;
 }
 
+bool IpcCoreActionController::noteOn( std::shared_ptr<Note> pNote ) {
+	if ( m_pChannel != nullptr && pNote != nullptr ) {
+		IpcMessage msg( IpcOpcode::NoteOn );
+		msg.setPayload( pNote->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	// No dual-apply: the mirror engine has no real sampler.
+	return true;
+}
+
 bool IpcCoreActionController::activateTimeline( bool bActivate ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::ActivateTimeline ).arg( bActivate ) );

@@ -530,8 +530,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 					);
 					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity );
 					HydrogenApp::pHydrogen()
-						->getAudioEngine()
-						->getSampler()
+						->getCoreActionController()
 						->noteOn( pNote );
 				}
 			}

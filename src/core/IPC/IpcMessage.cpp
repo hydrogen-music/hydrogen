@@ -485,6 +485,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::Panic:
 		sOpcode = "PANIC";
 		break;
+	case IpcOpcode::NoteOn:
+		sOpcode = "NOTE_ON";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

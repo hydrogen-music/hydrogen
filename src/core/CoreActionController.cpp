@@ -833,6 +833,21 @@ bool CoreActionController::previewInstrument( int nInstrument, bool bStop )
 	return true;
 }
 
+bool CoreActionController::noteOn( std::shared_ptr<Note> pNote )
+{
+	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		return false;
+	}
+
+	if ( pNote == nullptr ) {
+		ERRORLOG( "Invalid note" );
+		return false;
+	}
+
+	m_pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
+	return true;
+}
+
 bool CoreActionController::setPlaybackTrackMuted( bool bMuted )
 {
 	auto pSong = m_pHydrogen->getSong();

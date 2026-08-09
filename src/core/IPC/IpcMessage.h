@@ -204,6 +204,12 @@ enum class IpcOpcode : quint16 {
 	// ── Panic (stop all playback + send all-notes-off) ──
 	Panic,
 
+	// ── Note preview (trigger a note for immediate playback) ──
+	// The note rides as an XML-buffer payload (Note::toXmlBuffer with
+	// bIpcXml = true). The engine deserializes it, resolves the instrument
+	// from its drumkit, and calls Sampler::noteOn().
+	NoteOn,
+
 	OpcodeCount
 };
 /**

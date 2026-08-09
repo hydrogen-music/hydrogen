@@ -26,6 +26,7 @@
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
@@ -588,6 +589,14 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		return false;
 	case IpcOpcode::Panic:
 		return pController->panic();
+	case IpcOpcode::NoteOn: {
+		auto pNote = Note::fromXmlBuffer(
+			msg.getPayload(), true /* bSilent */, pHydrogen );
+		if ( pNote == nullptr ) {
+			return false;
+		}
+		return pController->noteOn( pNote );
+	}
 	default:
 		return false; // Hello / Event / unknown are not engine commands
 	}

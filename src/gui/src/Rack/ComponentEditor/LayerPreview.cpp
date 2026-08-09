@@ -647,7 +647,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 			// based on the current sample selection algorithm.
 			pNote->setSelectedLayerInfo( nullptr, pComponent );
 
-			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pEngine()->getCoreActionController()->noteOn(
 				pNote
 			);
 		}
@@ -688,7 +688,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 				std::make_shared<Note>( pInstrument, nPosition, fVelocity );
 			pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
 
-			HydrogenApp::pEngine()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pEngine()->getCoreActionController()->noteOn(
 				pNote
 			);
 		}

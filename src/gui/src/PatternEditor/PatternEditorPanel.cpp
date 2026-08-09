@@ -2719,8 +2719,7 @@ void PatternEditorPanel::addOrRemoveNotes(
 				}
 
 				HydrogenApp::pHydrogen()
-					->getAudioEngine()
-					->getSampler()
+					->getCoreActionController()
 					->noteOn( pNotePreview );
 			}
 		}

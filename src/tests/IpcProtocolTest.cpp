@@ -75,6 +75,7 @@ void IpcProtocolTest::testCommandRoundTrip() {
 	commands.push_back( IpcMessage( IpcOpcode::GetAudioDriverInfo ) );
 	commands.push_back( IpcMessage( IpcOpcode::GetIsUnderSessionManagement ) );
 	commands.push_back( IpcMessage( IpcOpcode::GetIsUnderPluginHost ) );
+	commands.push_back( IpcMessage( IpcOpcode::NoteOn ) );
 	commands.push_back( IpcMessage( IpcOpcode::SetBpm ).arg( 137.5f ) );
 	commands.push_back( IpcMessage( IpcOpcode::LocateToTick )
 							.arg( static_cast<qlonglong>( 192000 ) ).arg( true ) );
@@ -258,6 +259,8 @@ void IpcProtocolTest::testOpcodeToQString() {
 						static_cast<quint16>(
 							IpcOpcode::GetIsUnderPluginHost ) )
 					== QString( "GET_IS_UNDER_PLUGIN_HOST" ) );
+	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::NoteOn ) )
+					== QString( "NOTE_ON" ) );
 	CPPUNIT_ASSERT( IpcOpcodeToQString( static_cast<quint16>( IpcOpcode::SetBpm ) )
 					== QString( "SET_BPM" ) );
 	CPPUNIT_ASSERT( IpcOpcodeToQString(
