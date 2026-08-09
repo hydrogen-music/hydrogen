@@ -344,12 +344,19 @@ int main( int argc, char** argv )
 		bLogColors = false;
 	}
 
+	QString sPlayerLogFile( sLogFile );
+	if ( sLogFile.isEmpty() ) {
+		const QFileInfo defaultLogFile( Filesystem::logFilePath() );
+		sPlayerLogFile = defaultLogFile.absolutePath() + "/" + "h2player." +
+						 defaultLogFile.suffix();
+	}
+
 	Logger* pLogger = Logger::bootstrap(
-		logLevelOpt, sLogFile, true, bLogTimestamps, bLogColors
+		logLevelOpt, sPlayerLogFile, true, bLogTimestamps, bLogColors
 	);
 	Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 	H2Core::Filesystem::bootstrap(
-		pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sLogFile
+		pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sPlayerLogFile
 	);
 	auto pPref = Preferences::create_instance();
 #ifdef H2CORE_HAVE_OSC

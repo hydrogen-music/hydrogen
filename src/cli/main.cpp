@@ -361,12 +361,20 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		QString sCliLogFile( sLogFile );
+		if ( sLogFile.isEmpty() ) {
+			const QFileInfo defaultLogFile( Filesystem::logFilePath() );
+			sCliLogFile = defaultLogFile.absolutePath() + "/" + "h2cli." +
+						  defaultLogFile.suffix();
+		}
+
 		// Man your battle stations... this is not a drill.
-		Logger* pLogger = Logger::bootstrap( logLevelOpt,
-											sLogFile, true, bLogTimestamps );
+		Logger* pLogger =
+			Logger::bootstrap( logLevelOpt, sCliLogFile, true, bLogTimestamps );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		H2Core::Filesystem::bootstrap(
-			pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sLogFile );
+			pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sCliLogFile
+		);
 		auto pPref = Preferences::create_instance();
 #ifdef H2CORE_HAVE_OSC
 		pPref->setOscServerEnabled( true );
