@@ -80,7 +80,7 @@ class Logger {
 		 * the caller (e.g. a #Hydrogen instance) — its own queue, worker thread
 		 * and log file. Unlike #create_instance() this does **not** touch the
 		 * process-default #__instance, so multiple instances can coexist. */
-		static std::shared_ptr<Logger> createInstanceLogger(
+		static Logger* createInstanceLogger(
 			const QString& sLogFilePath,
 			bool bUseStdout = true,
 			bool bLogTimestamps = false,
@@ -199,6 +199,8 @@ class Logger {
 		 * logger can mirror the process default's verbosity (ADR 0015, T1.6). */
 		bool getUseStdout() const { return m_bUseStdout; }
 
+		const QString& getLogFile() const;
+
 		/** Helper class to preserve and restore recursive crash context strings using an RAAI pattern */
 		class CrashContext {
 			QString *pSavedContext;
@@ -258,6 +260,10 @@ class Logger {
 
 inline bool Logger::getLogColors() const {
 	return m_bLogColors;
+}
+
+inline const QString& Logger::getLogFile() const {
+	return m_sLogFilePath;
 }
 
 };

@@ -67,18 +67,18 @@ void LoggerInstanceTest::testPerInstanceFiles() {
 	{
 		// Within this scope the ambient context resolves to pLoggerA, so the
 		// macro routes there.
-		Logger::Scope scope( pLoggerA.get() );
+		Logger::Scope scope( pLoggerA );
 		___INFOLOG( sMarkerA );
 	}
 	{
-		Logger::Scope scope( pLoggerB.get() );
+		Logger::Scope scope( pLoggerB );
 		___INFOLOG( sMarkerB );
 	}
 
 	// Destroying the loggers joins their worker threads, flushing + closing
 	// each file deterministically before we read it.
-	pLoggerA.reset();
-	pLoggerB.reset();
+	delete pLoggerA;
+	delete pLoggerB;
 
 	const QString sContentA = readFile( sPathA );
 	const QString sContentB = readFile( sPathB );
@@ -104,7 +104,7 @@ void LoggerInstanceTest::testUnscopedHitsDefault() {
 	// NOT to the instance logger we just created.
 	___INFOLOG( sMarker );
 
-	pLogger.reset();
+	delete pLogger;
 
 	const QString sContent = readFile( sPath );
 	CPPUNIT_ASSERT( ! sContent.contains( sMarker ) );
@@ -125,23 +125,23 @@ void LoggerInstanceTest::testTeardownFlushesOwnQueue() {
 	auto pLoggerGone = Logger::createInstanceLogger( sPathGone, false, false, false );
 
 	{
-		Logger::Scope scope( pLoggerGone.get() );
+		Logger::Scope scope( pLoggerGone );
 		___INFOLOG( sMarkerGone );
 	}
 	{
-		Logger::Scope scope( pLoggerKept.get() );
+		Logger::Scope scope( pLoggerKept );
 		___INFOLOG( sMarkerKept );
 	}
 
 	// Tear down only the "gone" instance: its queue must be flushed to its own
 	// file, and the surviving instance must be unaffected.
-	pLoggerGone.reset();
+	delete pLoggerGone;
 
 	const QString sContentGone = readFile( sPathGone );
 	CPPUNIT_ASSERT( sContentGone.contains( sMarkerGone ) );
 	CPPUNIT_ASSERT( ! sContentGone.contains( sMarkerKept ) );
 
-	pLoggerKept.reset();
+	delete pLoggerKept;
 	const QString sContentKept = readFile( sPathKept );
 	CPPUNIT_ASSERT( sContentKept.contains( sMarkerKept ) );
 	CPPUNIT_ASSERT( ! sContentKept.contains( sMarkerGone ) );

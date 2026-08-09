@@ -189,14 +189,13 @@ Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
 	return __instance;
 }
 
-std::shared_ptr<Logger> Logger::createInstanceLogger(
+Logger* Logger::createInstanceLogger(
 	const QString& sLogFilePath, bool bUseStdout, bool bLogTimestamps,
 	bool bLogColors ) {
 	// Standalone, owner-managed logger (own queue/thread/file). Deliberately
 	// does NOT touch __instance — the process default stays as the unscoped
 	// fallback (ADR 0015, T1.6).
-	return std::shared_ptr<Logger>(
-		new Logger( sLogFilePath, bUseStdout, bLogTimestamps, bLogColors ) );
+	return new Logger( sLogFilePath, bUseStdout, bLogTimestamps, bLogColors );
 }
 
 Logger::Logger( const QString& sLogFilePath, bool bUseStdout,

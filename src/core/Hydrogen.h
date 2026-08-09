@@ -198,7 +198,7 @@ public:
 	/** \return The per-instance Logger owned by this instance (ADR 0015, T1.6).
 	 * Used with Logger::Scope at the instance entry points so logging routes to
 	 * this instance's own log file. */
-	Logger*			getLogger() const { return m_pLogger.get(); }
+	Logger*			getLogger() const { return m_pLogger; }
 
 	/*
 	 * return central instance of the audio engine
@@ -549,7 +549,7 @@ private:
 
 	/** Per-instance Logger owned by this instance (ADR 0015, T1.6) — own queue,
 	 * worker thread and log file. */
-	std::shared_ptr<Logger> m_pLogger;
+	Logger* m_pLogger;
 	/** Preferences owned by this instance (ADR 0015). */
 	std::shared_ptr<Preferences> m_pPreferences;
 	/** Audio-export interpolation override (ADR 0027). When
@@ -668,7 +668,7 @@ private:
 	 * Editor. Unused (default-constructed) in standalone. */
 	AudioDriverInfo m_cachedAudioDriverInfo;
 
-/** Cached session-management state for editor mode (ADR 0029). Populated
+	/** Cached session-management state for editor mode (ADR 0029). Populated
 	 * via IPC from the authoritative engine; read by
 	 * isUnderSessionManagement() when m_ProcessMode == Editor. Unused
 	 * (false) in standalone. */
@@ -679,6 +679,8 @@ private:
 	 * m_ProcessMode == Editor. Unused (false) in standalone. */
 	bool m_bCachedUnderPluginHost;
 
+	/** Whether a custom #Logger instance was spawned by #Hydrogen */
+	bool m_bInstanceLoggerSpawned;
 };
 
 	/** Whenever Hydrogen is started in editor mode - connecting its GUI to an

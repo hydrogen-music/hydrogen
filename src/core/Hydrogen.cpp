@@ -118,6 +118,7 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 					 , m_pEventQueue( nullptr )
 					 , m_bCachedUnderSessionManagement( false )
 					 , m_bCachedUnderPluginHost( false )
+				 	 , m_bInstanceLoggerSpawned( false )
 {
 	// This instance owns its Preferences and EventQueue (ADR 0015); no
 	// process-wide singleton is involved.
@@ -131,19 +132,33 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 	// Logger::Scope( getLogger() ) so logging routes here.
 	static std::atomic<int> nInstanceCounter { 0 };
 	const QFileInfo defaultLogInfo( Filesystem::logFilePath() );
-	const QString sInstanceLogPath = defaultLogInfo.absolutePath() + "/" +
-		defaultLogInfo.completeBaseName() +
-		QString( "_%1_%2." ).arg( QCoreApplication::applicationPid() )
-							 .arg( nInstanceCounter++ ) +
-		defaultLogInfo.suffix();
-	// No Scope is active during construction, so currentLogger() resolves to the
-	// process-default logger — read its settings to mirror console verbosity.
-	const auto pDefaultLogger = Logger::currentLogger();
-	m_pLogger = Logger::createInstanceLogger(
-		sInstanceLogPath,
-		pDefaultLogger != nullptr ? pDefaultLogger->getUseStdout() : false,
-		false,
-		pDefaultLogger != nullptr ? pDefaultLogger->getLogColors() : true );
+	if ( pPref->m_audioDriver == Preferences::AudioDriver::Plugin ) {
+		// Only in case Hydrogen was instantiated by a plugin host, we use a
+		// custom log file.
+		const QString sInstanceLogPath =
+			defaultLogInfo.absolutePath() + "/" +
+			defaultLogInfo.completeBaseName() +
+			QString( "_%1_%2." )
+				.arg( QCoreApplication::applicationPid() )
+				.arg( nInstanceCounter++ ) +
+			defaultLogInfo.suffix();
+		// No Scope is active during construction, so currentLogger() resolves
+		// to the process-default logger — read its settings to mirror console
+		// verbosity.
+		const auto pDefaultLogger = Logger::currentLogger();
+		m_pLogger = Logger::createInstanceLogger(
+			sInstanceLogPath,
+			pDefaultLogger != nullptr ? pDefaultLogger->getUseStdout() : false,
+			false,
+			pDefaultLogger != nullptr ? pDefaultLogger->getLogColors() : true
+		);
+		INFOLOG( QString( "Spawning instance logger backed by [%1]" )
+					 .arg( sInstanceLogPath ) );
+		m_bInstanceLoggerSpawned = true;
+	}
+	else {
+		m_pLogger = Logger::currentLogger();
+	}
 
 #ifdef H2CORE_HAVE_OSC
 	// OSC server + NSM client are owned per-instance (ADR 0015). The OscServer
@@ -205,6 +220,16 @@ Hydrogen::~Hydrogen()
 	// which may still emit events during teardown).
 	delete m_pEventQueue;
 	m_pEventQueue = nullptr;
+
+	// In case we created a logger for this very instance, we also have to tear
+	// down its custom Logger instance. We also need to clean up the custom log
+	// file. Since the process id is used in the file name, we would clutter up
+	// disk space otherwise.
+	if ( m_bInstanceLoggerSpawned ) {
+		const auto sInstanceLogFile = m_pLogger->getLogFile();
+		delete m_pLogger;
+		Filesystem::rm( sInstanceLogFile );
+	}
 }
 
 Hydrogen* Hydrogen::create_instance( int nOscPort,
