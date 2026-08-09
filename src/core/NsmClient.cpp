@@ -280,6 +280,7 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 	 * Make first contact with NSM server.
 	 */
 
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	nsm_client_t* pNsm = nullptr;
 
 	const auto pPref = m_pHydrogen->getPreferences();
