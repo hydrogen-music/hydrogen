@@ -199,6 +199,7 @@ enum class IpcOpcode : quint16 {
 	                        ///<         int timebaseState,
 	                        ///<         bool jackTransportEnabled]
 	GetIsUnderSessionManagement, ///< reply: args = [bool]
+	GetIsUnderPluginHost,       ///< reply: args = [bool]
 
 	// ── Panic (stop all playback + send all-notes-off) ──
 	Panic,

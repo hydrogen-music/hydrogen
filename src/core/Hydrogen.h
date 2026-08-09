@@ -458,8 +458,14 @@ public:
 	/** \return Whether this instance is driven by a plugin host (ADR 0013):
 	 * audio, MIDI, and transport come from the host rather than from local
 	 * real-time drivers. The single predicate gating plugin-mode behaviour
-	 * (host-transport following here; feature disablement in ADR 0026). */
+	 * (host-transport following here; feature disablement in ADR 0026). In
+	 * editor mode the mirror has no real driver; this returns the IPC-cached
+	 * value (ADR 0029). */
 	bool isUnderPluginHost() const;
+	/** Cache @a bValue as the plugin-host state. Called by the GUI after
+	 * fetching it from the authoritative engine via IPC (syncViaIpc).
+	 * Editor mode only (ADR 0029). */
+	void setCachedUnderPluginHost( bool bValue );
 
 	/**
 	 * \return Whether we hasJackTransport() and there is an external JACK
@@ -662,11 +668,16 @@ private:
 	 * Editor. Unused (default-constructed) in standalone. */
 	AudioDriverInfo m_cachedAudioDriverInfo;
 
-	/** Cached session-management state for editor mode (ADR 0029). Populated
+/** Cached session-management state for editor mode (ADR 0029). Populated
 	 * via IPC from the authoritative engine; read by
 	 * isUnderSessionManagement() when m_ProcessMode == Editor. Unused
 	 * (false) in standalone. */
 	bool m_bCachedUnderSessionManagement;
+
+	/** Cached plugin-host state for editor mode (ADR 0029). Populated via
+	 * IPC from the authoritative engine; read by isUnderPluginHost() when
+	 * m_ProcessMode == Editor. Unused (false) in standalone. */
+	bool m_bCachedUnderPluginHost;
 
 };
 

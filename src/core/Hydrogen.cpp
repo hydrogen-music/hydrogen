@@ -117,6 +117,7 @@ Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
 					 , m_bUseInterpolateModeOverride( false )
 					 , m_pEventQueue( nullptr )
 					 , m_bCachedUnderSessionManagement( false )
+					 , m_bCachedUnderPluginHost( false )
 {
 	// This instance owns its Preferences and EventQueue (ADR 0015); no
 	// process-wide singleton is involved.
@@ -1435,8 +1436,20 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 }
 
 bool Hydrogen::isUnderPluginHost() const {
+	// In editor mode the mirror's audio driver is Null (forced by
+	// configureMirrorPreferences); return the IPC-cached value instead
+	// (ADR 0029).
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_bCachedUnderPluginHost;
+	}
+
+	ASSERT_NO_EDITOR_MODE( this );
 	return m_pPreferences != nullptr &&
 		m_pPreferences->m_audioDriver == Preferences::AudioDriver::Plugin;
+}
+
+void Hydrogen::setCachedUnderPluginHost( bool bValue ) {
+	m_bCachedUnderPluginHost = bValue;
 }
 
 Interpolation::InterpolateMode Hydrogen::getInterpolateMode() const {

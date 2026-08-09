@@ -479,6 +479,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetIsUnderSessionManagement:
 		sOpcode = "GET_IS_UNDER_SESSION_MANAGEMENT";
 		break;
+	case IpcOpcode::GetIsUnderPluginHost:
+		sOpcode = "GET_IS_UNDER_PLUGIN_HOST";
+		break;
 	case IpcOpcode::Panic:
 		sOpcode = "PANIC";
 		break;

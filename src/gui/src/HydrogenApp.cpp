@@ -558,7 +558,22 @@ void HydrogenApp::syncViaIpc() {
 		}
 	}
 
-	// 11. Update Audio and Midi Driver-related widgets
+	// 11. Plugin-host state — cache it so the mirror's isUnderPluginHost()
+	// works in editor mode (ADR 0029).
+	{
+		IpcMessage reply;
+		if ( pChannel->request(
+				IpcMessage( IpcOpcode::GetIsUnderPluginHost ),
+				reply, 3000 ) ) {
+			const auto& args = reply.getArgs();
+			if ( ! args.isEmpty() ) {
+				m_pHydrogen->setCachedUnderPluginHost(
+					args[0].toBool() );
+			}
+		}
+	}
+
+	// 12. Update Audio and Midi Driver-related widgets
 	{
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::AudioDriverChanged, 0 );

@@ -691,6 +691,9 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 	case IpcOpcode::GetIsUnderSessionManagement:
 		reply.arg( pHydrogen->isUnderSessionManagement() );
 		break;
+	case IpcOpcode::GetIsUnderPluginHost:
+		reply.arg( pHydrogen->isUnderPluginHost() );
+		break;
 	default:
 		break; // unknown request → empty Reply (correlated by id)
 	}
