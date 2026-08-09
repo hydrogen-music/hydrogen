@@ -1840,7 +1840,8 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate )
 	}
 
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
-	if ( pAudioEngine->getAudioDriver() == nullptr ) {
+	if ( pAudioEngine->getAudioDriver() == nullptr ||
+		 m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
 		return false;
 	}
 	auto pJackDriver =
