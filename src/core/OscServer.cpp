@@ -392,7 +392,9 @@ OscServer::OscServer( H2Core::Hydrogen* pHydrogen, int nOscPort )
 	// No OSC server - and so no bound port - when running as a plugin: the host
 	// owns network endpoints and control surfaces (ADR 0026). The port would
 	// otherwise be bound right here in the constructor.
-	if ( pPref->getOscServerEnabled() && ! m_pHydrogen->isUnderPluginHost() ) {
+	if ( pPref->getOscServerEnabled() &&
+		 m_pHydrogen->getProcessMode() != H2Core::Hydrogen::ProcessMode::Editor &&
+		 ! m_pHydrogen->isUnderPluginHost() ) {
 		int nPort;
 		// Check whether an alternative value was provided via CLI argument.
 		if ( nOscPort != -1  ) {
@@ -1589,6 +1591,7 @@ bool OscServer::init()
 }
 
 bool OscServer::start() {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
 		ERRORLOG("Failed to start OSC server. No valid server thread.");
 		return false;
