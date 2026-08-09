@@ -41,6 +41,9 @@
 #include <core/Hydrogen.h>
 #include <core/IPC/EngineSession.h>
 #include <core/IPC/HeadlessEngineLauncher.h>
+#ifdef H2CORE_HAVE_OSC
+  #include <core/NsmClient.h>
+#endif
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -478,6 +481,23 @@ int main( int argc, char** argv )
 		else {
 			cout << "Warning: Failed to start IPC server" << endl;
 		}
+	}
+
+#ifdef H2CORE_HAVE_OSC
+	auto pNsmClient = pHydrogen->getNsmClient();
+	if ( pNsmClient != nullptr ) {
+		// We provide the process name as argument.
+		pNsmClient->createInitialClient( QString( argv[0] ) );
+	}
+#endif
+
+	// If the NSM_URL variable is present, Hydrogen will not initialize the
+	// audio driver and leaves this to the callback function nsm_open_cb of the
+	// NSM client (which will be called by now). However, the presence of the
+	// environmental variable does not guarantee for a session management and if
+	// no audio driver is initialized yet, we will do it here.
+	if ( pHydrogen->getAudioDriver() == nullptr ) {
+		pHydrogen->restartAudioDriver();
 	}
 
 	if ( bInteractive ) {
