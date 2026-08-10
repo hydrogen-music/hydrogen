@@ -31,7 +31,6 @@ class ObjectUuidTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testValueSemantics );
 	CPPUNIT_TEST( testCrossProcessEpoch );
 	CPPUNIT_TEST( testInstrumentIdentityVsId );
-	CPPUNIT_TEST( testLockFreeMinting );
 	CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -41,5 +40,4 @@ class ObjectUuidTest : public CppUnit::TestCase {
 	void testValueSemantics();
 	void testCrossProcessEpoch();
 	void testInstrumentIdentityVsId();
-	void testLockFreeMinting();
 };

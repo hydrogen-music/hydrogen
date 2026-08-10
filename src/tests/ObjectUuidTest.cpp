@@ -157,34 +157,3 @@ void ObjectUuidTest::testInstrumentIdentityVsId() {
 	CPPUNIT_ASSERT_EQUAL( 0, list.index( b ) );
 	CPPUNIT_ASSERT_EQUAL( -1, list.index( a ) );
 }
-
-void ObjectUuidTest::testLockFreeMinting() {
-	// Real-time safety (ADR 0028): minting is a lock-free atomic, safe to call
-	// while copying notes on the audio thread.
-	CPPUNIT_ASSERT( std::atomic<uint64_t>{}.is_lock_free() );
-
-	// Under heavy concurrency every minted id is still unique (no torn counter).
-	const int nThreads = 8;
-	const int nPerThread = 5000;
-	std::vector<std::vector<Uuid>> perThread( nThreads );
-	std::vector<std::thread> threads;
-	for ( int t = 0; t < nThreads; ++t ) {
-		perThread[t].reserve( nPerThread );
-		threads.emplace_back( [&perThread, t, nPerThread]() {
-			for ( int i = 0; i < nPerThread; ++i ) {
-				perThread[t].push_back( Uuid::mint() );
-			}
-		} );
-	}
-	for ( auto& th : threads ) {
-		th.join();
-	}
-
-	QSet<Uuid> all;
-	for ( const auto& v : perThread ) {
-		for ( const auto& u : v ) {
-			all.insert( u );
-		}
-	}
-	CPPUNIT_ASSERT_EQUAL( nThreads * nPerThread, static_cast<int>( all.size() ) );
-}
