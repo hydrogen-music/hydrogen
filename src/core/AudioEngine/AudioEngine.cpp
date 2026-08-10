@@ -886,6 +886,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<Transport> pPos,
 			}
 
 			if ( m_pHydrogen->getPreferences()->getMidiClockOutputSend() &&
+				 m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
 				 m_pMidiDriver != nullptr &&
 				 ! m_pHydrogen->isUnderPluginHost() ) {
 				// No MIDI clock out under a plugin host (ADR 0026).

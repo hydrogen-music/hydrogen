@@ -49,6 +49,7 @@ MidiBaseDriver::MidiBaseDriver( Hydrogen* pHydrogen )
       m_bOutputActive( false )
 {
 	if ( MidiInput::m_pHydrogen->getPreferences()->getMidiClockOutputSend() &&
+		 MidiInput::m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
 		 ! MidiInput::m_pHydrogen->isUnderPluginHost() ) {
 		// No MIDI clock out under a plugin host (ADR 0026).
 		startMidiClockStream( MidiInput::m_pHydrogen
@@ -257,6 +258,8 @@ void MidiBaseDriver::sendAllNotesOff()
 
 void MidiBaseDriver::startMidiClockStream( float fBpm )
 {
+	ASSERT_NO_EDITOR_MODE( MidiInput::m_pHydrogen );
+
 	// Ensure there is just a single thread.
 	m_bSendClockTick = false;
 	if ( m_pClockThread != nullptr ) {
@@ -314,6 +317,8 @@ void MidiBaseDriver::midiClockStream( void* pInstance )
 	}
 
 	auto pHydrogen = pMidiDriver->getHydrogen();
+	ASSERT_NO_EDITOR_MODE( pHydrogen );
+
 	const auto pPref = pMidiDriver->getHydrogen()->getPreferences();
 
 	while ( pMidiDriver->m_bSendClockTick ) {
@@ -454,6 +459,9 @@ void MidiBaseDriver::inputMessageHandler( void* pInstance )
 		return;
 	}
 
+	ASSERT_NO_EDITOR_MODE( pDriver->getHydrogen() );
+
+
 	// Signal the instance that we are ready.
 	pDriver->m_bInputActive = true;
 	pDriver->m_inputMessageHandlerCV.notify_all();
@@ -494,6 +502,8 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
 	const MidiMessage& msg
 )
 {
+	ASSERT_NO_EDITOR_MODE( MidiInput::m_pHydrogen );
+
 	const auto pHandledOutput = MidiOutput::sendMessage( msg );
 
 	if ( pHandledOutput != nullptr &&
@@ -517,6 +527,7 @@ void MidiBaseDriver::outputMessageHandler( void* pInstance )
 		ERRORLOG( "Invalid instance provided. Shutting down." );
 		return;
 	}
+	ASSERT_NO_EDITOR_MODE( pDriver->getHydrogen() );
 
 	// Signal the instance that we are ready.
 	pDriver->m_bOutputActive = true;

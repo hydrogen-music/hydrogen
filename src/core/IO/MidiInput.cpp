@@ -49,6 +49,8 @@ MidiInput::~MidiInput() {
 std::shared_ptr<MidiInput::HandledInput> MidiInput::handleMessage(
 	const MidiMessage& msg )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
+
 	const auto timePoint = msg.getTimePoint();
 	auto pPref = m_pHydrogen->getPreferences();
 

@@ -42,6 +42,8 @@ MidiOutput::~MidiOutput() {
 std::shared_ptr<MidiOutput::HandledOutput> MidiOutput::sendMessage(
 	const MidiMessage& msg )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
+
 #if LOG_OUTGOING_MESSAGES
 	INFOLOG( QString( "[OUTPUT] sending [%1]" ).arg( msg.toQString() ) );
 #endif
