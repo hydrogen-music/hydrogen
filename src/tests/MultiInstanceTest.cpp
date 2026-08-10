@@ -69,13 +69,17 @@ void MultiInstanceTest::testTwoIndependentInstances() {
 	// own), each owning its Preferences/EventQueue/AudioEngine/Song *and* its own
 	// OSC server / NSM client (per-instance, not singletons — ADR 0015). OSC is
 	// disabled here so neither binds a port.
-	auto* pA = new Hydrogen( makePluginPreferences(), -1 );
-	auto* pB = new Hydrogen( makePluginPreferences(), -1 );
+	auto* pA = new Hydrogen(
+		makePluginPreferences(), Hydrogen::ProcessMode::Headless, -1
+	);
+	auto* pB = new Hydrogen(
+		makePluginPreferences(), Hydrogen::ProcessMode::Headless, -1
+	);
 
 	// EventQueue::pushEvent() drops events while an instance is still in the
 	// startup ProcessMode; a headless/plugin instance runs in 'headless'.
-	pA->setProcessMode( Hydrogen::ProcessMode::Headless );
-	pB->setProcessMode( Hydrogen::ProcessMode::Headless );
+	pA->setFullyOperational( true );
+	pB->setFullyOperational( true );
 
 	// Distinct instances own distinct context objects.
 	CPPUNIT_ASSERT( pA != pB );

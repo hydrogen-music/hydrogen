@@ -270,7 +270,10 @@ int main(int argc, char *argv[])
 			H2Core::Preferences::USE_JACK_TRANSPORT;
 		pPref->m_nBufferSize = 1024;
 
-		Hydrogen *pHydrogen = Hydrogen::create_instance( nOscPort, pPref );
+		auto pHydrogen = Hydrogen::create_instance(
+			nOscPort, pPref, Hydrogen::ProcessMode::Headless
+		);
+		pHydrogen->setFullyOperational( true );
 		g_pHydrogen = pHydrogen;
 		AudioEngineTests::setHydrogen( pHydrogen );
 		std::shared_ptr<Song> pSong = nullptr;

@@ -66,8 +66,9 @@ Hydrogen* makeStandaloneEngine() {
 	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
 	pPref->m_midiDriver = Preferences::MidiDriver::None;
 	pPref->setOscServerEnabled( false );
-	auto* pHydrogen = new Hydrogen( pPref, -1 );
-	pHydrogen->setProcessMode( Hydrogen::ProcessMode::Headless );
+	auto* pHydrogen =
+		new Hydrogen( pPref, Hydrogen::ProcessMode::Headless, -1 );
+	pHydrogen->setFullyOperational( true );
 	return pHydrogen;
 }
 

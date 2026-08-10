@@ -456,10 +456,13 @@ int main(int argc, char *argv[])
 			// engine we want to connect to owns audio); a thread here would
 			// race the teardown below on abort.
 			H2Core::EditorSession::configureMirrorPreferences( pPref );
-			pHydrogen =
-				H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
+			pHydrogen = H2Core::Hydrogen::create_instance(
+				parser.getOscPort(), pPref,
+				H2Core::Hydrogen::ProcessMode::Editor
+			);
 			pEditorSession = H2Core::EditorSession::connect(
-				sConnectViaIpcEndpoint, pHydrogen );
+				sConnectViaIpcEndpoint, pHydrogen
+			);
 			if ( pEditorSession == nullptr ) {
 				___ERRORLOG( QString( "Unable to connect to headless engine "
 									  "endpoint [%1]. Aborting..." )
@@ -478,8 +481,9 @@ int main(int argc, char *argv[])
 		}
 		else {
 			// Hydrogen here to honor all preferences.
-			pHydrogen =
-				H2Core::Hydrogen::create_instance( parser.getOscPort(), pPref );
+			pHydrogen = H2Core::Hydrogen::create_instance(
+				parser.getOscPort(), pPref, H2Core::Hydrogen::ProcessMode::Full
+			);
 			HydrogenApp::setBootstrap( pHydrogen, pPref );
 
 #ifdef H2CORE_HAVE_OSC
@@ -518,12 +522,7 @@ int main(int argc, char *argv[])
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
-		if ( bConnectViaIpc ) {
-			pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Editor );
-		}
-		else {
-			pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Full );
-		}
+		pHydrogen->setFullyOperational( true );
 
 		// The drumkit assigned via the command line must be applied _after_ the
 		// GUI is fully set up. We rely on our core events to reflect changes

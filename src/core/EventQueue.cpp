@@ -43,9 +43,7 @@ long EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 	std::lock_guard< std::mutex > lock( m_mutex );
 
 	auto pHydrogen = m_pHydrogen;
-	if ( pHydrogen == nullptr ||
-		 pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Startup ||
-		 pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Shutdown ) {
+	if ( pHydrogen == nullptr || ! pHydrogen->isFullyOperational() ) {
 		return Event::nInvalidId;
 	}
 

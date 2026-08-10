@@ -1049,7 +1049,7 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 	auto driverSane = driver;
 	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor &&
 		 driver != Preferences::AudioDriver::Disk ) {
-		driverSane = Preferences::AudioDriver::Fake;
+		driverSane = Preferences::AudioDriver::Null;
 		AE_INFOLOG( "Creating Software driver" );
 	}
 	else {

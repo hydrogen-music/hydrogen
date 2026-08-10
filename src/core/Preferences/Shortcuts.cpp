@@ -74,9 +74,8 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, Hydrogen* p
 	
 	XMLNode shortcutsNode = node.firstChildElement( "shortcuts" );
 	if ( shortcutsNode.isNull() ) {
-		if ( pHydrogen == nullptr ||
-			 QCoreApplication::instance() == nullptr ||
-			 pHydrogen->getProcessMode() == H2Core::Hydrogen::ProcessMode::Startup ) {
+		if ( pHydrogen == nullptr || QCoreApplication::instance() == nullptr ||
+			 !pHydrogen->isFullyOperational() ) {
 			// No shortcuts found. We need to create the default ones. But
 			// it is essential that we do not do this right away. If no
 			// QApplication is present, Qt will segfault when attempting

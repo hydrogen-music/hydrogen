@@ -123,9 +123,6 @@ public:
 
 	/** Specifies the state of the Qt GUI*/
 	enum class ProcessMode {
-		/** Hydrogen is still starting up. Core maybe already somewhat ready but
-		 * GUI is most probably not.*/
-		Startup = -1,
 		/** Hydrogen is up and running but there is no GUI available. */
 		Headless = 0,
 		/** Hydrogen is up and running and there is a working GUI. */
@@ -136,10 +133,7 @@ public:
 		 * to serve as a mirror in order to ensure smooth playback and
 		 * transport. But the engine running in the other process is authorative
 		 * and the mirror one is synced to it periodically. */
-		Editor,
-		/** Teardown of Hydrogen was initialized and the Event handling system
-		 * might not work anymore. */
-		Shutdown
+		Editor
 	};
 	static QString ProcessModeToQString( const ProcessMode& state );
 
@@ -150,8 +144,9 @@ public:
 	 * A thin wrapper around the instance constructor (ADR 0015); plugin hosts
 	 * construct instances directly via #Hydrogen().
 	 */
-	static Hydrogen*	create_instance( int nOscPort,
-										 std::shared_ptr<Preferences> pPreferences );
+	static Hydrogen* create_instance( int nOscPort,
+									  std::shared_ptr<Preferences> pPreferences,
+									  ProcessMode processMode );
 
 	/**
 	 * Constructs a Hydrogen instance owning the given @a pPref Preferences and
@@ -159,9 +154,15 @@ public:
 	 * process; the caller owns the instance.
 	 *
 	 * @param pPref Preferences owned by this instance.
+	 * @param processMode Whether the resulting application will have a GUI
+	 *   and/or an authoritative engine.
 	 * @param nOscPort OSC port for this instance, or -1 to disable OSC.
 	 */
-	Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort );
+	Hydrogen(
+		std::shared_ptr<Preferences> pPref,
+		ProcessMode processMode,
+		int nOscPort
+	);
 
 	/**
 	 * Destructor taking care of most of the clean up.
@@ -426,6 +427,11 @@ public:
 
 	/**\return #m_ProcessMode*/
 	const ProcessMode&	getProcessMode() const;
+
+	/** Whether Hydrogen is starting up or tearing down. */
+	bool isFullyOperational() const;
+	void setFullyOperational( bool bFullyOperational );
+
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_ProcessMode.*/
 	void			setProcessMode( const ProcessMode& state );
@@ -608,6 +614,11 @@ private:
 	 */
 	ProcessMode		m_ProcessMode;
 
+	/** Whether Hydrogen is starting up or tearing down. This variable must only
+	 * be set to false in case the entire startup was completed, e.g. the GUI
+	 * has a properly sized window frame. */
+	bool m_bIsFullyOperational;
+
 	/** Helper class for time-specific methods. */
 	std::shared_ptr<TimeHelper> m_pTimeHelper;
 
@@ -730,6 +741,12 @@ inline const Hydrogen::ProcessMode& Hydrogen::getProcessMode() const {
 
 inline void Hydrogen::setProcessMode( const Hydrogen::ProcessMode& state ) {
 	m_ProcessMode = state;
+}
+inline bool Hydrogen::isFullyOperational() const {
+	return m_bIsFullyOperational;
+}
+inline void Hydrogen::setFullyOperational( bool bFullyOperational ) {
+	m_bIsFullyOperational = bFullyOperational;
 }
 inline int Hydrogen::getSelectedPatternNumber() const
 {

@@ -61,6 +61,8 @@ public:
 
 	const Hydrogen::ProcessMode& getProcessMode() const override {
 		return m_pHydrogen->getProcessMode(); }
+	bool isFullyOperational() const override {
+		return m_pHydrogen->isFullyOperational(); }
 	JackDriver::Timebase getJackTimebaseState() const override {
 		return m_pHydrogen->getJackTimebaseState(); }
 	Song::Mode getMode() const override {

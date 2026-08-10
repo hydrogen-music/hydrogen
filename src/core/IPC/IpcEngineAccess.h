@@ -82,6 +82,8 @@ class IpcEngineAccess : public IEngineAccess,
 
 	const Hydrogen::ProcessMode& getProcessMode() const override {
 		return m_pMirror->getProcessMode(); }
+	bool isFullyOperational() const override {
+		return m_pMirror->isFullyOperational(); }
 	JackDriver::Timebase getJackTimebaseState() const override {
 		return m_pMirror->getJackTimebaseState(); }
 	Song::Mode getMode() const override {

@@ -92,33 +92,38 @@ namespace H2Core
 //
 //----------------------------------------------------------------------------
 
-Hydrogen::Hydrogen( std::shared_ptr<Preferences> pPref, int nOscPort )
-					 : m_fBeatCounterBeatLength( 1 )
-					 , m_nBeatCounterTotalBeats( 4 )
-					 , m_nBeatCounterEventCount( 1 )
-					 , m_nBeatCounterBeatCount( 1 )
-					 , m_lastBeatCounterTimePoint( TimePoint() )
-					 , m_lastTapTempoTimePoint( TimePoint() )
-					 , m_fTapTempoAverageBpm( MIN_BPM )
-					 , m_nTapTempoEventsAveraged( 0 )
-					 , m_nSelectedInstrumentNumber( 0 )
-					 , m_nSelectedPatternNumber( 0 )
-					 , m_bExportSessionIsActive( false )
-					 , m_ProcessMode( ProcessMode::Startup )
-					 , m_lastMidiEvent( MidiEvent::Type::Null )
-					 , m_lastMidiEventParameter( Midi::ParameterInvalid )
-					 , m_oldEngineMode( Song::Mode::Song )
-					 , m_bOldLoopEnabled( false )
-					 , m_nLastRecordedMIDINoteTick( 0 )
-					 , m_bRecordEnabled( false )
-					 , m_hihatOpenness( Midi::ParameterMaximum )
-					 , m_pPreferences( pPref )
-					 , m_interpolateModeOverride( Interpolation::InterpolateMode::Linear )
-					 , m_bUseInterpolateModeOverride( false )
-					 , m_pEventQueue( nullptr )
-					 , m_bCachedUnderSessionManagement( false )
-					 , m_bCachedUnderPluginHost( false )
-				 	 , m_bInstanceLoggerSpawned( false )
+Hydrogen::Hydrogen(
+	std::shared_ptr<Preferences> pPref,
+	ProcessMode processMode,
+	int nOscPort
+)
+	: m_fBeatCounterBeatLength( 1 ),
+	  m_nBeatCounterTotalBeats( 4 ),
+	  m_nBeatCounterEventCount( 1 ),
+	  m_nBeatCounterBeatCount( 1 ),
+	  m_lastBeatCounterTimePoint( TimePoint() ),
+	  m_lastTapTempoTimePoint( TimePoint() ),
+	  m_fTapTempoAverageBpm( MIN_BPM ),
+	  m_nTapTempoEventsAveraged( 0 ),
+	  m_nSelectedInstrumentNumber( 0 ),
+	  m_nSelectedPatternNumber( 0 ),
+	  m_bExportSessionIsActive( false ),
+	  m_ProcessMode( processMode ),
+	  m_bIsFullyOperational( false ),
+	  m_lastMidiEvent( MidiEvent::Type::Null ),
+	  m_lastMidiEventParameter( Midi::ParameterInvalid ),
+	  m_oldEngineMode( Song::Mode::Song ),
+	  m_bOldLoopEnabled( false ),
+	  m_nLastRecordedMIDINoteTick( 0 ),
+	  m_bRecordEnabled( false ),
+	  m_hihatOpenness( Midi::ParameterMaximum ),
+	  m_pPreferences( pPref ),
+	  m_interpolateModeOverride( Interpolation::InterpolateMode::Linear ),
+	  m_bUseInterpolateModeOverride( false ),
+	  m_pEventQueue( nullptr ),
+	  m_bCachedUnderSessionManagement( false ),
+	  m_bCachedUnderPluginHost( false ),
+	  m_bInstanceLoggerSpawned( false )
 {
 	// This instance owns its Preferences and EventQueue (ADR 0015); no
 	// process-wide singleton is involved.
@@ -195,6 +200,9 @@ Hydrogen::~Hydrogen()
 {
 	INFOLOG( "[~Hydrogen]" );
 
+	// We reuse this member to indicate shutdown as well.
+	m_bIsFullyOperational = false;
+
 #ifdef H2CORE_HAVE_OSC
 	// This instance owns its OSC server and NSM client (ADR 0015).
 	if ( m_pNsmClient != nullptr ) {
@@ -232,14 +240,17 @@ Hydrogen::~Hydrogen()
 	}
 }
 
-Hydrogen* Hydrogen::create_instance( int nOscPort,
-									 std::shared_ptr<Preferences> pPreferences )
+Hydrogen* Hydrogen::create_instance(
+	int nOscPort,
+	std::shared_ptr<Preferences> pPreferences,
+	ProcessMode processMode
+)
 {
 	// Standalone factory (ADR 0015): construct a Hydrogen owning the provided
 	// Preferences. The caller owns the returned instance and is responsible for
 	// deleting it. No process-wide singleton is registered.
 	Logger::create_instance();
-	return new Hydrogen( pPreferences, nOscPort );
+	return new Hydrogen( pPreferences, processMode, nOscPort );
 }
 
 /// Start the internal sequencer
@@ -964,15 +975,12 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 	if ( pSong == nullptr ) {
 		return;
 	}
-	
-	if ( m_pPreferences->m_bJackTrackOuts == true &&
-		hasJackDriver() ) {
 
+	if ( m_pPreferences->m_bJackTrackOuts == true && hasJackDriver() ) {
 		// When restarting the audio driver after loading a new song under
 		// Non session management all ports have to be registered _prior_
 		// to the activation of the client.
-		if ( isUnderSessionManagement() &&
-			 getProcessMode() == Hydrogen::ProcessMode::Startup ) {
+		if ( isUnderSessionManagement() && !isFullyOperational() ) {
 			return;
 		}
 
@@ -1874,6 +1882,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bExportSessionIsActive ) )
 			.append( QString( "%1%2m_ProcessMode: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( ProcessModeToQString( m_ProcessMode ) ) )
+			.append( QString( "%1%2m_bIsFullyOperational: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsFullyOperational ) )
 			.append( QString( "%1%2m_instrumentDeathRow:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
@@ -1960,6 +1970,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
 			.append( QString( ", m_ProcessMode: %1" ).
 					 arg( ProcessModeToQString( m_ProcessMode ) ) )
+			.append( QString( ", m_bIsFullyOperational: %1" )
+					 .arg( m_bIsFullyOperational ) )
 			.append( QString( ", m_instrumentDeathRow: [" ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
@@ -2008,16 +2020,12 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 QString Hydrogen::ProcessModeToQString( const ProcessMode& state ) {
 	switch( state ) {
-	case ProcessMode::Startup:
-		return "Startup";
 	case ProcessMode::Headless:
 		return "Headless";
 	case ProcessMode::Full:
 		return "Full";
 	case ProcessMode::Editor:
 		return "Editor";
-	case ProcessMode::Shutdown:
-		return "Shutdown";
 	default:
 		return QString( "Unknown ProcessMode [%1]" )
 			.arg( static_cast<int>(state) );

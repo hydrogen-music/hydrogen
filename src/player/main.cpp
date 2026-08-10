@@ -376,10 +376,10 @@ int main( int argc, char** argv )
 		pPref->m_audioDriver = Preferences::parseAudioDriver( sSelectedDriver );
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::create_instance( nOscPort, pPref );
-
-	// Create headless engine using shared infrastructure
-	pHydrogen->setProcessMode( H2Core::Hydrogen::ProcessMode::Headless );
+	auto pHydrogen = Hydrogen::create_instance(
+		nOscPort, pPref, H2Core::Hydrogen::ProcessMode::Headless
+	);
+	pHydrogen->setFullyOperational( true );
 
 	std::shared_ptr<Song> pSong = nullptr;
 	std::shared_ptr<Playlist> pPlaylist = nullptr;

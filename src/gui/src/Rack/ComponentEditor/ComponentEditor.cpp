@@ -385,8 +385,7 @@ void ComponentEditor::updateSize() {
     m_pComponentsWidget->resize( width(), nNewHeight );
 
 	int nMaxHeight;
-	if ( HydrogenApp::pEngine()->getProcessMode() ==
-		 Hydrogen::ProcessMode::Startup ) {
+	if ( ! HydrogenApp::pEngine()->isFullyOperational() ) {
         nMaxHeight = HydrogenApp::pPreferences()->getRackProperties().height - 30;
 	}
 	else {
