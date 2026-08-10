@@ -601,9 +601,8 @@ void HydrogenApp::refreshCachedAudioDriverInfo() {
 	}
 	const auto& args = reply.getArgs();
 	if ( args.size() < 6 ) {
-		ERRORLOG(
-			QString( "Ill-formatted reply [%1]" ).arg( reply.getPayload() )
-		);
+		ERRORLOG( QString( "Ill-formatted reply [%1]" )
+					  .arg( QString( reply.getPayload() ) ) );
 		return;
 	}
 
