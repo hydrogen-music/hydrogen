@@ -33,10 +33,12 @@
 #include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 
-#include <stdint.h> // for uint32_t et al
 #include <cassert>
 #include <chrono>
 #include <memory>
+#include <sstream>
+#include <stdint.h> // for uint32_t et al
+#include <string>
 #include <vector>
 
 namespace H2Core
