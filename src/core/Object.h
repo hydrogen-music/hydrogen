@@ -67,6 +67,7 @@ struct Uuid {
 	bool operator!=( const Uuid& other ) const { return !( *this == other ); }
 
 	QString toQString() const;
+	static Uuid fromQString( const QString& sUuid, bool bSilent = false );
 	friend std::ostream& operator<<( std::ostream& out, const Uuid& u ) {
 		out << u.toQString().toStdString();
 		return out;

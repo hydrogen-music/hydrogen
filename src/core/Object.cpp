@@ -102,6 +102,39 @@ QString Uuid::toQString() const {
 		.arg( counter, 16, 16, QChar( '0' ) );
 }
 
+Uuid Uuid::fromQString( const QString& sText, bool bSilent ) {
+	if ( sText.isEmpty() ) {
+		if ( !bSilent ) {
+			___WARNINGLOG( "Empty string provided. Using new one instead." );
+		}
+		return Uuid::mint();
+	}
+
+	QStringList textList = sText.split( QLatin1Char( '-' ) );
+	if ( textList.size() != 2 ) {
+		if ( !bSilent ) {
+			___WARNINGLOG( QString( "Invalid UUid format [%1]."
+								 "Using new one instead" )
+							.arg( sText ) );
+		}
+		return Uuid::mint();
+	}
+
+	bool bOk, bOk2;
+	const uint64_t epoch = textList[0].toULongLong( &bOk, 16 );
+	const uint64_t counter = textList[1].toULongLong( &bOk2, 16 );
+	const Uuid uuid( epoch, counter );
+	if ( !bOk || !bOk2 || uuid.isNull() ) {
+		if ( !bSilent ) {
+			___WARNINGLOG( QString( "Invalid uuid values in string [%1]. Using "
+								 "new one instead" )
+							.arg( sText ) );
+		}
+		return Uuid::mint();
+	}
+	return uuid;
+}
+
 int Base::bootstrap( Logger* pLogger, bool count ) {
 	if ( __logger == nullptr && pLogger != nullptr ) {
 		__logger = pLogger;
