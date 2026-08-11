@@ -95,6 +95,7 @@ Sampler::~Sampler()
 
 void Sampler::process( uint32_t nFrames )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -325,11 +326,13 @@ void Sampler::process( uint32_t nFrames )
 
 bool Sampler::isRenderingNotes() const
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	return m_playingNotesQueue.size() > 0 || m_scheduledNoteOffQueue.size() > 0;
 }
 
 bool Sampler::noteOn( std::shared_ptr<Note> pNote )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	assert( pNote );
 	if ( pNote == nullptr ) {
 		ERRORLOG( "Invalid note" );
@@ -423,6 +426,7 @@ void Sampler::midiKeyboardNoteOff(
 	Note::Octave octave
 )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -1945,6 +1949,7 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 
 void Sampler::releasePlayingNotes( Uuid instrumentUuid )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	for ( auto ppNote : m_playingNotesQueue ) {
 		if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
 			 ( instrumentUuid == Uuid() ||
@@ -1960,6 +1965,7 @@ void Sampler::previewInstrument(
 	std::shared_ptr<Note> pNote
 )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	if ( pInstr == nullptr || pNote == nullptr ) {
 		ERRORLOG( "Invalid input" );
 		return;
@@ -1989,6 +1995,7 @@ void Sampler::previewInstrument(
 
 void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	m_pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
@@ -2026,6 +2033,7 @@ void Sampler::previewSample( std::shared_ptr<Sample> pSample, int nLength )
 bool Sampler::isInstrumentPlaying( std::shared_ptr<Instrument> pInstrument
 ) const
 {
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	if ( pInstrument != nullptr ) {	 // stop all notes using this instrument
 		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {
 			if ( m_playingNotesQueue[j]->getInstrument() != nullptr &&
