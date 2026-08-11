@@ -76,6 +76,8 @@ void IpcProtocolTest::testCommandRoundTrip() {
 	commands.push_back( IpcMessage( IpcOpcode::GetIsUnderSessionManagement ) );
 	commands.push_back( IpcMessage( IpcOpcode::GetIsUnderPluginHost ) );
 	commands.push_back( IpcMessage( IpcOpcode::NoteOn ) );
+	commands.push_back( IpcMessage( IpcOpcode::ReleasePlayingNotes )
+						.arg( H2Core::Uuid().toQString() ) );
 	commands.push_back( IpcMessage( IpcOpcode::SetBpm ).arg( 137.5f ) );
 	commands.push_back( IpcMessage( IpcOpcode::LocateToTick )
 							.arg( static_cast<qlonglong>( 192000 ) ).arg( true ) );

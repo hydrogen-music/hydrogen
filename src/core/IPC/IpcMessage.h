@@ -210,6 +210,12 @@ enum class IpcOpcode : quint16 {
 	// from its drumkit, and calls Sampler::noteOn().
 	NoteOn,
 
+	// ── Stop rendering notes currently playing in the Sampler ──
+	// All note corresponding to a particular instrument in the Sampler will be
+	// released. The instrument is identified by its Uuid which is serialized
+	// and transmitted to the authoritative engine.
+	ReleasePlayingNotes,
+
 	OpcodeCount
 };
 /**

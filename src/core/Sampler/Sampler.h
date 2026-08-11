@@ -197,7 +197,7 @@ class Sampler : public H2Core::Object<Sampler> {
 	 *
 	 * @param pInstr particular instrument for which notes will be release
 	 *   (`nullptr` to release them all) */
-	void releasePlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
+	void releasePlayingNotes( Uuid instrumentUuid = Uuid() );
 
 	int getPlayingNotesNumber() const { return m_playingNotesQueue.size(); }
 

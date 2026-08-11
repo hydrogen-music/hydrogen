@@ -1312,9 +1312,14 @@ void SampleEditor::stopPlayback()
 		m_pTargetSection->update();
 	}
 
-	auto pSampler = HydrogenApp::pEngine()->getAudioEngine()->getSampler();
-	pSampler->releasePlayingNotes( m_pPreviewInstrument );
-	pSampler->releasePlayingNotes( m_pPreviewInstrumentOriginal );
+	auto pCoreActionController =
+		HydrogenApp::pEngine()->getCoreActionController();
+	pCoreActionController->releasePlayingNotes(
+		m_pPreviewInstrument->getUuid()
+	);
+	pCoreActionController->releasePlayingNotes(
+		m_pPreviewInstrumentOriginal->getUuid()
+	);
 
 	m_playback = Playback::None;
 	lockWidgets( false );

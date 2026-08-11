@@ -1943,13 +1943,13 @@ void Sampler::stopPlayingNotes( std::shared_ptr<Instrument> pInstr )
 	}
 }
 
-void Sampler::releasePlayingNotes( std::shared_ptr<Instrument> pInstr )
+void Sampler::releasePlayingNotes( Uuid instrumentUuid )
 {
 	for ( auto ppNote : m_playingNotesQueue ) {
 		if ( ppNote == nullptr || ppNote->getInstrument() == nullptr ||
-			 ( pInstr == nullptr ||
-			   ( pInstr != nullptr &&
-				 sameObject( pInstr, ppNote->getInstrument() ) ) ) ) {
+			 ( instrumentUuid == Uuid() ||
+			   ( instrumentUuid != Uuid() &&
+				 ppNote->getInstrument()->getUuid() == instrumentUuid ) ) ) {
 			ppNote->getAdsr()->release();
 		}
 	}

@@ -2086,9 +2086,11 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	pAudioEngine->clearNoteQueues();
-	pAudioEngine->getSampler()->releasePlayingNotes();
-	pAudioEngine->getSampler()->clearLastUsedLayers();
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+		pAudioEngine->clearNoteQueues();
+		pAudioEngine->getSampler()->releasePlayingNotes();
+		pAudioEngine->getSampler()->clearLastUsedLayers();
+	}
 
 	pSong->setDrumkit( pNewDrumkit );
 	pSong->getPatternList()->mapToDrumkit( pNewDrumkit, pPreviousDrumkit );
@@ -2667,8 +2669,11 @@ bool CoreActionController::removeInstrument(
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	pAudioEngine->clearNoteQueues( pInstrument );
-	pAudioEngine->getSampler()->releasePlayingNotes( pInstrument );
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+		pAudioEngine->clearNoteQueues( pInstrument );
+		pAudioEngine->getSampler()->releasePlayingNotes(
+			pInstrument->getUuid() );
+	}
 
 	const int nSelectedInstrument = m_pHydrogen->getSelectedInstrumentNumber();
 	if ( nSelectedInstrument == nInstrumentNumber ||
@@ -2771,8 +2776,11 @@ bool CoreActionController::replaceDrumkitInstrument(
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	pAudioEngine->clearNoteQueues( pOldInstrument );
-	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+		pAudioEngine->clearNoteQueues( pOldInstrument );
+		pAudioEngine->getSampler()->releasePlayingNotes(
+			pOldInstrument->getUuid() );
+	}
 
 	pDrumkit->addInstrument( pNewInstrument, nOldInstrumentNumber );
 	m_pHydrogen->renamePerTrackJackAudioPorts( pSong, nullptr );
@@ -2822,7 +2830,10 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	pAudioEngine->getSampler()->releasePlayingNotes( pOldInstrument );
+	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+		pAudioEngine->getSampler()->releasePlayingNotes(
+			pOldInstrument->getUuid() );
+	}
 
 	// Unloading the samples of the old instrument will be done in the death
 	// row.
@@ -3965,6 +3976,13 @@ bool CoreActionController::handleNote(
 	}
 
 	return bSuccess;
+}
+
+bool CoreActionController::releasePlayingNotes( Uuid instrumentUuid ) {
+	m_pHydrogen->getAudioEngine()->getSampler()->releasePlayingNotes(
+		instrumentUuid
+	);
+	return true;
 }
 
 void CoreActionController::insertRecentFile( const QString& sFileName )

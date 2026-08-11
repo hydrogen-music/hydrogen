@@ -567,8 +567,8 @@ void AudioFileBrowser::stopPlayback()
 	m_pWaveDisplay->setRenderPlayhead( false );
 	m_pWaveDisplay->setPlayheadPosition( 0 );
 
-	auto pSampler = HydrogenApp::pEngine()->getAudioEngine()->getSampler();
-	pSampler->releasePlayingNotes( m_pPreviewInstrument );
+	HydrogenApp::pEngine()->getCoreActionController()->
+		releasePlayingNotes( m_pPreviewInstrument->getUuid() );
 
 	updateIcons();
 }

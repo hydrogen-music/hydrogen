@@ -113,6 +113,7 @@ public:
 	// to the authoritative engine's Sampler (ADR 0030). No dual-apply — the
 	// mirror has no real sampler.
 	bool noteOn( std::shared_ptr<Note> pNote ) override;
+	bool releasePlayingNotes( Uuid instrumentUuid ) override;
 	bool activateTimeline( bool bActivate ) override;
 	bool toggleTimeline(  ) override;
 	bool deleteTempoMarker( int nPosition ) override;

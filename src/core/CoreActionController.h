@@ -688,6 +688,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		QStringList* pMappedInstruments = nullptr
 	);
 
+	/** Tells the #H2Core::Sampler to drop all notes of a specific instrument by
+	 * making their #H2Core::Adsr advance into the release state.
+	 *
+	 * @param instrumentUuid since this method will also be used across the IPC
+	 *   engine - editor split, the particular instrument will be indicated by
+	 *   its #H2Core::Uuid. */
+	virtual bool releasePlayingNotes( Uuid instrumentUuid );
+
 	/**
 	 * Loads the drumkit specified in @a sDrumkitDirOrXml.
 	 *

@@ -597,6 +597,11 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		}
 		return pController->noteOn( pNote );
 	}
+	case IpcOpcode::ReleasePlayingNotes: {
+		auto uuid = Uuid::fromQString(
+			QString( msg.getPayload() ), true /* bSilent */ );
+		return pController->releasePlayingNotes( uuid );
+	}
 	default:
 		return false; // Hello / Event / unknown are not engine commands
 	}

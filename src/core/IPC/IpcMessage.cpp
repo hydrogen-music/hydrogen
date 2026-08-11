@@ -488,6 +488,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::NoteOn:
 		sOpcode = "NOTE_ON";
 		break;
+	case IpcOpcode::ReleasePlayingNotes:
+		sOpcode = "RELEASE_PLAYING_NOTES";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";
