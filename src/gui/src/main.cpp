@@ -524,6 +524,13 @@ int main(int argc, char *argv[])
 		// Tell the core that the GUI is now fully loaded and ready.
 		pHydrogen->setFullyOperational( true );
 
+		// In IPC mode the song/playlist were not loaded from disk (the else
+		// branch above). Pull the full engine state from the headless engine so
+		// the mirror is in sync before the GUI is shown.
+		if ( bConnectViaIpc ) {
+			pHydrogenApp->syncViaIpc();
+		}
+
 		// The drumkit assigned via the command line must be applied _after_ the
 		// GUI is fully set up. We rely on our core events to reflect changes
 		// during loading and those have to be fully wired.

@@ -171,13 +171,6 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 
 	h2app = new HydrogenApp( this, pUndoStack );
 
-	// In IPC mode the song/playlist were not loaded from disk (the else branch
-	// above). Pull the full engine state from the headless engine so the
-	// mirror is in sync before the GUI is shown.
-	if ( HydrogenApp::isConnectViaIpcMode() ) {
-		h2app->syncViaIpc();
-	}
-
 	showDevelWarning();
 	h2app->addEventListener( this );
 	createMenuBar();
