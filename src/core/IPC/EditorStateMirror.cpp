@@ -105,7 +105,7 @@ bool EditorStateMirror::applyMessage( const IpcMessage& msg ) {
 		if ( pSong == nullptr ) {
 			return false;
 		}
-		m_pMirror->setSong( pSong );
+		m_pMirror->getCoreActionController()->setSong( pSong );
 		return true;
 	}
 
