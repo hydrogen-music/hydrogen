@@ -329,6 +329,10 @@ class HydrogenApp : public QObject,
 	 * cache it in the mirror Hydrogen. Called during syncViaIpc() and on
 	 * AudioDriverChanged / JackTimebaseStateChanged events (ADR 0029). */
 	void refreshCachedAudioDriverInfo();
+	/** Re-fetch MidiDriverInfo from the authoritative engine via IPC and
+	 * cache it in the mirror Hydrogen. Called during syncViaIpc() and on
+	 * MidiDriverChanged events (ADR 0029). */
+	void refreshCachedMidiDriverInfo();
 
 	static HydrogenApp* m_pInstance;  ///< HydrogenApp instance
 
@@ -407,6 +411,7 @@ class HydrogenApp : public QObject,
 
 	void audioDriverChangedEvent() override;
 	void jackTimebaseStateChangedEvent( int nValue ) override;
+	void midiDriverChangedEvent() override;
 	void playlistChangedEvent( int nValue ) override;
 	void playlistLoadSongEvent() override;
 	void songIsModifiedEvent() override;

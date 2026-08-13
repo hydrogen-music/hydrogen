@@ -702,6 +702,13 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 			.arg( info.jackTransportEnabled );
 		break;
 	}
+	case IpcOpcode::GetMidiDriverInfo: {
+		const auto info = pHydrogen->getMidiDriverInfo();
+		reply.arg( info.isPresent )
+			.arg( info.isInputActive )
+			.arg( info.isOutputActive );
+		break;
+	}
 	case IpcOpcode::GetIsUnderSessionManagement:
 		reply.arg( pHydrogen->isUnderSessionManagement() );
 		break;

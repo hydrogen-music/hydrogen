@@ -40,6 +40,7 @@
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IO/AudioDriverInfo.h>
+#include <core/IO/MidiDriverInfo.h>
 #include <core/LocalEngineAccess.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
@@ -543,7 +544,10 @@ void HydrogenApp::syncViaIpc() {
 	// editor mode (ADR 0029).
 	refreshCachedAudioDriverInfo();
 
-	// 10. Session-management state — cache it so the mirror's
+	// 10. MIDI driver info — cache the engine's driver state (ADR 0029).
+	refreshCachedMidiDriverInfo();
+
+	// 11. Session-management state — cache it so the mirror's
 	// isUnderSessionManagement() works in editor mode (ADR 0029).
 	{
 		IpcMessage reply;
@@ -558,7 +562,7 @@ void HydrogenApp::syncViaIpc() {
 		}
 	}
 
-	// 11. Plugin-host state — cache it so the mirror's isUnderPluginHost()
+	// 12. Plugin-host state — cache it so the mirror's isUnderPluginHost()
 	// works in editor mode (ADR 0029).
 	{
 		IpcMessage reply;
@@ -573,7 +577,7 @@ void HydrogenApp::syncViaIpc() {
 		}
 	}
 
-	// 12. Update Audio and Midi Driver-related widgets
+	// 13. Update Audio and Midi Driver-related widgets
 	{
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::AudioDriverChanged, 0 );
@@ -614,6 +618,34 @@ void HydrogenApp::refreshCachedAudioDriverInfo() {
 	info.timebaseState = static_cast<JackDriver::Timebase>( args[4].toInt() );
 	info.jackTransportEnabled = args[5].toBool();
 	m_pHydrogen->setCachedAudioDriverInfo( info );
+}
+
+void HydrogenApp::refreshCachedMidiDriverInfo() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+	IpcMessage reply;
+	if ( ! pChannel->request( IpcMessage( IpcOpcode::GetMidiDriverInfo ),
+							  reply, 3000 ) ) {
+		ERRORLOG( "Unable to fetch latest MIDI driver info" );
+		return;
+	}
+	const auto& args = reply.getArgs();
+	if ( args.size() < 3 ) {
+		ERRORLOG( QString( "Ill-formatted reply [%1]" )
+					  .arg( QString( reply.getPayload() ) ) );
+		return;
+	}
+
+	MidiDriverInfo info;
+	info.isPresent = args[0].toBool();
+	info.isInputActive = args[1].toBool();
+	info.isOutputActive = args[2].toBool();
+	m_pHydrogen->setCachedMidiDriverInfo( info );
 }
 
 void HydrogenApp::onIpcConnectionLost() {
@@ -1861,6 +1893,12 @@ void HydrogenApp::jackTimebaseStateChangedEvent( int nValue ) {
 	// In editor mode, re-fetch cached AudioDriverInfo before dispatching
 	// driver/timebase events so listeners read fresh state (ADR 0029).
 	refreshCachedAudioDriverInfo();
+}
+
+void HydrogenApp::midiDriverChangedEvent() {
+	// In editor mode, re-fetch cached MidiDriverInfo before dispatching
+	// driver/timebase events so listeners read fresh state (ADR 0029).
+	refreshCachedMidiDriverInfo();
 }
 
 void HydrogenApp::playlistChangedEvent( int nValue ) {

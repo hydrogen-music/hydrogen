@@ -198,6 +198,8 @@ enum class IpcOpcode : quint16 {
 	                        ///<         bool isRunning, QString connectedDevice,
 	                        ///<         int timebaseState,
 	                        ///<         bool jackTransportEnabled]
+	GetMidiDriverInfo,    ///< reply: args = [bool isPresent, bool isInputActive,
+						  ///<                bool isOutputActive]
 	GetIsUnderSessionManagement, ///< reply: args = [bool]
 	GetIsUnderPluginHost,       ///< reply: args = [bool]
 

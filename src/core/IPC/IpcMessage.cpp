@@ -476,6 +476,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetAudioDriverInfo:
 		sOpcode = "GET_AUDIO_DRIVER_INFO";
 		break;
+	case IpcOpcode::GetMidiDriverInfo:
+		sOpcode = "GET_MIDI_DRIVER_INFO";
+		break;
 	case IpcOpcode::GetIsUnderSessionManagement:
 		sOpcode = "GET_IS_UNDER_SESSION_MANAGEMENT";
 		break;

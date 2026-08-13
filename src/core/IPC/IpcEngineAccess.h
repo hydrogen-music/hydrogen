@@ -120,8 +120,15 @@ class IpcEngineAccess : public IEngineAccess,
 	) const override { return QStringList(); }
 	QStringList getAudioHostAPIs() const override { return QStringList(); }
 	bool isExportWritingFailed() const override { return false; }
-	// MIDI driver (ADR 0029): same deferred query/event plumbing as audio.
-	MidiDriverInfo getMidiDriverInfo() const override { return MidiDriverInfo(); }
+	// --- MIDI driver (ADR 0029) ---
+	//
+	// The headless engine owns MIDI I/O; in editor mode driver state crosses as
+	// config (override layer), query, and event. The mirror's MidiDriverInfo is
+	// populated via IPC (syncViaIpc + event-driven re-fetch on
+	// MidiDriverChanged and cached in the mirror Hydrogen; we serve reads from
+	// that cache.
+	MidiDriverInfo getMidiDriverInfo() const override {
+			return m_pMirror->getCachedMidiDriverInfo(); }
 	std::vector<QString> getMidiPorts(
 		MidiBaseDriver::PortType /*portType*/ ) const override {
 		return std::vector<QString>(); }

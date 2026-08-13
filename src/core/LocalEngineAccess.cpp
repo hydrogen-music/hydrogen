@@ -120,14 +120,7 @@ bool LocalEngineAccess::isExportWritingFailed() const {
 }
 
 MidiDriverInfo LocalEngineAccess::getMidiDriverInfo() const {
-	MidiDriverInfo info;
-	const auto pDriver = m_pHydrogen->getMidiDriver();
-	if ( pDriver != nullptr ) {
-		info.isPresent = true;
-		info.isInputActive = pDriver->isInputActive();
-		info.isOutputActive = pDriver->isOutputActive();
-	}
-	return info;
+	return m_pHydrogen->getMidiDriverInfo();
 }
 
 std::vector<QString> LocalEngineAccess::getMidiPorts(

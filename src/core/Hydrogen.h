@@ -28,6 +28,7 @@
 #include <core/Helpers/Time.h>
 #include <core/IO/AudioDriverInfo.h>
 #include <core/IO/JackDriver.h>
+#include <core/IO/MidiDriverInfo.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
@@ -500,6 +501,18 @@ public:
 	 * (syncViaIpc / event-driven re-fetch). Editor mode only (ADR 0029). */
 	void			setCachedAudioDriverInfo( const AudioDriverInfo& info );
 
+	/** \return A value description of the active MIDI driver, resolved from
+	 * the live driver pointer (ADR 0029). In editor mode the mirror engine has
+	 * no real driver; use #getCachedMidiDriverInfo for the IPC-cached copy. */
+	MidiDriverInfo		getMidiDriverInfo() const;
+	/** \return The cached MidiDriverInfo populated via IPC in editor mode
+	 * (ADR 0029). In standalone mode this is default-constructed and unused. */
+	const MidiDriverInfo&	getCachedMidiDriverInfo() const;
+	/** Cache @a info as the current MIDI driver state. Called by the GUI
+	 * after fetching MidiDriverInfo from the authoritative engine via IPC
+	 * (syncViaIpc / event-driven re-fetch). Editor mode only (ADR 0029). */
+	void			setCachedMidiDriverInfo( const MidiDriverInfo& info );
+
 	/** \return Whether Hydrogen is under NSM session management. In standalone
 	 * this queries the live NsmClient; in editor mode the mirror has no NSM
 	 * client and this returns the IPC-cached value (ADR 0029). */
@@ -685,6 +698,11 @@ private:
 	 * hasJackTransport() / getJackTimebaseState() when m_ProcessMode ==
 	 * Editor. Unused (default-constructed) in standalone. */
 	AudioDriverInfo m_cachedAudioDriverInfo;
+
+	/** Cached MIDI driver state for editor mode (ADR 0029). Populated via IPC
+	 * from the authoritative engine; Unused (default-constructed) in
+	 * standalone. */
+	MidiDriverInfo m_cachedMidiDriverInfo;
 
 	/** Cached session-management state for editor mode (ADR 0029). Populated
 	 * via IPC from the authoritative engine; read by

@@ -1331,6 +1331,26 @@ void Hydrogen::setCachedAudioDriverInfo( const AudioDriverInfo& info ) {
 	m_cachedAudioDriverInfo = info;
 }
 
+MidiDriverInfo Hydrogen::getMidiDriverInfo() const {
+	MidiDriverInfo info;
+	const auto pDriver = m_pAudioEngine->getMidiDriver();
+	if ( pDriver == nullptr ) {
+		return info;
+	}
+	info.isPresent = true;
+	info.isInputActive = pDriver->isInputActive();
+	info.isOutputActive = pDriver->isOutputActive();
+	return info;
+}
+
+const MidiDriverInfo& Hydrogen::getCachedMidiDriverInfo() const {
+	return m_cachedMidiDriverInfo;
+}
+
+void Hydrogen::setCachedMidiDriverInfo( const MidiDriverInfo& info ) {
+	m_cachedMidiDriverInfo = info;
+}
+
 bool Hydrogen::isUnderSessionManagement() const
 {
 	// In editor mode the mirror has no NsmClient; return the IPC-cached
