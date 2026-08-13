@@ -680,8 +680,13 @@ void RoundTripAssertions::assertSongEqual( std::shared_ptr<Song> a, std::shared_
 	// Pattern list
 	const auto pPatternsA = a->getPatternList();
 	const auto pPatternsB = b->getPatternList();
-	CPPUNIT_ASSERT_EQUAL_MESSAGE( "Song pattern count",
-								  pPatternsA->size(), pPatternsB->size() );
+	assertUuidEqual(
+		"Song::PatternList::m_uuid", pPatternsA->getUuid(),
+		pPatternsB->getUuid()
+	);
+	CPPUNIT_ASSERT_EQUAL_MESSAGE(
+		"Song pattern count", pPatternsA->size(), pPatternsB->size()
+	);
 	for ( int ii = 0; ii < pPatternsA->size(); ++ii ) {
 		const auto pPatA = pPatternsA->get( ii );
 		const auto pPatB = pPatternsB->get( ii );
