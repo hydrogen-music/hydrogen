@@ -1508,8 +1508,9 @@ void Hydrogen::clearInterpolateModeOverride() {
 	m_bUseInterpolateModeOverride = false;
 }
 
-Hydrogen::Tempo Hydrogen::getTempoSource() const {
-	if ( getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+Hydrogen::Tempo Hydrogen::getTempoSource( bool bAuthoritativeEngine ) const {
+	if ( ! bAuthoritativeEngine &&
+		 getProcessMode() == Hydrogen::ProcessMode::Editor ) {
 		// The mirror engine does not own any audio/MIDI drivers or external
 		// tempo sources. Tempo is controlled by the authoritative engine and
 		// followed via telemetry + IPC events (ADR 0016/0030).

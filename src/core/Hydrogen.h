@@ -461,7 +461,12 @@ public:
 	bool isPatternEditorLocked() const;
 	void setIsPatternEditorLocked( bool bValue );
 
-	Tempo getTempoSource() const;
+	/** Tells what is currently controlling the tempo of Hydrogen.
+	 *
+	 * @param bAuthoritativeEngine when set to true, helps the GUI in editor
+	 *   mode to determine what governs the tempo of the (remote) authoritative
+	 *   engine. The local mirror engine will always be in #Tempo::Remote. */
+	Tempo getTempoSource( bool bAuthoritativeEngine = false ) const;
 
 	/** \return Whether this instance is driven by a plugin host (ADR 0013):
 	 * audio, MIDI, and transport come from the host rather than from local

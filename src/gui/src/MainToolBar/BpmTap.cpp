@@ -378,7 +378,7 @@ void BpmTap::updateBpmTap() {
 	}
 
 	// Tool tip
-	switch ( pHydrogen->getTempoSource() ) {
+	switch ( pHydrogen->getTempoSource( true ) ) {
 	case H2Core::Hydrogen::Tempo::Jack:
 		m_pTapButton->setBaseToolTip( m_sJackActiveToolTip );
 		m_pTapButton->setEnabled( false );

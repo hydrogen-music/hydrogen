@@ -1573,7 +1573,7 @@ void SongEditorPanel::updateTimeline() {
 	}
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto tempoSource = pHydrogen->getTempoSource();
+	const auto tempoSource = pHydrogen->getTempoSource( true );
 
 	bool bEnabled, bTempoEnabled;
 	if ( pHydrogen->getMode() == Song::Mode::Pattern ) {

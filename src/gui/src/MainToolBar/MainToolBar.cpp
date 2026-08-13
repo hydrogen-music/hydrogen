@@ -682,7 +682,7 @@ void MainToolBar::tempoChangedEvent( int nValue )
 		// Value was changed via API commands and not by the
 		// AudioEngine.
 		auto pHydrogen = HydrogenApp::pHydrogen();
-		if ( pHydrogen->getTempoSource() ==
+		if ( pHydrogen->getTempoSource( true ) ==
 			 H2Core::Hydrogen::Tempo::Timeline ) {
 			QMessageBox::warning(
 				this, "Hydrogen",
@@ -692,7 +692,7 @@ void MainToolBar::tempoChangedEvent( int nValue )
 					"activating it again." )
 			);
 		}
-		else if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Jack ) {
+		else if ( pHydrogen->getTempoSource( true ) == H2Core::Hydrogen::Tempo::Jack ) {
 			QMessageBox::warning(
 				this, "Hydrogen",
 				tr( "A tempo change via MIDI, OSC, BeatCounter, or TapTempo "
@@ -824,8 +824,7 @@ void MainToolBar::bpmChanged( double fNewBpm )
 {
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
-	if ( ( pHydrogen->getTempoSource() == Hydrogen::Tempo::Song ||
-		   pHydrogen->getTempoSource() == Hydrogen::Tempo::Remote ) &&
+	if ( ( pHydrogen->getTempoSource( true ) == Hydrogen::Tempo::Song ) &&
 		 pSong != nullptr && m_pBpmSpinBox->getIsActive() ) {
 		const float fOldBpm = pSong->getBpm();
 
@@ -991,14 +990,14 @@ void MainToolBar::updateBpmSpinBox()
 	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	m_pBpmSpinBox->setIsActive(
-		pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song
+		pHydrogen->getTempoSource( true ) == H2Core::Hydrogen::Tempo::Song
 	);
 	m_pBpmSpinBox->setValue(
 		pHydrogen->getAudioEngine()->getPlayhead()->getBpm(),
 		H2Core::Event::Trigger::Suppress
 	);
 
-	switch ( pHydrogen->getTempoSource() ) {
+	switch ( pHydrogen->getTempoSource( true ) ) {
 		case H2Core::Hydrogen::Tempo::Jack:
 			m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
 			break;
