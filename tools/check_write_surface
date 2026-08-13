@@ -65,6 +65,13 @@ PATTERN='\b(pNote|ppNote|pNotes|pNewNote|pSelectedNote|pInstrument|ppInstrument|
 # object) are allowlisted below, pending the editor-mode preview design (ADR 0016).
 PATTERN_ENGINE='(getAudioEngine\(\)|pAudioEngine|getTransport\(\)|pTransport|getSampler\(\)|pSampler)[[:space:]]*->[[:space:]]*((set|insert|remove|add|purge|clear|reset|move|replace|erase)[A-Z]|noteOn|noteOff|previewInstrument|stopPlayingNotes)'
 
+# Some of the methods of #H2Core::CoreActionController are only called in the
+# core and/or cli part of Hydrogen. They do not have OpCodes and do not travel
+# the IPC split. In order to ensure they do not sneak into the GUI at a later
+# point, we make our intention explicit and assert that they are not called.
+PATTERN_CORE_ACTION_CONTROLLER='(getCoreActionController\(\)|pCoreActionController|pCac|pCAC)[[:space:]]*->[[:space:]]*(toggleRecordMode|initExternalControlInterfaces|toggleStripIsMuted|toggleStripIsSoloed|upgradeDrumkit|validateDrumkit|retrieveDrumkit|extractDrumkit|replaceDrumkitInstrument|replacePlaybackTrackInstrument|relocateToFrame|clearInstrumentInPattern|newPattern)'
+
+
 # Normalize a source line: strip leading/trailing whitespace, collapse internal
 # whitespace runs to single spaces.
 normalize() {
@@ -150,7 +157,7 @@ while IFS= read -r line; do
 	fi
 	echo "  $file:$lineno: $norm"
 	violations=$((violations + 1))
-done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)" "$GUI_DIR" 2>/dev/null )
+done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)" "$GUI_DIR" 2>/dev/null )
 
 if [ "$violations" -gt 0 ]; then
 	echo
