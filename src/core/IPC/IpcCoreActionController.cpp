@@ -161,14 +161,6 @@ bool IpcCoreActionController::addTag( int nPosition, const QString& sText ) {
 	return CoreActionController::addTag( nPosition, sText );
 }
 
-bool IpcCoreActionController::newPattern( const QString& sPatternName ) {
-	if ( m_pChannel != nullptr ) {
-		m_pChannel->send(
-			IpcMessage( IpcOpcode::NewPattern ).arg( sPatternName ) );
-	}
-	return CoreActionController::newPattern( sPatternName );
-}
-
 bool IpcCoreActionController::quit() {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::Quit ) );

@@ -71,7 +71,6 @@ enum class IpcOpcode : quint16 {
 	ActivateRecordMode,     ///< args: [bool]
 	AddTempoMarker,         ///< args: [int, float]
 	AddTag,                 ///< args: [int, QString]
-	NewPattern,             ///< args: [QString]
 	SetSong,                ///< payload: song XML
 	SetDrumkit,             ///< payload: drumkit XML
 	LoadState,              ///< payload: .h2project / song-only state

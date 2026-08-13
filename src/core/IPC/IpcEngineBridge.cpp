@@ -135,11 +135,6 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->addTag( args[0].toInt(), args[1].toString() );
 		}
 		return false;
-	case IpcOpcode::NewPattern:
-		if ( args.size() >= 1 ) {
-			return pController->newPattern( args[0].toString() );
-		}
-		return false;
 	case IpcOpcode::SetSong: {
 		auto pSong = Song::fromXmlBuffer( msg.getPayload(), true, pHydrogen );
 		if ( pSong == nullptr ) {

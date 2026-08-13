@@ -64,7 +64,6 @@ public:
 	bool activateRecordMode( bool bActivate ) override;
 	bool addTempoMarker( int nPosition, float fBpm ) override;
 	bool addTag( int nPosition, const QString& sText ) override;
-	bool newPattern( const QString& sPatternName ) override;
 	bool quit() override;
 	bool panic() override;
 

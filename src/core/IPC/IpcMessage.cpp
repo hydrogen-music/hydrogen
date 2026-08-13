@@ -209,9 +209,6 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::AddTag:
 		sOpcode = "ADD_TAG";
 		break;
-	case IpcOpcode::NewPattern:
-		sOpcode = "NEW_PATTERN";
-		break;
 	case IpcOpcode::SetSong:
 		sOpcode = "SET_SONG";
 		break;
