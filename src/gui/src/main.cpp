@@ -226,7 +226,23 @@ int main(int argc, char *argv[])
 			exit( 1 );
 		}
 
-		QString sSongFileName = parser.getSongFileName();
+		QString sSongFileName;
+		if ( ! parser.getConnectViaIpcEndpoint().isEmpty() &&
+			 ! parser.getSongFileName().isEmpty() ) {
+			___WARNINGLOG( "A song can not be provided when connecting via IPC!" );
+		}
+		else {
+			sSongFileName = parser.getSongFileName();
+		}
+
+		QString sPlaylistFileName;
+		if ( ! parser.getConnectViaIpcEndpoint().isEmpty() &&
+			 ! parser.getPlaylistFileName().isEmpty() ) {
+			___WARNINGLOG( "A playlist can not be provided when connecting via IPC!" );
+		}
+		else {
+			sPlaylistFileName = parser.getPlaylistFileName();
+		}
 
 		std::cout << H2Core::getAboutText().toStdString();
 		
@@ -301,8 +317,14 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! parser.getAudioDriver().isEmpty() ) {
-			pPref->m_audioDriver =
-				H2Core::Preferences::parseAudioDriver( parser.getAudioDriver() );
+			if ( ! parser.getConnectViaIpcEndpoint().isEmpty() ) {
+				___WARNINGLOG( "An audio driver can not be specific in when connecting via IPC!" );
+			}
+			else {
+				pPref->m_audioDriver = H2Core::Preferences::parseAudioDriver(
+					parser.getAudioDriver()
+				);
+			}
 		}
 
 		delete pBootStrApp;
@@ -509,9 +531,8 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		MainForm *pMainForm =
-			new MainForm( pQApp, sSongFileName,
-						  parser.getPlaylistFileName() );
+		auto pMainForm =
+			new MainForm( pQApp, sSongFileName, sPlaylistFileName );
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
 		// Update visibility button states.
@@ -534,20 +555,29 @@ int main(int argc, char *argv[])
 		// The drumkit assigned via the command line must be applied _after_ the
 		// GUI is fully set up. We rely on our core events to reflect changes
 		// during loading and those have to be fully wired.
-		const QString sDrumkitNameToLoad = parser.getDrumkitToLoad();
-		if ( !sDrumkitNameToLoad.isEmpty() ) {
-			auto pDB =
-				pHydrogen->getSoundLibraryDatabase();
-			auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
-				H2Core::Filesystem::Artifact::DrumkitExtracted,
-				H2Core::Filesystem::Context::User, sDrumkitNameToLoad, true
-			) );
-			if ( pDrumkit != nullptr ) {
-				pHydrogen->getCoreActionController()->setDrumkit( pDrumkit );
+		if ( ! parser.getDrumkitToLoad().isEmpty() ) {
+			if ( ! parser.getConnectViaIpcEndpoint().isEmpty() ) {
+				___WARNINGLOG(
+					"A drumkit can not be provided when connecting via IPC!"
+				);
 			}
 			else {
-				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
-								 .arg( sDrumkitNameToLoad ) );
+				auto pDB = pHydrogen->getSoundLibraryDatabase();
+				auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+					H2Core::Filesystem::Artifact::DrumkitExtracted,
+					H2Core::Filesystem::Context::User,
+					parser.getDrumkitToLoad(), true
+				) );
+				if ( pDrumkit != nullptr ) {
+					pHydrogen->getCoreActionController()->setDrumkit( pDrumkit
+					);
+				}
+				else {
+					___ERRORLOG(
+						QString( "Unable to retrieve drumkit called [%1]" )
+							.arg( parser.getDrumkitToLoad() )
+					);
+				}
 			}
 		}
 
