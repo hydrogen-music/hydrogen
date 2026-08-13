@@ -254,6 +254,20 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->setInstrumentHigherCc( args[0].toInt(), args[1].toInt() );
 		}
 		return false;
+	case IpcOpcode::SetInstrumentMidiOutNote:
+		if ( args.size() >= 3 ) {
+			return pController->setInstrumentMidiOutNote(
+				args[0].toInt(), static_cast<Midi::Note>( args[1].toInt() ),
+				args[2].value<long>() );
+		}
+		return false;
+	case IpcOpcode::SetInstrumentMidiOutChannel:
+		if ( args.size() >= 3 ) {
+			return pController->setInstrumentMidiOutChannel(
+				args[0].toInt(), static_cast<Midi::Channel>( args[1].toInt() ),
+				args[2].value<long>() );
+		}
+		return false;
 	case IpcOpcode::SetComponentIsMuted:
 		if ( args.size() >= 3 ) {
 			return pController->setComponentIsMuted( args[0].toInt(), args[1].toInt(), args[2].toBool() );
@@ -476,21 +490,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[2].toFloat(), args[3].toBool(), nullptr );
 		}
 		return false;
-	case IpcOpcode::SetInstrumentMidiOutNote:
-		if ( args.size() >= 2 ) {
-			return pController->setInstrumentMidiOutNote(
-				args[0].toInt(), static_cast<Midi::Note>( args[1].toInt() ),
-				nullptr );
-		}
-		return false;
-	case IpcOpcode::SetInstrumentMidiOutChannel:
-		if ( args.size() >= 2 ) {
-			return pController->setInstrumentMidiOutChannel(
-				args[0].toInt(), static_cast<Midi::Channel>( args[1].toInt() ),
-				nullptr );
-		}
-		return false;
-	case IpcOpcode::SetDrumkit: {
+ 	case IpcOpcode::SetDrumkit: {
 		auto pDrumkit = Drumkit::fromXmlBuffer( msg.getPayload(), "", true, true,
 												pHydrogen );
 		if ( pDrumkit == nullptr ) {
@@ -528,6 +528,20 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	}
 	case IpcOpcode::AddInstrument: {
 		// Fire-and-forget path (the request/response path is in handleRequest).
+		if ( args.size() < 2 ) {
+			return false;
+		}
+		auto pInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true, true,
+													  pHydrogen );
+		if ( pInstrument == nullptr ) {
+			return false;
+		}
+		return pController->addInstrument(
+			pInstrument, args[0].toInt(), args[1].value<long>()
+		);
+	}
+	case IpcOpcode::RemoveInstrument: {
+		// Fire-and-forget path (the request/response path is in handleRequest).
 		if ( args.size() < 1 ) {
 			return false;
 		}
@@ -536,7 +550,9 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( pInstrument == nullptr ) {
 			return false;
 		}
-		return pController->addInstrument( pInstrument, args[0].toInt(), nullptr );
+		return pController->removeInstrument(
+			pInstrument, args[0].value<long>()
+		);
 	}
 	case IpcOpcode::SaveSong:
 		if ( args.size() >= 1 ) {
@@ -621,37 +637,6 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 	const QVector<QVariant>& args = msg.getArgs();
 
 	switch ( msg.getOpcode() ) {
-	case IpcOpcode::SetInstrumentMidiOutNote:
-		if ( args.size() >= 2 ) {
-			long nEventId = Event::nInvalidId;
-			pController->setInstrumentMidiOutNote(
-				args[0].toInt(), static_cast<Midi::Note>( args[1].toInt() ),
-				&nEventId );
-			reply.arg( static_cast<qlonglong>( nEventId ) );
-		}
-		break;
-	case IpcOpcode::SetInstrumentMidiOutChannel:
-		if ( args.size() >= 2 ) {
-			long nEventId = Event::nInvalidId;
-			pController->setInstrumentMidiOutChannel(
-				args[0].toInt(), static_cast<Midi::Channel>( args[1].toInt() ),
-				&nEventId );
-			reply.arg( static_cast<qlonglong>( nEventId ) );
-		}
-		break;
-	case IpcOpcode::AddInstrument:
-		if ( args.size() >= 1 ) {
-			auto pInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true,
-														 true, pHydrogen );
-			long nEventId = Event::nInvalidId;
-			if ( pInstrument != nullptr ) {
-				pController->addInstrument(
-					pInstrument, args[0].toInt(), &nEventId );
-			}
-			reply.arg( static_cast<qlonglong>( nEventId ) );
-		}
-		break;
-
 	// ── State-sync requests (ADR 0032): editor pulls authoritative state ──
 	case IpcOpcode::GetSong: {
 		auto pSong = pHydrogen->getSong();

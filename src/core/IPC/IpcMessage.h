@@ -94,6 +94,8 @@ enum class IpcOpcode : quint16 {
 	SetInstrumentHihatGroup,
 	SetInstrumentLowerCc,
 	SetInstrumentHigherCc,
+	SetInstrumentMidiOutNote,
+	SetInstrumentMidiOutChannel,
 	SetComponentIsMuted,
 	SetComponentIsSoloed,
 	SetComponentGain,
@@ -145,12 +147,8 @@ enum class IpcOpcode : quint16 {
 
 	// ── ADR 0030 batch 2d: out-param commands ──
 	// AddOrRemoveNote / HandleNote are dual-applied (out-param filled mirror-side).
-	// SetInstrumentMidiOut* are request/response when the caller needs the
-	// engine-assigned feedback-event id (else plain commands).
 	AddOrRemoveNote,
 	HandleNote,
-	SetInstrumentMidiOutNote,
-	SetInstrumentMidiOutChannel,
 
 	// ── ADR 0030 batch 2e: object-payload / value-struct commands ──
 	// (SetSong/SetDrumkit opcodes already exist above; SetSong carries the song
@@ -167,7 +165,8 @@ enum class IpcOpcode : quint16 {
 	// write to shared disk) — the editor mirror must NOT also write.
 	SetPattern,             ///< args: [int nPatternNumber, bool bReplace]; payload: pattern XML
 	ReplaceInstrument,      ///< args: [int nOldInstrumentId]; payload: new instrument XML
-	AddInstrument,          ///< args: [int nIndex]; payload: instrument XML; reply: [qlonglong eventId]
+	AddInstrument,          ///< args: [int nIndex, long nEventId]; payload: instrument XML;
+	RemoveInstrument,       ///< args: [long nEventId]; payload: instrument XML;
 	SaveSong,               ///< args: [bool bKeepMissingSamples]
 	SaveSongAs,             ///< args: [QString sNewFileName, bool bKeepMissingSamples]
 	SavePlaylist,           ///< (no args)

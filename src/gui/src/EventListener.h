@@ -92,12 +92,7 @@ class EventListener
 
 		virtual ~EventListener() {}
 
-		void blacklistEventId( long nEventId ) {
-			if ( m_blacklistedEventIds.find( nEventId ) ==
-				 m_blacklistedEventIds.end() ) {
-				m_blacklistedEventIds.insert( nEventId );
-			}
-		}
+		void blacklistEventId( long nEventId );
 		bool isEventIdBlacklisted( long nEventId ) const {
 			return m_blacklistedEventIds.find( nEventId ) !=
 				   m_blacklistedEventIds.end();
@@ -110,7 +105,7 @@ class EventListener
 		}
 
 	private:
-		std::set<long> m_blacklistedEventIds;
+		std::multiset<long> m_blacklistedEventIds;
 };
 
 

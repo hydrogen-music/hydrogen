@@ -963,11 +963,11 @@ class SE_addInstrumentAction : public QUndoCommand {
 		std::shared_ptr<H2Core::Instrument> pInstrument,
 		int nIndex,
 		Type type,
-		long* pEventId
+		long nEventId
 	)
 		: m_pInstrument( pInstrument ),
 		  m_nIndex( nIndex ),
-		  m_pEventId( pEventId )
+		  m_nEventId( nEventId )
 	{
 		const auto pCommonStrings =
 			HydrogenApp::get_instance()->getCommonStrings();
@@ -1000,13 +1000,13 @@ class SE_addInstrumentAction : public QUndoCommand {
 	virtual void undo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->removeInstrument(
-			m_pInstrument, m_pEventId
+			m_pInstrument, m_nEventId
 		);
 	}
 	virtual void redo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->addInstrument(
-			m_pInstrument, m_nIndex, m_pEventId
+			m_pInstrument, m_nIndex, m_nEventId
 		);
 	}
 
@@ -1014,7 +1014,7 @@ class SE_addInstrumentAction : public QUndoCommand {
 	std::shared_ptr<H2Core::Instrument> m_pInstrument;
 	/** `-1` indicates that the instrument will be appended. */
 	int m_nIndex;
-	long* m_pEventId;
+	long m_nEventId;
 };
 
 /** \ingroup docGUI*/
@@ -1037,13 +1037,13 @@ class SE_deleteInstrumentAction : public QUndoCommand {
 	virtual void undo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->addInstrument(
-			m_pInstrument, m_nIndex, nullptr
+			m_pInstrument, m_nIndex, H2Core::Event::nInvalidId
 		);
 	}
 	virtual void redo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->removeInstrument(
-			m_pInstrument, nullptr
+			m_pInstrument, H2Core::Event::nInvalidId
 		);
 	}
 
@@ -2133,11 +2133,20 @@ class SE_setInstrumentPropertyAction : public QUndoCommand {
 			case Property::HigherCc:
 				pController->setInstrumentHigherCc( m_nInstrument, static_cast<int>( fValue ) ); break;
 			case Property::MidiOutChannel:
-				pController->setInstrumentMidiOutChannel( m_nInstrument,
-					H2Core::Midi::channelFromInt( static_cast<int>( fValue ) ), nullptr ); break;
+				pController->setInstrumentMidiOutChannel(
+					m_nInstrument,
+					H2Core::Midi::channelFromInt( static_cast<int>( fValue ) ),
+					H2Core::Event::nInvalidId
+				);
+				break;
 			case Property::MidiOutNote:
-				pController->setInstrumentMidiOutNote( m_nInstrument,
-					H2Core::Midi::noteFromIntClamp( static_cast<int>( fValue ) ), nullptr ); break;
+				pController->setInstrumentMidiOutNote(
+					m_nInstrument,
+					H2Core::Midi::noteFromIntClamp( static_cast<int>( fValue )
+					),
+					H2Core::Event::nInvalidId
+				);
+				break;
 		}
 	}
 

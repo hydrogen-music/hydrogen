@@ -87,10 +87,17 @@ public:
 	 *
 	 * \param type Type of the event, which will be queued.
 	 * \param nValue Value specifying the content of the new event.
+	 * @param nRequestedId In order to reliably blacklist certain events based
+	 *   on their ids, the calling routine can request the new event to hold a
+	 *   specific one.
 	 *
 	 * \returns the ID of the created #H2Core::Event.
 	 */
-	long pushEvent( const Event::Type type, const int nValue );
+	void pushEvent(
+		const Event::Type type,
+		const int nValue,
+		long nRequestedId = Event::nInvalidId
+	);
 	/**
 	 * Reads out the next event of the EventQueue.
 	 *

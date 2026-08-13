@@ -295,6 +295,40 @@ bool IpcCoreActionController::setInstrumentHigherCc( int nInstrument, int nCc ) 
 	return CoreActionController::setInstrumentHigherCc( nInstrument, nCc );
 }
 
+bool IpcCoreActionController::setInstrumentMidiOutNote(
+	int nInstrument,
+	Midi::Note note,
+	long nEventId
+)
+{
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMidiOutNote )
+							  .arg( nInstrument )
+							  .arg( static_cast<int>( note ) )
+							  .arg( QVariant::fromValue( nEventId ) ) );
+	}
+	return CoreActionController::setInstrumentMidiOutNote(
+		nInstrument, note, nEventId
+	);
+}
+
+bool IpcCoreActionController::setInstrumentMidiOutChannel(
+	int nInstrument,
+	Midi::Channel channel,
+	long nEventId
+)
+{
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMidiOutChannel )
+							  .arg( nInstrument )
+							  .arg( static_cast<int>( channel ) )
+							  .arg( QVariant::fromValue( nEventId ) ) );
+	}
+	return CoreActionController::setInstrumentMidiOutChannel(
+		nInstrument, channel, nEventId
+	);
+}
+
 bool IpcCoreActionController::setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentIsMuted ).arg( nInstrument ).arg( nComponent ).arg( bIsMuted ) );
@@ -679,60 +713,6 @@ bool IpcCoreActionController::handleNote(
 		note, channel, fVelocity, bNoteOff, pMappedInstruments );
 }
 
-bool IpcCoreActionController::setInstrumentMidiOutNote(
-	int nInstrument, Midi::Note note, long* pEventId ) {
-	if ( pEventId != nullptr && m_pChannel != nullptr ) {
-		// The caller needs the engine's feedback-event id (to ignore the echo);
-		// round-trip for the authoritative value (ADR 0030 tier 3).
-		IpcMessage reply;
-		if ( m_pChannel->request(
-				 IpcMessage( IpcOpcode::SetInstrumentMidiOutNote )
-					 .arg( nInstrument ).arg( static_cast<int>( note ) ),
-				 reply ) && ! reply.getArgs().isEmpty() ) {
-			*pEventId = static_cast<long>( reply.getArgs()[0].toLongLong() );
-		}
-		else {
-			*pEventId = Event::nInvalidId;
-		}
-		// Keep the mirror's instrument property in sync for display.
-		long nIgnored = Event::nInvalidId;
-		return CoreActionController::setInstrumentMidiOutNote(
-			nInstrument, note, &nIgnored );
-	}
-	if ( m_pChannel != nullptr ) {
-		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMidiOutNote )
-							  .arg( nInstrument ).arg( static_cast<int>( note ) ) );
-	}
-	return CoreActionController::setInstrumentMidiOutNote(
-		nInstrument, note, pEventId );
-}
-
-bool IpcCoreActionController::setInstrumentMidiOutChannel(
-	int nInstrument, Midi::Channel channel, long* pEventId ) {
-	if ( pEventId != nullptr && m_pChannel != nullptr ) {
-		IpcMessage reply;
-		if ( m_pChannel->request(
-				 IpcMessage( IpcOpcode::SetInstrumentMidiOutChannel )
-					 .arg( nInstrument ).arg( static_cast<int>( channel ) ),
-				 reply ) && ! reply.getArgs().isEmpty() ) {
-			*pEventId = static_cast<long>( reply.getArgs()[0].toLongLong() );
-		}
-		else {
-			*pEventId = Event::nInvalidId;
-		}
-		long nIgnored = Event::nInvalidId;
-		return CoreActionController::setInstrumentMidiOutChannel(
-			nInstrument, channel, &nIgnored );
-	}
-	if ( m_pChannel != nullptr ) {
-		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMidiOutChannel )
-							  .arg( nInstrument )
-							  .arg( static_cast<int>( channel ) ) );
-	}
-	return CoreActionController::setInstrumentMidiOutChannel(
-		nInstrument, channel, pEventId );
-}
-
 // ── ADR 0030 batch 2e — object-payload / value-struct commands ──
 
 bool IpcCoreActionController::setSong( std::shared_ptr<Song> pSong ) {
@@ -847,32 +827,25 @@ bool IpcCoreActionController::replaceInstrument(
 }
 
 bool IpcCoreActionController::addInstrument(
-	std::shared_ptr<Instrument> pInstrument, int nIndex, long* pEventId ) {
-	if ( pEventId != nullptr && m_pChannel != nullptr && pInstrument != nullptr ) {
-		// The caller needs the engine's feedback-event id; round-trip for the
-		// authoritative value (ADR 0030 tier 3).
-		IpcMessage req( IpcOpcode::AddInstrument );
-		req.arg( nIndex );
-		req.setPayload( pInstrument->toXmlBuffer( true ) );
-		IpcMessage reply;
-		if ( m_pChannel->request( req, reply ) && ! reply.getArgs().isEmpty() ) {
-			*pEventId = static_cast<long>( reply.getArgs()[0].toLongLong() );
-		}
-		else {
-			*pEventId = Event::nInvalidId;
-		}
-		// Keep the mirror in sync for display (its own event id is irrelevant).
-		long nIgnored = Event::nInvalidId;
-		return CoreActionController::addInstrument(
-			pInstrument, nIndex, &nIgnored );
-	}
+	std::shared_ptr<Instrument> pInstrument, int nIndex, long nEventId ) {
 	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
 		IpcMessage msg( IpcOpcode::AddInstrument );
-		msg.arg( nIndex );
+		msg.arg( nIndex ).arg( QVariant::fromValue( nEventId ) );
 		msg.setPayload( pInstrument->toXmlBuffer( true ) );
 		m_pChannel->send( msg );
 	}
-	return CoreActionController::addInstrument( pInstrument, nIndex, pEventId );
+	return CoreActionController::addInstrument( pInstrument, nIndex, nEventId );
+}
+
+bool IpcCoreActionController::removeInstrument(
+	std::shared_ptr<Instrument> pInstrument, long nEventId ) {
+	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
+		IpcMessage msg( IpcOpcode::RemoveInstrument );
+		msg.arg( QVariant::fromValue( nEventId ) );
+		msg.setPayload( pInstrument->toXmlBuffer( true ) );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::removeInstrument( pInstrument, nEventId );
 }
 
 bool IpcCoreActionController::saveSong( bool bKeepMissingSamples ) {

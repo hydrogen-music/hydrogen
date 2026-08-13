@@ -272,6 +272,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetInstrumentHigherCc:
 		sOpcode = "SET_INSTRUMENT_HIGHER_CC";
 		break;
+	case IpcOpcode::SetInstrumentMidiOutNote:
+		sOpcode = "SET_INSTRUMENT_MIDI_OUT_NOTE";
+		break;
+	case IpcOpcode::SetInstrumentMidiOutChannel:
+		sOpcode = "SET_INSTRUMENT_MIDI_OUT_CHANNEL";
+		break;
 	case IpcOpcode::SetComponentIsMuted:
 		sOpcode = "SET_COMPONENT_IS_MUTED";
 		break;
@@ -410,12 +416,6 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::HandleNote:
 		sOpcode = "HANDLE_NOTE";
 		break;
-	case IpcOpcode::SetInstrumentMidiOutNote:
-		sOpcode = "SET_INSTRUMENT_MIDI_OUT_NOTE";
-		break;
-	case IpcOpcode::SetInstrumentMidiOutChannel:
-		sOpcode = "SET_INSTRUMENT_MIDI_OUT_CHANNEL";
-		break;
 	case IpcOpcode::SetSongProperties:
 		sOpcode = "SET_SONG_PROPERTIES";
 		break;
@@ -430,6 +430,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 		break;
 	case IpcOpcode::AddInstrument:
 		sOpcode = "ADD_INSTRUMENT";
+		break;
+	case IpcOpcode::RemoveInstrument:
+		sOpcode = "REMOVE_INSTRUMENT";
 		break;
 	case IpcOpcode::SaveSong:
 		sOpcode = "SAVE_SONG";

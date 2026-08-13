@@ -1234,19 +1234,16 @@ void MidiControlDialog::updateInstrumentTableRow(
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
-					long nEventId = Event::nInvalidId;
+					long nEventId = HydrogenApp::pEventQueue()->createEventId();
 					HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutNote(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
 						Midi::noteFromIntClamp( static_cast<int>( fValue ) ),
-						&nEventId
+						nEventId
 					);
-					if ( nEventId != Event::nInvalidId ) {
-						// Ensure we do not act on the queued event
-						// ourself.
-						blacklistEventId( nEventId );
-					}
+					// Ensure we do not act on the queued event ourselves.
+					blacklistEventId( nEventId );
 				}
 				else {
 					ERRORLOG(
@@ -1313,18 +1310,16 @@ void MidiControlDialog::updateInstrumentTableRow(
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
-					long nEventId = Event::nInvalidId;
+					long nEventId = HydrogenApp::pEventQueue()->createEventId();
 					HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutChannel(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
 						Midi::channelFromInt( static_cast<int>( fValue ) ),
-						&nEventId
+						nEventId
 					);
-					if ( nEventId != Event::nInvalidId ) {
-						// Ensure we do not act on the queued event ourself.
-						blacklistEventId( nEventId );
-					}
+					// Ensure we do not act on the queued event ourselves.
+					blacklistEventId( nEventId );
 				}
 				else {
 					ERRORLOG(

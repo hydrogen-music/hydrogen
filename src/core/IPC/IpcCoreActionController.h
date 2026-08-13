@@ -85,6 +85,10 @@ public:
 	bool setInstrumentHihatGroup( int nInstrument, int nHihatGroup ) override;
 	bool setInstrumentLowerCc( int nInstrument, int nCc ) override;
 	bool setInstrumentHigherCc( int nInstrument, int nCc ) override;
+	bool setInstrumentMidiOutNote( int nInstrument, Midi::Note note,
+		long nEventId ) override;
+	bool setInstrumentMidiOutChannel( int nInstrument, Midi::Channel channel,
+		long nEventId ) override;
 	bool setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted ) override;
 	bool setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed ) override;
 	bool setComponentGain( int nInstrument, int nComponent, float fGain ) override;
@@ -147,8 +151,6 @@ public:
 
 	// ADR 0030 batch 2d — out-param commands. addOrRemoveNote/handleNote are
 	// dual-applied (out-param filled by the mirror via the base call);
-	// setInstrumentMidiOut* use request/response when the caller needs the
-	// engine's feedback-event id.
 	bool addOrRemoveNote( int nPosition, int nInstrumentId, const QString& sType,
 		int nPatternNumber, int nOldLength, float fOldVelocity, float fOldPan,
 		float fOldLeadLag, int nOldKey, int nOldOctave, float fOldProbability,
@@ -156,10 +158,6 @@ public:
 		Uuid* pNewNoteUUid ) override;
 	bool handleNote( Midi::Note note, Midi::Channel channel, float fVelocity,
 		bool bNoteOff, QStringList* pMappedInstruments ) override;
-	bool setInstrumentMidiOutNote( int nInstrument, Midi::Note note,
-		long* pEventId ) override;
-	bool setInstrumentMidiOutChannel( int nInstrument, Midi::Channel channel,
-		long* pEventId ) override;
 
 	// ADR 0030 batch 2e — object-payload (setSong: song XML) / value-struct
 	// (*Properties: strings + License + tags) commands.
@@ -186,7 +184,11 @@ public:
 	bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
 		std::shared_ptr<Instrument> pOldInstrument ) override;
 	bool addInstrument( std::shared_ptr<Instrument> pInstrument, int nIndex,
-		long* pEventId ) override;
+		long nEventId ) override;
+	bool removeInstrument(
+		std::shared_ptr<Instrument> pInstrument,
+		long nEventId
+	) override;
 	bool saveSong( bool bKeepMissingSamples ) override;
 	bool saveSongAs( const QString& sNewFileName,
 		bool bKeepMissingSamples ) override;

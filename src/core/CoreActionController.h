@@ -126,12 +126,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool setInstrumentMidiOutNote(
 		int nInstrument,
 		Midi::Note note,
-		long* pEventId
+		long nEventId
 	);
 	virtual bool setInstrumentMidiOutChannel(
 		int nInstrument,
 		Midi::Channel channel,
-		long* pEventId
+		long nEventId
 	);
 	virtual bool setMetronomeIsActive( bool isActive );
 	virtual bool setMasterIsMuted( bool isMuted );
@@ -447,14 +447,14 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool addInstrument(
 		std::shared_ptr<Instrument> pInstrument,
 		int nIndex,
-		long* pEventId
+		long nEventId
 	);
 	/** Removes @a pInstrument from the current drumkit and adds it to the
 	 * instrument death row. This way it is guarantueed that its samples
 	 * stay loaded until the last #H2Core::Note is done rendering it.
 	 * Afterwards, its samples will be unloaded. */
 	virtual bool
-	removeInstrument( std::shared_ptr<Instrument> pInstrument, long* pEventId );
+	removeInstrument( std::shared_ptr<Instrument> pInstrument, long nEventId );
 	/** Replaces @a pOldInstrument by @a pNewInstrument in the current
 	 * drumkit without clearing notes, changing the selected instrument
 	 * number, etc. */

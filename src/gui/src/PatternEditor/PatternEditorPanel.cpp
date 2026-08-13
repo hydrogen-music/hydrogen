@@ -1776,22 +1776,20 @@ void PatternEditorPanel::addInstrument(
 
 	// We do not wait for the DB to be updated asynchronously but do so right
 	// away. This ensures we select the right row when appending an instrument.
-	long nEventId = Event::nInvalidId;
+	long nEventId = HydrogenApp::pEventQueue()->createEventId();
 
 	// We provide a copy of the instrument in order to not leak any changes
 	// into the original kit.
 	pHydrogenApp->pushUndoCommand(
 		new SE_addInstrumentAction(
 			std::make_shared<Instrument>( pTargetInstrument ), nTargetRowSE,
-			SE_addInstrumentAction::Type::DropInstrument, &nEventId
+			SE_addInstrumentAction::Type::DropInstrument, nEventId
 		),
 		"PatternEditorPanel::AddInstrumentAction"
 	);
-	if ( nEventId != Event::nInvalidId ) {
-		// Ensure we do not act on the queued event
-		// ourself.
-		blacklistEventId( nEventId );
-	}
+	// Ensure we do not act on the queued event ourselves.
+	blacklistEventId( nEventId );
+
 	pHydrogenApp->showStatusBarMessage(
 		QString( "%1 [%2]" )
 			.arg( pCommonStrings->getActionDropInstrument() )

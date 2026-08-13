@@ -300,7 +300,7 @@ void MidiEventMap::registerEvent(
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		const auto nId = pHydrogen->getEventQueue()->pushEvent(
+		pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
 	}
@@ -469,7 +469,7 @@ void MidiEventMap::removeRegisteredEvent(
 	}
 
 	if ( bModified ) {
-		const auto nId = pHydrogen->getEventQueue()->pushEvent(
+		pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
 	}

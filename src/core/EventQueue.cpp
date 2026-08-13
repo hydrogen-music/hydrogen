@@ -38,13 +38,17 @@ EventQueue::EventQueue( Hydrogen* pHydrogen ) : m_pHydrogen( pHydrogen ), m_bSil
 EventQueue::~EventQueue() {
 }
 
-
-long EventQueue::pushEvent( const Event::Type type, const int nValue ) {
+void EventQueue::pushEvent(
+	const Event::Type type,
+	const int nValue,
+	long nRequestedId
+)
+{
 	std::lock_guard< std::mutex > lock( m_mutex );
 
 	auto pHydrogen = m_pHydrogen;
 	if ( pHydrogen == nullptr || ! pHydrogen->isFullyOperational() ) {
-		return Event::nInvalidId;
+		return;
 	}
 
 	/* The event queue is full. We could drop the old event, or the new event
@@ -62,11 +66,13 @@ long EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 		}
 	}
 
-	auto pEvent = std::make_unique<Event>( type, nValue, createEventId() );
-	const auto nId = pEvent->getId();
-	m_eventQueue.push_back( std::move( pEvent ) );
+	long nId = nRequestedId;
+	if ( nId == Event::nInvalidId ) {
+		nId = createEventId();
+	}
 
-	return nId;
+	auto pEvent = std::make_unique<Event>( type, nValue, nId );
+	m_eventQueue.push_back( std::move( pEvent ) );
 }
 
 std::unique_ptr<Event> EventQueue::popEvent() {
@@ -96,7 +102,14 @@ void EventQueue::dropEvents( const Event::Type& type ) {
 }
 
 long EventQueue::createEventId() {
-	return m_randomDistribution( m_randomEngine );
+	const long id = m_randomDistribution( m_randomEngine );
+
+	// For the off chance that we draw a 0, we draw again (which raises the
+	// already tiny probability to draw an invalid id to the power of two).
+	if ( id == Event::nInvalidId ) {
+		return m_randomDistribution( m_randomEngine );
+	}
+	return id;
 }
 
 QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {

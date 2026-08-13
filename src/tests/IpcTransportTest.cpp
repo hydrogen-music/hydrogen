@@ -268,57 +268,6 @@ void IpcTransportTest::testRequestResponseRoundTrip() {
 	___INFOLOG( "passed" );
 }
 
-void IpcTransportTest::testProxyMidiOutRequestResponse() {
-	___INFOLOG( "" );
-
-	// (A) Bridge handleRequest produces a Reply echoing the request id + an arg.
-	auto* pEngine = makeStandaloneEngine();
-	IpcMessage req( IpcOpcode::SetInstrumentMidiOutNote );
-	req.setRequestId( 5 );
-	req.arg( 0 ).arg( static_cast<int>( Midi::noteFromIntClamp( 60 ) ) );
-	const IpcMessage reply = IpcEngineBridge::handleRequest( req, pEngine );
-	CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Reply );
-	CPPUNIT_ASSERT_EQUAL( static_cast<quint32>( 5 ), reply.getRequestId() );
-	CPPUNIT_ASSERT_EQUAL( 1, static_cast<int>( reply.getArgs().size() ) );
-	delete pEngine;
-
-	// (B) The proxy issues a request when the caller needs the engine's event id
-	// and fills it from the reply (ADR 0030 tier 3).
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
-	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
-	CPPUNIT_ASSERT( client != nullptr );
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
-
-	auto* pMirror = makeStandaloneEngine();
-	QThread* pResponder = startResponderThread( conn, [conn]() {
-		IpcMessage r;
-		if ( conn->receive( r, 5000 ) &&
-			 r.getOpcode() == IpcOpcode::SetInstrumentMidiOutNote &&
-			 r.getRequestId() != 0 ) {
-			IpcMessage rep( IpcOpcode::Reply );
-			rep.setRequestId( r.getRequestId() );
-			rep.arg( static_cast<qlonglong>( 909 ) );
-			conn->send( rep );
-		}
-	} );
-
-	IpcCoreActionController proxy( pMirror, client );
-	long nEventId = -123; // sentinel: must be overwritten by the engine's reply
-	proxy.setInstrumentMidiOutNote( 0, Midi::noteFromIntClamp( 60 ), &nEventId );
-	pResponder->wait();
-	delete pResponder;
-
-	CPPUNIT_ASSERT_EQUAL( static_cast<long>( 909 ), nEventId );
-
-	delete conn;
-	delete pMirror;
-	delete client;
-
-	___INFOLOG( "passed" );
-}
-
 void IpcTransportTest::testProxySetSongPayload() {
 	___INFOLOG( "" );
 
@@ -425,59 +374,6 @@ void IpcTransportTest::testProxyObjectPayloadCommands() {
 						  cmd.getArgs()[0].toString().toStdString() );
 
 	delete pEngine;
-	delete pMirror;
-	delete client;
-
-	___INFOLOG( "passed" );
-}
-
-// ADR 0030 batch 2f: addInstrument is request/response when the caller needs the
-// engine-assigned event id; the proxy fills it from the Reply.
-void IpcTransportTest::testProxyAddInstrumentRequestResponse() {
-	___INFOLOG( "" );
-
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
-	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
-	CPPUNIT_ASSERT( client != nullptr );
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
-
-	auto* pMirror = makeStandaloneEngine();
-	pMirror->setSong( Song::getEmptySong( pMirror ) );
-	auto pInstrument = std::make_shared<Instrument>(
-		pMirror->getSong()->getDrumkit()->getInstruments()->get( 0 ) );
-
-	QThread* pResponder = startResponderThread( conn, [conn]() {
-		IpcMessage r;
-		const bool bReceived = conn->receive( r, 5000 );
-		___INFOLOG( QString( "responder: received=%1 opcode=%2 reqId=%3 "
-							 "payloadBytes=%4" )
-						.arg( bReceived )
-						.arg( bReceived ? static_cast<int>( r.getOpcode() ) : -1 )
-						.arg( bReceived ? r.getRequestId() : 0 )
-						.arg( bReceived ? r.getPayload().size() : 0 ) );
-		if ( bReceived &&
-			 r.getOpcode() == IpcOpcode::AddInstrument &&
-			 r.getRequestId() != 0 ) {
-			IpcMessage rep( IpcOpcode::Reply );
-			rep.setRequestId( r.getRequestId() );
-			rep.arg( static_cast<qlonglong>( 4242 ) );
-			const bool bReplied = conn->send( rep );
-			___INFOLOG( QString( "responder: reply sent ok=%1 for reqId=%2" )
-							.arg( bReplied ).arg( r.getRequestId() ) );
-		}
-	} );
-
-	IpcCoreActionController proxy( pMirror, client );
-	long nEventId = -123; // sentinel: must be overwritten by the engine's reply
-	proxy.addInstrument( pInstrument, -1, &nEventId );
-	pResponder->wait();
-	delete pResponder;
-
-	CPPUNIT_ASSERT_EQUAL( static_cast<long>( 4242 ), nEventId );
-
-	delete conn;
 	delete pMirror;
 	delete client;
 

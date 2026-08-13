@@ -612,13 +612,9 @@ bool CoreActionController::setLayerEndVelocity( int nInstrument, int nComponent,
 bool CoreActionController::setInstrumentMidiOutNote(
 	int nInstrument,
 	Midi::Note note,
-	long* pEventId
+	long nEventId
 )
 {
-	if ( pEventId != nullptr ) {
-		*pEventId = Event::nInvalidId;
-	}
-
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -639,12 +635,9 @@ bool CoreActionController::setInstrumentMidiOutNote(
 
 	if ( pInstrument->getMidiOutNote() != note ) {
 		pInstrument->setMidiOutNote( note );
-		const auto nId = m_pHydrogen->getEventQueue()->pushEvent(
-			Event::Type::InstrumentParametersChanged, nInstrument
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument, nEventId
 		);
-		if ( pEventId != nullptr ) {
-			*pEventId = nId;
-		}
 		m_pHydrogen->setDrumkitModified( true );
 	}
 
@@ -654,13 +647,9 @@ bool CoreActionController::setInstrumentMidiOutNote(
 bool CoreActionController::setInstrumentMidiOutChannel(
 	int nInstrument,
 	Midi::Channel channel,
-	long* pEventId
+	long nEventId
 )
 {
-	if ( pEventId != nullptr ) {
-		*pEventId = Event::nInvalidId;
-	}
-
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -681,12 +670,9 @@ bool CoreActionController::setInstrumentMidiOutChannel(
 
 	if ( pInstrument->getMidiOutChannel() != channel ) {
 		pInstrument->setMidiOutChannel( channel );
-		const auto nId = m_pHydrogen->getEventQueue()->pushEvent(
-			Event::Type::InstrumentParametersChanged, nInstrument
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument, nEventId
 		);
-		if ( pEventId != nullptr ) {
-			*pEventId = nId;
-		}
 		m_pHydrogen->setDrumkitModified( true );
 	}
 
@@ -2577,14 +2563,9 @@ bool CoreActionController::extractDrumkit(
 bool CoreActionController::addInstrument(
 	std::shared_ptr<Instrument> pInstrument,
 	int nIndex,
-	long* pEventId
+	long nEventId
 )
 {
-
-	if ( pEventId != nullptr ) {
-		*pEventId = Event::nInvalidId;
-	}
-
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready yet" );
@@ -2612,25 +2593,18 @@ bool CoreActionController::addInstrument(
 
 	m_pHydrogen->setDrumkitModified( true );
 
-	const auto nId =
-		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
-	if ( pEventId != nullptr ) {
-		*pEventId = nId;
-	}
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::DrumkitLoaded, 0, nEventId
+	);
 
 	return true;
 }
 
 bool CoreActionController::removeInstrument(
 	std::shared_ptr<Instrument> pInstrument,
-	long* pEventId
+	long nEventId
 )
 {
-
-	if ( pEventId != nullptr ) {
-		*pEventId = Event::nInvalidId;
-	}
-
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready yet" );
@@ -2694,11 +2668,9 @@ bool CoreActionController::removeInstrument(
 
 	m_pHydrogen->setDrumkitModified( true );
 
-	const auto nId =
-		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
-	if ( pEventId != nullptr ) {
-		*pEventId = nId;
-	}
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::DrumkitLoaded, 0, nEventId
+	);
 
 	return true;
 }
