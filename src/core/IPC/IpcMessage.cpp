@@ -209,6 +209,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::AddTag:
 		sOpcode = "ADD_TAG";
 		break;
+	case IpcOpcode::AddAutomationPoint:
+		sOpcode = "ADD_AUTOMATION_POINT";
+		break;
+	case IpcOpcode::RemoveAutomationPoint:
+		sOpcode = "REMOVE_AUTOMATION_POINT";
+		break;
 	case IpcOpcode::SetSong:
 		sOpcode = "SET_SONG";
 		break;
@@ -403,6 +409,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 		break;
 	case IpcOpcode::EditNoteProperty:
 		sOpcode = "EDIT_NOTE_PROPERTY";
+		break;
+	case IpcOpcode::RemoveNote:
+		sOpcode = "REMOVE_NOTE";
 		break;
 	case IpcOpcode::ToggleGridCell:
 		sOpcode = "TOGGLE_GRID_CELL";

@@ -64,6 +64,8 @@ public:
 	bool activateRecordMode( bool bActivate ) override;
 	bool addTempoMarker( int nPosition, float fBpm ) override;
 	bool addTag( int nPosition, const QString& sText ) override;
+	bool addAutomationPoint( float fX, float fY ) override;
+	bool removeAutomationPoint( float fX ) override;
 	bool quit() override;
 	bool panic() override;
 
@@ -146,6 +148,7 @@ public:
 		const QString& sOldType, const QString& sNewType, float fVelocity,
 		float fPan, float fLeadLag, float fProbability, int nLength, int nNewKey,
 		int nOldKey, int nNewOctave, int nOldOctave ) override;
+	bool removeNote( Uuid noteUuid, Uuid patternUuid ) override;
 	bool toggleGridCell( const GridPoint& gridPoint ) override;
 
 	// ADR 0030 batch 2d — out-param commands. addOrRemoveNote/handleNote are

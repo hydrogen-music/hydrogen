@@ -161,6 +161,22 @@ bool IpcCoreActionController::addTag( int nPosition, const QString& sText ) {
 	return CoreActionController::addTag( nPosition, sText );
 }
 
+bool IpcCoreActionController::addAutomationPoint( float fX, float fY ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddAutomationPoint )
+						  .arg( fX ).arg( fY ) );
+	}
+	return CoreActionController::addAutomationPoint( fX, fY );
+}
+
+bool IpcCoreActionController::removeAutomationPoint( float fX ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RemoveAutomationPoint )
+						  .arg( fX ) );
+	}
+	return CoreActionController::removeAutomationPoint( fX );
+}
+
 bool IpcCoreActionController::quit() {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::Quit ) );
@@ -654,6 +670,15 @@ bool IpcCoreActionController::editNoteProperty(
 		property, nPatternNumber, nPosition, nOldInstrumentId, nNewInstrumentId,
 		sOldType, sNewType, fVelocity, fPan, fLeadLag, fProbability, nLength,
 		nNewKey, nOldKey, nNewOctave, nOldOctave );
+}
+
+bool IpcCoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RemoveNote )
+							  .arg( noteUuid.toQString() )
+							  .arg( patternUuid.toQString() ) );
+	}
+	return CoreActionController::removeNote( noteUuid, patternUuid );
 }
 
 bool IpcCoreActionController::toggleGridCell( const GridPoint& gridPoint ) {

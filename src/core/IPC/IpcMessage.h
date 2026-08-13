@@ -71,6 +71,8 @@ enum class IpcOpcode : quint16 {
 	ActivateRecordMode,     ///< args: [bool]
 	AddTempoMarker,         ///< args: [int, float]
 	AddTag,                 ///< args: [int, QString]
+	AddAutomationPoint,     ///< args: [float, float]
+	RemoveAutomationPoint,  ///< args: [float]
 	SetSong,                ///< payload: song XML
 	SetDrumkit,             ///< payload: drumkit XML
 	LoadState,              ///< payload: .h2project / song-only state
@@ -142,6 +144,7 @@ enum class IpcOpcode : quint16 {
 
 	// ── ADR 0030 batch 2c: note/grid edits (many-arg, enum + GridPoint) ──
 	EditNoteProperty,
+	RemoveNote,     ///< args: [Uuid, Uuid]
 	ToggleGridCell,
 
 	// ── ADR 0030 batch 2d: out-param commands ──

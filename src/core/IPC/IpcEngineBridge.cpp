@@ -135,6 +135,18 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->addTag( args[0].toInt(), args[1].toString() );
 		}
 		return false;
+	case IpcOpcode::AddAutomationPoint:
+		if ( args.size() >= 2 ) {
+			return pController->addAutomationPoint(
+				args[0].toFloat(), args[1].toFloat()
+			);
+		}
+		return false;
+		case IpcOpcode::RemoveAutomationPoint:
+		if ( args.size() >= 1 ) {
+			return pController->removeAutomationPoint( args[0].toFloat() );
+		}
+		return false;
 	case IpcOpcode::SetSong: {
 		auto pSong = Song::fromXmlBuffer( msg.getPayload(), true, pHydrogen );
 		if ( pSong == nullptr ) {
@@ -459,6 +471,13 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[7].toFloat(), args[8].toFloat(), args[9].toFloat(),
 				args[10].toFloat(), args[11].toInt(), args[12].toInt(),
 				args[13].toInt(), args[14].toInt(), args[15].toInt() );
+		}
+		return false;
+	case IpcOpcode::RemoveNote:
+		if ( args.size() >= 2 ) {
+			return pController->removeNote(
+				Uuid::fromQString( args[0].toString() ),
+				Uuid::fromQString( args[1].toString() ) );
 		}
 		return false;
 	case IpcOpcode::ToggleGridCell:
