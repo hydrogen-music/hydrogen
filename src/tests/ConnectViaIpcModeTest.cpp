@@ -168,6 +168,9 @@ void ConnectViaIpcModeTest::testReceivesEngineState() {
 
 	std::unique_ptr<Event> pEvent = pMirror->getEventQueue()->popEvent();
 	CPPUNIT_ASSERT( pEvent != nullptr );
+	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::UpdateSong );
+	pEvent = pMirror->getEventQueue()->popEvent();
+	CPPUNIT_ASSERT( pEvent != nullptr );
 	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Metronome );
 	CPPUNIT_ASSERT_EQUAL( 7, pEvent->getValue() );
 
