@@ -37,7 +37,6 @@
 #include <core/IPC/EngineSession.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcEngineAccess.h>
-#include <core/IPC/IpcEngineBridge.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcServer.h>
 #include <core/IPC/EngineTelemetry.h>
@@ -122,59 +121,6 @@ void ConnectViaIpcModeTest::testMirrorUsesHeadlessDriver() {
 	CPPUNIT_ASSERT( pDriver->getBufferSize() > 0 );
 	CPPUNIT_ASSERT( pDriver->getOut_L() != nullptr );
 
-	delete pMirror;
-
-	___INFOLOG( "passed" );
-}
-
-// Inbound engine state (song snapshot + events) is applied to the mirror, where
-// the GUI would read it locally.
-void ConnectViaIpcModeTest::testReceivesEngineState() {
-	___INFOLOG( "" );
-
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
-
-	auto* pMirror = TestHelper::makeMirror();
-	auto pSession = EditorSession::connect( server.serverName(), pMirror );
-	CPPUNIT_ASSERT( pSession != nullptr );
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
-
-	// The engine pushes a fresh song snapshot; the editor reconstructs it onto
-	// the mirror as a genuinely new object.
-	auto pOldSong = pMirror->getSong();
-	CPPUNIT_ASSERT( pOldSong != nullptr );
-	pOldSong->setName( "EDITORMODE" );
-	IpcMessage snapshot( IpcOpcode::SetSong );
-	snapshot.setPayload( pOldSong->toXmlBuffer() );
-	CPPUNIT_ASSERT( conn->send( snapshot ) );
-
-	// The engine also forwards an event.
-	CPPUNIT_ASSERT( IpcEngineBridge::forwardEvent(
-		*conn, Event::Type::Metronome, 7, -1 ) );
-
-	// Drive the editor channel: receive() pumps the socket, which emits
-	// messageReceived → EditorStateMirror applies each frame to the mirror.
-	IpcMessage drained;
-	CPPUNIT_ASSERT( pSession->getChannel()->receive( drained ) ); // song snapshot
-	CPPUNIT_ASSERT( pSession->getChannel()->receive( drained ) ); // event
-
-	auto pNewSong = pMirror->getSong();
-	CPPUNIT_ASSERT( pNewSong != nullptr );
-	CPPUNIT_ASSERT( pNewSong != pOldSong );
-	CPPUNIT_ASSERT_EQUAL( std::string( "EDITORMODE" ),
-						  pNewSong->getName().toStdString() );
-
-	std::unique_ptr<Event> pEvent = pMirror->getEventQueue()->popEvent();
-	CPPUNIT_ASSERT( pEvent != nullptr );
-	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::UpdateSong );
-	pEvent = pMirror->getEventQueue()->popEvent();
-	CPPUNIT_ASSERT( pEvent != nullptr );
-	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Metronome );
-	CPPUNIT_ASSERT_EQUAL( 7, pEvent->getValue() );
-
-	pSession.reset();
 	delete pMirror;
 
 	___INFOLOG( "passed" );
@@ -464,10 +410,12 @@ void ConnectViaIpcModeTest::testSyncViaIpc() {
 			IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) );
 		CPPUNIT_ASSERT( ! reply.getPayload().isEmpty() );
 
-		// Apply to the mirror via the state mirror.
-		IpcMessage setSongMsg( IpcOpcode::SetSong );
-		setSongMsg.setPayload( reply.getPayload() );
-		pSession->getStateMirror()->applyMessage( setSongMsg );
+		// Deserialize the reply XML and apply to the mirror.
+		auto pSong = Song::fromXmlBuffer(
+			reply.getPayload(), true /*bSilent*/, pMirror
+		);
+		CPPUNIT_ASSERT( pSong != nullptr );
+		pMirror->getCoreActionController()->setSong( pSong );
 
 		CPPUNIT_ASSERT_EQUAL(
 			std::string( "SYNC_TEST" ),

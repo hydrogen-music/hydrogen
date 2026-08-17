@@ -24,7 +24,6 @@
 #include "TestHelper.h"
 
 #include <core/Basics/Event.h>
-#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/EditorStateMirror.h>
@@ -49,42 +48,13 @@ void EditorMirrorTest::testEventSyncsToMirror() {
 
 	// An engine-origin event arrives over IPC and is re-posted onto the mirror's
 	// EventQueue, where the GUI would pick it up.
-	CPPUNIT_ASSERT( mirror.applyMessage(
+	CPPUNIT_ASSERT( mirror.applyEvent(
 		IpcMessage::fromEvent( Event::Type::Metronome, 7, -1 ) ) );
 
 	std::unique_ptr<Event> pEvent = pMirror->getEventQueue()->popEvent();
 	CPPUNIT_ASSERT( pEvent != nullptr );
 	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Metronome );
 	CPPUNIT_ASSERT_EQUAL( 7, pEvent->getValue() );
-
-	delete pMirror;
-
-	___INFOLOG( "passed" );
-}
-
-void EditorMirrorTest::testSongSnapshotSyncsToMirror() {
-	___INFOLOG( "" );
-
-	auto* pMirror = TestHelper::makeMirror();
-	EditorStateMirror mirror( pMirror );
-
-	auto pOldSong = pMirror->getSong();
-	CPPUNIT_ASSERT( pOldSong != nullptr );
-
-	// The engine sends a fresh song snapshot; encode one with a marker name.
-	pOldSong->setName( "MIRRORED" );
-	const QByteArray xml = pOldSong->toXmlBuffer();
-	IpcMessage snapshot( IpcOpcode::SetSong );
-	snapshot.setPayload( xml );
-
-	CPPUNIT_ASSERT( mirror.applyMessage( snapshot ) );
-
-	auto pNewSong = pMirror->getSong();
-	CPPUNIT_ASSERT( pNewSong != nullptr );
-	// A genuinely new song object reconstructed from the wire, not the original.
-	CPPUNIT_ASSERT( pNewSong != pOldSong );
-	CPPUNIT_ASSERT_EQUAL( std::string( "MIRRORED" ),
-						  pNewSong->getName().toStdString() );
 
 	delete pMirror;
 

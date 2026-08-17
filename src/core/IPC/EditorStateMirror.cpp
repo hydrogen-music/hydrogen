@@ -24,8 +24,6 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
 #include <core/Basics/Event.h>
-#include <core/Basics/Song.h>
-#include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcChannel.h>
@@ -65,53 +63,36 @@ void EditorStateMirror::attach( IpcChannel* pChannel ) {
 }
 
 void EditorStateMirror::onMessageReceived( const IpcMessage& msg ) {
-	applyMessage( msg );
+	applyEvent( msg );
 }
 
-bool EditorStateMirror::applyMessage( const IpcMessage& msg ) {
+bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 	if ( m_pMirror == nullptr ) {
 		return false;
 	}
-
-	switch ( msg.getOpcode() ) {
-	case IpcOpcode::Event: {
-		// Re-post the engine event onto the mirror's queue so the GUI reacts
-		// exactly as with a local engine. The id is regenerated locally.
-		Event::Type type;
-		int nValue = 0;
-		long nId = 0;
-		if ( ! msg.toEventFields( type, nValue, nId ) ) {
-			return false;
-		}
-		EventQueue* pQueue = m_pMirror->getEventQueue();
-		if ( pQueue == nullptr ) {
-			return false;
-		}
-		pQueue->pushEvent( type, nValue );
-		// A transport change on the engine: correct the mirror immediately from
-		// the freshly-written telemetry (low latency), on top of the periodic
-		// timer. No-op when no telemetry block is attached (events-only fallback).
-		if ( isTransportEvent( type ) ) {
-			syncTransportFromTelemetry();
-		}
-		return true;
-	}
-
-	case IpcOpcode::SetSong:
-	case IpcOpcode::LoadState: {
-		auto pSong = Song::fromXmlBuffer(
-			msg.getPayload(), true /*bSilent*/, m_pMirror
-		);
-		if ( pSong == nullptr ) {
-			return false;
-		}
-		m_pMirror->getCoreActionController()->setSong( pSong );
-		return true;
-	}
-
-	default:
+	if ( msg.getOpcode() != IpcOpcode::Event ) {
 		return false;
 	}
+
+	Event::Type type;
+	int nValue = 0;
+	long nId = 0;
+	if ( ! msg.toEventFields( type, nValue, nId ) ) {
+		return false;
+	}
+
+	EventQueue* pQueue = m_pMirror->getEventQueue();
+	if ( pQueue == nullptr ) {
+		return false;
+	}
+	pQueue->pushEvent( type, nValue );
+	// A transport change on the engine: correct the mirror immediately from
+	// the freshly-written telemetry (low latency), on top of the periodic
+	// timer. No-op when no telemetry block is attached (events-only fallback).
+	if ( isTransportEvent( type ) ) {
+		syncTransportFromTelemetry();
+	}
+	return true;
 }
 
 void EditorStateMirror::attachTelemetry( const QString& sEndpoint ) {

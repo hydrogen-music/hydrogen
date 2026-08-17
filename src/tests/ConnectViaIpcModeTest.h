@@ -31,7 +31,6 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testAttachesToEngineEndpoint );
 	CPPUNIT_TEST( testFailedConnectionReported );
 	CPPUNIT_TEST( testMirrorUsesHeadlessDriver );
-	CPPUNIT_TEST( testReceivesEngineState );
 	CPPUNIT_TEST( testIssuesCommands );
 	CPPUNIT_TEST( testEngineSurvivesEditorDisconnect );
 	CPPUNIT_TEST( testEngineBuildsTransportSnapshot );
@@ -44,7 +43,6 @@ public:
 	void testAttachesToEngineEndpoint();
 	void testFailedConnectionReported();
 	void testMirrorUsesHeadlessDriver();
-	void testReceivesEngineState();
 	void testIssuesCommands();
 	void testEngineSurvivesEditorDisconnect();
 	void testEngineBuildsTransportSnapshot();

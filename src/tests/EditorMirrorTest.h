@@ -27,14 +27,12 @@
 class EditorMirrorTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( EditorMirrorTest );
 	CPPUNIT_TEST( testEventSyncsToMirror );
-	CPPUNIT_TEST( testSongSnapshotSyncsToMirror );
 	CPPUNIT_TEST( testEngineAccessReadsMirror );
 	CPPUNIT_TEST( testCommandForwardedOverIpc );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 	void testEventSyncsToMirror();
-	void testSongSnapshotSyncsToMirror();
 	void testEngineAccessReadsMirror();
 	void testCommandForwardedOverIpc();
 };

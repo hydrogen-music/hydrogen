@@ -82,10 +82,9 @@ public:
 	/** Connect to a channel so inbound messages are applied automatically. */
 	void attach( IpcChannel* pChannel );
 
-	/** Apply one inbound message to the mirror. Returns true if it changed
-	 * mirror state (event posted / song replaced); false for messages this
-	 * mirror does not consume (e.g. Hello, command opcodes). */
-	bool applyMessage( const IpcMessage& msg );
+	/** Apply one inbound engine event to the mirror. Returns true if the event
+	 * was posted to the mirror's EventQueue; false for non-Event messages. */
+	bool applyEvent( const IpcMessage& msg );
 
 	void setTelemetry( const EngineTelemetrySnapshot& snapshot ) {
 		m_telemetry = snapshot; }
