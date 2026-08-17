@@ -59,7 +59,7 @@ public:
 	std::shared_ptr<Song> getSong() const override {
 		return m_pHydrogen->getSong(); }
 
-	const Hydrogen::ProcessMode& getProcessMode() const override {
+	const H2Core::ProcessMode& getProcessMode() const override {
 		return m_pHydrogen->getProcessMode(); }
 	bool isFullyOperational() const override {
 		return m_pHydrogen->isFullyOperational(); }

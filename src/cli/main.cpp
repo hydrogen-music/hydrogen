@@ -510,7 +510,7 @@ int main(int argc, char *argv[])
 		}
 
 		auto pHydrogen = Hydrogen::create_instance(
-			nOscPort, pPref, H2Core::Hydrogen::ProcessMode::Headless
+			nOscPort, pPref, H2Core::ProcessMode::Headless
 		);
 		pHydrogen->setFullyOperational( true );
 

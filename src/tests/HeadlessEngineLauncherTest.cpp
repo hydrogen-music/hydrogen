@@ -91,7 +91,7 @@ void HeadlessEngineLauncherTest::testCreateHeadlessEngine()
 	CPPUNIT_ASSERT( pHydrogen != nullptr );
 
 	// The engine must be in headless GUI state.
-	CPPUNIT_ASSERT( pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Headless );
+	CPPUNIT_ASSERT( pHydrogen->getProcessMode() == H2Core::ProcessMode::Headless );
 
 	// The engine's Preferences must be configured for headless IPC serving:
 	// Null audio, no MIDI, no OSC.

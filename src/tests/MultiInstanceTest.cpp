@@ -70,10 +70,10 @@ void MultiInstanceTest::testTwoIndependentInstances() {
 	// OSC server / NSM client (per-instance, not singletons — ADR 0015). OSC is
 	// disabled here so neither binds a port.
 	auto* pA = new Hydrogen(
-		makePluginPreferences(), Hydrogen::ProcessMode::Headless, -1
+		makePluginPreferences(), H2Core::ProcessMode::Headless, -1
 	);
 	auto* pB = new Hydrogen(
-		makePluginPreferences(), Hydrogen::ProcessMode::Headless, -1
+		makePluginPreferences(), H2Core::ProcessMode::Headless, -1
 	);
 
 	// EventQueue::pushEvent() drops events while an instance is still in the

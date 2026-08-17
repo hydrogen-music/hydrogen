@@ -377,7 +377,7 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	updatePlayingPatterns( trigger );
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor &&
 		 m_pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		// Tell the JACK server to locate to the beginning as well
 		// (done in the next run of audioEngine_process()).
@@ -434,7 +434,7 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 	// will pick it up at the beginning of the next one.
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		if ( m_pHydrogen->getProcessMode() ==
-			 Hydrogen::ProcessMode::Editor ) {
+			 H2Core::ProcessMode::Editor ) {
 			// The authoritative engine handles communication with the JACK
 			// server. We just wait till it reports back.
 			return;
@@ -605,7 +605,7 @@ void AudioEngine::createPerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioDriver == nullptr ||
-		 m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		 m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
         return;
 	}
 
@@ -886,7 +886,7 @@ void AudioEngine::updateBpmAndTickSize( std::shared_ptr<Transport> pPos,
 			}
 
 			if ( m_pHydrogen->getPreferences()->getMidiClockOutputSend() &&
-				 m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
+				 m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor &&
 				 m_pMidiDriver != nullptr &&
 				 ! m_pHydrogen->isUnderPluginHost() ) {
 				// No MIDI clock out under a plugin host (ADR 0026).
@@ -1004,7 +1004,7 @@ void AudioEngine::calculateTransportOffsetOnBpmChange(
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		// For the mirror engine this is a no-op as neither the peaks nor the
 		// audio buffer would ever be used.
 		return;
@@ -1048,7 +1048,7 @@ std::shared_ptr<AudioDriver> AudioEngine::createAudioDriver(
 )
 {
 	auto driverSane = driver;
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor &&
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor &&
 		 driver != Preferences::AudioDriver::Disk ) {
 		driverSane = Preferences::AudioDriver::Null;
 		AE_INFOLOG( "Creating Software driver" );
@@ -1374,7 +1374,7 @@ void AudioEngine::startMidiDriver( Event::Trigger trigger ) {
 	this->lock( RIGHT_HERE );
 
 	auto driverSane = pPref->m_midiDriver;
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		driverSane = Preferences::MidiDriver::None;
 	}
 
@@ -1543,7 +1543,7 @@ float AudioEngine::getBpmAtColumn( int nColumn ) {
 		return MIN_BPM;
 	}
 
-	if ( pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		// The mirror engine does not own any audio/MIDI drivers or external
 		// tempo sources. The playhead BPM was set from the authoritative
 		// engine's telemetry by EditorStateMirror::applyTransportSnapshot()
@@ -1968,7 +1968,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* arg )
 	// In editor mode the mirror engine performs the overall transport
 	// processing for smooth GUI updates. The the actual audio processing and
 	// peak calculation is done by the authoritative engine.
-	if ( pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor	) {
+	if ( pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor	) {
 		// always update note queue.. could come from pattern or realtime input
 		// (midi, keyboard)
 		pAudioEngine->updateNoteQueue( nframes );
@@ -3318,7 +3318,7 @@ void AudioEngine::play() {
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->hasJackTransport() ) {
 		if ( m_pHydrogen->getProcessMode() ==
-			 Hydrogen::ProcessMode::Editor ) {
+			 H2Core::ProcessMode::Editor ) {
 			// The authoritative engine handles communication with the JACK
 			// server. We just wait till it reports back.
 			return;
@@ -3339,7 +3339,7 @@ void AudioEngine::stop() {
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->hasJackTransport() ) {
 		if ( m_pHydrogen->getProcessMode() ==
-			 Hydrogen::ProcessMode::Editor ) {
+			 H2Core::ProcessMode::Editor ) {
 			// The authoritative engine handles communication with the JACK
 			// server. We just wait till it reports back.
 			return;

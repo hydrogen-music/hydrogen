@@ -110,7 +110,7 @@ void PluginLifecycleTest::testRepeatedLifecycle() {
 		// Each instance owns its own OSC server / NSM client (per-instance, not a
 		// singleton — ADR 0015); with OSC disabled they never touch the network.
 		auto* pHydrogen = new Hydrogen(
-			makePluginPreferences(), Hydrogen::ProcessMode::Headless, -1
+			makePluginPreferences(), H2Core::ProcessMode::Headless, -1
 		);
 		pHydrogen->setFullyOperational( true );
 

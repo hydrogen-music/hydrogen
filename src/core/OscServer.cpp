@@ -393,7 +393,7 @@ OscServer::OscServer( H2Core::Hydrogen* pHydrogen, int nOscPort )
 	// owns network endpoints and control surfaces (ADR 0026). The port would
 	// otherwise be bound right here in the constructor.
 	if ( pPref->getOscServerEnabled() &&
-		 m_pHydrogen->getProcessMode() != H2Core::Hydrogen::ProcessMode::Editor &&
+		 m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor &&
 		 ! m_pHydrogen->isUnderPluginHost() ) {
 		int nPort;
 		// Check whether an alternative value was provided via CLI argument.

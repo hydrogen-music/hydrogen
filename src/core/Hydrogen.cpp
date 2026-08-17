@@ -1530,7 +1530,7 @@ void Hydrogen::clearInterpolateModeOverride() {
 
 Hydrogen::Tempo Hydrogen::getTempoSource( bool bAuthoritativeEngine ) const {
 	if ( ! bAuthoritativeEngine &&
-		 getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		 getProcessMode() == H2Core::ProcessMode::Editor ) {
 		// The mirror engine does not own any audio/MIDI drivers or external
 		// tempo sources. Tempo is controlled by the authoritative engine and
 		// followed via telemetry + IPC events (ADR 0016/0030).
@@ -2038,19 +2038,4 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		
 	return sOutput;
 }
-
-QString Hydrogen::ProcessModeToQString( const ProcessMode& state ) {
-	switch( state ) {
-	case ProcessMode::Headless:
-		return "Headless";
-	case ProcessMode::Full:
-		return "Full";
-	case ProcessMode::Editor:
-		return "Editor";
-	default:
-		return QString( "Unknown ProcessMode [%1]" )
-			.arg( static_cast<int>(state) );
-	}
-}
-
 }; /* Namespace */

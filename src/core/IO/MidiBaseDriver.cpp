@@ -49,7 +49,7 @@ MidiBaseDriver::MidiBaseDriver( Hydrogen* pHydrogen )
       m_bOutputActive( false )
 {
 	if ( MidiInput::m_pHydrogen->getPreferences()->getMidiClockOutputSend() &&
-		 MidiInput::m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor &&
+		 MidiInput::m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor &&
 		 ! MidiInput::m_pHydrogen->isUnderPluginHost() ) {
 		// No MIDI clock out under a plugin host (ADR 0026).
 		startMidiClockStream( MidiInput::m_pHydrogen

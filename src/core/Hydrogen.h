@@ -124,22 +124,6 @@ public:
 		PLAYBACK_TRACK_INVALID
 	};
 
-	/** Specifies the state of the Qt GUI*/
-	enum class ProcessMode {
-		/** Hydrogen is up and running but there is no GUI available. */
-		Headless = 0,
-		/** Hydrogen is up and running and there is a working GUI. */
-		Full = 1,
-		/** The Hydrogen GUI was started to connect via IPC to a headless
-		 * version of Hydrogen running in a different process. While this
-		 * project will spawn an engine too (driver-less), its sole purpose is
-		 * to serve as a mirror in order to ensure smooth playback and
-		 * transport. But the engine running in the other process is authorative
-		 * and the mirror one is synced to it periodically. */
-		Editor
-	};
-	static QString ProcessModeToQString( const ProcessMode& state );
-
 	/**
 	 * Standalone helper: loads the process-current Preferences and constructs
 	 * the single Hydrogen instance used by the standalone application.
@@ -149,7 +133,7 @@ public:
 	 */
 	static Hydrogen* create_instance( int nOscPort,
 									  std::shared_ptr<Preferences> pPreferences,
-									  ProcessMode processMode );
+									  H2Core::ProcessMode processMode );
 
 	/**
 	 * Constructs a Hydrogen instance owning the given @a pPref Preferences and
@@ -163,7 +147,7 @@ public:
 	 */
 	Hydrogen(
 		std::shared_ptr<Preferences> pPref,
-		ProcessMode processMode,
+		H2Core::ProcessMode processMode,
 		int nOscPort
 	);
 
@@ -429,7 +413,7 @@ public:
 	/************************************************************/
 
 	/**\return #m_ProcessMode*/
-	const ProcessMode&	getProcessMode() const;
+	const H2Core::ProcessMode&	getProcessMode() const;
 
 	/** Whether Hydrogen is starting up or tearing down. */
 	bool isFullyOperational() const;
@@ -437,7 +421,7 @@ public:
 
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_ProcessMode.*/
-	void			setProcessMode( const ProcessMode& state );
+	void			setProcessMode( const H2Core::ProcessMode& state );
 	bool			hasJackDriver() const;
 	/**
 	 * \return Whether #H2Core::JackDriver is used as current audio driver and
@@ -632,7 +616,7 @@ private:
 	 *
 	 * Set by setProcessMode() and accessed via getProcessMode().
 	 */
-	ProcessMode		m_ProcessMode;
+	H2Core::ProcessMode		m_ProcessMode;
 
 	/** Whether Hydrogen is starting up or tearing down. This variable must only
 	 * be set to false in case the entire startup was completed, e.g. the GUI
@@ -731,7 +715,7 @@ private:
 	if ( pHydrogen == nullptr ) {				\
 		sMsg = "Invalid Hydrogen object. Wrong setup!";	\
 	}											\
-	else if ( pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) { \
+	else if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) { \
 		sMsg = "Hydrogen must not be in editor mode in this context!";	\
 	};											\
 	if ( ! sMsg.isEmpty() ) {					\
@@ -760,11 +744,11 @@ inline std::shared_ptr<MidiActionManager> Hydrogen::getMidiActionManager() const
 	return m_pMidiActionManager;
 }
 
-inline const Hydrogen::ProcessMode& Hydrogen::getProcessMode() const {
+inline const H2Core::ProcessMode& Hydrogen::getProcessMode() const {
 	return m_ProcessMode;
 }
 
-inline void Hydrogen::setProcessMode( const Hydrogen::ProcessMode& state ) {
+inline void Hydrogen::setProcessMode( const H2Core::ProcessMode& state ) {
 	m_ProcessMode = state;
 }
 inline bool Hydrogen::isFullyOperational() const {

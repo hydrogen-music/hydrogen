@@ -38,7 +38,7 @@ void EventListener::blacklistEventId( long nEventId )
 		// "instant" feedback. And, second, for the remote one which will fire
 		// later and whose event will be propagated back to the GUI via IPC.
 		if ( HydrogenApp::pHydrogen()->getProcessMode() ==
-			 H2Core::Hydrogen::ProcessMode::Editor ) {
+			 H2Core::ProcessMode::Editor ) {
 			m_blacklistedEventIds.insert( nEventId );
 		}
 	}

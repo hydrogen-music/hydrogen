@@ -80,7 +80,7 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	// Use a dedicated OSC port to not cause conflicts with (JACK) integration
 	// tests running in a different shell.
 	auto pHydrogen = H2Core::Hydrogen::create_instance(
-		4563, pPref, H2Core::Hydrogen::ProcessMode::Headless
+		4563, pPref, H2Core::ProcessMode::Headless
 	);
 	pHydrogen->setFullyOperational( true );
 

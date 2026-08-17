@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 		pPref->m_nBufferSize = 1024;
 
 		auto pHydrogen = Hydrogen::create_instance(
-			nOscPort, pPref, Hydrogen::ProcessMode::Headless
+			nOscPort, pPref, H2Core::ProcessMode::Headless
 		);
 		pHydrogen->setFullyOperational( true );
 		g_pHydrogen = pHydrogen;

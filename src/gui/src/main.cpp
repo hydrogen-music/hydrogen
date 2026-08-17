@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
 			H2Core::EditorSession::configureMirrorPreferences( pPref );
 			pHydrogen = H2Core::Hydrogen::create_instance(
 				parser.getOscPort(), pPref,
-				H2Core::Hydrogen::ProcessMode::Editor
+				H2Core::ProcessMode::Editor
 			);
 			pEditorSession = H2Core::EditorSession::connect(
 				sConnectViaIpcEndpoint, pHydrogen
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
 		else {
 			// Hydrogen here to honor all preferences.
 			pHydrogen = H2Core::Hydrogen::create_instance(
-				parser.getOscPort(), pPref, H2Core::Hydrogen::ProcessMode::Full
+				parser.getOscPort(), pPref, H2Core::ProcessMode::Full
 			);
 			HydrogenApp::setBootstrap( pHydrogen, pPref );
 

@@ -349,7 +349,7 @@ H2Core::Hydrogen* TestHelper::makeEngine() {
 	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::None;
 	pPref->setOscServerEnabled( false );
 	auto* pHydrogen = new H2Core::Hydrogen(
-		pPref, H2Core::Hydrogen::ProcessMode::Headless, -1
+		pPref, H2Core::ProcessMode::Headless, -1
 	);
 	pHydrogen->setFullyOperational( true );
 	return pHydrogen;
@@ -361,7 +361,7 @@ H2Core::Hydrogen* TestHelper::makeMirror() {
 	// Null audio driver — no processing thread, no MIDI, no OSC).
 	H2Core::EditorSession::configureMirrorPreferences( pPref );
 	auto pHydrogen = new H2Core::Hydrogen(
-		pPref, H2Core::Hydrogen::ProcessMode::Editor, -1
+		pPref, H2Core::ProcessMode::Editor, -1
 	);
 	pHydrogen->setFullyOperational( true );
 	return pHydrogen;

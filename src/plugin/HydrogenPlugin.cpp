@@ -64,7 +64,7 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	, m_nBuses( nBuses ) {
 	m_pHydrogen = new Hydrogen(
 		makePluginPreferences( fSampleRate, nMaxBlockSize ),
-		Hydrogen::ProcessMode::Headless, -1
+		H2Core::ProcessMode::Headless, -1
 	);
 	m_pHydrogen->setFullyOperational( true );
 

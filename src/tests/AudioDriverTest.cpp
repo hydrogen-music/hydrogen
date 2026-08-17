@@ -120,7 +120,7 @@ void AudioDriverTest::testMidiOnlyMode() {
 	pPref->setOscServerEnabled( false );
 
 	auto pHydrogen = new H2Core::Hydrogen(
-		pPref, H2Core::Hydrogen::ProcessMode::Headless, -1
+		pPref, H2Core::ProcessMode::Headless, -1
 	);
 	pHydrogen->setFullyOperational( true );
 	auto pAudioEngine = pHydrogen->getAudioEngine();

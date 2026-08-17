@@ -800,7 +800,7 @@ bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm )
 
 bool CoreActionController::previewInstrument( int nInstrument, bool bStop )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 
@@ -821,7 +821,7 @@ bool CoreActionController::previewInstrument( int nInstrument, bool bStop )
 
 bool CoreActionController::noteOn( std::shared_ptr<Note> pNote )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 
@@ -1034,7 +1034,7 @@ bool CoreActionController::sendMasterVolumeFeedback()
 		ERRORLOG( "no song set" );
 		return false;
 	}
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1064,7 +1064,7 @@ bool CoreActionController::sendMasterVolumeFeedback()
 
 bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1099,7 +1099,7 @@ bool CoreActionController::sendStripVolumeFeedback( int nStrip )
 
 bool CoreActionController::sendMetronomeIsActiveFeedback()
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1135,7 +1135,7 @@ bool CoreActionController::sendMasterIsMutedFeedback()
 		return false;
 	}
 
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1163,7 +1163,7 @@ bool CoreActionController::sendMasterIsMutedFeedback()
 
 bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1197,7 +1197,7 @@ bool CoreActionController::sendStripIsMutedFeedback( int nStrip )
 
 bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1230,7 +1230,7 @@ bool CoreActionController::sendStripIsSoloedFeedback( int nStrip )
 
 bool CoreActionController::sendStripPanFeedback( int nStrip )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1266,7 +1266,7 @@ bool CoreActionController::handleOutgoingControlChanges(
 	Midi::Parameter value
 )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1301,7 +1301,7 @@ bool CoreActionController::handleOutgoingControlChanges(
 
 bool CoreActionController::initExternalControlInterfaces()
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return true;
 	}
 
@@ -1489,7 +1489,7 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	}
 
 	// Update the status bar.
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Headless ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Headless ) {
 		if ( !bKeepMissingSamples && bHadMissingSamples ) {
 			// Some instrument layers might have been discarded. Reload the
 			// entire drumkit.
@@ -1591,7 +1591,7 @@ bool CoreActionController::setPreferences(
 bool CoreActionController::savePreferences()
 {
 
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Headless ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Headless ) {
 		// Update the status bar and let the GUI save the preferences
 		// (after writing its current settings to disk).
 		m_pHydrogen->getEventQueue()->pushEvent(
@@ -1846,7 +1846,7 @@ bool CoreActionController::activateJackTimebaseControl( bool bActivate )
 
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	if ( pAudioEngine->getAudioDriver() == nullptr ||
-		 m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+		 m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 	auto pJackDriver =
@@ -2072,7 +2072,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
 		pAudioEngine->clearNoteQueues();
 		pAudioEngine->getSampler()->releasePlayingNotes();
 		pAudioEngine->getSampler()->clearLastUsedLayers();
@@ -2643,7 +2643,7 @@ bool CoreActionController::removeInstrument(
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
 		pAudioEngine->clearNoteQueues( pInstrument );
 		pAudioEngine->getSampler()->releasePlayingNotes(
 			pInstrument->getUuid() );
@@ -2748,7 +2748,7 @@ bool CoreActionController::replaceDrumkitInstrument(
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
 		pAudioEngine->clearNoteQueues( pOldInstrument );
 		pAudioEngine->getSampler()->releasePlayingNotes(
 			pOldInstrument->getUuid() );
@@ -2802,7 +2802,7 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
 		pAudioEngine->getSampler()->releasePlayingNotes(
 			pOldInstrument->getUuid() );
 	}
@@ -3866,7 +3866,7 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
 	m_pHydrogen->setSongModified( true );
 
 	// Update the SongEditor.
-	if ( m_pHydrogen->getProcessMode() != Hydrogen::ProcessMode::Headless ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Headless ) {
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::GridCellToggled, 0
 		);
@@ -3883,7 +3883,7 @@ bool CoreActionController::handleNote(
 	QStringList* pMappedInstruments
 )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 
@@ -4213,7 +4213,7 @@ bool CoreActionController::activatePlaylistSong( int nSongNumber )
 
 bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 	auto pPref = m_pHydrogen->getPreferences();
@@ -4245,7 +4245,7 @@ bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 
 bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 
@@ -4280,7 +4280,7 @@ bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 
 bool CoreActionController::clearMidiInputLog()
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 	auto pMidiDriver = m_pHydrogen->getMidiDriver();
@@ -4293,7 +4293,7 @@ bool CoreActionController::clearMidiInputLog()
 
 bool CoreActionController::clearMidiOutputLog()
 {
-	if ( m_pHydrogen->getProcessMode() == Hydrogen::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		return false;
 	}
 	auto pMidiDriver = m_pHydrogen->getMidiDriver();

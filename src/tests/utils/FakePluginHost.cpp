@@ -63,7 +63,7 @@ FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize,
 	, m_nBuses( nBuses ) {
 	m_pHydrogen = new Hydrogen(
 		makeHostPreferences( nSampleRate, nBlockSize ),
-		Hydrogen::ProcessMode::Headless, -1
+		H2Core::ProcessMode::Headless, -1
 	);
 	// Without a GUI the event queue drops events while in the startup state; a
 	// headless instance keeps them so MIDI/transport tests can observe them.
