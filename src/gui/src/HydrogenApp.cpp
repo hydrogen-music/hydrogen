@@ -433,106 +433,27 @@ void HydrogenApp::syncViaIpc() {
 	auto pStateMirror = m_pEditorSession->getStateMirror();
 
 	// 1. Song — apply via the state mirror so setSong() is called on the mirror
-	// engine. (Be sure to trigger the corresponding Event in order for the GUI
-	// to update as well)
-	{
-		IpcMessage reply;
-		if ( pChannel->request( IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) &&
-			 ! reply.getPayload().isEmpty() ) {
-			IpcMessage setSongMsg( IpcOpcode::SetSong );
-			setSongMsg.setPayload( reply.getPayload() );
-			if ( pStateMirror != nullptr ) {
-				pStateMirror->applyMessage( setSongMsg );
-			}
-		}
-	}
+	// engine.
+	ipcSyncSong( pChannel, pStateMirror );
 
 	// 2. Playlist
-	{
-		IpcMessage reply;
-		if ( pChannel->request( IpcMessage( IpcOpcode::GetPlaylist ), reply, 3000 ) &&
-			 ! reply.getPayload().isEmpty() ) {
-			auto pPlaylist = Playlist::fromXmlBuffer( reply.getPayload() );
-			if ( pPlaylist != nullptr ) {
-				m_pHydrogen->getCoreActionController()->setPlaylist( pPlaylist );
-			}
-		}
-	}
+	ipcSyncPlaylist( pChannel );
 
 	// 3. Selected pattern
-	{
-		IpcMessage reply;
-		if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedPattern ),
-								reply, 3000 ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				m_pHydrogen->setSelectedPatternNumber( args[0].toInt() );
-			}
-		}
-	}
+	ipcSyncSelectedPattern( pChannel );
 
 	// 4. Selected instrument
-	{
-		IpcMessage reply;
-		if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedInstrument ),
-								reply, 3000 ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				m_pHydrogen->setSelectedInstrumentNumber( args[0].toInt() );
-			}
-		}
-	}
+	ipcSyncSelectedInstrument( pChannel );
 
 	// 5. Record enabled
-	{
-		IpcMessage reply;
-		if ( pChannel->request( IpcMessage( IpcOpcode::GetRecordEnabled ),
-								reply, 3000 ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				m_pHydrogen->getCoreActionController()->activateRecordMode(
-					args[0].toBool()
-				);
-			}
-		}
-	}
+	ipcSyncRecordEnabled( pChannel );
 
 	// 6. Core preferences
-	{
-		IpcMessage reply;
-		if ( pChannel->request( IpcMessage( IpcOpcode::GetCorePreferences ),
-								reply, 3000 ) &&
-			 ! reply.getPayload().isEmpty() ) {
-			auto pPref = m_pHydrogen->getPreferences();
-			if ( pPref != nullptr ) {
-				pPref->applyCorePropsFromXml( reply.getPayload() );
-				m_pHydrogen->getEventQueue()->pushEvent(
-					Event::Type::UpdatePreferences, 0 );
-			}
-		}
-	}
+	ipcSyncCorePreferences( pChannel );
 
 	// 7. Sound library info — register the engine's custom drumkit folders and
 	// paths, then rescan so the mirror's database matches the engine's.
-	{
-		IpcMessage reply;
-		if ( pChannel->request( IpcMessage( IpcOpcode::GetSoundLibraryInfo ),
-								reply, 3000 ) ) {
-			const auto& args = reply.getArgs();
-			if ( args.size() >= 3 ) {
-				auto pDb = m_pHydrogen->getSoundLibraryDatabase();
-				if ( pDb != nullptr ) {
-					for ( const auto& sFolder : args[1].toStringList() ) {
-						pDb->registerDrumkitFolder( sFolder );
-					}
-					for ( const auto& sPath : args[2].toStringList() ) {
-						pDb->registerCustomDrumkitPath( sPath );
-					}
-					pDb->update();
-				}
-			}
-		}
-	}
+	ipcSyncSoundLibraryInfo( pChannel );
 
 	// 8. Force an immediate transport re-sync from telemetry.
 	if ( pStateMirror != nullptr ) {
@@ -549,44 +470,142 @@ void HydrogenApp::syncViaIpc() {
 
 	// 11. Session-management state — cache it so the mirror's
 	// isUnderSessionManagement() works in editor mode (ADR 0029).
-	{
-		IpcMessage reply;
-		if ( pChannel->request(
-				IpcMessage( IpcOpcode::GetIsUnderSessionManagement ),
-				reply, 3000 ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				m_pHydrogen->setCachedUnderSessionManagement(
-					args[0].toBool() );
-			}
-		}
-	}
+	ipcSyncSessionManagementState( pChannel );
 
 	// 12. Plugin-host state — cache it so the mirror's isUnderPluginHost()
 	// works in editor mode (ADR 0029).
-	{
-		IpcMessage reply;
-		if ( pChannel->request(
-				IpcMessage( IpcOpcode::GetIsUnderPluginHost ),
-				reply, 3000 ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				m_pHydrogen->setCachedUnderPluginHost(
-					args[0].toBool() );
+	ipcSyncPluginHostState( pChannel );
+
+	// 13. Update Audio and Midi Driver-related widgets
+	ipcSyncDriverWidgets();
+
+	INFOLOG( "State synced from headless engine via IPC." );
+}
+
+void HydrogenApp::ipcSyncSong( IpcChannel* pChannel,
+							   EditorStateMirror* pStateMirror ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) &&
+		 ! reply.getPayload().isEmpty() ) {
+		IpcMessage setSongMsg( IpcOpcode::SetSong );
+		setSongMsg.setPayload( reply.getPayload() );
+		if ( pStateMirror != nullptr ) {
+			pStateMirror->applyMessage( setSongMsg );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncPlaylist( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetPlaylist ), reply, 3000 ) &&
+		 ! reply.getPayload().isEmpty() ) {
+		auto pPlaylist = Playlist::fromXmlBuffer( reply.getPayload() );
+		if ( pPlaylist != nullptr ) {
+			m_pHydrogen->getCoreActionController()->setPlaylist( pPlaylist );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncSelectedPattern( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedPattern ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setSelectedPatternNumber( args[0].toInt() );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncSelectedInstrument( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedInstrument ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setSelectedInstrumentNumber( args[0].toInt() );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncRecordEnabled( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetRecordEnabled ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->getCoreActionController()->activateRecordMode(
+				args[0].toBool()
+			);
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncCorePreferences( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetCorePreferences ),
+							reply, 3000 ) &&
+		 ! reply.getPayload().isEmpty() ) {
+		auto pPref = m_pHydrogen->getPreferences();
+		if ( pPref != nullptr ) {
+			pPref->applyCorePropsFromXml( reply.getPayload() );
+			m_pHydrogen->getEventQueue()->pushEvent(
+				Event::Type::UpdatePreferences, 0 );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncSoundLibraryInfo( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSoundLibraryInfo ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( args.size() >= 3 ) {
+			auto pDb = m_pHydrogen->getSoundLibraryDatabase();
+			if ( pDb != nullptr ) {
+				for ( const auto& sFolder : args[1].toStringList() ) {
+					pDb->registerDrumkitFolder( sFolder );
+				}
+				for ( const auto& sPath : args[2].toStringList() ) {
+					pDb->registerCustomDrumkitPath( sPath );
+				}
+				pDb->update();
 			}
 		}
 	}
+}
 
-	// 13. Update Audio and Midi Driver-related widgets
-	{
-		m_pHydrogen->getEventQueue()->pushEvent(
-			Event::Type::AudioDriverChanged, 0 );
-		m_pHydrogen->getEventQueue()->pushEvent(
-			Event::Type::MidiDriverChanged, 0 );
-
+void HydrogenApp::ipcSyncSessionManagementState( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request(
+			IpcMessage( IpcOpcode::GetIsUnderSessionManagement ),
+			reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setCachedUnderSessionManagement(
+				args[0].toBool() );
+		}
 	}
+}
 
-	INFOLOG( "State synced from headless engine via IPC." );
+void HydrogenApp::ipcSyncPluginHostState( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request(
+			IpcMessage( IpcOpcode::GetIsUnderPluginHost ),
+			reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setCachedUnderPluginHost(
+				args[0].toBool() );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncDriverWidgets() {
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::AudioDriverChanged, 0 );
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::MidiDriverChanged, 0 );
 }
 
 void HydrogenApp::refreshCachedAudioDriverInfo() {
@@ -1379,6 +1398,7 @@ void HydrogenApp::onEventQueueTimer()
 		if ( pEvent == nullptr ) {
 			break;
 		}
+		DEBUGLOG( pEvent->toQString() );
 
 		if ( m_eventListenersToAdd.size() > 0 ||
 			 m_eventListenersToRemove.size() > 0 ) {

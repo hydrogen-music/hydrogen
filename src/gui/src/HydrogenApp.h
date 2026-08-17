@@ -50,8 +50,10 @@ constexpr uint16_t QUEUE_TIMER_PERIOD = 50;
 namespace H2Core
 {
 	class EditorSession;
+	class EditorStateMirror;
 	class EventQueue;
 	class Hydrogen;
+	class IpcChannel;
 	class Instrument;
 	class InstrumentComponent;
 	class InstrumentLayer;
@@ -284,6 +286,40 @@ class HydrogenApp : public QObject,
 
 	static bool checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 	);
+
+	///////////////////////////// IPC sync helpers //////////////////////////////
+	/** Fetch the current Song from the authoritative engine and apply it to
+	 * the mirror via the state mirror so setSong() is called on the mirror
+	 * engine. */
+	void ipcSyncSong( H2Core::IpcChannel* pChannel,
+	                   H2Core::EditorStateMirror* pStateMirror );
+	/** Fetch the current Playlist from the authoritative engine and set it
+	 * on the mirror. */
+	void ipcSyncPlaylist( H2Core::IpcChannel* pChannel );
+	/** Fetch the selected pattern number from the authoritative engine and
+	 * set it on the mirror. */
+	void ipcSyncSelectedPattern( H2Core::IpcChannel* pChannel );
+	/** Fetch the selected instrument number from the authoritative engine and
+	 * set it on the mirror. */
+	void ipcSyncSelectedInstrument( H2Core::IpcChannel* pChannel );
+	/** Fetch the record-enabled state from the authoritative engine and
+	 * apply it to the mirror. */
+	void ipcSyncRecordEnabled( H2Core::IpcChannel* pChannel );
+	/** Fetch core Preferences from the authoritative engine and apply them
+	 * to the mirror, then trigger UpdatePreferences event. */
+	void ipcSyncCorePreferences( H2Core::IpcChannel* pChannel );
+	/** Fetch sound library info from the authoritative engine, register
+	 * drumkit folders/paths, and rescan the mirror's database. */
+	void ipcSyncSoundLibraryInfo( H2Core::IpcChannel* pChannel );
+	/** Fetch session-management state from the authoritative engine and
+	 * cache it in the mirror (ADR 0029). */
+	void ipcSyncSessionManagementState( H2Core::IpcChannel* pChannel );
+	/** Fetch plugin-host state from the authoritative engine and cache it
+	 * in the mirror (ADR 0029). */
+	void ipcSyncPluginHostState( H2Core::IpcChannel* pChannel );
+	/** Trigger AudioDriverChanged and MidiDriverChanged events to update
+	 * the corresponding GUI widgets. */
+	void ipcSyncDriverWidgets();
 
    signals:
 	/** Propagates a change in the Preferences through the GUI.
