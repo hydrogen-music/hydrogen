@@ -50,7 +50,6 @@ constexpr uint16_t QUEUE_TIMER_PERIOD = 50;
 namespace H2Core
 {
 	class EditorSession;
-	class EditorStateMirror;
 	class EventQueue;
 	class Hydrogen;
 	class IpcChannel;
@@ -288,11 +287,9 @@ class HydrogenApp : public QObject,
 	);
 
 	///////////////////////////// IPC sync helpers //////////////////////////////
-	/** Fetch the current Song from the authoritative engine and apply it to
-	 * the mirror via the state mirror so setSong() is called on the mirror
-	 * engine. */
-	void ipcSyncSong( H2Core::IpcChannel* pChannel,
-	                   H2Core::EditorStateMirror* pStateMirror );
+	/** Fetch the current Song from the authoritative engine, deserialize the
+	 * XML reply, and apply it to the mirror. */
+	void ipcSyncSong( H2Core::IpcChannel* pChannel );
 	/** Fetch the current Playlist from the authoritative engine and set it
 	 * on the mirror. */
 	void ipcSyncPlaylist( H2Core::IpcChannel* pChannel );

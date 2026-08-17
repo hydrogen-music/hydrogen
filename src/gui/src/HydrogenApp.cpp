@@ -432,9 +432,8 @@ void HydrogenApp::syncViaIpc() {
 	}
 	auto pStateMirror = m_pEditorSession->getStateMirror();
 
-	// 1. Song — apply via the state mirror so setSong() is called on the mirror
-	// engine.
-	ipcSyncSong( pChannel, pStateMirror );
+	// 1. Song — deserialize the reply XML and apply to the mirror.
+	ipcSyncSong( pChannel );
 
 	// 2. Playlist
 	ipcSyncPlaylist( pChannel );
@@ -482,15 +481,15 @@ void HydrogenApp::syncViaIpc() {
 	INFOLOG( "State synced from headless engine via IPC." );
 }
 
-void HydrogenApp::ipcSyncSong( IpcChannel* pChannel,
-							   EditorStateMirror* pStateMirror ) {
+void HydrogenApp::ipcSyncSong( IpcChannel* pChannel ) {
 	IpcMessage reply;
 	if ( pChannel->request( IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) &&
 		 ! reply.getPayload().isEmpty() ) {
-		IpcMessage setSongMsg( IpcOpcode::SetSong );
-		setSongMsg.setPayload( reply.getPayload() );
-		if ( pStateMirror != nullptr ) {
-			pStateMirror->applyMessage( setSongMsg );
+		auto pSong = Song::fromXmlBuffer(
+			reply.getPayload(), true /*bSilent*/, m_pHydrogen
+		);
+		if ( pSong != nullptr ) {
+			m_pHydrogen->getCoreActionController()->setSong( pSong );
 		}
 	}
 }
