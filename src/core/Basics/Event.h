@@ -244,14 +244,20 @@ public:
 		static QString TypeToQString( Event::Type type );
 
 		/** @param nId Unique id, supplied by the owning EventQueue (ADR 0015);
-		 * defaults to #nInvalidId for events created without a queue. */
-		Event( Event::Type type, int nValue, long nId = nInvalidId );
+		 * defaults to #nInvalidId for events created without a queue.
+		 * @param origin The H2Core::ProcessMode indicating where the event
+		 *   originated (Headless, Full, or Editor). */
+		Event( Event::Type type, int nValue, long nId,
+		       H2Core::ProcessMode origin );
 		~Event();
 
 		Event::Type getType() const;
 
 		int getValue() const;
 		long getId() const;
+		/** @return The H2Core::ProcessMode indicating where the event
+		 * originated. */
+		H2Core::ProcessMode getOrigin() const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -263,7 +269,7 @@ public:
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-private:
+	private:
 
 		/** Specifies the context the event is create in and which function
 			should be triggered to handle it.*/
@@ -275,6 +281,9 @@ private:
 		/** Unique identifier of the Event assigned on creation. */
 		long m_nId;
 
+		/** The H2Core::ProcessMode indicating where the event originated. */
+		H2Core::ProcessMode m_origin;
+
 };
 
 inline Event::Type Event::getType() const {
@@ -285,6 +294,9 @@ inline int Event::getValue() const {
 }
 inline long Event::getId() const {
 	return m_nId;
+}
+inline H2Core::ProcessMode Event::getOrigin() const {
+	return m_origin;
 }
 
 };

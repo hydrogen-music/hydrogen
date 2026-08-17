@@ -71,7 +71,7 @@ void EventQueue::pushEvent(
 		nId = createEventId();
 	}
 
-	auto pEvent = std::make_unique<Event>( type, nValue, nId );
+	auto pEvent = std::make_unique<Event>( type, nValue, nId, pHydrogen->getProcessMode() );
 	m_eventQueue.push_back( std::move( pEvent ) );
 }
 

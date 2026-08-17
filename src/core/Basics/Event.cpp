@@ -21,7 +21,7 @@
  */
 
 #include <core/Basics/Event.h>
-#include <core/EventQueue.h>
+#include <core/Globals.h>
 
 namespace H2Core
 {
@@ -139,9 +139,8 @@ QString Event::TypeToQString( Event::Type type ) {
 	return QString( "Unknown event: [%1]" ).arg( static_cast<int>(type));
 }
 
-Event::Event( Event::Type type, int nValue, long nId ) : m_type( type )
-											 , m_nValue( nValue )
-											 , m_nId( nId ) {
+Event::Event( Event::Type type, int nValue, long nId, H2Core::ProcessMode origin ) :
+	m_type( type ), m_nValue( nValue ), m_nId( nId ), m_origin( origin ) {
 }
 
 Event::~Event() {
@@ -150,6 +149,7 @@ Event::~Event() {
 QString Event::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
+	const auto sOrigin = H2Core::ProcessModeToQString( m_origin );
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Event]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
@@ -159,14 +159,17 @@ QString Event::toQString( const QString& sPrefix, bool bShort ) const {
 			.append( QString( "%1%2m_nValue: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nValue ) )
 			.append( QString( "%1%2m_nId: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nId ) );
+					 .arg( m_nId ) )
+			.append( QString( "%1%2m_origin: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( sOrigin ) );
 	}
 	else {
 		sOutput = QString( "[Event]" )
 			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
 			.append( QString( ", m_type: %1" ).arg( Event::TypeToQString( m_type ) ) )
 			.append( QString( ", m_nValue: %1" ).arg( m_nValue ) )
-			.append( QString( ", m_nId: %1" ).arg( m_nId ) );
+			.append( QString( ", m_nId: %1" ).arg( m_nId ) )
+			.append( QString( ", m_origin: %1" ).arg( sOrigin ) );
 	}
 
 	return sOutput;
