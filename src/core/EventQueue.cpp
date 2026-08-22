@@ -44,6 +44,16 @@ void EventQueue::pushEvent(
 	long nRequestedId
 )
 {
+	pushEvent( type, nValue, nRequestedId, m_pHydrogen->getProcessMode() );
+}
+
+void EventQueue::pushEvent(
+	const Event::Type type,
+	const int nValue,
+	long nRequestedId,
+	H2Core::ProcessMode origin
+)
+{
 	std::lock_guard< std::mutex > lock( m_mutex );
 
 	auto pHydrogen = m_pHydrogen;
@@ -71,7 +81,7 @@ void EventQueue::pushEvent(
 		nId = createEventId();
 	}
 
-	auto pEvent = std::make_unique<Event>( type, nValue, nId, pHydrogen->getProcessMode() );
+	auto pEvent = std::make_unique<Event>( type, nValue, nId, origin );
 	m_eventQueue.push_back( std::move( pEvent ) );
 }
 

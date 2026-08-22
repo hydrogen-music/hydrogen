@@ -85,7 +85,10 @@ bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 	if ( pQueue == nullptr ) {
 		return false;
 	}
-	pQueue->pushEvent( type, nValue );
+	// Tag as Headless so the editor's onEventQueueTimer() can distinguish
+	// remote-origin events from local mirror events.
+	pQueue->pushEvent( type, nValue, Event::nInvalidId,
+	                   H2Core::ProcessMode::Headless );
 	// A transport change on the engine: correct the mirror immediately from
 	// the freshly-written telemetry (low latency), on top of the periodic
 	// timer. No-op when no telemetry block is attached (events-only fallback).

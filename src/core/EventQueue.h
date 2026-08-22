@@ -98,6 +98,16 @@ public:
 		const int nValue,
 		long nRequestedId = Event::nInvalidId
 	);
+
+	/** Overload that lets the caller specify the event's ProcessMode origin.
+	 * Use this when forwarding an engine-origin event into a mirror queue so
+	 * the editor can distinguish remote from local events. */
+	void pushEvent(
+		const Event::Type type,
+		const int nValue,
+		long nRequestedId,
+		H2Core::ProcessMode origin
+	);
 	/**
 	 * Reads out the next event of the EventQueue.
 	 *
