@@ -340,6 +340,10 @@ class HydrogenApp : public QObject,
 	 * former array.
 	 */
 	void onEventQueueTimer();
+	/** Intercept remote-origin events and trigger IPC sync instead of normal
+	 *   dispatch.
+	 * @return true if the event was consumed (remote sync triggered). */
+	bool handleRemoteEvent( const H2Core::Event* pEvent );
 	void currentTabChanged( int );
 
 	/** Propagates a change in the Preferences through the GUI.

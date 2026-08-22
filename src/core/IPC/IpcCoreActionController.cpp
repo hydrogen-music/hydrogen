@@ -873,17 +873,23 @@ bool IpcCoreActionController::saveSong( bool bKeepMissingSamples ) {
 			IpcMessage( IpcOpcode::SaveSong ).arg( bKeepMissingSamples ) );
 		return true;
 	}
-	return CoreActionController::saveSong( bKeepMissingSamples );
+	else {
+		return CoreActionController::saveSong( bKeepMissingSamples );
+	}
 }
 
 bool IpcCoreActionController::saveSongAs(
 	const QString& sNewFileName, bool bKeepMissingSamples ) {
+	// Engine-only: the authoritative engine writes the shared file. The editor
+	// mirror must NOT also write it (double-write / race on the same path).
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SaveSongAs )
 							  .arg( sNewFileName ).arg( bKeepMissingSamples ) );
 		return true;
 	}
-	return CoreActionController::saveSongAs( sNewFileName, bKeepMissingSamples );
+	else {
+		return CoreActionController::saveSongAs( sNewFileName, bKeepMissingSamples );
+	}
 }
 
 bool IpcCoreActionController::savePlaylist() {

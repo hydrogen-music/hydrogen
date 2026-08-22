@@ -1399,6 +1399,14 @@ void HydrogenApp::onEventQueueTimer()
 		}
 		DEBUGLOG( pEvent->toQString() );
 
+		// Remote-origin events: the authoritative engine may have mutated state
+		// during a operation (e.g. paths adjusted on save as) or due to an MIDI
+		// / OSC action, so pull fresh state via IPC instead of trusting the
+		// local mirror.
+		if ( handleRemoteEvent( pEvent.get() ) ) {
+			continue;
+		}
+
 		if ( m_eventListenersToAdd.size() > 0 ||
 			 m_eventListenersToRemove.size() > 0 ) {
 			updateEventListeners();
@@ -1720,6 +1728,72 @@ void HydrogenApp::onEventQueueTimer()
 		endUndoMacro();
 
 		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
+	}
+}
+
+
+bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
+	// Only relevant in editor mode where we have a remote authoritative engine.
+	if ( ! m_bConnectViaIpcMode || m_pEditorSession == nullptr ) {
+		return false;
+	}
+
+	// Only intercept events that originated from the remote headless engine.
+	if ( pEvent == nullptr ||
+		 pEvent->getOrigin() != H2Core::ProcessMode::Headless ) {
+		return false;
+	}
+
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return false;
+	}
+
+	switch ( pEvent->getType() ) {
+	case Event::Type::PlaylistChanged: {
+		if ( pEvent->getValue() == 2 ) {
+			// With this additional event the core indicates that the playlist
+			// is read-only. No need to load anew or enqueue it locally.
+			return false;
+		}
+		// The authoritative engine changed core playlist — pull fresh state.
+		ipcSyncPlaylist( pChannel );
+		return true;
+	}
+
+	case Event::Type::UpdateSong: {
+		if ( pEvent->getValue() == 2 ) {
+			// With this additional event the core indicates that the song is
+			// read-only. No need to load anew or enqueue it locally.
+			return false;
+		}
+		else if ( pEvent->getValue() == 1 ) {
+			// The authoritative engine saved the song — pull fresh state (paths
+			// may have been mutated during the operation).
+			ipcSyncSong( pChannel );
+		}
+		else {
+			// The authoritative engine loaded a song — pull fresh state
+			// including all side-effects, which could have been altered.
+			ipcSyncSong( pChannel );
+			ipcSyncSelectedPattern( pChannel );
+			ipcSyncSelectedInstrument( pChannel );
+			auto pStateMirror = m_pEditorSession->getStateMirror();
+			if ( pStateMirror != nullptr ) {
+				pStateMirror->forceTransportSync();
+			}
+		}
+		return true;
+	}
+
+	case Event::Type::UpdatePreferences: {
+		// The authoritative engine changed core preferences — pull fresh state.
+		ipcSyncCorePreferences( pChannel );
+		return true;
+	}
+
+	default:
+		return false;
 	}
 }
 
