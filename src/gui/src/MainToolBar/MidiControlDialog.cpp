@@ -199,7 +199,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		persistMidiSettings();
 	} );
 
-	auto m_pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
+	m_pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	m_pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
 	m_pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
 	pInputCheckboxLayout->addWidget( m_pInputMidiClockCheckBox );
@@ -211,7 +211,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		persistMidiSettings();
 	} );
 
-	auto m_pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
+	m_pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	m_pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
 	/*: The character combination "\n" indicates a new line and must be
 	 *  conserved. All the capitalized words that follow are defined in the MIDI
@@ -295,7 +295,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		persistMidiSettings();
 	} );
 
-	auto m_pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
+	m_pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
 	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
 	m_pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
 	pOutputCheckboxLayout->addWidget( m_pOutputMidiClockCheckBox );
@@ -307,7 +307,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		persistMidiSettings();
 	} );
 
-	auto m_pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
+	m_pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
 	m_pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
 	m_pOutputMidiTransportCheckBox->setText(
 		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
