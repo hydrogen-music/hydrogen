@@ -1489,15 +1489,13 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 	}
 
 	// Update the status bar.
-	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Headless ) {
-		if ( !bKeepMissingSamples && bHadMissingSamples ) {
-			// Some instrument layers might have been discarded. Reload the
-			// entire drumkit.
-			m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 0 );
-		}
-		else {
-			m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
-		}
+	if ( !bKeepMissingSamples && bHadMissingSamples ) {
+		// Some instrument layers might have been discarded. Reload the
+		// entire drumkit.
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 0 );
+	}
+	else {
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
 	}
 
 	return true;
@@ -3866,11 +3864,7 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
 	m_pHydrogen->setSongModified( true );
 
 	// Update the SongEditor.
-	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Headless ) {
-		m_pHydrogen->getEventQueue()->pushEvent(
-			Event::Type::GridCellToggled, 0
-		);
-	}
+	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::GridCellToggled, 0 );
 
 	return true;
 }
