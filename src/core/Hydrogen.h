@@ -541,6 +541,12 @@ public:
 		bool getSendBbtChangeEvents() const;
 		void setSendBbtChangeEvents( bool bSend );
 
+	/** If a GUI is present, tells it to save the current Preferences to disk.
+	 * Otherwise Preferences are stored directly. Used when the editor needs to
+	 * persist geometry or other GUI-specific settings back to the Preferences
+	 * file.*/
+	void requestPreferencesSave();
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line

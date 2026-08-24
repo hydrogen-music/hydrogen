@@ -1094,7 +1094,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	
 	// Notify other components of Hydrogen about the changes
 	pH2App->changePreferences( m_changes );
-	
+
+	// When in editor mode, inform the authoritative engine about relevant
+	// changes (only a subset of the all options).
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences( pPref
+		);
+	}
+
 	accept();
 }
 

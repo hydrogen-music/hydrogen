@@ -915,7 +915,7 @@ void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 
 void OscServer::SAVE_PREFERENCES_Handler(lo_arg **argv, int argc) {
 	INFOLOG( "processing message" );
-	m_pHydrogen->getCoreActionController()->savePreferences();
+	m_pHydrogen->requestPreferencesSave();
 }
 
 void OscServer::QUIT_Handler(lo_arg **argv, int argc) {

@@ -2748,18 +2748,23 @@ void MainForm::action_redo(){
 	h2app->m_pUndoStack->redo();
 }
 
-void MainForm::updatePreferencesEvent( int nValue ) {
-	if ( nValue == 0 ) {
-		// Write the state of the GUI to the Preferences.
-		saveWindowProperties();
-		HydrogenApp::pPreferences()->save();
-	}
-	else if ( nValue == 1 ) {
-		updateRecentUsedSongList();
+void MainForm::requestPreferencesSaveEvent() {
+	ASSERT_NO_EDITOR_MODE( HydrogenApp::pHydrogen() );
 
-	} else {
-		ERRORLOG( QString( "Unknown event parameter [%1] MainForm::updatePreferencesEvent" )
-				  .arg( nValue ) );
+	// Write the state of the GUI to the Preferences.
+	saveWindowProperties();
+
+	// This only saves the local Preferences and not the one of the
+	// authoritative engine connected via IPC. This is intentional. This method
+	// is intended to not be triggered in editor mode. Instead, the
+	// authoritative engine takes care of saving its own preferences at teardown
+	// or OSC / NSM command.
+	HydrogenApp::pPreferences()->save();
+}
+
+void MainForm::updatePreferencesEvent( int nValue ) {
+	if ( nValue == 1 ) {
+		updateRecentUsedSongList();
 	}
 }
 

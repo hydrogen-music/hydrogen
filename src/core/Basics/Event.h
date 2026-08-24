@@ -191,6 +191,10 @@ public:
 			 * the very end of the song in song mode.
 			 */
 			Relocation,
+			/** Tells the GUI to save the current Preferences to disk. Used when
+			 * the editor needs to persist geometry or other GUI-specific
+			 * settings back to the Preferences file.*/
+			RequestPreferencesSave,
 			/** Another pattern was selected via MIDI or the GUI without
 			 * affecting the audio transport. While the selection in the former
 			 * case already happens in the GUI, this event will be used to tell

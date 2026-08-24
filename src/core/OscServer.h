@@ -662,8 +662,6 @@ class OscServer : public H2Core::Object<OscServer>
 		 * message.*/
 		void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->savePreferences().
-		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
 		 * \param argc Unused number of arguments passed by the OSC

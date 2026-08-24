@@ -1581,6 +1581,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->relocationEvent();
 				break;
 
+			case Event::Type::RequestPreferencesSave:
+				ppEventListener->requestPreferencesSaveEvent();
+				break;
+
 			case Event::Type::SelectedPatternChanged:
 				ppEventListener->selectedPatternChangedEvent();
 				break;

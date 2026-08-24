@@ -1588,17 +1588,15 @@ bool CoreActionController::setPreferences(
 
 bool CoreActionController::savePreferences()
 {
-
-	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Headless ) {
-		// Update the status bar and let the GUI save the preferences
-		// (after writing its current settings to disk).
-		m_pHydrogen->getEventQueue()->pushEvent(
-			Event::Type::UpdatePreferences, 0
-		);
-		return true;
+	if ( !m_pHydrogen->getPreferences()->save() ) {
+		ERRORLOG( "Unable to save preferences" );
+		return false;
 	}
 
-	return m_pHydrogen->getPreferences()->save();
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::UpdatePreferences, 0
+	);
+	return true;
 }
 
 bool CoreActionController::quit()

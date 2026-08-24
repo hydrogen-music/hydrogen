@@ -89,14 +89,15 @@ class MainForm :  public QMainWindow,
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void quitEvent( int ) override;
 
+		void requestPreferencesSaveEvent() override;
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
 		 *
 		 * If \a nValue is
-		 *  - `0`: H2Core::Preferences should be saved
+		 *  - `0`: H2Core::Preferences was saved.
 		 *  - `1`: H2Core::Preferences has been reloaded. Update its
 		 *    representation. */
-		virtual void updatePreferencesEvent( int nValue ) override;
+		void updatePreferencesEvent( int nValue ) override;
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 

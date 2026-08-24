@@ -250,10 +250,7 @@ int NsmClient::SaveCallback( char** outMsg, void* userData ) {
 		NsmClient::printError( "Unable to save Song!" );
 		return ERR_GENERAL;
 	}
-	if ( ! pHydrogen->getCoreActionController()->savePreferences() ) {
-		NsmClient::printError( "Unable to save Preferences!" );
-		return ERR_GENERAL;
-	}
+	pHydrogen->requestPreferencesSave();
 
 	NsmClient::printMessage( "Song and Preferences saved!" );
 

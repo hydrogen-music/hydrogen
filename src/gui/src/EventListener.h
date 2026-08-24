@@ -74,6 +74,7 @@ class EventListener
 		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void recordingModeChangedEvent(){}
 		virtual void relocationEvent(){}
+		virtual void requestPreferencesSaveEvent() {}
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
 		virtual void songModeActivationEvent(){}

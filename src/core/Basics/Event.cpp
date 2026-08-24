@@ -102,6 +102,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "RecordModeChanged";
 	case Event::Type::Relocation:
 		return "Relocation";
+	case Event::Type::RequestPreferencesSave:
+		return "RequestPreferencesSave";
 	case Event::Type::SelectedInstrumentChanged:
 		return "SelectedInstrumentChanged";
 	case Event::Type::SelectedPatternChanged:

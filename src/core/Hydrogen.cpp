@@ -1863,6 +1863,20 @@ void Hydrogen::updateVirtualPatterns( Event::Trigger trigger ) {
 	}
 }
 
+void Hydrogen::requestPreferencesSave() {
+	// When connected via IPC we do not need to request the GUI to perform the
+	// save, because it only sends the core props of Preferences anyway (see
+	// #H2Core::Preferences::corePropsToXml()).
+	if ( m_ProcessMode != H2Core::ProcessMode::Headless ) {
+		m_pEventQueue->pushEvent(
+			Event::Type::RequestPreferencesSave, 0
+		);
+	}
+	else {
+		m_pCoreActionController->savePreferences();
+	}
+}
+
 QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 
 	QString s = Base::sPrintIndention;
