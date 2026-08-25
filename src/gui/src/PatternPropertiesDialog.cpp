@@ -79,7 +79,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
 	);
 
-	resize( 657, 542 );
+	resize( 697, 602 );
 
 	// Overall layout
 	auto pOverallLayout = new QVBoxLayout( this );
@@ -92,25 +92,26 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	pOverallLayout->addWidget( pScrollArea );
 
 	auto pScrollAreaContent = new QWidget( pScrollArea );
-	pScrollAreaContent->setMinimumSize( 652, 534 );
-	pScrollAreaContent->setStyleSheet(
-		QString( "\
-QWidget#PatternPropsFormContainer {				\
-    background-color: %1;						\
-}" )
-			.arg( pPref->getColorTheme()->m_midLightColor.name() )
-	);
+	pScrollAreaContent->setMinimumSize( 692, 594 );
 	pScrollArea->setWidget( pScrollAreaContent );
 
 	auto pOuterLayout = new QVBoxLayout();
 	pScrollAreaContent->setLayout( pOuterLayout );
 
-	auto pFormContainer = new QWidget( pScrollAreaContent );
+	auto pTabWidget = new QTabWidget( pScrollAreaContent );
+	pTabWidget->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Expanding
+	);
+	pOuterLayout->addWidget( pTabWidget );
+
+	// ---- General tab ----
+	auto pFormContainer = new QWidget( pTabWidget );
 	pFormContainer->setObjectName( "PatternPropsFormContainer" );
 	pFormContainer->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Expanding
 	);
-	pOuterLayout->addWidget( pFormContainer );
+	pTabWidget->addTab( pFormContainer, QString() );
+	pTabWidget->setTabText( 0, pCommonStrings->getTabGeneralDialog() );
 
 	auto pGridLayout = new QGridLayout( pFormContainer );
 	pFormContainer->setLayout( pGridLayout );
