@@ -2477,6 +2477,10 @@ void MainForm::action_file_export_midi()
 void MainForm::action_file_export_lilypond()
 {
 	auto pPref = HydrogenApp::pPreferences();
+	auto pSong = HydrogenApp::pEngine()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 
 	if ( HydrogenApp::pEngine()->getAudioEngine()->getState() ==
 		 H2Core::AudioEngine::State::Playing ) {
@@ -2500,6 +2504,7 @@ void MainForm::action_file_export_lilypond()
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( tr( "LilyPond file (*.ly)" ) );
 	fd.setDirectory( sPath );
+	fd.selectFile( pSong->getName() + ".ly" );
 	fd.setWindowTitle( tr( "Export LilyPond file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
@@ -2513,8 +2518,6 @@ void MainForm::action_file_export_lilypond()
 		if ( sFileName.endsWith( ".ly" ) == false ) {
 			sFileName += ".ly";
 		}
-
-		std::shared_ptr<Song> pSong = HydrogenApp::pEngine()->getSong();
 
 		LilyPond ly;
 		ly.extractData( *pSong );
