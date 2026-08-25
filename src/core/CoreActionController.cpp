@@ -43,6 +43,7 @@
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/H2Project.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/IO/AlsaMidiDriver.h>
@@ -1357,12 +1358,19 @@ std::shared_ptr<Song> CoreActionController::loadSong(
 {
 	// Check whether the provided path is valid.
 	if ( sPath != Filesystem::emptyPath( Filesystem::Artifact::Song ) &&
-		 !Filesystem::isPathValid( Filesystem::Artifact::Song, sPath, true ) ) {
+		 !Filesystem::isPathValid(
+			 Filesystem::Artifact::Song, sPath, true, true
+		 ) &&
+		 !Filesystem::isPathValid(
+			 Filesystem::Artifact::Project, sPath, true, true
+		 ) ) {
 		// Filesystem::isPathValid takes care of the error log message.
 		return nullptr;
 	}
 
 	std::shared_ptr<Song> pSong;
+	// The autosave file code path is only relevant for actual .h2song files.
+	// Not .h2projects.
 	if ( !sRecoverPath.isEmpty() &&
 		 Filesystem::isPathValid(
 			 Filesystem::Artifact::Song, sRecoverPath, true
@@ -1383,8 +1391,9 @@ std::shared_ptr<Song> CoreActionController::loadSong(
 		}
 	}
 
+	// We are agnostic here and do load either .h2song or .h2project files.
 	if ( pSong == nullptr ) {
-		pSong = Song::load( sPath, false, m_pHydrogen );
+		pSong = H2Project::openSong( sPath, m_pHydrogen, false );
 	}
 
 	if ( pSong == nullptr ) {

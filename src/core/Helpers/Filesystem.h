@@ -95,7 +95,9 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		/** A .h2playlist file. */
 		Playlist,
 		/** A .h2song file. */
-		Song
+		Song,
+		/** A .h2project file. */
+		Project
 	};
 	static QString ArtifactToQString( const Artifact& actifact );
 
@@ -132,6 +134,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static const QString sPlaylistSuffix;
 	static const QString sScriptSuffix;
 	static const QString sSongSuffix;
+	static const QString sProjectSuffix;
 	static const QString sThemeSuffix;
 
 	static const QString sDrumkitFilter;
@@ -139,6 +142,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static const QString sPlaylistFilter;
 	static const QString sScriptFilter;
 	static const QString sSongFilter;
+	static const QString sProjectFilter;
 	static const QString sThemeFilter;
 
 	/**
@@ -325,7 +329,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static bool isPathValid(
 		const Artifact& artifact,
 		const QString& sPath,
-		bool bCheckExistance = false
+		bool bCheckExistance = false,
+		bool bSilent = false
 	);
 
 	/**

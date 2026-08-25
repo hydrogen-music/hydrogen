@@ -385,6 +385,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	const QString& getEncodingError() const { return m_sEncodingError; }
 
+	const QString& getHydrogenProject() const { return m_sHydrogenProject; }
+	const QString& getExportProject() const { return m_sExportProject; }
+	const QString& getExportProjectFailure() const { return m_sExportProjectFailure; }
 	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
 	const QString& getExportDrumkitFailure() const
 	{
@@ -937,6 +940,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sInputCaptureFilterCutoff;
 	QString m_sInputCaptureTag;
 
+	QString m_sHydrogenProject;
+	QString m_sExportProject;
+	QString m_sExportProjectFailure;
 	QString m_sExportSongFailure;
 	QString m_sExportDrumkitFailure;
 	QString m_sImportDrumkitSuccess;

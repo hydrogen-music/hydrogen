@@ -119,6 +119,7 @@ All notable changes to this project will be documented in this file.
   headless mode.
   - new CLI option `-i/--interactive` flag for keyboard-controlled mode (can be
   combined with IPC server for simultaneous keyboard and GUI control).
+- A song and all its samples can now be stored and loaded from a self-contained `.h2project` file (#272).
 
 ### Changed
 

@@ -555,6 +555,13 @@ CommonStrings::CommonStrings(){
 	  text content for a new tag. */
 	m_sInputCaptureTag = tr( "Tag Text" );
 	
+	/*: Used as file type filter for .h2project files. */
+	m_sHydrogenProject = tr( "Hydrogen Project" );
+	/*: Menu action to export the current song as a self-contained .h2project
+	 *  bundle (song + embedded samples). */
+	m_sExportProject = tr( "Export Project" );
+	/*: Shown in a dialog on .h2project export failure. */
+	m_sExportProjectFailure = tr( "Unable to export project" );
 	/*: Shown in a dialog on export failure. */
 	m_sExportSongFailure = tr( "Unable to export song" );
 	m_sExportDrumkitFailure = tr( "Unable to export drumkit" );

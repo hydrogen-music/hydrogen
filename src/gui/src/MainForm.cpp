@@ -35,6 +35,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/H2Project.h>
 #include <core/H2Exception.h>
 #include <core/Hydrogen.h>
 #include <core/Lilipond/Lilypond.h>
@@ -374,6 +375,10 @@ void MainForm::createMenuBar()
 		tr( "&Export Song" ), this, SLOT( action_file_export() ) );
 	pActionExportSong->setShortcut(
 		pShortcuts->getKeySequence( Shortcuts::Action::ExportSong ) );
+	auto pActionExportProject = m_pFileMenu->addAction(
+		pCommonStrings->getExportProject(), this, SLOT( action_file_export_project() ) );
+	pActionExportProject->setShortcut(
+		pShortcuts->getKeySequence( Shortcuts::Action::ExportProject ) );
 	auto pActionExportLilyPond = m_pFileMenu->addAction(
 		tr( "Export &LilyPond File" ), this, SLOT( action_file_export_lilypond() ) );
 	pActionExportLilyPond->setShortcut(
@@ -974,12 +979,18 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 	}
 	
 	auto pHydrogen = HydrogenApp::pHydrogen();
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	FileDialog fd(this);
 	fd.setAcceptMode( QFileDialog::AcceptOpen );
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setDirectory( sPath );
-	fd.setNameFilter( Filesystem::sSongFilter );
+	fd.setNameFilters(
+		QStringList() << Filesystem::sSongFilter
+					  << QString( "%1 %2" )
+							 .arg( pCommonStrings->getHydrogenProject() )
+							 .arg( Filesystem::sProjectFilter )
+	);
 	fd.setWindowTitle( sWindowTitle );
 
 	QString sFileName;
@@ -2154,6 +2165,64 @@ void MainForm::action_file_export()
 	ExportSongDialog *dialog = new ExportSongDialog(this);
 	dialog->exec();
 	delete dialog;
+}
+
+void MainForm::action_file_export_project() {
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+	auto pPref = HydrogenApp::pPreferences();
+
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	auto pSong = pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+
+	// Default to the song's name with .h2project extension in the last used
+	// export directory (or the user-level songs folder).
+	QString sDir = pPref->getLastExportSongDirectory();
+	if ( sDir.isEmpty() ) {
+		sDir = Filesystem::userSongsDir();
+	}
+	const QString sDefaultName = QString( "%1%2" )
+		.arg( pSong->getName() )
+		.arg( Filesystem::sProjectSuffix );
+
+	FileDialog dialog( this );
+	dialog.setWindowTitle( pCommonStrings->getExportProject() );
+	dialog.setFileMode( FileDialog::AnyFile );
+	dialog.setAcceptMode( FileDialog::AcceptSave );
+	dialog.setNameFilter( QString( "%1 (*%2)" )
+							  .arg( pCommonStrings->getHydrogenProject() )
+							  .arg( Filesystem::sProjectSuffix ) );
+	dialog.setDirectory( sDir );
+	dialog.selectFile( sDefaultName );
+
+	if ( dialog.exec() != QDialog::Accepted ) {
+		return;
+	}
+
+	QString sPath = dialog.selectedFiles().value( 0 );
+	if ( sPath.isEmpty() ) {
+		return;
+	}
+
+	pPref->setLastExportSongDirectory( QFileInfo( sPath ).absolutePath() );
+
+	QApplication::setOverrideCursor( Qt::WaitCursor );
+	bool bOk = H2Project::save( pSong, sPath, false );
+	QApplication::restoreOverrideCursor();
+
+	if ( bOk ) {
+		QMessageBox::information(
+			this, "Hydrogen",
+			QString( "%1 [%2]" ).arg( tr( "Project exported to" ) )
+				.arg( sPath ) );
+	}
+	else {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			pCommonStrings->getExportProjectFailure() );
+	}
 }
 
 
@@ -3611,6 +3680,9 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 		break;
 	case Shortcuts::Action::ExportSong:
 		action_file_export();
+		break;
+	case Shortcuts::Action::ExportProject:
+		action_file_export_project();
 		break;
 	case Shortcuts::Action::ExportMIDI:
 		action_file_export_midi();

@@ -28,6 +28,8 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/H2Project.h>
 #include <core/Hydrogen.h>
 #include <core/Lilipond/Lilypond.h>
 #include <core/Logger.h>
@@ -306,6 +308,15 @@ void EditorPathExerciser::exerciseNextAction()
 			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateSongs(
 				Event::Trigger::Default
 			);
+			Filesystem::rm( sTmpFile );
+			break;
+		}
+
+		case Shortcuts::Action::ExportProject: {
+			const QString sTmpFile = Filesystem::tmpFilePath(
+				"editor-path-exerciser-export-project.h2project"
+			);
+			H2Project::save( HydrogenApp::pHydrogen()->getSong(), sTmpFile, true );
 			Filesystem::rm( sTmpFile );
 			break;
 		}

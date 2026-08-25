@@ -177,6 +177,7 @@ class MainForm :  public QMainWindow,
 		void action_file_exit();
 
 		void action_file_export();
+		void action_file_export_project();
 		void action_file_export_midi();
 		void action_file_export_lilypond();
 		void action_file_songProperties();

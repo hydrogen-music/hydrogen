@@ -104,6 +104,7 @@ Logger* Filesystem::m_pLogger = nullptr;
 
 const QString Filesystem::sScriptSuffix = ".sh";
 const QString Filesystem::sSongSuffix = ".h2song";
+const QString Filesystem::sProjectSuffix = ".h2project";
 const QString Filesystem::sThemeSuffix = ".h2theme";
 const QString Filesystem::sPatternSuffix = ".h2pattern";
 const QString Filesystem::sPlaylistSuffix = ".h2playlist";
@@ -112,6 +113,7 @@ const QString Filesystem::sDrumkitMapSuffix = ".h2map";
 const QString Filesystem::sScriptFilter = "Hydrogen Scripts (*.sh)";
 const QString Filesystem::sDrumkitFilter = "Hydrogen Drumkit (*.h2drumkit)";
 const QString Filesystem::sSongFilter = "Hydrogen Songs (*.h2song)";
+const QString Filesystem::sProjectFilter = QString( "(*%1)" ).arg( Filesystem::sProjectSuffix );
 const QString Filesystem::sThemeFilter = "Hydrogen Theme (*.h2theme)";
 const QString Filesystem::sPatternFilter = "Hydrogen Patterns (*.h2pattern)";
 const QString Filesystem::sPlaylistFilter = "Hydrogen Playlists (*.h2playlist)";
@@ -1083,7 +1085,8 @@ QString Filesystem::drumkitBackupPath( const QString& sDrumkitPath )
 bool Filesystem::isPathValid(
 	const Artifact& artifact,
 	const QString& sPath,
-	bool bCheckExistance
+	bool bCheckExistance,
+	bool bSilent
 )
 {
 	QString sExtension;
@@ -1103,10 +1106,15 @@ bool Filesystem::isPathValid(
 		case Artifact::Song:
 			sExtension = Filesystem::sSongSuffix;
 			break;
+		case Artifact::Project:
+			sExtension = Filesystem::sProjectSuffix;
+			break;
 
 		default:
-			ERRORLOG( QString( "Unsupported file type: [%1]" )
-						  .arg( ArtifactToQString( artifact ) ) );
+			if ( !bSilent ) {
+				ERRORLOG( QString( "Unsupported file type: [%1]" )
+							  .arg( ArtifactToQString( artifact ) ) );
+			}
 			return "";
 	}
 	QString suffix( sExtension );
@@ -1115,46 +1123,55 @@ bool Filesystem::isPathValid(
 	QFileInfo fileInfo = QFileInfo( sPath );
 
 	if ( !fileInfo.isAbsolute() ) {
-		ERRORLOG( QString( "Error: Unable to handle sPath [%1]. Please provide "
-						   "an absolute file sPath!" )
-					  .arg( sPath ) );
+		if ( !bSilent ) {
+			ERRORLOG(
+				QString( "Error: Unable to handle sPath [%1]. Please provide "
+						 "an absolute file sPath!" )
+					.arg( sPath )
+			);
+		}
 		return false;
 	}
 
 	if ( fileInfo.exists() ) {
 		if ( !fileInfo.isReadable() ) {
-			ERRORLOG( QString( "Unable to handle sPath [%1]. You must have "
-							   "permissions to read the file!" )
-						  .arg( sPath ) );
+			if ( !bSilent ) {
+				ERRORLOG( QString( "Unable to handle sPath [%1]. You must have "
+								   "permissions to read the file!" )
+							  .arg( sPath ) );
+			}
 			return false;
 		}
 	}
 	else if ( bCheckExistance ) {
-		ERRORLOG( QString( "Provided %1 [%2] does not exist" )
-					  .arg( ArtifactToQString( artifact ) )
-					  .arg( sPath ) );
+		if ( !bSilent ) {
+			ERRORLOG( QString( "Provided %1 [%2] does not exist" )
+						  .arg( ArtifactToQString( artifact ) )
+						  .arg( sPath ) );
+		}
 		return false;
 	}
 
 	if ( fileInfo.suffix() != suffix ) {
-		ERRORLOG(
-			QString( "Unable to handle sPath [%1]. The provided file must "
-					 "have the suffix '%2'!" )
-				.arg( sPath )
-				.arg( sExtension )
-		);
+		if ( !bSilent ) {
+			ERRORLOG(
+				QString( "Unable to handle sPath [%1]. The provided file must "
+						 "have the suffix '%2'!" )
+					.arg( sPath )
+					.arg( sExtension )
+			);
+		}
 		return false;
 	}
 
 	if ( artifact == Artifact::DrumkitExtracted &&
 		 fileInfo.fileName() != DRUMKIT_XML ) {
-		ERRORLOG(
-			QString(
-				"Provided drumkit definition [%1] must be called [%2] instead"
-			)
-				.arg( fileInfo.fileName() )
-				.arg( DRUMKIT_XML )
-		);
+		if ( !bSilent ) {
+			ERRORLOG( QString( "Provided drumkit definition [%1] must be "
+							   "called [%2] instead" )
+						  .arg( fileInfo.fileName() )
+						  .arg( DRUMKIT_XML ) );
+		}
 		return false;
 	}
 
@@ -1468,6 +1485,8 @@ QString Filesystem::ArtifactToQString( const Artifact& type )
 			return "Playlist";
 		case Artifact::Song:
 			return "Song";
+		case Artifact::Project:
+			return "Project";
 		default:
 			return QString( "Unknown artifact [%1]" )
 				.arg( static_cast<int>( type ) );

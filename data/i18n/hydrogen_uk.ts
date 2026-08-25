@@ -1911,6 +1911,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Error dialog shown when connecting to a remote headless engine fails. * The endpoint is appended via concatenation.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Hydrogen Project</source>
+        <extracomment>Used as file type filter for .h2project files.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Project</source>
+        <extracomment>Menu action to export the current song as a self-contained .h2project * bundle (song + embedded samples).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export project</source>
+        <extracomment>Shown in a dialog on .h2project export failure.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2862,6 +2877,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
     </message>
     <message>
         <source>&amp;Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Project exported to</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5565,6 +5584,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Count in and start/stop playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export song as self-contained .h2project bundle</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

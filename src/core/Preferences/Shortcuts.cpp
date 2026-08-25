@@ -521,6 +521,9 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::ExportSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export song to audio file" ) );
+	insertActionInfo( Shortcuts::Action::ExportProject, Category::MainMenu,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Export song as self-contained .h2project bundle" ) );
 	insertActionInfo( Shortcuts::Action::ExportMIDI, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export song to MIDI file" ) );
