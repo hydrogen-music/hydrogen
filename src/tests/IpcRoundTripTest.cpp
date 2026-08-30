@@ -333,8 +333,8 @@ void IpcRoundTripTest::testSongRoundTrip()
 	
 	// ── Serialization level: toXmlBuffer → fromXmlBuffer ──
 	auto pSongA = makeSong( pEngine );
-	const auto xml = pSongA->toXmlBuffer( true, false );
-	auto pSongB = Song::fromXmlBuffer( xml, false, pEngine );
+	const auto xml = pSongA->toXmlBuffer( true, true, false );
+	auto pSongB = Song::fromXmlBuffer( xml, true, false, pEngine );
 	CPPUNIT_ASSERT( pSongB != nullptr );
 	RoundTripAssertions::assertSongEqual( pSongA, pSongB );
 

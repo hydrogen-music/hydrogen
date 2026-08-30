@@ -136,7 +136,9 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 		return {};
 	}
 
-	const QByteArray songXml = pSong->toXmlBuffer( true, bSilent );
+	const QByteArray songXml = pSong->toXmlBuffer(
+		/*bKeepMissingSamples*/ true, /*bIpcXml*/ false, bSilent
+	);
 
 	// Collect the unique sample blobs (deduped by content hash) and a manifest
 	// mapping each (inst,comp,layer) slot to its blob entry.
@@ -267,7 +269,9 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 		return nullptr;
 	}
 
-	auto pSong = Song::fromXmlBuffer( entries[SONG_ENTRY], bSilent, pHydrogen );
+	auto pSong = Song::fromXmlBuffer(
+		entries[SONG_ENTRY], /*bIpcXml*/ false, bSilent, pHydrogen
+	);
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to reconstruct song from .h2project" );
 		return nullptr;
@@ -390,11 +394,13 @@ std::vector<unsigned char> H2Project::toState( std::shared_ptr<Song> pSong,
 	}
 
 	// Song-only: the .h2song XML; the kit must be installed to reload.
-	const QByteArray xml = pSong->toXmlBuffer( true, bSilent );
+	const QByteArray xml = pSong->toXmlBuffer(
+		/*bKeepMissingSamples*/ true, /*bIpcXml*/ true, bSilent
+	);
 	return std::vector<unsigned char>(
 		reinterpret_cast<const unsigned char*>( xml.constData() ),
-		reinterpret_cast<const unsigned char*>( xml.constData() ) +
-			xml.size() );
+		reinterpret_cast<const unsigned char*>( xml.constData() ) + xml.size()
+	);
 }
 
 std::shared_ptr<Song> H2Project::fromState(
@@ -412,7 +418,7 @@ std::shared_ptr<Song> H2Project::fromState(
 	const QByteArray xml(
 		reinterpret_cast<const char*>( data.data() ),
 		static_cast<int>( data.size() ) );
-	return Song::fromXmlBuffer( xml, bSilent, pHydrogen );
+	return Song::fromXmlBuffer( xml, /*bIpcXml*/true, bSilent, pHydrogen );
 }
 
 bool H2Project::looksLikeArchive( const std::vector<unsigned char>& data ) {

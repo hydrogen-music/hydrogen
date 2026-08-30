@@ -261,7 +261,8 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent,
 	return pSong;
 }
 
-QByteArray Song::toXmlBuffer( bool bKeepMissingSamples, bool bSilent ) const
+QByteArray
+Song::toXmlBuffer( bool bKeepMissingSamples, bool bIpcXml, bool bSilent ) const
 {
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "song" );
@@ -272,12 +273,13 @@ QByteArray Song::toXmlBuffer( bool bKeepMissingSamples, bool bSilent ) const
 		);
 	}
 
-	saveTo( rootNode, bKeepMissingSamples, true, bSilent );
+	saveTo( rootNode, bKeepMissingSamples, bIpcXml, bSilent );
 
 	return doc.toByteArray();
 }
 
 std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
+										   bool bIpcXml,
 										   bool bSilent,
 										   Hydrogen* pHydrogen )
 {
@@ -295,7 +297,7 @@ std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
 
 	const QString sPath =
 		songNode.read_string( "ipc-path", "", false, false, false );
-	auto pSong = Song::loadFrom( songNode, sPath, true, bSilent, pHydrogen );
+	auto pSong = Song::loadFrom( songNode, sPath, bIpcXml, bSilent, pHydrogen );
 
 	return pSong;
 }
