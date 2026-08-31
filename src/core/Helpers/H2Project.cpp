@@ -300,10 +300,12 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 		const QString sKey = QString( "%1/%2/%3" ).arg( ii ).arg( cc ).arg( ll );
 		auto itSlot = slotToEntry.find( sKey );
 		if ( itSlot == slotToEntry.end() ) {
+			ERRORLOG( QString( "Couldn't find slot [%1]" ).arg( sKey ) );
 			return;
 		}
 		auto itData = entries.find( itSlot->second );
 		if ( itData == entries.end() ) {
+			ERRORLOG( QString( "Couldn't find data [%1]" ).arg( itSlot->second ) );
 			return;
 		}
 		const QByteArray& bytes = itData->second;
