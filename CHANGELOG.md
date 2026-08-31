@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
   - `.h2song`, in which the playback track will be stored as a full-blown
     instrument and the `<tags>` node introduced.
   - drumkits, in the `<tags>` node will be introduced.
+- Swedish translation updated by @yeager.
 
 ### Changed
 
