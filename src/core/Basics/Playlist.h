@@ -147,8 +147,8 @@ class Playlist : public H2Core::Object<Playlist>
 
 	private:
 	 static std::shared_ptr<Playlist>
-	 load_from( const XMLNode& root, const QString& sPath, bool bIpcXml );
-	 void saveTo( XMLNode& node, bool bUseRelativePaths, bool bIpcXml ) const;
+	 load_from( const XMLNode& root, const QString& sPath, Xml::Flag flags );
+	 void saveTo( XMLNode& node, Xml::Flag flags ) const;
 
 	 void execScript( int index ) const;
 

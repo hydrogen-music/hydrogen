@@ -27,6 +27,7 @@
 #include <vector>
 
 #include <core/Basics/Instrument.h>
+#include <core/Helpers/Xml.h>
 #include <core/License.h>
 #include <core/Object.h>
 #include <core/Midi/Midi.h>
@@ -177,25 +178,13 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * save the instrument list within the given XMLNode
 		 *
 		 * \param node the XMLNode to feed
-		 * \param bSongKit Whether the instruments are part of a
-		 *   stand-alone kit or part of a song. In the latter case all samples
-		 *   located in the corresponding drumkit folder and are referenced by
-		 *   filenames. In the former case, each instrument might be
-		 *   associated with a different kit and the lookup folder for the
-		 *   samples are stored on a per-instrument basis.
-		 * @param bKeepMissingSamples Whether layers containing a missing sample
-		 *   should be kept or discarded.
-		 * @param bIpcXml When serializing the class to a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information.
+		 * \param flags OR-ed combination of #Xml::Flag options.
 		 * \param bSilent if set to true, all log messages except of errors and
 		 *   warnings are suppressed.
 		 */
 		void saveTo(
 			XMLNode& node,
-			bool bSongKit,
-			bool bKeepMissingSamples,
-			bool bIpcXml,
+			Xml::Flag flags,
 			bool bSilent
 		) const;
 
@@ -209,17 +198,9 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   instrument list is contained in. It is used to resolve sample
 		 *   paths relative to the .h2song file.
-		 * @param bIpcXml When deserializing the class from a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information.
+		 * @param flags OR-ed combination of #Xml::Flag options.
 		 * \param license License assigned to all Samples that will be
 		 *   loaded. If empty, the license will be read from @a dk_path.
-		 * @param bSongKit If true samples are loaded on a
-		 *   per-instrument basis. If the filename of the sample is a plain
-		 *   filename, it will be searched for in the folder associated with the
-		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
-		 *   (unique identifier locally). If it is an absolute path, it will be
-		 *   loaded directly.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
 		 *   XML elements requires legacy format support and left untouched
 		 *   otherwise.
@@ -233,9 +214,8 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		const QString& sDrumkitPath,
 		const QString& sDrumkitName,
 		const QString& sSongPath,
-		bool bIpcXml,
+		Xml::Flag flags,
 		const License& license,
-		bool bSongKit,
 		bool* pLegacyFormatEncountered,
 		bool bSilent,
 		Hydrogen* pHydrogen );

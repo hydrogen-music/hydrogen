@@ -333,8 +333,9 @@ void IpcRoundTripTest::testSongRoundTrip()
 	
 	// ── Serialization level: toXmlBuffer → fromXmlBuffer ──
 	auto pSongA = makeSong( pEngine );
-	const auto xml = pSongA->toXmlBuffer( true, true, false );
-	auto pSongB = Song::fromXmlBuffer( xml, true, false, pEngine );
+	const auto xml = pSongA->toXmlBuffer(
+		Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, false );
+	auto pSongB = Song::fromXmlBuffer( xml, Xml::Flag::Ipc, false, pEngine );
 	CPPUNIT_ASSERT( pSongB != nullptr );
 	RoundTripAssertions::assertSongEqual( pSongA, pSongB );
 
@@ -380,8 +381,10 @@ void IpcRoundTripTest::testDrumkitRoundTrip()
 
 	// ── Serialization level ──
 	auto pKitA = makeDrumkit( pEngine );
-	const auto xml = pKitA->toXmlBuffer( true /* bSongKit */ );
-	auto pKitB = Drumkit::fromXmlBuffer( xml, "", true, false, pEngine );
+	const auto xml = pKitA->toXmlBuffer(
+		Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples );
+	auto pKitB =
+		Drumkit::fromXmlBuffer( xml, "", Xml::Flag::SongKit, false, pEngine );
 	CPPUNIT_ASSERT( pKitB != nullptr );
 	RoundTripAssertions::assertDrumkitEqual( pKitA, pKitB );
 
@@ -442,9 +445,10 @@ void IpcRoundTripTest::testInstrumentRoundTrip()
 
 	// ── Serialization level ──
 	auto pInstrA = makeInstrument( pEngine );
-	const auto xml = pInstrA->toXmlBuffer( true /* bSongKit */, true, false );
+	const auto xml = pInstrA->toXmlBuffer(
+		Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples, false );
 	auto pInstrB =
-		Instrument::fromXmlBuffer( xml, true /* bSongKit */, false, pEngine );
+		Instrument::fromXmlBuffer( xml, Xml::Flag::SongKit, false, pEngine );
 	CPPUNIT_ASSERT( pInstrB != nullptr );
 	RoundTripAssertions::assertInstrumentEqual( pInstrA, pInstrB );
 

@@ -101,7 +101,7 @@ void XmlTest::testDrumkitFormatIntegrity() {
 	// function.
 	H2Core::XMLDoc doc;
 	H2Core::XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
-	pDrumkit->saveTo( root, false, true, false );
+	pDrumkit->saveTo( root, Xml::Flag::KeepMissingSamples );
 
 	CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 
@@ -560,7 +560,7 @@ void XmlTest::testShippedDrumkits()
 		root.appendChild( doc.createComment(
 			H2Core::License::getGPLLicenseNotice( pDrumkit->getAuthor() )
 		) );
-		pDrumkit->saveTo( root, false, true, false );
+		pDrumkit->saveTo( root, Xml::Flag::KeepMissingSamples );
 
 		CPPUNIT_ASSERT( doc.write( sTmpDrumkitXml ) );
 

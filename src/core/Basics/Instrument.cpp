@@ -182,18 +182,18 @@ std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample,
 	return pInstrument;
 }
 
-QByteArray Instrument::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
-									bool bSilent )
+QByteArray Instrument::toXmlBuffer( Xml::Flag flags, bool bSilent )
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "instrument_buffer" );
-	saveTo( root, bSongKit, bKeepMissingSamples, true, bSilent );
+	saveTo( root, flags | Xml::Flag::Ipc, bSilent );
 
 	return doc.toByteArray();
 }
 
 std::shared_ptr<Instrument> Instrument::fromXmlBuffer(
-	const QByteArray& buffer, bool bSongKit, bool bSilent, Hydrogen* pHydrogen )
+	const QByteArray& buffer, Xml::Flag flags, bool bSilent,
+	Hydrogen* pHydrogen )
 {
 	XMLDoc doc;
 	if ( ! doc.setContent( buffer ) ) {
@@ -216,7 +216,8 @@ std::shared_ptr<Instrument> Instrument::fromXmlBuffer(
 	return loadFrom(
 		instrumentNode, sDrumkitPath,
 		instrumentNode.read_string( "drumkit", "", false, false, false ), "",
-		true, License(), bSongKit, &bLegacyFormatEncountered, bSilent, pHydrogen
+		flags | Xml::Flag::Ipc, License(), &bLegacyFormatEncountered, bSilent,
+		pHydrogen
 	);
 }
 
@@ -225,9 +226,8 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
-	bool bIpcXml,
+	Xml::Flag flags,
 	const License& license,
-	bool bSongKit,
 	bool* pLegacyFormatEncountered,
 	bool bSilent,
 	Hydrogen* pHydrogen
@@ -259,7 +259,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->setType( node.read_string( "type", "", true, true, bSilent ) );
 
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
-	if ( bSongKit ) {
+	if ( flags & Xml::Flag::SongKit ) {
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName =
@@ -516,7 +516,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		while ( !componentNode.isNull() ) {
 			auto ppComponent = InstrumentComponent::loadFrom(
 				componentNode, pInstrument->getDrumkitPath(), sSongPath,
-				bIpcXml, instrumentLicense, bSilent, pHydrogen
+				flags, instrumentLicense, bSilent, pHydrogen
 			);
 			if ( ppComponent != nullptr ) {
 				componentsLoaded.push_back( ppComponent );
@@ -590,7 +590,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->checkForMissingSamples(
 		Event::Trigger::Suppress, pHydrogen );
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		// Additional members not present in files written to disk but required
 		// for IPC.
 		pInstrument->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
@@ -647,9 +647,7 @@ void Instrument::unloadSamples()
 
 void Instrument::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	bool bKeepMissingSamples,
-	bool bIpcXml,
+	Xml::Flag flags,
 	bool bSilent )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
@@ -658,7 +656,7 @@ void Instrument::saveTo(
 
 	InstrumentNode.write_string( "type", m_type );
 
-	if ( bSongKit || bIpcXml ) {
+	if ( flags & ( Xml::Flag::SongKit | Xml::Flag::Ipc ) ) {
 		InstrumentNode.write_string( "drumkitPath", m_sDrumkitPath );
 		InstrumentNode.write_string( "drumkit", m_sDrumkitName );
 	}
@@ -710,8 +708,7 @@ void Instrument::saveTo(
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
 			pComponent->saveTo(
-				InstrumentNode, bSongKit, bKeepMissingSamples, m_sDrumkitPath, bIpcXml,
-				bSilent
+				InstrumentNode, flags, m_sDrumkitPath, bSilent
 			);
 		}
 		else {
@@ -728,7 +725,7 @@ void Instrument::saveTo(
 
 	// Additional members not present in files written to disk but required for
 	// IPC.
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		InstrumentNode.write_uuid( "ipc-uuid", getUuid() );
 		InstrumentNode.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
 		bool bSamplesLoaded = false;

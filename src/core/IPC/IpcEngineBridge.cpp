@@ -149,7 +149,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		return false;
 	case IpcOpcode::SetSong: {
 		auto pSong = Song::fromXmlBuffer(
-			msg.getPayload(), /*bIpcXml*/ true, true, pHydrogen
+			msg.getPayload(), Xml::Flag::Ipc, true, pHydrogen
 		);
 		if ( pSong == nullptr ) {
 			return false;
@@ -507,8 +507,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		}
 		return false;
  	case IpcOpcode::SetDrumkit: {
-		auto pDrumkit = Drumkit::fromXmlBuffer( msg.getPayload(), "", true, true,
-												pHydrogen );
+		auto pDrumkit = Drumkit::fromXmlBuffer(
+			msg.getPayload(), "", Xml::Flag::SongKit, true, pHydrogen );
 		if ( pDrumkit == nullptr ) {
 			return false;
 		}
@@ -532,8 +532,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			 pHydrogen->getSong()->getDrumkit() == nullptr ) {
 			return false;
 		}
-		auto pNewInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true,
-														 true, pHydrogen );
+		auto pNewInstrument = Instrument::fromXmlBuffer(
+			msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
 		auto pOldInstrument =
 			pHydrogen->getSong()->getDrumkit()->getInstruments()->find(
 				static_cast<Instrument::Id>( args[0].toInt() ) );
@@ -547,8 +547,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( args.size() < 2 ) {
 			return false;
 		}
-		auto pInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true, true,
-													  pHydrogen );
+		auto pInstrument = Instrument::fromXmlBuffer(
+			msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
 		if ( pInstrument == nullptr ) {
 			return false;
 		}
@@ -561,8 +561,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( args.size() < 1 ) {
 			return false;
 		}
-		auto pInstrument = Instrument::fromXmlBuffer( msg.getPayload(), true, true,
-													  pHydrogen );
+		auto pInstrument = Instrument::fromXmlBuffer(
+			msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
 		if ( pInstrument == nullptr ) {
 			return false;
 		}

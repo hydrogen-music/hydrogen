@@ -118,7 +118,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
-	bool bIpcXml,
+	Xml::Flag flags,
 	const License& drumkitLicense,
 	bool bSilent,
 	Hydrogen* pHydrogen )
@@ -204,7 +204,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	if ( ! sFilePath.isEmpty() && Filesystem::fileExists( sFilePath, true ) ) {
 		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
 
-		if ( bIpcXml ) {
+		if ( flags & Xml::Flag::Ipc ) {
 			pSample->setLicense( License( node.read_string(
 				"license", drumkitLicense.getLicenseString(), true, false, true
 			) ) );
@@ -291,7 +291,7 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 		"isSoloed", pLayer->m_bIsSoloed, true, false, true );
 	pLayer->m_sFallbackSampleFileName = sFileName;
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		pLayer->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
 		if ( pSample != nullptr ) {
 			pLayer->setUuid(
@@ -305,9 +305,8 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 
 void InstrumentLayer::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	const QString& sDrumkitPath,
-	bool bIpcXml
+	Xml::Flag flags,
+	const QString& sDrumkitPath
 ) const
 {
 	auto pSample = getSample();
@@ -316,7 +315,7 @@ void InstrumentLayer::saveTo(
 
 	QString sFileName;
 	if ( pSample != nullptr ) {
-		if ( bSongKit ) {
+		if ( flags & Xml::Flag::SongKit ) {
 			if ( !sDrumkitPath.isEmpty() ) {
 				sFileName = Filesystem::prepareSamplePath(
 					pSample->getFilePath(), sDrumkitPath
@@ -377,7 +376,7 @@ void InstrumentLayer::saveTo(
 		panNode.write_int( "pan-value", pan.nValue );
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		layer_node.write_uuid( "ipc-uuid", getUuid() );
 		layer_node.write_uuid( "uuid-sample", getUuid() );
 		layer_node.write_string(

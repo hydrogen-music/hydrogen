@@ -24,6 +24,7 @@
 #define H2C_INSTRUMENT_LAYER_H
 
 #include <core/Basics/Instrument.h>
+#include <core/Helpers/Xml.h>
 #include <core/Object.h>
 #include <core/License.h>
 
@@ -116,30 +117,18 @@ namespace H2Core
 		 * save the instrument layer within the given XMLNode
 		 *
 		 * \param node the XMLNode to feed
-		 * \param bSongKit Whether the instrument is part of a
-		 *   stand-alone kit or part of a song. In the latter case all samples
-		 *   located in the corresponding drumkit folder and just their basenames
-		 *   are written. In the former case, each instrument might be
-		 *   associated with a different kit and the lookup folder for the
-		 *   samples are stored on a per-instrument basis. Whether the path of a
-		 *   sample points to a location within a drumkit folder will determine
-		 *   whether just the basename or - if not - the absolute path will be
-		 *   stored.
+		 * \param flags OR-ed combination of #Xml::Flag options.
 		 * @param sDrumkitPath When adding samples via the ComponentEditor to an
 		 *   instrument (layer) they are stored absolute paths. For portability
 		 *   we want to strip all paths corresponding to an installed drumkit
 		 *   and just store the file name. But we have to be careful to only do
 		 *   so for samples associated with the drumkit of the parent
 		 *   instrument.
-		 * @param bIpcXml When serializing the class to a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information.
 		 */
 		void saveTo(
 			XMLNode& node,
-			bool bSongKit = false,
-			const QString& sDrumkitPath = "",
-			bool bIpcXml = false
+			Xml::Flag flags = Xml::Flag::None,
+			const QString& sDrumkitPath = ""
 		) const;
 
 		/**
@@ -151,9 +140,7 @@ namespace H2Core
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   instrument layer is contained in. It is used to resolve sample
 		 *   paths relative to the .h2song file.
-		 * @param bIpcXml When deserializing the class from a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information.
+		 * @param flags OR-ed combination of #Xml::Flag options.
 		 * \param drumkitLicense License assigned to all #Sample
 		 *   contain in the loaded #InstrumentLayer.
 		 * \param bSilent if set to true, all log messages except of
@@ -164,7 +151,7 @@ namespace H2Core
 		static std::shared_ptr<InstrumentLayer> loadFrom( const XMLNode& pNode,
 														  const QString& sDrumkitPath,
 														  const QString& sSongPath,
-														  bool bIpcXml,
+														  Xml::Flag flags,
 														  const License& drumkitLicense,
 														  bool bSilent,
 														  Hydrogen* pHydrogen );

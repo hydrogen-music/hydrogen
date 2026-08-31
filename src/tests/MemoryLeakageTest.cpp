@@ -365,8 +365,8 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "instrumentComponent" );
 		auto pInstrumentComponent = H2Core::InstrumentComponent::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "", false,
-			H2Core::License(), false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "",
+			H2Core::Xml::Flag::None, H2Core::License(), false, pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentComponent != nullptr );
 		pInstrumentComponent = nullptr;
@@ -380,8 +380,9 @@ void MemoryLeakageTest::testLoading()
 		) );
 		node = doc.firstChildElement( "instrument" );
 		auto pInstrument = H2Core::Instrument::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "", "", false,
-			H2Core::License(), false, nullptr, false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "", "",
+			H2Core::Xml::Flag::None, H2Core::License(), nullptr, false,
+			pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrument != nullptr );
 		pInstrument = nullptr;
@@ -396,8 +397,8 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "instrumentLayer" );
 		auto pInstrumentLayer = H2Core::InstrumentLayer::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "", false,
-			H2Core::License(), false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "",
+			H2Core::Xml::Flag::None, H2Core::License(), false, pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentLayer != nullptr );
 		pInstrumentLayer = nullptr;
@@ -412,8 +413,9 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
-			H2Core::License(), false, nullptr, false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "",
+			H2Core::Xml::Flag::None, H2Core::License(), nullptr, false,
+			pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		pInstrumentList = nullptr;
@@ -428,14 +430,15 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
-			H2Core::License(), false, nullptr, false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "",
+			H2Core::Xml::Flag::None, H2Core::License(), nullptr, false,
+			pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
 		auto pNote = H2Core::Note::
-			loadFrom( node, false /*bIpcXml*/, false /*bSilent*/ );
+			loadFrom( node, H2Core::Xml::Flag::None, false );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		pNote = nullptr;
 		pInstrumentList = nullptr;
@@ -450,13 +453,15 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
-			H2Core::License(), false, nullptr, false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "",
+			H2Core::Xml::Flag::None, H2Core::License(), nullptr, false,
+			pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		CPPUNIT_ASSERT( doc.read( H2TEST_FILE( "/memoryLeakage/note.xml" ) ) );
 		node = doc.firstChildElement( "note" );
-		auto pNote = H2Core::Note::loadFrom( node, false /*bIpcXml*/, false /*bSilent*/ );
+		auto pNote =
+			H2Core::Note::loadFrom( node, H2Core::Xml::Flag::None, false );
 		CPPUNIT_ASSERT( pNote != nullptr );
 		pNote = nullptr;
 		pInstrumentList = nullptr;
@@ -471,8 +476,9 @@ void MemoryLeakageTest::testLoading()
 		);
 		node = doc.firstChildElement( "song" );
 		auto pInstrumentList = H2Core::InstrumentList::loadFrom(
-			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "", false,
-			H2Core::License(), false, nullptr, false, pTestHydrogen()
+			node, H2TEST_FILE( "/drumkits/baseKit" ), "baseKit", "",
+			H2Core::Xml::Flag::None, H2Core::License(), nullptr, false,
+			pTestHydrogen()
 		);
 		CPPUNIT_ASSERT( pInstrumentList != nullptr );
 		auto pPattern = H2Core::Pattern::load(

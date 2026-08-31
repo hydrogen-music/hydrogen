@@ -71,9 +71,8 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
-	bool bIpcXml,
+	Xml::Flag flags,
 	const License& license,
-	bool bSongKit,
 	bool* pLegacyFormatEncountered,
 	bool bSilent,
 	Hydrogen* pHydrogen )
@@ -91,8 +90,8 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	while ( !instrumentNode.isNull() ) {
 		nCount++;
 		auto pInstrument = Instrument::loadFrom(
-			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, bIpcXml,
-			license, bSongKit, pLegacyFormatEncountered, bSilent, pHydrogen );
+			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, flags,
+			license, pLegacyFormatEncountered, bSilent, pHydrogen );
 		if ( pInstrument != nullptr ) {
 			pInstrumentList->add( pInstrument );
 		}
@@ -108,7 +107,7 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 		return nullptr;
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		pInstrumentList->setUuid(
 			instrumentListNode.read_uuid( "ipc-uuid", false, false, false )
 		);
@@ -119,24 +118,21 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 
 void InstrumentList::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	bool bKeepMissingSamples,
-	bool bIpcXml,
+	Xml::Flag flags,
 	bool bSilent
 ) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
-			pInstrument->saveTo( instruments_node, bSongKit,
-								bKeepMissingSamples, bIpcXml, bSilent );
+			pInstrument->saveTo( instruments_node, flags, bSilent );
 		}
 		else {
 			ERRORLOG( "Invalid instrument!" );
 		}
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		instruments_node.write_uuid( "ipc-uuid", getUuid() );
 	}
 }

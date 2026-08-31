@@ -72,12 +72,12 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
 		return pPlaylist;
 	}
 
-	return load_from( rootNode, sPath, false /*bIpcXml*/ );
+	return load_from( rootNode, sPath, Xml::Flag::None );
 }
 
 std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
 											   const QString& sPath,
-											   bool bIpcXml )
+											   Xml::Flag flags )
 {
 	const QFileInfo fileInfo( sPath );
 
@@ -130,7 +130,7 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
 											  sScriptPath );
 					pEntry->setScriptPath( scriptPathInfo.absoluteFilePath() );
 				}
-				if ( bIpcXml ) {
+				if ( flags & Xml::Flag::Ipc ) {
 					pEntry->setUuid(
 						nextNode.read_uuid( "ipc-uuid", false, false, false )
 					);
@@ -145,7 +145,7 @@ std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
 	}
 
 	// Additional members not present in .h2playlist but required for IPC.
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		pPlaylist->setUuid( root.read_uuid( "ipc-uuid", false, false, false ) );
 		pPlaylist->setPath( root.read_string(
 			"ipc-path", Filesystem::emptyPath( Filesystem::Artifact::Playlist ),
@@ -186,8 +186,10 @@ bool Playlist::save( std::shared_ptr<Preferences> pPreferences, bool bSilent ) c
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 
 	saveTo(
-		root, pPreferences->getUseRelativeFileNamesForPlaylists(),
-		false /*bIpcXml*/
+		root,
+		pPreferences->getUseRelativeFileNamesForPlaylists()
+			? Xml::Flag::UseRelativePaths
+			: Xml::Flag::None
 	);
 	return doc.write( m_sPath );
 }
@@ -199,7 +201,7 @@ QByteArray Playlist::toXmlBuffer() const
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 	// Always absolute paths: the buffer travels across the IPC split (ADR 0030),
 	// where there is no playlist file to resolve relative paths against.
-	saveTo( root, false /*bUseRelativePaths*/, true /*bIpcXml*/ );
+	saveTo( root, Xml::Flag::Ipc );
 
 	return doc.toByteArray();
 }
@@ -219,12 +221,12 @@ std::shared_ptr<Playlist> Playlist::fromXmlBuffer( const QByteArray& buffer,
 		return nullptr;
 	}
 
-	auto pPlaylist = load_from( root, sPath, true /* bIpcXml */ );
+	auto pPlaylist = load_from( root, sPath, Xml::Flag::Ipc );
 
 	return pPlaylist;
 }
 
-void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths, bool bIpcXml )
+void Playlist::saveTo( XMLNode& node, Xml::Flag flags )
 	const
 {
 	QFileInfo fileInfo( m_sPath );
@@ -234,7 +236,7 @@ void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths, bool bIpcXml )
 	for ( const auto& pEntry : m_entries ) {
 		QString sSongPath = pEntry->getSongPath();
 		QString sScriptPath = pEntry->getScriptPath();
-		if ( bUseRelativePaths ) {
+		if ( flags & Xml::Flag::UseRelativePaths ) {
 			if ( ! sSongPath.isEmpty() ) {
 				sSongPath = fileInfo.absoluteDir().relativeFilePath( sSongPath );
 			}
@@ -246,13 +248,13 @@ void Playlist::saveTo( XMLNode& node, bool bUseRelativePaths, bool bIpcXml )
 		song_node.write_string( "path", sSongPath );
 		song_node.write_string( "scriptPath", sScriptPath );
 		song_node.write_bool( "scriptEnabled", pEntry->getScriptEnabled() );
-		if ( bIpcXml ) {
+		if ( flags & Xml::Flag::Ipc ) {
 			song_node.write_uuid( "ipc-uuid", getUuid() );
 		}
 	}
 
 	// Additional members not present in .h2playlist but required for IPC.
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		node.write_uuid( "ipc-uuid", getUuid() );
 		node.write_string( "ipc-path", m_sPath );
 		node.write_bool( "ipc-isModified", m_bIsModified );

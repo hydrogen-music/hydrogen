@@ -412,7 +412,7 @@ void ConnectViaIpcModeTest::testSyncViaIpc() {
 
 		// Deserialize the reply XML and apply to the mirror.
 		auto pSong = Song::fromXmlBuffer(
-			reply.getPayload(), true /*bIpcXml*/, true /*bSilent*/, pMirror
+			reply.getPayload(), Xml::Flag::Ipc, true, pMirror
 		);
 		CPPUNIT_ASSERT( pSong != nullptr );
 		pMirror->getCoreActionController()->setSong( pSong );

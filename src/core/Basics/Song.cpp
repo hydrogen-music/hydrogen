@@ -253,7 +253,8 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent,
 		}
 	}
 
-	auto pSong = Song::loadFrom( songNode, sPath, false, bSilent, pHydrogen );
+	auto pSong = Song::loadFrom(
+		songNode, sPath, Xml::Flag::None, bSilent, pHydrogen );
 	if ( pSong != nullptr ) {
 		pSong->setPath( sPath );
 	}
@@ -262,7 +263,7 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent,
 }
 
 QByteArray
-Song::toXmlBuffer( bool bKeepMissingSamples, bool bIpcXml, bool bSilent ) const
+Song::toXmlBuffer( Xml::Flag flags, bool bSilent ) const
 {
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "song" );
@@ -273,13 +274,13 @@ Song::toXmlBuffer( bool bKeepMissingSamples, bool bIpcXml, bool bSilent ) const
 		);
 	}
 
-	saveTo( rootNode, bKeepMissingSamples, bIpcXml, bSilent );
+	saveTo( rootNode, flags, bSilent );
 
 	return doc.toByteArray();
 }
 
 std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
-										   bool bIpcXml,
+										   Xml::Flag flags,
 										   bool bSilent,
 										   Hydrogen* pHydrogen )
 {
@@ -297,7 +298,7 @@ std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
 
 	const QString sPath =
 		songNode.read_string( "ipc-path", "", false, false, false );
-	auto pSong = Song::loadFrom( songNode, sPath, bIpcXml, bSilent, pHydrogen );
+	auto pSong = Song::loadFrom( songNode, sPath, flags, bSilent, pHydrogen );
 
 	return pSong;
 }
@@ -305,7 +306,7 @@ std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
 std::shared_ptr<Song> Song::loadFrom(
 	const XMLNode& rootNode,
 	const QString& sPath,
-	bool bIpcXml,
+	Xml::Flag flags,
 	bool bSilent,
 	Hydrogen* pHydrogen
 )
@@ -395,8 +396,9 @@ std::shared_ptr<Song> Song::loadFrom(
 			// In case the node is null the user did not provide a playback
 			// track.
 			pPlaybackTrackInstrument = Instrument::loadFrom(
-				playbackTrackInstrumentNode, "", "", sSongPath, bIpcXml,
-				pSong->getLicense(), true, nullptr, bSilent, pHydrogen
+				playbackTrackInstrumentNode, "", "", sSongPath,
+				flags | Xml::Flag::SongKit, pSong->getLicense(), nullptr,
+				bSilent, pHydrogen
 			);
 		}
 	}
@@ -548,8 +550,8 @@ std::shared_ptr<Song> Song::loadFrom(
 	if ( !drumkitNode.isNull() ) {
 		// Current format (>= 2.0) storing a proper Drumkit
 		pDrumkit = Drumkit::loadFrom(
-			drumkitNode, "", sSongPath, bIpcXml, true, nullptr, bSilent,
-			pHydrogen
+			drumkitNode, "", sSongPath, flags | Xml::Flag::SongKit, nullptr,
+			bSilent, pHydrogen
 		);
 		bCurrentDrumkitLoaded = true;
 	}
@@ -574,14 +576,14 @@ std::shared_ptr<Song> Song::loadFrom(
 	pSong->setLastLoadedDrumkitPath(
 		Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath )
 	);
-	if ( pDrumkit != nullptr && ! bIpcXml ) {
+	if ( pDrumkit != nullptr && ! ( flags & Xml::Flag::Ipc ) ) {
 		pDrumkit->setPath( pSong->getLastLoadedDrumkitPath() );
 	}
 
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
 		rootNode, pDrumkit->getExportName(),
-		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bIpcXml, bSilent,
+		bCurrentDrumkitLoaded ? pDrumkit : nullptr, flags, bSilent,
 		pHydrogen->getSoundLibraryDatabase()
 	);
 	if ( pPatternList != nullptr ) {
@@ -810,7 +812,7 @@ std::shared_ptr<Song> Song::loadFrom(
 	}
 
 	// Additional members not present in .h2song but required for IPC.
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		pSong->setUuid( rootNode.read_uuid( "ipc-uuid", false, false, false ) );
 		pSong->setPath( sPath );
 		pSong->setIsModified(
@@ -845,7 +847,10 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 		);
 	}
 
-	saveTo( rootNode, bKeepMissingSamples, false, bSilent );
+	saveTo( rootNode,
+			bKeepMissingSamples ? Xml::Flag::KeepMissingSamples
+							   : Xml::Flag::None,
+			bSilent );
 
 	setPath( sPath );
 	setIsModified( false );
@@ -878,8 +883,7 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 
 void Song::saveTo(
 	XMLNode& rootNode,
-	bool bKeepMissingSamples,
-	bool bIpcXml,
+	Xml::Flag flags,
 	bool bSilent
 ) const
 {
@@ -911,9 +915,14 @@ void Song::saveTo(
 
 	auto playbackTrackNode = rootNode.createNode( "playbackTrack" );
 	if ( m_pPlaybackTrackInstrument != nullptr ) {
+		// The playback track is a single meta instrument and not subject
+		// to the KeepMissingSamples option.
+		auto playbackTrackFlags = Xml::Flag::SongKit;
+		if ( flags & Xml::Flag::Ipc ) {
+			playbackTrackFlags |= Xml::Flag::Ipc;
+		}
 		m_pPlaybackTrackInstrument->saveTo(
-			playbackTrackNode, true, false, bIpcXml, bSilent
-		);
+			playbackTrackNode, playbackTrackFlags, bSilent );
 	}
 
 	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
@@ -995,9 +1004,7 @@ void Song::saveTo(
 	auto drumkitNode = rootNode.createNode( "drumkit_info" );
 	m_pDrumkit->saveTo(
 		drumkitNode,
-		true,  // Enable per-instrument sample loading
-		bKeepMissingSamples,
-		bIpcXml,
+		flags | Xml::Flag::SongKit,  // Enable per-instrument sample loading
 		bSilent
 	);
 
@@ -1005,7 +1012,7 @@ void Song::saveTo(
 
 	if ( m_pPatternList != nullptr ) {
 		m_pPatternList->saveTo(
-			rootNode, Instrument::EmptyId, "", Note::Pitch::Invalid, bIpcXml
+			rootNode, Instrument::EmptyId, "", Note::Pitch::Invalid, flags
 		);
 
 		XMLNode patternPathsNode = rootNode.createNode( "patternPaths" );
@@ -1089,7 +1096,7 @@ void Song::saveTo(
 	}
 
 	// Additional members not present in .h2song but required for IPC.
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		rootNode.write_uuid( "ipc-uuid", getUuid() );
 		rootNode.write_string( "ipc-path", m_sPath );
 		rootNode.write_bool( "ipc-isModified", m_bIsModified );

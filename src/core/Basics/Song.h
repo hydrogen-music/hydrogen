@@ -151,14 +151,22 @@ class Song : public H2Core::Object<Song>,
 		  Hydrogen* pHydrogen );
 
 	/** Serialize the song to an in-memory `.h2song` XML buffer (no disk I/O).
-	 * Used by the `.h2project` bundle codec (ADR 0025). */
-	QByteArray toXmlBuffer( bool bKeepMissingSamples = true,
-							bool bIpcXml = true,
-							bool bSilent = false ) const;
+	 * Used by the `.h2project` bundle codec (ADR 0025).
+	 *
+	 * \param flags OR-ed combination of #Xml::Flag options.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed. */
+	QByteArray toXmlBuffer(
+		Xml::Flag flags = Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc,
+		bool bSilent = false ) const;
 	/** Reconstruct a song from an in-memory `.h2song` XML buffer (no disk I/O).
-	 * Samples are referenced but not loaded - the same as load(). */
+	 * Samples are referenced but not loaded - the same as load().
+	 *
+	 * \param flags OR-ed combination of #Xml::Flag options.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed. */
 	static std::shared_ptr<Song> fromXmlBuffer( const QByteArray& buffer,
-												bool bIpcXml,
+												Xml::Flag flags,
 												bool bSilent,
 												Hydrogen* pHydrogen );
 
@@ -309,14 +317,13 @@ class Song : public H2Core::Object<Song>,
 	static std::shared_ptr<Song> loadFrom(
 		const XMLNode& pNode,
 		const QString& sFileName,
-		bool bIpcXml,
+		Xml::Flag flags,
 		bool bSilent,
 		Hydrogen* pHydrogen
 	);
 	void saveTo(
 		XMLNode& pNode,
-		bool bKeepMissingSamples,
-		bool bIpcXml,
+		Xml::Flag flags,
 		bool bSilent
 	) const;
 

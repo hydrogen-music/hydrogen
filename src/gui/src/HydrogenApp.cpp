@@ -486,7 +486,7 @@ void HydrogenApp::ipcSyncSong( IpcChannel* pChannel ) {
 	if ( pChannel->request( IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) &&
 		 ! reply.getPayload().isEmpty() ) {
 		auto pSong = Song::fromXmlBuffer(
-			reply.getPayload(), true/*bIpcXml*/, true /*bSilent*/, m_pHydrogen
+			reply.getPayload(), Xml::Flag::Ipc, true, m_pHydrogen
 		);
 		if ( pSong != nullptr ) {
 			m_pHydrogen->getCoreActionController()->setSong( pSong );

@@ -413,7 +413,8 @@ void RoundTripAssertions::assertInstrumentEqual( std::shared_ptr<Instrument> a,
 		}
 	}
 
-	// Song-kit context fields (only serialized when bSongKit=true)
+	// Song-kit context fields (only serialized when the
+	// Xml::Flag::SongKit option is set)
 	assertStringEqual( "Instrument::m_sDrumkitPath",
 					   a->getDrumkitPath(), b->getDrumkitPath() );
 	assertStringEqual( "Instrument::m_sDrumkitName",

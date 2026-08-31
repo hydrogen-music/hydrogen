@@ -29,6 +29,7 @@
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Helpers/Time.h>
+#include <core/Helpers/Xml.h>
 #include <core/Midi/Midi.h>
 #include <core/Object.h>
 
@@ -347,26 +348,22 @@ class Note : public H2Core::Object<Note> {
 	/**
 	 * save the note within the given XMLNode
 	 * \param node the XMLNode to feed
-	 * @param bIpcXml When serializing the class to a IPC message, we
-	 *   have to handle some members not written to disk directly.
-	 *   Otherwise, there would be a loss of information.
+	 * \param flags OR-ed combination of #Xml::Flag options.
 	 */
-	void saveTo( XMLNode& node, bool bIpcXml ) const;
+	void saveTo( XMLNode& node, Xml::Flag flags ) const;
 	/**
 	 * load a note from an XMLNode
 	 * \param node the XMLDode to read from
-	 * @param bIpcXml When deserializing the class from a IPC message, we
-	 *   have to handle some members not written to disk directly.
-	 *   Otherwise, there would be a loss of information.
+	 * \param flags OR-ed combination of #Xml::Flag options.
 	 * \param bSilent Whether infos, warnings, and errors should
 	 * be logged.
 	 * \return a new Note instance
 	 */
 	static std::shared_ptr<Note>
-	loadFrom( const XMLNode& node, bool bIpcXml, bool bSilent );
+	loadFrom( const XMLNode& node, Xml::Flag flags, bool bSilent );
 
 	/** Serialize this note as a standalone XML document suitable for IPC
-	 * transport (ADR 0030). Uses #saveTo with bIpcXml = true so IPC-only
+	 * transport (ADR 0030). Uses #saveTo with Xml::Flag::Ipc set so IPC-only
 	 * members (uuid, selected layer info) are included. */
 	QByteArray toXmlBuffer() const;
 	/** Reconstruct a note from a buffer produced by #toXmlBuffer. The

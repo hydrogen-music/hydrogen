@@ -49,7 +49,7 @@ std::shared_ptr<PatternList> PatternList::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitName,
 	std::shared_ptr<Drumkit> pDrumkit,
-	bool bIpcXml,
+	Xml::Flag flags,
 	bool bSilent,
 	std::shared_ptr<SoundLibraryDatabase> pDB
 )
@@ -67,7 +67,7 @@ std::shared_ptr<PatternList> PatternList::loadFrom(
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
 		auto pPattern = Pattern::loadFrom(
-			patternNode, sDrumkitName, pDrumkit, bIpcXml, bSilent, pDB );
+			patternNode, sDrumkitName, pDrumkit, flags, bSilent, pDB );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -81,7 +81,7 @@ std::shared_ptr<PatternList> PatternList::loadFrom(
 		WARNINGLOG( "0 patterns?" );
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		pPatternList->setUuid( patternsNode.read_uuid( "ipc-uuid", false, false, false ) );
 	}
 
@@ -93,18 +93,18 @@ void PatternList::saveTo(
 	Instrument::Id id,
 	const QString& sType,
 	Note::Pitch pitch,
-	bool bIpcXml
+	Xml::Flag flags
 ) const
 {
 	XMLNode patternListNode = node.createNode( "patternList" );
 
 	for ( const auto& pPattern : m_pPatterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->saveTo( patternListNode, id, sType, pitch, bIpcXml );
+			pPattern->saveTo( patternListNode, id, sType, pitch, flags );
 		}
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		patternListNode.write_uuid( "ipc-uuid", getUuid() );
 	}
 }

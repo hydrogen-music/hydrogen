@@ -153,16 +153,17 @@ std::shared_ptr<Drumkit> Legacy::loadEmbeddedSongDrumkit(
 	//
 	// By supplying no drumkit path the individual drumkit meta infos
 	// stored in the 'instrument' nodes will be used.
-	auto pInstrumentList = InstrumentList::loadFrom( node,
-													 "", // sDrumkitPath
-													 "", // sDrumkitName
-													 sSongPath,
-													 false, // bIpcXml
-													 license, // per-instrument licenses
-													 true, // allow composition
-													 nullptr,
-													 bSilent,
-													 pHydrogen );
+	auto pInstrumentList = InstrumentList::loadFrom(
+		node,
+		"", // sDrumkitPath
+		"", // sDrumkitName
+		sSongPath,
+		Xml::Flag::SongKit, // allow composition
+		license, // per-instrument licenses
+		nullptr,
+		bSilent,
+		pHydrogen
+	);
 	if ( pInstrumentList == nullptr ) {
 		return nullptr;
 	}
@@ -291,8 +292,8 @@ std::shared_ptr<InstrumentComponent> Legacy::loadInstrumentComponent(
 		XMLNode layerNode = node.firstChildElement( "layer" );
 		while ( ! layerNode.isNull() ) {
 			auto pLayer = InstrumentLayer::loadFrom(
-				layerNode, sDrumkitPath, sSongPath, false, drumkitLicense,
-				bSilent, pHydrogen
+				layerNode, sDrumkitPath, sSongPath, Xml::Flag::None,
+				drumkitLicense, bSilent, pHydrogen
 			);
 			if ( pLayer != nullptr ) {
 				pCompo->addLayer( pLayer, -1 );

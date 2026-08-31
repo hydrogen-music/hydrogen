@@ -31,6 +31,7 @@
 
 #include <core/Basics/Instrument.h>
 #include <core/Helpers/Legacy.h>
+#include <core/Helpers/Xml.h>
 #include <core/Object.h>
 #include <core/License.h>
 
@@ -60,17 +61,15 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		void saveTo(
 			XMLNode& node,
-			bool bSongKit,
-			bool bKeepMissingSamples,
+			Xml::Flag flags,
             const QString& sDrumkitPath,
-			bool bIpcXml,
 			bool bSilent
 		);
 		static std::shared_ptr<InstrumentComponent> loadFrom(
 			const XMLNode& pNode,
 			const QString& sDrumkitPath,
 			const QString& sSongPath,
-			bool bIpcXml,
+			Xml::Flag flags,
 			const License& drumkitLicense,
 			bool bSilent,
 			Hydrogen* pHydrogen

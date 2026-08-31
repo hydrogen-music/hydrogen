@@ -599,7 +599,7 @@ void Note::swing( Hydrogen* pHydrogen )
 	}
 }
 
-void Note::saveTo( XMLNode& node, bool bIpcXml ) const
+void Note::saveTo( XMLNode& node, Xml::Flag flags ) const
 {
 	node.write_int( "position", m_nPosition );
 	node.write_float( "leadlag", m_fLeadLag );
@@ -616,7 +616,7 @@ void Note::saveTo( XMLNode& node, bool bIpcXml ) const
 	node.write_bool( "note_off", m_bNoteOff );
 	node.write_float( "probability", m_fProbability );
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		node.write_uuid( "ipc-uuid", getUuid() );
 
 		// Serialize SelectedLayerInfo so the engine-side Sampler renders
@@ -645,7 +645,7 @@ void Note::saveTo( XMLNode& node, bool bIpcXml ) const
 }
 
 std::shared_ptr<Note>
-Note::loadFrom( const XMLNode& node, bool bIpcXml, bool bSilent )
+Note::loadFrom( const XMLNode& node, Xml::Flag flags, bool bSilent )
 {
 	auto pNote = std::make_shared<Note>();
 
@@ -739,7 +739,7 @@ Note::loadFrom( const XMLNode& node, bool bIpcXml, bool bSilent )
 		"probability", pNote->getProbability(), false, false, bSilent
 	) );
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		pNote->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
 		// SelectedLayerInfo is only required when serializing notes directly
 		// (via from/toXmlBuffer()) and not those which are part of a pattern.
@@ -752,7 +752,7 @@ QByteArray Note::toXmlBuffer() const
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "note_buffer" );
-	saveTo( root, true /* bIpcXml */ );
+	saveTo( root, Xml::Flag::Ipc );
 	return doc.toByteArray();
 }
 
@@ -770,7 +770,7 @@ Note::fromXmlBuffer( const QByteArray& buffer, bool bSilent, Hydrogen* pHydrogen
 		return nullptr;
 	}
 
-	auto pNote = Note::loadFrom( root, true /* bIpcXml */, bSilent );
+	auto pNote = Note::loadFrom( root, Xml::Flag::Ipc, bSilent );
 	if ( pNote == nullptr ) {
 		return nullptr;
 	}

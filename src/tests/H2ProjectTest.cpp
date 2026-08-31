@@ -188,17 +188,21 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 	CPPUNIT_ASSERT( pDrumkit->getInstruments()->size() > 0 );
 
 	// --- Drumkit ---
-	const auto kitBuffer = pDrumkit->toXmlBuffer( true, true, true );
+	const auto kitBuffer = pDrumkit->toXmlBuffer(
+		Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples, true );
 	CPPUNIT_ASSERT( ! kitBuffer.isEmpty() );
-	auto pKit2 = Drumkit::fromXmlBuffer( kitBuffer, "", true, true, pHydrogen );
+	auto pKit2 = Drumkit::fromXmlBuffer(
+		kitBuffer, "", Xml::Flag::SongKit, true, pHydrogen );
 	CPPUNIT_ASSERT( pKit2 != nullptr );
 
 	// --- Instrument ---
 	auto pInstr = pDrumkit->getInstruments()->get( 0 );
 	CPPUNIT_ASSERT( pInstr != nullptr );
-	const auto instrBuffer = pInstr->toXmlBuffer( true, true, true );
+	const auto instrBuffer = pInstr->toXmlBuffer(
+		Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples, true );
 	CPPUNIT_ASSERT( ! instrBuffer.isEmpty() );
-	auto pInstr2 = Instrument::fromXmlBuffer( instrBuffer, true, true, pHydrogen );
+	auto pInstr2 = Instrument::fromXmlBuffer(
+		instrBuffer, Xml::Flag::SongKit, true, pHydrogen );
 	CPPUNIT_ASSERT( pInstr2 != nullptr );
 
 	// --- Pattern ---
@@ -295,7 +299,8 @@ void H2ProjectTest::testContainerDetection() {
 	CPPUNIT_ASSERT( H2Project::looksLikeArchive( bundle ) );
 
 	// An .h2song XML document must NOT look like an archive.
-	const QByteArray songXml = pSong->toXmlBuffer( true, true );
+	const QByteArray songXml =
+		pSong->toXmlBuffer( Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc );
 	std::vector<unsigned char> xml(
 		reinterpret_cast<const unsigned char*>( songXml.constData() ),
 		reinterpret_cast<const unsigned char*>( songXml.constData() ) +

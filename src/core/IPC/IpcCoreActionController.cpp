@@ -803,7 +803,8 @@ bool IpcCoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 		// The drumkit XML is the payload; the engine reconstructs it and reloads
 		// samples from their (shared-disk) paths (ADR 0030).
 		IpcMessage msg( IpcOpcode::SetDrumkit );
-		msg.setPayload( pDrumkit->toXmlBuffer( true ) );
+		msg.setPayload( pDrumkit->toXmlBuffer(
+			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
 		m_pChannel->send( msg );
 	}
 	// Dual-apply: the mirror takes the live object directly (no round-trip).
@@ -836,7 +837,8 @@ bool IpcCoreActionController::replaceInstrument(
 		// the engine can locate its own copy in the authoritative drumkit.
 		IpcMessage msg( IpcOpcode::ReplaceInstrument );
 		msg.arg( static_cast<int>( pOldInstrument->getId() ) );
-		msg.setPayload( pNewInstrument->toXmlBuffer( true ) );
+		msg.setPayload( pNewInstrument->toXmlBuffer(
+			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
 		m_pChannel->send( msg );
 	}
 	return CoreActionController::replaceInstrument(
@@ -848,7 +850,8 @@ bool IpcCoreActionController::addInstrument(
 	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
 		IpcMessage msg( IpcOpcode::AddInstrument );
 		msg.arg( nIndex ).arg( QVariant::fromValue( nEventId ) );
-		msg.setPayload( pInstrument->toXmlBuffer( true ) );
+		msg.setPayload( pInstrument->toXmlBuffer(
+			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
 		m_pChannel->send( msg );
 	}
 	return CoreActionController::addInstrument( pInstrument, nIndex, nEventId );
@@ -859,7 +862,8 @@ bool IpcCoreActionController::removeInstrument(
 	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
 		IpcMessage msg( IpcOpcode::RemoveInstrument );
 		msg.arg( QVariant::fromValue( nEventId ) );
-		msg.setPayload( pInstrument->toXmlBuffer( true ) );
+		msg.setPayload( pInstrument->toXmlBuffer(
+			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
 		m_pChannel->send( msg );
 	}
 	return CoreActionController::removeInstrument( pInstrument, nEventId );

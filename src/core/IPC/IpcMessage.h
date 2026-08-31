@@ -209,7 +209,7 @@ enum class IpcOpcode : quint16 {
 
 	// ── Note preview (trigger a note for immediate playback) ──
 	// The note rides as an XML-buffer payload (Note::toXmlBuffer with
-	// bIpcXml = true). The engine deserializes it, resolves the instrument
+	// Xml::Flag::Ipc set). The engine deserializes it, resolves the instrument
 	// from its drumkit, and calls Sampler::noteOn().
 	NoteOn,
 

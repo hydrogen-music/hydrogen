@@ -147,7 +147,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
-	bool bIpcXml,
+	Xml::Flag flags,
 	const License& drumkitLicense,
 	bool bSilent,
 	Hydrogen* pHydrogen )
@@ -180,7 +180,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	while ( ! layer_node.isNull() ) {
 		auto pLayer = InstrumentLayer::loadFrom(
-			layer_node, sDrumkitPath, sSongPath, bIpcXml, drumkitLicense,
+			layer_node, sDrumkitPath, sSongPath, flags, drumkitLicense,
 			bSilent, pHydrogen
 		);
 		if ( pLayer != nullptr ) {
@@ -189,7 +189,7 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 		layer_node = layer_node.nextSiblingElement( "layer" );
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		pInstrumentComponent->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
 	}
 	
@@ -198,10 +198,8 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 
 void InstrumentComponent::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	bool bKeepMissingSamples,
-    const QString& sDrumkitPath,
-	bool bIpcXml,
+	Xml::Flag flags,
+	const QString& sDrumkitPath,
 	bool bSilent
 )
 {
@@ -228,9 +226,10 @@ void InstrumentComponent::saveTo(
 	for ( int nn = 0; nn < m_layers.size(); nn++ ) {
 		auto pLayer = m_layers[nn];
 		if ( pLayer != nullptr ) {
-			if ( pLayer->getSample() != nullptr || bKeepMissingSamples ) {
+			if ( pLayer->getSample() != nullptr ||
+				 ( flags & Xml::Flag::KeepMissingSamples ) ) {
 				pLayer->saveTo(
-					component_node, bSongKit, sDrumkitPath, bIpcXml
+					component_node, flags, sDrumkitPath
 				);
 			}
 			else {
@@ -247,7 +246,8 @@ void InstrumentComponent::saveTo(
 		}
 	}
 
-	if ( !bKeepMissingSamples && indicesToRemove.size() > 0 ) {
+	if ( ! ( flags & Xml::Flag::KeepMissingSamples ) &&
+		 indicesToRemove.size() > 0 ) {
 		std::vector<std::shared_ptr<InstrumentLayer>> newLayers;
 		for ( int nn = 0; nn < m_layers.size(); ++nn ) {
 			if ( indicesToRemove.find( nn ) == indicesToRemove.end() ) {
@@ -258,7 +258,7 @@ void InstrumentComponent::saveTo(
 		m_layers = newLayers;
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		component_node.write_uuid( "ipc-uuid", getUuid() );
 	}
 }

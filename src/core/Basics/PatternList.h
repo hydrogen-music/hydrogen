@@ -30,6 +30,7 @@
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
+#include <core/Helpers/Xml.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -63,9 +64,7 @@ class XMLNode;
 		 * \param pDrumkit In case the PatternList is loaded as part of a song,
 		 *   the current drumkit used to retrieve the types of all contained
 		 *   notes.
-		 * @param bIpcXml When deserializing the class from a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information.
+		 * @param flags OR-ed combination of #Xml::Flag options.
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
@@ -74,7 +73,7 @@ class XMLNode;
 			const XMLNode& pNode,
 			const QString& sDrumkitName,
 			std::shared_ptr<Drumkit> pDrumkit,
-			bool bIpcXml,
+			Xml::Flag flags,
 			bool bSilent,
 			std::shared_ptr<SoundLibraryDatabase> pDB
 		);
@@ -89,15 +88,13 @@ class XMLNode;
 		 *   serialized notess by requiring a matching type.
 		 * @param nPitch If a valid one is provided, one those notes matching
 		 *   this particular pitch will be stored.
-		 * @param bIpcXml When serializing the class to a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information. */
+		 * @param flags OR-ed combination of #Xml::Flag options. */
 		void saveTo(
 			XMLNode& pNode,
 			Instrument::Id id = Instrument::EmptyId,
-			const QString& sType = "",
+			const Instrument::Type& sType = "",
 			Note::Pitch pitch = Note::Pitch::Invalid,
-			bool bIpcXml = false
+			Xml::Flag flags = Xml::Flag::None
 		) const;
 
 		/** returns the numbers of patterns */

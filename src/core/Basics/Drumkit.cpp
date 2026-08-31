@@ -132,8 +132,8 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 
 	bool bLegacyFormatEncountered = false;
 	auto pDrumkit = Drumkit::loadFrom(
-		root, sDrumkitPathCleaned, "", false, false, &bLegacyFormatEncountered,
-		bSilent, pHydrogen
+		root, sDrumkitPathCleaned, "", Xml::Flag::None,
+		&bLegacyFormatEncountered, bSilent, pHydrogen
 	);
 
 	if ( pLegacyFormatEncountered != nullptr ) {
@@ -157,19 +157,18 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 	return pDrumkit;
 }
 
-QByteArray Drumkit::toXmlBuffer( bool bSongKit, bool bKeepMissingSamples,
-								 bool bSilent ) const
+QByteArray Drumkit::toXmlBuffer( Xml::Flag flags, bool bSilent ) const
 {
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
-	saveTo( root, bSongKit, bKeepMissingSamples, true, bSilent );
+	saveTo( root, flags | Xml::Flag::Ipc, bSilent );
 	return doc.toByteArray();
 }
 
 std::shared_ptr<Drumkit> Drumkit::fromXmlBuffer(
 	const QByteArray& buffer,
 	const QString& sDrumkitPath,
-	bool bSongKit,
+	Xml::Flag flags,
 	bool bSilent,
 	Hydrogen* pHydrogen )
 {
@@ -185,16 +184,15 @@ std::shared_ptr<Drumkit> Drumkit::fromXmlBuffer(
 	}
 	bool bLegacyFormatEncountered = false;
 	return loadFrom(
-		root, sDrumkitPath, "", true, bSongKit, &bLegacyFormatEncountered,
-		bSilent, pHydrogen
+		root, sDrumkitPath, "", flags | Xml::Flag::Ipc,
+		&bLegacyFormatEncountered, bSilent, pHydrogen
 	);
 }
 
 std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											const QString& sDrumkitPath,
 											const QString& sSongPath,
-											bool bIpcXml,
-											bool bSongKit,
+											Xml::Flag flags,
 											bool* pLegacyFormatEncountered,
 											bool bSilent,
 											Hydrogen* pHydrogen )
@@ -254,8 +252,8 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 						  pDrumkit->getAuthor() ) );
 
 	auto pInstrumentList = InstrumentList::loadFrom(
-		node, sDrumkitPath, sDrumkitName, sSongPath, bIpcXml,
-		pDrumkit->getLicense(), bSongKit, pLegacyFormatEncountered, false,
+		node, sDrumkitPath, sDrumkitName, sSongPath, flags,
+		pDrumkit->getLicense(), pLegacyFormatEncountered, false,
 		pHydrogen
 	);
 	// Required to assure backward compatibility.
@@ -277,7 +275,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		
 	pDrumkit->setInstruments( pInstrumentList );
 
-	if ( ! bSongKit ) {
+	if ( ! ( flags & Xml::Flag::SongKit ) ) {
 		// Instead of making the *::loadFrom() functions more complex by
 		// passing the license down to each sample, we will make the
 		// drumkit assign its license to each sample in here.
@@ -306,7 +304,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 
 	pDrumkit->fixupTypes( bSilent );
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		// Additional members not present in files written to disk but required
 		// for IPC.
 		pDrumkit->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
@@ -479,16 +477,13 @@ bool Drumkit::save( const QString& sPath, bool bSilent )
 
 	// When saving a Drumkit on its own, we want it to be both self-contained
 	// and portable. Missing samples have to be discarded.
-	saveTo( root, /* bSongKit */ false,
-		   /* bKeepMissingSamples */ false, bSilent );
+	saveTo( root, Xml::Flag::None, bSilent );
 	return doc.write( sDrumkitPath );
 }
 
 void Drumkit::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	bool bKeepMissingSamples,
-	bool bIpcXml,
+	Xml::Flag flags,
 	bool bSilent
 ) const
 {
@@ -507,7 +502,7 @@ void Drumkit::saveTo(
 	}
 
 	QString sImage;
-	if ( bSongKit ) {
+	if ( flags & Xml::Flag::SongKit ) {
 		sImage = m_sImage;
 	}
 	else {
@@ -522,7 +517,7 @@ void Drumkit::saveTo(
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
 		m_pInstruments->saveTo(
-			node, bSongKit, bKeepMissingSamples, bIpcXml, bSilent
+			node, flags, bSilent
 		);
 	}
 	else {
@@ -530,10 +525,12 @@ void Drumkit::saveTo(
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->saveTo( node, bSongKit, true, bIpcXml, bSilent );
+		pInstrumentList->saveTo(
+			node, flags | Xml::Flag::KeepMissingSamples, bSilent
+		);
 	}
 
-	if ( bIpcXml ) {
+	if ( flags & Xml::Flag::Ipc ) {
 		// Additional members not present in files written to disk but required
 		// for IPC.
 		node.write_uuid( "ipc-uuid", getUuid() );

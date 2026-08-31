@@ -32,6 +32,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 #include <core/License.h>
 #include <core/Object.h>
 
@@ -92,18 +93,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   drumkit is contained in. It is used to resolve sample paths
 		 *   relative to the .h2song file.
-		 * @param bIpcXml When deserializing the class from a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information.
-		 * @param bSongKit If true samples are loaded on a
-		 *   per-instrument basis. If the filename of the sample is a plain
-		 *   filename, it will be searched for in the folder associated with the
-		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
-		 *   (unique identifier locally). If it is an absolute path, it will be
-		 *   loaded directly. This mode corresponds to loading the Drumkit as
-		 *   part of a song (which allows composition of a drumkit from various
-		 *   kits and new instruments/samples). If `false`, it corresponds to
-		 *   the kit being loaded as part of the `SoundLibraryDatabase`.
+		 * @param flags OR-ed combination of #Xml::Flag options.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
 		 *   XML elements requires legacy format support and left untouched
 		 *   otherwise.
@@ -113,8 +103,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		static std::shared_ptr<Drumkit> loadFrom( const XMLNode& pNode,
 												  const QString& sDrumkitPath,
 												  const QString& sSongPath,
-												  bool bIpcXml,
-												  bool bSongKit,
+												  Xml::Flag flags,
 												  bool* pLegacyFormatEncountered,
 												  bool bSilent,
 												  Hydrogen* pHydrogen );
@@ -123,39 +112,35 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * save the drumkit within the given XMLNode
 		 *
 		 * \param pNode the XMLNode to feed
-		 * \param bSongKit Whether the instruments are part of a
-		 *   stand-alone kit or part of a song. In the latter case all samples
-		 *   located in the corresponding drumkit folder and are referenced by
-		 *   filenames. In the former case, each instrument might be
-		 *   associated with a different kit and the lookup folder for the
-		 *   samples are stored on a per-instrument basis.
-		 * @param bKeepMissingSamples Whether layers containing a missing sample
-		 *   should be kept or discarded.
-		 * @param bIpcXml When serializing the class to a IPC message, we
-		 *   have to handle some members not written to disk directly.
-		 *   Otherwise, there would be a loss of information.
+		 * \param flags OR-ed combination of #Xml::Flag options.
 		 */
 		void saveTo(
 			XMLNode& pNode,
-			bool bSongKit,
-			bool bKeepMissingSamples,
-			bool bIpcXml,
+			Xml::Flag flags,
 			bool bSilent = false
 		) const;
 
 		/** Serialize the drumkit to an in-memory XML buffer (samples referenced
 		 * by path, not embedded — ADR 0027/0030 bulk-load). Mirrors the on-disk
-		 * `drumkit.xml`; used to carry a kit across the editor↔engine IPC split. */
-		QByteArray toXmlBuffer( bool bSongKit = false,
-								bool bKeepMissingSamples = true,
-								bool bSilent = false ) const;
+		 * `drumkit.xml`; used to carry a kit across the editor↔engine IPC split.
+		 *
+		 * \param flags OR-ed combination of #Xml::Flag options.
+		 * \param bSilent if set to true, all log messages except of errors and
+		 *   warnings are suppressed. */
+		QByteArray toXmlBuffer(
+			Xml::Flag flags = Xml::Flag::KeepMissingSamples,
+			bool bSilent = false ) const;
 		/** Reconstruct a drumkit from a buffer produced by toXmlBuffer(). The
 		 * engine reloads samples from their (shared-disk) paths. @a sDrumkitPath
-		 * resolves relative sample paths (may be empty). */
+		 * resolves relative sample paths (may be empty).
+		 *
+		 * \param flags OR-ed combination of #Xml::Flag options.
+		 * \param bSilent if set to true, all log messages except of errors and
+		 *   warnings are suppressed. */
 		static std::shared_ptr<Drumkit> fromXmlBuffer(
 			const QByteArray& buffer,
 			const QString& sDrumkitPath,
-			bool bSongKit,
+			Xml::Flag flags,
 			bool bSilent,
 			Hydrogen* pHydrogen );
 

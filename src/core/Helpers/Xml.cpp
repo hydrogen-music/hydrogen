@@ -28,6 +28,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QLocale>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QTextStream>
 
 #ifdef H2CORE_HAVE_QT6
@@ -39,6 +40,27 @@
 
 namespace H2Core
 {
+
+QString Xml::flagToQString( const Flag& flags )
+{
+	QStringList strings;
+	if ( flags & Flag::Ipc ) {
+		strings << "Ipc";
+	}
+	if ( flags & Flag::SongKit ) {
+		strings << "SongKit";
+	}
+	if ( flags & Flag::KeepMissingSamples ) {
+		strings << "KeepMissingSamples";
+	}
+	if ( flags & Flag::UseRelativePaths ) {
+		strings << "UseRelativePaths";
+	}
+	if ( strings.isEmpty() ) {
+		return "None";
+	}
+	return strings.join( ", " );
+}
 
 XMLNode::XMLNode() { }
 XMLNode::XMLNode( const QDomNode& node ) : QDomNode( node ) { }
