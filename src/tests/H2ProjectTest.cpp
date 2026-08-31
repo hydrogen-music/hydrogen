@@ -88,6 +88,33 @@ std::shared_ptr<Song> makeLoadedSong() {
 	return pSong;
 }
 
+// A project is meant to make a song including all its samples portable. In
+// order to check this, we create a new drumkit (temporary paths and new file
+// names) and discard it after saving the .h2project file and before loading it
+// again. The only way to retrieve the samples is now to obtain it from the
+// projects. No fallbacks should work.
+std::shared_ptr<Drumkit> makeNewDrumkit() {
+	auto pDrumkit = std::make_shared<Drumkit>();
+	pDrumkit->setName( "Temp-Project-Kit" );
+	pDrumkit->setContext( Filesystem::Context::Custom );
+
+	auto pInstrument =
+		std::make_shared<Instrument>( Instrument::Id( 0 ), "temp-instr" );
+	auto pSample = std::make_shared<Sample>(
+		H2TEST_FILE( "drumkits/sampleKit/longSample.flac" )
+	);
+	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
+	pInstrument->addLayer(
+		pInstrument->getComponent( 0 ), pLayer, 0, Event::Trigger::Suppress,
+		pTestHydrogen()
+	);
+	pDrumkit->getInstruments()->add( pInstrument );
+
+	CPPUNIT_ASSERT( ! pDrumkit->hasMissingSamples() );
+
+	return pDrumkit;
+}
+
 } // namespace
 
 // song + kit -> .h2project bundle (in memory) -> reconstructs identically,
@@ -95,9 +122,19 @@ std::shared_ptr<Song> makeLoadedSong() {
 void H2ProjectTest::testBufferRoundTrip() {
 	___INFOLOG( "" );
 
-	auto pSong = makeLoadedSong();
+	const QString sTmpDir =
+		Filesystem::tmpDir() + "/h2project-buffer-round-trip/drumkit.xml";
+
+	auto* pHydrogen = pTestHydrogen();
+	auto pSong = Song::getEmptySong( pHydrogen );
 	CPPUNIT_ASSERT( pSong != nullptr );
-	CPPUNIT_ASSERT( pSong->getDrumkit() != nullptr );
+	auto pDrumkit = makeNewDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	pDrumkit->save( sTmpDir, false );
+	pSong->setDrumkit( pDrumkit );
+	pSong->getDrumkit()->loadSamples(
+		120, pHydrogen->getPreferences().get() );
+
 	const int nInstruments = pSong->getDrumkit()->getInstruments()->size();
 	CPPUNIT_ASSERT( nInstruments > 0 );
 
@@ -107,6 +144,10 @@ void H2ProjectTest::testBufferRoundTrip() {
 	const auto bundle = H2Project::toBuffer( pSong, true );
 	CPPUNIT_ASSERT( ! bundle.empty() );
 	CPPUNIT_ASSERT( H2Project::looksLikeArchive( bundle ) );
+
+	// Remove the backing drumkit from disk. All samples must be retrieved from
+	// the project.
+	Filesystem::rm( sTmpDir, true );
 
 	auto pReconstructed = H2Project::fromBuffer( bundle, pTestHydrogen(), true );
 	CPPUNIT_ASSERT( pReconstructed != nullptr );
@@ -203,13 +244,28 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 void H2ProjectTest::testFileRoundTrip() {
 	___INFOLOG( "" );
 
-	auto pSong = makeLoadedSong();
+
+	const QString sTmpDir =
+		Filesystem::tmpDir() + "/h2project-file-round-trip/drumkit.xml";
+
+	auto* pHydrogen = pTestHydrogen();
+	auto pSong = Song::getEmptySong( pHydrogen );
 	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pDrumkit = makeNewDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	pDrumkit->save( sTmpDir, false );
+	pSong->setDrumkit( pDrumkit );
+	pSong->getDrumkit()->loadSamples(
+		120, pHydrogen->getPreferences().get() );
 	const auto framesBefore = sampleFrames( pSong );
 
 	const QString sPath = Filesystem::tmpFilePath( "roundtrip.h2project" );
 	CPPUNIT_ASSERT( H2Project::save( pSong, sPath, true ) );
 	CPPUNIT_ASSERT( Filesystem::fileExists( sPath, true ) );
+
+	// Remove the backing drumkit from disk. All samples must be retrieved from
+	// the project.
+	Filesystem::rm( sTmpDir, true );
 
 	auto pReconstructed = H2Project::load( sPath, pTestHydrogen(), true );
 	CPPUNIT_ASSERT( pReconstructed != nullptr );
