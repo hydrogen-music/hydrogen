@@ -23,6 +23,13 @@ the artifact generation for you.
 Also note that some general resources requiring translation as well
 can be found in the subfolder [linux](../../linux).
 
+Please note that this branch contains the translations for the `2.X` release
+series of Hydrogen. Those for `1.2.X` can be found
+[here](https://github.com/hydrogen-music/hydrogen/tree/releases/1.2). To ensure
+you do not do things twice, its best to start with one release, create a pull
+request, and let Hydrogen's development team worry about merging the translation
+back to the other release. Afterwards, you can tackle missing ones.
+
 For more details about the overall translation process see
 https://github.com/hydrogen-music/hydrogen/wiki/Translator-instructions.
 
