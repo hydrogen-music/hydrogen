@@ -76,6 +76,28 @@ std::map<QString, long long> sampleFrames( std::shared_ptr<Song> pSong ) {
 			}
 		}
 	}
+
+	if ( pSong->getPlaybackTrackInstrument() != nullptr &&
+		 pSong->getPlaybackTrackInstrument()->getComponent( 0 ) != nullptr &&
+		 pSong->getPlaybackTrackInstrument()->getComponent( 0 )->getLayer( 0
+		 ) != nullptr &&
+		 pSong->getPlaybackTrackInstrument()
+				 ->getComponent( 0 )
+				 ->getLayer( 0 )
+		 ->getSample() != nullptr ) {
+		result["-1/0/0"] = pSong->getPlaybackTrackInstrument()
+								   ->getComponent( 0 )
+								   ->getLayer( 0 )
+								   ->getSample()
+								   ->isLoaded()
+							   ? pSong->getPlaybackTrackInstrument()
+									 ->getComponent( 0 )
+									 ->getLayer( 0 )
+									 ->getSample()
+									 ->getFrames()
+							   : 0;
+	}
+
 	return result;
 }
 
@@ -87,6 +109,23 @@ std::shared_ptr<Song> makeLoadedSong() {
 			120, pHydrogen->getPreferences().get() );
 	}
 	return pSong;
+}
+
+std::shared_ptr<Instrument> makePlaybackTrack( const QString& sPath )
+{
+	auto pPlaybackInstrument =
+		std::make_shared<Instrument>( Instrument::PlaybackTrackId );
+	pPlaybackInstrument->setName( "PlaybackTrack" );
+	auto pSample = std::make_shared<Sample>( sPath );
+	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
+	pPlaybackInstrument->addLayer(
+		pPlaybackInstrument->getComponent( 0 ), pLayer, 0,
+		Event::Trigger::Suppress, pTestHydrogen()
+	);
+	pPlaybackInstrument->loadSamples(
+		120, pTestHydrogen()->getPreferences().get()
+	);
+	return pPlaybackInstrument;
 }
 
 // A project is meant to make a song including all its samples portable. In
@@ -125,8 +164,13 @@ void H2ProjectTest::testBufferRoundTrip() {
 
 	const QString sTmpDir =
 		Filesystem::tmpDir() + "/h2project-buffer-round-trip/drumkit.xml";
+	const QString sTmpPlaybackTrack =
+		Filesystem::tmpFilePath( "playback.flac" );
+	CPPUNIT_ASSERT( Filesystem::fileCopy(
+		H2TEST_FILE( "song/res/playbackTrack.flac" ), sTmpPlaybackTrack, true
+	) );
 
-	auto* pHydrogen = pTestHydrogen();
+	auto pHydrogen = pTestHydrogen();
 	auto pSong = Song::getEmptySong( pHydrogen );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	auto pDrumkit = makeNewDrumkit();
@@ -135,6 +179,10 @@ void H2ProjectTest::testBufferRoundTrip() {
 	pSong->setDrumkit( pDrumkit );
 	pSong->getDrumkit()->loadSamples(
 		120, pHydrogen->getPreferences().get() );
+
+	auto pPlaybackTrack = makePlaybackTrack( sTmpPlaybackTrack );
+	CPPUNIT_ASSERT( pPlaybackTrack != nullptr );
+	pSong->setPlaybackTrackInstrument( pPlaybackTrack );
 
 	const int nInstruments = pSong->getDrumkit()->getInstruments()->size();
 	CPPUNIT_ASSERT( nInstruments > 0 );
@@ -149,6 +197,7 @@ void H2ProjectTest::testBufferRoundTrip() {
 	// Remove the backing drumkit from disk. All samples must be retrieved from
 	// the project.
 	Filesystem::rm( sTmpDir, true );
+	Filesystem::rm( sTmpPlaybackTrack );
 
 	auto pReconstructed = H2Project::fromBuffer( bundle, pTestHydrogen(), true );
 	CPPUNIT_ASSERT( pReconstructed != nullptr );
@@ -249,9 +298,13 @@ void H2ProjectTest::testBasicsBufferRoundTrip() {
 void H2ProjectTest::testFileRoundTrip() {
 	___INFOLOG( "" );
 
-
 	const QString sTmpDir =
 		Filesystem::tmpDir() + "/h2project-file-round-trip/drumkit.xml";
+	const QString sTmpPlaybackTrack =
+		Filesystem::tmpFilePath( "playback.flac" );
+	CPPUNIT_ASSERT( Filesystem::fileCopy(
+		H2TEST_FILE( "song/res/playbackTrack.flac" ), sTmpPlaybackTrack, true
+	) );
 
 	auto* pHydrogen = pTestHydrogen();
 	auto pSong = Song::getEmptySong( pHydrogen );
@@ -262,6 +315,11 @@ void H2ProjectTest::testFileRoundTrip() {
 	pSong->setDrumkit( pDrumkit );
 	pSong->getDrumkit()->loadSamples(
 		120, pHydrogen->getPreferences().get() );
+
+	auto pPlaybackTrack = makePlaybackTrack( sTmpPlaybackTrack );
+	CPPUNIT_ASSERT( pPlaybackTrack != nullptr );
+	pSong->setPlaybackTrackInstrument( pPlaybackTrack );
+
 	const auto framesBefore = sampleFrames( pSong );
 
 	const QString sPath = Filesystem::tmpFilePath( "roundtrip.h2project" );
@@ -271,6 +329,7 @@ void H2ProjectTest::testFileRoundTrip() {
 	// Remove the backing drumkit from disk. All samples must be retrieved from
 	// the project.
 	Filesystem::rm( sTmpDir, true );
+	Filesystem::rm( sTmpPlaybackTrack );
 
 	auto pReconstructed = H2Project::load( sPath, pTestHydrogen(), true );
 	CPPUNIT_ASSERT( pReconstructed != nullptr );

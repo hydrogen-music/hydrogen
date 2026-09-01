@@ -360,6 +360,8 @@ class Instrument : public H2Core::Object<Instrument> {
 
 	float getLastSampleLoadBpm() const;
 
+	void checkForMissingSamples( Event::Trigger trigger, Hydrogen* pHydrogen );
+
 	/** Iteration */
 	std::vector<std::shared_ptr<InstrumentComponent>>::iterator begin();
 	std::vector<std::shared_ptr<InstrumentComponent>>::iterator end();
@@ -376,8 +378,6 @@ class Instrument : public H2Core::Object<Instrument> {
 		const override;
 
    private:
-	void checkForMissingSamples( Event::Trigger trigger, Hydrogen* pHydrogen );
-
 	/** Identifier of an instrument, which should be unique. It is set by
 	 * setId() and accessed via getId().*/
 	Id m_id;

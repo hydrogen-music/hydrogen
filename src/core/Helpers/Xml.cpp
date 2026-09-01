@@ -56,6 +56,9 @@ QString Xml::flagToQString( const Flag& flags )
 	if ( flags & Flag::UseRelativePaths ) {
 		strings << "UseRelativePaths";
 	}
+	if ( flags & Flag::Project ) {
+		strings << "Project";
+	}
 	if ( strings.isEmpty() ) {
 		return "None";
 	}

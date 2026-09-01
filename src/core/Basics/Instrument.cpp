@@ -259,7 +259,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->setType( node.read_string( "type", "", true, true, bSilent ) );
 
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
-	if ( flags & Xml::Flag::SongKit ) {
+	if ( flags & Xml::Flag::SongKit && ! ( flags & Xml::Flag::Project ) ) {
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName =
@@ -396,10 +396,18 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		sInstrumentDrumkitName = sDrumkitName;
 	}
 
-	sInstrumentDrumkitPath =
-		Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
+	if ( flags & Xml::Flag::Project ) {
+		// When stored as part of a .h2project, the samples of a song's drumkit
+		// will be included into the tar archive directly and not loaded from an
+		// installed drumkit.
+		pInstrument->setDrumkitPath( "" );
+	}
+	else {
+		sInstrumentDrumkitPath =
+			Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
 
-	pInstrument->setDrumkitPath( sInstrumentDrumkitPath );
+		pInstrument->setDrumkitPath( sInstrumentDrumkitPath );
+	}
 	pInstrument->m_sDrumkitName = sInstrumentDrumkitName;
 
 	pInstrument->setVolume(
@@ -587,8 +595,13 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		);
 	}
 
-	pInstrument->checkForMissingSamples(
-		Event::Trigger::Suppress, pHydrogen );
+	if ( ! ( flags & Xml::Flag::Project ) ) {
+		// If loaded as part of a .h2project, the song including its drumkit and
+		// instruments is loaded first without sample and the individual samples
+		// in a later stage.
+		pInstrument->checkForMissingSamples(
+			Event::Trigger::Suppress, pHydrogen );
+	}
 
 	if ( flags & Xml::Flag::Ipc ) {
 		// Additional members not present in files written to disk but required
@@ -657,7 +670,9 @@ void Instrument::saveTo(
 	InstrumentNode.write_string( "type", m_type );
 
 	if ( flags & ( Xml::Flag::SongKit | Xml::Flag::Ipc ) ) {
-		InstrumentNode.write_string( "drumkitPath", m_sDrumkitPath );
+		if ( ! ( flags & Xml::Flag::Project ) ) {
+			InstrumentNode.write_string( "drumkitPath", m_sDrumkitPath );
+		}
 		InstrumentNode.write_string( "drumkit", m_sDrumkitName );
 	}
 

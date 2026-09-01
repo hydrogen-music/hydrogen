@@ -214,7 +214,15 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		*pLegacyFormatEncountered = true;
 	}
 
-	pDrumkit->m_sPath = sDrumkitPath;
+	if ( flags & Xml::Flag::Project ) {
+		// When stored as part of a .h2project, the samples of a song's drumkit
+		// will be included into the tar archive directly and not loaded from an
+		// installed drumkit.
+		pDrumkit->m_sPath = "";
+	}
+	else {
+		pDrumkit->m_sPath = sDrumkitPath;
+	}
 	pDrumkit->m_sName = sDrumkitName;
 	pDrumkit->m_nVersion = node.read_int(
 		"userVersion", pDrumkit->getVersion(), true, false, true );
@@ -275,7 +283,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		
 	pDrumkit->setInstruments( pInstrumentList );
 
-	if ( ! ( flags & Xml::Flag::SongKit ) ) {
+	if ( ! ( flags & Xml::Flag::SongKit ) && ! ( flags & Xml::Flag::Project ) ) {
 		// Instead of making the *::loadFrom() functions more complex by
 		// passing the license down to each sample, we will make the
 		// drumkit assign its license to each sample in here.

@@ -120,7 +120,8 @@ Sample::Sample(
 	long long nFrames,
 	int sample_rate,
 	float* data_l,
-	float* data_r
+	float* data_r,
+	Xml::Flag flags
 )
 	: m_bIsLoaded( false ),
 	  m_sFilePath( sFilePath ),
@@ -131,7 +132,8 @@ Sample::Sample(
 	  m_bIsModified( false ),
 	  m_license( license )
 {
-	if ( sFilePath.lastIndexOf( "/" ) <= 0 ) {
+	if ( sFilePath.lastIndexOf( "/" ) <= 0 &&
+		 !( flags & Xml::Flag::Project ) ) {
 		WARNINGLOG(
 			QString( "Provided filepath [%1] does not seem like an absolute "
 					 "path. Sample will most probably be unable to load." )

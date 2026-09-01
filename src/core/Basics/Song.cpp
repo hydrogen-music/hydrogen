@@ -576,7 +576,8 @@ std::shared_ptr<Song> Song::loadFrom(
 	pSong->setLastLoadedDrumkitPath(
 		Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath )
 	);
-	if ( pDrumkit != nullptr && ! ( flags & Xml::Flag::Ipc ) ) {
+	if ( pDrumkit != nullptr && !( flags & Xml::Flag::Ipc ) &&
+		 !( flags & Xml::Flag::Project ) ) {
 		pDrumkit->setPath( pSong->getLastLoadedDrumkitPath() );
 	}
 
@@ -920,6 +921,9 @@ void Song::saveTo(
 		auto playbackTrackFlags = Xml::Flag::SongKit;
 		if ( flags & Xml::Flag::Ipc ) {
 			playbackTrackFlags |= Xml::Flag::Ipc;
+		}
+		if ( flags & Xml::Flag::Project ) {
+			playbackTrackFlags |= Xml::Flag::Project;
 		}
 		m_pPlaybackTrackInstrument->saveTo(
 			playbackTrackNode, playbackTrackFlags, bSilent );

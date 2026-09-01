@@ -56,7 +56,11 @@ namespace Xml
 		/** Whether the song and script paths of a Playlist are stored
 		 * relative to the path of the playlist itself (instead of
 		 * absolute ones). */
-		UseRelativePaths = 0x008
+		UseRelativePaths = 0x008,
+		/** Whether the object is serialized as part of a H2Project. This does
+		 * not use sample data from installed drumkits but bundles them directly
+		 * into a tar archive along with the song. */
+		Project = 0x010
 	};
 
 	constexpr Flag operator|( Flag flag1, Flag flag2 ) {

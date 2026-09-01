@@ -28,6 +28,8 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #include <QByteArray>
 #include <QCryptographicHash>
@@ -123,6 +125,16 @@ static void forEachSample( std::shared_ptr<Song> pSong, F fn ) {
 			}
 		}
 	}
+	if ( pSong->getPlaybackTrackInstrument() != nullptr ) {
+		auto pPlaybackInstrument = pSong->getPlaybackTrackInstrument();
+		if ( pPlaybackInstrument->getComponent( 0 ) != nullptr &&
+			 pPlaybackInstrument->getComponent( 0 )->getLayer( 0 ) != nullptr ) {
+			auto pLayer = pPlaybackInstrument->getComponent( 0 )->getLayer( 0 );
+			if ( pLayer->getSample() != nullptr ) {
+				fn( -1, 0, 0, pLayer->getSample() );
+			}
+		}
+	}
 }
 
 std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
@@ -137,7 +149,7 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 	}
 
 	const QByteArray songXml = pSong->toXmlBuffer(
-		Xml::Flag::KeepMissingSamples, bSilent
+		Xml::Flag::KeepMissingSamples | Xml::Flag::Project, bSilent
 	);
 
 	// Collect the unique sample blobs (deduped by content hash) and a manifest
@@ -270,7 +282,7 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 	}
 
 	auto pSong = Song::fromXmlBuffer(
-		entries[SONG_ENTRY], Xml::Flag::None, bSilent, pHydrogen
+		entries[SONG_ENTRY], Xml::Flag::Project, bSilent, pHydrogen
 	);
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to reconstruct song from .h2project" );
@@ -318,6 +330,20 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 						   .arg( sKey ) );
 		}
 	} );
+
+	if ( pSong->getPlaybackTrackInstrument() != nullptr ) {
+		pSong->getPlaybackTrackInstrument()->loadSamples(
+			120, pHydrogen->getPreferences().get()
+		);
+	}
+
+	for ( auto ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		if ( ppInstrument != nullptr ) {
+			ppInstrument->checkForMissingSamples(
+				Event::Trigger::Suppress, pHydrogen
+			);
+		}
+	}
 
 	return pSong;
 #endif

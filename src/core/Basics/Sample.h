@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <core/License.h>
+#include <core/Helpers/Xml.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -174,7 +175,8 @@ class Sample : public H2Core::Object<Sample> {
 		long long nFrames = 0,
 		int sample_rate = 0,
 		float* data_l = nullptr,
-		float* data_r = nullptr
+		float* data_r = nullptr,
+		Xml::Flag flags = Xml::Flag::None
 	);
 	/** copy constructor */
 	Sample( std::shared_ptr<Sample> other );
