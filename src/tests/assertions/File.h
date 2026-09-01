@@ -45,6 +45,12 @@ namespace H2Test {
 							 CppUnit::SourceLine sourceLine );
 	void checkDirsEqual( const QString& sDirExpected, const QString& sDirActual,
 						 bool bEquality, CppUnit::SourceLine sourceLine );
+	void checkTarArchivesEqual(
+		const QString& sPathExpected,
+		const QString& sPathActual,
+		bool bEquality,
+		CppUnit::SourceLine sourceLine
+	);
 
 	void checkFileArgs( const QString& sExpected, QFile& f1,
 						const QString& sActual, QFile& f2,
@@ -79,5 +85,9 @@ namespace H2Test {
 	H2Test::checkDirsEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
 #define H2TEST_ASSERT_DIRS_UNEQUAL( sExpected, sActual ) \
 	H2Test::checkDirsEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_TAR_ARCHIVES_EQUAL( sExpected, sActual ) \
+	H2Test::checkTarArchivesEqual( sExpected, sActual, true, CPPUNIT_SOURCELINE() )
+#define H2TEST_ASSERT_TAR_ARCHIVES_UNEQUAL( sExpected, sActual ) \
+	H2Test::checkTarArchivesEqual( sExpected, sActual, false, CPPUNIT_SOURCELINE() )
 
 #endif

@@ -343,7 +343,15 @@ void H2ProjectTest::testFileRoundTrip() {
 		CPPUNIT_ASSERT_EQUAL( nFrames, framesAfter.at( sKey ) );
 	}
 
+	// Storing the project again must yield the same content. The archives
+	// are not compared byte by byte - tar/gzip headers are not reproducible -
+	// but their extracted content.
+	const QString sPath2 = Filesystem::tmpFilePath( "roundtrip-2.h2project" );
+	CPPUNIT_ASSERT( H2Project::save( pReconstructed, sPath2, true ) );
+	H2TEST_ASSERT_TAR_ARCHIVES_EQUAL( sPath, sPath2 );
+
 	Filesystem::rm( sPath, false, true );
+	Filesystem::rm( sPath2, false, true );
 
 	___INFOLOG( "passed" );
 }
@@ -394,18 +402,8 @@ void H2ProjectTest::testUnifiedOpen() {
 	CPPUNIT_ASSERT_EQUAL( nInstruments,
 						  pFromProject->getDrumkit()->getInstruments()->size() );
 
-	// Storing the project again must yield the same file
-	const QString sProjPath2 = Filesystem::tmpFilePath( "unified-2.h2project" );
-	CPPUNIT_ASSERT( H2Project::save( pFromSong, sProjPath2, true ) );
-	H2TEST_ASSERT_FILES_EQUAL( sProjPath, sProjPath2 );
-	auto pFromProject2 = H2Project::openSong( sProjPath, pTestHydrogen(), true );
-	CPPUNIT_ASSERT( pFromProject2 != nullptr );
-	CPPUNIT_ASSERT_EQUAL( nInstruments,
-						  pFromProject2->getDrumkit()->getInstruments()->size() );
-
 	Filesystem::rm( sSongPath, false, true );
 	Filesystem::rm( sProjPath, false, true );
-	Filesystem::rm( sProjPath2, false, true );
 
 	___INFOLOG( "passed" );
 }

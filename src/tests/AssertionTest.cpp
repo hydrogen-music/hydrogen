@@ -24,6 +24,8 @@
 #include "TestHelper.h"
 #include "assertions/File.h"
 
+#include <core/config.h>
+
 class AssertionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( AssertionTest );
 	CPPUNIT_TEST( testAssertions );
@@ -48,6 +50,17 @@ class AssertionTest : public CppUnit::TestCase {
 							   H2TEST_FILE( "/drumkits/baseKit" ) );
 	H2TEST_ASSERT_DIRS_UNEQUAL( H2TEST_FILE( "/drumkits/instrument-type-ref" ),
 								H2TEST_FILE( "/drumkits/instrument-type-ref-duplicate" ) );
+#ifdef H2CORE_HAVE_LIBARCHIVE
+	// .h2drumkit files are tar archives and have to be extracted before
+	// comparing them.
+	H2TEST_ASSERT_TAR_ARCHIVES_EQUAL( H2TEST_FILE( "/drumkits/testKit.h2drumkit" ),
+									  H2TEST_FILE( "/drumkits/testKit.h2drumkit" ) );
+	H2TEST_ASSERT_TAR_ARCHIVES_UNEQUAL( H2TEST_FILE( "/drumkits/testKit.h2drumkit" ),
+										H2TEST_FILE( "/drumkits/sampleFormatKit.h2drumkit" ) );
+	// Kits using UTF-8 encoded file and folder names.
+	H2TEST_ASSERT_TAR_ARCHIVES_EQUAL( H2TEST_FILE( "/drumkits/ếИ£TestKit越.h2drumkit" ),
+									  H2TEST_FILE( "/drumkits/ếИ£TestKit越.h2drumkit" ) );
+#endif
 
 	ASSERT_PATH( "/usr/example", "/usr/example" );
 	ASSERT_PATH( "/usr/example", "/usr\\example" );
