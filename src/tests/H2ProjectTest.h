@@ -29,6 +29,8 @@ class H2ProjectTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testBufferRoundTrip );
 	CPPUNIT_TEST( testBasicsBufferRoundTrip );
 	CPPUNIT_TEST( testFileRoundTrip );
+	CPPUNIT_TEST( testSampleReloadAfterLoad );
+	CPPUNIT_TEST( testProjectCacheLifecycle );
 	CPPUNIT_TEST( testContainerDetection );
 	CPPUNIT_TEST( testUnifiedOpen );
 	CPPUNIT_TEST_SUITE_END();
@@ -37,6 +39,8 @@ public:
 	void testBufferRoundTrip();
 	void testBasicsBufferRoundTrip();
 	void testFileRoundTrip();
+	void testSampleReloadAfterLoad();
+	void testProjectCacheLifecycle();
 	void testContainerDetection();
 	void testUnifiedOpen();
 };

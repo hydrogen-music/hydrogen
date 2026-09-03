@@ -63,7 +63,8 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			XMLNode& node,
 			Xml::Flag flags,
             const QString& sDrumkitPath,
-			bool bSilent
+			bool bSilent,
+			const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
 		);
 		static std::shared_ptr<InstrumentComponent> loadFrom(
 			const XMLNode& pNode,

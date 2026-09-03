@@ -263,7 +263,8 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent,
 }
 
 QByteArray
-Song::toXmlBuffer( Xml::Flag flags, bool bSilent ) const
+Song::toXmlBuffer( Xml::Flag flags, bool bSilent,
+				   const Xml::ProjectSampleEntries* pProjectSampleEntries ) const
 {
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "song" );
@@ -274,7 +275,7 @@ Song::toXmlBuffer( Xml::Flag flags, bool bSilent ) const
 		);
 	}
 
-	saveTo( rootNode, flags, bSilent );
+	saveTo( rootNode, flags, bSilent, pProjectSampleEntries );
 
 	return doc.toByteArray();
 }
@@ -885,7 +886,8 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 void Song::saveTo(
 	XMLNode& rootNode,
 	Xml::Flag flags,
-	bool bSilent
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
 ) const
 {
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
@@ -926,7 +928,8 @@ void Song::saveTo(
 			playbackTrackFlags |= Xml::Flag::Project;
 		}
 		m_pPlaybackTrackInstrument->saveTo(
-			playbackTrackNode, playbackTrackFlags, bSilent );
+			playbackTrackNode, playbackTrackFlags, bSilent,
+			pProjectSampleEntries );
 	}
 
 	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
@@ -1009,7 +1012,8 @@ void Song::saveTo(
 	m_pDrumkit->saveTo(
 		drumkitNode,
 		flags | Xml::Flag::SongKit,  // Enable per-instrument sample loading
-		bSilent
+		bSilent,
+		pProjectSampleEntries
 	);
 
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );

@@ -106,11 +106,16 @@ class Instrument : public H2Core::Object<Instrument> {
 	 * \param flags OR-ed combination of #Xml::Flag options.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
+	 * \param pProjectSampleEntries If not null, samples are referenced
+	 *   by their entry names within a `.h2project` bundle instead of
+	 *   local paths (only effective in combination with
+	 *   Xml::Flag::Project).
 	 */
 	void saveTo(
 		XMLNode& node,
 		Xml::Flag flags,
-		bool bSilent );
+		bool bSilent,
+		const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr );
 
 	/** Serialize the instrument to an in-memory XML buffer (samples by path, not
 	 * embedded — ADR 0027/0030). Used to carry an instrument across the

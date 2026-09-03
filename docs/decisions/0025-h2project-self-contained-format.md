@@ -92,3 +92,43 @@ opaque. Option 3 is rejected precisely because of the >1 GB-kit case.
   [ADR 0020](0020-plugin-state-sample-embedding.md),
   [proposal 0003](/docs/proposals/0003-hydrogen-as-an-audio-plugin.md),
   [proposal 0004](/docs/proposals/0004-plugin-port-implementation-plan.md)
+
+## Amendment (2026-09-02): extraction-based reconstruction
+
+The original decision had the reconstruction decode samples **in memory**
+(libsndfile virtual I/O, `Sample::loadFromMemory()`). This proved too
+limiting in practice:
+
+* Reconstructed samples had **no file path**, so everything relying on one
+  was broken: unloading/reloading samples, and re-saving a loaded project
+  (the re-saved bundle lost its sample data and wrote empty `<filename>`
+  elements).
+* The bundle's XML was **not reproducible**: `<filename>` elements embedded
+  local drumkit or cache paths, so the same project saved twice - or on two
+  machines - did not compare equal.
+
+What changed:
+
+* **Reconstruction extracts the bundle** to a per-origin folder below
+  `Filesystem::cacheDir()` (`projects/<key>/`) via the new shared
+  `H2Core::Archive` back end, which also replaces the extraction code
+  formerly duplicated in `Drumkit::install()` and the unit test assertions.
+  The extracted sample files are assigned with `Sample::setFilePath()` and
+  decoded through the regular, synchronous file-based code path.
+* **Cache keys:** a `.h2project` file is keyed by
+  `<sanitized basename>-<sha1 of its absolute path>`; a plugin state by
+  `plugin-<PID>-<Hydrogen instance id>`. Re-loading the same origin replaces
+  its folder wholesale.
+* **Lifecycle:** extraction folders are registered with the owning
+  `Hydrogen` instance (`Hydrogen::registerExtractedProjectDir()`) and
+  removed again in `~Hydrogen()` - no stale cache accumulates.
+* **Deterministic XML:** while building a bundle, a path→entry map
+  (`Xml::ProjectSampleEntries`) is threaded through the whole `saveTo()`
+  chain so that `<filename>` elements reference manifest entry names
+  (`samples/<sha1>.<ext>`) instead of local paths. A loaded project re-saves
+  with identical content, and no cache or drumkit path leaks into the
+  portable bundle.
+
+Everything else - the container itself, the content-hash dedup, the
+standalone menu action, the plugin toggle, and the unified open path - is
+unchanged.

@@ -132,7 +132,6 @@ public:
 										const QString& sSearchDir );
 
 private:
-	QString makeEditorEndpoint() const;
 	QString editorBinary() const;
 	void launchEditorProcess();
 	/** Process-exit handler. Respawns only on a crash (bounded); a clean exit

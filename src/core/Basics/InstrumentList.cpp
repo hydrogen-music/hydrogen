@@ -119,13 +119,15 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 void InstrumentList::saveTo(
 	XMLNode& node,
 	Xml::Flag flags,
-	bool bSilent
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
 ) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
-			pInstrument->saveTo( instruments_node, flags, bSilent );
+			pInstrument->saveTo( instruments_node, flags, bSilent,
+								 pProjectSampleEntries );
 		}
 		else {
 			ERRORLOG( "Invalid instrument!" );

@@ -43,9 +43,15 @@ class Hydrogen;
  *   - the standalone "save as self-contained project" menu action, and
  *   - the plugin's embedded state (ADR 0017/0020) when sample embedding is on.
  *
- * Both the build and the reconstruction work entirely in memory: samples are
- * decoded straight from the archive via Sample::loadFromMemory() (libsndfile
- * virtual I/O), so a project opens even when its drumkit is not installed.
+ * Building a bundle happens entirely in memory. For reconstruction the
+ * bundle is extracted into a per-origin folder below Filesystem::cacheDir()
+ * - keyed by the originating `.h2project` file or, for plugin states, by
+ * host process and Hydrogen instance. The extracted sample files are
+ * assigned to the song via Sample::setFilePath() and decoded through the
+ * regular file-based code path, so a project opens even when its drumkit
+ * is not installed. The extraction folders are tracked by the owning
+ * Hydrogen instance (Hydrogen::registerExtractedProjectDir()) and removed
+ * again on its teardown.
  *
  * \ingroup docCore
  */
@@ -57,11 +63,18 @@ public:
 	static std::vector<unsigned char> toBuffer( std::shared_ptr<Song> pSong,
 												bool bSilent = false );
 
-	/** Reconstruct a song (with its samples decoded from the bundle) from an
-	 * in-memory `.h2project` buffer. Returns nullptr on failure. */
+	/** Reconstruct a song from an in-memory `.h2project` buffer. The bundle
+	 * is extracted to a cache folder derived from @a sCacheKey and its
+	 * samples are loaded from the extracted files. Returns nullptr on
+	 * failure.
+	 *
+	 * \param sCacheKey Key identifying the origin of the bundle, e.g. the
+	 *   path of the `.h2project` file or a plugin-state identifier. It
+	 *   determines the extraction folder below Filesystem::cacheDir() and
+	 *   has to be stable across reloads of the same origin. */
 	static std::shared_ptr<Song> fromBuffer(
-		const std::vector<unsigned char>& data, Hydrogen* pHydrogen,
-		bool bSilent = false );
+		const std::vector<unsigned char>& data, const QString& sCacheKey,
+		Hydrogen* pHydrogen, bool bSilent = false );
 
 	/** Write a `.h2project` bundle for @a pSong to @a sPath. */
 	static bool save( std::shared_ptr<Song> pSong, const QString& sPath,

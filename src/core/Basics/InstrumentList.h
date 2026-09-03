@@ -181,11 +181,16 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * \param flags OR-ed combination of #Xml::Flag options.
 		 * \param bSilent if set to true, all log messages except of errors and
 		 *   warnings are suppressed.
+		 * \param pProjectSampleEntries If not null, samples are referenced
+		 *   by their entry names within a `.h2project` bundle instead of
+		 *   local paths (only effective in combination with
+		 *   Xml::Flag::Project).
 		 */
 		void saveTo(
 			XMLNode& node,
 			Xml::Flag flags,
-			bool bSilent
+			bool bSilent,
+			const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
 		) const;
 
 		/**

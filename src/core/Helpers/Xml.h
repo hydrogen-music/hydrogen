@@ -28,11 +28,23 @@
 #include <QColor>
 #include <QtXml/QDomDocument>
 
+#include <map>
+
 namespace H2Core
 {
 
 namespace Xml
 {
+	/** Maps the file path of a sample to the name of the bundle entry its
+	 * audio data is stored in (ADR 0025).
+	 *
+	 * While assembling a `.h2project` bundle this map is handed through the
+	 * whole saveTo() chain so that `<filename>` elements reference samples
+	 * by their entry names - e.g. `samples/<hash>.flac` - instead of local
+	 * drumkit or cache paths. This keeps the bundle portable and its XML
+	 * reproducible across machines. */
+	using ProjectSampleEntries = std::map<QString, QString>;
+
 	/** OR-able options altering how the classes in Basics are
 	 * (de)serialized in their loadFrom(), saveTo(), fromXmlBuffer(),
 	 * and toXmlBuffer() methods. */

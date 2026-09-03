@@ -40,6 +40,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 #include <map>
 
@@ -199,7 +200,8 @@ void H2ProjectTest::testBufferRoundTrip() {
 	Filesystem::rm( sTmpDir, true );
 	Filesystem::rm( sTmpPlaybackTrack );
 
-	auto pReconstructed = H2Project::fromBuffer( bundle, pTestHydrogen(), true );
+	auto pReconstructed = H2Project::fromBuffer(
+		bundle, "test-buffer-round-trip", pTestHydrogen(), true );
 	CPPUNIT_ASSERT( pReconstructed != nullptr );
 	CPPUNIT_ASSERT( pReconstructed->getDrumkit() != nullptr );
 
@@ -217,7 +219,7 @@ void H2ProjectTest::testBufferRoundTrip() {
 	CPPUNIT_ASSERT_EQUAL( framesBefore.size(), framesAfter.size() );
 	for ( const auto& [ sKey, nFrames ] : framesBefore ) {
 		CPPUNIT_ASSERT( framesAfter.find( sKey ) != framesAfter.end() );
-		CPPUNIT_ASSERT( framesAfter.at( sKey ) > 0 ); // decoded from memory
+		CPPUNIT_ASSERT( framesAfter.at( sKey ) > 0 ); // decoded from bundle
 		CPPUNIT_ASSERT_EQUAL( nFrames, framesAfter.at( sKey ) );
 	}
 
@@ -352,6 +354,162 @@ void H2ProjectTest::testFileRoundTrip() {
 
 	Filesystem::rm( sPath, false, true );
 	Filesystem::rm( sPath2, false, true );
+
+	___INFOLOG( "passed" );
+}
+
+// A loaded .h2project hands out real sample files: unloading and re-loading
+// the samples through the standard file-based path yields the same audio
+// (ADR 0025).
+void H2ProjectTest::testSampleReloadAfterLoad() {
+	___INFOLOG( "" );
+
+	// Build a song with a dedicated kit (unknown to the local sound library)
+	// and save it as a self-contained project.
+	const QString sTmpDir =
+		Filesystem::tmpDir() + "/h2project-sample-reload/drumkit.xml";
+	auto pHydrogen = pTestHydrogen();
+	auto pSong = Song::getEmptySong( pHydrogen );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pDrumkit = makeNewDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	pDrumkit->save( sTmpDir, false );
+	pSong->setDrumkit( pDrumkit );
+	pSong->getDrumkit()->loadSamples(
+		120, pHydrogen->getPreferences().get() );
+
+	const auto framesBefore = sampleFrames( pSong );
+	CPPUNIT_ASSERT( ! framesBefore.empty() );
+
+	const QString sPath = Filesystem::tmpFilePath( "reload.h2project" );
+	CPPUNIT_ASSERT( H2Project::save( pSong, sPath, true ) );
+
+	// Remove the backing drumkit from disk. All samples must be retrieved from
+	// the project.
+	Filesystem::rm( sTmpDir, true );
+
+	auto pLoaded = H2Project::load( sPath, pTestHydrogen(), true );
+	CPPUNIT_ASSERT( pLoaded != nullptr );
+
+	// The samples of a loaded project are regular files and survive a full
+	// unload/reload cycle.
+	pLoaded->getDrumkit()->unloadSamples();
+	pLoaded->getDrumkit()->loadSamples(
+		120, pHydrogen->getPreferences().get() );
+
+	const auto framesAfter = sampleFrames( pLoaded );
+	CPPUNIT_ASSERT_EQUAL( framesBefore.size(), framesAfter.size() );
+	for ( const auto& [ sKey, nFrames ] : framesBefore ) {
+		CPPUNIT_ASSERT( framesAfter.find( sKey ) != framesAfter.end() );
+		CPPUNIT_ASSERT( framesAfter.at( sKey ) > 0 );
+		CPPUNIT_ASSERT_EQUAL( nFrames, framesAfter.at( sKey ) );
+	}
+
+	Filesystem::rm( sPath, false, true );
+
+	___INFOLOG( "passed" );
+}
+
+// Loading a .h2project extracts it to a per-origin folder below the cache
+// dir which is tracked by the owning Hydrogen instance and removed again on
+// its teardown (ADR 0025). The same lifecycle applies to plugin states,
+// which are keyed by host process and Hydrogen instance instead of a file.
+void H2ProjectTest::testProjectCacheLifecycle() {
+	___INFOLOG( "" );
+
+	// Preferences for a headless, host-less secondary instance: fake audio,
+	// no MIDI, no OSC (same setup as in MultiInstanceTest).
+	auto pEnginePreferences = Preferences::create_instance();
+	pEnginePreferences->m_audioDriver = Preferences::AudioDriver::Fake;
+	pEnginePreferences->m_midiDriver = Preferences::MidiDriver::None;
+	pEnginePreferences->m_nBufferSize = 1024;
+	pEnginePreferences->setOscServerEnabled( false );
+
+	// A song with a sample - without one there is no extraction content to
+	// check.
+	const QString sTmpDir =
+		Filesystem::tmpDir() + "/h2project-cache-lifecycle/drumkit.xml";
+	auto pSong = Song::getEmptySong( pTestHydrogen() );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pDrumkit = makeNewDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	pDrumkit->save( sTmpDir, false );
+	pSong->setDrumkit( pDrumkit );
+	pSong->getDrumkit()->loadSamples(
+		120, pTestHydrogen()->getPreferences().get() );
+
+	const QString sPath = Filesystem::tmpFilePath( "lifecycle.h2project" );
+	CPPUNIT_ASSERT( H2Project::save( pSong, sPath, true ) );
+	Filesystem::rm( sTmpDir, true );
+
+	// Collect the file paths of all samples of a song.
+	const auto samplePathsOf = []( std::shared_ptr<Song> pS ) {
+		QStringList paths;
+		for ( auto ppInstrument : *pS->getDrumkit()->getInstruments() ) {
+			if ( ppInstrument == nullptr ) {
+				continue;
+			}
+			for ( auto ppComponent : *ppInstrument->getComponents() ) {
+				if ( ppComponent == nullptr ) {
+					continue;
+				}
+				for ( auto ppLayer : ppComponent->getLayers() ) {
+					if ( ppLayer != nullptr && ppLayer->getSample() != nullptr ) {
+						paths << ppLayer->getSample()->getFilePath();
+					}
+				}
+			}
+		}
+		return paths;
+	};
+
+	// A dedicated engine instance owns the extraction folder of a loaded
+	// project.
+	auto* pEngine = new Hydrogen(
+		pEnginePreferences, H2Core::ProcessMode::Headless, -1 );
+	pEngine->setFullyOperational( true );
+
+	auto pLoaded = H2Project::load( sPath, pEngine, true );
+	CPPUNIT_ASSERT( pLoaded != nullptr );
+
+	const auto projectPaths = samplePathsOf( pLoaded );
+	CPPUNIT_ASSERT( ! projectPaths.isEmpty() );
+	for ( const auto& ssPath : projectPaths ) {
+		CPPUNIT_ASSERT( ssPath.startsWith( Filesystem::cacheDir() ) );
+		CPPUNIT_ASSERT( QFileInfo( ssPath ).exists() );
+	}
+
+	// Tearing the engine down removes its extraction folders.
+	delete pEngine;
+	for ( const auto& ssPath : projectPaths ) {
+		CPPUNIT_ASSERT( ! QFileInfo( ssPath ).exists() );
+	}
+
+	// Plugin states are extracted to a folder keyed by host process and
+	// Hydrogen instance and share the very same lifecycle.
+	const auto state = H2Project::toState( pSong, /*bEmbedSamples=*/true, true );
+	CPPUNIT_ASSERT( ! state.empty() );
+
+	auto* pPluginEngine = new Hydrogen(
+		Preferences::create_instance(), H2Core::ProcessMode::Headless, -1 );
+	pPluginEngine->setFullyOperational( true );
+
+	auto pFromState = H2Project::fromState( state, pPluginEngine, true );
+	CPPUNIT_ASSERT( pFromState != nullptr );
+
+	const auto pluginPaths = samplePathsOf( pFromState );
+	CPPUNIT_ASSERT( ! pluginPaths.isEmpty() );
+	for ( const auto& ssPath : pluginPaths ) {
+		CPPUNIT_ASSERT( ssPath.startsWith( Filesystem::cacheDir() ) );
+		CPPUNIT_ASSERT( QFileInfo( ssPath ).exists() );
+	}
+
+	delete pPluginEngine;
+	for ( const auto& ssPath : pluginPaths ) {
+		CPPUNIT_ASSERT( ! QFileInfo( ssPath ).exists() );
+	}
+
+	Filesystem::rm( sPath, false, true );
 
 	___INFOLOG( "passed" );
 }

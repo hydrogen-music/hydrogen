@@ -547,6 +547,22 @@ public:
 	 * file.*/
 	void requestPreferencesSave();
 
+	/** \return Unique id of this Hydrogen instance within the current
+	 * process. Ids are assigned in increasing order during construction and
+	 * are used, among other things, to derive collision-free cache folders
+	 * for extracted `.h2project` bundles (ADR 0025). */
+	int getInstanceId() const;
+
+	/**
+	 * Register @a sDir as the extraction folder of a `.h2project` bundle
+	 * loaded by this instance (ADR 0025).
+	 *
+	 * Such folders live below Filesystem::cacheDir() and are removed again
+	 * in ~Hydrogen(). Registering the same folder multiple times is a
+	 * no-op.
+	 */
+	void registerExtractedProjectDir( const QString& sDir );
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -590,6 +606,16 @@ private:
 	 * via getSong().
 	 */
 	std::shared_ptr<Song>			m_pSong;
+
+	/** Unique id of this instance within the current process. Assigned in
+	 * increasing order in the constructor and exposed via
+	 * getInstanceId(). */
+	int m_nInstanceId;
+	/** Extraction folders of `.h2project` bundles loaded by this instance
+	 * (ADR 0025). They live below Filesystem::cacheDir(), are registered
+	 * via registerExtractedProjectDir(), and removed again in
+	 * ~Hydrogen(). */
+	QStringList m_extractedProjectDirs;
 
 	// beatcounter
 	float			m_fBeatCounterBeatLength;	///< beatcounter note length
@@ -820,6 +846,9 @@ inline bool Hydrogen::getSendBbtChangeEvents() const {
 }
 inline void Hydrogen::setSendBbtChangeEvents( bool bSend ) {
 	m_bSendBbtChangeEvents = bSend;
+}
+inline int Hydrogen::getInstanceId() const {
+	return m_nInstanceId;
 }
 };
 

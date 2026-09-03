@@ -124,11 +124,16 @@ namespace H2Core
 		 *   and just store the file name. But we have to be careful to only do
 		 *   so for samples associated with the drumkit of the parent
 		 *   instrument.
+		 * \param pProjectSampleEntries If not null, samples are referenced
+		 *   by their entry names within a `.h2project` bundle instead of
+		 *   local paths (only effective in combination with
+		 *   Xml::Flag::Project).
 		 */
 		void saveTo(
 			XMLNode& node,
 			Xml::Flag flags = Xml::Flag::None,
-			const QString& sDrumkitPath = ""
+			const QString& sDrumkitPath = "",
+			const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
 		) const;
 
 		/**

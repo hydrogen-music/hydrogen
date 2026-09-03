@@ -113,11 +113,16 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 *
 		 * \param pNode the XMLNode to feed
 		 * \param flags OR-ed combination of #Xml::Flag options.
+		 * \param pProjectSampleEntries If not null, samples are referenced
+		 *   by their entry names within a `.h2project` bundle instead of
+		 *   local paths (only effective in combination with
+		 *   Xml::Flag::Project).
 		 */
 		void saveTo(
 			XMLNode& pNode,
 			Xml::Flag flags,
-			bool bSilent = false
+			bool bSilent = false,
+			const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
 		) const;
 
 		/** Serialize the drumkit to an in-memory XML buffer (samples referenced

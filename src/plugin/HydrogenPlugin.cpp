@@ -185,16 +185,6 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 
 // ── Out-of-process editor lifecycle (ADR 0016) ─────────────────────────────
 
-QString HydrogenPlugin::makeEditorEndpoint() const {
-	// Use shared endpoint generation with plugin-specific prefix
-	// Unique per editor open across this host process. IpcServer::listen clears a
-	// stale socket from a crashed run, so reuse-after-crash is safe.
-	static std::atomic<unsigned> s_nCounter{ 0 };
-	return QString( "hydrogen-editor-%1-%2" )
-		.arg( QCoreApplication::applicationPid() )
-		.arg( s_nCounter.fetch_add( 1 ) );
-}
-
 namespace {
 // Qt's QProcess / local-socket classes need a QCoreApplication in the process.
 // A standalone build and the unit tests already have one (QApplication /
@@ -274,7 +264,9 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 	ensureQtApplication();
 
 	if ( m_sEditorEndpoint.isEmpty() ) {
-		m_sEditorEndpoint = makeEditorEndpoint();
+		m_sEditorEndpoint = QString( "hydrogen-editor-%1-%2" )
+								.arg( QCoreApplication::applicationPid() )
+								.arg( m_pHydrogen->getInstanceId() );
 	}
 	m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
 	if ( m_pEditorSession == nullptr ) {

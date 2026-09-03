@@ -155,10 +155,15 @@ class Song : public H2Core::Object<Song>,
 	 *
 	 * \param flags OR-ed combination of #Xml::Flag options.
 	 * \param bSilent if set to true, all log messages except of errors and
-	 *   warnings are suppressed. */
+	 *   warnings are suppressed.
+	 * \param pProjectSampleEntries If not null, samples are referenced by
+	 *   their entry names within a `.h2project` bundle instead of local
+	 *   paths (only effective in combination with Xml::Flag::Project). */
 	QByteArray toXmlBuffer(
 		Xml::Flag flags = Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc,
-		bool bSilent = false ) const;
+		bool bSilent = false,
+		const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
+	) const;
 	/** Reconstruct a song from an in-memory `.h2song` XML buffer (no disk I/O).
 	 * Samples are referenced but not loaded - the same as load().
 	 *
@@ -324,7 +329,8 @@ class Song : public H2Core::Object<Song>,
 	void saveTo(
 		XMLNode& pNode,
 		Xml::Flag flags,
-		bool bSilent
+		bool bSilent,
+		const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
 	) const;
 
 	/** Whether the Timeline button was pressed in the GUI or it was

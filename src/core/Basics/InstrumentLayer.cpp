@@ -325,7 +325,8 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 void InstrumentLayer::saveTo(
 	XMLNode& node,
 	Xml::Flag flags,
-	const QString& sDrumkitPath
+	const QString& sDrumkitPath,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
 ) const
 {
 	auto pSample = getSample();
@@ -334,7 +335,24 @@ void InstrumentLayer::saveTo(
 
 	QString sFileName;
 	if ( pSample != nullptr ) {
-		if ( flags & Xml::Flag::SongKit ) {
+		if ( ( flags & Xml::Flag::Project ) &&
+			 pProjectSampleEntries != nullptr ) {
+			// Within a `.h2project` bundle samples are referenced by their
+			// entry names. Neither drumkit nor cache paths must leak into the
+			// portable bundle (ADR 0025).
+			const auto it = pProjectSampleEntries->find(
+				pSample->getFilePath() );
+			if ( it != pProjectSampleEntries->end() ) {
+				sFileName = it->second;
+			}
+			else {
+				// The sample could not be bundled, e.g. because its file is
+				// unreadable. We still store its plain name so the layer
+				// survives the round-trip structurally.
+				sFileName = pSample->getFileName();
+			}
+		}
+		else if ( flags & Xml::Flag::SongKit ) {
 			if ( !sDrumkitPath.isEmpty() ) {
 				sFileName = Filesystem::prepareSamplePath(
 					pSample->getFilePath(), sDrumkitPath

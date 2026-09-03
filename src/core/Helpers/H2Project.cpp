@@ -28,10 +28,13 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/Helpers/Archive.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 
 #include <QByteArray>
+#include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QFile>
 #include <QFileInfo>
@@ -50,6 +53,47 @@ namespace H2Core {
 // Entry names within the bundle.
 static const char* SONG_ENTRY = "song.h2song";
 static const char* MANIFEST_ENTRY = "manifest.txt";
+
+// Folder a `.h2project` bundle with the cache key @a sCacheKey is extracted
+// to.
+static QString projectCacheDir( const QString& sCacheKey ) {
+	return Filesystem::cacheDir() + "/projects/" + sCacheKey;
+}
+
+// Ensure the key only contains characters which are safe to be used within a
+// single folder name - no separators and no traversal fragments.
+static QString sanitizeCacheKey( const QString& sKey ) {
+	QString sSanitized;
+	for ( const auto& c : sKey ) {
+		if ( c.isLetterOrNumber() || c == '-' || c == '_' || c == '.' ) {
+			sSanitized.append( c );
+		}
+		else {
+			sSanitized.append( '_' );
+		}
+	}
+	return sSanitized;
+}
+
+// Cache key of a `.h2project` file on disk: its base name (so extraction
+// folders remain identifiable when debugging) plus a hash of the absolute
+// path (so files with identical base names do not collide).
+static QString fileCacheKey( const QString& sPath ) {
+	const QString sHash = QString::fromLatin1(
+		QCryptographicHash::hash(
+			QFileInfo( sPath ).absoluteFilePath().toUtf8(),
+			QCryptographicHash::Sha1 ).toHex() ).left( 10 );
+	return sanitizeCacheKey( QFileInfo( sPath ).completeBaseName() ) +
+		"-" + sHash;
+}
+
+// Cache key of a plugin state: the host process and the Hydrogen instance
+// are unique per session, so no stale folder of a previous run can collide.
+static QString pluginCacheKey( const Hydrogen* pHydrogen ) {
+	return QString( "plugin-%1-%2" )
+		.arg( QCoreApplication::applicationPid() )
+		.arg( pHydrogen != nullptr ? pHydrogen->getInstanceId() : -1 );
+}
 
 #ifdef H2CORE_HAVE_LIBARCHIVE
 
@@ -148,14 +192,15 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 		return {};
 	}
 
-	const QByteArray songXml = pSong->toXmlBuffer(
-		Xml::Flag::KeepMissingSamples | Xml::Flag::Project, bSilent
-	);
-
-	// Collect the unique sample blobs (deduped by content hash) and a manifest
-	// mapping each (inst,comp,layer) slot to its blob entry.
+	// Collect the unique sample blobs (deduped by content hash), the manifest
+	// mapping each (inst,comp,layer) slot to its blob entry, and a lookup
+	// from sample file path to entry name. The latter is handed to the XML
+	// serialization below so that `<filename>` elements reference bundle
+	// entries instead of local paths - keeping the bundle portable and its
+	// XML reproducible across machines.
 	std::map<QString, QByteArray> sampleEntries; // entry name -> bytes
 	std::map<QString, QString> hashToEntry;      // content hash -> entry name
+	Xml::ProjectSampleEntries pathToEntry;       // sample path -> entry name
 	QStringList manifestLines;
 
 	forEachSample( pSong, [&]( int ii, int cc, int ll,
@@ -187,10 +232,16 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 			hashToEntry[ sHash ] = sEntry;
 			sampleEntries[ sEntry ] = bytes;
 		}
+		pathToEntry[ sPath ] = sEntry;
 
 		manifestLines << QString( "%1 %2 %3 %4" )
 							 .arg( ii ).arg( cc ).arg( ll ).arg( sEntry );
 	} );
+
+	const QByteArray songXml = pSong->toXmlBuffer(
+		Xml::Flag::KeepMissingSamples | Xml::Flag::Project, bSilent,
+		&pathToEntry
+	);
 
 	const QByteArray manifest = manifestLines.join( "\n" ).toUtf8();
 
@@ -236,7 +287,8 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 }
 
 std::shared_ptr<Song> H2Project::fromBuffer(
-	const std::vector<unsigned char>& data, Hydrogen* pHydrogen, bool bSilent ) {
+	const std::vector<unsigned char>& data, const QString& sCacheKey,
+	Hydrogen* pHydrogen, bool bSilent ) {
 #ifndef H2CORE_HAVE_LIBARCHIVE
 	___ERRORLOG( "libarchive not available; cannot read .h2project" );
 	return nullptr;
@@ -245,44 +297,43 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 		___ERRORLOG( "Empty .h2project buffer" );
 		return nullptr;
 	}
-
-	// Extract every entry into memory.
-	std::map<QString, QByteArray> entries;
-
-	struct archive* a = archive_read_new();
-	archive_read_support_filter_all( a );
-	archive_read_support_format_all( a );
-	if ( archive_read_open_memory( a, data.data(), data.size() ) != ARCHIVE_OK ) {
-		___ERRORLOG( QString( "Unable to open .h2project archive: %1" )
-					 .arg( archive_error_string( a ) ) );
-		archive_read_free( a );
+	if ( pHydrogen == nullptr ) {
+		___ERRORLOG( "Invalid Hydrogen instance" );
+		return nullptr;
+	}
+	if ( sCacheKey.isEmpty() ) {
+		___ERRORLOG( "Empty cache key" );
 		return nullptr;
 	}
 
-	struct archive_entry* entry;
-	while ( archive_read_next_header( a, &entry ) == ARCHIVE_OK ) {
-		const QString sName =
-			QString::fromUtf8( archive_entry_pathname( entry ) );
-		const la_int64_t nSize = archive_entry_size( entry );
-		QByteArray bytes;
-		bytes.reserve( static_cast<int>( nSize ) );
+	// Extract the bundle into its per-key cache folder.
+	const QString sExtractDir = projectCacheDir( sCacheKey );
+	if ( QFileInfo( sExtractDir ).exists() ) {
+		Filesystem::rm( sExtractDir, true, true );
+	}
 
-		char buff[ 65536 ];
-		la_ssize_t nRead;
-		while ( ( nRead = archive_read_data( a, buff, sizeof( buff ) ) ) > 0 ) {
-			bytes.append( buff, static_cast<int>( nRead ) );
+	QStringList extractedPaths;
+	if ( ! Archive::extractFromBuffer( data, sExtractDir, bSilent,
+									   &extractedPaths ) ) {
+		if ( QFileInfo( sExtractDir ).exists() ) {
+			Filesystem::rm( sExtractDir, true, true );
 		}
-		entries[ sName ] = bytes;
-	}
-	archive_read_free( a );
-
-	if ( entries.find( SONG_ENTRY ) == entries.end() ) {
-		___ERRORLOG( "No song entry in .h2project archive" );
 		return nullptr;
 	}
+	pHydrogen->registerExtractedProjectDir( sExtractDir );
+
+	const QString sSongPath = sExtractDir + "/" + SONG_ENTRY;
+	QFile songFile( sSongPath );
+	if ( ! songFile.open( QIODevice::ReadOnly ) ) {
+		___ERRORLOG( QString( "No song entry in .h2project archive [%1]" )
+					 .arg( sSongPath ) );
+		return nullptr;
+	}
+	const QByteArray songXml = songFile.readAll();
+	songFile.close();
 
 	auto pSong = Song::fromXmlBuffer(
-		entries[SONG_ENTRY], Xml::Flag::Project, bSilent, pHydrogen
+		songXml, Xml::Flag::Project, bSilent, pHydrogen
 	);
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to reconstruct song from .h2project" );
@@ -291,10 +342,13 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 
 	// Parse the manifest: "inst comp layer entry" per line.
 	std::map<QString, QString> slotToEntry; // "i/c/l" -> entry name
-	if ( entries.find( MANIFEST_ENTRY ) != entries.end() ) {
+	const QString sManifestPath = sExtractDir + "/" + MANIFEST_ENTRY;
+	QFile manifestFile( sManifestPath );
+	if ( manifestFile.open( QIODevice::ReadOnly ) ) {
 		const QStringList lines =
-			QString::fromUtf8( entries[ MANIFEST_ENTRY ] ).split(
+			QString::fromUtf8( manifestFile.readAll() ).split(
 				'\n', Qt::SkipEmptyParts );
+		manifestFile.close();
 		for ( const auto& sLine : lines ) {
 			const QStringList parts = sLine.split( ' ' );
 			if ( parts.size() >= 4 ) {
@@ -306,7 +360,8 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 		}
 	}
 
-	// Decode each sample straight from the archived bytes (in memory).
+	// Assign the extracted sample files to their slots. The actual decoding
+	// happens through the regular file-based loading below.
 	forEachSample( pSong, [&]( int ii, int cc, int ll,
 							   std::shared_ptr<Sample> pSample ) {
 		const QString sKey = QString( "%1/%2/%3" ).arg( ii ).arg( cc ).arg( ll );
@@ -315,26 +370,20 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 			ERRORLOG( QString( "Couldn't find slot [%1]" ).arg( sKey ) );
 			return;
 		}
-		auto itData = entries.find( itSlot->second );
-		if ( itData == entries.end() ) {
-			ERRORLOG( QString( "Couldn't find data [%1]" ).arg( itSlot->second ) );
+		const QString sSamplePath = sExtractDir + "/" + itSlot->second;
+		if ( ! QFileInfo( sSamplePath ).exists() ) {
+			ERRORLOG( QString( "Couldn't find extracted sample [%1]" )
+					  .arg( sSamplePath ) );
 			return;
 		}
-		const QByteArray& bytes = itData->second;
-		std::vector<unsigned char> v(
-			reinterpret_cast<const unsigned char*>( bytes.constData() ),
-			reinterpret_cast<const unsigned char*>( bytes.constData() ) +
-				bytes.size() );
-		if ( ! pSample->loadFromMemory( v, 120, nullptr ) ) {
-			___WARNINGLOG( QString( "Unable to decode bundled sample for slot %1" )
-						   .arg( sKey ) );
-		}
+		pSample->setFilePath( sSamplePath );
 	} );
 
+	// Decode the samples via the standard, synchronous file-based code path.
+	pSong->getDrumkit()->loadSamples( 120, pHydrogen->getPreferences().get() );
 	if ( pSong->getPlaybackTrackInstrument() != nullptr ) {
 		pSong->getPlaybackTrackInstrument()->loadSamples(
-			120, pHydrogen->getPreferences().get()
-		);
+			120, pHydrogen->getPreferences().get() );
 	}
 
 	for ( auto ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
@@ -379,7 +428,7 @@ std::shared_ptr<Song> H2Project::load( const QString& sPath,
 	std::vector<unsigned char> data(
 		reinterpret_cast<const unsigned char*>( raw.constData() ),
 		reinterpret_cast<const unsigned char*>( raw.constData() ) + raw.size() );
-	auto pSong = fromBuffer( data, pHydrogen, bSilent );
+	auto pSong = fromBuffer( data, fileCacheKey( sPath ), pHydrogen, bSilent );
 	if ( pSong != nullptr ) {
 		pSong->setPath( sPath );
 	}
@@ -439,7 +488,8 @@ std::shared_ptr<Song> H2Project::fromState(
 	}
 
 	if ( looksLikeArchive( data ) ) {
-		return fromBuffer( data, pHydrogen, bSilent );
+		return fromBuffer( data, pluginCacheKey( pHydrogen ), pHydrogen,
+						   bSilent );
 	}
 
 	// Song-only state: a plain .h2song XML document.

@@ -661,7 +661,8 @@ void Instrument::unloadSamples()
 void Instrument::saveTo(
 	XMLNode& node,
 	Xml::Flag flags,
-	bool bSilent )
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", static_cast<int>( m_id ) );
@@ -723,7 +724,8 @@ void Instrument::saveTo(
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
 			pComponent->saveTo(
-				InstrumentNode, flags, m_sDrumkitPath, bSilent
+				InstrumentNode, flags, m_sDrumkitPath, bSilent,
+				pProjectSampleEntries
 			);
 		}
 		else {

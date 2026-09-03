@@ -92,6 +92,11 @@ namespace H2Core
 //
 //----------------------------------------------------------------------------
 
+// Source for the per-instance ids exposed via Hydrogen::getInstanceId().
+// Deliberately separate from the instance counter used for naming plugin
+// log files (which only counts plugin-hosted instances).
+static std::atomic<int> sInstanceIdCounter { 0 };
+
 Hydrogen::Hydrogen(
 	std::shared_ptr<Preferences> pPref,
 	ProcessMode processMode,
@@ -127,6 +132,7 @@ Hydrogen::Hydrogen(
 {
 	// This instance owns its Preferences and EventQueue (ADR 0015); no
 	// process-wide singleton is involved.
+	m_nInstanceId = sInstanceIdCounter++;
 	m_pEventQueue = new EventQueue( this );
 
 	// Per-instance Logger (ADR 0015, T1.6): its own queue/worker/log file, with
@@ -229,6 +235,15 @@ Hydrogen::~Hydrogen()
 	delete m_pEventQueue;
 	m_pEventQueue = nullptr;
 
+	// The extraction folders of `.h2project` bundles loaded by this instance
+	// are only used by it and have to go away with it (ADR 0025). The song is
+	// released first so that nothing references the folders anymore.
+	m_pSong.reset();
+	for ( const auto& ssDir : m_extractedProjectDirs ) {
+		Filesystem::rm( ssDir, true, true );
+	}
+	m_extractedProjectDirs.clear();
+
 	// In case we created a logger for this very instance, we also have to tear
 	// down its custom Logger instance. We also need to clean up the custom log
 	// file. Since the process id is used in the file name, we would clutter up
@@ -237,6 +252,17 @@ Hydrogen::~Hydrogen()
 		const auto sInstanceLogFile = m_pLogger->getLogFile();
 		delete m_pLogger;
 		Filesystem::rm( sInstanceLogFile );
+	}
+}
+
+void Hydrogen::registerExtractedProjectDir( const QString& sDir ) {
+	if ( sDir.isEmpty() ) {
+		ERRORLOG( "Empty extraction folder" );
+		return;
+	}
+
+	if ( ! m_extractedProjectDirs.contains( sDir ) ) {
+		m_extractedProjectDirs.append( sDir );
 	}
 }
 

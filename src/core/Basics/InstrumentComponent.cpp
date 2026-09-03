@@ -200,7 +200,8 @@ void InstrumentComponent::saveTo(
 	XMLNode& node,
 	Xml::Flag flags,
 	const QString& sDrumkitPath,
-	bool bSilent
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
 )
 {
 	XMLNode component_node;
@@ -229,7 +230,8 @@ void InstrumentComponent::saveTo(
 			if ( pLayer->getSample() != nullptr ||
 				 ( flags & Xml::Flag::KeepMissingSamples ) ) {
 				pLayer->saveTo(
-					component_node, flags, sDrumkitPath
+					component_node, flags, sDrumkitPath,
+					pProjectSampleEntries
 				);
 			}
 			else {

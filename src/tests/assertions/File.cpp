@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include <core/config.h>
+#include <core/Helpers/Archive.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 
@@ -31,156 +32,7 @@
 #include <QFileInfo>
 #include <QTemporaryDir>
 
-#ifdef H2CORE_HAVE_LIBARCHIVE
-#include <archive.h>
-#include <archive_entry.h>
-#endif
-
 static constexpr qint64 BUFFER_SIZE = 4096;
-
-#ifdef H2CORE_HAVE_LIBARCHIVE
-namespace {
-
-// Frees the libarchive reader on scope exit - also when a CppUnit assertion
-// aborts the test by throwing an exception.
-class ArchiveReaderGuard {
-public:
-	explicit ArchiveReaderGuard( struct archive* pArchive )
-		: m_pArchive( pArchive ) {}
-	~ArchiveReaderGuard() { archive_read_free( m_pArchive ); }
-
-	ArchiveReaderGuard( const ArchiveReaderGuard& ) = delete;
-	ArchiveReaderGuard& operator=( const ArchiveReaderGuard& ) = delete;
-
-private:
-	struct archive* m_pArchive;
-};
-
-// Extract all regular files of the tar archive @a sArchivePath into the
-// folder @a sTargetDir, which is created on demand. Folder entries of the
-// archive are covered implicitly by creating the parent folders of each
-// extracted file.
-void extractTarArchive( const QString& sArchivePath, const QString& sTargetDir,
-						CppUnit::SourceLine sourceLine ) {
-	struct archive* pArchive = archive_read_new();
-	if ( pArchive == nullptr ) {
-		CppUnit::Message msg(
-			std::string( "Unable to create archive reader for [" ) +
-			sArchivePath.toStdString() + "]" );
-		throw CppUnit::Exception( msg, sourceLine );
-	}
-	ArchiveReaderGuard guard( pArchive );
-
-	archive_read_support_filter_all( pArchive );
-	archive_read_support_format_all( pArchive );
-
-	int nRet;
-#ifdef WIN32
-	// Windows file paths might not be representable as UTF-8 byte strings.
-	QString sArchivePathPadded = sArchivePath;
-	sArchivePathPadded.append( '\0' );
-	const auto archivePathW = sArchivePathPadded.toStdWString();
-	nRet = archive_read_open_filename_w( pArchive, archivePathW.c_str(), 10240 );
-#else
-	const auto sArchivePathUtf8 = sArchivePath.toUtf8();
-	nRet = archive_read_open_filename( pArchive, sArchivePathUtf8.constData(),
-									   10240 );
-#endif
-	if ( nRet != ARCHIVE_OK ) {
-		CppUnit::Message msg(
-			std::string( "Unable to open archive [" ) +
-			sArchivePath.toStdString() + "]: " +
-			archive_error_string( pArchive ) );
-		throw CppUnit::Exception( msg, sourceLine );
-	}
-
-	struct archive_entry* pEntry;
-	while ( ( nRet = archive_read_next_header( pArchive, &pEntry ) ) ==
-			ARCHIVE_OK ) {
-		if ( pEntry == nullptr ) {
-			CppUnit::Message msg(
-				std::string( "Unable to read next entry of archive [" ) +
-				sArchivePath.toStdString() + "]" );
-			throw CppUnit::Exception( msg, sourceLine );
-		}
-
-		// Drumkits shipped by Hydrogen may contain UTF-8 encoded file and
-		// folder names.
-		QString sEntryPath =
-			QString::fromUtf8( archive_entry_pathname_utf8( pEntry ) );
-		if ( sEntryPath.isEmpty() ) {
-			sEntryPath = QString::fromUtf8( archive_entry_pathname( pEntry ) );
-		}
-
-		// The compared archives are trusted test data. But a malformed one
-		// must never cause us to write outside the temporary folder.
-		if ( sEntryPath.startsWith( "/" ) || sEntryPath.contains( "../" ) ||
-			 sEntryPath == ".." ) {
-			CppUnit::Message msg(
-				std::string( "Unsafe entry path [" ) +
-				sEntryPath.toStdString() + "] in archive [" +
-				sArchivePath.toStdString() + "]" );
-			throw CppUnit::Exception( msg, sourceLine );
-		}
-
-		if ( ( archive_entry_filetype( pEntry ) & AE_IFREG ) == 0 ) {
-			// Only regular files are relevant for the comparison. Folders
-			// are created implicitly below and other entry types, like
-			// symbolic links, are not used in Hydrogen's archives.
-			continue;
-		}
-
-		const QString sFilePath = sTargetDir + "/" + sEntryPath;
-		const QFileInfo fileInfo( sFilePath );
-		if ( ! QDir().mkpath( fileInfo.absolutePath() ) ) {
-			CppUnit::Message msg(
-				std::string( "Unable to create folder [" ) +
-				fileInfo.absolutePath().toStdString() + "]" );
-			throw CppUnit::Exception( msg, sourceLine );
-		}
-
-		QFile file( sFilePath );
-		if ( ! file.open( QIODevice::WriteOnly ) ) {
-			CppUnit::Message msg(
-				std::string( "Unable to create file [" ) +
-				sFilePath.toStdString() + "]: " +
-				file.errorString().toStdString() );
-			throw CppUnit::Exception( msg, sourceLine );
-		}
-
-		char buffer[ 65536 ];
-		la_ssize_t nRead;
-		while ( ( nRead = archive_read_data( pArchive, buffer,
-											 sizeof( buffer ) ) ) > 0 ) {
-			if ( file.write( buffer, static_cast<qint64>( nRead ) ) !=
-				 static_cast<qint64>( nRead ) ) {
-				CppUnit::Message msg(
-					std::string( "Short write to file [" ) +
-					sFilePath.toStdString() + "]" );
-				throw CppUnit::Exception( msg, sourceLine );
-			}
-		}
-		if ( nRead < 0 ) {
-			CppUnit::Message msg(
-				std::string( "Unable to read entry [" ) +
-				sEntryPath.toStdString() + "] of archive [" +
-				sArchivePath.toStdString() + "]: " +
-				archive_error_string( pArchive ) );
-			throw CppUnit::Exception( msg, sourceLine );
-		}
-	}
-
-	if ( nRet != ARCHIVE_EOF ) {
-		CppUnit::Message msg(
-			std::string( "Unable to read archive [" ) +
-			sArchivePath.toStdString() + "]: " +
-			archive_error_string( pArchive ) );
-		throw CppUnit::Exception( msg, sourceLine );
-	}
-}
-
-} // namespace
-#endif // H2CORE_HAVE_LIBARCHIVE
 
 
 void H2Test::checkFilesEqual( const QString& sExpected, const QString& sActual,
@@ -669,8 +521,17 @@ void H2Test::checkTarArchivesEqual( const QString& sPathExpected,
 
 	const QString sDirExpected = tmpDir.path() + "/expected";
 	const QString sDirActual = tmpDir.path() + "/actual";
-	extractTarArchive( sPathExpected, sDirExpected, sourceLine );
-	extractTarArchive( sPathActual, sDirActual, sourceLine );
+	for ( const auto& [ssArchivePath, ssDir] :
+			  { std::pair( sPathExpected, sDirExpected ),
+				std::pair( sPathActual, sDirActual ) } ) {
+		if ( ! H2Core::Archive::extract( ssArchivePath, ssDir ) ) {
+			CppUnit::Message msg(
+				std::string( "Unable to extract archive [" ) +
+				ssArchivePath.toStdString() + "] into [" +
+				ssDir.toStdString() + "]" );
+			throw CppUnit::Exception( msg, sourceLine );
+		}
+	}
 
 	// Tar archives usually bundle their content below a single top-level
 	// folder, e.g. the drumkit name. Since checkDirsEqual() only compares

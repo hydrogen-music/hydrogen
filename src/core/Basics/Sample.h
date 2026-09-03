@@ -242,20 +242,6 @@ class Sample : public H2Core::Object<Sample> {
 	bool load( float fBpm, Preferences* pPreferences );
 
 	/**
-	 * Decode and load the sample from an in-memory encoded audio buffer
-	 * (e.g. extracted from a `.h2project` bundle), instead of from a file on
-	 * disk (ADR 0017/0025). Uses libsndfile virtual I/O. Same channel/frame
-	 * handling and modifier application as load().
-	 *
-	 * @param data         The encoded audio file bytes (wav/flac/…).
-	 * @param fBpm         Tempo, for the rubberband modifier.
-	 * @param pPreferences Consulted only on the rubberband path (ADR 0015).
-	 * @return true on success.
-	 */
-	bool loadFromMemory( const std::vector<unsigned char>& data, float fBpm,
-						 Preferences* pPreferences );
-
-	/**
 	 * Flush the current content of the left and right
 	 * channel and the current metadata.
 	 */
@@ -322,9 +308,10 @@ class Sample : public H2Core::Object<Sample> {
 	double getSampleDuration() const;
 
 	/**
-	 * Shared back end of load()/loadFromMemory(): split an interleaved float
-	 * buffer (as decoded by libsndfile) into #m_data_L / #m_data_R, store the
-	 * metadata, and apply the loop/velocity/pan/rubberband modifiers.
+	 * Back end of load(): split an interleaved float buffer (as decoded by
+	 * libsndfile) into #m_data_L / #m_data_R, store the metadata, and apply the
+	 * loop/velocity/pan/rubberband modifiers.
+	 *
 	 * @param pInterleaved Interleaved samples, @a nChannels per frame.
 	 */
 	bool storeDecodedSamples( const float* pInterleaved, long long nFrames,
