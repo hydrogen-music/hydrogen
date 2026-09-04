@@ -78,6 +78,7 @@ Song::Song(
 		  std::make_shared<std::vector<std::shared_ptr<PatternList>>>()
 	  ),
 	  m_sPath( "" ),
+	  m_bBackedByProject( false ),
 	  m_loopMode( LoopMode::Disabled ),
 	  m_patternMode( PatternMode::Selected ),
 	  m_fHumanizeTimeValue( 0.0 ),
@@ -817,6 +818,9 @@ std::shared_ptr<Song> Song::loadFrom(
 	if ( flags & Xml::Flag::Ipc ) {
 		pSong->setUuid( rootNode.read_uuid( "ipc-uuid", false, false, false ) );
 		pSong->setPath( sPath );
+		pSong->setBackedByProject(
+			rootNode.read_bool( "ipc-backedByProject", false, false, false )
+		);
 		pSong->setIsModified(
 			rootNode.read_bool( "ipc-isModified", false, false, false, false )
 		);
@@ -838,6 +842,13 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 		INFOLOG( QString( "Saving song to [%1]" ).arg( sPath ) );
 	}
 
+	if ( sPath == m_sPath && m_bBackedByProject ) {
+		ERRORLOG( QString( "Song is contained in project [%1]. Please save it "
+						   "to a .h2song file first!" )
+					  .arg( m_sPath ) );
+		return false;
+	}
+
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( "song" );
 
@@ -855,6 +866,7 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 			bSilent );
 
 	setPath( sPath );
+	setBackedByProject( false );
 	setIsModified( false );
 
 	if ( !doc.write( sPath ) ) {
@@ -1107,6 +1119,7 @@ void Song::saveTo(
 	if ( flags & Xml::Flag::Ipc ) {
 		rootNode.write_uuid( "ipc-uuid", getUuid() );
 		rootNode.write_string( "ipc-path", m_sPath );
+		rootNode.write_bool( "ipc-backedByProject", m_bBackedByProject );
 		rootNode.write_bool( "ipc-isModified", m_bIsModified );
 		rootNode.write_string(
 			"ipc-lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath
@@ -1436,6 +1449,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_sPath ) )
+			.append( QString( "%1%2m_bBackedByProject: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bBackedByProject ) )
 			.append( QString( "%1%2m_loopMode: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -1561,6 +1578,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 			sOutput.append( ", m_pDrumkit: nullptr" );
 		}
 		sOutput.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
+			.append( QString( ", m_bBackedByProject: %1" )
+					 .arg( m_bBackedByProject ) )
 			.append( QString( ", m_loopMode: %1" )
 						 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( ", m_patternMode: %1" )

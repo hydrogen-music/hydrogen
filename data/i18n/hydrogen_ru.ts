@@ -2886,6 +2886,10 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <source>Project exported to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The song was loaded from a .h2project bundle. Please either save it to allow for autosaving or disable autosave within the Preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainToolBar</name>

@@ -431,6 +431,7 @@ std::shared_ptr<Song> H2Project::load( const QString& sPath,
 	auto pSong = fromBuffer( data, fileCacheKey( sPath ), pHydrogen, bSilent );
 	if ( pSong != nullptr ) {
 		pSong->setPath( sPath );
+		pSong->setBackedByProject( true );
 	}
 	return pSong;
 }

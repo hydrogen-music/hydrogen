@@ -2892,6 +2892,10 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
         <source>Project exported to</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The song was loaded from a .h2project bundle. Please either save it to allow for autosaving or disable autosave within the Preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainToolBar</name>

@@ -1375,7 +1375,7 @@ std::shared_ptr<Song> CoreActionController::loadSong(
 		 Filesystem::isPathValid(
 			 Filesystem::Artifact::Song, sRecoverPath, true
 		 ) ) {
-		// Use an autosave file to load the playlist
+		// Use an autosave file
 		pSong = Song::load( sRecoverPath, false, m_pHydrogen );
 		if ( pSong != nullptr ) {
 			pSong->setPath( sPath );
@@ -1530,6 +1530,7 @@ bool CoreActionController::saveSongAs(
 	}
 
 	pSong->setPath( sNewPath );
+	pSong->setBackedByProject( false );
 
 	// Actual saving
 	if ( !saveSong( bKeepMissingSamples ) ) {

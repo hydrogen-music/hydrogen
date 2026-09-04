@@ -252,6 +252,9 @@ class Song : public H2Core::Object<Song>,
 	const QString& getPath() const;
 	void setPath( const QString& sPath );
 
+	bool getBackedByProject() const;
+	void setBackedByProject( bool bBackedByProject );
+
 	const LoopMode& getLoopMode() const;
 	void setLoopMode( const LoopMode& loopMode );
 	bool isLoopEnabled() const;
@@ -375,8 +378,20 @@ class Song : public H2Core::Object<Song>,
 	 *
 	 * In case is no file backing the resource (yet), an path to an
 	 * non-existing file retrieved via #Filesystem::emptyPath will be used
-	 * instead. */
+	 * instead.
+	 *
+	 * In case the file is #m_bBackedByProject, the absolute path to the
+	 * .h2project file will be assigned. */
 	QString m_sPath;
+
+	/** Indicates whether the song was loaded as part of a .h2project file. The
+	 * later is a tar archive which will be extracted the Hydrogen's cache
+	 * folder during runtime. Although this .h2song file is writable, we treat
+	 * it as read-only and discard it during tear down. Overwriting a project
+	 * must be an explicit action and must not be done during song save. This
+	 * also means a song backed by a project can not have an autosave file
+	 * associated to it. */
+	bool m_bBackedByProject;
 
 	/**
 	 * The three states of this enum is just a way to handle the
@@ -607,6 +622,14 @@ inline const QString& Song::getPath() const
 inline void Song::setPath( const QString& sPath )
 {
 	m_sPath = sPath;
+}
+
+inline bool Song::getBackedByProject() const {
+	return m_bBackedByProject;
+}
+
+inline void Song::setBackedByProject( bool bBackedByProject ) {
+	m_bBackedByProject = bBackedByProject;
 }
 
 inline bool Song::isLoopEnabled() const

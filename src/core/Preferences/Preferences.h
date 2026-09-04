@@ -630,7 +630,7 @@ class Preferences : public H2Core::Object<Preferences> {
 	bool m_bShowDevelWarning;
 	bool m_bShowNoteOverwriteWarning;
 
-	///< Last song used
+	///< Last song or project used
 	QString m_sLastSongPath;
 	QString m_sLastPlaylistPath;
 

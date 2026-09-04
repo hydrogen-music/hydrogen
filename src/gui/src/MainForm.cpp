@@ -136,10 +136,25 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 		// by the MainForm. The latter will just access the already
 		// loaded Song.
 		if ( !pHydrogen->isUnderSessionManagement() ) {
-			if ( !openFile(
-					 Filesystem::Artifact::Song, sSongFileName,
-					 pPref->getLastSongPath()
-				 ) ) {
+			bool bOk;
+			const auto sLastSongPath = pPref->getLastSongPath();
+			if ( ( !sSongFileName.isEmpty() &&
+				   sSongFileName.endsWith( Filesystem::sProjectSuffix ) ) ||
+				 ( sSongFileName.isEmpty() &&
+				   sLastSongPath.endsWith( Filesystem::sProjectSuffix ) ) ) {
+				bOk = !openFile(
+					Filesystem::Artifact::Project, sSongFileName,
+					pPref->getLastSongPath()
+				);
+			}
+			else {
+				bOk = !openFile(
+					Filesystem::Artifact::Song, sSongFileName,
+					pPref->getLastSongPath()
+				);
+			}
+
+			if ( !bOk ) {
 				// Fall back to an empty song.
 				HydrogenApp::openSong(
 					H2Core::Song::getEmptySong( HydrogenApp::pHydrogen() )
@@ -767,11 +782,11 @@ bool MainForm::action_file_save_as()
 	// management.
 	const QString sLastPath = pSong->getPath();
 
-	// In case the song is not backed by a file yet, we default to the file in
-	// the last used folder to store songs in (or the user-level song folder
-	// after first boot).
+	// In case the song is not backed by a .h2song file yet, we default to the
+	// file in the last used folder to store songs in (or the user-level song
+	// folder after first boot).
 	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
-		 sLastPath.isEmpty() ) {
+		 pSong->getBackedByProject() || sLastPath.isEmpty() ) {
 		QString sDir = pPref->getLastSaveSongAsDirectory();
 		if ( sDir.isEmpty() ) {
 			sDir = Filesystem::userSongsDir();
@@ -847,10 +862,12 @@ bool MainForm::action_file_save( bool bTriggerMessage )
 		return false;
 	}
 
-	// In case the song was not saved yet, do so via the properties dialog.
+	// In case the song was not saved yet or is associated with a project, do so
+	// via the properties dialog.
 	const QString sPath = pSong->getPath();
 	if ( sPath.isEmpty() ||
-		 sPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+		 sPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
+		 pSong->getBackedByProject() ) {
 		// The empty song is treated differently in order to allow
 		// recovering changes and unsaved sessions. Therefore the
 		// users are ask to store a new song using a different file
@@ -2710,23 +2727,48 @@ void MainForm::onAutoSaveTimer()
 	auto pPlaylist = pHydrogen->getPlaylist();
 
 	if ( pSong != nullptr && pSong->getIsModified() ) {
-		const QString sOldPath = pSong->getPath();
-
-		const QString sAutoSavePath = Filesystem::getAutoSavePath(
-			Filesystem::Artifact::Song, pSong->getPath() );
-		if ( sAutoSavePath != m_sPreviousAutoSaveSongFile ) {
-			if ( ! m_sPreviousAutoSaveSongFile.isEmpty() ) {
-				QFile file( m_sPreviousAutoSaveSongFile );
-				file.remove();
+		// In case the song was loaded from a .h2project bundle, the user must
+		// save it to a .h2song file first.
+		if ( pSong->getBackedByProject() ) {
+			switch ( QMessageBox::information(
+				this, "Hydrogen",
+				tr( "The song was loaded from a .h2project bundle. Please "
+					"either save it to allow for autosaving or disable "
+					"autosave within the Preferences." ),
+				QMessageBox::Cancel | QMessageBox::Save, QMessageBox::Cancel
+			) ) {
+				case QMessageBox::Save:
+					action_file_save_as();
+					break;
+				case QMessageBox::Cancel:
+					return;
+				default:
+					// Not reached
+					return;
 			}
-			m_sPreviousAutoSaveSongFile = sAutoSavePath;
 		}
-			
-		pSong->save( sAutoSavePath, /* bKeepMissingSamples */ true,
-					/* bSilent */ true );
+		else {
+			const QString sOldPath = pSong->getPath();
 
-		pSong->setPath( sOldPath );
-		pHydrogen->setSongModified( true );
+			const QString sAutoSavePath = Filesystem::getAutoSavePath(
+				Filesystem::Artifact::Song, pSong->getPath()
+			);
+			if ( sAutoSavePath != m_sPreviousAutoSaveSongFile ) {
+				if ( !m_sPreviousAutoSaveSongFile.isEmpty() ) {
+					QFile file( m_sPreviousAutoSaveSongFile );
+					file.remove();
+				}
+				m_sPreviousAutoSaveSongFile = sAutoSavePath;
+			}
+
+			pSong->save(
+				sAutoSavePath, /* bKeepMissingSamples */ true,
+				/* bSilent */ true
+			);
+
+			pSong->setPath( sOldPath );
+			pHydrogen->setSongModified( true );
+		}
 	}
 
 	if ( pPlaylist != nullptr && pPlaylist->getIsModified() ) {
