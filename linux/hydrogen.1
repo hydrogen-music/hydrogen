@@ -27,6 +27,8 @@ Features:
 - High quality time-stretching and pitch shifting
 .br
 - Automate it using \fBMIDI\fR or \fBOSC\fR API
+.PP
+You can start \fBhydrogen\fR using a particular song (\fI*.h2song\fR), project (\fI*.h2project\fR), or playlist (\fI*.h2playlist\fR) file as positional argument. If neither this nor a corresponding option is present, \fBhydrogen\fR will recover the song of your last session.
 .SH OPTIONS
 .TP
 \fB\-d\fR, \fB\-\-driver\fR=[\fIAUDIO_DRIVER\fR]
@@ -34,7 +36,7 @@ Use the selected audio driver. The description of this option in the -\-help out
 drivers available on your system.
 .TP
 \fB\-s\fR, \fB\-\-song\fR=\fIFILE\fR
-Load a song (\fI*.h2song\fR) at startup. Alternatively, you can just pass the filename without this option.
+Load a song (\fI*.h2song\fR) or project (\fI*.h2project\fR) at startup. Alternatively, you can just pass the filename without this option.
 .TP
 \fB\-p\fR, \fB\-\-playlist\fR=\fIFILE\fR
 Load a playlist (\fI*.h2playlist\fR) at startup.

@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 			.append( " [default]" ), "Audiodriver");
 		QCommandLineOption songFileOption(
 			QStringList() << "s" << "song",
-			"Load a song (*.h2song) at startup", "File" );
+			"Load a song (*.h2song) or project (*.h2project) at startup", "File" );
 		QCommandLineOption installDrumkitOption(
 			QStringList() << "i" << "install",
 			"Install a drumkit (*.h2drumkit)", "File");

@@ -913,6 +913,11 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 		sEmpty = tr( "New Playlist" );
 		break;
 
+	case Filesystem::Artifact::Project:
+		// Projects are tar archives containing embedded samples. We do not
+		// store snapshots for them.
+		return "";
+
 	default:
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
 				  .arg( Filesystem::ArtifactToQString( type ) ) );
@@ -991,6 +996,10 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 		sText = tr( "Error loading song." );
 		break;
 
+	case Filesystem::Artifact::Project:
+		sText = tr( "Error loading project." );
+		break;
+
 	case Filesystem::Artifact::Playlist:
 		sText = tr( "Error loading playlist." );
 		break;
@@ -1012,7 +1021,8 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 
 	bool bRet;
 	// Ensure the path to the file is not relative.
-	if ( type == Filesystem::Artifact::Song ) {
+	if ( type == Filesystem::Artifact::Song ||
+		 type == Filesystem::Artifact::Project ) {
 		std::shared_ptr<Song> pSong;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pSong = Song::getEmptySong( HydrogenApp::pHydrogen() );

@@ -67,7 +67,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 		"playlist", "Load a playlist (*.h2playlist) at startup", "File" );
 	QCommandLineOption songFileOption(
 		QStringList() << "s" <<
-		"song", "Load a song (*.h2song) at startup", "File" );
+		"song", "Load a song (*.h2song) or project (*.h2project) at startup", "File" );
 	QCommandLineOption kitOption(
 		QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 
@@ -164,7 +164,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	parser.addOption( connectViaIpcOption );
 
-	parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
+	parser.addPositionalArgument( "file", "Song, project, playlist, or Drumkit file" );
 
 	// Evaluate the options
 	parser.process( *( QCoreApplication::instance() ) );
@@ -238,13 +238,14 @@ bool Parser::parse( int argc, char* argv[] ) {
 	// enables "Open with" as well as default document bindings to work.
 	QString sArg;
 	foreach ( sArg, parser.positionalArguments() ) {
-		if ( sArg.endsWith( H2Core::Filesystem::sSongSuffix ) ) {
+		if ( sArg.endsWith( H2Core::Filesystem::sSongSuffix ) ||
+			 sArg.endsWith( H2Core::Filesystem::sProjectSuffix ) ) {
 			m_sSongFileName = sArg;
 		}
-		if ( sArg.endsWith( H2Core::Filesystem::sDrumkitSuffix ) ) {
+		else if ( sArg.endsWith( H2Core::Filesystem::sDrumkitSuffix ) ) {
 			m_sInstallDrumkitPath = sArg;
 		}
-		if ( sArg.endsWith( H2Core::Filesystem::sPlaylistSuffix ) ) {
+		else if ( sArg.endsWith( H2Core::Filesystem::sPlaylistSuffix ) ) {
 			m_sPlaylistFileName = sArg;
 		}
 	}

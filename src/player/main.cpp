@@ -260,7 +260,7 @@ int main( int argc, char** argv )
 #endif
 
 	parser.addPositionalArgument(
-		"file", "Load a song (*.h2song) or playlist (*.h2playlist) at startup"
+		"file", "Load a song (*.h2song), project (*.h2project), or playlist (*.h2playlist) at startup"
 	);
 	parser.addOption( interactiveOption );
 	parser.addOption( noIpcOption );
@@ -290,7 +290,7 @@ int main( int argc, char** argv )
 	// Deal with the options
 	const auto positionalArgs = parser.positionalArguments();
 	if ( positionalArgs.isEmpty() ) {
-		std::cerr << "Error: missing song file!" << endl;
+		std::cerr << "Error: missing file!" << endl;
 		cout << parser.helpText().toUtf8().data() << endl;
 		return 1;
 	}

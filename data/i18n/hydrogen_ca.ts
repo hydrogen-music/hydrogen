@@ -2448,6 +2448,10 @@ Overwrite the existing file?</source>
         <extracomment>Object containing unsaved changes.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Error loading project.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
