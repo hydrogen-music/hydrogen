@@ -27,14 +27,29 @@
 #include <QtCore/QString>
 
 /**
- * T5.6 wiring (ADR 0023): Preferences retains a load baseline and routes
- * shared-config saves through the concurrency-safe PluginConfig::persist merge.
+ * T5.6 wiring (ADR 0023): Preferences retains a load baseline and saves the
+ * shared user config through the concurrency-safe locked merge in
+ * Preferences::save() — only this instance's own changed, ownership-eligible
+ * rows are written, so concurrent edits by other processes survive.
  */
 class PreferencesPersistTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PreferencesPersistTest );
 	CPPUNIT_TEST( testBaselineRetainedOnLoad );
 	CPPUNIT_TEST( testConcurrentBaseEditSurvives );
 	CPPUNIT_TEST( testOverrideFieldNotWritten );
+	CPPUNIT_TEST( testMissingElementCreatedOnDisk );
+	CPPUNIT_TEST( testCorruptDiskSelfHeals );
+	CPPUNIT_TEST( testListRowReplacedWholesale );
+	CPPUNIT_TEST( testGuiOwnedMask );
+	CPPUNIT_TEST( testNoOpSaveChangesNothing );
+	CPPUNIT_TEST( testConcurrentEmptyRowEditSurvives );
+	CPPUNIT_TEST( testSaveCreatesMissingConfigDir );
+	CPPUNIT_TEST( testAbsentRowNotRewritten );
+	CPPUNIT_TEST( testLockExhaustionFailsLoudly );
+	CPPUNIT_TEST( testStandaloneWritesOverrideRow );
+	CPPUNIT_TEST( testShortcutsRowReplacedWholesale );
+	CPPUNIT_TEST( testPatternColorRowPersisted );
+	CPPUNIT_TEST( testMissingShortcutsElementDefersDefaults );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +58,19 @@ public:
 	void testBaselineRetainedOnLoad();
 	void testConcurrentBaseEditSurvives();
 	void testOverrideFieldNotWritten();
+	void testMissingElementCreatedOnDisk();
+	void testCorruptDiskSelfHeals();
+	void testListRowReplacedWholesale();
+	void testGuiOwnedMask();
+	void testNoOpSaveChangesNothing();
+	void testConcurrentEmptyRowEditSurvives();
+	void testSaveCreatesMissingConfigDir();
+	void testAbsentRowNotRewritten();
+	void testLockExhaustionFailsLoudly();
+	void testStandaloneWritesOverrideRow();
+	void testShortcutsRowReplacedWholesale();
+	void testPatternColorRowPersisted();
+	void testMissingShortcutsElementDefersDefaults();
 };
 
 #endif

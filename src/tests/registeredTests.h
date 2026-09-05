@@ -47,7 +47,6 @@
 #include "IpcProtocolTest.h"
 #include "IpcRoundTripTest.h"
 #include "IpcTransportTest.h"
-#include "PluginConfigTest.h"
 #include "LicenseTest.h"
 #include "LoggerInstanceTest.h"
 #include "MemoryLeakageTest.h"
@@ -71,6 +70,7 @@
 #include "PluginStateTest.h"
 #include "PreferencesInstanceTest.h"
 #include "PreferencesPersistTest.h"
+#include "PreferencesSchemaTest.h"
 #include "SampleTest.h"
 #include "SoundLibraryTest.h"
 #include "TimeTest.h"
@@ -109,7 +109,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcRoundTripTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcTransportTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( PluginConfigTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LoggerInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
@@ -135,6 +134,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( PluginProcessTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginStateTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesPersistTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesSchemaTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );

@@ -964,7 +964,7 @@ void MidiControlDialog::persistMidiSettings()
 	// every other Preferences option (written on dialog OK) and — like those —
 	// reach the engine via the shared config rather than living only in memory
 	// until shutdown (ADR 0027 bucket C).
-	HydrogenApp::pPreferences()->save();
+	HydrogenApp::pPreferences()->save( false );
 }
 
 void MidiControlDialog::updateInstrumentTable() {

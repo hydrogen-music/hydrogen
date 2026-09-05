@@ -92,6 +92,46 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	TestHelper::get_instance()->setHydrogen( pHydrogen );
 }
 
+// Child mode of the cross-process config hammer
+// (ConfigConcurrencyTest::testMultiProcessHammerNoCorruption): a lean
+// headless process - no test environment, no Hydrogen instance - about as
+// close to a real h2cli footprint as the test binary can get. Loads the
+// shared config, persists a per-field change repeatedly, and reports the
+// number of saves the bounded retry budget dropped via the exit code
+// (253/254 mark setup failures).
+int hammerConfig( const QString& sConfigPath, int nField )
+{
+	H2Core::Filesystem::setPreferencesOverwritePath( sConfigPath );
+
+	auto pPref = H2Core::Preferences::load( sConfigPath, true, nullptr );
+	if ( pPref == nullptr ) {
+		return 254;
+	}
+
+	switch ( nField ) {
+	case 0:
+		pPref->setMaxBars( 42 );
+		break;
+	case 1:
+		pPref->setPreferredLanguage( "zz" );
+		break;
+	case 2:
+		pPref->setMaxBars( 99 );
+		break;
+	default:
+		return 253;
+	}
+
+	const int nIterations = 50;
+	int nDroppedSaves = 0;
+	for ( int ii = 0; ii < nIterations; ++ii ) {
+		if ( ! pPref->save( true ) ) {
+			++nDroppedSaves;
+		}
+	}
+	return nDroppedSaves;
+}
+
 #ifdef HAVE_EXECINFO_H
 void fatal_signal( int sig )
 {
@@ -122,6 +162,17 @@ int main( int argc, char **argv)
 	QCommandLineOption noLogColorsOption(
 		QStringList() << "no-log-colors",
 		"Suppress ANSI colors in log messages" );
+	QCommandLineOption hammerOption(
+		QStringList() << "config-hammer",
+		"Re-execute as a cross-process config hammer child "
+		"(ConfigConcurrencyTest): load the config at PATH, persist a field "
+		"change repeatedly, report dropped saves via the exit code.",
+		"PATH" );
+	QCommandLineOption hammerFieldOption(
+		QStringList() << "hammer-field",
+		"Field the config hammer child writes: 0 = maxBars 42, "
+		"1 = preferredLanguage zz, 2 = maxBars 99.",
+		"FIELD" );
 	parser.addHelpOption();
 	parser.addOption( verboseOption );
 	parser.addOption( appveyorOption );
@@ -129,6 +180,8 @@ int main( int argc, char **argv)
 	parser.addOption( benchmarkOption );
 	parser.addOption( outputFileOption );
 	parser.addOption( noLogColorsOption );
+	parser.addOption( hammerOption );
+	parser.addOption( hammerFieldOption );
 	parser.process(app);
 	QString sVerbosityString = parser.value( verboseOption );
 
@@ -154,6 +207,17 @@ int main( int argc, char **argv)
 	if ( ! sVerbosityString.isEmpty() ) {
 		logLevelOpt =  H2Core::Logger::parse_log_level(
 			sVerbosityString.toLocal8Bit() );
+	}
+
+	// Cross-process config hammer child (ConfigConcurrencyTest): branch off
+	// before any test environment is created. Only the logger is
+	// bootstrapped, so the child stays a lean headless process.
+	if ( parser.isSet( hammerOption ) ) {
+		H2Core::Logger::bootstrap( H2Core::Logger::Error |
+									   H2Core::Logger::Warning,
+								   "", true, false, false );
+		return hammerConfig( parser.value( hammerOption ),
+							 parser.value( hammerFieldOption ).toInt() );
 	}
 
 	// Transient user-level data to ensure no data of the system the unit tests

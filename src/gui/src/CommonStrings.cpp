@@ -410,6 +410,12 @@ CommonStrings::CommonStrings(){
 	/*: Displayed both as tooltip in the Preferences dialog >
 	  Shortcuts tab as well as window title.*/
 	m_sPreferencesShortcutCapture = tr( "Define a keybinding for the selected shortcut" );
+	/*: Warning dialog shown when the Preferences dialog could not persist
+	  its changes to the user configuration (e.g. the file is locked by
+	  another process).*/
+	m_sPreferencesSaveFailure =
+		tr( "Unable to save preferences. The configuration file might be "
+			"in use by another process. Please try again." );
 
 	/*: Text displayed on a Ok button of a dialog. The character after
 	  the '&' symbol can be used as a hotkey and the '&' symbol itself

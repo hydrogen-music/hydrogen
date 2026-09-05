@@ -1598,7 +1598,7 @@ bool CoreActionController::setPreferences(
 
 bool CoreActionController::savePreferences()
 {
-	if ( !m_pHydrogen->getPreferences()->save() ) {
+	if ( !m_pHydrogen->getPreferences()->save( false ) ) {
 		ERRORLOG( "Unable to save preferences" );
 		return false;
 	}

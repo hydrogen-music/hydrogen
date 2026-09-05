@@ -21,10 +21,14 @@
 
 #include "ConfigConcurrencyTest.h"
 
+#include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
-#include <core/Preferences/PluginConfig.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Version.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
+#include <QtCore/QProcess>
 #include <QtCore/QTemporaryDir>
 #include <QtXml/QDomDocument>
 
@@ -33,22 +37,6 @@
 using namespace H2Core;
 
 namespace {
-
-// Two independent base fields, A and B (neither is in the override layer).
-QByteArray makeConfig( int nA, int nB ) {
-	return QString( "<hydrogen_preferences>"
-					"<fieldA>%1</fieldA><fieldB>%2</fieldB>"
-					"</hydrogen_preferences>" )
-		.arg( nA ).arg( nB ).toUtf8();
-}
-
-QString leaf( const QByteArray& xml, const QString& sTag ) {
-	QDomDocument doc;
-	if ( ! doc.setContent( xml ) ) {
-		return QString( "<parse-error>" );
-	}
-	return doc.documentElement().firstChildElement( sTag ).text();
-}
 
 QByteArray readFile( const QString& sPath ) {
 	QFile f( sPath );
@@ -60,14 +48,33 @@ QByteArray readFile( const QString& sPath ) {
 	return data;
 }
 
-void writeFile( const QString& sPath, const QByteArray& data ) {
+// Materialise a complete, valid hydrogen.conf at sPath: a copy of the
+// shipped default config with the version header normalized to the current
+// build - identical on every machine, unlike a snapshot of whatever the
+// ambient user config happens to contain (create_instance()).
+void seedConfig( const QString& sPath ) {
+	CPPUNIT_ASSERT( QFile::copy( Filesystem::systemConfigPath(), sPath ) );
+	QDomDocument doc;
+	doc.setContent( readFile( sPath ) );
+	QDomElement version = doc.documentElement().firstChildElement( "version" );
+	CPPUNIT_ASSERT( ! version.isNull() );
+	while ( ! version.lastChild().isNull() ) {
+		version.removeChild( version.lastChild() );
+	}
+	version.appendChild(
+		doc.createTextNode( QString( get_version().c_str() ) ) );
 	QFile f( sPath );
-	f.open( QIODevice::WriteOnly );
-	f.write( data );
+	CPPUNIT_ASSERT( f.open( QIODevice::WriteOnly ) );
+	f.write( doc.toByteArray() );
 	f.close();
 }
 
 } // namespace
+
+void ConfigConcurrencyTest::tearDown() {
+	// Never leave userConfigPath() redirected for other suites.
+	Filesystem::setPreferencesOverwritePath( "" );
+}
 
 void ConfigConcurrencyTest::testDifferentFieldsBothSurvive() {
 	___INFOLOG( "" );
@@ -75,22 +82,31 @@ void ConfigConcurrencyTest::testDifferentFieldsBothSurvive() {
 	QTemporaryDir tmp;
 	CPPUNIT_ASSERT( tmp.isValid() );
 	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
 
-	const QByteArray original = makeConfig( 1, 1 );
-	writeFile( sPath, original );
+	// Redirect userConfigPath() to the temp file so save() persists there.
+	Filesystem::setPreferencesOverwritePath( sPath );
 
-	// Two instances loaded the same baseline; each changes a *different* field.
-	// Instance 1 persists A=2.
-	CPPUNIT_ASSERT( PluginConfig::persist( sPath, original, makeConfig( 2, 1 ) ) );
-	// Instance 2 (baseline still the original) persists B=2; persist() re-reads
-	// disk (now A=2) and merges only its own change.
-	CPPUNIT_ASSERT( PluginConfig::persist( sPath, original, makeConfig( 1, 2 ) ) );
+	// Two instances loaded the same baseline; each changes a *different*
+	// field.
+	auto pA = Preferences::load( sPath, true, nullptr );
+	auto pB = Preferences::load( sPath, true, nullptr );
+	CPPUNIT_ASSERT( pA != nullptr );
+	CPPUNIT_ASSERT( pB != nullptr );
 
-	const QByteArray result = readFile( sPath );
-	CPPUNIT_ASSERT_EQUAL( std::string( "2" ),
-						  leaf( result, "fieldA" ).toStdString() );
-	CPPUNIT_ASSERT_EQUAL( std::string( "2" ),
-						  leaf( result, "fieldB" ).toStdString() );
+	pA->setMaxBars( 42 );
+	CPPUNIT_ASSERT( pA->save( true ) );
+
+	// pB still holds the original baseline; its save must re-read the disk
+	// (now maxBars=42) and merge only its own change.
+	pB->setPreferredLanguage( "zz" );
+	CPPUNIT_ASSERT( pB->save( true ) );
+
+	auto pReloaded = Preferences::load( sPath, true, nullptr );
+	CPPUNIT_ASSERT( pReloaded != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 42, pReloaded->getMaxBars() );
+	CPPUNIT_ASSERT_EQUAL( std::string( "zz" ),
+						  pReloaded->getPreferredLanguage().toStdString() );
 
 	___INFOLOG( "passed" );
 }
@@ -101,20 +117,29 @@ void ConfigConcurrencyTest::testSameFieldLastWriterWins() {
 	QTemporaryDir tmp;
 	CPPUNIT_ASSERT( tmp.isValid() );
 	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
 
-	const QByteArray original = makeConfig( 1, 1 );
-	writeFile( sPath, original );
+	Filesystem::setPreferencesOverwritePath( sPath );
 
-	// Both instances change the *same* field A. Bounded last-writer-wins, never
-	// corruption.
-	CPPUNIT_ASSERT( PluginConfig::persist( sPath, original, makeConfig( 2, 1 ) ) );
-	CPPUNIT_ASSERT( PluginConfig::persist( sPath, original, makeConfig( 3, 1 ) ) );
+	// Both instances change the *same* field. Bounded last-writer-wins,
+	// never corruption.
+	auto pA = Preferences::load( sPath, true, nullptr );
+	auto pB = Preferences::load( sPath, true, nullptr );
+	CPPUNIT_ASSERT( pA != nullptr );
+	CPPUNIT_ASSERT( pB != nullptr );
+
+	pA->setMaxBars( 42 );
+	CPPUNIT_ASSERT( pA->save( true ) );
+	pB->setMaxBars( 99 );
+	CPPUNIT_ASSERT( pB->save( true ) );
 
 	const QByteArray result = readFile( sPath );
 	QDomDocument doc;
 	CPPUNIT_ASSERT( doc.setContent( result ) ); // valid XML, not corrupted
-	CPPUNIT_ASSERT_EQUAL( std::string( "3" ),
-						  leaf( result, "fieldA" ).toStdString() );
+
+	auto pReloaded = Preferences::load( sPath, true, nullptr );
+	CPPUNIT_ASSERT( pReloaded != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 99, pReloaded->getMaxBars() );
 
 	___INFOLOG( "passed" );
 }
@@ -125,33 +150,114 @@ void ConfigConcurrencyTest::testParallelPersistNoCorruption() {
 	QTemporaryDir tmp;
 	CPPUNIT_ASSERT( tmp.isValid() );
 	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
 
-	const QByteArray original = makeConfig( 1, 1 );
-	writeFile( sPath, original );
+	Filesystem::setPreferencesOverwritePath( sPath );
 
-	// Two threads hammer the same config under the cross-process lock, each
-	// persisting a change to its own field. The lock + atomic write must keep
-	// the file consistent; both changes must end up present.
+	// Two threads hammer the shared config, each persisting a change to its
+	// own field. The cross-process lock + atomic write must keep the file
+	// consistent; both changes must end up present.
+	//
+	// One instance per thread: save() never mutates the instance (the load
+	// baseline is deliberately not refreshed, ADR 0023), but a Preferences
+	// instance is not safe for unsynchronized concurrent use either.
 	const int nIterations = 200;
-	auto worker = []( const QString& path, const QByteArray& base,
-					  const QByteArray& mine, int n ) {
-		for ( int i = 0; i < n; ++i ) {
-			PluginConfig::persist( path, base, mine );
+	bool bOkA = true;
+	bool bOkB = true;
+	auto worker = [ & ]( bool bMaxBars, bool* bOk ) {
+		auto pPref = Preferences::load( sPath, true, nullptr );
+		if ( pPref == nullptr ) {
+			*bOk = false;
+			return;
+		}
+		if ( bMaxBars ) {
+			pPref->setMaxBars( 42 );
+		}
+		else {
+			pPref->setPreferredLanguage( "zz" );
+		}
+		for ( int ii = 0; ii < nIterations; ++ii ) {
+			if ( ! pPref->save( true ) ) {
+				*bOk = false;
+				return;
+			}
 		}
 	};
 
-	std::thread t1( worker, sPath, original, makeConfig( 2, 1 ), nIterations );
-	std::thread t2( worker, sPath, original, makeConfig( 1, 2 ), nIterations );
+	std::thread t1( worker, true, &bOkA );
+	std::thread t2( worker, false, &bOkB );
 	t1.join();
 	t2.join();
+
+	CPPUNIT_ASSERT( bOkA );
+	CPPUNIT_ASSERT( bOkB );
 
 	const QByteArray result = readFile( sPath );
 	QDomDocument doc;
 	CPPUNIT_ASSERT( doc.setContent( result ) ); // never corrupted
-	CPPUNIT_ASSERT_EQUAL( std::string( "2" ),
-						  leaf( result, "fieldA" ).toStdString() );
-	CPPUNIT_ASSERT_EQUAL( std::string( "2" ),
-						  leaf( result, "fieldB" ).toStdString() );
+
+	auto pReloaded = Preferences::load( sPath, true, nullptr );
+	CPPUNIT_ASSERT( pReloaded != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 42, pReloaded->getMaxBars() );
+	CPPUNIT_ASSERT_EQUAL( std::string( "zz" ),
+						  pReloaded->getPreferredLanguage().toStdString() );
+
+	___INFOLOG( "passed" );
+}
+
+void ConfigConcurrencyTest::testMultiProcessHammerNoCorruption() {
+	___INFOLOG( "" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
+
+	Filesystem::setPreferencesOverwritePath( sPath );
+
+	// Three real processes hammer the shared config - the cross-process
+	// QLockFile is the only thing standing between their read-merge-write
+	// cycles. Two of them contend on the same field (bounded
+	// last-writer-wins), the third owns a different one.
+	const QString sExe = QCoreApplication::applicationFilePath();
+	QProcess children[ 3 ];
+	for ( int ii = 0; ii < 3; ++ii ) {
+		children[ ii ].start( sExe, { "--config-hammer", sPath,
+									  "--hammer-field",
+									  QString::number( ii ) } );
+	}
+	for ( auto& child : children ) {
+		CPPUNIT_ASSERT( child.waitForFinished( 60000 ) );
+		// A crash would not surface via exitCode() (a signaled child
+		// reports 0 or the raw signal number, both below the setup
+		// markers) - the exit status is the reliable signal.
+		CPPUNIT_ASSERT( child.exitStatus() == QProcess::NormalExit );
+		// 253/254 mark setup failures. A small positive count is the
+		// bounded retry budget doing its job under contention - each
+		// child had 50 attempts, so its change is expected to land at
+		// least once (asserted via the file content below).
+		CPPUNIT_ASSERT( child.exitCode() < 200 );
+	}
+
+	const QByteArray result = readFile( sPath );
+	QDomDocument doc;
+	CPPUNIT_ASSERT( doc.setContent( result ) ); // never corrupted
+
+	auto pReloaded = Preferences::load( sPath, true, nullptr );
+	CPPUNIT_ASSERT( pReloaded != nullptr );
+	// The uncontended field always lands; the contended one has a bounded
+	// winner.
+	CPPUNIT_ASSERT_EQUAL( std::string( "zz" ),
+						  pReloaded->getPreferredLanguage().toStdString() );
+	CPPUNIT_ASSERT( pReloaded->getMaxBars() == 42 ||
+					pReloaded->getMaxBars() == 99 );
+	// Rows nobody touched survive the hammering - no child fell back to a
+	// full snapshot that would clobber its siblings' rows.
+	QDomElement audioEngine =
+		doc.documentElement().firstChildElement( "audio_engine" );
+	CPPUNIT_ASSERT( ! audioEngine.isNull() );
+	CPPUNIT_ASSERT( audioEngine.firstChildElement( "samplerate" )
+					.text() == "44100" );
 
 	___INFOLOG( "passed" );
 }

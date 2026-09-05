@@ -44,6 +44,7 @@ class MidiEventMap : public H2Core::Object<MidiEventMap>
 	H2_OBJECT(MidiEventMap)
 public:
 	MidiEventMap();
+	MidiEventMap( const std::shared_ptr<MidiEventMap> pOther );
 	~MidiEventMap();
 
 	static std::shared_ptr<MidiEventMap> loadFrom( const H2Core::XMLNode& node,

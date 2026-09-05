@@ -34,16 +34,20 @@
 #include <sys/types.h>
 #include <algorithm>
 
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QLockFile>
+
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
 #include <core/IO/AlsaAudioDriver.h>
-#include <core/Preferences/PluginConfig.h>
-#include <core/Preferences/PreferencesKeys.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/Preferences/PreferencesKeys.h>
+#include <core/Preferences/PreferencesSchema.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
-#include <core/Hydrogen.h>
 #include <core/Version.h>
 
 #include <QDir>
@@ -67,152 +71,30 @@ std::shared_ptr<Preferences> Preferences::create_instance()
 	// Fallback to system-level configs (the one we ship)
 	auto pPrefSystem = load( Filesystem::systemConfigPath(), false, nullptr );
 	if ( pPrefSystem != nullptr ) {
-		INFOLOG(
-			QString( "Couldn't load user-level configuration from "
-					 "[%1]. Falling back to system-level one in [%2]" )
-				.arg( Filesystem::userConfigPath() )
-				.arg( Filesystem::systemConfigPath() )
-		);
+		INFOLOG( QString( "Couldn't load user-level configuration from "
+						  "[%1]. Falling back to system-level one in [%2]" )
+					 .arg( Filesystem::userConfigPath() )
+					 .arg( Filesystem::systemConfigPath() ) );
 		pPrefSystem->m_bLoadingSuccessful = true;
 		return pPrefSystem;
 	}
 
-	ERRORLOG(
-		QString( "Couldn't load config file from neither [%1] nor [%2]." )
-			.arg( Filesystem::userConfigPath() )
-			.arg( Filesystem::systemConfigPath() )
-	);
+	ERRORLOG( QString( "Couldn't load config file from neither [%1] nor [%2]." )
+				  .arg( Filesystem::userConfigPath() )
+				  .arg( Filesystem::systemConfigPath() ) );
 	auto pPref = std::make_shared<Preferences>();
 	pPref->m_bLoadingSuccessful = false;
 	return pPref;
 }
 
 Preferences::Preferences()
-	: m_bPlaySamplesOnClicking( false ),
-	  m_bFollowPlayhead( true ),
-	  m_bpmTap( BpmTap::TapTempo ),
-	  m_beatCounter( BeatCounter::Tap ),
-	  m_nBeatCounterDriftCompensation( 0 ),
-	  m_nBeatCounterStartOffset( 0 ),
-	  m_audioDriver( AudioDriver::Auto ),
-	  m_bUseMetronome( false ),
-	  m_fMetronomeVolume( 0.5 ),
-	  m_nMaxNotes( 256 ),
-	  m_interpolateMode( Interpolation::InterpolateMode::Linear ),
-	  m_nBufferSize( 1024 ),
-	  m_nSampleRate( 44100 ),
-	  m_sOSSDevice( "/dev/dsp" ),
-	  m_sMidiPortName( Preferences::getNullMidiPort() ),
-	  m_sMidiOutputPortName( Preferences::getNullMidiPort() ),
-	  m_midiActionChannel( Midi::ChannelAll ),
-	  m_bMidiNoteOffIgnore( true ),
-	  m_bEnableMidiFeedback( false ),
-	  m_bOscServerEnabled( false ),
-	  m_bOscFeedbackEnabled( true ),
-	  m_nOscServerPort( 9000 ),
-	  m_sPortAudioDevice( "" ),
-	  m_sPortAudioHostAPI( "" ),
-	  m_nLatencyTarget( 0 ),
-	  m_sCoreAudioDevice( "" ),
-	  m_sJackPortName1( "alsa_pcm:playback_1" ),
-	  m_sJackPortName2( "alsa_pcm:playback_2" ),
-	  m_nJackTransportMode( USE_JACK_TRANSPORT ),
-	  m_bJackConnectDefaults( true ),
-	  m_bJackTrackOuts( false ),
-	  m_bJackEnforceInstrumentName( false ),
-	  m_JackTrackOutputMode( JackTrackOutputMode::postFader ),
-	  m_bJackTimebaseEnabled( false ),
-	  m_bJackTimebaseMode( NO_JACK_TIMEBASE_CONTROL ),
-	  m_nAutosavesPerHour( 60 ),
-	  m_bCountIn( false ),
-	  m_sDefaultEditor( "" ),
-	  m_sPreferredLanguage( "" ),
-	  m_bUseRelativeFileNamesForPlaylists( false ),
-	  m_bShowDevelWarning( false ),
-	  m_bShowNoteOverwriteWarning( true ),
-	  m_sLastSongPath( "" ),
-	  m_sLastPlaylistPath( "" ),
-	  m_customSoundLibraryDirs( QStringList() ),
-	  m_onlineRepos( QStringList() ),
-	  m_bHearNewNotes( true ),
-	  m_bQuantizeEvents( true ),
-	  m_recentFiles( QStringList() ),
-	  m_nMaxBars( 400 ),
-	  m_midiFeedbackChannel( Midi::ChannelMinimum ),
-	  m_bMidiClockInputHandling( false ),
-	  m_bMidiTransportInputHandling( false ),
-	  m_bMidiClockOutputSend( false ),
-	  m_bMidiTransportOutputSend( false ),
-	  m_midiSendNoteOff( MidiSendNoteOff::Always ),
-	  m_bUseTheRubberbandBpmChangeEvent( false ),
-	  m_bShowInstrumentPeaks( true ),
-	  m_nPatternEditorGridResolution( 8 ),
-	  m_bPatternEditorUsingTriplets( false ),
-	  m_bPatternEditorAlwaysShowTypeLabels( false ),
-	  m_bHideKeyboardCursor( false ),
-	  m_bShowPlaybackTrack( true ),
-	  m_nLastOpenTab( 0 ),
-	  m_bShowAutomationArea( false ),
-	  m_nPatternEditorGridHeight( 21 ),
-	  m_nPatternEditorGridWidth( 3 ),
-	  m_nSongEditorGridHeight( 18 ),
-	  m_nSongEditorGridWidth( 16 ),
-	  m_mainFormProperties( WindowProperties( 0, 0, 1000, 700, true ) ),
-	  m_mixerProperties( WindowProperties( 10, 350, 829, 276, true ) ),
-	  m_patternEditorProperties( WindowProperties( 280, 100, 706, 439, true ) ),
-	  m_songEditorProperties( WindowProperties( 10, 10, 600, 250, true ) ),
-	  m_rackProperties( WindowProperties( 500, 20, 526, 437, true ) ),
-	  m_audioEngineInfoProperties( WindowProperties( 720, 120, 0, 0, false ) ),
-	  m_playlistEditorProperties( WindowProperties( 200, 300, 921, 703, false )
-	  ),
-	  m_directorProperties( WindowProperties( 200, 300, 423, 377, false ) ),
-	  m_sLastExportPatternAsDirectory( QDir::homePath() ),
-	  m_sLastExportSongDirectory( QDir::homePath() ),
-	  m_sLastSaveSongAsDirectory( QDir::homePath() ),
-	  m_sLastOpenSongDirectory( Filesystem::userSongsDir() ),
-	  m_sLastOpenPatternDirectory( Filesystem::userPatternsDir() ),
-	  m_sLastExportLilypondDirectory( QDir::homePath() ),
-	  m_sLastExportMidiDirectory( QDir::homePath() ),
-	  m_sLastImportDrumkitDirectory( QDir::homePath() ),
-	  m_sLastExportDrumkitDirectory( QDir::homePath() ),
-	  m_sLastSaveDrumkitAsDirectory( Filesystem::userDrumkitsDir() ),
-	  m_sLastOpenLayerDirectory( QDir::homePath() ),
-	  m_sLastOpenPlaybackTrackDirectory( QDir::homePath() ),
-	  m_sLastAddSongToPlaylistDirectory( Filesystem::userSongsDir() ),
-	  m_sLastPlaylistDirectory( Filesystem::userPlaylistsDir() ),
-	  m_sLastPlaylistScriptDirectory( QDir::homePath() ),
-	  m_sLastImportThemeDirectory( QDir::homePath() ),
-	  m_sLastExportThemeDirectory( QDir::homePath() ),
-	  m_nExportSampleDepthIdx( 0 ),
-	  m_nExportSampleRateIdx( 0 ),
-	  m_nExportModeIdx( 0 ),
-	  m_exportFormat( Filesystem::AudioFormat::Flac ),
-	  m_fExportCompressionLevel( 0.0 ),
-	  m_nMidiExportMode( 0 ),
-	  m_bMidiExportUseHumanization( false ),
-	  m_bSoundLibraryShowName( true ),
-	  m_bSoundLibraryShowAuthor( false ),
-	  m_bSoundLibraryShowInfo( true ),
-	  m_bSoundLibraryShowLicense( false ),
-	  m_bSoundLibraryShowPath( false ),
-	  m_bSoundLibraryShowTags( true ),
-	  m_bSoundLibraryShowVersion( false ),
-	  m_nSoundLibraryLastTab( 0 ),
-	  m_nRackLastTab( 0 ),
-	  m_bShowExportSongLicenseWarning( true ),
-	  m_bShowExportDrumkitLicenseWarning( true ),
-	  m_bShowExportDrumkitCopyleftWarning( true ),
-	  m_bShowExportDrumkitAttributionWarning( true ),
-	  m_pTheme( std::make_shared<Theme>(
-		  std::make_shared<ColorTheme>(),
-		  std::make_shared<InterfaceTheme>(),
-		  std::make_shared<FontTheme>()
-	  ) ),
-	  m_pShortcuts( std::make_shared<Shortcuts>() ),
-	  m_pMidiEventMap( std::make_shared<MidiEventMap>() ),
-	  m_pMidiInstrumentMap( std::make_shared<MidiInstrumentMap>() ),
+	: m_bSearchForRubberbandOnLoad( true ),
+	  m_nPunchInPos( 0 ),
+	  m_nPunchOutPos( -1 ),
 	  m_bLoadingSuccessful( false )
 {
+	// The PreferencesData defaults cover the former initialization list;
+	// this body only applies the environment-dependent defaults.
 	m_onlineRepos << "https://raw.githubusercontent.com/hydrogen-music/"
 					 "Song-and-pattern-repository/refs/heads/main/index.json"
 				  << "http://hydrogen-music.org/feeds/index.json";
@@ -260,7 +142,6 @@ Preferences::Preferences()
 	// Find the Rubberband-CLI in system env. If this fails a second test will
 	// check individual user settings
 	const QStringList commonPaths = QString( getenv( "PATH" ) ).split( ":" );
-	m_bSearchForRubberbandOnLoad = true;
 	for ( const auto& ssPath : commonPaths ) {
 		m_sRubberBandCLIexecutable = ssPath + "/rubberband";
 		if ( QFile( m_sRubberBandCLIexecutable ).exists() ) {
@@ -272,162 +153,22 @@ Preferences::Preferences()
 		// No binary found
 		m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
-
-	unsetPunchArea();
-
 }
 
 Preferences::Preferences( std::shared_ptr<Preferences> pOther )
-	: m_bPlaySamplesOnClicking( pOther->m_bPlaySamplesOnClicking ),
-	  m_bFollowPlayhead( pOther->m_bFollowPlayhead ),
-	  m_bpmTap( pOther->m_bpmTap ),
-	  m_beatCounter( pOther->m_beatCounter ),
-	  m_nBeatCounterDriftCompensation( pOther->m_nBeatCounterDriftCompensation
-	  ),
-	  m_nBeatCounterStartOffset( pOther->m_nBeatCounterStartOffset ),
-	  m_audioDriver( pOther->m_audioDriver ),
-	  m_bUseMetronome( pOther->m_bUseMetronome ),
-	  m_fMetronomeVolume( pOther->m_fMetronomeVolume ),
-	  m_nMaxNotes( pOther->m_nMaxNotes ),
-	  m_interpolateMode( pOther->m_interpolateMode ),
-	  m_nBufferSize( pOther->m_nBufferSize ),
-	  m_nSampleRate( pOther->m_nSampleRate ),
-	  m_sOSSDevice( pOther->m_sOSSDevice ),
-	  m_midiDriver( pOther->m_midiDriver ),
-	  m_sMidiPortName( pOther->m_sMidiPortName ),
-	  m_sMidiOutputPortName( pOther->m_sMidiOutputPortName ),
-	  m_midiActionChannel( pOther->m_midiActionChannel ),
-	  m_bMidiNoteOffIgnore( pOther->m_bMidiNoteOffIgnore ),
-	  m_bEnableMidiFeedback( pOther->m_bEnableMidiFeedback ),
-	  m_bOscServerEnabled( pOther->m_bOscServerEnabled ),
-	  m_bOscFeedbackEnabled( pOther->m_bOscFeedbackEnabled ),
-	  m_nOscServerPort( pOther->m_nOscServerPort ),
-	  m_sAlsaAudioDevice( pOther->m_sAlsaAudioDevice ),
-	  m_sPortAudioDevice( pOther->m_sPortAudioDevice ),
-	  m_sPortAudioHostAPI( pOther->m_sPortAudioHostAPI ),
-	  m_nLatencyTarget( pOther->m_nLatencyTarget ),
-	  m_sCoreAudioDevice( pOther->m_sCoreAudioDevice ),
-	  m_sJackPortName1( pOther->m_sJackPortName1 ),
-	  m_sJackPortName2( pOther->m_sJackPortName2 ),
-	  m_nJackTransportMode( pOther->m_nJackTransportMode ),
-	  m_bJackConnectDefaults( pOther->m_bJackConnectDefaults ),
-	  m_bJackTrackOuts( pOther->m_bJackTrackOuts ),
-	  m_bJackEnforceInstrumentName( pOther->m_bJackEnforceInstrumentName ),
-	  m_JackTrackOutputMode( pOther->m_JackTrackOutputMode ),
-	  m_bJackTimebaseEnabled( pOther->m_bJackTimebaseEnabled ),
-	  m_bJackTimebaseMode( pOther->m_bJackTimebaseMode ),
-	  m_nAutosavesPerHour( pOther->m_nAutosavesPerHour ),
-	  m_sRubberBandCLIexecutable( pOther->m_sRubberBandCLIexecutable ),
-	  m_bCountIn( pOther->m_bCountIn ),
-	  m_sDefaultEditor( pOther->m_sDefaultEditor ),
-	  m_sPreferredLanguage( pOther->m_sPreferredLanguage ),
-	  m_bUseRelativeFileNamesForPlaylists(
-		  pOther->m_bUseRelativeFileNamesForPlaylists
-	  ),
-	  m_bShowDevelWarning( pOther->m_bShowDevelWarning ),
-	  m_bShowNoteOverwriteWarning( pOther->m_bShowNoteOverwriteWarning ),
-	  m_sLastSongPath( pOther->m_sLastSongPath ),
-	  m_sLastPlaylistPath( pOther->m_sLastPlaylistPath ),
-	  m_customSoundLibraryDirs( pOther->m_customSoundLibraryDirs ),
-	  m_onlineRepos( pOther->m_onlineRepos ),
-	  m_bHearNewNotes( pOther->m_bHearNewNotes ),
+	: PreferencesData( *pOther ),
+	  m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad ),
 	  m_nPunchInPos( pOther->m_nPunchInPos ),
 	  m_nPunchOutPos( pOther->m_nPunchOutPos ),
-	  m_bQuantizeEvents( pOther->m_bQuantizeEvents ),
-	  m_nMaxBars( pOther->m_nMaxBars ),
-	  m_midiFeedbackChannel( pOther->m_midiFeedbackChannel ),
-	  m_bMidiClockInputHandling( pOther->m_bMidiClockInputHandling ),
-	  m_bMidiTransportInputHandling( pOther->m_bMidiTransportInputHandling ),
-	  m_bMidiClockOutputSend( pOther->m_bMidiClockOutputSend ),
-	  m_bMidiTransportOutputSend( pOther->m_bMidiTransportOutputSend ),
-	  m_midiSendNoteOff( pOther->m_midiSendNoteOff ),
-	  m_bSearchForRubberbandOnLoad( pOther->m_bSearchForRubberbandOnLoad ),
-	  m_bUseTheRubberbandBpmChangeEvent(
-		  pOther->m_bUseTheRubberbandBpmChangeEvent
-	  ),
-	  m_bShowInstrumentPeaks( pOther->m_bShowInstrumentPeaks ),
-	  m_nPatternEditorGridResolution( pOther->m_nPatternEditorGridResolution ),
-	  m_bPatternEditorUsingTriplets( pOther->m_bPatternEditorUsingTriplets ),
-	  m_bPatternEditorAlwaysShowTypeLabels(
-		  pOther->m_bPatternEditorAlwaysShowTypeLabels
-	  ),
-	  m_bHideKeyboardCursor( pOther->m_bHideKeyboardCursor ),
-	  m_bShowPlaybackTrack( pOther->m_bShowPlaybackTrack ),
-	  m_nLastOpenTab( pOther->m_nLastOpenTab ),
-	  m_bShowAutomationArea( pOther->m_bShowAutomationArea ),
-	  m_nPatternEditorGridHeight( pOther->m_nPatternEditorGridHeight ),
-	  m_nPatternEditorGridWidth( pOther->m_nPatternEditorGridWidth ),
-	  m_nSongEditorGridHeight( pOther->m_nSongEditorGridHeight ),
-	  m_nSongEditorGridWidth( pOther->m_nSongEditorGridWidth ),
-	  m_mainFormProperties( pOther->m_mainFormProperties ),
-	  m_mixerProperties( pOther->m_mixerProperties ),
-	  m_patternEditorProperties( pOther->m_patternEditorProperties ),
-	  m_songEditorProperties( pOther->m_songEditorProperties ),
-	  m_rackProperties( pOther->m_rackProperties ),
-	  m_audioEngineInfoProperties( pOther->m_audioEngineInfoProperties ),
-	  m_playlistEditorProperties( pOther->m_playlistEditorProperties ),
-	  m_directorProperties( pOther->m_directorProperties ),
-	  m_sLastExportPatternAsDirectory( pOther->m_sLastExportPatternAsDirectory
-	  ),
-	  m_sLastExportSongDirectory( pOther->m_sLastExportSongDirectory ),
-	  m_sLastSaveSongAsDirectory( pOther->m_sLastSaveSongAsDirectory ),
-	  m_sLastOpenSongDirectory( pOther->m_sLastOpenSongDirectory ),
-	  m_sLastOpenPatternDirectory( pOther->m_sLastOpenPatternDirectory ),
-	  m_sLastExportLilypondDirectory( pOther->m_sLastExportLilypondDirectory ),
-	  m_sLastExportMidiDirectory( pOther->m_sLastExportMidiDirectory ),
-	  m_sLastImportDrumkitDirectory( pOther->m_sLastImportDrumkitDirectory ),
-	  m_sLastExportDrumkitDirectory( pOther->m_sLastExportDrumkitDirectory ),
-	  m_sLastSaveDrumkitAsDirectory( pOther->m_sLastSaveDrumkitAsDirectory ),
-	  m_sLastOpenLayerDirectory( pOther->m_sLastOpenLayerDirectory ),
-	  m_sLastOpenPlaybackTrackDirectory(
-		  pOther->m_sLastOpenPlaybackTrackDirectory
-	  ),
-	  m_sLastAddSongToPlaylistDirectory(
-		  pOther->m_sLastAddSongToPlaylistDirectory
-	  ),
-	  m_sLastPlaylistDirectory( pOther->m_sLastPlaylistDirectory ),
-	  m_sLastPlaylistScriptDirectory( pOther->m_sLastPlaylistScriptDirectory ),
-	  m_sLastImportThemeDirectory( pOther->m_sLastImportThemeDirectory ),
-	  m_sLastExportThemeDirectory( pOther->m_sLastExportThemeDirectory ),
-	  m_nExportSampleDepthIdx( pOther->m_nExportSampleDepthIdx ),
-	  m_nExportSampleRateIdx( pOther->m_nExportSampleRateIdx ),
-	  m_nExportModeIdx( pOther->m_nExportModeIdx ),
-	  m_exportFormat( pOther->m_exportFormat ),
-	  m_fExportCompressionLevel( pOther->m_fExportCompressionLevel ),
-	  m_nMidiExportMode( pOther->m_nMidiExportMode ),
-	  m_bMidiExportUseHumanization( pOther->m_bMidiExportUseHumanization ),
-	  m_bSoundLibraryShowName( pOther->m_bSoundLibraryShowName ),
-	  m_bSoundLibraryShowAuthor( pOther->m_bSoundLibraryShowAuthor ),
-	  m_bSoundLibraryShowInfo( pOther->m_bSoundLibraryShowInfo ),
-	  m_bSoundLibraryShowLicense( pOther->m_bSoundLibraryShowLicense ),
-	  m_bSoundLibraryShowPath( pOther->m_bSoundLibraryShowPath ),
-	  m_bSoundLibraryShowTags( pOther->m_bSoundLibraryShowTags ),
-	  m_bSoundLibraryShowVersion( pOther->m_bSoundLibraryShowVersion ),
-	  m_nSoundLibraryLastTab( pOther->m_nSoundLibraryLastTab ),
-	  m_nRackLastTab( pOther->m_nRackLastTab ),
-	  m_bShowExportSongLicenseWarning( pOther->m_bShowExportSongLicenseWarning
-	  ),
-	  m_bShowExportDrumkitLicenseWarning(
-		  pOther->m_bShowExportDrumkitLicenseWarning
-	  ),
-	  m_bShowExportDrumkitCopyleftWarning(
-		  pOther->m_bShowExportDrumkitCopyleftWarning
-	  ),
-	  m_bShowExportDrumkitAttributionWarning(
-		  pOther->m_bShowExportDrumkitAttributionWarning
-	  ),
-	  m_pTheme( std::make_shared<Theme>( pOther->m_pTheme ) ),
-	  m_pShortcuts( pOther->m_pShortcuts ),
-	  m_pMidiEventMap( pOther->m_pMidiEventMap ),
-	  m_pMidiInstrumentMap( pOther->m_pMidiInstrumentMap ),
 	  m_bLoadingSuccessful( pOther->m_bLoadingSuccessful )
 {
-	for ( const auto& ssRepo : pOther->m_onlineRepos ) {
-		m_onlineRepos << ssRepo;
-	}
-	for ( const auto& ssFile : pOther->m_recentFiles ) {
-		m_recentFiles.push_back( ssFile );
-	}
+	// The theme, shortcuts, and MIDI maps are mutable shared state: keep
+	// the copy deep so edits in one instance do not leak into the other.
+	m_pTheme = std::make_shared<Theme>( pOther->m_pTheme );
+	m_pShortcuts = std::make_shared<Shortcuts>( pOther->m_pShortcuts );
+	m_pMidiEventMap = std::make_shared<MidiEventMap>( pOther->m_pMidiEventMap );
+	m_pMidiInstrumentMap =
+		std::make_shared<MidiInstrumentMap>( pOther->m_pMidiInstrumentMap );
 	m_baselineXml = pOther->m_baselineXml;
 }
 
@@ -435,8 +176,11 @@ Preferences::~Preferences()
 {
 }
 
-std::shared_ptr<Preferences>
-Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen )
+std::shared_ptr<Preferences> Preferences::load(
+	const QString& sPath,
+	const bool bSilent,
+	Hydrogen* pHydrogen
+)
 {
 	if ( !Filesystem::fileReadable( sPath, bSilent ) ) {
 		return nullptr;
@@ -459,929 +203,61 @@ Preferences::load( const QString& sPath, const bool bSilent, Hydrogen* pHydrogen
 	auto pPref = std::make_shared<Preferences>();
 
 	// Retain the on-disk XML as the baseline for concurrency-safe persistence
-	// (ADR 0023): saveTo() diffs current-vs-baseline to write only this
+	// (ADR 0023): save() diffs current-vs-baseline to write only this
 	// instance's own changes back to the shared user config.
 	pPref->m_baselineXml = doc.toByteArray();
 
-	//////// GENERAL ///////////
-	auto pInterfaceTheme = std::make_shared<InterfaceTheme>();
-	auto pFontTheme = std::make_shared<FontTheme>();
-	auto pColorTheme = std::make_shared<ColorTheme>();
-
-	pPref->m_sPreferredLanguage = rootNode.read_string(
-		"preferredLanguage", pPref->m_sPreferredLanguage, false, "", bSilent
-	);
-	// Kept for backward compatibility of MIDI input mapping to versions prior
-	// to 2.0.
+	// Pre-2.0 MIDI input mapping flags. They are not schema rows (replaced by
+	// the midiInstrumentMap in 2.0) but the midiInstrumentMap row derives the
+	// legacy mapping state from them when its element is missing.
 	const bool bPlaySelectedInstrument =
 		rootNode.read_bool( "instrumentInputMode", false, true, false, true );
-	pPref->m_bShowDevelWarning = rootNode.read_bool(
-		"showDevelWarning", pPref->m_bShowDevelWarning, false, false, bSilent
-	);
-	pPref->m_bShowNoteOverwriteWarning = rootNode.read_bool(
-		"showNoteOverwriteWarning", pPref->m_bShowNoteOverwriteWarning, false,
-		false, bSilent
-	);
-	pPref->m_nMaxBars = rootNode.read_int(
-		"maxBars", pPref->m_nMaxBars, false, false, bSilent
-	);
-	pInterfaceTheme->m_layout =
-		static_cast<InterfaceTheme::Layout>( rootNode.read_int(
-			"defaultUILayout", static_cast<int>( pInterfaceTheme->m_layout ),
-			false, false, bSilent
-		) );
-	pInterfaceTheme->m_uiScalingPolicy =
-		static_cast<InterfaceTheme::ScalingPolicy>( rootNode.read_int(
-			"uiScalingPolicy",
-			static_cast<int>( pInterfaceTheme->m_uiScalingPolicy ), false,
-			false, bSilent
-		) );
-	pPref->m_nLastOpenTab = rootNode.read_int(
-		"lastOpenTab", pPref->m_nLastOpenTab, false, false, bSilent
-	);
-	pPref->m_bUseRelativeFileNamesForPlaylists = rootNode.read_bool(
-		"useRelativeFilenamesForPlaylists",
-		pPref->m_bUseRelativeFileNamesForPlaylists, false, false, bSilent
-	);
-	pPref->m_bHideKeyboardCursor = rootNode.read_bool(
-		"hideKeyboardCursorWhenUnused", pPref->m_bHideKeyboardCursor, false,
-		false, bSilent
-	);
-	pPref->m_bUseTheRubberbandBpmChangeEvent = rootNode.read_bool(
-		"useTheRubberbandBpmChangeEvent",
-		pPref->m_bUseTheRubberbandBpmChangeEvent, false, false, bSilent
-	);
-
-	pPref->m_bHearNewNotes = rootNode.read_bool(
-		"hearNewNotes", pPref->m_bHearNewNotes, false, false, bSilent
-	);
-	pPref->m_bQuantizeEvents = rootNode.read_bool(
-		"quantizeEvents", pPref->m_bQuantizeEvents, false, false, bSilent
-	);
-
-	if ( pPref->m_bSearchForRubberbandOnLoad ) {
-		// In case Rubberband CLI executable was not found yet, we check the
-		// additional path provided in the config (Preferences constructor
-		// already checked common places).
-		const QString sRubberbandPath = rootNode.read_string(
-			"path_to_rubberband", "", false, false, bSilent
-		);
-		if ( !sRubberbandPath.isEmpty() && QFile( sRubberbandPath ).exists() ) {
-			pPref->m_sRubberBandCLIexecutable = sRubberbandPath;
-		}
-		else {
-			pPref->m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
-		}
-	}
-
-	const XMLNode recentUsedSongsNode =
-		rootNode.firstChildElement( PreferencesKeys::RecentUsedSongs );
-	if ( !recentUsedSongsNode.isNull() ) {
-		QDomElement songElement =
-			recentUsedSongsNode.firstChildElement( "song" );
-		while ( !songElement.isNull() && !songElement.text().isEmpty() ) {
-			pPref->m_recentFiles.push_back( songElement.text() );
-			songElement = songElement.nextSiblingElement( "song" );
-		}
-	}
-	else {
-		WARNINGLOG( "<recentUsedSongs> node not found" );
-	}
-
-	const XMLNode onlineReposNode = rootNode.firstChildElement( "onlineRepos" );
-	if ( !onlineReposNode.isNull() ) {
-		QDomElement repoElement =
-			onlineReposNode.firstChildElement( "repo" );
-		while ( !repoElement.isNull() && !repoElement.text().isEmpty() ) {
-			if ( !pPref->m_onlineRepos.contains( repoElement.text() ) ) {
-				pPref->m_onlineRepos.push_back( repoElement.text() );
-			}
-
-			repoElement = repoElement.nextSiblingElement( "repo" );
-		}
-	}
-
-	/////////////// AUDIO ENGINE //////////////
-	bool bAsOutput = false;
 	bool bMidiDiscardNoteAfterAction = false;
+	bool bAsOutput = false;
 	const XMLNode audioEngineNode =
 		rootNode.firstChildElement( PreferencesKeys::AudioEngine );
 	if ( !audioEngineNode.isNull() ) {
-		const QString sAudioDriver = audioEngineNode.read_string(
-			PreferencesKeys::AudioDriver,
-			Preferences::audioDriverToQString( pPref->m_audioDriver ), false,
-			false, bSilent
-		);
-		pPref->m_audioDriver = parseAudioDriver( sAudioDriver );
-		if ( pPref->m_audioDriver == AudioDriver::None ) {
-			WARNINGLOG( QString( "Parsing of audio driver [%1] failed. Falling "
-								 "back to 'Auto'" )
-							.arg( sAudioDriver ) );
-			pPref->m_audioDriver = AudioDriver::Auto;
-		}
-		pPref->m_bUseMetronome = audioEngineNode.read_bool(
-			"use_metronome", pPref->m_bUseMetronome, false, false, bSilent
-		);
-		pPref->m_fMetronomeVolume = audioEngineNode.read_float(
-			"metronome_volume", pPref->m_fMetronomeVolume, false, false, bSilent
-		);
-		pPref->m_nMaxNotes = audioEngineNode.read_int(
-			"maxNotes", pPref->m_nMaxNotes, false, false, bSilent
-		);
-		pPref->m_interpolateMode = static_cast<Interpolation::InterpolateMode>(
-			audioEngineNode.read_int(
-				"interpolateMode",
-				static_cast<int>( pPref->m_interpolateMode ), true, false,
-				bSilent
-			)
-		);
-		pPref->m_nBufferSize = audioEngineNode.read_int(
-			PreferencesKeys::BufferSize, pPref->m_nBufferSize, false, false, bSilent
-		);
-		pPref->m_nSampleRate = audioEngineNode.read_int(
-			PreferencesKeys::SampleRate, pPref->m_nSampleRate, false, false, bSilent
-		);
-		pPref->setCountIn( audioEngineNode.read_bool(
-			"countIn", pPref->getCountIn(), /*inexistent_ok*/ true,
-			/*empty_ok*/ false, bSilent
-		) );
-
-		//// OSS DRIVER ////
-		const XMLNode ossDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::OssDriver );
-		if ( !ossDriverNode.isNull() ) {
-			pPref->m_sOSSDevice = ossDriverNode.read_string(
-				"ossDevice", pPref->m_sOSSDevice, false, false, bSilent
-			);
-		}
-		else {
-			WARNINGLOG( "<portaudio_driver> node not found" );
-		}
-
-		//// PORTAUDIO DRIVER ////
-		const XMLNode portAudioDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::PortAudioDriver );
-		if ( !portAudioDriverNode.isNull() ) {
-			pPref->m_sPortAudioDevice = portAudioDriverNode.read_string(
-				"portAudioDevice", pPref->m_sPortAudioDevice, false, true,
-				bSilent
-			);
-			pPref->m_sPortAudioHostAPI = portAudioDriverNode.read_string(
-				"portAudioHostAPI", pPref->m_sPortAudioHostAPI, false, true,
-				bSilent
-			);
-			pPref->m_nLatencyTarget = portAudioDriverNode.read_int(
-				"latencyTarget", pPref->m_nLatencyTarget, false, false, bSilent
-			);
-		}
-		else {
-			WARNINGLOG( "<portaudio_driver> node not found" );
-		}
-
-		//// COREAUDIO DRIVER ////
-		const XMLNode coreAudioDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::CoreAudioDriver );
-		if ( !coreAudioDriverNode.isNull() ) {
-			pPref->m_sCoreAudioDevice = coreAudioDriverNode.read_string(
-				"coreAudioDevice", pPref->m_sCoreAudioDevice, false, true,
-				bSilent
-			);
-		}
-		else {
-			WARNINGLOG( "<coreaudio_driver> node not found" );
-		}
-
-		//// JACK DRIVER ////
-		const XMLNode jackDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::JackDriver );
-		if ( !jackDriverNode.isNull() ) {
-			pPref->m_sJackPortName1 = jackDriverNode.read_string(
-				"jack_port_name_1", pPref->m_sJackPortName1, false, false,
-				bSilent
-			);
-			pPref->m_sJackPortName2 = jackDriverNode.read_string(
-				"jack_port_name_2", pPref->m_sJackPortName2, false, false,
-				bSilent
-			);
-			const QString sMode = jackDriverNode.read_string(
-				"jack_transport_mode", "", false, false, bSilent
-			);
-			if ( sMode == "NO_JACK_TRANSPORT" ) {
-				pPref->m_nJackTransportMode = NO_JACK_TRANSPORT;
-			}
-			else if ( sMode == "USE_JACK_TRANSPORT" ) {
-				pPref->m_nJackTransportMode = USE_JACK_TRANSPORT;
-			}
-
-			pPref->m_bJackTimebaseEnabled = jackDriverNode.read_bool(
-				"jack_timebase_enabled", pPref->m_bJackTimebaseEnabled, false,
-				false, bSilent
-			);
-
-			// Constructor's default value will only be overwritten in case the
-			// parameter is present and well formatted.
-			const QString sJackMasterMode = jackDriverNode.read_string(
-				"jack_transport_mode_master", "", false, false, bSilent
-			);
-			if ( sJackMasterMode == "NO_JACK_TIME_MASTER" ) {
-				pPref->m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
-			}
-			else if ( sJackMasterMode == "USE_JACK_TIME_MASTER" ) {
-				pPref->m_bJackTimebaseMode = USE_JACK_TIMEBASE_CONTROL;
-			}
-			else if ( !sJackMasterMode.isEmpty() ) {
-				WARNINGLOG(
-					QString(
-						"Unable to parse <jack_transport_mode_master>: [%1]"
-					)
-						.arg( sJackMasterMode )
-				);
-			}
-
-			pPref->m_bJackTrackOuts = jackDriverNode.read_bool(
-				"jack_track_outs", pPref->m_bJackTrackOuts, false, false,
-				bSilent
-			);
-			pPref->m_bJackEnforceInstrumentName = jackDriverNode.read_bool(
-				"jack_enforce_instrument_name",
-				pPref->m_bJackEnforceInstrumentName, true, false, bSilent
-			);
-			pPref->m_bJackConnectDefaults = jackDriverNode.read_bool(
-				"jack_connect_defaults", pPref->m_bJackConnectDefaults, false,
-				false, bSilent
-			);
-
-			const int nJackTrackOutputMode = jackDriverNode.read_int(
-				"jack_track_output_mode", -255, false, false, bSilent
-			);
-			if ( nJackTrackOutputMode == 0 ) {
-				pPref->m_JackTrackOutputMode = JackTrackOutputMode::postFader;
-			}
-			else if ( nJackTrackOutputMode == 1 ) {
-				pPref->m_JackTrackOutputMode = JackTrackOutputMode::preFader;
-			}
-			else if ( nJackTrackOutputMode != -255 ) {
-				WARNINGLOG(
-					QString( "Unable to parse <jack_track_output_mode>: [%1]" )
-						.arg( nJackTrackOutputMode )
-				);
-			}
-		}
-		else {
-			WARNINGLOG( "<jack_driver> node not found" );
-		}
-
-		/// ALSA AUDIO DRIVER ///
-		const XMLNode alsaAudioDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::AlsaAudioDriver );
-		if ( !alsaAudioDriverNode.isNull() ) {
-			pPref->m_sAlsaAudioDevice = alsaAudioDriverNode.read_string(
-				"alsa_audio_device", pPref->m_sAlsaAudioDevice, false, false,
-				bSilent
-			);
-		}
-		else {
-			WARNINGLOG( "<alsa_audio_driver> node not found" );
-		}
-
-		/// MIDI DRIVER ///
 		const XMLNode midiDriverNode =
 			audioEngineNode.firstChildElement( PreferencesKeys::MidiDriver );
 		if ( !midiDriverNode.isNull() ) {
-			const auto sMidiDriver = midiDriverNode.read_string(
-				PreferencesKeys::MidiDriverName,
-				Preferences::midiDriverToQString( pPref->m_midiDriver ), false,
-				false, bSilent
-			);
-			pPref->m_midiDriver = Preferences::parseMidiDriver( sMidiDriver );
-			pPref->m_sMidiPortName = midiDriverNode.read_string(
-				PreferencesKeys::MidiPortName, pPref->m_sMidiPortName, false, false, bSilent
-			);
-			pPref->m_sMidiOutputPortName = midiDriverNode.read_string(
-				PreferencesKeys::MidiOutputPortName, pPref->m_sMidiOutputPortName, false, false,
-				bSilent
-			);
-			// In versions prior to 2.0 there was an inconsistent scheme for
-			// storing MIDI channels. In this variable `-1` did indicate to use
-			// "All" channels while the same value set in the MIDI output
-			// channel within the instruments of a drumkit meant "Off" or none.
-			// Valid channel values were zero-based Starting from 2.0 we unified
-			// those ranges allowing this variable, too, to represent both "All"
-			// and "Off". In addition, we now use 1 based channel values in
-			// accordance with the MIDI standard. But, for backward
-			// compatibility, we still write zero-based values to file and use
-			// the old one and not those defined in Midi.h.
-			const int nMidiActionChannel = midiDriverNode.read_int(
-				"channel_filter", /*previous value used to indicate 'all'*/ -1,
-				false, false, bSilent
-			);
-			if ( nMidiActionChannel == -1 ) {
-				// Old value to indicate to use all channels
-				pPref->m_midiActionChannel = Midi::ChannelAll;
-			}
-			else if ( nMidiActionChannel == -2 ) {
-				// Helper value indicating to use no channel (since -1 was
-				// already taken).
-				pPref->m_midiActionChannel = Midi::ChannelOff;
-			}
-			else {
-				pPref->m_midiActionChannel =
-					Midi::channelFromIntClamp( nMidiActionChannel + 1 );
-			}
-			pPref->m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
-				"ignore_note_off", pPref->m_bMidiNoteOffIgnore, false, false,
-				bSilent
-			);
 			// Used in versions prior to 2.0 to indicate that only MIDI action
 			// should be triggered by incoming MIDI messages but no realtime
 			// notes.
 			bMidiDiscardNoteAfterAction = midiDriverNode.read_bool(
 				"discard_note_after_action", false, true, false, true
 			);
-			// Kept for backward compatibility of MIDI input mapping to versions
-			// prior to 2.0.
+			// Kept for backward compatibility of MIDI input mapping to
+			// versions prior to 2.0.
 			bAsOutput = midiDriverNode.read_bool(
 				"fixed_mapping", false, true, true, true
 			);
-			pPref->m_bEnableMidiFeedback = midiDriverNode.read_bool(
-				"enable_midi_feedback", pPref->m_bEnableMidiFeedback, false,
-				true, bSilent
-			);
-            // The file-based representation of the MIDI channel is zero-based (for
-            // historical reasons) while we start with 1 within the application (since
-            // version 2.0).
-			pPref->setMidiFeedbackChannel( Midi::channelFromInt(
-				midiDriverNode.read_int(
-					"midi_feedback_channel",
-					static_cast<int>( pPref->getMidiFeedbackChannel() ) - 1,
-					true, false, bSilent
-				) +
-				1
-			) );
-			pPref->setMidiClockInputHandling( midiDriverNode.read_bool(
-				"midi_clock_input_handling", pPref->getMidiClockInputHandling(),
-				true, true, bSilent
-			) );
-			pPref->setMidiTransportInputHandling( midiDriverNode.read_bool(
-				"midi_transport_input_handling",
-				pPref->getMidiTransportInputHandling(), true, true, bSilent
-			) );
-			pPref->setMidiClockOutputSend( midiDriverNode.read_bool(
-				"midi_clock_output_send", pPref->getMidiClockOutputSend(), true,
-				true, bSilent
-			) );
-			pPref->setMidiTransportOutputSend( midiDriverNode.read_bool(
-				"midi_transport_output_send",
-				pPref->getMidiTransportOutputSend(), true, true, bSilent
-			) );
-			pPref->setMidiSendNoteOff(
-				static_cast<MidiSendNoteOff>( midiDriverNode.read_int(
-					"midi_send_note_off",
-					static_cast<int>( pPref->getMidiSendNoteOff() ), true, true,
-					bSilent
-				) )
-			);
-		}
-		else {
-			WARNINGLOG( "<midi_driver> node not found" );
-		}
-
-		/// OSC ///
-		const XMLNode oscServerNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::OscConfiguration );
-		if ( !oscServerNode.isNull() ) {
-			pPref->m_bOscServerEnabled = oscServerNode.read_bool(
-				"oscEnabled", pPref->m_bOscServerEnabled, false, false, bSilent
-			);
-			pPref->m_bOscFeedbackEnabled = oscServerNode.read_bool(
-				"oscFeedbackEnabled", pPref->m_bOscFeedbackEnabled, false,
-				false, bSilent
-			);
-			pPref->m_nOscServerPort = oscServerNode.read_int(
-				"oscServerPort", pPref->m_nOscServerPort, false, false, bSilent
-			);
-		}
-		else {
-			WARNINGLOG( "<osc_configuration> node not found" );
 		}
 	}
 
-	/////////////// GUI //////////////
-	XMLNode guiNode = rootNode.firstChildElement( "gui" );
-	if ( !guiNode.isNull() ) {
-		QString sQTStyle = guiNode.read_string(
-			"QTStyle", pInterfaceTheme->m_sQTStyle, false, true, bSilent
-		);
+	PreferencesSchema::ReadContext context;
+	context.pHydrogen = pHydrogen;
+	context.bSilent = bSilent;
+	context.bSearchForRubberband = pPref->m_bSearchForRubberbandOnLoad;
+	context.bEmitStructuralWarnings = true;
+	context.bLegacyFixedMapping = bAsOutput;
+	context.bLegacyDiscardNoteAfterAction = bMidiDiscardNoteAfterAction;
+	context.bLegacyPlaySelectedInstrument = bPlaySelectedInstrument;
+	context.bApplyLegacyMidiInput = true;
 
-		if ( sQTStyle == "Plastique" ) {
-			sQTStyle = "Fusion";
-		}
-		pInterfaceTheme->m_sQTStyle = sQTStyle;
+	PreferencesSchema::readRows( rootNode, *pPref, std::nullopt, context );
 
-		pFontTheme->m_sApplicationFontFamily = guiNode.read_string(
-			"application_font_family", pFontTheme->m_sApplicationFontFamily,
-			false, false, bSilent
-		);
-		pFontTheme->m_sLevel2FontFamily = guiNode.read_string(
-			"level2_font_family", pFontTheme->m_sLevel2FontFamily, false, false,
-			bSilent
-		);
-		pFontTheme->m_sLevel3FontFamily = guiNode.read_string(
-			"level3_font_family", pFontTheme->m_sLevel3FontFamily, false, false,
-			bSilent
-		);
-		pFontTheme->m_fontSize =
-			static_cast<FontTheme::FontSize>( guiNode.read_int(
-				"font_size", static_cast<int>( pFontTheme->m_fontSize ), false,
-				false, bSilent
-			) );
-
-		pInterfaceTheme->m_fMixerFalloffSpeed = guiNode.read_float(
-			"mixer_falloff_speed", pInterfaceTheme->m_fMixerFalloffSpeed, false,
-			false, bSilent
-		);
-
-		pPref->m_nPatternEditorGridResolution = guiNode.read_int(
-			"patternEditorGridResolution",
-			pPref->m_nPatternEditorGridResolution, false, false, bSilent
-		);
-		pPref->m_bPatternEditorUsingTriplets = guiNode.read_bool(
-			"patternEditorUsingTriplets", pPref->m_bPatternEditorUsingTriplets,
-			false, false, bSilent
-		);
-		pPref->m_bPatternEditorAlwaysShowTypeLabels = guiNode.read_bool(
-			"patternEditorAlwaysShowTypeLabels",
-			pPref->m_bPatternEditorAlwaysShowTypeLabels,
-			/* inexistent_ok */ true, /* empty_ok */ false, bSilent
-		);
-
-		pPref->m_bShowInstrumentPeaks = guiNode.read_bool(
-			"showInstrumentPeaks", pPref->m_bShowInstrumentPeaks, false, false,
-			bSilent
-		);
-		pPref->m_bShowAutomationArea = guiNode.read_bool(
-			"showAutomationArea", pPref->m_bShowAutomationArea, false, false,
-			bSilent
-		);
-		pPref->m_bShowPlaybackTrack = guiNode.read_bool(
-			"showPlaybackTrack", pPref->m_bShowPlaybackTrack, false, false,
-			bSilent
-		);
-
-		// pattern editor grid geometry
-		pPref->m_nPatternEditorGridHeight = guiNode.read_int(
-			"patternEditorGridHeight", pPref->m_nPatternEditorGridHeight, false,
-			false, bSilent
-		);
-		pPref->m_nPatternEditorGridWidth = guiNode.read_int(
-			"patternEditorGridWidth", pPref->m_nPatternEditorGridWidth, false,
-			false, bSilent
-		);
-
-		// song editor grid geometry
-		pPref->m_nSongEditorGridHeight = guiNode.read_int(
-			"songEditorGridHeight", pPref->m_nSongEditorGridHeight, false,
-			false, bSilent
-		);
-		pPref->m_nSongEditorGridWidth = guiNode.read_int(
-			"songEditorGridWidth", pPref->m_nSongEditorGridWidth, false, false,
-			bSilent
-		);
-
-		// mainForm window properties
-		auto mainFromPropertiesNode =
-			guiNode.firstChildElement( "mainForm_properties" );
-		if ( !mainFromPropertiesNode.isNull() ) {
-			pPref->setMainFormProperties( WindowProperties::loadFrom(
-				mainFromPropertiesNode, pPref->m_mainFormProperties, bSilent
-			) );
-		}
-		auto mixerPropertiesNode =
-			guiNode.firstChildElement( "mixer_properties" );
-		if ( !mixerPropertiesNode.isNull() ) {
-			pPref->setMixerProperties( WindowProperties::loadFrom(
-				mixerPropertiesNode, pPref->m_mixerProperties, bSilent
-			) );
-		}
-		auto patternEditorPropertiesNode =
-			guiNode.firstChildElement( "patternEditor_properties" );
-		if ( !patternEditorPropertiesNode.isNull() ) {
-			pPref->setPatternEditorProperties( WindowProperties::loadFrom(
-				patternEditorPropertiesNode, pPref->m_patternEditorProperties,
-				bSilent
-			) );
-		}
-		auto songEditorPropertiesNode =
-			guiNode.firstChildElement( "songEditor_properties" );
-		if ( !songEditorPropertiesNode.isNull() ) {
-			pPref->setSongEditorProperties( WindowProperties::loadFrom(
-				songEditorPropertiesNode, pPref->m_songEditorProperties, bSilent
-			) );
-		}
-		auto rackPropertiesNode =
-			guiNode.firstChildElement( "instrumentRack_properties" );
-		if ( !rackPropertiesNode.isNull() ) {
-			pPref->setRackProperties( WindowProperties::loadFrom(
-				rackPropertiesNode, pPref->m_rackProperties, bSilent
-			) );
-		}
-		auto audioEngineInfoPropertiesNode =
-			guiNode.firstChildElement( "audioEngineInfo_properties" );
-		if ( !audioEngineInfoPropertiesNode.isNull() ) {
-			pPref->setAudioEngineInfoProperties( WindowProperties::loadFrom(
-				audioEngineInfoPropertiesNode,
-				pPref->m_audioEngineInfoProperties, bSilent
-			) );
-		}
-		// In order to be backward compatible we still call the XML node
-		// "playlistDialog". For some time we had playlistEditor and
-		// playlistDialog coexisting.
-		auto playlistEditorPropertiesNode =
-			guiNode.firstChildElement( "playlistDialog_properties" );
-		if ( !playlistEditorPropertiesNode.isNull() ) {
-			pPref->setPlaylistEditorProperties( WindowProperties::loadFrom(
-				playlistEditorPropertiesNode, pPref->m_playlistEditorProperties,
-				bSilent
-			) );
-		}
-		auto directorPropertiesNode =
-			guiNode.firstChildElement( "director_properties" );
-		if ( !directorPropertiesNode.isNull() ) {
-			pPref->setDirectorProperties( WindowProperties::loadFrom(
-				directorPropertiesNode, pPref->m_directorProperties, bSilent
-			) );
-		}
-
-		// last used file dialog folders
-		pPref->m_sLastExportPatternAsDirectory = guiNode.read_string(
-			"lastExportPatternAsDirectory",
-			pPref->m_sLastExportPatternAsDirectory, true, false, bSilent
-		);
-		pPref->m_sLastExportSongDirectory = guiNode.read_string(
-			"lastExportSongDirectory", pPref->m_sLastExportSongDirectory, true,
-			false, bSilent
-		);
-		pPref->m_sLastSaveSongAsDirectory = guiNode.read_string(
-			"lastSaveSongAsDirectory", pPref->m_sLastSaveSongAsDirectory, true,
-			false, bSilent
-		);
-		pPref->m_sLastOpenSongDirectory = guiNode.read_string(
-			"lastOpenSongDirectory", pPref->m_sLastOpenSongDirectory, true,
-			false, bSilent
-		);
-		pPref->m_sLastOpenPatternDirectory = guiNode.read_string(
-			"lastOpenPatternDirectory", pPref->m_sLastOpenPatternDirectory,
-			true, false, bSilent
-		);
-		pPref->m_sLastExportLilypondDirectory = guiNode.read_string(
-			"lastExportLilypondDirectory",
-			pPref->m_sLastExportLilypondDirectory, true, false, bSilent
-		);
-		pPref->m_sLastExportMidiDirectory = guiNode.read_string(
-			"lastExportMidiDirectory", pPref->m_sLastExportMidiDirectory, true,
-			false, bSilent
-		);
-		pPref->m_sLastImportDrumkitDirectory = guiNode.read_string(
-			"lastImportDrumkitDirectory", pPref->m_sLastImportDrumkitDirectory,
-			true, false, bSilent
-		);
-		pPref->m_sLastExportDrumkitDirectory = guiNode.read_string(
-			"lastExportDrumkitDirectory", pPref->m_sLastExportDrumkitDirectory,
-			true, false, bSilent
-		);
-		pPref->m_sLastSaveDrumkitAsDirectory = guiNode.read_string(
-			"lastSaveDrumkitAsDirectory", pPref->m_sLastSaveDrumkitAsDirectory,
-			true, false, bSilent
-		);
-		pPref->m_sLastOpenLayerDirectory = guiNode.read_string(
-			"lastOpenLayerDirectory", pPref->m_sLastOpenLayerDirectory, true,
-			false, bSilent
-		);
-		pPref->m_sLastOpenPlaybackTrackDirectory = guiNode.read_string(
-			"lastOpenPlaybackTrackDirectory",
-			pPref->m_sLastOpenPlaybackTrackDirectory, true, false, bSilent
-		);
-		pPref->m_sLastAddSongToPlaylistDirectory = guiNode.read_string(
-			"lastAddSongToPlaylistDirectory",
-			pPref->m_sLastAddSongToPlaylistDirectory, true, false, bSilent
-		);
-		pPref->m_sLastPlaylistDirectory = guiNode.read_string(
-			"lastPlaylistDirectory", pPref->m_sLastPlaylistDirectory, true,
-			false, bSilent
-		);
-		pPref->m_sLastPlaylistScriptDirectory = guiNode.read_string(
-			"lastPlaylistScriptDirectory",
-			pPref->m_sLastPlaylistScriptDirectory, true, false, bSilent
-		);
-		pPref->m_sLastImportThemeDirectory = guiNode.read_string(
-			"lastImportThemeDirectory", pPref->m_sLastImportThemeDirectory,
-			true, false, bSilent
-		);
-		pPref->m_sLastExportThemeDirectory = guiNode.read_string(
-			"lastExportThemeDirectory", pPref->m_sLastExportThemeDirectory,
-			true, false, bSilent
-		);
-
-		// export dialog properties
-		pPref->m_exportFormat =
-			Filesystem::AudioFormatFromSuffix( guiNode.read_string(
-				"exportDialogFormat",
-				Filesystem::AudioFormatToSuffix( pPref->m_exportFormat ), true,
-				true
-			) );
-		pPref->m_fExportCompressionLevel = guiNode.read_float(
-			"exportDialogCompressionLevel", pPref->m_fExportCompressionLevel,
-			true, true
-		);
-		pPref->m_nExportModeIdx = guiNode.read_int(
-			"exportDialogMode", pPref->m_nExportModeIdx, false, false, bSilent
-		);
-		pPref->m_nExportSampleRateIdx = guiNode.read_int(
-			"exportDialogSampleRate", pPref->m_nExportSampleRateIdx, false,
-			false, bSilent
-		);
-		pPref->m_nExportSampleDepthIdx = guiNode.read_int(
-			"exportDialogSampleDepth", pPref->m_nExportSampleDepthIdx, false,
-			false, bSilent
-		);
-		pPref->m_bShowExportSongLicenseWarning = guiNode.read_bool(
-			"showExportSongLicenseWarning",
-			pPref->m_bShowExportSongLicenseWarning, true, false, bSilent
-		);
-		pPref->m_bShowExportDrumkitLicenseWarning = guiNode.read_bool(
-			"showExportDrumkitLicenseWarning",
-			pPref->m_bShowExportDrumkitLicenseWarning, true, false, bSilent
-		);
-		pPref->m_bShowExportDrumkitCopyleftWarning = guiNode.read_bool(
-			"showExportDrumkitCopyleftWarning",
-			pPref->m_bShowExportDrumkitCopyleftWarning, true, false, bSilent
-		);
-		pPref->m_bShowExportDrumkitAttributionWarning = guiNode.read_bool(
-			"showExportDrumkitAttributionWarning",
-			pPref->m_bShowExportDrumkitAttributionWarning, true, false, bSilent
-		);
-
-		pPref->m_bFollowPlayhead = guiNode.read_bool(
-			"followPlayhead", pPref->m_bFollowPlayhead, false, false, bSilent
-		);
-
-		// midi export dialog properties
-		pPref->m_nMidiExportMode = guiNode.read_int(
-			"midiExportDialogMode", pPref->m_nMidiExportMode, false, false,
-			bSilent
-		);
-		pPref->m_bMidiExportUseHumanization = guiNode.read_bool(
-			"midiExportDialogUseHumanization",
-			pPref->m_bMidiExportUseHumanization, true, false, bSilent
-		);
-
-		pPref->m_bSoundLibraryShowName = guiNode.read_bool(
-			"soundLibraryShowName",
-			pPref->m_bSoundLibraryShowName, true, false, bSilent
-		);
-		pPref->m_bSoundLibraryShowAuthor = guiNode.read_bool(
-			"soundLibraryShowAuthor",
-			pPref->m_bSoundLibraryShowAuthor, true, false, bSilent
-		);
-		pPref->m_bSoundLibraryShowInfo = guiNode.read_bool(
-			"soundLibraryShowInfo",
-			pPref->m_bSoundLibraryShowInfo, true, false, bSilent
-		);
-		pPref->m_bSoundLibraryShowLicense = guiNode.read_bool(
-			"soundLibraryShowLicense",
-			pPref->m_bSoundLibraryShowLicense, true, false, bSilent
-		);
-		pPref->m_bSoundLibraryShowPath = guiNode.read_bool(
-			"soundLibraryShowPath",
-			pPref->m_bSoundLibraryShowPath, true, false, bSilent
-		);
-		pPref->m_bSoundLibraryShowTags = guiNode.read_bool(
-			"soundLibraryShowTags",
-			pPref->m_bSoundLibraryShowTags, true, false, bSilent
-		);
-		pPref->m_bSoundLibraryShowVersion = guiNode.read_bool(
-			"soundLibraryShowVersion",
-			pPref->m_bSoundLibraryShowVersion, true, false, bSilent
-		);
-		pPref->m_nSoundLibraryLastTab = guiNode.read_int(
-			"soundLibraryLastTab",
-			pPref->m_nSoundLibraryLastTab, true, false, bSilent
-		);
-		pPref->m_nRackLastTab = guiNode.read_int(
-			"rackLastTab",
-			pPref->m_nRackLastTab, true, false, bSilent
-		);
-
-		// beatcounter
-		const QString sUseBeatCounter =
-			guiNode.read_string( "bc", "", false, false, bSilent );
-		if ( sUseBeatCounter == "BC_OFF" ) {
-			pPref->m_bpmTap = BpmTap::TapTempo;
-		}
-		else if ( sUseBeatCounter == "BC_ON" ) {
-			pPref->m_bpmTap = BpmTap::BeatCounter;
-		}
-		else if ( !sUseBeatCounter.isEmpty() ) {
-			WARNINGLOG(
-				QString( "Unable to parse <bc>: [%1]" ).arg( sUseBeatCounter )
-			);
-		}
-
-		const QString sBeatCounterSetPlay =
-			guiNode.read_string( "setplay", "", false, false, bSilent );
-		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
-			pPref->m_beatCounter = BeatCounter::Tap;
-		}
-		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
-			pPref->m_beatCounter = BeatCounter::TapAndPlay;
-		}
-		else if ( !sBeatCounterSetPlay.isEmpty() ) {
-			WARNINGLOG( QString( "Unable to parse <setplay>: [%1]" )
-							.arg( sBeatCounterSetPlay ) );
-		}
-
-		pPref->m_nBeatCounterDriftCompensation = guiNode.read_int(
-			"countoffset", pPref->m_nBeatCounterDriftCompensation, false, false,
-			bSilent
-		);
-		pPref->m_nBeatCounterStartOffset = guiNode.read_int(
-			"playoffset", pPref->m_nBeatCounterStartOffset, false, false,
-			bSilent
-		);
-
-		// ~ beatcounter
-		pPref->m_bPlaySamplesOnClicking = guiNode.read_bool(
-			"playSamplesOnClicking", pPref->m_bPlaySamplesOnClicking, true,
-			false, bSilent
-		);
-
-		pPref->m_nAutosavesPerHour = guiNode.read_int(
-			"autosavesPerHour", pPref->m_nAutosavesPerHour, false, false,
-			bSilent
-		);
-
-		const XMLNode colorThemeNode =
-			guiNode.firstChildElement( "colorTheme" );
-		if ( !colorThemeNode.isNull() ) {
-			pColorTheme = ColorTheme::loadFrom( colorThemeNode, bSilent );
-		}
-		else {
-			WARNINGLOG( "<colorTheme> node not found" );
-		}
-
-		// SongEditor coloring
-		pInterfaceTheme->m_coloringMethod =
-			static_cast<InterfaceTheme::ColoringMethod>( guiNode.read_int(
-				"SongEditor_ColoringMethod",
-				static_cast<int>( pInterfaceTheme->m_coloringMethod ), false,
-				false, bSilent
-			) );
-		std::vector<QColor> patternColors( InterfaceTheme::nMaxPatternColors );
-		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
-			patternColors[ii] = guiNode.read_color(
-				QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-				pInterfaceTheme->m_patternColors[ii], false, false, bSilent
-			);
-		}
-		pInterfaceTheme->m_patternColors = patternColors;
-		pInterfaceTheme->m_nVisiblePatternColors = std::clamp(
-			guiNode.read_int(
-				"SongEditor_visible_pattern_colors",
-				pInterfaceTheme->m_nVisiblePatternColors, false, false, bSilent
-			),
-			0, 50
-		);
-		const int nIconColor = guiNode.read_int(
-			"iconColor", static_cast<int>( pInterfaceTheme->m_iconColor ), true,
-			false, bSilent
-		);
-		pInterfaceTheme->m_iconColor =
-			nIconColor == static_cast<int>( InterfaceTheme::IconColor::White )
-				? InterfaceTheme::IconColor::White
-				: InterfaceTheme::IconColor::Black;
-
-		pInterfaceTheme->m_bIndicateNotePlayback = guiNode.read_bool(
-			"indicateNotePlayback", pInterfaceTheme->m_bIndicateNotePlayback,
-			true, false, bSilent
-		);
-
-		pInterfaceTheme->m_bIndicateEffectiveNoteLength = guiNode.read_bool(
-			"indicateEffectiveNoteLength",
-			pInterfaceTheme->m_bIndicateEffectiveNoteLength, true, false,
-			bSilent
-		);
-	}
-	else {
-		WARNINGLOG( "<gui> node not found" );
-	}
-
-	/////////////// FILES //////////////
-	const XMLNode filesNode = rootNode.firstChildElement( PreferencesKeys::Files );
-	if ( !filesNode.isNull() ) {
-		pPref->m_sLastSongPath = filesNode.read_string(
-			PreferencesKeys::LastSongFilename, pPref->m_sLastSongPath, false, true, bSilent
-		);
-		pPref->m_sLastPlaylistPath = filesNode.read_string(
-			PreferencesKeys::LastPlaylistFilename, pPref->m_sLastPlaylistPath, false, true,
-			bSilent
-		);
-		pPref->m_sDefaultEditor = filesNode.read_string(
-			"defaulteditor", pPref->m_sDefaultEditor, false, true, bSilent
-		);
-		const XMLNode customDirsNode =
-			filesNode.firstChildElement( "customSoundLibraryDirs" );
-		if ( !customDirsNode.isNull() ) {
-			auto customDirNode = customDirsNode.firstChildElement( "dir" );
-			while ( !customDirNode.isNull() && !customDirNode.text().isEmpty()
-			) {
-				pPref->m_customSoundLibraryDirs << customDirNode.text();
-				customDirNode = customDirNode.nextSiblingElement( "dir" );
-			}
-		}
-	}
-	else {
-		WARNINGLOG( "<files> node not found" );
-	}
-
-	const XMLNode midiEventMapNode =
-		rootNode.firstChildElement( "midiEventMap" );
-	if ( !midiEventMapNode.isNull() ) {
-		pPref->m_pMidiEventMap =
-			MidiEventMap::loadFrom( midiEventMapNode, bSilent, pHydrogen );
-	}
-	else {
-		WARNINGLOG( "<midiMap> node not found" );
-	}
-
-	const XMLNode midiInstrumentMapNode =
-		rootNode.firstChildElement( "midiInstrumentMap" );
-	if ( !midiInstrumentMapNode.isNull() ) {
-		pPref->m_pMidiInstrumentMap =
-			MidiInstrumentMap::loadFrom( midiInstrumentMapNode, bSilent );
-	}
-	else {
-		// Backward compatibility. Derive the mapping state from other settings
-		// used in versions prior to 2.0.
-		if ( bAsOutput ) {
-			pPref->m_pMidiInstrumentMap->setInput(
-				MidiInstrumentMap::Input::AsOutput
-			);
-		}
-		else if ( bPlaySelectedInstrument ) {
-			pPref->m_pMidiInstrumentMap->setInput(
-				MidiInstrumentMap::Input::SelectedInstrument
-			);
-		}
-		else if ( bMidiDiscardNoteAfterAction ) {
-			// Incoming MIDI message were not mapped to realtime notes.
-			pPref->m_pMidiInstrumentMap->setInput(
-				MidiInstrumentMap::Input::None
-			);
-		}
-		else {
-			pPref->m_pMidiInstrumentMap->setInput(
-				MidiInstrumentMap::Input::Order
-			);
-		}
-
-		// Prior to version 2.0 a single numerical value could be set in the
-		// preferences indicating which channel (or all of them) are used for
-		// MIDI input. Since 2.0 this value only affects MIDI actions but we use
-		// it in here to set up a global input channel for note mapping as well
-		// in order to provide as much backward compatibility as possible.
-		pPref->m_pMidiInstrumentMap->setUseGlobalInputChannel( true );
-		pPref->m_pMidiInstrumentMap->setGlobalInputChannel(
-			pPref->m_midiActionChannel
-		);
-	}
-
-	pPref->m_pTheme =
-		std::make_shared<Theme>( pColorTheme, pInterfaceTheme, pFontTheme );
-
-	// Shortcuts
-	pPref->m_pShortcuts = Shortcuts::loadFrom( rootNode, pHydrogen, bSilent );
+	// Surface config drift (typos, stale or foreign elements) instead of
+	// silently dropping it (ADR 0023 amendment).
+	PreferencesSchema::checkForUnknownElements( rootNode );
 
 	return pPref;
 }
 
 bool Preferences::saveCopyAs( const QString& sPath, const bool bSilent ) const
 {
-	return saveTo( sPath, bSilent );
-}
-
-bool Preferences::save( const bool bSilent ) const
-{
-	return saveTo( Filesystem::userConfigPath(), bSilent );
-}
-
-bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
-{
 	if ( !bSilent ) {
 		INFOLOG( QString( "Saving preferences file into [%1]" ).arg( sPath ) );
 	}
-
-	auto pInterfaceTheme = m_pTheme->m_pInterface;
-	auto pFontTheme = m_pTheme->m_pFont;
 
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( PreferencesKeys::Root );
@@ -1390,518 +266,143 @@ bool Preferences::saveTo( const QString& sPath, const bool bSilent ) const
 	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
 
-	////// GENERAL ///////
-	rootNode.write_string( "preferredLanguage", m_sPreferredLanguage );
-
-	rootNode.write_int( "maxBars", m_nMaxBars );
-
-	rootNode.write_int(
-		"defaultUILayout", static_cast<int>( pInterfaceTheme->m_layout )
-	);
-	rootNode.write_int(
-		"uiScalingPolicy",
-		static_cast<int>( pInterfaceTheme->m_uiScalingPolicy )
-	);
-	rootNode.write_int( "lastOpenTab", m_nLastOpenTab );
-
-	rootNode.write_bool(
-		"useTheRubberbandBpmChangeEvent", m_bUseTheRubberbandBpmChangeEvent
-	);
-
-	rootNode.write_bool(
-		"useRelativeFilenamesForPlaylists", m_bUseRelativeFileNamesForPlaylists
-	);
-	rootNode.write_bool(
-		"hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor
-	);
-
-	// show development version warning
-	rootNode.write_bool( "showDevelWarning", m_bShowDevelWarning );
-
-	// Warn about overwriting notes
-	rootNode.write_bool(
-		"showNoteOverwriteWarning", m_bShowNoteOverwriteWarning
-	);
-
-	// hear new notes in the pattern editor
-	rootNode.write_bool( "hearNewNotes", m_bHearNewNotes );
-
-	// key/midi event prefs
-	rootNode.write_bool( "quantizeEvents", m_bQuantizeEvents );
-
-	// extern executables
-	QString rubberBandCLIexecutable( m_sRubberBandCLIexecutable );
-	if ( !Filesystem::
-			 fileExecutable( rubberBandCLIexecutable, true /* silent */ ) ) {
-		rubberBandCLIexecutable = "Path to Rubberband-CLI";
-	}
-	rootNode.write_string( "path_to_rubberband", rubberBandCLIexecutable );
-
-	// Recent used songs
-	XMLNode recentUsedSongsNode = rootNode.createNode( PreferencesKeys::RecentUsedSongs );
-	{
-		unsigned nSongs = 5;
-		if ( m_recentFiles.size() < 5 ) {
-			nSongs = m_recentFiles.size();
-		}
-		for ( unsigned i = 0; i < nSongs; i++ ) {
-			recentUsedSongsNode.write_string( "song", m_recentFiles[i] );
-		}
-	}
-
-	XMLNode onlineReposNode = rootNode.createNode( "onlineRepos" );
-	for ( const auto& sRepo : m_onlineRepos ) {
-		onlineReposNode.write_string( "repo", sRepo );
-	}
-
-	//---- AUDIO ENGINE ----
-	XMLNode audioEngineNode = rootNode.createNode( PreferencesKeys::AudioEngine );
-	{
-		// audio driver
-		audioEngineNode.write_string(
-			PreferencesKeys::AudioDriver, audioDriverToQString( m_audioDriver )
-		);
-
-		// use metronome
-		audioEngineNode.write_bool( "use_metronome", m_bUseMetronome );
-		audioEngineNode.write_float( "metronome_volume", m_fMetronomeVolume );
-		audioEngineNode.write_int( "maxNotes", m_nMaxNotes );
-		audioEngineNode.write_int( "interpolateMode",
-								   static_cast<int>( m_interpolateMode ) );
-		audioEngineNode.write_int( PreferencesKeys::BufferSize, m_nBufferSize );
-		audioEngineNode.write_int( PreferencesKeys::SampleRate, m_nSampleRate );
-		audioEngineNode.write_bool( "countIn", m_bCountIn );
-
-		//// OSS DRIVER ////
-		XMLNode ossDriverNode = audioEngineNode.createNode( PreferencesKeys::OssDriver );
-		{
-			ossDriverNode.write_string( "ossDevice", m_sOSSDevice );
-		}
-
-		//// PORTAUDIO DRIVER ////
-		XMLNode portAudioDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::PortAudioDriver );
-		{
-			portAudioDriverNode.write_string(
-				"portAudioDevice", m_sPortAudioDevice
-			);
-			portAudioDriverNode.write_string(
-				"portAudioHostAPI", m_sPortAudioHostAPI
-			);
-			portAudioDriverNode.write_int( "latencyTarget", m_nLatencyTarget );
-		}
-
-		//// COREAUDIO DRIVER ////
-		XMLNode coreAudioDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::CoreAudioDriver );
-		{
-			coreAudioDriverNode.write_string(
-				"coreAudioDevice", m_sCoreAudioDevice
-			);
-		}
-
-		//// JACK DRIVER ////
-		XMLNode jackDriverNode = audioEngineNode.createNode( PreferencesKeys::JackDriver );
-		{
-			jackDriverNode.write_string(
-				"jack_port_name_1", m_sJackPortName1
-			);	// jack port name 1
-			jackDriverNode.write_string(
-				"jack_port_name_2", m_sJackPortName2
-			);	// jack port name 2
-
-			// jack transport client
-			QString sMode;
-			if ( m_nJackTransportMode == NO_JACK_TRANSPORT ) {
-				sMode = "NO_JACK_TRANSPORT";
-			}
-			else if ( m_nJackTransportMode == USE_JACK_TRANSPORT ) {
-				sMode = "USE_JACK_TRANSPORT";
-			}
-			jackDriverNode.write_string( "jack_transport_mode", sMode );
-
-			jackDriverNode.write_bool(
-				"jack_timebase_enabled", m_bJackTimebaseEnabled
-			);
-			// We stick to the old Timebase strings (? why strings for a boolean
-			// option?) for backward and forward compatibility of old versions
-			// still in use.
-			QString tmMode;
-			if ( m_bJackTimebaseMode == NO_JACK_TIMEBASE_CONTROL ) {
-				tmMode = "NO_JACK_TIME_MASTER";
-			}
-			else if ( m_bJackTimebaseMode == USE_JACK_TIMEBASE_CONTROL ) {
-				tmMode = "USE_JACK_TIME_MASTER";
-			}
-			jackDriverNode.write_string( "jack_transport_mode_master", tmMode );
-
-			// jack default connection
-			jackDriverNode.write_bool(
-				"jack_connect_defaults", m_bJackConnectDefaults
-			);
-
-			int nJackTrackOutputMode;
-			if ( m_JackTrackOutputMode == JackTrackOutputMode::postFader ) {
-				nJackTrackOutputMode = 0;
-			}
-			else if ( m_JackTrackOutputMode == JackTrackOutputMode::preFader ) {
-				nJackTrackOutputMode = 1;
-			}
-			jackDriverNode.write_int(
-				"jack_track_output_mode", nJackTrackOutputMode
-			);
-
-			// jack track outs
-			jackDriverNode.write_bool( "jack_track_outs", m_bJackTrackOuts );
-			jackDriverNode.write_bool(
-				"jack_enforce_instrument_name", m_bJackEnforceInstrumentName
-			);
-		}
-
-		//// ALSA AUDIO DRIVER ////
-		XMLNode alsaAudioDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::AlsaAudioDriver );
-		{
-			alsaAudioDriverNode.write_string(
-				"alsa_audio_device", m_sAlsaAudioDevice
-			);
-		}
-
-		/// MIDI DRIVER ///
-		XMLNode midiDriverNode = audioEngineNode.createNode( PreferencesKeys::MidiDriver );
-		{
-			midiDriverNode.write_string(
-				PreferencesKeys::MidiDriverName, Preferences::midiDriverToQString( m_midiDriver )
-			);
-			midiDriverNode.write_string( PreferencesKeys::MidiPortName, m_sMidiPortName );
-			midiDriverNode.write_string(
-				PreferencesKeys::MidiOutputPortName, m_sMidiOutputPortName
-			);
-
-			// In versions prior to 2.0 there was an inconsistent scheme for
-			// storing MIDI channels. In this variable `-1` did indicate to use
-			// "All" channels while the same value set in the MIDI output
-			// channel within the instruments of a drumkit meant "Off" or none.
-			// Valid channel values were zero-based Starting from 2.0 we unified
-			// those ranges allowing this variable, too, to represent both "All"
-			// and "Off". In addition, we now use 1 based channel values in
-			// accordance with the MIDI standard. But, for backward
-			// compatibility, we still write zero-based values to file and use
-			// the old one and not those defined in Midi.h.
-			int nChannelFilter = static_cast<int>( m_midiActionChannel ) - 1;
-			if ( m_midiActionChannel == Midi::ChannelAll ) {
-				// Old value to indicate to use all channels
-				nChannelFilter = -1;
-			}
-			else if ( m_midiActionChannel == Midi::ChannelOff ) {
-				// Helper value indicating to use no channel (since -1 was
-				// already taken). Please note that this value is only handled
-				// properly starting with Hydrogen 1.2.7 (where it selects the
-				// "All" option too, since the overall MIDI input channel can
-				// not be turned off prior to 2.0).
-				nChannelFilter = -2;
-			}
-			midiDriverNode.write_int( "channel_filter", nChannelFilter );
-			midiDriverNode.write_bool(
-				"ignore_note_off", m_bMidiNoteOffIgnore
-			);
-			midiDriverNode.write_bool(
-				"enable_midi_feedback", m_bEnableMidiFeedback
-			);
-			// The file-based representation of the MIDI channel is zero-based
-			// (for historical reasons) while we start with 1 within the
-			// application (since version 2.0).
-			midiDriverNode.write_int(
-				"midi_feedback_channel",
-				static_cast<int>( getMidiFeedbackChannel() ) - 1
-			);
-			midiDriverNode.write_bool(
-				"midi_clock_input_handling", getMidiClockInputHandling()
-			);
-			midiDriverNode.write_bool(
-				"midi_transport_input_handling", getMidiTransportInputHandling()
-			);
-			midiDriverNode.write_bool(
-				"midi_clock_output_send", getMidiClockOutputSend()
-			);
-			midiDriverNode.write_bool(
-				"midi_transport_output_send", getMidiTransportOutputSend()
-			);
-			midiDriverNode.write_int(
-				"midi_send_note_off", static_cast<int>( getMidiSendNoteOff() )
-			);
-		}
-
-		/// OSC ///
-		XMLNode oscNode = audioEngineNode.createNode( PreferencesKeys::OscConfiguration );
-		{
-			oscNode.write_int( "oscServerPort", m_nOscServerPort );
-			oscNode.write_bool( "oscEnabled", m_bOscServerEnabled );
-			oscNode.write_bool( "oscFeedbackEnabled", m_bOscFeedbackEnabled );
-		}
-	}
-
-	//---- GUI ----
-	XMLNode guiNode = rootNode.createNode( "gui" );
-	{
-		guiNode.write_string( "QTStyle", pInterfaceTheme->m_sQTStyle );
-		guiNode.write_string(
-			"application_font_family", pFontTheme->m_sApplicationFontFamily
-		);
-		guiNode.write_string(
-			"level2_font_family", pFontTheme->m_sLevel2FontFamily
-		);
-		guiNode.write_string(
-			"level3_font_family", pFontTheme->m_sLevel3FontFamily
-		);
-		guiNode.write_int(
-			"font_size", static_cast<int>( pFontTheme->m_fontSize )
-		);
-		guiNode.write_float(
-			"mixer_falloff_speed", pInterfaceTheme->m_fMixerFalloffSpeed
-		);
-		guiNode.write_int(
-			"patternEditorGridResolution", m_nPatternEditorGridResolution
-		);
-		guiNode.write_int(
-			"patternEditorGridHeight", m_nPatternEditorGridHeight
-		);
-		guiNode.write_int(
-			"patternEditorGridWidth", m_nPatternEditorGridWidth
-		);
-		guiNode.write_bool(
-			"patternEditorUsingTriplets", m_bPatternEditorUsingTriplets
-		);
-		guiNode.write_bool(
-			"patternEditorAlwaysShowTypeLabels",
-			m_bPatternEditorAlwaysShowTypeLabels
-		);
-		guiNode.write_int( "songEditorGridHeight", m_nSongEditorGridHeight );
-		guiNode.write_int( "songEditorGridWidth", m_nSongEditorGridWidth );
-		guiNode.write_bool( "showInstrumentPeaks", m_bShowInstrumentPeaks );
-		guiNode.write_bool( "showAutomationArea", m_bShowAutomationArea );
-		guiNode.write_bool( "showPlaybackTrack", m_bShowPlaybackTrack );
-
-		// MainForm window properties
-		auto mainFormPropertiesNode =
-			guiNode.createNode( "mainForm_properties" );
-		m_mainFormProperties.saveTo( mainFormPropertiesNode );
-		auto mixerPropertiesNode = guiNode.createNode( "mixer_properties" );
-		m_mixerProperties.saveTo( mixerPropertiesNode );
-		auto patternEditorPropertiesNode =
-			guiNode.createNode( "patternEditor_properties" );
-		m_patternEditorProperties.saveTo( patternEditorPropertiesNode );
-		auto songEditorPropertiesNode =
-			guiNode.createNode( "songEditor_properties" );
-		m_songEditorProperties.saveTo( songEditorPropertiesNode );
-		auto rackPropertiesNode =
-			guiNode.createNode( "instrumentRack_properties" );
-		m_rackProperties.saveTo( rackPropertiesNode );
-		auto audioEngineInfoPropertiesNode =
-			guiNode.createNode( "audioEngineInfo_properties" );
-		m_audioEngineInfoProperties.saveTo( audioEngineInfoPropertiesNode );
-		auto playlistEditorPropertiesNode =
-			guiNode.createNode( "playlistDialog_properties" );
-		m_playlistEditorProperties.saveTo( playlistEditorPropertiesNode );
-		auto directorPropertiesNode =
-			guiNode.createNode( "director_properties" );
-		m_directorProperties.saveTo( directorPropertiesNode );
-		// last used file dialog folders
-		guiNode.write_string(
-			"lastExportPatternAsDirectory", m_sLastExportPatternAsDirectory
-		);
-		guiNode.write_string(
-			"lastExportSongDirectory", m_sLastExportSongDirectory
-		);
-		guiNode.write_string(
-			"lastSaveSongAsDirectory", m_sLastSaveSongAsDirectory
-		);
-		guiNode.write_string(
-			"lastOpenSongDirectory", m_sLastOpenSongDirectory
-		);
-		guiNode.write_string(
-			"lastOpenPatternDirectory", m_sLastOpenPatternDirectory
-		);
-		guiNode.write_string(
-			"lastExportLilypondDirectory", m_sLastExportLilypondDirectory
-		);
-		guiNode.write_string(
-			"lastExportMidiDirectory", m_sLastExportMidiDirectory
-		);
-		guiNode.write_string(
-			"lastImportDrumkitDirectory", m_sLastImportDrumkitDirectory
-		);
-		guiNode.write_string(
-			"lastExportDrumkitDirectory", m_sLastExportDrumkitDirectory
-		);
-		guiNode.write_string(
-			"lastSaveDrumkitAsDirectory", m_sLastSaveDrumkitAsDirectory
-		);
-		guiNode.write_string(
-			"lastOpenLayerDirectory", m_sLastOpenLayerDirectory
-		);
-		guiNode.write_string(
-			"lastOpenPlaybackTrackDirectory", m_sLastOpenPlaybackTrackDirectory
-		);
-		guiNode.write_string(
-			"lastAddSongToPlaylistDirectory", m_sLastAddSongToPlaylistDirectory
-		);
-		guiNode.write_string(
-			"lastPlaylistDirectory", m_sLastPlaylistDirectory
-		);
-		guiNode.write_string(
-			"lastPlaylistScriptDirectory", m_sLastPlaylistScriptDirectory
-		);
-		guiNode.write_string(
-			"lastImportThemeDirectory", m_sLastImportThemeDirectory
-		);
-		guiNode.write_string(
-			"lastExportThemeDirectory", m_sLastExportThemeDirectory
-		);
-
-		// ExportSongDialog
-		guiNode.write_int( "exportDialogMode", m_nExportModeIdx );
-		guiNode.write_string(
-			"exportDialogFormat",
-			Filesystem::AudioFormatToSuffix( m_exportFormat )
-		);
-		guiNode.write_float(
-			"exportDialogCompressionLevel", m_fExportCompressionLevel
-		);
-		guiNode.write_int( "exportDialogSampleRate", m_nExportSampleRateIdx );
-		guiNode.write_int( "exportDialogSampleDepth", m_nExportSampleDepthIdx );
-		guiNode.write_bool(
-			"showExportSongLicenseWarning", m_bShowExportSongLicenseWarning
-		);
-		guiNode.write_bool(
-			"showExportDrumkitLicenseWarning",
-			m_bShowExportDrumkitLicenseWarning
-		);
-		guiNode.write_bool(
-			"showExportDrumkitCopyleftWarning",
-			m_bShowExportDrumkitCopyleftWarning
-		);
-		guiNode.write_bool(
-			"showExportDrumkitAttributionWarning",
-			m_bShowExportDrumkitAttributionWarning
-		);
-
-		guiNode.write_bool( "followPlayhead", m_bFollowPlayhead );
-
-		// ExportMidiDialog
-		guiNode.write_int( "midiExportDialogMode", m_nMidiExportMode );
-		guiNode.write_bool(
-			"midiExportDialogUseHumanization", m_bMidiExportUseHumanization
-		);
-
-		guiNode.write_bool( "soundLibraryShowName", m_bSoundLibraryShowName );
-		guiNode.write_bool(
-			"soundLibraryShowAuthor", m_bSoundLibraryShowAuthor
-		);
-		guiNode.write_bool( "soundLibraryShowInfo", m_bSoundLibraryShowInfo );
-		guiNode.write_bool(
-			"soundLibraryShowLicense", m_bSoundLibraryShowLicense
-		);
-		guiNode.write_bool( "soundLibraryShowPath", m_bSoundLibraryShowPath );
-		guiNode.write_bool( "soundLibraryShowTags", m_bSoundLibraryShowTags );
-		guiNode.write_bool( "soundLibraryShowVersion", m_bSoundLibraryShowVersion );
-		guiNode.write_int( "soundLibraryLastTab", m_nSoundLibraryLastTab );
-		guiNode.write_int( "rackLastTab", m_nRackLastTab );
-
-		// beatcounter
-		QString sBeatCounterOn( "BC_OFF" );
-		if ( m_bpmTap == BpmTap::BeatCounter ) {
-			sBeatCounterOn = "BC_ON";
-		}
-		guiNode.write_string( "bc", sBeatCounterOn );
-
-		QString setPlay( "SET_PLAY_OFF" );
-		if ( m_beatCounter == BeatCounter::TapAndPlay ) {
-			setPlay = "SET_PLAY_ON";
-		}
-		guiNode.write_string( "setplay", setPlay );
-
-		guiNode.write_int( "countoffset", m_nBeatCounterDriftCompensation );
-		guiNode.write_int( "playoffset", m_nBeatCounterStartOffset );
-		// ~ beatcounter
-
-		guiNode.write_bool( "playSamplesOnClicking", m_bPlaySamplesOnClicking );
-
-		guiNode.write_int( "autosavesPerHour", m_nAutosavesPerHour );
-
-		// User interface style
-		m_pTheme->m_pColor->saveTo( guiNode );
-
-		// SongEditor coloring method
-		guiNode.write_int(
-			"SongEditor_ColoringMethod",
-			static_cast<int>( pInterfaceTheme->m_coloringMethod )
-		);
-		for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
-			guiNode.write_color(
-				QString( "SongEditor_pattern_color_%1" ).arg( ii ),
-				pInterfaceTheme->m_patternColors[ii]
-			);
-		}
-		guiNode.write_int(
-			"SongEditor_visible_pattern_colors",
-			pInterfaceTheme->m_nVisiblePatternColors
-		);
-
-		guiNode.write_int(
-			"iconColor", static_cast<int>( pInterfaceTheme->m_iconColor )
-		);
-		guiNode.write_bool(
-			"indicateNotePlayback", pInterfaceTheme->m_bIndicateNotePlayback
-		);
-		guiNode.write_bool(
-			"indicateEffectiveNoteLength",
-			pInterfaceTheme->m_bIndicateEffectiveNoteLength
-		);
-	}
-
-	//---- FILES ----
-	XMLNode filesNode = rootNode.createNode( PreferencesKeys::Files );
-	{
-		// last used song
-		filesNode.write_string( PreferencesKeys::LastSongFilename, m_sLastSongPath );
-		filesNode.write_string(
-			PreferencesKeys::LastPlaylistFilename, m_sLastPlaylistPath
-		);
-		filesNode.write_string( "defaulteditor", m_sDefaultEditor );
-
-		XMLNode customDirsNode = filesNode.createNode( "customSoundLibraryDirs" );
-		for ( const auto& sDir : m_customSoundLibraryDirs ) {
-			if ( !sDir.isEmpty() ) {
-				customDirsNode.write_string( "dir", sDir );
-			}
-		}
-	}
-
-	m_pMidiEventMap->saveTo( rootNode, bSilent );
-	m_pMidiInstrumentMap->saveTo( rootNode );
-
-	m_pShortcuts->saveTo( rootNode );
-
-	// On the shared user config path, persist concurrency-safely (ADR 0023):
-	// under a lock, re-read disk and merge only this instance's own base-layer
-	// changes (diff against the retained load baseline) onto it, writing
-	// atomically — so concurrent edits other processes made to other fields
-	// survive and the host/state override subset is never written. Other paths
-	// (saveCopyAs / explicit export) and never-loaded instances get a plain
-	// snapshot write.
-	const QByteArray currentXml = doc.toByteArray();
-	if ( sPath == Filesystem::userConfigPath() && ! m_baselineXml.isEmpty() ) {
-		if ( ! PluginConfig::persist( sPath, m_baselineXml, currentXml ) ) {
-			return false;
-		}
-		// Adopt our just-written base-layer state as the new baseline so the
-		// next save only diffs subsequent changes.
-		m_baselineXml = currentXml;
-		return true;
-	}
+	PreferencesSchema::WriteContext context;
+	context.bSilent = bSilent;
+	PreferencesSchema::writeRows( rootNode, *this, std::nullopt, context );
 
 	return doc.write( sPath );
+}
+
+bool Preferences::save( const bool bSilent ) const
+{
+	const QString sPath = Filesystem::userConfigPath();
+	if ( !bSilent ) {
+		INFOLOG( QString( "Saving preferences file into [%1]" ).arg( sPath ) );
+	}
+
+	// The lock file cannot be created in a nonexistent directory (fresh
+	// install); create the config directory first.
+	const QString sConfigDir = QFileInfo( sPath ).absoluteDir().absolutePath();
+	if ( ! Filesystem::dirExists( sConfigDir, true ) ) {
+		Filesystem::mkdir( sConfigDir );
+	}
+
+	// Cross-process lock around the read-merge-write cycle (ADR 0023).
+	// Bounded retry: a single attempt could silently drop this save, while
+	// an unbounded block could freeze the GUI on a stuck lock holder.
+	QLockFile lock( sPath + ".lock" );
+	lock.setStaleLockTime( 30000 );
+	bool bLocked = false;
+	for ( int ii = 0; ii < 3 && ! bLocked; ++ii ) {
+		bLocked = lock.tryLock( 1000 );
+	}
+	if ( ! bLocked ) {
+		ERRORLOG( QString( "Unable to lock [%1] within the retry budget - "
+						   "another process holds the lock or it cannot be "
+						   "created; save aborted" )
+					  .arg( sPath ) );
+		return false;
+	}
+
+	// Re-read the shared config: everything on disk this instance did not
+	// change must survive the field-level merge (ADR 0023).
+	QByteArray diskBytes;
+	{
+		QFile file( sPath );
+		if ( file.open( QIODevice::ReadOnly ) ) {
+			diskBytes = file.readAll();
+			file.close();
+		}
+	}
+
+	XMLDoc diskDoc;
+	const bool bParsed =
+		! diskBytes.isEmpty() && diskDoc.setContent( diskBytes );
+	const bool bDiskUsable =
+		bParsed && diskDoc.documentElement().tagName() == PreferencesKeys::Root;
+	if ( ! diskBytes.isEmpty() && ! bParsed ) {
+		// Corrupt (a crashed writer left garbage behind): never merge onto
+		// or echo the broken document - self-heal by writing a full
+		// ownership-masked snapshot (ADR 0023).
+		ERRORLOG( QString( "Preferences file [%1] is corrupt; rewriting it "
+						   "from the current state" )
+					  .arg( sPath ) );
+	}
+	else if ( bParsed && ! bDiskUsable ) {
+		// Not a hydrogen config at all (e.g. a foreign file ended up in the
+		// path): never merge onto it.
+		ERRORLOG( QString( "Preferences file [%1] has an unexpected root "
+						   "element; rewriting it from the current state" )
+					  .arg( sPath ) );
+	}
+
+	XMLDoc doc;
+	// The XML declaration is appended by set_root() for fresh documents;
+	// the merged document needs it explicitly (importNode only brings the
+	// root element).
+	doc.appendChild( doc.createProcessingInstruction(
+		"xml", "version=\"1.0\" encoding=\"UTF-8\"" ) );
+	XMLNode rootNode;
+	if ( bDiskUsable ) {
+		rootNode = doc.importNode( diskDoc.documentElement(), true );
+		doc.appendChild( rootNode );
+	}
+	else {
+		rootNode = doc.createElement( PreferencesKeys::Root );
+		doc.appendChild( rootNode );
+	}
+	// Refresh the file metadata in place: write_* appends, which would move
+	// the elements to the end of the document.
+	const auto updateHeader = [ &doc ]( XMLNode& root, const char* sName,
+									   const QString& sValue ) {
+		QDomElement element = root.firstChildElement( sName );
+		if ( element.isNull() ) {
+			root.write_string( sName, sValue );
+			return;
+		}
+		while ( ! element.lastChild().isNull() ) {
+			element.removeChild( element.lastChild() );
+		}
+		element.appendChild( doc.createTextNode( sValue ) );
+	};
+	updateHeader( rootNode, "formatVersion",
+				  QString::number( nCurrentFormatVersion ) );
+	updateHeader( rootNode, "version", QString( get_version().c_str() ) );
+
+	// The load baseline; empty for a never-loaded instance, which then
+	// writes a full snapshot.
+	XMLDoc baselineDoc;
+	const bool bHaveBaseline =
+		! m_baselineXml.isEmpty() && baselineDoc.setContent( m_baselineXml );
+	if ( ! m_baselineXml.isEmpty() && ! bHaveBaseline ) {
+		// Cannot happen for a baseline that passed load(); stay safe and
+		// fall back to a full write.
+		WARNINGLOG( "Unparseable load baseline; writing a full snapshot" );
+	}
+	// A usable disk document is merged incrementally against the baseline.
+	// Without one (never loaded, missing or corrupt file) the save is a
+	// full ownership-masked snapshot: a partial write would produce an
+	// incomplete config (ADR 0023 self-heal).
+	XMLNode baselineRoot;
+	if ( bDiskUsable && bHaveBaseline ) {
+		baselineRoot = baselineDoc.documentElement();
+	}
+
+	PreferencesSchema::WriteContext context;
+	context.bSilent = bSilent;
+	PreferencesSchema::persistRows( rootNode, baselineRoot, *this,
+									m_fieldOwnership, context );
+
+	if ( ! doc.write( sPath ) ) {
+		return false;
+	}
+	// The load baseline is deliberately NOT refreshed with the merged
+	// document: it must keep representing the values *this instance*
+	// loaded, so fields other processes changed in the meantime never
+	// register as this instance's own changes (and get clobbered). Rows
+	// this instance changed are re-written on every save - idempotent and
+	// last-writer-wins per field (ADR 0023).
+	return true;
 }
 
 Preferences::AudioDriver Preferences::parseAudioDriver( const QString& sDriver )
@@ -2239,10 +740,13 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nMaxNotes ) )
-				.append( QString( "%1%2m_interpolateMode: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) )
+				.append(
+					QString( "%1%2m_interpolateMode: %3\n" )
+						.arg( sPrefix )
+						.arg( s )
+						.arg( Interpolation::ModeToQString( m_interpolateMode )
+						)
+				)
 				.append( QString( "%1%2m_nBufferSize: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -2437,7 +941,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_recentFiles.join( ',' ) ) )
-			.append( QString( "%1%2m_nMaxBars: %3\n" )
+				.append( QString( "%1%2m_nMaxBars: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nMaxBars ) )
@@ -2468,7 +972,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						.arg( s )
 						.arg( m_bPatternEditorAlwaysShowTypeLabels )
 				)
-			.append( QString( "%1%2m_bHideKeyboardCursor: %3\n" )
+				.append( QString( "%1%2m_bHideKeyboardCursor: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bHideKeyboardCursor ) )
@@ -2743,8 +1247,11 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_fMetronomeVolume: %1" )
 							 .arg( m_fMetronomeVolume ) )
 				.append( QString( ", m_nMaxNotes: %1" ).arg( m_nMaxNotes ) )
-				.append( QString( ", m_interpolateMode: %1" )
-						 .arg( Interpolation::ModeToQString( m_interpolateMode ) ) )
+				.append(
+					QString( ", m_interpolateMode: %1" )
+						.arg( Interpolation::ModeToQString( m_interpolateMode )
+						)
+				)
 				.append( QString( ", m_nBufferSize: %1" ).arg( m_nBufferSize ) )
 				.append( QString( ", m_nSampleRate: %1" ).arg( m_nSampleRate ) )
 				.append( QString( ", m_sOSSDevice: %1" ).arg( m_sOSSDevice ) )
@@ -2828,8 +1335,9 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_bShowDevelWarning ) )
 				.append( QString( ", m_bShowNoteOverwriteWarning: %1" )
 							 .arg( m_bShowNoteOverwriteWarning ) )
-				.append( QString( ", m_sLastSongPath: %1" )
-							 .arg( m_sLastSongPath ) )
+				.append(
+					QString( ", m_sLastSongPath: %1" ).arg( m_sLastSongPath )
+				)
 				.append( QString( ", m_sLastPlaylistPath: %1" )
 							 .arg( m_sLastPlaylistPath ) )
 				.append( QString( ", m_customSoundLibraryDirs: [%1]" )
@@ -2892,7 +1400,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_audioEngineInfoProperties.toQString(
 								 "", bShort
 							 ) ) );
-	sOutput
+		sOutput
 			.append(
 				QString( ", m_playlistEditorProperties: %1" )
 					.arg( m_playlistEditorProperties.toQString( "", bShort ) )
@@ -2965,8 +1473,7 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( m_bSoundLibraryShowVersion ) )
 			.append( QString( ", m_nSoundLibraryLastTab: %1" )
 						 .arg( m_nSoundLibraryLastTab ) )
-			.append( QString( ", m_nRackLastTab: %1" )
-						 .arg( m_nRackLastTab ) )
+			.append( QString( ", m_nRackLastTab: %1" ).arg( m_nRackLastTab ) )
 			.append( QString( ", m_bShowExportSongLicenseWarning: %1" )
 						 .arg( m_bShowExportSongLicenseWarning ) )
 			.append( QString( ", m_bShowExportDrumkitLicenseWarning: %1" )
@@ -2997,268 +1504,19 @@ QByteArray Preferences::corePropsToXml() const
 	XMLDoc doc;
 	XMLNode rootNode = doc.set_root( PreferencesKeys::Root );
 
-	// Root-level core fields
-	rootNode.write_int( "maxBars", m_nMaxBars );
-	rootNode.write_bool( "hearNewNotes", m_bHearNewNotes );
-	rootNode.write_bool( "quantizeEvents", m_bQuantizeEvents );
-
-	// Rubberband executable path (same executable check as saveTo)
-	QString rubberBandCLIexecutable( m_sRubberBandCLIexecutable );
-	if ( !Filesystem::
-			 fileExecutable( rubberBandCLIexecutable, true /* silent */ ) ) {
-		rubberBandCLIexecutable = "Path to Rubberband-CLI";
-	}
-	rootNode.write_string( "path_to_rubberband", rubberBandCLIexecutable );
-	rootNode.write_bool(
-		"useTheRubberbandBpmChangeEvent", m_bUseTheRubberbandBpmChangeEvent
+	// The IPC fragment intentionally carries no formatVersion/version: it is
+	// only ever consumed by applyCorePropsFromXml() within a running session.
+	PreferencesSchema::WriteContext context;
+	context.bSilent = true;
+	PreferencesSchema::writeRows(
+		rootNode, *this, PreferencesSchema::Owner::Core, context
 	);
-	rootNode.write_bool(
-		"useRelativeFilenamesForPlaylists", m_bUseRelativeFileNamesForPlaylists
-	);
-
-	// Recent used songs
-	XMLNode recentUsedSongsNode =
-		rootNode.createNode( PreferencesKeys::RecentUsedSongs );
-	{
-		unsigned nSongs = 5;
-		if ( m_recentFiles.size() < 5 ) {
-			nSongs = m_recentFiles.size();
-		}
-		for ( unsigned i = 0; i < nSongs; i++ ) {
-			recentUsedSongsNode.write_string( "song", m_recentFiles[i] );
-		}
-	}
-
-	//---- AUDIO ENGINE ----
-	XMLNode audioEngineNode = rootNode.createNode( PreferencesKeys::AudioEngine );
-	{
-		// audio driver
-		audioEngineNode.write_string(
-			PreferencesKeys::AudioDriver, audioDriverToQString( m_audioDriver )
-		);
-
-		// use metronome
-		audioEngineNode.write_bool( "use_metronome", m_bUseMetronome );
-		audioEngineNode.write_float( "metronome_volume", m_fMetronomeVolume );
-		audioEngineNode.write_int( "maxNotes", m_nMaxNotes );
-		audioEngineNode.write_int(
-			"interpolateMode", static_cast<int>( m_interpolateMode )
-		);
-		audioEngineNode.write_int( PreferencesKeys::BufferSize, m_nBufferSize );
-		audioEngineNode.write_int( PreferencesKeys::SampleRate, m_nSampleRate );
-		audioEngineNode.write_bool( "countIn", m_bCountIn );
-
-		//// OSS DRIVER ////
-		XMLNode ossDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::OssDriver );
-		{
-			ossDriverNode.write_string( "ossDevice", m_sOSSDevice );
-		}
-
-		//// PORTAUDIO DRIVER ////
-		XMLNode portAudioDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::PortAudioDriver );
-		{
-			portAudioDriverNode.write_string(
-				"portAudioDevice", m_sPortAudioDevice
-			);
-			portAudioDriverNode.write_string(
-				"portAudioHostAPI", m_sPortAudioHostAPI
-			);
-			portAudioDriverNode.write_int( "latencyTarget", m_nLatencyTarget );
-		}
-
-		//// COREAUDIO DRIVER ////
-		XMLNode coreAudioDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::CoreAudioDriver );
-		{
-			coreAudioDriverNode.write_string(
-				"coreAudioDevice", m_sCoreAudioDevice
-			);
-		}
-
-		//// JACK DRIVER ////
-		XMLNode jackDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::JackDriver );
-		{
-			jackDriverNode.write_string(
-				"jack_port_name_1", m_sJackPortName1
-			);
-			jackDriverNode.write_string(
-				"jack_port_name_2", m_sJackPortName2
-			);
-
-			// jack transport client
-			QString sMode;
-			if ( m_nJackTransportMode == NO_JACK_TRANSPORT ) {
-				sMode = "NO_JACK_TRANSPORT";
-			}
-			else if ( m_nJackTransportMode == USE_JACK_TRANSPORT ) {
-				sMode = "USE_JACK_TRANSPORT";
-			}
-			jackDriverNode.write_string( "jack_transport_mode", sMode );
-
-			jackDriverNode.write_bool(
-				"jack_timebase_enabled", m_bJackTimebaseEnabled
-			);
-			QString tmMode;
-			if ( m_bJackTimebaseMode == NO_JACK_TIMEBASE_CONTROL ) {
-				tmMode = "NO_JACK_TIME_MASTER";
-			}
-			else if ( m_bJackTimebaseMode == USE_JACK_TIMEBASE_CONTROL ) {
-				tmMode = "USE_JACK_TIME_MASTER";
-			}
-			jackDriverNode.write_string(
-				"jack_transport_mode_master", tmMode
-			);
-
-			// jack default connection
-			jackDriverNode.write_bool(
-				"jack_connect_defaults", m_bJackConnectDefaults
-			);
-
-			int nJackTrackOutputMode;
-			if ( m_JackTrackOutputMode == JackTrackOutputMode::postFader ) {
-				nJackTrackOutputMode = 0;
-			}
-			else if ( m_JackTrackOutputMode == JackTrackOutputMode::preFader ) {
-				nJackTrackOutputMode = 1;
-			}
-			jackDriverNode.write_int(
-				"jack_track_output_mode", nJackTrackOutputMode
-			);
-
-			// jack track outs
-			jackDriverNode.write_bool( "jack_track_outs", m_bJackTrackOuts );
-			jackDriverNode.write_bool(
-				"jack_enforce_instrument_name", m_bJackEnforceInstrumentName
-			);
-		}
-
-		//// ALSA AUDIO DRIVER ////
-		XMLNode alsaAudioDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::AlsaAudioDriver );
-		{
-			alsaAudioDriverNode.write_string(
-				"alsa_audio_device", m_sAlsaAudioDevice
-			);
-		}
-
-		/// MIDI DRIVER ///
-		XMLNode midiDriverNode =
-			audioEngineNode.createNode( PreferencesKeys::MidiDriver );
-		{
-			midiDriverNode.write_string(
-				PreferencesKeys::MidiDriverName,
-				Preferences::midiDriverToQString( m_midiDriver )
-			);
-			midiDriverNode.write_string(
-				PreferencesKeys::MidiPortName, m_sMidiPortName
-			);
-			midiDriverNode.write_string(
-				PreferencesKeys::MidiOutputPortName, m_sMidiOutputPortName
-			);
-
-			int nChannelFilter = static_cast<int>( m_midiActionChannel ) - 1;
-			if ( m_midiActionChannel == Midi::ChannelAll ) {
-				nChannelFilter = -1;
-			}
-			else if ( m_midiActionChannel == Midi::ChannelOff ) {
-				nChannelFilter = -2;
-			}
-			midiDriverNode.write_int( "channel_filter", nChannelFilter );
-			midiDriverNode.write_bool(
-				"ignore_note_off", m_bMidiNoteOffIgnore
-			);
-			midiDriverNode.write_bool(
-				"enable_midi_feedback", m_bEnableMidiFeedback
-			);
-			midiDriverNode.write_int(
-				"midi_feedback_channel",
-				static_cast<int>( getMidiFeedbackChannel() ) - 1
-			);
-			midiDriverNode.write_bool(
-				"midi_clock_input_handling", getMidiClockInputHandling()
-			);
-			midiDriverNode.write_bool(
-				"midi_transport_input_handling",
-				getMidiTransportInputHandling()
-			);
-			midiDriverNode.write_bool(
-				"midi_clock_output_send", getMidiClockOutputSend()
-			);
-			midiDriverNode.write_bool(
-				"midi_transport_output_send", getMidiTransportOutputSend()
-			);
-			midiDriverNode.write_int(
-				"midi_send_note_off", static_cast<int>( getMidiSendNoteOff() )
-			);
-		}
-
-		/// OSC ///
-		XMLNode oscNode =
-			audioEngineNode.createNode( PreferencesKeys::OscConfiguration );
-		{
-			oscNode.write_bool( "oscEnabled", m_bOscServerEnabled );
-			oscNode.write_bool(
-				"oscFeedbackEnabled", m_bOscFeedbackEnabled
-			);
-			oscNode.write_int( "oscServerPort", m_nOscServerPort );
-		}
-	}
-
-	//---- GUI (core-owned fields only) ----
-	XMLNode guiNode = rootNode.createNode( "gui" );
-	{
-		// beatcounter
-		QString setPlay( "SET_PLAY_OFF" );
-		if ( m_beatCounter == BeatCounter::TapAndPlay ) {
-			setPlay = "SET_PLAY_ON";
-		}
-		guiNode.write_string( "setplay", setPlay );
-
-		guiNode.write_int( "countoffset", m_nBeatCounterDriftCompensation );
-		guiNode.write_int( "playoffset", m_nBeatCounterStartOffset );
-		// ~ beatcounter
-
-		guiNode.write_int(
-			"patternEditorGridResolution", m_nPatternEditorGridResolution
-		);
-		guiNode.write_bool(
-			"patternEditorUsingTriplets", m_bPatternEditorUsingTriplets
-		);
-	}
-
-	//---- FILES (core-owned fields only) ----
-	XMLNode filesNode = rootNode.createNode( PreferencesKeys::Files );
-	{
-		filesNode.write_string(
-			PreferencesKeys::LastSongFilename, m_sLastSongPath
-		);
-		filesNode.write_string(
-			PreferencesKeys::LastPlaylistFilename, m_sLastPlaylistPath
-		);
-
-		XMLNode customDirsNode =
-			filesNode.createNode( "customSoundLibraryDirs" );
-		for ( const auto& sDir : m_customSoundLibraryDirs ) {
-			if ( !sDir.isEmpty() ) {
-				customDirsNode.write_string( "dir", sDir );
-			}
-		}
-	}
-
-	// MIDI maps
-	m_pMidiEventMap->saveTo( rootNode, true /* bSilent */ );
-	m_pMidiInstrumentMap->saveTo( rootNode );
 
 	return doc.toString().toUtf8();
 }
 
 void Preferences::applyCorePropsFromXml( const QByteArray& xml )
 {
-	const bool bSilent = true;
-
 	XMLDoc doc;
 	if ( !doc.setContent( xml ) ) {
 		ERRORLOG( "Unable to parse core preferences XML" );
@@ -3270,351 +1528,18 @@ void Preferences::applyCorePropsFromXml( const QByteArray& xml )
 		return;
 	}
 
-	//////// GENERAL ///////////
-	m_nMaxBars = rootNode.read_int(
-		"maxBars", m_nMaxBars, false, false, bSilent
+	// IPC fragments are trusted: missing structural nodes are skipped
+	// silently, and a missing midiInstrumentMap element keeps the current
+	// mapping (no legacy derivation).
+	PreferencesSchema::ReadContext context;
+	context.bSilent = true;
+	context.bSearchForRubberband = m_bSearchForRubberbandOnLoad;
+	context.bEmitStructuralWarnings = false;
+	context.bApplyLegacyMidiInput = false;
+
+	PreferencesSchema::readRows(
+		rootNode, *this, PreferencesSchema::Owner::Core, context
 	);
-	m_bHearNewNotes = rootNode.read_bool(
-		"hearNewNotes", m_bHearNewNotes, false, false, bSilent
-	);
-	m_bQuantizeEvents = rootNode.read_bool(
-		"quantizeEvents", m_bQuantizeEvents, false, false, bSilent
-	);
-
-	m_bUseTheRubberbandBpmChangeEvent = rootNode.read_bool(
-		"useTheRubberbandBpmChangeEvent",
-		m_bUseTheRubberbandBpmChangeEvent, false, false, bSilent
-	);
-
-	m_bUseRelativeFileNamesForPlaylists = rootNode.read_bool(
-		"useRelativeFilenamesForPlaylists",
-		m_bUseRelativeFileNamesForPlaylists, false, false, bSilent
-	);
-
-	// Recent used songs
-	const XMLNode recentUsedSongsNode =
-		rootNode.firstChildElement( PreferencesKeys::RecentUsedSongs );
-	if ( !recentUsedSongsNode.isNull() ) {
-		m_recentFiles.clear();
-		QDomElement songElement =
-			recentUsedSongsNode.firstChildElement( "song" );
-		while ( !songElement.isNull() && !songElement.text().isEmpty() ) {
-			m_recentFiles.push_back( songElement.text() );
-			songElement = songElement.nextSiblingElement( "song" );
-		}
-	}
-
-	if ( m_bSearchForRubberbandOnLoad ) {
-		const QString sRubberbandPath = rootNode.read_string(
-			"path_to_rubberband", "", false, false, bSilent
-		);
-		if ( !sRubberbandPath.isEmpty() && QFile( sRubberbandPath ).exists() ) {
-			m_sRubberBandCLIexecutable = sRubberbandPath;
-		}
-		else {
-			m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
-		}
-	}
-
-	/////////////// AUDIO ENGINE //////////////
-	const XMLNode audioEngineNode =
-		rootNode.firstChildElement( PreferencesKeys::AudioEngine );
-	if ( !audioEngineNode.isNull() ) {
-		const QString sAudioDriver = audioEngineNode.read_string(
-			PreferencesKeys::AudioDriver,
-			Preferences::audioDriverToQString( m_audioDriver ), false, false,
-			bSilent
-		);
-		m_audioDriver = parseAudioDriver( sAudioDriver );
-		if ( m_audioDriver == AudioDriver::None ) {
-			m_audioDriver = AudioDriver::Auto;
-		}
-		m_bUseMetronome = audioEngineNode.read_bool(
-			"use_metronome", m_bUseMetronome, false, false, bSilent
-		);
-		m_fMetronomeVolume = audioEngineNode.read_float(
-			"metronome_volume", m_fMetronomeVolume, false, false, bSilent
-		);
-		m_nMaxNotes = audioEngineNode.read_int(
-			"maxNotes", m_nMaxNotes, false, false, bSilent
-		);
-		m_interpolateMode = static_cast<Interpolation::InterpolateMode>(
-			audioEngineNode.read_int(
-				"interpolateMode",
-				static_cast<int>( m_interpolateMode ), true, false, bSilent
-			)
-		);
-		m_nBufferSize = audioEngineNode.read_int(
-			PreferencesKeys::BufferSize, m_nBufferSize, false, false, bSilent
-		);
-		m_nSampleRate = audioEngineNode.read_int(
-			PreferencesKeys::SampleRate, m_nSampleRate, false, false, bSilent
-		);
-		setCountIn( audioEngineNode.read_bool(
-			"countIn", getCountIn(), true, false, bSilent
-		) );
-
-		//// OSS DRIVER ////
-		const XMLNode ossDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::OssDriver );
-		if ( !ossDriverNode.isNull() ) {
-			m_sOSSDevice = ossDriverNode.read_string(
-				"ossDevice", m_sOSSDevice, false, false, bSilent
-			);
-		}
-
-		//// PORTAUDIO DRIVER ////
-		const XMLNode portAudioDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::PortAudioDriver );
-		if ( !portAudioDriverNode.isNull() ) {
-			m_sPortAudioDevice = portAudioDriverNode.read_string(
-				"portAudioDevice", m_sPortAudioDevice, false, true, bSilent
-			);
-			m_sPortAudioHostAPI = portAudioDriverNode.read_string(
-				"portAudioHostAPI", m_sPortAudioHostAPI, false, true, bSilent
-			);
-			m_nLatencyTarget = portAudioDriverNode.read_int(
-				"latencyTarget", m_nLatencyTarget, false, false, bSilent
-			);
-		}
-
-		//// COREAUDIO DRIVER ////
-		const XMLNode coreAudioDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::CoreAudioDriver );
-		if ( !coreAudioDriverNode.isNull() ) {
-			m_sCoreAudioDevice = coreAudioDriverNode.read_string(
-				"coreAudioDevice", m_sCoreAudioDevice, false, true, bSilent
-			);
-		}
-
-		//// JACK DRIVER ////
-		const XMLNode jackDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::JackDriver );
-		if ( !jackDriverNode.isNull() ) {
-			m_sJackPortName1 = jackDriverNode.read_string(
-				"jack_port_name_1", m_sJackPortName1, false, false, bSilent
-			);
-			m_sJackPortName2 = jackDriverNode.read_string(
-				"jack_port_name_2", m_sJackPortName2, false, false, bSilent
-			);
-			const QString sMode = jackDriverNode.read_string(
-				"jack_transport_mode", "", false, false, bSilent
-			);
-			if ( sMode == "NO_JACK_TRANSPORT" ) {
-				m_nJackTransportMode = NO_JACK_TRANSPORT;
-			}
-			else if ( sMode == "USE_JACK_TRANSPORT" ) {
-				m_nJackTransportMode = USE_JACK_TRANSPORT;
-			}
-
-			m_bJackTimebaseEnabled = jackDriverNode.read_bool(
-				"jack_timebase_enabled", m_bJackTimebaseEnabled, false, false,
-				bSilent
-			);
-			const QString sJackMasterMode = jackDriverNode.read_string(
-				"jack_transport_mode_master", "", false, false, bSilent
-			);
-			if ( sJackMasterMode == "NO_JACK_TIME_MASTER" ) {
-				m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
-			}
-			else if ( sJackMasterMode == "USE_JACK_TIME_MASTER" ) {
-				m_bJackTimebaseMode = USE_JACK_TIMEBASE_CONTROL;
-			}
-
-			m_bJackConnectDefaults = jackDriverNode.read_bool(
-				"jack_connect_defaults", m_bJackConnectDefaults, false, false,
-				bSilent
-			);
-
-			const int nJackTrackOutputMode = jackDriverNode.read_int(
-				"jack_track_output_mode", -255, false, false, bSilent
-			);
-			if ( nJackTrackOutputMode == 0 ) {
-				m_JackTrackOutputMode = JackTrackOutputMode::postFader;
-			}
-			else if ( nJackTrackOutputMode == 1 ) {
-				m_JackTrackOutputMode = JackTrackOutputMode::preFader;
-			}
-
-			m_bJackTrackOuts = jackDriverNode.read_bool(
-				"jack_track_outs", m_bJackTrackOuts, false, false, bSilent
-			);
-			m_bJackEnforceInstrumentName = jackDriverNode.read_bool(
-				"jack_enforce_instrument_name",
-				m_bJackEnforceInstrumentName, true, false, bSilent
-			);
-		}
-
-		/// ALSA AUDIO DRIVER ///
-		const XMLNode alsaAudioDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::AlsaAudioDriver );
-		if ( !alsaAudioDriverNode.isNull() ) {
-			m_sAlsaAudioDevice = alsaAudioDriverNode.read_string(
-				"alsa_audio_device", m_sAlsaAudioDevice, false, false, bSilent
-			);
-		}
-
-		/// MIDI DRIVER ///
-		const XMLNode midiDriverNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::MidiDriver );
-		if ( !midiDriverNode.isNull() ) {
-			const auto sMidiDriver = midiDriverNode.read_string(
-				PreferencesKeys::MidiDriverName,
-				Preferences::midiDriverToQString( m_midiDriver ), false, false,
-				bSilent
-			);
-			m_midiDriver = Preferences::parseMidiDriver( sMidiDriver );
-			m_sMidiPortName = midiDriverNode.read_string(
-				PreferencesKeys::MidiPortName, m_sMidiPortName, false, false,
-				bSilent
-			);
-			m_sMidiOutputPortName = midiDriverNode.read_string(
-				PreferencesKeys::MidiOutputPortName, m_sMidiOutputPortName,
-				false, false, bSilent
-			);
-
-			const int nMidiActionChannel = midiDriverNode.read_int(
-				"channel_filter", -1, false, false, bSilent
-			);
-			if ( nMidiActionChannel == -1 ) {
-				m_midiActionChannel = Midi::ChannelAll;
-			}
-			else if ( nMidiActionChannel == -2 ) {
-				m_midiActionChannel = Midi::ChannelOff;
-			}
-			else {
-				m_midiActionChannel =
-					Midi::channelFromIntClamp( nMidiActionChannel + 1 );
-			}
-
-			m_bMidiNoteOffIgnore = midiDriverNode.read_bool(
-				"ignore_note_off", m_bMidiNoteOffIgnore, false, false, bSilent
-			);
-			m_bEnableMidiFeedback = midiDriverNode.read_bool(
-				"enable_midi_feedback", m_bEnableMidiFeedback, false, true,
-				bSilent
-			);
-			setMidiFeedbackChannel( Midi::channelFromInt(
-				midiDriverNode.read_int(
-					"midi_feedback_channel",
-					static_cast<int>( getMidiFeedbackChannel() ) - 1,
-					true, false, bSilent
-				) +
-				1
-			) );
-			setMidiClockInputHandling( midiDriverNode.read_bool(
-				"midi_clock_input_handling", getMidiClockInputHandling(), true,
-				true, bSilent
-			) );
-			setMidiTransportInputHandling( midiDriverNode.read_bool(
-				"midi_transport_input_handling",
-				getMidiTransportInputHandling(), true, true, bSilent
-			) );
-			setMidiClockOutputSend( midiDriverNode.read_bool(
-				"midi_clock_output_send", getMidiClockOutputSend(), true, true,
-				bSilent
-			) );
-			setMidiTransportOutputSend( midiDriverNode.read_bool(
-				"midi_transport_output_send", getMidiTransportOutputSend(), true,
-				true, bSilent
-			) );
-			setMidiSendNoteOff(
-				static_cast<MidiSendNoteOff>( midiDriverNode.read_int(
-					"midi_send_note_off",
-					static_cast<int>( getMidiSendNoteOff() ), true, true, bSilent
-				) )
-			);
-		}
-
-		/// OSC ///
-		const XMLNode oscServerNode =
-			audioEngineNode.firstChildElement( PreferencesKeys::OscConfiguration );
-		if ( !oscServerNode.isNull() ) {
-			m_bOscServerEnabled = oscServerNode.read_bool(
-				"oscEnabled", m_bOscServerEnabled, false, false, bSilent
-			);
-			m_bOscFeedbackEnabled = oscServerNode.read_bool(
-				"oscFeedbackEnabled", m_bOscFeedbackEnabled, false, false,
-				bSilent
-			);
-			m_nOscServerPort = oscServerNode.read_int(
-				"oscServerPort", m_nOscServerPort, false, false, bSilent
-			);
-		}
-	}
-
-	/////////////// GUI (core-owned fields only) //////////////
-	const XMLNode guiNode = rootNode.firstChildElement( "gui" );
-	if ( !guiNode.isNull() ) {
-		// beatcounter
-		const QString sBeatCounterSetPlay =
-			guiNode.read_string( "setplay", "", false, false, bSilent );
-		if ( sBeatCounterSetPlay == "SET_PLAY_OFF" ) {
-			m_beatCounter = BeatCounter::Tap;
-		}
-		else if ( sBeatCounterSetPlay == "SET_PLAY_ON" ) {
-			m_beatCounter = BeatCounter::TapAndPlay;
-		}
-
-		m_nBeatCounterDriftCompensation = guiNode.read_int(
-			"countoffset", m_nBeatCounterDriftCompensation, false, false,
-			bSilent
-		);
-		m_nBeatCounterStartOffset = guiNode.read_int(
-			"playoffset", m_nBeatCounterStartOffset, false, false, bSilent
-		);
-		// ~ beatcounter
-
-		m_nPatternEditorGridResolution = guiNode.read_int(
-			"patternEditorGridResolution",
-			m_nPatternEditorGridResolution, false, false, bSilent
-		);
-		m_bPatternEditorUsingTriplets = guiNode.read_bool(
-			"patternEditorUsingTriplets", m_bPatternEditorUsingTriplets,
-			false, false, bSilent
-		);
-	}
-
-	/////////////// FILES (core-owned fields only) //////////////
-	const XMLNode filesNode =
-		rootNode.firstChildElement( PreferencesKeys::Files );
-	if ( !filesNode.isNull() ) {
-		m_sLastSongPath = filesNode.read_string(
-			PreferencesKeys::LastSongFilename, m_sLastSongPath, false, true,
-			bSilent
-		);
-		m_sLastPlaylistPath = filesNode.read_string(
-			PreferencesKeys::LastPlaylistFilename, m_sLastPlaylistPath, false,
-			true, bSilent
-		);
-
-		const XMLNode customDirsNode =
-			filesNode.firstChildElement( "customSoundLibraryDirs" );
-		if ( !customDirsNode.isNull() ) {
-			m_customSoundLibraryDirs.clear();
-			auto customDirNode = customDirsNode.firstChildElement( "dir" );
-			while ( !customDirNode.isNull() && !customDirNode.text().isEmpty()
-			) {
-				m_customSoundLibraryDirs << customDirNode.text();
-				customDirNode = customDirNode.nextSiblingElement( "dir" );
-			}
-		}
-	}
-
-	// MIDI maps
-	const XMLNode midiEventMapNode =
-		rootNode.firstChildElement( "midiEventMap" );
-	if ( !midiEventMapNode.isNull() ) {
-		m_pMidiEventMap =
-			MidiEventMap::loadFrom( midiEventMapNode, bSilent, nullptr );
-	}
-
-	const XMLNode midiInstrumentMapNode =
-		rootNode.firstChildElement( "midiInstrumentMap" );
-	if ( !midiInstrumentMapNode.isNull() ) {
-		m_pMidiInstrumentMap =
-			MidiInstrumentMap::loadFrom( midiInstrumentMapNode, bSilent );
-	}
 }
 
 QString Preferences::ChangesToQString( Preferences::Changes changes )

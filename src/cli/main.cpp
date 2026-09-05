@@ -778,7 +778,7 @@ int main(int argc, char *argv[])
 
 		pPref = pHydrogen->getPreferences();
 
-		pPref->save();
+		pPref->save( false );
 		// Hydrogen owns its EventQueue and frees it in ~Hydrogen (ADR 0015).
 		delete pHydrogen;
 		delete pApp;

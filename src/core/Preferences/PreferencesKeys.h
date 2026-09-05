@@ -26,9 +26,10 @@ namespace H2Core {
 
 /**
  * Single source of truth for the XML element names of the Preferences config
- * file. Used both by Preferences (save/load) and by PluginConfig (the layered
- * config / merge paths, ADR 0022/0023), so the two cannot drift: renaming a key
- * here updates the writer/reader and the override-layer paths together.
+ * file. Used both by the schema table in PreferencesSchema (read/write codecs)
+ * and by the layered persist paths (ADR 0022/0023), so the two cannot drift:
+ * renaming a key here updates the writer/reader and the override-layer rows
+ * together.
  *
  * Only the keys that are referenced from more than one place (the document
  * structure and the host/state-owned "override" fields) are centralized here;
@@ -42,6 +43,7 @@ constexpr const char* Root = "hydrogen_preferences";
 constexpr const char* AudioEngine = "audio_engine";
 constexpr const char* Files = "files";
 constexpr const char* RecentUsedSongs = "recentUsedSongs";
+constexpr const char* Gui = "gui";
 
 // ── Audio/MIDI driver sub-nodes (host-owned I/O) ──
 constexpr const char* OssDriver = "oss_driver";

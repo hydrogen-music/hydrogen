@@ -477,6 +477,11 @@ int main(int argc, char *argv[])
 			// OSC. It must not spawn an audio-processing thread (the headless
 			// engine we want to connect to owns audio); a thread here would
 			// race the teardown below on abort.
+			//
+			// The mirror GUI only owns the GUI rows of the shared config; the
+			// authoritative headless engine owns the core rows (ADR 0022/0023).
+			pPref->setFieldOwnership(
+				H2Core::Preferences::FieldOwnership::GuiOwned );
 			H2Core::EditorSession::configureMirrorPreferences( pPref );
 			pHydrogen = H2Core::Hydrogen::create_instance(
 				parser.getOscPort(), pPref,
@@ -502,6 +507,12 @@ int main(int argc, char *argv[])
 				pHydrogen, std::move( pEditorSession ), pPref );
 		}
 		else {
+			// Standalone owns everything (ADR 0022/0023). The GUI process
+			// never runs in-DAW (its UI is out-of-process), so a leftover
+			// `Plugin` audio driver in the config must not mask the override
+			// rows here - that would make the stuck value unrepairable.
+			pPref->setFieldOwnership(
+				H2Core::Preferences::FieldOwnership::All );
 			// Hydrogen here to honor all preferences.
 			pHydrogen = H2Core::Hydrogen::create_instance(
 				parser.getOscPort(), pPref, H2Core::ProcessMode::Full
@@ -650,7 +661,7 @@ int main(int argc, char *argv[])
 		// file again and creating a new instance.
 		pPref = pHydrogen->getPreferences();
 
-		pPref->save();
+		pPref->save( false );
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;

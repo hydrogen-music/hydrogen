@@ -2863,7 +2863,8 @@ void MainForm::action_redo(){
 }
 
 void MainForm::requestPreferencesSaveEvent() {
-	ASSERT_NO_EDITOR_MODE( HydrogenApp::pHydrogen() );
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	ASSERT_NO_EDITOR_MODE( pHydrogen );
 
 	// Write the state of the GUI to the Preferences.
 	saveWindowProperties();
@@ -2873,7 +2874,7 @@ void MainForm::requestPreferencesSaveEvent() {
 	// is intended to not be triggered in editor mode. Instead, the
 	// authoritative engine takes care of saving its own preferences at teardown
 	// or OSC / NSM command.
-	HydrogenApp::pPreferences()->save();
+	HydrogenApp::pPreferences()->save( false );
 }
 
 void MainForm::updatePreferencesEvent( int nValue ) {

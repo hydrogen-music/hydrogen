@@ -10,7 +10,7 @@
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
@@ -19,24 +19,34 @@
  *
  */
 
-#ifndef PLUGIN_CONFIG_TEST_H
-#define PLUGIN_CONFIG_TEST_H
+#ifndef PREFERENCES_SCHEMA_TEST_H
+#define PREFERENCES_SCHEMA_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class PluginConfigTest : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE( PluginConfigTest );
-	CPPUNIT_TEST( testOverrideMembership );
-	CPPUNIT_TEST( testLayering );
-	CPPUNIT_TEST( testBaseChangePersistedOverrideExcluded );
-	CPPUNIT_TEST( testSurvivesReload );
+/**
+ * Round-trip oracle for the Preferences schema table (ADR 0023 amendment):
+ * every member tied by PreferencesSchema::tieAllMembers() must survive a
+ * writeRows()/readRows() cycle, and elements no schema row covers must be
+ * reported.
+ */
+class PreferencesSchemaTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( PreferencesSchemaTest );
+	CPPUNIT_TEST( testSchemaRoundTrip );
+	CPPUNIT_TEST( testUnknownElementsReported );
+	CPPUNIT_TEST( testOverrideLayerMembership );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void testOverrideMembership();
-	void testLayering();
-	void testBaseChangePersistedOverrideExcluded();
-	void testSurvivesReload();
+	void setUp() override;
+	void tearDown() override;
+
+	void testSchemaRoundTrip();
+	void testUnknownElementsReported();
+	void testOverrideLayerMembership();
+
+private:
+	unsigned m_nPreviousBitMask = 0;
 };
 
 #endif

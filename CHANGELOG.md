@@ -300,6 +300,13 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Concurrently running Hydrogen instances no longer overwrite each other's
+  preferences: saving the shared configuration now merges only the fields an
+  instance actually changed, under a cross-process lock.
+- A corrupted `hydrogen.conf` (e.g. left behind by a crash mid-write) is
+  detected and rewritten from the current state instead of silently
+  persisting the broken document. All configuration writes are atomic, so a
+  crash can no longer tear the file.
 - Components can now carry arbitrary names and name duplication is handled
   properly.
 - Fix sample selection in the presence of multiple components.

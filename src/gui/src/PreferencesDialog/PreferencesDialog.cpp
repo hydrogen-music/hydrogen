@@ -687,8 +687,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// are owned by the plugin host, not the out-of-process editor. Present that
 	// configuration read-only — the values stay visible so the user can see
 	// what the host provides, but cannot be edited here (editing would not
-	// reach the host-driven engine, and these fields are excluded from the
-	// editor's config override layer anyway; see PluginConfig::isOverridePath).
+	// reach the host-driven engine, and these fields sit in the override
+	// layer of the config schema anyway; see PreferencesSchema::Layer).
 	if ( HydrogenApp::pHydrogen()->isUnderPluginHost() ) {
 		const QList<QWidget*> hostOwnedWidgets = {
 			// Audio driver, device, sample rate / buffer size, and JACK options
@@ -1090,7 +1090,14 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//////////////////////////////////////////////////////////////////
 	// Write all changes to disk.
-	pPref->save();
+	// A failed save must not pass silently: the user believes the dialog
+	// persisted their changes (ADR 0023 - bounded retry, never block).
+	if ( ! pPref->save( false ) ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			HydrogenApp::get_instance()->getCommonStrings()
+				->getPreferencesSaveFailure() );
+	}
 	
 	// Notify other components of Hydrogen about the changes
 	pH2App->changePreferences( m_changes );

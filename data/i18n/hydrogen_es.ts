@@ -1927,6 +1927,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in a dialog on .h2project export failure.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to save preferences. The configuration file might be in use by another process. Please try again.</source>
+        <extracomment>Warning dialog shown when the Preferences dialog could not persist its changes to the user configuration (e.g. the file is locked by another process).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

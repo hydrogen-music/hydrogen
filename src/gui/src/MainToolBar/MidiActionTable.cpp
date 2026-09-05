@@ -148,7 +148,7 @@ void MidiActionTable::persistMidiMap()
 	// engine via the shared config rather than living only in memory until
 	// shutdown (ADR 0027 bucket C). GUI components stay in sync through the
 	// MidiEventMapChanged event fired by the (un)register calls.
-	HydrogenApp::pPreferences()->save();
+	HydrogenApp::pPreferences()->save( false );
 }
 
 void MidiActionTable::insertRow(

@@ -29,12 +29,16 @@ class ConfigConcurrencyTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testDifferentFieldsBothSurvive );
 	CPPUNIT_TEST( testSameFieldLastWriterWins );
 	CPPUNIT_TEST( testParallelPersistNoCorruption );
+	CPPUNIT_TEST( testMultiProcessHammerNoCorruption );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
+	void tearDown() override;
+
 	void testDifferentFieldsBothSurvive();
 	void testSameFieldLastWriterWins();
 	void testParallelPersistNoCorruption();
+	void testMultiProcessHammerNoCorruption();
 };
 
 #endif

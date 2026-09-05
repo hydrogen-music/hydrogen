@@ -21,6 +21,7 @@
  */
 #include <QtGlobal>
 #include <QtCore/QCoreApplication>
+#include <QtGui/QGuiApplication>
 
 #include <core/Preferences/Shortcuts.h>
 
@@ -74,13 +75,18 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, Hydrogen* p
 	
 	XMLNode shortcutsNode = node.firstChildElement( "shortcuts" );
 	if ( shortcutsNode.isNull() ) {
-		if ( pHydrogen == nullptr || QCoreApplication::instance() == nullptr ||
+		// Creating the defaults involves QKeySequence::keyBindings(), which
+		// requires a platform theme and therefore a QGuiApplication. A bare
+		// QCoreApplication (h2cli, unit tests) is not enough - Qt would
+		// segfault. In that case this step is delayed till after the GUI
+		// bootstrap (m_bRequiresDefaults).
+		if ( pHydrogen == nullptr ||
+			 qobject_cast<const QGuiApplication*>(
+				 QCoreApplication::instance() ) == nullptr ||
 			 !pHydrogen->isFullyOperational() ) {
 			// No shortcuts found. We need to create the default ones. But
-			// it is essential that we do not do this right away. If no
-			// QApplication is present, Qt will segfault when attempting
-			// to access standard keys. Instead, this step will be delayed
-			// till after the bootstrap.
+			// it is essential that we do not do this right away (see
+			// above).
 			WARNINGLOG( "shortcut node not found." );
 			pShortcuts->m_bRequiresDefaults = true;
 		}

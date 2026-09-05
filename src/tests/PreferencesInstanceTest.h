@@ -32,10 +32,12 @@
 class PreferencesInstanceTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PreferencesInstanceTest );
 	CPPUNIT_TEST( testIndependentInstances );
+	CPPUNIT_TEST( testCopyConstructorIsDeep );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 	void testIndependentInstances();
+	void testCopyConstructorIsDeep();
 };
 
 #endif

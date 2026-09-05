@@ -32,67 +32,75 @@
 
 #include <core/Globals.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 
 #include <QColor>
+#include <QDir>
 #include <QDomDocument>
 #include <QStringList>
 
 namespace H2Core {
 
-class MidiInstrumentMap;
-class MidiEventMap;
 class Hydrogen;
 
-/** \brief Manager for User Preferences File.
+/** \brief Aggregated, fully serialized state of #Preferences.
  *
- * Owned per Hydrogen instance (ADR 0015): any number of Preferences may
- * coexist independently. A transitional process-current pointer
- * (#get_instance() / #setInstance()) keeps unconverted call sites compiling
- * during the de-singletoning sweep and will be removed once they are gone.
+ * Plain aggregate (no user-declared constructors): every member carries its
+ * default as a default member initializer, mirroring the former
+ * Preferences::Preferences() initialization list verbatim. Environment
+ * dependent defaults - MIDI driver platform detection, the ALSA device probe,
+ * and the Rubberband CLI lookup - remain in the Preferences constructor body
+ * and overwrite these values there.
+ *
+ * #Preferences derives from this struct, so all members stay accessible
+ * unqualified from within Preferences and its inline API. The
+ * PreferencesSchema table drives all XML persistence of these members: a
+ * member not covered by a schema row fails the static_assert in
+ * PreferencesSchema.cpp (build break) as well as the round-trip unit test.
+ *
  * \ingroup H2CORE docCore docConfiguration */
-class Preferences : public H2Core::Object<Preferences> {
-	H2_OBJECT( Preferences )
-   public:
+struct PreferencesData {
 	enum {
-		/**
-		 * Specifies whether or not to use JACK transport
-		 * capabilities. If set, Hydrogen will start playing as
-		 * soon as any over JACK client using its transport
-		 * system is starting to play. Its counterpart is
-		 * #NO_JACK_TRANSPORT.
-		 */
-		USE_JACK_TRANSPORT = 0,
-		/**
-		 * Specifies that Hydrogen should attempt to acquire JACK Timebase
-		 * control.
-		 *
-		 * This represent the state desired by the user. The actual one is
-		 * stored in H2Core::JackDriver::m_timebaseState.
-		 *
-		 * Its counterpart is #NO_JACK_TIMEBASE_CONTROL.
-		 */
-		USE_JACK_TIMEBASE_CONTROL = 0,
-		/**
-		 * Specifies whether or not to use JACK transport capabilities. If set,
-		 * Hydrogen can be used independent of the JACK system while still using
-		 * the JackDriver. Its counterpart is #USE_JACK_TRANSPORT.
-		 */
-		NO_JACK_TRANSPORT = 1,
-		/**
-		 * Specifies that Hydrogen should not be in control of JACK Timebase
-		 * information. This could mean both that there is an external
-		 * application controlling position and tempo of Hydrogen and that there
-		 * are just equal JACK clients.
-		 *
-		 * This represent the state desired by the user. The actual one is
-		 * stored in H2Core::JackDriver::m_timebaseState.
-		 *
-		 * Its counterpart is #USE_JACK_TIMEBASE_CONTROL.
-		 */
-		NO_JACK_TIMEBASE_CONTROL = 1
+	/**
+	 * Specifies whether or not to use JACK transport
+	 * capabilities. If set, Hydrogen will start playing as
+	 * soon as any over JACK client using its transport
+	 * system is starting to play. Its counterpart is
+	 * #NO_JACK_TRANSPORT.
+	 */
+	USE_JACK_TRANSPORT = 0,
+	/**
+	 * Specifies that Hydrogen should attempt to acquire JACK Timebase
+	 * control.
+	 *
+	 * This represent the state desired by the user. The actual one is
+	 * stored in H2Core::JackDriver::m_timebaseState.
+	 *
+	 * Its counterpart is #NO_JACK_TIMEBASE_CONTROL.
+	 */
+	USE_JACK_TIMEBASE_CONTROL = 0,
+	/**
+	 * Specifies whether or not to use JACK transport capabilities. If set,
+	 * Hydrogen can be used independent of the JACK system while still using
+	 * the JackDriver. Its counterpart is #USE_JACK_TRANSPORT.
+	 */
+	NO_JACK_TRANSPORT = 1,
+	/**
+	 * Specifies that Hydrogen should not be in control of JACK Timebase
+	 * information. This could mean both that there is an external
+	 * application controlling position and tempo of Hydrogen and that there
+	 * are just equal JACK clients.
+	 *
+	 * This represent the state desired by the user. The actual one is
+	 * stored in H2Core::JackDriver::m_timebaseState.
+	 *
+	 * Its counterpart is #USE_JACK_TIMEBASE_CONTROL.
+	 */
+	NO_JACK_TIMEBASE_CONTROL = 1
 	};
 
 	/** Specifies which tempo input widget will be displayed in
@@ -115,6 +123,360 @@ class Preferences : public H2Core::Object<Preferences> {
 		/** As #Tap but also starts playback when done. */
 		TapAndPlay
 	};
+
+	enum class AudioDriver {
+		None,
+		Null,
+		Fake,
+		Disk,
+		Auto,
+		Jack,
+		Oss,
+		Alsa,
+		PulseAudio,
+		CoreAudio,
+		PortAudio,
+		/** Host-driven driver used when Hydrogen runs as a plugin: the host
+		 * supplies the output buffers and drives the process callback (ADR
+		 * 0013). Not user-selectable. */
+		Plugin
+	};
+
+	/** \c Plugin is host-driven: MIDI events are injected by the plugin host
+	 * (ADR 0013). Not user-selectable. */
+	enum class MidiDriver { Alsa, CoreMidi, Jack, None, PortMidi, LoopBack, Plugin };
+
+	/** Specifies which audio settings will be applied to the sample
+		supplied in the JACK per track output ports.*/
+	enum class JackTrackOutputMode {
+		/** Applies layer, component, and instrument gain, note and instrument
+		 * pan, note velocity, and instrument volume to the samples. */
+		postFader = 0,
+		/** Only layer and component gain and note velocity will be applied to
+		 * the samples.*/
+		preFader = 1
+	};
+
+	/** Whether Hydrogen should pair a sent Note-On message with the
+	 * corresponding Note-Off.
+	 *
+	 * Note that this does not affect stop notes (created using Shift + click).
+	 * They will always result in a Note-Off event. */
+	enum class MidiSendNoteOff {
+		Always = 0,
+		/** Only send Note-Off messages for notes featuring a user-defined
+		 * length. */
+		OnCustomLengths = 1,
+		Never = 2
+	};
+
+	/**
+	 * Choice of #m_sMidiPortName and #m_sMidiOutputPortName in case
+	 * no port/device was selected.
+	 *
+	 * Pinning its value to "None" will prevent Hydrogen to connect to
+	 * ports/devices using this exact name but is still done for
+	 * backward compatibility.
+	 */
+	static constexpr const char* sNullMidiPort = "None";
+
+	bool m_bPlaySamplesOnClicking = false;	///< audio file browser
+	bool m_bFollowPlayhead = true;
+
+	//___ BeatCounter ___
+	BpmTap m_bpmTap = BpmTap::TapTempo;
+	BeatCounter m_beatCounter = BeatCounter::Tap;
+	int m_nBeatCounterDriftCompensation = 0;
+	int m_nBeatCounterStartOffset = 0;
+
+	//___ audio engine properties ___
+	AudioDriver m_audioDriver = AudioDriver::Auto;
+	/** If set to true, samples of the metronome will be added to
+	 * #H2Core::AudioEngine::m_songNoteQueue and thus played back on a
+	 * regular basis.*/
+	bool m_bUseMetronome = false;
+	/// Metronome volume FIXME: remove this volume!!
+	float m_fMetronomeVolume = 0.5;
+	/// max notes
+	unsigned m_nMaxNotes = 256;
+	/** Sample interpolation (resampling) quality used by the #H2Core::Sampler.
+	 * Persistent; during audio export it can be temporarily overridden via
+	 * #H2Core::Hydrogen::setInterpolateModeOverride(). */
+	Interpolation::InterpolateMode m_interpolateMode =
+		Interpolation::InterpolateMode::Linear;
+	/** Buffer size of the audio. */
+	unsigned m_nBufferSize = 1024;
+	/** Sample rate of the audio. */
+	unsigned m_nSampleRate = 44100;
+
+	//	OSS driver properties ___
+	QString m_sOSSDevice = "/dev/dsp";  ///< Device used for output
+
+	/** Overwritten by the platform detection in the Preferences constructor
+	 * body; Alsa serves as the fallback for builds without a detected
+	 * driver. */
+	MidiDriver m_midiDriver = MidiDriver::Alsa;
+	QString m_sMidiPortName = QString( sNullMidiPort );
+	QString m_sMidiOutputPortName = QString( sNullMidiPort );
+
+	Midi::Channel m_midiActionChannel = Midi::ChannelAll;
+	bool m_bMidiNoteOffIgnore = true;
+	bool m_bEnableMidiFeedback = false;
+
+	//___ OSC Server properties ___
+	/**
+	 * Whether to start the OscServer thread.
+	 *
+	 * If set to true, the OscServer::start() function of the
+	 * OscServer singleton will be called in
+	 * Hydrogen::Hydrogen(). This will register all OSC message
+	 * handlers and makes the server listen to port
+	 * #m_nOscServerPort.
+	 */
+	bool m_bOscServerEnabled = false;
+	/**
+	 * Whether to send the current state of Hydrogen to the OSC
+	 * clients.
+	 *
+	 * If set to true, the current state of Hydrogen will be sent to
+	 * \e all known OSC clients using
+	 * #H2Core::CoreActionController::initExternalControlInterfaces() and
+	 * #H2Core::OscServer::handleAction() via OSC messages each time it gets
+	 * updated.
+	 */
+	bool m_bOscFeedbackEnabled = true;
+	/** Port number the OscServer will be started at. */
+	int m_nOscServerPort = 9000;
+
+	//	alsa audio driver properties ___
+	/** Probed in the Preferences constructor body when ALSA support is
+	 * enabled; "hw:0" is the fallback otherwise. */
+	QString m_sAlsaAudioDevice = "hw:0";
+
+	//___ PortAudio properties ___
+	QString m_sPortAudioDevice = "";
+	QString m_sPortAudioHostAPI = "";
+	int m_nLatencyTarget = 0;
+
+	//___ CoreAudio properties ___
+	QString m_sCoreAudioDevice = "";
+
+	//	jack driver properties ___
+	QString m_sJackPortName1 = "alsa_pcm:playback_1";
+	QString m_sJackPortName2 = "alsa_pcm:playback_2";
+	/**
+	 * Specifies whether or not Hydrogen will use the JACK
+	 * transport system. It has two different states:
+	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
+	 */
+	int m_nJackTransportMode = USE_JACK_TRANSPORT;
+	/** Toggles auto-connecting of the main stereo output ports to the
+	 * system's default ports when starting the JACK server.*/
+	bool m_bJackConnectDefaults = true;
+	/** If set to _true_, JackDriver::createPerTrackAudioPorts() will create two
+	 * individual left and right output ports for every component of each
+	 * instrument. If _false_, one usual stereo output will be created. */
+	bool m_bJackTrackOuts = false;
+
+	/** Specifies which audio settings will be applied to the sample
+		supplied in the JACK per track output ports.*/
+	JackTrackOutputMode m_JackTrackOutputMode = JackTrackOutputMode::postFader;
+
+	/**
+	 * External applications with a faulty JACK Timebase implementation can mess
+	 * up the transport within Hydrogen. To guarantee the basic functionality,
+	 * the user can disable Timebase support and make Hydrogen only listen to
+	 * the frame number broadcast by the JACK server.
+	 */
+	bool m_bJackTimebaseEnabled = false;
+	/** Specifies if Hydrogen support the of JACK Timebase protocol. It has two
+	 * states: Preferences::USE_JACK_TIMEBASE_CONTROL and
+	 * Preferences::NO_JACK_TIMEBASE_CONTROL. It is set to
+	 * Preferences::NO_JACK_TIMEBASE_CONTROL by the
+	 * JackDriver::initTimebaseControl() if Hydrogen couldn't acquire Timebase
+	 * control. */
+	int m_bJackTimebaseMode = NO_JACK_TIMEBASE_CONTROL;
+	// ~ jack driver properties
+
+	int m_nAutosavesPerHour = 60;
+
+	/// Rubberband CLI - searched in $PATH by the Preferences constructor body.
+	QString m_sRubberBandCLIexecutable = "Path to Rubberband-CLI";
+
+	/** Not set in the #PreferencesDialog but by chosing the appropriate
+	 * action in #MainToolBar. */
+	bool m_bCountIn = false;
+
+	/** Default text editor (used by Playlisteditor) */
+	QString m_sDefaultEditor = "";
+
+	QString m_sPreferredLanguage = "";
+
+	bool m_bUseRelativeFileNamesForPlaylists = false;
+
+	///< Show development version warning?
+	bool m_bShowDevelWarning = false;
+	bool m_bShowNoteOverwriteWarning = true;
+
+	///< Last song or project used
+	QString m_sLastSongPath = "";
+	QString m_sLastPlaylistPath = "";
+
+	QStringList m_customSoundLibraryDirs;
+	QStringList m_onlineRepos;
+
+	bool m_bHearNewNotes = true;
+	bool m_bQuantizeEvents = true;
+
+	QStringList m_recentFiles;
+
+	/** Maximum number of bars shown in the Song Editor at
+	 * once. */
+	int m_nMaxBars = 400;
+
+	/** MIDI channel which to use for both MIDI feedback and MIDI clock
+		  signals. */
+	Midi::Channel m_midiFeedbackChannel = Midi::ChannelMinimum;
+	/** Whether Hydrogen will set its tempo according to incoming MIDI clock
+	 * ticks. */
+	bool m_bMidiClockInputHandling = false;
+	/** Whether Hydrogen will handle incoming MIDI START, STOP, CONTINUE,
+	 * and SONG_POSITION_POINTER events. */
+	bool m_bMidiTransportInputHandling = false;
+	/** Whether Hydrogen will send outgoing MIDI clock messages based on the
+	 * current tempo. */
+	bool m_bMidiClockOutputSend = false;
+	/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
+	 * and SONG_POSITION_POINTER messages on transport changes. */
+	bool m_bMidiTransportOutputSend = false;
+	MidiSendNoteOff m_midiSendNoteOff = MidiSendNoteOff::Always;
+
+	/// rubberband bpm change queue
+	bool m_bUseTheRubberbandBpmChangeEvent = false;
+
+	/** Whether the names of the per-instrument output ports should be set
+	 * according to the instrument type of the corresponding instrument or
+	 * according to our classical name scheme include track number and
+	 * instrument name. */
+	bool m_bJackEnforceInstrumentName = false;
+
+	//___ GUI properties ___
+	bool m_bShowInstrumentPeaks = true;
+	int m_nPatternEditorGridResolution = 8;
+	bool m_bPatternEditorUsingTriplets = false;
+	bool m_bPatternEditorAlwaysShowTypeLabels = false;
+
+	bool m_bHideKeyboardCursor = false;
+	bool m_bShowPlaybackTrack = true;
+	int m_nLastOpenTab = 0;
+	bool m_bShowAutomationArea = false;
+	unsigned m_nPatternEditorGridHeight = 21;
+	unsigned m_nPatternEditorGridWidth = 3;
+	unsigned m_nSongEditorGridHeight = 18;
+	unsigned m_nSongEditorGridWidth = 16;
+	WindowProperties m_mainFormProperties =
+		WindowProperties( 0, 0, 1000, 700, true );
+	WindowProperties m_mixerProperties =
+		WindowProperties( 10, 350, 829, 276, true );
+	WindowProperties m_patternEditorProperties =
+		WindowProperties( 280, 100, 706, 439, true );
+	WindowProperties m_songEditorProperties =
+		WindowProperties( 10, 10, 600, 250, true );
+	WindowProperties m_rackProperties =
+		WindowProperties( 500, 20, 526, 437, true );
+	WindowProperties m_audioEngineInfoProperties =
+		WindowProperties( 720, 120, 0, 0, false );
+	WindowProperties m_playlistEditorProperties =
+		WindowProperties( 200, 300, 921, 703, false );
+	WindowProperties m_directorProperties =
+		WindowProperties( 200, 300, 423, 377, false );
+
+	//___ Last directories used in QFileDialogs ___
+	QString m_sLastExportPatternAsDirectory = QDir::homePath();
+	QString m_sLastExportSongDirectory = QDir::homePath();
+	QString m_sLastSaveSongAsDirectory = QDir::homePath();
+	QString m_sLastOpenSongDirectory = Filesystem::userSongsDir();
+	QString m_sLastOpenPatternDirectory = Filesystem::userPatternsDir();
+	QString m_sLastExportLilypondDirectory = QDir::homePath();
+	QString m_sLastExportMidiDirectory = QDir::homePath();
+	QString m_sLastImportDrumkitDirectory = QDir::homePath();
+	QString m_sLastExportDrumkitDirectory = QDir::homePath();
+	QString m_sLastSaveDrumkitAsDirectory = Filesystem::userDrumkitsDir();
+	QString m_sLastOpenLayerDirectory = QDir::homePath();
+	QString m_sLastOpenPlaybackTrackDirectory = QDir::homePath();
+	QString m_sLastAddSongToPlaylistDirectory = Filesystem::userSongsDir();
+	QString m_sLastPlaylistDirectory = Filesystem::userPlaylistsDir();
+	QString m_sLastPlaylistScriptDirectory = QDir::homePath();
+	QString m_sLastImportThemeDirectory = QDir::homePath();
+	QString m_sLastExportThemeDirectory = QDir::homePath();
+
+	//___ Export dialog ___
+	int m_nExportSampleDepthIdx = 0;
+	int m_nExportSampleRateIdx = 0;
+	int m_nExportModeIdx = 0;
+	Filesystem::AudioFormat m_exportFormat = Filesystem::AudioFormat::Flac;
+	float m_fExportCompressionLevel = 0.0;
+	// ~ Export dialog
+
+	//___ Export midi dialog ___
+	int m_nMidiExportMode = 0;
+	bool m_bMidiExportUseHumanization = false;
+
+	bool m_bSoundLibraryShowName = true;
+	bool m_bSoundLibraryShowAuthor = false;
+	bool m_bSoundLibraryShowInfo = true;
+	bool m_bSoundLibraryShowLicense = false;
+	bool m_bSoundLibraryShowPath = false;
+	bool m_bSoundLibraryShowTags = true;
+	bool m_bSoundLibraryShowVersion = false;
+	int m_nSoundLibraryLastTab = 0;
+	int m_nRackLastTab = 0;
+
+	bool m_bShowExportSongLicenseWarning = true;
+	bool m_bShowExportDrumkitLicenseWarning = true;
+	bool m_bShowExportDrumkitCopyleftWarning = true;
+	bool m_bShowExportDrumkitAttributionWarning = true;
+
+	std::shared_ptr<Theme> m_pTheme = std::make_shared<Theme>(
+		std::make_shared<ColorTheme>(), std::make_shared<InterfaceTheme>(),
+		std::make_shared<FontTheme>() );
+
+	std::shared_ptr<Shortcuts> m_pShortcuts = std::make_shared<Shortcuts>();
+	std::shared_ptr<MidiEventMap> m_pMidiEventMap =
+		std::make_shared<MidiEventMap>();
+	std::shared_ptr<MidiInstrumentMap> m_pMidiInstrumentMap =
+		std::make_shared<MidiInstrumentMap>();
+};
+
+/** \brief Manager for User Preferences File.
+ *
+ * Owned per Hydrogen instance (ADR 0015): any number of Preferences may
+ * coexist independently.
+ * \ingroup H2CORE docCore docConfiguration */
+class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
+	H2_OBJECT( Preferences )
+   public:
+	/** \name Aliases for types and enumerators moved into #PreferencesData
+	 *
+	 * The enums backing the serialized members now live in
+	 * #PreferencesData so the standalone aggregate can default-construct
+	 * them. These aliases keep all `Preferences::X` qualified references
+	 * compiling unchanged. */
+	// @{
+	using PreferencesData::BpmTap;
+	using PreferencesData::BeatCounter;
+	using PreferencesData::AudioDriver;
+	using PreferencesData::MidiDriver;
+	using PreferencesData::JackTrackOutputMode;
+	using PreferencesData::MidiSendNoteOff;
+	/** Enumerator aliases for the unscoped JACK transport and Timebase
+	 * modes (stored as plain int in #m_nJackTransportMode and
+	 * #m_bJackTimebaseMode). */
+	using PreferencesData::USE_JACK_TRANSPORT;
+	using PreferencesData::NO_JACK_TRANSPORT;
+	using PreferencesData::USE_JACK_TIMEBASE_CONTROL;
+	using PreferencesData::NO_JACK_TIMEBASE_CONTROL;
+	// @}
 
 	/** Bitwise or-able options showing which part of the Preferences
 	 * were altered using the PreferencesDialog.*/
@@ -142,55 +504,10 @@ class Preferences : public H2Core::Object<Preferences> {
 	};
 	static QString ChangesToQString( Changes changes );
 
-	enum class AudioDriver {
-		None,
-		Null,
-		Fake,
-		Disk,
-		Auto,
-		Jack,
-		Oss,
-		Alsa,
-		PulseAudio,
-		CoreAudio,
-		PortAudio,
-		/** Host-driven driver used when Hydrogen runs as a plugin: the host
-		 * supplies the output buffers and drives the process callback (ADR
-		 * 0013). Not user-selectable. */
-		Plugin
-	};
 	static AudioDriver parseAudioDriver( const QString& sDriver );
 	static QString audioDriverToQString( const AudioDriver& driver );
-
-	/** \c Plugin is host-driven: MIDI events are injected by the plugin host
-	 * (ADR 0013). Not user-selectable. */
-	enum class MidiDriver { Alsa, CoreMidi, Jack, None, PortMidi, LoopBack, Plugin };
 	static MidiDriver parseMidiDriver( const QString& sDriver );
 	static QString midiDriverToQString( const MidiDriver& driver );
-
-	/** Specifies which audio settings will be applied to the sample
-		supplied in the JACK per track output ports.*/
-	enum class JackTrackOutputMode {
-		/** Applies layer, component, and instrument gain, note and instrument
-		 * pan, note velocity, and instrument volume to the samples. */
-		postFader = 0,
-		/** Only layer and component gain and note velocity will be applied to
-		 * the samples.*/
-		preFader = 1
-	};
-
-	/** Whether Hydrogen should pair a sent Note-On message with the
-	 * corresponding Note-Off.
-	 *
-	 * Note that this does not affect stop notes (created using Shift + click).
-	 * They will always result in a Note-Off event. */
-	enum class MidiSendNoteOff {
-		Always = 0,
-		/** Only send Note-Off messages for notes featuring a user-defined
-		 * length. */
-		OnCustomLengths = 1,
-		Never = 2
-	};
 
 	/** Loads the user (or, failing that, system) config file and returns a
 	 * freshly-owned Preferences. No process-wide singleton is involved; the
@@ -203,9 +520,33 @@ class Preferences : public H2Core::Object<Preferences> {
 
 	static std::shared_ptr<Preferences>
 	load( const QString& sPath, bool bSilent, Hydrogen* pHydrogen );
+	/** Which rows this instance may write to the shared user config
+	 * (ADR 0022/0023). Tagged once at process startup; the default, #All,
+	 * fits standalone and headless processes. */
+	enum class FieldOwnership {
+		/** Every row (standalone GUI, headless engine). */
+		All,
+		/** Only base-layer rows (GUI running as a plugin guest: the host
+		 * owns the override layer). */
+		BaseLayer,
+		/** Only GUI-owned base-layer rows (editor mirror: the
+		 * authoritative headless engine owns the core rows). */
+		GuiOwned
+	};
+
 	/** Save the config to the user-level config file (or the one specified
-	 * via CLI) */
+	 * via CLI). Concurrency-safe (ADR 0023): under a cross-process lock the
+	 * file is re-read and only this instance's own changed,
+	 * ownership-eligible rows are merged onto it, then written back
+	 * atomically — so concurrent edits other processes made to other
+	 * fields survive.
+	 *
+	 * @param bSilent whether log messages should be suppressed. */
 	bool save( const bool bSilent = false ) const;
+	void setFieldOwnership( FieldOwnership ownership ) {
+		m_fieldOwnership = ownership;
+	}
+	FieldOwnership getFieldOwnership() const { return m_fieldOwnership; }
 	/** Instead of a `saveAs` method #Preferences only provides a
 	 * #saveCopyAs() method to indicate that corresponding file won't change
 	 * and will always be the user-level config file. (Which can be altered
@@ -251,46 +592,8 @@ class Preferences : public H2Core::Object<Preferences> {
 	 * ports/devices using this exact name but is still done for
 	 * backward compatibility.
 	 */
-	static QString getNullMidiPort() { return "None"; }
+	static QString getNullMidiPort() { return QString( sNullMidiPort ); }
 
-	bool m_bPlaySamplesOnClicking;	// audio file browser
-	bool m_bFollowPlayhead;
-
-	// BeatCounter
-	BpmTap m_bpmTap;
-	BeatCounter m_beatCounter;
-	int m_nBeatCounterDriftCompensation;
-	int m_nBeatCounterStartOffset;
-
-	//___ audio engine properties ___
-	AudioDriver m_audioDriver;
-	/** If set to true, samples of the metronome will be added to
-	 * #H2Core::AudioEngine::m_songNoteQueue and thus played back on a
-	 * regular basis.*/
-	bool m_bUseMetronome;
-	/// Metronome volume FIXME: remove this volume!!
-	float m_fMetronomeVolume;
-	/// max notes
-	unsigned m_nMaxNotes;
-	/** Sample interpolation (resampling) quality used by the #H2Core::Sampler.
-	 * Persistent; during audio export it can be temporarily overridden via
-	 * #H2Core::Hydrogen::setInterpolateModeOverride(). */
-	Interpolation::InterpolateMode m_interpolateMode;
-	/** Buffer size of the audio. */
-	unsigned m_nBufferSize;
-	/** Sample rate of the audio. */
-	unsigned m_nSampleRate;
-
-	//	OSS driver properties ___
-	QString m_sOSSDevice;  ///< Device used for output
-
-	MidiDriver m_midiDriver;
-	QString m_sMidiPortName;
-	QString m_sMidiOutputPortName;
-
-	Midi::Channel m_midiActionChannel;
-	bool m_bMidiNoteOffIgnore;
-	bool m_bEnableMidiFeedback;
 	Midi::Channel getMidiFeedbackChannel() const;
 	void setMidiFeedbackChannel( Midi::Channel nChannel );
 	bool getMidiClockInputHandling() const;
@@ -317,82 +620,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	int getOscServerPort() const;
 	/** \param oscPort Sets #m_nOscServerPort*/
 	void setOscServerPort( int oscPort );
-	/**
-	 * Whether to start the OscServer thread.
-	 *
-	 * If set to true, the OscServer::start() function of the
-	 * OscServer singleton will be called in
-	 * Hydrogen::Hydrogen(). This will register all OSC message
-	 * handlers and makes the server listen to port
-	 * #m_nOscServerPort.
-	 */
-	bool m_bOscServerEnabled;
-	/**
-	 * Whether to send the current state of Hydrogen to the OSC
-	 * clients.
-	 *
-	 * If set to true, the current state of Hydrogen will be sent to
-	 * \e all known OSC clients using
-	 * H2Core::Hydrogen::get_instance()->getCoreActionController()->initExternalControlInterfaces() and
-	 * OscServer::handleAction() via OSC messages each time it gets
-	 * updated.
-	 */
-	bool m_bOscFeedbackEnabled;
-	/** Port number the OscServer will be started at. */
-	int m_nOscServerPort;
-
-	//	alsa audio driver properties ___
-	QString m_sAlsaAudioDevice;
-
-	// PortAudio properties
-	QString m_sPortAudioDevice;
-	QString m_sPortAudioHostAPI;
-	int m_nLatencyTarget;
-
-	// CoreAudio properties
-	QString m_sCoreAudioDevice;
-
-	//	jack driver properties ___
-	QString m_sJackPortName1;
-	QString m_sJackPortName2;
-	/**
-	 * Specifies whether or not Hydrogen will use the JACK
-	 * transport system. It has two different states:
-	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
-	 */
-	int m_nJackTransportMode;
-	/** Toggles auto-connecting of the main stereo output ports to the
-		system's default ports when starting the JACK server.*/
-	bool m_bJackConnectDefaults;
-	/** If set to _true_, JackDriver::createPerTrackAudioPorts() will create two
-	 * individual left and right output ports for every component of each
-	 * instrument. If _false_, one usual stereo output will be created. */
-	bool m_bJackTrackOuts;
-
-	/** Specifies which audio settings will be applied to the sample
-		supplied in the JACK per track output ports.*/
-	JackTrackOutputMode m_JackTrackOutputMode;
-
-	/**
-	 * External applications with a faulty JACK Timebase implementation can mess
-	 * up the transport within Hydrogen. To guarantee the basic functionality,
-	 * the user can disable Timebase support and make Hydrogen only listen to
-	 * the frame number broadcast by the JACK server.
-	 */
-	bool m_bJackTimebaseEnabled;
-	/** Specifies if Hydrogen support the of JACK Timebase protocol. It has two
-	 * states: Preferences::USE_JACK_TIMEBASE_CONTROL and
-	 * Preferences::NO_JACK_TIMEBASE_CONTROL. It is set to
-	 * Preferences::NO_JACK_TIMEBASE_CONTROL by the
-	 * JackDriver::initTimebaseControl() if Hydrogen couldn't acquire Timebase
-	 * control. */
-	int m_bJackTimebaseMode;
-	// ~ jack driver properties
-
-	int m_nAutosavesPerHour;
-
-	/// Rubberband CLI
-	QString m_sRubberBandCLIexecutable;
 
 	/** Not set in the #PreferencesDialog but by chosing the appropriate
 	 * action in #MainToolBar. */
@@ -585,11 +812,6 @@ class Preferences : public H2Core::Object<Preferences> {
 	int getRackLastTab() const;
 	void setRackLastTab( int nTab );
 
-	bool m_bShowExportSongLicenseWarning;
-	bool m_bShowExportDrumkitLicenseWarning;
-	bool m_bShowExportDrumkitCopyleftWarning;
-	bool m_bShowExportDrumkitAttributionWarning;
-
 	const std::shared_ptr<const Theme> getTheme() const;
 	const std::shared_ptr<const ColorTheme> getColorTheme() const;
 	const std::shared_ptr<const InterfaceTheme> getInterfaceTheme() const;
@@ -609,155 +831,34 @@ class Preferences : public H2Core::Object<Preferences> {
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
 
-   private:
+    private:
 	/** Used to indicate changes in the underlying XSD file. */
 	static constexpr int nCurrentFormatVersion = 2;
 
-	bool saveTo( const QString& sPath, const bool bSilent ) const;
-
-	/** Not set in the #PreferencesDialog but by chosing the appropriate
-	 * action in #MainToolBar. */
-	bool m_bCountIn;
-
-	/** Default text editor (used by Playlisteditor) */
-	QString m_sDefaultEditor;
-
-	QString m_sPreferredLanguage;
-
-	bool m_bUseRelativeFileNamesForPlaylists;
-
-	///< Show development version warning?
-	bool m_bShowDevelWarning;
-	bool m_bShowNoteOverwriteWarning;
-
-	///< Last song or project used
-	QString m_sLastSongPath;
-	QString m_sLastPlaylistPath;
-
-	QStringList m_customSoundLibraryDirs;
-	QStringList m_onlineRepos;
-
-	bool m_bHearNewNotes;
+	/** Runtime-only punch area markers (not serialized to disk). */
 	int m_nPunchInPos;
 	int m_nPunchOutPos;
-	bool m_bQuantizeEvents;
-
-	QStringList m_recentFiles;
-
-	/** Maximum number of bars shown in the Song Editor at
-	 * once. */
-	int m_nMaxBars;
-
-	/** MIDI channel which to use for both MIDI feedback and MIDI clock
-		  signals. */
-	Midi::Channel m_midiFeedbackChannel;
-	/** Whether Hydrogen will set its tempo according to incoming MIDI clock
-	 * ticks. */
-	bool m_bMidiClockInputHandling;
-	/** Whether Hydrogen will handle incoming MIDI START, STOP, CONTINUE,
-	 * and SONG_POSITION_POINTER events. */
-	bool m_bMidiTransportInputHandling;
-	/** Whether Hydrogen will send outgoing MIDI clock messages based on the
-	 * current tempo. */
-	bool m_bMidiClockOutputSend;
-	/** Whether Hydrogen will send outgoing MIDI START, STOP, CONTINUE,
-	 * and SONG_POSITION_POINTER messages on transport changes. */
-	bool m_bMidiTransportOutputSend;
-	MidiSendNoteOff m_midiSendNoteOff;
 
 	/** In case the rubberband binary was not found in common places, this
 	 * variable indicated - if `true` - that Hydrogen should continue
 	 * searching for it in places provided during #load() */
 	bool m_bSearchForRubberbandOnLoad;
-	/// rubberband bpm change queue
-	bool m_bUseTheRubberbandBpmChangeEvent;
-
-	/** Whether the names of the per-instrument output ports should be set
-	 * according to the instrument type of the corresponding instrument or
-	 * according to our classical name scheme include track number and
-	 * instrument name. */
-	bool m_bJackEnforceInstrumentName;
-
-	//___ GUI properties ___
-	bool m_bShowInstrumentPeaks;
-	int m_nPatternEditorGridResolution;
-	bool m_bPatternEditorUsingTriplets;
-	bool m_bPatternEditorAlwaysShowTypeLabels;
-
-	bool m_bHideKeyboardCursor;
-	bool m_bShowPlaybackTrack;
-	int m_nLastOpenTab;
-	bool m_bShowAutomationArea;
-	unsigned m_nPatternEditorGridHeight;
-	unsigned m_nPatternEditorGridWidth;
-	unsigned m_nSongEditorGridHeight;
-	unsigned m_nSongEditorGridWidth;
-	WindowProperties m_mainFormProperties;
-	WindowProperties m_mixerProperties;
-	WindowProperties m_patternEditorProperties;
-	WindowProperties m_songEditorProperties;
-	WindowProperties m_rackProperties;
-	WindowProperties m_audioEngineInfoProperties;
-	WindowProperties m_playlistEditorProperties;
-	WindowProperties m_directorProperties;
-
-	// Last directories used in QFileDialogs
-	QString m_sLastExportPatternAsDirectory;
-	QString m_sLastExportSongDirectory;
-	QString m_sLastSaveSongAsDirectory;
-	QString m_sLastOpenSongDirectory;
-	QString m_sLastOpenPatternDirectory;
-	QString m_sLastExportLilypondDirectory;
-	QString m_sLastExportMidiDirectory;
-	QString m_sLastImportDrumkitDirectory;
-	QString m_sLastExportDrumkitDirectory;
-	QString m_sLastSaveDrumkitAsDirectory;
-	QString m_sLastOpenLayerDirectory;
-	QString m_sLastOpenPlaybackTrackDirectory;
-	QString m_sLastAddSongToPlaylistDirectory;
-	QString m_sLastPlaylistDirectory;
-	QString m_sLastPlaylistScriptDirectory;
-	QString m_sLastImportThemeDirectory;
-	QString m_sLastExportThemeDirectory;
-
-	// Export dialog
-	int m_nExportSampleDepthIdx;
-	int m_nExportSampleRateIdx;
-	int m_nExportModeIdx;
-	Filesystem::AudioFormat m_exportFormat;
-	float m_fExportCompressionLevel;
-	// ~ Export dialog
-
-	// Export midi dialog
-	int m_nMidiExportMode;
-	bool m_bMidiExportUseHumanization;
-
-	bool m_bSoundLibraryShowName;
-	bool m_bSoundLibraryShowAuthor;
-	bool m_bSoundLibraryShowInfo;
-	bool m_bSoundLibraryShowLicense;
-	bool m_bSoundLibraryShowPath;
-	bool m_bSoundLibraryShowTags;
-	bool m_bSoundLibraryShowVersion;
-	int m_nSoundLibraryLastTab;
-	int m_nRackLastTab;
-
-	std::shared_ptr<Theme> m_pTheme;
-
-	std::shared_ptr<Shortcuts> m_pShortcuts;
-	std::shared_ptr<MidiEventMap> m_pMidiEventMap;
-	std::shared_ptr<MidiInstrumentMap> m_pMidiInstrumentMap;
 
 	bool m_bLoadingSuccessful;
 
 	/** The on-disk XML as parsed at load time (ADR 0023): the baseline against
-	 * which saveTo() diffs to find this instance's own changes, so the
+	 * which save() diffs to find this instance's own changes, so the
 	 * concurrency-safe persist of the shared user config writes only those and
 	 * preserves concurrent edits other processes made to other fields. Empty for
 	 * a never-loaded (freshly created) Preferences, which then falls back to a
-	 * plain snapshot write. Mutable: refreshed by the const saveTo() after each
-	 * successful persist so subsequent diffs are against what we last wrote. */
-	mutable QByteArray m_baselineXml;
+	 * plain snapshot write. Never refreshed after a save: it keeps representing
+	 * the values this instance loaded, so foreign changes adopted into the
+	 * merged document never register as this instance's own. */
+	QByteArray m_baselineXml;
+
+	/** Which rows this instance may write to the shared user config; see
+	 * #FieldOwnership. Runtime process state, never serialized. */
+	FieldOwnership m_fieldOwnership = FieldOwnership::All;
 };
 
 inline const QString& Preferences::getLastExportPatternAsDirectory() const

@@ -48,6 +48,9 @@ namespace H2Core {
 static std::shared_ptr<Preferences> makePluginPreferences( double fSampleRate,
 														   unsigned nMaxBlockSize ) {
 	auto pPref = Preferences::create_instance();
+	// A plugin guest only owns the base layer of the shared config; the
+	// host owns the override layer (ADR 0022/0023).
+	pPref->setFieldOwnership( Preferences::FieldOwnership::BaseLayer );
 	pPref->m_audioDriver = Preferences::AudioDriver::Plugin;
 	pPref->m_midiDriver = Preferences::MidiDriver::Plugin;
 	pPref->m_nBufferSize = nMaxBlockSize;

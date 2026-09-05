@@ -27,6 +27,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QLocale>
+#include <QtCore/QSaveFile>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
@@ -380,10 +381,13 @@ bool XMLDoc::read( const QString& sFilePath, bool bSilent ) {
 
 bool XMLDoc::write( const QString& sFilePath )
 {
-	QFile file( sFilePath );
-	if ( !file.open(
-			 QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate
-		 ) ) {
+	// Atomic write (ADR 0023): QSaveFile stages the payload in a sibling
+	// temp file and commits via rename, so a concurrent reader — or a crash
+	// mid-write — never sees a torn document.
+	const QByteArray bytes = toString().toUtf8();
+
+	QSaveFile file( sFilePath );
+	if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
 		// Creation failed.
 		const QString sParentDir =
 			QFileInfo( sFilePath ).absoluteDir().absolutePath();
@@ -392,9 +396,7 @@ bool XMLDoc::write( const QString& sFilePath )
 		}
 
 		// Let's try again
-		if ( !file.open(
-				 QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate
-			 ) ) {
+		if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
 			ERRORLOG(
 				QString( "Unable to open %1 for writing" ).arg( sFilePath )
 			);
@@ -407,16 +409,15 @@ bool XMLDoc::write( const QString& sFilePath )
 #else
 	out.setCodec( "UTF-8" );
 #endif
-	out << toString().toUtf8();
+	out << bytes;
 	out.flush();
 
-	bool rv = true;
-	if ( !toString().isEmpty() && file.size() == 0 ) {
-		rv = false;
+	if ( ! bytes.isEmpty() && file.size() == 0 ) {
+		file.cancelWriting();
+		return false;
 	}
 
-	file.close();
-	return rv;
+	return file.commit();
 }
 
 XMLNode XMLDoc::set_root( const QString& node_name, const QString& xmlns )

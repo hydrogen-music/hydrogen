@@ -510,7 +510,7 @@ int main( int argc, char** argv )
 	}
 
 	pHydrogen->sequencerStop();
-	pPref->save();
+	pPref->save( false );
 
 	// Hydrogen owns its Preferences and EventQueue and frees them in
 	// ~Hydrogen (ADR 0015).

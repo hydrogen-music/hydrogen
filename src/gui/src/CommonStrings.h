@@ -277,6 +277,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sPreferencesShortcutCapture;
 	}
+	const QString& getPreferencesSaveFailure() const
+	{
+		return m_sPreferencesSaveFailure;
+	}
 
 	const QString& getButtonOk() const { return m_sButtonOk; }
 	const QString& getButtonApply() const { return m_sButtonApply; }
@@ -888,6 +892,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sPreferencesNone;
 	QString m_sPreferencesJackToolTip;
 	QString m_sPreferencesShortcutCapture;
+	QString m_sPreferencesSaveFailure;
 
 	QString m_sButtonOk;
 	QString m_sButtonApply;

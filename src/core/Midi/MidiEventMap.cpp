@@ -50,6 +50,18 @@ MidiEventMap::MidiEventMap()
 {
 }
 
+MidiEventMap::MidiEventMap( const std::shared_ptr<MidiEventMap> pOther )
+{
+	QMutexLocker mx( &pOther->__mutex );
+
+	// The events are mutable shared state: copy them one by one so the
+	// new map owns fresh objects instead of aliasing the source's ones.
+	m_events.reserve( pOther->m_events.size() );
+	for ( const auto& ppEvent : pOther->m_events ) {
+		m_events.push_back( std::make_shared<MidiEvent>( ppEvent ) );
+	}
+}
+
 MidiEventMap::~MidiEventMap()
 {
 	QMutexLocker mx(&__mutex);
