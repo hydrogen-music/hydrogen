@@ -672,3 +672,137 @@ void PreferencesPersistTest::testMissingShortcutsElementDefersDefaults() {
 
 	___INFOLOG( "passed" );
 }
+
+void PreferencesPersistTest::testWriteThroughPendingChanges() {
+	___INFOLOG( "" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
+	Filesystem::setPreferencesOverwritePath( sPath );
+
+	auto pPref = Preferences::load( sPath, true, pTestHydrogen() );
+	CPPUNIT_ASSERT( pPref != nullptr );
+
+	// A freshly loaded instance has nothing pending: the clean point is
+	// the post-load state, migrations included.
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+
+	const int nLoadedMaxBars = pPref->m_nMaxBars;
+
+	// A user change is pending...
+	pPref->m_nMaxBars = nLoadedMaxBars + 17;
+	CPPUNIT_ASSERT( pPref->hasPendingChanges() );
+
+	// ...and stays pending while further edits arrive - the write-through
+	// coalesces them, it does not track individual fields.
+	pPref->m_nMaxBars = nLoadedMaxBars + 1;
+	CPPUNIT_ASSERT( pPref->hasPendingChanges() );
+
+	// Reverting to the last persisted state before the write-through
+	// fires leaves nothing to write.
+	pPref->m_nMaxBars = nLoadedMaxBars;
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+
+	// A save - explicit (dialog OK, OSC, teardown) or write-through -
+	// persists the state and clears the pending flag.
+	pPref->m_nMaxBars = nLoadedMaxBars + 17;
+	CPPUNIT_ASSERT( pPref->save( true ) );
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+	CPPUNIT_ASSERT_EQUAL( QString::number( nLoadedMaxBars + 17 ).toStdString(),
+						  readLeafOnDisk( sPath, "maxBars" ).toStdString() );
+
+	// Reverting *after* a save is a real change again: the clean point
+	// follows the last persisted state, not what was once loaded.
+	pPref->m_nMaxBars = nLoadedMaxBars;
+	CPPUNIT_ASSERT( pPref->hasPendingChanges() );
+
+	// The pending change is a revert-to-baseline: the merge deliberately
+	// does not write such rows back (ADR 0023), so the save leaves the
+	// disk value untouched - but it still clears the pending flag.
+	CPPUNIT_ASSERT( pPref->save( true ) );
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+	CPPUNIT_ASSERT_EQUAL( QString::number( nLoadedMaxBars + 17 ).toStdString(),
+						  readLeafOnDisk( sPath, "maxBars" ).toStdString() );
+
+	___INFOLOG( "passed" );
+}
+
+void PreferencesPersistTest::testWriteThroughOwnershipMask() {
+	___INFOLOG( "" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
+	Filesystem::setPreferencesOverwritePath( sPath );
+
+	auto pPref = Preferences::load( sPath, true, pTestHydrogen() );
+	CPPUNIT_ASSERT( pPref != nullptr );
+
+	// An editor mirror owns only GUI base rows. Tagging the ownership
+	// after load must not by itself register as pending.
+	pPref->setFieldOwnership( Preferences::FieldOwnership::GuiOwned );
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+
+	// Override-layer rows are outside the mask: changing them is not this
+	// instance's business to write through.
+	pPref->m_audioDriver = Preferences::AudioDriver::Jack;
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+
+	// GUI-owned base rows are.
+	pPref->m_sPreferredLanguage = "zz";
+	CPPUNIT_ASSERT( pPref->hasPendingChanges() );
+
+	___INFOLOG( "passed" );
+}
+
+void PreferencesPersistTest::testSaveCopyAsLeavesChangesPending() {
+	___INFOLOG( "" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
+	Filesystem::setPreferencesOverwritePath( sPath );
+
+	auto pPref = Preferences::load( sPath, true, pTestHydrogen() );
+	CPPUNIT_ASSERT( pPref != nullptr );
+
+	pPref->m_nMaxBars = pPref->m_nMaxBars + 17;
+	CPPUNIT_ASSERT( pPref->hasPendingChanges() );
+
+	// Exporting a copy must not mark the shared-config state persisted.
+	const QString sCopyPath = tmp.path() + "/copy.conf";
+	CPPUNIT_ASSERT( pPref->saveCopyAs( sCopyPath, true ) );
+	CPPUNIT_ASSERT( pPref->hasPendingChanges() );
+
+	// The real save does.
+	CPPUNIT_ASSERT( pPref->save( true ) );
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+
+	___INFOLOG( "passed" );
+}
+
+void PreferencesPersistTest::testWriteThroughIgnoresForeignDiskWrites() {
+	___INFOLOG( "" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sPath = tmp.path() + "/hydrogen.conf";
+	seedConfig( sPath );
+	Filesystem::setPreferencesOverwritePath( sPath );
+
+	auto pPref = Preferences::load( sPath, true, pTestHydrogen() );
+	CPPUNIT_ASSERT( pPref != nullptr );
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+
+	// Another process edits the file. Pending is memory-based: a foreign
+	// edit is nothing for this instance's write-through to do.
+	// (Row-level reconciliation is the merge's job on the next save.)
+	editLeafOnDisk( sPath, "maxBars", "42" );
+	CPPUNIT_ASSERT( ! pPref->hasPendingChanges() );
+
+	___INFOLOG( "passed" );
+}

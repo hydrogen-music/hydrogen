@@ -677,15 +677,21 @@ void MainForm::createMenuBar()
 void MainForm::startAutosaveTimer() {
 	int nAutosavesPerHour = HydrogenApp::pPreferences()->m_nAutosavesPerHour;
 
-	if ( nAutosavesPerHour > 0 ) {
-		if ( nAutosavesPerHour > 360 ) {
-			ERRORLOG( QString( "Too many autosaves per hour set [%1]. Using 360 - once a second - instead." )
+	if ( nAutosavesPerHour > 360 ) {
+		ERRORLOG( QString( "Too many autosaves per hour set [%1]. Using 360 - once a second - instead." )
 					  .arg( nAutosavesPerHour ) );
-			nAutosavesPerHour = 360;
-		}
-		m_AutosaveTimer.start( std::round( 60 * 60 * 1000 /
-										   static_cast<float>(nAutosavesPerHour) ) );
+		nAutosavesPerHour = 360;
 	}
+
+	// The timer always runs: besides the song/playlist autosave it drives
+	// the debounced write-through of preference changes (ADR 0023). With
+	// song autosave disabled it keeps ticking at a slow floor for the
+	// write-through alone.
+	const int nIntervalMs = nAutosavesPerHour > 0
+		? static_cast<int>( std::round(
+			  60 * 60 * 1000 / static_cast<float>( nAutosavesPerHour ) ) )
+		: 60 * 1000;
+	m_AutosaveTimer.start( nIntervalMs );
 }
 
 void MainForm::action_donate()
@@ -2725,6 +2731,27 @@ void MainForm::onAutoSaveTimer()
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	auto pPlaylist = pHydrogen->getPlaylist();
+
+	// Debounced write-through of preference changes (ADR 0023): bounds the
+	// crash-loss window of changes without an explicit save trigger. First,
+	// so an early return in the song part below cannot skip it.
+	auto pPref = HydrogenApp::pPreferences();
+	if ( pPref->hasPendingChanges() ) {
+		// A failed save must not pass silently (ADR 0023 - bounded retry,
+		// never block).
+		if ( ! pPref->save( false ) ) {
+			QMessageBox::warning(
+				this, "Hydrogen",
+				HydrogenApp::get_instance()->getCommonStrings()
+					->getPreferencesSaveFailure() );
+		}
+	}
+
+	// Song/playlist autosave is opt-in via the autosave rate; the timer
+	// keeps running for the write-through alone when it is disabled.
+	if ( HydrogenApp::pPreferences()->m_nAutosavesPerHour < 1 ) {
+		return;
+	}
 
 	if ( pSong != nullptr && pSong->getIsModified() ) {
 		// In case the song was loaded from a .h2project bundle, the user must

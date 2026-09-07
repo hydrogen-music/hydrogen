@@ -2535,21 +2535,30 @@ void removeRowElements( XMLNode& parent, const FieldRow& row )
 	}
 }
 
-// The row's footprint as a freshly default-constructed instance would write it
-// — the comparison base for rows the loaded baseline lacks, so unchanged
-// defaults are not written.
-QString defaultFootprint( const FieldRow& row, const PreferencesData& defaults,
-						  const WriteContext& context )
+// The row's footprint as the passed instance state would write it. The single
+// definition shared by the merge diff (persistRows) and the write-through
+// pending check (currentFootprint), so the two can never drift apart.
+QString rowFootprint( const FieldRow& row, const PreferencesData& data,
+					  const WriteContext& context )
 {
 	XMLDoc doc;
 	XMLNode parent( doc.set_root( "footprint" ) );
 	for ( int jj = 0; jj < 3 && row.path[ jj ] != nullptr; ++jj ) {
 		parent = parent.createNode( row.path[ jj ] );
 	}
-	row.write( parent, row, defaults, context );
-	// Normalize like the current-side footprint below.
+	row.write( parent, row, data, context );
+	// Normalize like the baseline side.
 	stripWhitespaceTextNodes( parent );
 	return serializeRowElements( parent, row );
+}
+
+// The row's footprint as a freshly default-constructed instance would write it
+// — the comparison base for rows the loaded baseline lacks, so unchanged
+// defaults are not written.
+QString defaultFootprint( const FieldRow& row, const PreferencesData& defaults,
+						  const WriteContext& context )
+{
+	return rowFootprint( row, defaults, context );
 }
 
 // Whether every element matched by the row is bare - present on disk but
@@ -2567,6 +2576,31 @@ bool rowElementsAreBare( const XMLNode& parent, const FieldRow& row )
 }
 
 } // namespace
+
+QString PreferencesSchema::currentFootprint(
+	const PreferencesData& data,
+	Preferences::FieldOwnership ownership,
+	const WriteContext& context
+)
+{
+	// Ownership-eligible rows only: rows outside the instance's mask are
+	// not its business to write through, so they must not register as
+	// pending either (ADR 0023).
+	QString sFootprint;
+	for ( int ii = 0; ii < kSchemaRowCount; ++ii ) {
+		const FieldRow& row = kSchemaRows[ ii ];
+		if ( ! rowEligible( row, ownership ) ) {
+			continue;
+		}
+		QString sLabel;
+		for ( int jj = 0; jj < 3 && row.path[ jj ] != nullptr; ++jj ) {
+			sLabel += QString( row.path[ jj ] ) + '/';
+		}
+		sLabel += QString( row.key );
+		sFootprint += sLabel + '=' + rowFootprint( row, data, context ) + '\n';
+	}
+	return sFootprint;
+}
 
 int PreferencesSchema::persistRows(
 	XMLNode& rootNode,
@@ -2596,16 +2630,7 @@ int PreferencesSchema::persistRows(
 		}
 
 		// Current footprint: the row as this instance would write it.
-		XMLDoc currentDoc;
-		XMLNode currentParent( currentDoc.set_root( "footprint" ) );
-		for ( int jj = 0; jj < 3 && row.path[ jj ] != nullptr; ++jj ) {
-			currentParent = currentParent.createNode( row.path[ jj ] );
-		}
-		row.write( currentParent, row, data, context );
-		// A fresh empty text node (`<a></a>`) must compare equal to a parsed
-		// empty element (`<a/>`): normalize both sides.
-		stripWhitespaceTextNodes( currentParent );
-		const QString sCurrent = serializeRowElements( currentParent, row );
+		const QString sCurrent = rowFootprint( row, data, context );
 
 		XMLNode baselineParent;
 		if ( ! baselineRoot.isNull() ) {

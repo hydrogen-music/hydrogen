@@ -41,6 +41,7 @@
 #include <QColor>
 #include <QDir>
 #include <QDomDocument>
+#include <QMutex>
 #include <QStringList>
 
 namespace H2Core {
@@ -543,9 +544,12 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	 *
 	 * @param bSilent whether log messages should be suppressed. */
 	bool save( const bool bSilent = false ) const;
-	void setFieldOwnership( FieldOwnership ownership ) {
-		m_fieldOwnership = ownership;
-	}
+
+	/** Tags which rows this instance may write to the shared user config
+	 * (ADR 0022/0023). Called once at process startup; re-bases the
+	 * write-through clean point so the mask switch itself does not
+	 * register as pending. */
+	void setFieldOwnership( FieldOwnership ownership );
 	FieldOwnership getFieldOwnership() const { return m_fieldOwnership; }
 	/** Instead of a `saveAs` method #Preferences only provides a
 	 * #saveCopyAs() method to indicate that corresponding file won't change
@@ -556,6 +560,12 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	/** The XML baseline retained from load (ADR 0023). Empty when this instance
 	 * was never loaded from disk. See #m_baselineXml. */
 	const QByteArray& getBaselineXml() const { return m_baselineXml; }
+
+	/** Whether any ownership-eligible row moved since the last persist
+	 * (load or successful #save()) - the input of the GUI's debounced
+	 * write-through (ADR 0023). #saveCopyAs() does not count as a
+	 * persist. See #m_sPersistedFootprint. */
+	bool hasPendingChanges() const;
 
 	/** Serialize only the core-related preferences (audio engine, MIDI, JACK,
 	 * OSC, export, beat-counter, rubberband, metronome, max bars, hear new
@@ -859,6 +869,25 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	/** Which rows this instance may write to the shared user config; see
 	 * #FieldOwnership. Runtime process state, never serialized. */
 	FieldOwnership m_fieldOwnership = FieldOwnership::All;
+
+	/** Computes the ownership-masked row footprint of the current state;
+	 *  the comparison base of #hasPendingChanges(). */
+	QString computeFootprint() const;
+	/** Sets #m_sPersistedFootprint to the current footprint. */
+	void refreshPersistedFootprint() const;
+
+	/** Guards #m_sPersistedFootprint: save() may run on the OSC server
+	 *  thread while the GUI's write-through timer reads the pending
+	 *  state. */
+	mutable QMutex m_persistedFootprintMutex;
+
+	/** Footprint of the ownership-eligible rows at the last persist — end
+	 *  of load(), a successful save(), or setFieldOwnership(). Runtime
+	 *  cache for #hasPendingChanges(), never serialized. Unlike
+	 *  #m_baselineXml it follows the persisted state, so a revert after a
+	 *  save registers as pending again. Empty for a never-persisted
+	 *  instance, which then reports pending until its first save. */
+	mutable QString m_sPersistedFootprint;
 };
 
 inline const QString& Preferences::getLastExportPatternAsDirectory() const

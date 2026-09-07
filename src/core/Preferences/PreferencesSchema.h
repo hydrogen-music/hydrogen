@@ -312,6 +312,14 @@ public:
 							Preferences::FieldOwnership ownership,
 							const WriteContext& context );
 
+	/** Concatenated footprint of all ownership-eligible rows as the passed
+	 *  state would write them — the comparison base of the write-through
+	 *  pending check (ADR 0023). Shares the per-row definition with
+	 *  #persistRows, so merge diff and pending check cannot drift apart. */
+	static QString currentFootprint( const PreferencesData& data,
+									 Preferences::FieldOwnership ownership,
+									 const WriteContext& context );
+
 	/** Applies all rows — or only those owned by ownerFilter when given — from
 	 *  the document rooted at rootNode onto data. Rows whose parent path is
 	 *  missing are skipped (reported via WARNINGLOG depending on

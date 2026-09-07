@@ -50,6 +50,10 @@ class PreferencesPersistTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testShortcutsRowReplacedWholesale );
 	CPPUNIT_TEST( testPatternColorRowPersisted );
 	CPPUNIT_TEST( testMissingShortcutsElementDefersDefaults );
+	CPPUNIT_TEST( testWriteThroughPendingChanges );
+	CPPUNIT_TEST( testWriteThroughOwnershipMask );
+	CPPUNIT_TEST( testSaveCopyAsLeavesChangesPending );
+	CPPUNIT_TEST( testWriteThroughIgnoresForeignDiskWrites );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -71,6 +75,10 @@ public:
 	void testShortcutsRowReplacedWholesale();
 	void testPatternColorRowPersisted();
 	void testMissingShortcutsElementDefersDefaults();
+	void testWriteThroughPendingChanges();
+	void testWriteThroughOwnershipMask();
+	void testSaveCopyAsLeavesChangesPending();
+	void testWriteThroughIgnoresForeignDiskWrites();
 };
 
 #endif

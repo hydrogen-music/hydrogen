@@ -37,6 +37,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QLockFile>
+#include <QtCore/QMutexLocker>
 
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Helpers/Xml.h>
@@ -170,10 +171,37 @@ Preferences::Preferences( std::shared_ptr<Preferences> pOther )
 	m_pMidiInstrumentMap =
 		std::make_shared<MidiInstrumentMap>( pOther->m_pMidiInstrumentMap );
 	m_baselineXml = pOther->m_baselineXml;
+	// The copy carries identical values, so it inherits the source's
+	// write-through clean point exactly.
+	m_sPersistedFootprint = pOther->m_sPersistedFootprint;
 }
 
 Preferences::~Preferences()
 {
+}
+
+bool Preferences::hasPendingChanges() const {
+	QMutexLocker mx( &m_persistedFootprintMutex );
+	return computeFootprint() != m_sPersistedFootprint;
+}
+
+QString Preferences::computeFootprint() const {
+	PreferencesSchema::WriteContext context;
+	context.bSilent = true;
+	return PreferencesSchema::currentFootprint( *this, m_fieldOwnership,
+												context );
+}
+
+void Preferences::refreshPersistedFootprint() const {
+	QMutexLocker mx( &m_persistedFootprintMutex );
+	m_sPersistedFootprint = computeFootprint();
+}
+
+void Preferences::setFieldOwnership( FieldOwnership ownership ) {
+	m_fieldOwnership = ownership;
+	// The pending check is ownership-masked: re-base the clean point so
+	// the mask switch itself does not register as pending.
+	refreshPersistedFootprint();
 }
 
 std::shared_ptr<Preferences> Preferences::load(
@@ -249,6 +277,10 @@ std::shared_ptr<Preferences> Preferences::load(
 	// Surface config drift (typos, stale or foreign elements) instead of
 	// silently dropping it (ADR 0023 amendment).
 	PreferencesSchema::checkForUnknownElements( rootNode );
+
+	// The write-through clean point: the post-load state, migrations
+	// included, so a freshly loaded instance starts out clean (ADR 0023).
+	pPref->refreshPersistedFootprint();
 
 	return pPref;
 }
@@ -402,6 +434,16 @@ bool Preferences::save( const bool bSilent ) const
 	// register as this instance's own changes (and get clobbered). Rows
 	// this instance changed are re-written on every save - idempotent and
 	// last-writer-wins per field (ADR 0023).
+	//
+	// The write-through clean point, in contrast, follows the persisted
+	// state: explicit saves (dialog OK, OSC, teardown) and write-through
+	// saves alike clear the pending flag. A mutation landing between the
+	// persist above and this refresh is absorbed as clean without being
+	// written - a millisecond window whose consequence is bounded by the
+	// next mutation or the teardown save (same family as the deferred
+	// in-process save serialization).
+	refreshPersistedFootprint();
+
 	return true;
 }
 

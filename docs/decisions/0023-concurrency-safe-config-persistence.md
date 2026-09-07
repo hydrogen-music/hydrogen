@@ -257,6 +257,40 @@ row count. Unknown elements in a config file are reported at load time.
   has non-static data members, so C++17 single-class decomposition
   cannot enumerate them directly.
 
+### Implementation notes (2026-09-07, Phase 4)
+
+* **The debounced write-through rides the GUI autosave heartbeat.** No
+  separate scheduler: `MainForm::onAutoSaveTimer()` flushes pending
+  preference changes before the song/playlist part (which may return
+  early behind a modal dialog). The timer always runs — with song
+  autosave disabled (0/h) it ticks at a 60 s floor for the write-through
+  alone, and the song/playlist part is gated on the rate. GUI processes
+  only, per product decision: h2cli is short-lived and the headless
+  engine's mutation points already have explicit save triggers.
+* **Pending detection is a footprint diff against a persisted-footprint
+  clean point**, not against the load baseline: the baseline never moves
+  (Phase 2), so a baseline diff would report pending forever after the
+  first change. The clean point is set at the end of `load()`, on every
+  successful `save()` (explicit triggers — dialog OK, OSC, teardown —
+  dedupe for free, no call-site rerouting), and in `setFieldOwnership()`
+  (the check is ownership-masked, so the startup mask switch must not
+  itself register as pending). `saveCopyAs()` does not touch it. The
+  per-row definition is shared with `persistRows()` (`rowFootprint()`),
+  so merge diff and pending check cannot drift apart.
+* **Semantics diverge from the merge, deliberately.** The clean point
+  follows the persisted state: a revert *after* a save registers as
+  pending again, while the merge still declines to write
+  revert-to-baseline rows (Phase 2) — such a save is a content no-op
+  that clears pending. A revert *before* any save leaves nothing pending
+  (the debounce value: rapid edits coalesce for free within a tick).
+* **The clean point is mutex-guarded** (`save()` may run on the OSC
+  server thread while the GUI timer reads pending state). Full
+  in-process serialization of concurrent `save()` calls remains
+  deferred (amendment point 5); the cross-process lock still serializes
+  same-process writers, expensively, via the bounded retry budget.
+* **Save failures surface per tick** via the Phase 3 warning string; the
+  bounded retry inside `save()` makes this rare.
+
 ## More Information
 
 * The "shared user config file" is **not** literally `~/.hydrogen`. Its location

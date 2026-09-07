@@ -123,6 +123,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Preference changes are now saved to disk automatically during the
+  session (at the configured autosave rate, or once a minute with
+  autosaving disabled) instead of only on dialog confirmation and
+  application close, bounding the window in which a crash could lose
+  them.
 - On Linux user-level files are now stored in XDG paths
   (`$XDG_CONFIG_HOME/hydrogen/hydrogen.conf`, `$XDG_CACHE_HOME/hydrogen/`,
   `$XDG_DATA_HOME/hydrogen/ `) in case no `~/.hydrogen` folder is present.
