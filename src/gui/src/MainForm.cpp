@@ -142,13 +142,13 @@ MainForm::MainForm( QApplication * pQApplication, const QString& sSongFileName,
 				   sSongFileName.endsWith( Filesystem::sProjectSuffix ) ) ||
 				 ( sSongFileName.isEmpty() &&
 				   sLastSongPath.endsWith( Filesystem::sProjectSuffix ) ) ) {
-				bOk = !openFile(
+				bOk = openFile(
 					Filesystem::Artifact::Project, sSongFileName,
 					pPref->getLastSongPath()
 				);
 			}
 			else {
-				bOk = !openFile(
+				bOk = openFile(
 					Filesystem::Artifact::Song, sSongFileName,
 					pPref->getLastSongPath()
 				);
