@@ -2619,7 +2619,8 @@ Skriva över den befintliga filen?</translation>
     <message>
         <source>Dec. = %1
 MIDI = %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Avk. = %1
+MIDI = %2</translation>
     </message>
 </context>
 <context>
@@ -4650,7 +4651,7 @@ Starta om drivrutinen?</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Colors</source>
