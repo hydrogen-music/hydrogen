@@ -21,6 +21,7 @@
 
 #include <core/IPC/IpcEngineAccess.h>
 
+#include <core/IO/DiskWriterDriver.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
 
@@ -87,4 +88,11 @@ bool IpcEngineAccess::getRecordEnabled() const {
 	return m_pMirror->getRecordEnabled();
 }
 
+bool IpcEngineAccess::isExportWritingFailed() const
+{
+	const auto pDriver =
+		std::dynamic_pointer_cast<DiskWriterDriver>( m_pMirror->getAudioDriver()
+		);
+	return pDriver != nullptr && pDriver->writingFailed();
+}
 };

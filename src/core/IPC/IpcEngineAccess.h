@@ -118,7 +118,9 @@ class IpcEngineAccess : public IEngineAccess,
 		Preferences::AudioDriver /*kind*/, const QString& /*sHostAPI*/
 	) const override { return QStringList(); }
 	QStringList getAudioHostAPIs() const override { return QStringList(); }
-	bool isExportWritingFailed() const override { return false; }
+	/** Audio export using #DiskWriterDriver is only done in the mirror engine
+	 * and not in the authoritative engine. */
+	bool isExportWritingFailed() const override;
 	// --- MIDI driver (ADR 0029) ---
 	//
 	// The headless engine owns MIDI I/O; in editor mode driver state crosses as
