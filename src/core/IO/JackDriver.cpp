@@ -1378,6 +1378,9 @@ int JackDriver::jackDriverBufferSize( jack_nframes_t nframes, void* pInstance )
 	pJackDriver->m_jackServerBufferSize = nframes;
 	pJackDriver->m_pHydrogen->getPreferences()->m_nBufferSize =
 		static_cast<unsigned>( nframes );
+	pJackDriver->m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::AudioDriverChanged, 0
+	);
 
 	return 0;
 }
@@ -1395,6 +1398,9 @@ int JackDriver::jackDriverSampleRate( jack_nframes_t nframes, void* pInstance )
 	pJackDriver->m_jackServerSampleRate = nframes;
 	pJackDriver->m_pHydrogen->getPreferences()->m_nSampleRate =
 		static_cast<unsigned>( nframes );
+	pJackDriver->m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::AudioDriverChanged, 0
+	);
 
 	return 0;
 }
