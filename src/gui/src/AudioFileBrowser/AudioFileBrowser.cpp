@@ -581,6 +581,9 @@ void AudioFileBrowser::updateTransport()
 	}
 	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
+	// The realtime frame is a continuously incremented number. As long as the
+	// authoritative engine and the mirror one in the IPC split share the same
+	// sample rate, we should be good with the mirror engine's frames.
 	const auto nRealtimeFrame = pAudioEngine->getRealtimeFrame();
 	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {
 		return;
