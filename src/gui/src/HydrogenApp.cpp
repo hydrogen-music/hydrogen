@@ -1217,6 +1217,8 @@ void HydrogenApp::showRack(bool show)
 }
 
 void HydrogenApp::showPreferencesDialog() {
+	refreshCachedAudioDriverInfo();
+
 	m_pMainToolBar->setPreferencesVisibilityState( true );
 
 	PreferencesDialog preferencesDialog(m_pMainForm);
