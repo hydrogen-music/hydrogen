@@ -833,6 +833,11 @@ bool MainForm::action_file_save_as()
 	// the original.
 	if ( bUnderSessionManagement ) {
 		pSong->setPath( sLastPath );
+
+		// Ensure the remote engine is in sync.
+		if ( HydrogenApp::isConnectViaIpcMode() ) {
+			HydrogenApp::pEngine()->getCoreActionController()->setSong( pSong );
+		}
 		h2app->showStatusBarMessage( tr( "Song exported as: " ) + sLastPath );
 	}
 	else {
