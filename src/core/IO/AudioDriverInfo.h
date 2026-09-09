@@ -62,6 +62,21 @@ struct AudioDriverInfo {
 	 * (#Preferences::USE_JACK_TRANSPORT) and a JackDriver is active. In editor
 	 * mode this comes from the cached AudioDriverInfo (ADR 0029). */
 	bool jackTransportEnabled = false;
+	/** Rate using which analog signals will be measured and represented as
+	 * digital ones. The values of authoritative engine and mirror must
+	 * match. Initialized to a sane value to guard against division by zero. */
+	int sampleRate = 48000;
+	/** Number of frames handled per sound card interrupt. Initialized to a sane
+	 * value to guard against division by zero. */
+	int bufferSize = 1028;
+	/** Latency componensation supported by some audio drivers. */
+	int latencyFrames = 1028;
+	/** Available options displabed in #PreferencesDialog. */
+	QStringList hostApis;
+	/** Available devices for a specific driver. In case of Portaudio, those
+	 * devices are coupled to a particular host API stored as key. Drivers, for
+	 * which this is not applicable, use an empty key to store all devices. */
+	std::map<QString, QStringList> audioDevices;
 };
 
 }

@@ -1282,6 +1282,9 @@ AudioDriverInfo Hydrogen::getAudioDriverInfo() const {
 	info.isPresent = true;
 	info.isRunning =
 		std::dynamic_pointer_cast<StubAudioDriver>( pDriver ) == nullptr;
+	info.bufferSize = pDriver->getBufferSize();
+	info.sampleRate = pDriver->getSampleRate();
+	info.latencyFrames = pDriver->getLatency();
 
 	// The consolidated software driver (ADR 0031) clocks the engine but may be
 	// headless (no real output). Its producesAudio flag is the authoritative
@@ -1311,11 +1314,19 @@ AudioDriverInfo Hydrogen::getAudioDriverInfo() const {
 			 std::dynamic_pointer_cast<AlsaAudioDriver>( pDriver ) ) {
 		info.kind = Preferences::AudioDriver::Alsa;
 		info.connectedDevice = pAlsa->m_sAlsaAudioDevice;
+		info.audioDevices[ "" ].append( AlsaAudioDriver::getAlsaDevices() );
 		return info;
 	}
 #endif
 #ifdef H2CORE_HAVE_PORTAUDIO
-	if ( std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) != nullptr ) {
+	if ( const auto pPortAudio =
+			 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
+		info.hostApis = pPortAudio->getHostAPIs();
+		for ( const auto& ssHostApi : info.hostApis ) {
+			info.audioDevices[ssHostApi].append(
+				pPortAudio->getDevices( ssHostApi )
+			);
+		}
 		info.kind = Preferences::AudioDriver::PortAudio;
 		return info;
 	}

@@ -88,6 +88,30 @@ bool IpcEngineAccess::getRecordEnabled() const {
 	return m_pMirror->getRecordEnabled();
 }
 
+QStringList IpcEngineAccess::getAudioDevices(
+		Preferences::AudioDriver kind, const QString& sHostAPI
+) const {
+	QStringList devices;
+	const auto info = m_pMirror->getAudioDriverInfo();
+
+	if ( kind == info.kind && kind == Preferences::AudioDriver::PortAudio ) {
+		if ( info.audioDevices.find( sHostAPI ) != info.audioDevices.end() ) {
+			return info.audioDevices.at( sHostAPI );
+		}
+		else {
+			ERRORLOG( QString( "Unknown Host API [%1]. Available ones [%2]" )
+					  .arg( sHostAPI ).arg( info.hostApis.join( ", " ) ));
+			return devices;
+		}
+	}
+	else {
+		if ( info.audioDevices.size() > 1 ) {
+			WARNINGLOG( "More audio device nodes than expected." );
+		}
+		return info.audioDevices.begin()->second;
+	}
+}
+
 bool IpcEngineAccess::isExportWritingFailed() const
 {
 	const auto pDriver =

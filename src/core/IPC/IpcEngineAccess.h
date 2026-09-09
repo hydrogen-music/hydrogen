@@ -111,13 +111,21 @@ class IpcEngineAccess : public IEngineAccess,
 	// mirror Hydrogen; we serve reads from that cache.
 	AudioDriverInfo getAudioDriverInfo() const override {
 		return m_pMirror->getCachedAudioDriverInfo(); }
-	int getAudioSampleRate() const override { return 0; }
-	int getAudioBufferSize() const override { return 0; }
-	int getAudioLatencyFrames() const override { return 0; }
+	int getAudioSampleRate() const override {
+		return m_pMirror->getAudioDriverInfo().sampleRate; }
+	/** For drivers with variable buffer size, like #CoreAudioDriver, the cached
+	 * variable obtained using this call can be considered stale. But since the
+	 * buffer size could change with every processing cycle and it is only used
+	 * within #AudioEngineInfoForm within the GUI, we tolerate it. */
+	int getAudioBufferSize() const override {
+		return m_pMirror->getAudioDriverInfo().bufferSize; }
+	int getAudioLatencyFrames() const override {
+		return m_pMirror->getAudioDriverInfo().latencyFrames; }
 	QStringList getAudioDevices(
 		Preferences::AudioDriver /*kind*/, const QString& /*sHostAPI*/
-	) const override { return QStringList(); }
-	QStringList getAudioHostAPIs() const override { return QStringList(); }
+	) const override;
+	QStringList getAudioHostAPIs() const override {
+		return m_pMirror->getAudioDriverInfo().hostApis; }
 	/** Audio export using #DiskWriterDriver is only done in the mirror engine
 	 * and not in the authoritative engine. */
 	bool isExportWritingFailed() const override;
