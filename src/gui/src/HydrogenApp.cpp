@@ -1235,9 +1235,7 @@ void HydrogenApp::XRunEvent() {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;
 	}
-	showStatusBarMessage(
-		QString( "XRUNS [%1]!!!" ).arg( pEngine()->getAudioXRuns() ),
-		"HydrogenApp::XRunEvent" );
+	showStatusBarMessage( QString( "XRUNS!!!" ), "HydrogenApp::XRunEvent" );
 }
 
 void HydrogenApp::updateWindowTitle()

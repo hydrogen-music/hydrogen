@@ -103,8 +103,6 @@ public:
 	virtual int getAudioBufferSize() const = 0;
 	/** Estimated output latency in frames, 0 when no driver is present. */
 	virtual int getAudioLatencyFrames() const = 0;
-	/** XRuns since the driver started, 0 when no driver is present. */
-	virtual int getAudioXRuns() const = 0;
 	/** Available output devices for the given driver @a kind (and PortAudio
 	 * host API @a sHostAPI, ignored by other drivers). */
 	virtual QStringList getAudioDevices(

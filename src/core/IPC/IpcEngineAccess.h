@@ -114,7 +114,6 @@ class IpcEngineAccess : public IEngineAccess,
 	int getAudioSampleRate() const override { return 0; }
 	int getAudioBufferSize() const override { return 0; }
 	int getAudioLatencyFrames() const override { return 0; }
-	int getAudioXRuns() const override { return 0; }
 	QStringList getAudioDevices(
 		Preferences::AudioDriver /*kind*/, const QString& /*sHostAPI*/
 	) const override { return QStringList(); }

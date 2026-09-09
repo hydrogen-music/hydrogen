@@ -91,7 +91,6 @@ public:
 	int getAudioSampleRate() const override;
 	int getAudioBufferSize() const override;
 	int getAudioLatencyFrames() const override;
-	int getAudioXRuns() const override;
 	QStringList getAudioDevices(
 		Preferences::AudioDriver kind, const QString& sHostAPI ) const override;
 	QStringList getAudioHostAPIs() const override;

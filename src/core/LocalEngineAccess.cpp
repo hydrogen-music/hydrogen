@@ -66,11 +66,6 @@ int LocalEngineAccess::getAudioLatencyFrames() const {
 	return pDriver != nullptr ? pDriver->getLatency() : 0;
 }
 
-int LocalEngineAccess::getAudioXRuns() const {
-	const auto pDriver = m_pHydrogen->getAudioDriver();
-	return pDriver != nullptr ? pDriver->getXRuns() : 0;
-}
-
 QStringList LocalEngineAccess::getAudioDevices(
 	Preferences::AudioDriver kind, const QString& sHostAPI ) const {
 	(void)kind;
