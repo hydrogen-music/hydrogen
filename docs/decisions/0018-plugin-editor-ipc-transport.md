@@ -190,6 +190,19 @@ Since acceptance, the telemetry pipeline was implemented end-to-end for the
    `procTimeCur`/`procTimeMax` from the state mirror's telemetry snapshot
    instead (`HydrogenApp::getEditorSession()->getStateMirror()->getTelemetry()`).
 
+4. **The mirror's sample rate follows the engine.** Frame↔tick conversion
+   (`Transport::computeTickFromFrame` via the local driver rate) turns every
+   telemetry frame into a tick/BBT position, so a rate mismatch between the
+   authoritative engine (e.g. JACK dictating 44100) and the mirror (local
+   preferences) skews the whole transport display. The `GetAudioDriverInfo`
+   reply therefore carries the engine's actual rate, and
+   `Hydrogen::setCachedAudioDriverInfo()` re-rates the mirror's
+   `SoftwareDriver` (`setSampleRate()`: the clock thread is joined around the
+   update, since it reads rate and process interval unsynchronized). The
+   buffer size deliberately stays local — it only paces the mirror's own
+   clock loop; the engine's buffer size and latency ride along in the cached
+   info for display only.
+
 ## More Information
 
 * `src/core/EventQueue.h`, `src/core/Basics/Event.h:56`,

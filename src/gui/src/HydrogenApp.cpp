@@ -622,7 +622,7 @@ void HydrogenApp::refreshCachedAudioDriverInfo() {
 		return;
 	}
 	const auto& args = reply.getArgs();
-	if ( args.size() < 6 ) {
+	if ( args.size() < 9 ) {
 		ERRORLOG( QString( "Ill-formatted reply [%1]" )
 					  .arg( QString( reply.getPayload() ) ) );
 		return;
@@ -635,6 +635,11 @@ void HydrogenApp::refreshCachedAudioDriverInfo() {
 	info.connectedDevice = args[3].toString();
 	info.timebaseState = static_cast<JackDriver::Timebase>( args[4].toInt() );
 	info.jackTransportEnabled = args[5].toBool();
+	info.sampleRate = args[6].toInt();
+	info.bufferSize = args[7].toInt();
+	info.latencyFrames = args[8].toInt();
+	// setCachedAudioDriverInfo() re-rates the mirror's clock driver to the
+	// engine's sample rate (transport math must run on the engine's clock).
 	m_pHydrogen->setCachedAudioDriverInfo( info );
 }
 

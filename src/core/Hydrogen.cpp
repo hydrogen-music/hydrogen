@@ -1366,6 +1366,20 @@ const AudioDriverInfo& Hydrogen::getCachedAudioDriverInfo() const {
 
 void Hydrogen::setCachedAudioDriverInfo( const AudioDriverInfo& info ) {
 	m_cachedAudioDriverInfo = info;
+
+	// ADR 0018/0029: the mirror's frame<->tick conversion runs on its own
+	// driver rate, so the mirror engine must be re-rated to the authoritative
+	// engine's actual rate whenever fresh driver info lands — otherwise every
+	// telemetry frame maps to a wrong tick/BBT position. Only the headless
+	// SoftwareDriver is touched (real drivers own their rate; the export
+	// DiskWriterDriver keeps its own). The buffer size deliberately stays
+	// local: it only paces the mirror's own clock loop.
+	if ( info.sampleRate > 0 ) {
+		if ( const auto pSw = std::dynamic_pointer_cast<SoftwareDriver>(
+				 m_pAudioEngine->getAudioDriver() ) ) {
+			pSw->setSampleRate( static_cast<unsigned>( info.sampleRate ) );
+		}
+	}
 }
 
 MidiDriverInfo Hydrogen::getMidiDriverInfo() const {

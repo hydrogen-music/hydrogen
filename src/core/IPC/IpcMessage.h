@@ -198,7 +198,9 @@ enum class IpcOpcode : quint16 {
 	GetAudioDriverInfo,    ///< reply: args = [int kind, bool isPresent,
 	                        ///<         bool isRunning, QString connectedDevice,
 	                        ///<         int timebaseState,
-	                        ///<         bool jackTransportEnabled]
+	                        ///<         bool jackTransportEnabled,
+	                        ///<         int sampleRate, int bufferSize,
+	                        ///<         int latencyFrames]
 	GetMidiDriverInfo,    ///< reply: args = [bool isPresent, bool isInputActive,
 						  ///<                bool isOutputActive]
 	GetIsUnderSessionManagement, ///< reply: args = [bool]

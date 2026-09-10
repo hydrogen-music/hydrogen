@@ -105,6 +105,35 @@ unsigned SoftwareDriver::getSampleRate() {
 	return m_nSampleRate;
 }
 
+void SoftwareDriver::setSampleRate( unsigned nSampleRate ) {
+	if ( nSampleRate == 0 || nSampleRate == m_nSampleRate ) {
+		return;
+	}
+
+	// The clock thread reads m_nSampleRate / m_processInterval every cycle
+	// without synchronization; join it around the update instead of racing
+	// it. The transport position itself is unaffected — the next
+	// updateTransport() re-derives tick/BBT at the new rate.
+	const bool bWasActive = m_bActive;
+	if ( bWasActive ) {
+		deactivate();
+	}
+
+	m_nSampleRate = nSampleRate;
+	if ( m_nBufferSize > 0 ) {
+		m_processInterval = std::chrono::duration<float>(
+			static_cast<float>( m_nBufferSize ) /
+			static_cast<float>( m_nSampleRate ) );
+	}
+
+	INFOLOG( QString( "nSampleRate: [%1], m_processInterval: [%2]" )
+			 .arg( m_nSampleRate ).arg( m_processInterval.count() ) );
+
+	if ( bWasActive ) {
+		connect();
+	}
+}
+
 float* SoftwareDriver::getOut_L() {
 	return m_pOut_L;
 }

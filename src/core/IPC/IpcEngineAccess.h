@@ -111,16 +111,21 @@ class IpcEngineAccess : public IEngineAccess,
 	// mirror Hydrogen; we serve reads from that cache.
 	AudioDriverInfo getAudioDriverInfo() const override {
 		return m_pMirror->getCachedAudioDriverInfo(); }
+	/** The engine's actual rate (from the cached info). The mirror's clock
+	 * driver is re-rated to it by Hydrogen::setCachedAudioDriverInfo(), so
+	 * the mirror's own frame<->tick conversion agrees (ADR 0018/0029). */
 	int getAudioSampleRate() const override {
-		return m_pMirror->getAudioDriverInfo().sampleRate; }
+		return m_pMirror->getCachedAudioDriverInfo().sampleRate; }
 	/** For drivers with variable buffer size, like #CoreAudioDriver, the cached
 	 * variable obtained using this call can be considered stale. But since the
 	 * buffer size could change with every processing cycle and it is only used
-	 * within #AudioEngineInfoForm within the GUI, we tolerate it. */
+	 * within #AudioEngineInfoForm within the GUI, we tolerate it. The engine's
+	 * value is display-only — the mirror's own buffer size deliberately stays
+	 * local (it just paces the mirror's clock loop). */
 	int getAudioBufferSize() const override {
-		return m_pMirror->getAudioDriverInfo().bufferSize; }
+		return m_pMirror->getCachedAudioDriverInfo().bufferSize; }
 	int getAudioLatencyFrames() const override {
-		return m_pMirror->getAudioDriverInfo().latencyFrames; }
+		return m_pMirror->getCachedAudioDriverInfo().latencyFrames; }
 	QStringList getAudioDevices(
 		Preferences::AudioDriver /*kind*/, const QString& /*sHostAPI*/
 	) const override;

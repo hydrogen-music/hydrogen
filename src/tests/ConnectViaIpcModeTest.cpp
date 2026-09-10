@@ -34,6 +34,7 @@
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
+#include <core/IO/AudioDriverInfo.h>
 #include <core/IO/SoftwareDriver.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/EditorStateMirror.h>
@@ -631,6 +632,154 @@ void ConnectViaIpcModeTest::testTelemetryLateAttach() {
 
 	pSession.reset();
 	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0018/0029: the GetAudioDriverInfo reply must carry the engine's actual
+// sample rate (plus buffer size and latency, for display). The editor needs
+// the rate to keep its mirror engine's frame<->tick conversion on the
+// engine's clock — see testMirrorSyncsSampleRate.
+void ConnectViaIpcModeTest::testAudioDriverInfoCarriesSampleRate() {
+	___INFOLOG( "" );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	auto* pEngine = TestHelper::makeMirror();
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	// Drain the initial song snapshot so it does not precede the reply.
+	IpcMessage initialState;
+	pSession->getChannel()->receive( initialState, 500, false );
+
+	IpcMessage reply;
+	CPPUNIT_ASSERT( pSession->getChannel()->request(
+		IpcMessage( IpcOpcode::GetAudioDriverInfo ), reply, 3000 ) );
+	const auto& args = reply.getArgs();
+	CPPUNIT_ASSERT( args.size() >= 9 );
+
+	const auto pEngineDriver = pEngine->getAudioDriver();
+	CPPUNIT_ASSERT( pEngineDriver != nullptr );
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( pEngineDriver->getSampleRate() ), args[6].toInt() );
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( pEngineDriver->getBufferSize() ), args[7].toInt() );
+	CPPUNIT_ASSERT_EQUAL(
+		static_cast<int>( pEngineDriver->getLatency() ), args[8].toInt() );
+
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The mirror engine must run at the authoritative engine's sample rate: its
+// frame<->tick conversion (Transport::computeTickFromFrame via the local
+// driver rate) turns every telemetry frame into a tick/BBT position, so a
+// rate mismatch skews the whole transport display. The buffer size, on the
+// other hand, only paces the mirror's own clock loop and deliberately stays
+// local. Hydrogen::setCachedAudioDriverInfo() — fed by the GUI's
+// refreshCachedAudioDriverInfo() — enforces the invariant.
+void ConnectViaIpcModeTest::testMirrorSyncsSampleRate() {
+	___INFOLOG( "" );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	// The editor mirror runs at its local (config-file) rate ...
+	auto* pMirror = TestHelper::makeMirror();
+	auto pMirrorDriver = std::dynamic_pointer_cast<SoftwareDriver>(
+		pMirror->getAudioDriver() );
+	CPPUNIT_ASSERT( pMirrorDriver != nullptr );
+	const int nEditorRate = static_cast<int>( pMirrorDriver->getSampleRate() );
+	const auto nMirrorBufferSize = pMirrorDriver->getBufferSize();
+
+	// ... while the host imposes a different rate on the engine. Preferences
+	// instances are per-engine (ADR 0015, no process singleton), so the
+	// engine stand-in is built directly with a rate-override config — like
+	// TestHelper::makeEngine(), but headless-clocked and at 32000.
+	const int nEngineRate = 32000;
+	CPPUNIT_ASSERT( nEngineRate != nEditorRate );
+	auto pEnginePref = Preferences::create_instance();
+	EditorSession::configureMirrorPreferences( pEnginePref );
+	pEnginePref->m_nSampleRate = nEngineRate;
+	auto* pEngine = new Hydrogen( pEnginePref, ProcessMode::Headless, -1 );
+	pEngine->setFullyOperational( true );
+	CPPUNIT_ASSERT_EQUAL( nEngineRate,
+						  static_cast<int>(
+							  pEngine->getAudioDriver()->getSampleRate() ) );
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	IpcMessage initialState;
+	pSession->getChannel()->receive( initialState, 500, false );
+	// The mirror applies the initial song snapshot asynchronously; the
+	// transport math below needs a song.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	// Pre-sync: the mirror still runs on the editor's local rate.
+	CPPUNIT_ASSERT_EQUAL( nEditorRate,
+						  static_cast<int>( pMirrorDriver->getSampleRate() ) );
+
+	// What HydrogenApp::refreshCachedAudioDriverInfo() does: fetch, parse,
+	// cache. setCachedAudioDriverInfo() must re-rate the mirror's driver.
+	IpcMessage reply;
+	CPPUNIT_ASSERT( pSession->getChannel()->request(
+		IpcMessage( IpcOpcode::GetAudioDriverInfo ), reply, 3000 ) );
+	const auto& args = reply.getArgs();
+	CPPUNIT_ASSERT( args.size() >= 9 );
+	AudioDriverInfo info;
+	info.kind = static_cast<Preferences::AudioDriver>( args[0].toInt() );
+	info.isPresent = args[1].toBool();
+	info.isRunning = args[2].toBool();
+	info.connectedDevice = args[3].toString();
+	info.timebaseState = static_cast<JackDriver::Timebase>( args[4].toInt() );
+	info.jackTransportEnabled = args[5].toBool();
+	info.sampleRate = args[6].toInt();
+	info.bufferSize = args[7].toInt();
+	info.latencyFrames = args[8].toInt();
+	pMirror->setCachedAudioDriverInfo( info );
+
+	// The mirror's clock driver now runs at the engine's rate ...
+	CPPUNIT_ASSERT_EQUAL( nEngineRate,
+						  static_cast<int>( pMirrorDriver->getSampleRate() ) );
+	// ... the cache carries the engine's values ...
+	CPPUNIT_ASSERT_EQUAL( nEngineRate,
+						  pMirror->getCachedAudioDriverInfo().sampleRate );
+	// ... while the buffer size stays local (it only paces the mirror's
+	// own loop).
+	CPPUNIT_ASSERT_EQUAL( nMirrorBufferSize, pMirrorDriver->getBufferSize() );
+
+	// Transport math: a telemetry frame authored on the engine's clock maps
+	// to the same tick the engine would compute for it. getTick() is the
+	// rounded public accessor; a rate mismatch (32000 vs the editor rate)
+	// would skew the tick by hundreds, far beyond the rounding tolerance.
+	const long long nFrame = static_cast<long long>( nEngineRate ) * 2; // 2 s
+	pMirror->getCoreActionController()->relocateToFrame( nFrame );
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+	const double fExpectedTick =
+		Transport::computeTickFromFrame( nFrame, nEngineRate, pMirror );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		fExpectedTick,
+		static_cast<double>(
+			pMirror->getAudioEngine()->getPlayhead()->getTick() ),
+		1.0 );
+
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
 
 	___INFOLOG( "passed" );
 }

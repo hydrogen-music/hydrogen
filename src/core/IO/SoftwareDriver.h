@@ -68,6 +68,15 @@ public:
 	}
 	virtual unsigned getSampleRate() override;
 
+	/** Re-rate this driver at runtime (e.g. the editor mirror aligning to the
+	 * authoritative engine's actual sample rate, ADR 0018/0029 — frame↔tick
+	 * conversion runs on the local driver rate, so a mismatch skews the whole
+	 * transport). The clock thread reads the rate and the derived process
+	 * interval unsynchronized, so it is stopped and restarted around the
+	 * update; the buffer size — which only paces the local loop — is left
+	 * untouched. */
+	void setSampleRate( unsigned nSampleRate );
+
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 

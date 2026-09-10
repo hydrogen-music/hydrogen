@@ -700,7 +700,13 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 			.arg( info.isRunning )
 			.arg( info.connectedDevice )
 			.arg( static_cast<int>( info.timebaseState ) )
-			.arg( info.jackTransportEnabled );
+			.arg( info.jackTransportEnabled )
+			// The engine's actual rate — the editor mirror must be re-rated
+			// to it (frame<->tick conversion, ADR 0018/0029). Buffer size and
+			// latency ride along for display only.
+			.arg( info.sampleRate )
+			.arg( info.bufferSize )
+			.arg( info.latencyFrames );
 		break;
 	}
 	case IpcOpcode::GetMidiDriverInfo: {
