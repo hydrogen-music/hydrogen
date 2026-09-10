@@ -322,6 +322,14 @@ public:
 	 * (peak-hold consume). The engine owns the peak lifecycle; the meter only
 	 * reads and applies its own fall-off (ADR 0027 bucket D). */
 	void			consumeMasterPeaks( float& fPeak_L, float& fPeak_R );
+	/** Display-only master-peak setters: the editor mirror's telemetry apply
+	 * (EditorStateMirror::applyMeterSnapshot, ADR 0018) writes the
+	 * authoritative engine's peaks here so the GUI's existing
+	 * #consumeMasterPeaks consumers work unchanged in editor mode. The local
+	 * render path never calls these (in editor mode it is gated off
+	 * entirely). */
+	void			setMasterPeak_L( float val );
+	void			setMasterPeak_R( float val );
 
 	float			getProcessTime() const;
 	float			getMaxProcessTime() const;
@@ -848,6 +856,14 @@ inline void AudioEngine::consumeMasterPeaks( float& fPeak_L, float& fPeak_R ) {
 	fPeak_R = m_fMasterPeak_R;
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
+}
+
+inline void AudioEngine::setMasterPeak_L( float val ) {
+	m_fMasterPeak_L = val;
+}
+
+inline void AudioEngine::setMasterPeak_R( float val ) {
+	m_fMasterPeak_R = val;
 }
 
 inline float AudioEngine::getProcessTime() const {

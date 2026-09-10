@@ -35,6 +35,8 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/EditorStateMirror.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 
@@ -107,11 +109,30 @@ void AudioEngineInfoForm::updateInfo()
 	char tmp[100];
 
 	// Process time
-	int perc = 0;
-	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
-		perc= (int)( pAudioEngine->getProcessTime() / ( pAudioEngine->getMaxProcessTime() / 100.0 ) );
+	float fProcessTime = 0.0;
+	float fMaxProcessTime = 0.0;
+
+	const auto pSession = HydrogenApp::getEditorSession();
+	if ( HydrogenApp::isConnectViaIpcMode() && pSession != nullptr &&
+		 pSession->getStateMirror() != nullptr ) {
+		// ADR 0018: in editor mode the authoritative process time lives in the
+		// headless engine and arrives via the telemetry snapshot. The mirror's
+		// own AudioEngine members must not be overwritten with it — they size
+		// the mirror's tryLockFor slack budget.
+		const auto& telemetry = pSession->getStateMirror()->getTelemetry();
+		fProcessTime = telemetry.procTimeCur;
+		fMaxProcessTime = telemetry.procTimeMax;
 	}
-	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", pAudioEngine->getProcessTime(), pAudioEngine->getMaxProcessTime(), perc );
+	else {
+		fProcessTime = pAudioEngine->getProcessTime();
+		fMaxProcessTime = pAudioEngine->getMaxProcessTime();
+	}
+
+	int perc = 0;
+	if ( fMaxProcessTime != 0.0 ) {
+		perc = (int)( fProcessTime / ( fMaxProcessTime / 100.0 ) );
+	}
+	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", fProcessTime, fMaxProcessTime, perc );
 	processTimeLbl->setText(tmp);
 
 	// Song state

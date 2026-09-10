@@ -25,7 +25,10 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
@@ -199,7 +202,7 @@ void ConnectViaIpcModeTest::testEngineBuildsTransportSnapshot() {
 	___INFOLOG( "" );
 
 	auto* pEngine = TestHelper::makeMirror(); // a headless engine stands in for the host
-	auto snapshot = EngineSession::buildTransportSnapshot( pEngine );
+	auto snapshot = EngineSession::buildTelemetrySnapshot( pEngine );
 	CPPUNIT_ASSERT( snapshot.playing == 0 );
 	CPPUNIT_ASSERT( snapshot.bpm > 0.0f );
 
@@ -303,6 +306,330 @@ void ConnectViaIpcModeTest::testMirrorFollowsTransportTelemetry() {
 	CPPUNIT_ASSERT( bRelocated );
 	CPPUNIT_ASSERT_EQUAL( nExpected, pAudioEngine->getPlayhead()->getFrame() );
 
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0018 metering, engine side: the snapshot carries the full telemetry
+// payload, not just transport — master / per-instrument / playback-track
+// peaks, process time, and BBT. The peaks are read consume-style (read +
+// reset, ADR 0027): in the headless engine process no GUI consumes them, so a
+// plain read would latch at the running maximum (the pre-existing
+// playback-track bug).
+void ConnectViaIpcModeTest::testEngineBuildsFullSnapshot() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeMirror(); // a headless engine stands in for the host
+	auto pAudioEngine = pEngine->getAudioEngine();
+	auto pSong = pEngine->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	CPPUNIT_ASSERT( pSong->getDrumkit() != nullptr );
+	auto pInstruments = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->size() > 0 );
+	auto pInstr0 = pInstruments->get( 0 );
+	CPPUNIT_ASSERT( pInstr0 != nullptr );
+
+	// The playback-track instrument is created lazily; stand in for
+	// loadPlaybackTrack().
+	auto pPlaybackTrack = pSong->getPlaybackTrackInstrument();
+	if ( pPlaybackTrack == nullptr ) {
+		pPlaybackTrack = std::make_shared<Instrument>( Instrument::PlaybackTrackId );
+		pSong->setPlaybackTrackInstrument( pPlaybackTrack );
+	}
+
+	// Move off frame 0 so the BBT fields are non-trivial, then prime the
+	// engine-side meter state the audio thread would normally write.
+	pEngine->getCoreActionController()->relocateToFrame( 40000 );
+	while ( pEngine->getEventQueue()->popEvent() != nullptr ) {}
+	pAudioEngine->setMasterPeak_L( 0.7f );
+	pAudioEngine->setMasterPeak_R( 0.5f );
+	pInstr0->setPeak_L( 0.3f );
+	pInstr0->setPeak_R( 0.2f );
+	pPlaybackTrack->setPeak_L( 0.4f );
+	pPlaybackTrack->setPeak_R( 0.35f );
+
+	// A degraded build (lock contention with the clock thread) is a legitimate
+	// runtime outcome — the editor just polls again 50ms later — so the test
+	// retries instead of failing. A degraded build does not consume the primed
+	// peaks (the consume reads sit inside the locked section), so no re-prime
+	// is needed between attempts.
+	auto snapshot = EngineSession::buildTelemetrySnapshot( pEngine );
+	for ( int ii = 0; ii < 10 && snapshot.masterPeakL == 0.0f; ++ii ) {
+		std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
+		snapshot = EngineSession::buildTelemetrySnapshot( pEngine );
+	}
+	auto pPlayhead = pAudioEngine->getPlayhead();
+
+	// Transport fields (carried over from the transport-only era).
+	CPPUNIT_ASSERT( snapshot.playing == 0 );
+	CPPUNIT_ASSERT( snapshot.bpm > 0.0f );
+	CPPUNIT_ASSERT_EQUAL( pPlayhead->getFrame(),
+						  static_cast<long long>( snapshot.frame ) );
+
+	// BBT crosses as well (the editor derives it locally from the frame, but
+	// the fields must not be dead).
+	CPPUNIT_ASSERT_EQUAL( pPlayhead->getBar(), static_cast<int>( snapshot.bar ) );
+	CPPUNIT_ASSERT_EQUAL( pPlayhead->getBeat(), static_cast<int>( snapshot.beat ) );
+	CPPUNIT_ASSERT_EQUAL( static_cast<int32_t>( pPlayhead->getTick() ),
+						  snapshot.tick );
+
+	// Master peaks.
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.7, snapshot.masterPeakL, 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, snapshot.masterPeakR, 0.001 );
+
+	// Per-instrument peaks, in drumkit order.
+	CPPUNIT_ASSERT( snapshot.instPeakCount > 0 );
+	CPPUNIT_ASSERT( static_cast<int>( snapshot.instPeakCount ) <=
+					static_cast<int>( pInstruments->size() ) );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.3, snapshot.peakL[0], 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.2, snapshot.peakR[0], 0.001 );
+
+	// Playback-track peaks.
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.4, snapshot.playbackTrackPeakL, 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.35, snapshot.playbackTrackPeakR, 0.001 );
+
+	// Process time of the authoritative engine (plain reads).
+	CPPUNIT_ASSERT( snapshot.procTimeCur >= 0.0f );
+	CPPUNIT_ASSERT( snapshot.procTimeMax >= 0.0f );
+
+	// Consume semantics: building the snapshot reset the engine-side
+	// accumulators, so a headless engine (no GUI consumer) can not latch at
+	// the running maximum.
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, pAudioEngine->getMasterPeak_L(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, pAudioEngine->getMasterPeak_R(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, pInstr0->getPeak_L(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0, pPlaybackTrack->getPeak_L(), 0.001 );
+
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The per-instrument peak array is capped at ENGINE_TELEMETRY_MAX_INSTRUMENTS
+// (ADR 0018): instruments beyond the cap get no meter and instPeakCount
+// reports the actual number of valid entries.
+void ConnectViaIpcModeTest::testEngineSnapshotCapsInstrumentPeaks() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeMirror();
+	auto pAudioEngine = pEngine->getAudioEngine();
+	auto pInstruments = pEngine->getSong()->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments != nullptr );
+
+	// Grow the kit past the cap (under the engine lock — the mirror's clock
+	// thread still runs the transport loop).
+	pAudioEngine->lock( RIGHT_HERE );
+	while ( pInstruments->size() < ENGINE_TELEMETRY_MAX_INSTRUMENTS + 4 ) {
+		pInstruments->add( std::make_shared<Instrument>() );
+	}
+	pInstruments->get( 5 )->setPeak_L( 0.21f );
+	pInstruments->get( ENGINE_TELEMETRY_MAX_INSTRUMENTS + 1 )
+		->setPeak_L( 0.9f );
+	pAudioEngine->unlock();
+
+	// Retry around degraded builds (lock contention), as above. The primed
+	// peaks survive a degraded attempt untouched.
+	auto snapshot = EngineSession::buildTelemetrySnapshot( pEngine );
+	for ( int ii = 0; ii < 10 && snapshot.instPeakCount == 0; ++ii ) {
+		std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
+		snapshot = EngineSession::buildTelemetrySnapshot( pEngine );
+	}
+
+	CPPUNIT_ASSERT_EQUAL( ENGINE_TELEMETRY_MAX_INSTRUMENTS,
+						  static_cast<int>( snapshot.instPeakCount ) );
+	// In-cap instrument crossed; the over-cap one is simply not represented.
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.21, snapshot.peakL[5], 0.001 );
+
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0018 metering, editor side: applyMeterSnapshot() pushes the meter half
+// of the telemetry onto the mirror's regular state holders — AudioEngine
+// master peaks, per-instrument peaks in drumkit order, playback-track peaks —
+// so the GUI's existing consumers (Mixer faders, playback-track fader) work
+// unchanged. Values are max-merged so a blip between two applies can not be
+// lost before the GUI consumes it, and the GUI's consumePeaks() reset
+// semantics stay intact. Transport fields in the same snapshot are ignored:
+// they belong to the hybrid transport sync (ADR 0031), which must never run
+// at meter cadence.
+void ConnectViaIpcModeTest::testMirrorAppliesMeterTelemetry() {
+	___INFOLOG( "" );
+
+	auto* pMirror = TestHelper::makeMirror();
+	EditorStateMirror mirror( pMirror );
+	auto pAudioEngine = pMirror->getAudioEngine();
+	auto pSong = pMirror->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstruments = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments != nullptr );
+	CPPUNIT_ASSERT( pInstruments->size() >= 2 );
+	auto pPlaybackTrack = pSong->getPlaybackTrackInstrument();
+	if ( pPlaybackTrack == nullptr ) {
+		pPlaybackTrack = std::make_shared<Instrument>( Instrument::PlaybackTrackId );
+		pSong->setPlaybackTrackInstrument( pPlaybackTrack );
+	}
+
+	EngineTelemetrySnapshot snapshot;
+	snapshot.playing = 1;          // must NOT be applied by the meter path
+	snapshot.frame = 12345;        // ditto
+	snapshot.bpm = 180.0f;         // ditto
+	snapshot.masterPeakL = 0.7f;
+	snapshot.masterPeakR = 0.5f;
+	snapshot.instPeakCount = 2;
+	snapshot.peakL[0] = 0.3f;  snapshot.peakR[0] = 0.2f;
+	snapshot.peakL[1] = 0.1f;  snapshot.peakR[1] = 0.15f;
+	snapshot.playbackTrackPeakL = 0.4f;
+	snapshot.playbackTrackPeakR = 0.35f;
+
+	mirror.applyMeterSnapshot( snapshot );
+
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.7, pAudioEngine->getMasterPeak_L(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, pAudioEngine->getMasterPeak_R(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		0.3, pInstruments->get( 0 )->getPeak_L(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		0.2, pInstruments->get( 0 )->getPeak_R(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		0.1, pInstruments->get( 1 )->getPeak_L(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		0.4, pPlaybackTrack->getPeak_L(), 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		0.35, pPlaybackTrack->getPeak_R(), 0.001 );
+
+	// Meter-only: the transport fields of the same snapshot were not applied
+	// (a fresh mirror sits at frame 0, stopped).
+	CPPUNIT_ASSERT( pAudioEngine->getState() != AudioEngine::State::Playing );
+	CPPUNIT_ASSERT_EQUAL( static_cast<long long>( 0 ),
+						  pAudioEngine->getPlayhead()->getFrame() );
+
+	// Max-merge: a smaller follow-up value can not erase a blip the GUI has
+	// not consumed yet.
+	EngineTelemetrySnapshot lower;
+	lower.instPeakCount = 1;
+	lower.peakL[0] = 0.05f;
+	mirror.applyMeterSnapshot( lower );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		0.3, pInstruments->get( 0 )->getPeak_L(), 0.001 );
+
+	// The GUI consume (read + reset, ADR 0027) still works on top.
+	float fPeakL = 0.0f, fPeakR = 0.0f;
+	pInstruments->get( 0 )->consumePeaks( fPeakL, fPeakR );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.3, fPeakL, 0.001 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(
+		0.0, pInstruments->get( 0 )->getPeak_L(), 0.001 );
+
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// End-to-end metering (ADR 0018): peaks written engine-side travel the
+// shared-memory telemetry block onto the editor mirror's state holders — the
+// engine's bridge thread publishes, the mirror's meter-cadence timer (driven
+// by the GUI event loop) applies — without any widget involvement.
+void ConnectViaIpcModeTest::testTelemetryMetersFlowEngineToEditor() {
+	___INFOLOG( "" );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	// Engine side: served by the production EngineSession serve loop.
+	auto* pEngine = TestHelper::makeMirror();
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	// serve() reports the listening endpoint before it creates the telemetry
+	// block; wait for the block so the editor's attach does not lose that
+	// startup race.
+	EngineTelemetryShm probe;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return probe.attach( EngineTelemetryShm::keyForEndpoint( sEndpoint ) );
+	} ) );
+	probe.detach();
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	// Drain the initial song snapshot so it does not sit in front of the
+	// telemetry updates.
+	IpcMessage initialState;
+	pSession->getChannel()->receive( initialState, 500, false );
+
+	const auto pInstruments = pMirror->getSong()->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments != nullptr );
+	CPPUNIT_ASSERT( pInstruments->size() > 0 );
+
+	// Engine-side meters move. The bridge thread consumes each publish cycle
+	// (~50 ms), so keep re-priming like a rolling audio thread would; the
+	// editor's meter timer must pick the values up.
+	auto pEngineInstruments =
+		pEngine->getSong()->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pEngineInstruments->size() > 0 );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		pEngine->getAudioEngine()->setMasterPeak_L( 0.6f );
+		pEngineInstruments->get( 0 )->setPeak_L( 0.25f );
+		return pMirror->getAudioEngine()->getMasterPeak_L() > 0.5f &&
+			pInstruments->get( 0 )->getPeak_L() > 0.2f;
+	} ) );
+
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Late telemetry attach: when the editor connects within the engine serve()
+// startup window (listen reported before the telemetry block exists), the
+// initial attach fails silently (events-only fallback). Once the block
+// appears, the next forced sync must re-attach and bring the meter pipeline
+// alive instead of staying events-only for the whole session.
+void ConnectViaIpcModeTest::testTelemetryLateAttach() {
+	___INFOLOG( "" );
+
+	// Engine stand-in WITHOUT a telemetry block: a plain IpcServer, standing
+	// for the window between listen() and block creation in serve().
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+	IpcMessage hello;
+	CPPUNIT_ASSERT( conn->receive( hello ) ); // drain the handshake
+
+	// The block appears late.
+	EngineTelemetryShm engineBlock;
+	CPPUNIT_ASSERT( engineBlock.create(
+		EngineTelemetryShm::keyForEndpoint( server.serverName() ) ) );
+
+	EngineTelemetrySnapshot snapshot;
+	snapshot.masterPeakL = 0.6f;
+	snapshot.instPeakCount = 1;
+	snapshot.peakL[0] = 0.25f;
+
+	auto pStateMirror = pSession->getStateMirror();
+	CPPUNIT_ASSERT( pStateMirror != nullptr );
+	const auto pInstruments = pMirror->getSong()->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments != nullptr );
+	CPPUNIT_ASSERT( pInstruments->size() > 0 );
+
+	// Forced syncs (reconnect, transport events) retry the attach; once it
+	// succeeds, the meter timer applies the published peaks.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		engineBlock.store( snapshot );
+		pStateMirror->forceTransportSync();
+		return pMirror->getAudioEngine()->getMasterPeak_L() > 0.5f &&
+			pInstruments->get( 0 )->getPeak_L() > 0.2f;
+	} ) );
+
+	pSession.reset();
 	delete pMirror;
 
 	___INFOLOG( "passed" );

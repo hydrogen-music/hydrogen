@@ -23,8 +23,10 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -35,6 +37,7 @@
 #include <core/IPC/EngineTelemetry.h>
 #include <core/IPC/EngineTelemetryShm.h>
 
+#include <algorithm>
 #include <chrono>
 
 #include <QtCore/QThread>
@@ -186,7 +189,7 @@ void EngineSession::discardEvents() {
 	}
 }
 
-EngineTelemetrySnapshot EngineSession::buildTransportSnapshot( Hydrogen* pEngine ) {
+EngineTelemetrySnapshot EngineSession::buildTelemetrySnapshot( Hydrogen* pEngine ) {
 	EngineTelemetrySnapshot snapshot;
 	if ( pEngine == nullptr ) {
 		return snapshot;
@@ -195,25 +198,66 @@ EngineTelemetrySnapshot EngineSession::buildTransportSnapshot( Hydrogen* pEngine
 	if ( pAudioEngine == nullptr ) {
 		return snapshot;
 	}
+
+	// The peaks are read consume-style (read + reset, ADR 0027): in the
+	// headless engine process no GUI consumes them, so a plain read would
+	// latch at the running maximum. The consume is a read-modify-write that
+	// must not race the audio thread's max-hold, so take the engine lock with
+	// a small budget (the audio thread itself only try-locks, so this can not
+	// starve it). On contention the snapshot degrades to the transport-only
+	// fields — meters blip for one cycle, which the lossy-tolerant telemetry
+	// classification (ADR 0018) accepts.
+	const bool bLocked = pAudioEngine->tryLockFor(
+		std::chrono::microseconds( 2000 ), RIGHT_HERE );
+
 	auto pPlayhead = pAudioEngine->getPlayhead();
 	if ( pPlayhead != nullptr ) {
 		snapshot.frame = pPlayhead->getFrame();
 		snapshot.tick = static_cast<int32_t>( pPlayhead->getTick() );
+		snapshot.bar = static_cast<int32_t>( pPlayhead->getBar() );
+		snapshot.beat = static_cast<int32_t>( pPlayhead->getBeat() );
 		snapshot.bpm = pPlayhead->getBpm();
 	}
 	snapshot.playing =
 		( pAudioEngine->getState() == AudioEngine::State::Playing ) ? 1 : 0;
 
-	// Playback-track peaks: read from the playback-track instrument so the
-	// editor can render the playback-track waveform without accessing the
-	// engine's instrument layer directly.
-	auto pSong = pEngine->getSong();
-	if ( pSong != nullptr ) {
-		auto pPlaybackTrack = pSong->getPlaybackTrackInstrument();
-		if ( pPlaybackTrack != nullptr ) {
-			snapshot.playbackTrackPeakL = pPlaybackTrack->getPeak_L();
-			snapshot.playbackTrackPeakR = pPlaybackTrack->getPeak_R();
+	// Process time of the authoritative engine (plain reads; advisory).
+	snapshot.procTimeCur = pAudioEngine->getProcessTime();
+	snapshot.procTimeMax = pAudioEngine->getMaxProcessTime();
+
+	if ( bLocked ) {
+		pAudioEngine->consumeMasterPeaks( snapshot.masterPeakL,
+										  snapshot.masterPeakR );
+
+		auto pSong = pEngine->getSong();
+		if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+			// Per-instrument peaks in drumkit order — the same order the
+			// editor's mirror applies them in. Instruments beyond the fixed
+			// cap get no meter (ADR 0018).
+			const auto pInstruments = pSong->getDrumkit()->getInstruments();
+			const int nCount = std::min( static_cast<int>( pInstruments->size() ),
+										 ENGINE_TELEMETRY_MAX_INSTRUMENTS );
+			for ( int ii = 0; ii < nCount; ++ii ) {
+				auto pInstrument = pInstruments->get( ii );
+				if ( pInstrument == nullptr ) {
+					continue;
+				}
+				pInstrument->consumePeaks( snapshot.peakL[ ii ],
+										   snapshot.peakR[ ii ] );
+			}
+			snapshot.instPeakCount = static_cast<uint16_t>( nCount );
+
+			// Playback-track peaks, consumed for the same latch reason as
+			// above: without a GUI consumer in the headless process a plain
+			// read would never fall.
+			auto pPlaybackTrack = pSong->getPlaybackTrackInstrument();
+			if ( pPlaybackTrack != nullptr ) {
+				pPlaybackTrack->consumePeaks( snapshot.playbackTrackPeakL,
+											  snapshot.playbackTrackPeakR );
+			}
 		}
+
+		pAudioEngine->unlock();
 	}
 
 	return snapshot;
@@ -223,10 +267,12 @@ void EngineSession::publishTelemetry() {
 	if ( m_pTelemetry == nullptr ) {
 		return;
 	}
-	// Read off the bridge thread without the engine lock: the values are advisory
-	// (the editor only uses them for a coarse ~5 s drift correction) and the
-	// seqlock store keeps the reader's copy tear-free.
-	m_pTelemetry->store( buildTransportSnapshot( m_pEngine ) );
+	// Published from the bridge thread at the serve-loop cadence (~50 ms), not
+	// from the audio thread per buffer (amendment to ADR 0018): 20 Hz covers
+	// the editor's meter refresh while keeping the audio thread 100% IPC-free.
+	// The seqlock store keeps the editor's copy tear-free; values the audio
+	// thread races on (playhead, peaks) are advisory and lossy-tolerant.
+	m_pTelemetry->store( buildTelemetrySnapshot( m_pEngine ) );
 }
 
 }

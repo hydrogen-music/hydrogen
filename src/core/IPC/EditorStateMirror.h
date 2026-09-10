@@ -53,9 +53,12 @@ class IpcChannel;
  *   the GUI reacts exactly as it would to a local engine.
  * - **Song / state snapshots** (#IpcOpcode::SetSong / ::LoadState) replace the
  *   mirror's song, so structural edits made engine-side appear in the editor.
- * - **Telemetry** snapshots (transport position / BPM / peaks) are read from the
- *   lock-free QSharedMemory block (not the socket) and used to keep the
- *   mirror's transport following the host/headless engine (ADR 0031 hybrid
+ * - **Telemetry** snapshots (transport position / BPM / peaks / process time)
+ *   are read from the lock-free QSharedMemory block (not the socket) and used
+ *   at two cadences (ADR 0018): the meter half (master / per-instrument /
+ *   playback-track peaks) is applied onto the mirror's regular state holders
+ *   at ~20 Hz so the GUI's existing meters work unchanged, while the transport
+ *   half keeps the mirror following the host/headless engine (ADR 0031 hybrid
  *   sync): the mirror's own clock free-runs the playhead for smoothness,
  *   inbound transport events trigger an immediate correction, and a periodic
  *   timer bounds long-run drift.
@@ -75,6 +78,12 @@ public:
 	 * state with respect to the telemetry data. */
 	static constexpr int nResyncTimeoutMs = 5000;
 
+	/** Number of milliseconds between meter syncs (peaks / process time) from
+	 * the telemetry block — matching the GUI's meter refresh cadence (ADR
+	 * 0018). Transport sync deliberately does NOT run at this rate: snapping
+	 * a rolling playhead at 20 Hz would jerk it (ADR 0031). */
+	static constexpr int nMeterSyncTimeoutMs = 50;
+
 	/** \param pMirror the editor-side headless engine to keep in sync; not owned. */
 	explicit EditorStateMirror( Hydrogen* pMirror, QObject* pParent = nullptr );
 	~EditorStateMirror() override;
@@ -91,14 +100,29 @@ public:
 	const EngineTelemetrySnapshot& getTelemetry() const { return m_telemetry; }
 
 	/** Attach to the engine's telemetry block (keyed off the IPC endpoint) and
-	 * start the periodic drift-correction timer. No-op / events-only fallback if
-	 * the block is absent or its layout version mismatches. */
+	 * start the periodic timers: the ~20 Hz meter sync and the ~5 s transport
+	 * drift correction. When the block is not there yet (the engine's serve
+	 * loop reports its endpoint before creating the block), only the drift
+	 * timer runs and every forced / event-triggered sync retries the attach —
+	 * a late block still brings the meters alive. A layout-version mismatch
+	 * keeps the events-only fallback. */
 	void attachTelemetry( const QString& sEndpoint );
 
 	/** Apply one transport snapshot to the mirror: follow play/stop, tempo, and
 	 * (only when stopped, or on a large divergence) the absolute frame. Public so
 	 * it is unit-testable with an injected snapshot, bypassing shared memory. */
 	void applyTransportSnapshot( const EngineTelemetrySnapshot& snapshot );
+
+	/** Apply the meter half of a telemetry snapshot to the mirror's regular
+	 * state holders — #AudioEngine master peaks, per-instrument peaks in
+	 * drumkit order, playback-track peaks — so the GUI's existing meter
+	 * consumers (Mixer faders, playback-track fader) work unchanged in editor
+	 * mode (ADR 0018). Values are max-merged (a blip between two applies can
+	 * not be lost before the GUI consumes it); the reset stays with the GUI's
+	 * consume calls (ADR 0027). Transport fields are deliberately ignored —
+	 * they belong to #applyTransportSnapshot and its hybrid cadence (ADR
+	 * 0031). Public so it is unit-testable with an injected snapshot. */
+	void applyMeterSnapshot( const EngineTelemetrySnapshot& snapshot );
 
 	/** Force an immediate transport re-sync from the telemetry block. Public so
 	 * the GUI can trigger it right after connecting, without waiting for the
@@ -109,15 +133,30 @@ private slots:
 	void onMessageReceived( const H2Core::IpcMessage& msg );
 	/** Load the latest telemetry and apply it (timer tick / transport event). */
 	void syncTransportFromTelemetry();
+	/** Load the latest telemetry and apply its meter half (meter timer tick). */
+	void syncMetersFromTelemetry();
 
 private:
+	/** Attach the shm block if not yet attached and an endpoint is known, and
+	 * start the meter timer on success. Called from attachTelemetry() and
+	 * retried from syncTransportFromTelemetry() so a block appearing late
+	 * (engine serve() startup race) still activates telemetry. */
+	void tryAttachTelemetry();
+
 	/** Editor-side headless engine kept in sync; not owned. */
 	Hydrogen* m_pMirror;
 	EngineTelemetrySnapshot m_telemetry;
 	/** Reader for the engine's telemetry block; invalid until attachTelemetry(). */
 	EngineTelemetryShm m_telemetryShm;
+	/** Endpoint the telemetry block is keyed off; remembered by
+	 * attachTelemetry() for the attach retries in #tryAttachTelemetry. */
+	QString m_sTelemetryEndpoint;
 	/** Periodic forced re-sync (~5 s) to bound drift; owned via QObject parenting. */
 	QTimer* m_pResyncTimer = nullptr;
+	/** Meter-cadence (~20 Hz) peak / process-time sync; created by
+	 * tryAttachTelemetry() once the block is attached; owned via QObject
+	 * parenting. */
+	QTimer* m_pMeterTimer = nullptr;
 };
 }
 

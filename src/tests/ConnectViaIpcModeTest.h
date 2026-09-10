@@ -34,7 +34,12 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testIssuesCommands );
 	CPPUNIT_TEST( testEngineSurvivesEditorDisconnect );
 	CPPUNIT_TEST( testEngineBuildsTransportSnapshot );
+	CPPUNIT_TEST( testEngineBuildsFullSnapshot );
+	CPPUNIT_TEST( testEngineSnapshotCapsInstrumentPeaks );
 	CPPUNIT_TEST( testMirrorFollowsTransportTelemetry );
+	CPPUNIT_TEST( testMirrorAppliesMeterTelemetry );
+	CPPUNIT_TEST( testTelemetryMetersFlowEngineToEditor );
+	CPPUNIT_TEST( testTelemetryLateAttach );
 	CPPUNIT_TEST( testEngineAccessFallsBackToLocal );
 	CPPUNIT_TEST( testSyncViaIpc );
 	CPPUNIT_TEST_SUITE_END();
@@ -46,7 +51,12 @@ public:
 	void testIssuesCommands();
 	void testEngineSurvivesEditorDisconnect();
 	void testEngineBuildsTransportSnapshot();
+	void testEngineBuildsFullSnapshot();
+	void testEngineSnapshotCapsInstrumentPeaks();
 	void testMirrorFollowsTransportTelemetry();
+	void testMirrorAppliesMeterTelemetry();
+	void testTelemetryMetersFlowEngineToEditor();
+	void testTelemetryLateAttach();
 	void testEngineAccessFallsBackToLocal();
 	void testSyncViaIpc();
 };

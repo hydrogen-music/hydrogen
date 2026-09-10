@@ -23,13 +23,18 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcChannel.h>
 
 #include <QtCore/QTimer>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 
@@ -99,35 +104,133 @@ bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 }
 
 void EditorStateMirror::attachTelemetry( const QString& sEndpoint ) {
-	if ( ! m_telemetryShm.attach(
-			 EngineTelemetryShm::keyForEndpoint( sEndpoint ) ) ) {
-		// No block (or version mismatch): the mirror still follows play/stop via
-		// the event-triggered path; it just gets no frame/drift correction.
-		return;
-	}
+	m_sTelemetryEndpoint = sEndpoint;
 
 	// Periodic forced re-sync (~5 s) bounds long-run drift between the mirror's
 	// own free-running clock and the (remote) headless engine (ADR 0031).
 	// Event-driven syncs handle the immediate cases (play/stop/seek) between
-	// ticks.
+	// ticks. The timer runs even without an attached block: every sync
+	// retries the attach (see tryAttachTelemetry), so a block appearing late
+	// still activates telemetry.
 	m_pResyncTimer = new QTimer( this );
 	m_pResyncTimer->setInterval( EditorStateMirror::nResyncTimeoutMs );
 	connect( m_pResyncTimer, &QTimer::timeout,
 			 this, &EditorStateMirror::syncTransportFromTelemetry );
 	m_pResyncTimer->start();
+
+	tryAttachTelemetry();
+}
+
+void EditorStateMirror::tryAttachTelemetry() {
+	if ( m_telemetryShm.isValid() || m_sTelemetryEndpoint.isEmpty() ) {
+		return;
+	}
+	if ( ! m_telemetryShm.attach(
+			 EngineTelemetryShm::keyForEndpoint( m_sTelemetryEndpoint ) ) ) {
+		// No block yet (or a version mismatch): the mirror still follows
+		// play/stop via the event-triggered path; it just gets no
+		// frame/drift correction and no meters until a retry succeeds.
+		return;
+	}
+
+	// Meter sync at the GUI's meter cadence (ADR 0018): peaks and process
+	// time are lossy-tolerant "latest value wins" data, unlike the ordered
+	// event stream on the socket.
+	m_pMeterTimer = new QTimer( this );
+	m_pMeterTimer->setInterval( EditorStateMirror::nMeterSyncTimeoutMs );
+	connect( m_pMeterTimer, &QTimer::timeout,
+			 this, &EditorStateMirror::syncMetersFromTelemetry );
+	m_pMeterTimer->start();
 }
 
 void EditorStateMirror::syncTransportFromTelemetry() {
+	if ( ! m_telemetryShm.isValid() ) {
+		// The initial attach may have lost the race against the engine's
+		// serve() startup (the endpoint is reported before the block is
+		// created); retry rather than staying events-only for the whole
+		// session.
+		tryAttachTelemetry();
+		if ( ! m_telemetryShm.isValid() ) {
+			return;
+		}
+	}
 	EngineTelemetrySnapshot snapshot;
 	if ( ! m_telemetryShm.load( snapshot ) ) {
-		return; // not attached / version mismatch
+		return; // version mismatch
 	}
 	m_telemetry = snapshot;
 	applyTransportSnapshot( snapshot );
 }
 
+void EditorStateMirror::syncMetersFromTelemetry() {
+	EngineTelemetrySnapshot snapshot;
+	if ( ! m_telemetryShm.load( snapshot ) ) {
+		return; // not attached / version mismatch
+	}
+	m_telemetry = snapshot;
+	applyMeterSnapshot( snapshot );
+}
+
 void EditorStateMirror::forceTransportSync() {
 	syncTransportFromTelemetry();
+}
+
+void EditorStateMirror::applyMeterSnapshot(
+	const EngineTelemetrySnapshot& snapshot ) {
+	if ( m_pMirror == nullptr ) {
+		return;
+	}
+	auto pAudioEngine = m_pMirror->getAudioEngine();
+	if ( pAudioEngine == nullptr ) {
+		return;
+	}
+
+	// Max-merge: the engine consumed its accumulators when publishing, so a
+	// smaller follow-up value would erase a blip the GUI has not consumed
+	// yet. The reset stays with the GUI's consume calls (ADR 0027). In editor
+	// mode these members have no other writer — the mirror's render path is
+	// gated off in AudioEngine::audioEngine_process() — so this GUI-thread
+	// write is race-free.
+	pAudioEngine->setMasterPeak_L(
+		std::max( pAudioEngine->getMasterPeak_L(), snapshot.masterPeakL ) );
+	pAudioEngine->setMasterPeak_R(
+		std::max( pAudioEngine->getMasterPeak_R(), snapshot.masterPeakR ) );
+
+	auto pSong = m_pMirror->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return;
+	}
+
+	// Per-instrument peaks in drumkit order — the same order the engine
+	// filled them in. The mirror's song tracks the engine's via the SetSong
+	// snapshots; a transient index mismatch while edits are in flight only
+	// blips a meter (lossy-tolerant, ADR 0018).
+	const auto pInstruments = pSong->getDrumkit()->getInstruments();
+	const int nCount = std::min( {
+		static_cast<int>( snapshot.instPeakCount ),
+		static_cast<int>( pInstruments->size() ),
+		ENGINE_TELEMETRY_MAX_INSTRUMENTS } );
+	for ( int ii = 0; ii < nCount; ++ii ) {
+		auto pInstrument = pInstruments->get( ii );
+		if ( pInstrument == nullptr ) {
+			continue;
+		}
+		pInstrument->setPeak_L(
+			std::max( pInstrument->getPeak_L(), snapshot.peakL[ ii ] ) );
+		pInstrument->setPeak_R(
+			std::max( pInstrument->getPeak_R(), snapshot.peakR[ ii ] ) );
+	}
+
+	// Playback-track peaks, same max-merge.
+	auto pPlaybackTrack = pSong->getPlaybackTrackInstrument();
+	if ( pPlaybackTrack != nullptr ) {
+		pPlaybackTrack->setPeak_L(
+			std::max( pPlaybackTrack->getPeak_L(),
+					  snapshot.playbackTrackPeakL ) );
+		pPlaybackTrack->setPeak_R(
+			std::max( pPlaybackTrack->getPeak_R(),
+					  snapshot.playbackTrackPeakR ) );
+	}
 }
 
 void EditorStateMirror::applyTransportSnapshot(

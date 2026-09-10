@@ -131,6 +131,13 @@ class HydrogenApp : public QObject,
 	 * 0016/0022/0032). */
 	static bool isConnectViaIpcMode() { return m_bConnectViaIpcMode; }
 
+	/** The editor-mode session (channel + state mirror), or nullptr in
+	 * standalone / before setEditorBootstrap(). Widgets use it to read the
+	 * telemetry snapshot the state mirror keeps applying (ADR 0018). */
+	static H2Core::EditorSession* getEditorSession() {
+		return m_pEditorSession.get();
+	}
+
 	/** Actual connection state of the IPC channel (not the startup flag
 	 * #isConnectViaIpcMode). Returns false in standalone mode or when the
 	 * channel has been closed (user-initiated disconnect or connection loss). */

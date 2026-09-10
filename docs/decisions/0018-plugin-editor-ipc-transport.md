@@ -1,6 +1,7 @@
 ---
 status: accepted
 date: 2026-06-08
+amended: 2026-09-10
 deciders: pm
 ---
 
@@ -142,6 +143,52 @@ version is negotiated in `hello`; a mismatch fails gracefully.
   the instance, name per instance, clean up on teardown/crash).
 * The `CoreActionController` surface effectively becomes the IPC command schema;
   changes to it must be reflected in the protocol.
+
+## Amendment (2026-09-10): full telemetry payload, bridge-thread publish, editor-side apply
+
+Since acceptance, the telemetry pipeline was implemented end-to-end for the
+`--connect-via-ipc` editor mode. Three points refine the accepted text above
+(which is kept as the baseline):
+
+1. **Publishing thread — bridge thread, not the audio thread.** The accepted
+   text says the engine writes the block "each audio buffer". The
+   implementation instead publishes from the engine's IPC bridge thread
+   (`EngineSession::publishTelemetry`) at a **~50 ms cadence** — enough for
+   meters, and it keeps even the seqlock write off the audio thread. The
+   bridge thread builds the snapshot under a short `tryLockFor` on the engine
+   mutex; the audio thread only ever *try*-locks that mutex, so neither
+   thread can block the other. On lock contention the publish degrades to a
+   transport-only snapshot for that cycle (meter fields zero) — the editor
+   simply sees a stale meter for 50 ms.
+
+2. **Peaks are read consume-style (ADR 0027).** `buildTelemetrySnapshot`
+   reads master / per-instrument / playback-track peaks with the existing
+   consume (read + reset) accessors rather than plain reads. In the headless
+   engine process no GUI drains these accumulators, so a plain read would
+   latch at the running maximum — the pre-existing playback-track meter bug.
+   Per-instrument peaks are capped at the 256-entry array in drumkit order,
+   with `instPeakCount` reporting the valid entries. Process time is a plain
+   read (it is not an accumulator).
+
+3. **Editor-side apply — GUI-thread-only writes.** Transport fields stay on
+   the accepted hybrid path (events + 5 s resync, ADR 0031). The meter
+   payload is applied by a new **50 ms GUI-thread timer** in
+   `EditorStateMirror` (`syncMetersFromTelemetry` → `applyMeterSnapshot`)
+   which **max-merges** the snapshot peaks onto the mirror's existing peak
+   members. The mirror is the sole writer of those members in editor mode
+   (its render path is gated on `!= ProcessMode::Editor`), so all writes
+   happen on the GUI thread — race-free by the same argument as
+   [ADR 0029](0029-value-views-over-live-pointers.md). The shm block may not
+   exist yet when the editor learns the endpoint (`serve()` advertises it
+   first), so the mirror retries the attach lazily on each transport sync
+   until it succeeds.
+
+   **Process time is deliberately *not* written into the mirror's
+   `AudioEngine` process-time members**: those size the mirror's own
+   `tryLockFor` slack budget and must reflect the mirror's local render cost.
+   Widgets (`Footer` CPU label, `AudioEngineInfoForm`) read
+   `procTimeCur`/`procTimeMax` from the state mirror's telemetry snapshot
+   instead (`HydrogenApp::getEditorSession()->getStateMirror()->getTelemetry()`).
 
 ## More Information
 

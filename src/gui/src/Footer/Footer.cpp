@@ -28,6 +28,8 @@ https://www.gnu.org/licenses
 #include "../HydrogenApp.h"
 
 #include <core/Hydrogen.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/EditorStateMirror.h>
 
 using namespace H2Core;
 
@@ -142,12 +144,30 @@ void Footer::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 
 void Footer::updateCpuLoad() {
 	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
+	float fProcessTime = 0.0;
+	float fMaxProcessTime = 0.0;
+
+	const auto pSession = HydrogenApp::getEditorSession();
+	if ( HydrogenApp::isConnectViaIpcMode() && pSession != nullptr &&
+		 pSession->getStateMirror() != nullptr ) {
+		// ADR 0018: in editor mode the authoritative process time lives in the
+		// headless engine and arrives via the telemetry snapshot. The mirror's
+		// own AudioEngine members must not be overwritten with it — they size
+		// the mirror's tryLockFor slack budget.
+		const auto& telemetry = pSession->getStateMirror()->getTelemetry();
+		fProcessTime = telemetry.procTimeCur;
+		fMaxProcessTime = telemetry.procTimeMax;
+	}
+	else {
+		fProcessTime = pAudioEngine->getProcessTime();
+		fMaxProcessTime = pAudioEngine->getMaxProcessTime();
+	}
+
 	int nPercentage = 0;
-	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
+	if ( fMaxProcessTime != 0.0 ) {
 		nPercentage = std::clamp(
 			static_cast<int>(
-				std::round( pAudioEngine->getProcessTime() /
-							pAudioEngine->getMaxProcessTime() * 100 ) ), 0, 100 );
+				std::round( fProcessTime / fMaxProcessTime * 100 ) ), 0, 100 );
 	}
 
 	if ( nPercentage >= Footer::nCpuLoadWarningThreshold &&
