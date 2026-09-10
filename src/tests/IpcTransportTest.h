@@ -31,6 +31,7 @@ class IpcTransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testProxyCommandReachesEngine );
 	CPPUNIT_TEST( testProxyMarshalsParameterCommands );
 	CPPUNIT_TEST( testRequestResponseRoundTrip );
+	CPPUNIT_TEST( testRequestDropsStaleReply );
 	CPPUNIT_TEST( testProxySetSongPayload );
 	CPPUNIT_TEST( testProxyObjectPayloadCommands );
 	CPPUNIT_TEST( testProxyPlaylistCommands );
@@ -45,6 +46,7 @@ public:
 	void testProxyCommandReachesEngine();
 	void testProxyMarshalsParameterCommands();
 	void testRequestResponseRoundTrip();
+	void testRequestDropsStaleReply();
 	void testProxySetSongPayload();
 	void testProxyObjectPayloadCommands();
 	void testProxyPlaylistCommands();

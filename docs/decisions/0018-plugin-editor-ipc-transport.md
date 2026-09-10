@@ -147,7 +147,7 @@ version is negotiated in `hello`; a mismatch fails gracefully.
 ## Amendment (2026-09-10): full telemetry payload, bridge-thread publish, editor-side apply
 
 Since acceptance, the telemetry pipeline was implemented end-to-end for the
-`--connect-via-ipc` editor mode. Five points refine the accepted text above
+`--connect-via-ipc` editor mode. Six points refine the accepted text above
 (which is kept as the baseline):
 
 1. **Publishing thread — bridge thread, not the audio thread.** The accepted
@@ -222,6 +222,22 @@ Since acceptance, the telemetry pipeline was implemented end-to-end for the
    early-return. The periodic `syncViaIpc()` pull remains as a drift bound;
    its ordering (song before selection) is load-bearing, because applying a
    selection clamps against the mirror's drumkit.
+
+6. **Channel delivery is mode-split: the editor queue is for replies only.**
+   `IpcChannel` originally double-delivered every received frame — emitted via
+   `messageReceived` *and* queued in `m_pending` for a blocking `receive()`.
+   That is right for the engine side (its serve loop polls via `receive()`),
+   but the editor consumes via the signal and never polls: non-reply frames
+   queued anyway would accumulate for the whole session (nothing pops them —
+   `request()` re-queues non-matching frames), and every `request()` would
+   copy the ever-growing queue out and back on each poll slice. Channels now
+   carry a `DeliveryMode`: **Poll** (engine side, white-box tests — queue
+   everything, unchanged) and **Signal** (editor channels, set in
+   `EditorSession::connect` — emit only, queue just correlated replies so
+   `request()` still works). As hardening, `request()` drops a *stale* reply
+   — one whose id belongs to an earlier, timed-out request — instead of
+   re-queueing it forever; with one request in flight at a time it can never
+   be correlated again.
 
 ## More Information
 

@@ -46,6 +46,7 @@
 #include <QtCore/QThread>
 
 #include <memory>
+#include <atomic>
 
 using namespace H2Core;
 
@@ -261,6 +262,71 @@ void IpcTransportTest::testRequestResponseRoundTrip() {
 	CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Reply );
 	CPPUNIT_ASSERT( reply.getRequestId() != 0 );      // id survived the wire
 	CPPUNIT_ASSERT_EQUAL( 42, reply.getArgs()[0].toInt() );
+
+	delete conn;
+	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+// A reply that arrives after its request() already timed out is stale: with
+// only one request in flight at a time, nothing will ever correlate it again.
+// It must be dropped when a later request() scans the queue, not re-queued
+// forever.
+void IpcTransportTest::testRequestDropsStaleReply() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( uniqueServerName() ) );
+	IpcChannel* client = IpcChannel::connectToServer( server.serverName() );
+	CPPUNIT_ASSERT( client != nullptr );
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	// First request: the responder holds its reply back until the client has
+	// given up, then sends it anyway (the "late reply").
+	std::atomic<bool> bReleaseReply{ false };
+	QThread* pLateResponder = startResponderThread(
+		conn, [conn, &bReleaseReply]() {
+			IpcMessage req;
+			if ( ! conn->receive( req, 5000 ) || req.getRequestId() == 0 ) {
+				return;
+			}
+			while ( ! bReleaseReply.load() ) {
+				QThread::msleep( 5 );
+			}
+			IpcMessage reply( IpcOpcode::Reply );
+			reply.setRequestId( req.getRequestId() );
+			conn->send( reply );
+		} );
+	IpcMessage reply;
+	CPPUNIT_ASSERT( ! client->request(
+		IpcMessage( IpcOpcode::LocateToColumn ).arg( 1 ), reply, 200 ) );
+	bReleaseReply.store( true );
+	pLateResponder->wait();
+	delete pLateResponder;
+	// The late reply's bytes now sit in the client's OS buffer, unpumped.
+
+	// Second request with a prompt responder: its scan of the pending queue
+	// encounters the stale reply on the way.
+	QThread* pResponder = startResponderThread( conn, [conn]() {
+		IpcMessage req;
+		if ( conn->receive( req, 5000 ) && req.getRequestId() != 0 ) {
+			IpcMessage reply( IpcOpcode::Reply );
+			reply.setRequestId( req.getRequestId() );
+			reply.arg( req.getArgs()[0].toInt() * 2 );
+			conn->send( reply );
+		}
+	} );
+	IpcMessage reply2;
+	CPPUNIT_ASSERT( client->request(
+		IpcMessage( IpcOpcode::LocateToColumn ).arg( 21 ), reply2, 5000 ) );
+	pResponder->wait();
+	delete pResponder;
+	CPPUNIT_ASSERT_EQUAL( 42, reply2.getArgs()[0].toInt() );
+
+	// The stale reply must not linger in the queue.
+	CPPUNIT_ASSERT_EQUAL( 0, client->pendingCount() );
 
 	delete conn;
 	delete client;

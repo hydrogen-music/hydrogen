@@ -127,10 +127,11 @@ void enlargeSocketBuffers( QLocalSocket* pSocket ) {
 } // namespace
 
 IpcChannel::IpcChannel( QLocalSocket* pSocket, QObject* pParent,
-						bool bPushWrites )
+						bool bPushWrites, DeliveryMode mode )
 	: QObject( pParent )
 	, m_pSocket( pSocket )
-	, m_bPushWrites( bPushWrites ) {
+	, m_bPushWrites( bPushWrites )
+	, m_mode( mode ) {
 	if ( m_pSocket != nullptr ) {
 		m_pSocket->setParent( this );
 		enlargeSocketBuffers( m_pSocket );
@@ -140,13 +141,16 @@ IpcChannel::IpcChannel( QLocalSocket* pSocket, QObject* pParent,
 				 this, &IpcChannel::disconnected );
 	}
 
-	IPCLOG( QString( "bPushWrites: %1" ).arg( bPushWrites ) );
+	IPCLOG( QString( "bPushWrites: %1, mode: %2" )
+				.arg( bPushWrites )
+				.arg( mode == DeliveryMode::Signal ? "Signal" : "Poll" ) );
 }
 
 IpcChannel::~IpcChannel() = default;
 
 IpcChannel* IpcChannel::connectToServer( const QString& sName, int nTimeoutMs,
-										 QObject* pParent ) {
+										 QObject* pParent,
+										 DeliveryMode mode ) {
 	IPCLOG( QString( "Connect to server [%1] with timeout [%2ms]" )
 			.arg( sName ).arg( nTimeoutMs ) );
 
@@ -157,7 +161,7 @@ IpcChannel* IpcChannel::connectToServer( const QString& sName, int nTimeoutMs,
 		delete pSocket;
 		return nullptr;
 	}
-	return new IpcChannel( pSocket, pParent );
+	return new IpcChannel( pSocket, pParent, /*bPushWrites=*/false, mode );
 }
 
 bool IpcChannel::isConnected() const {
@@ -256,7 +260,14 @@ void IpcChannel::pump() {
 	}
 	IpcMessage msg;
 	while ( m_reader.next( msg ) ) {
-		m_pending.push( msg );
+		// Poll mode: queue every frame for the blocking receive() consumer.
+		// Signal mode: frames are delivered by the emit below — queueing them
+		// too would accumulate them for the whole session, since the editor
+		// has no polling consumer. Correlated replies queue in both modes:
+		// request() finds them in the queue.
+		if ( m_mode == DeliveryMode::Poll || msg.getRequestId() != 0 ) {
+			m_pending.push( msg );
+		}
 		emit messageReceived( msg );
 	}
 }
@@ -362,6 +373,15 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 				IPCLOG( "Found reply" );
 				reply = m;
 				bFound = true;
+			}
+			else if ( m.getRequestId() != 0 ) {
+				// A reply, but not ours: stale — its request() already timed
+				// out (only one request is in flight at a time). Nothing will
+				// ever correlate it again; drop it instead of re-queueing it
+				// forever.
+				IPCLOG( QString( "Request awaiting reqId [%1]: dropping stale "
+								 "reply [%2]" )
+						.arg( nId ).arg( m.toQString() ) );
 			}
 			else {
 				// A frame arrived but it is not our reply — log its correlation

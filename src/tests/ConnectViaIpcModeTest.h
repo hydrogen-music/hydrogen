@@ -46,6 +46,7 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSelectionEventsCarryStoredState );
 	CPPUNIT_TEST( testEngineSelectionChangesReachMirror );
 	CPPUNIT_TEST( testEditorSelectionReachesEngine );
+	CPPUNIT_TEST( testEditorChannelDeliversViaSignalNotQueue );
 	CPPUNIT_TEST( testEngineAccessFallsBackToLocal );
 	CPPUNIT_TEST( testSyncViaIpc );
 	CPPUNIT_TEST_SUITE_END();
@@ -69,6 +70,7 @@ public:
 	void testSelectionEventsCarryStoredState();
 	void testEngineSelectionChangesReachMirror();
 	void testEditorSelectionReachesEngine();
+	void testEditorChannelDeliversViaSignalNotQueue();
 	void testEngineAccessFallsBackToLocal();
 	void testSyncViaIpc();
 };

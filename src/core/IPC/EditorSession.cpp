@@ -70,7 +70,13 @@ std::unique_ptr<EditorSession> EditorSession::connect(
 	if ( pMirror == nullptr || sEndpoint.isEmpty() ) {
 		return nullptr;
 	}
-	IpcChannel* pChannel = IpcChannel::connectToServer( sEndpoint, nTimeoutMs );
+	// Signal delivery: the editor consumes frames via the EditorStateMirror's
+	// messageReceived connection; queueing them for a polling receive() too
+	// would accumulate them for the whole session (nothing on the editor side
+	// pops non-reply frames). Correlated replies still queue — request()
+	// correlates them from there.
+	IpcChannel* pChannel = IpcChannel::connectToServer(
+		sEndpoint, nTimeoutMs, nullptr, IpcChannel::DeliveryMode::Signal );
 	if ( pChannel == nullptr ) {
 		return nullptr;
 	}

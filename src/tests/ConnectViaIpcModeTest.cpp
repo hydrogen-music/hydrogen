@@ -556,11 +556,6 @@ void ConnectViaIpcModeTest::testTelemetryMetersFlowEngineToEditor() {
 	auto pSession = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 
-	// Drain the initial song snapshot so it does not sit in front of the
-	// telemetry updates.
-	IpcMessage initialState;
-	pSession->getChannel()->receive( initialState, 500, false );
-
 	const auto pInstruments = pMirror->getSong()->getDrumkit()->getInstruments();
 	CPPUNIT_ASSERT( pInstruments != nullptr );
 	CPPUNIT_ASSERT( pInstruments->size() > 0 );
@@ -655,10 +650,6 @@ void ConnectViaIpcModeTest::testAudioDriverInfoCarriesSampleRate() {
 	auto pSession = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 
-	// Drain the initial song snapshot so it does not precede the reply.
-	IpcMessage initialState;
-	pSession->getChannel()->receive( initialState, 500, false );
-
 	IpcMessage reply;
 	CPPUNIT_ASSERT( pSession->getChannel()->request(
 		IpcMessage( IpcOpcode::GetAudioDriverInfo ), reply, 3000 ) );
@@ -719,12 +710,9 @@ void ConnectViaIpcModeTest::testMirrorSyncsSampleRate() {
 
 	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
 	CPPUNIT_ASSERT( pEngineSession != nullptr );
-
 	auto pSession = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 
-	IpcMessage initialState;
-	pSession->getChannel()->receive( initialState, 500, false );
 	// The mirror applies the initial song snapshot asynchronously; the
 	// transport math below needs a song.
 	CPPUNIT_ASSERT( TestHelper::pumpUntil(
@@ -939,10 +927,6 @@ void ConnectViaIpcModeTest::testEngineSelectionChangesReachMirror() {
 	auto* pMirror = TestHelper::makeMirror();
 	auto pSession = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
-	// Drive the pump below; this frame (hello reply / priming burst) was
-	// already emitted to the mirror and is intentionally discarded.
-	IpcMessage initialState;
-	pSession->getChannel()->receive( initialState, 500, false );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil(
 		[&]() { return pMirror->getSong() != nullptr; } ) );
 
@@ -997,10 +981,6 @@ void ConnectViaIpcModeTest::testEditorSelectionReachesEngine() {
 	auto* pMirror = TestHelper::makeMirror();
 	auto pSession = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
-	// Drive the pump below; this frame (hello reply / priming burst) was
-	// already emitted to the mirror and is intentionally discarded.
-	IpcMessage initialState;
-	pSession->getChannel()->receive( initialState, 500, false );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil(
 		[&]() { return pMirror->getSong() != nullptr; } ) );
 
@@ -1021,6 +1001,43 @@ void ConnectViaIpcModeTest::testEditorSelectionReachesEngine() {
 	pEngineSession->stop();
 	delete pMirror;
 	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// An editor channel delivers frames via the messageReceived signal; its
+// pending queue is reserved for correlated replies (consumed by request()).
+// Queueing signal-delivered frames too would accumulate them for the whole
+// session — the editor has no polling receive() consumer to drain them.
+void ConnectViaIpcModeTest::testEditorChannelDeliversViaSignalNotQueue() {
+	___INFOLOG( "" );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( pSession->isConnected() );
+
+	IpcChannel* conn = server.waitForChannel();
+	CPPUNIT_ASSERT( conn != nullptr );
+
+	// The engine forwards an event ...
+	conn->send( IpcMessage::fromEvent(
+		Event::Type::SelectedPatternChanged, 1, 0 ) );
+
+	// ... the editor's mirror applies it via the signal path ...
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSelectedPatternNumber() == 1; } ) );
+
+	// ... and the channel must not ALSO queue it.
+	IpcMessage msg;
+	CPPUNIT_ASSERT( ! pSession->getChannel()->receive( msg, 50, false ) );
+	CPPUNIT_ASSERT_EQUAL( 0, pSession->getChannel()->pendingCount() );
+
+	pSession.reset();
+	delete pMirror;
 
 	___INFOLOG( "passed" );
 }
@@ -1114,11 +1131,6 @@ void ConnectViaIpcModeTest::testSyncViaIpc() {
 
 	auto pChannel = pSession->getChannel();
 	CPPUNIT_ASSERT( pChannel != nullptr );
-
-	// EngineSession::serve() sends the initial song snapshot on connect; drain
-	// it so it doesn't sit in the pending queue ahead of our replies.
-	IpcMessage initialState;
-	pChannel->receive( initialState, 500, false );
 
 	// 1. GetSong — reply carries the song XML payload.
 	{
