@@ -241,6 +241,10 @@ void PluginLifecycleTest::testEditorOpenServesEngine() {
 	CPPUNIT_ASSERT( pMirror->getSelectedPatternNumber() != nSelectedPattern );
 	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
 	CPPUNIT_ASSERT( pEditor != nullptr );
+	// The engine primes the attached editor's mirror with its current
+	// selection state (attach-time push over the event pipeline).
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSelectedPatternNumber() == nSelectedPattern; } ) );
 	auto pAccess = pEditor->createEngineAccess();
 	CPPUNIT_ASSERT( pAccess->getSelectedPatternNumber() == nSelectedPattern );
 

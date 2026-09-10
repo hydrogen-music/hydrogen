@@ -72,7 +72,9 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPlaySampleBtn, &Button::clicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			HydrogenApp::pHydrogen()->setSelectedInstrumentNumber( nLine );
+			// Via pEngine() so the selection also reaches the authoritative
+			// engine (ADR 0018).
+			HydrogenApp::pEngine()->setSelectedInstrumentNumber( nLine );
 			// The sample audition (note build + Sampler trigger) is owned by
 			// CoreActionController (ADR 0027).
 			HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
@@ -82,7 +84,7 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	connect( m_pPlaySampleBtn, &Button::rightClicked, [&]() {
 		const int nLine = retrieveLineNumber();
 		if ( nLine != -1 ) {
-			HydrogenApp::pHydrogen()->setSelectedInstrumentNumber( nLine );
+			HydrogenApp::pEngine()->setSelectedInstrumentNumber( nLine );
 			HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
 				nLine, true );
 		}

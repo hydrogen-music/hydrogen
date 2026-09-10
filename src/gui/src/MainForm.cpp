@@ -1688,8 +1688,9 @@ void MainForm::action_drumkit_duplicateInstrument( int nInstrumentIndex )
 	  SE_addInstrumentAction::Type::DuplicateInstrument, Event::nInvalidId );
 	pHydrogenApp->pushUndoCommand( pAction );
 
-	// Select the new instrument
-	pHydrogen->setSelectedInstrumentNumber(
+	// Select the new instrument. Via pEngine() so the selection also reaches
+	// the authoritative engine (ADR 0018).
+	HydrogenApp::pEngine()->setSelectedInstrumentNumber(
 		pSong->getDrumkit()->getInstruments()->index( pNewInstrument ),
 		Event::Trigger::Default );
 

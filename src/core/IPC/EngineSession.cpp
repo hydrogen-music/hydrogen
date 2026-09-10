@@ -123,10 +123,32 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 			continue;
 		}
 
-		// An editor attached: prime its mirror with the current song, then serve
-		// the connection until it drops (or we are stopped).
+		// An editor attached: prime its mirror with the current selection and
+		// record state, then serve the connection until it drops (or we are
+		// stopped). The runtime event pipeline only carries *changes* — a
+		// selection made before the editor attached would otherwise never
+		// reach it. GUI editors re-pull the full state (song first) via
+		// HydrogenApp::syncViaIpc; this push gives every editor an immediate
+		// baseline. (An instrument number beyond the mirror's local kit clamps
+		// to "no selection" until the song syncs — syncViaIpc corrects it.)
 		IPCLOG( QString( "Editor connected to endpoint [%1]" )
 					.arg( m_sEndpoint ) );
+		// Drain anything still queued first (bounded by the poll window since
+		// the last discardEvents), so the priming below supersedes stale
+		// events — e.g. one queued before a Suppress-writer clamped the
+		// stored selection without pushing a new event.
+		forwardEvents( pConn );
+		// Plain unsynchronized reads on this bridge thread, like the telemetry
+		// snapshot: word-sized values, benign tearing-wise.
+		pConn->send( IpcMessage::fromEvent(
+			Event::Type::SelectedPatternChanged,
+			m_pEngine->getSelectedPatternNumber(), 0 ) );
+		pConn->send( IpcMessage::fromEvent(
+			Event::Type::SelectedInstrumentChanged,
+			m_pEngine->getSelectedInstrumentNumber(), 0 ) );
+		pConn->send( IpcMessage::fromEvent(
+			Event::Type::RecordModeChanged,
+			static_cast<int>( m_pEngine->getRecordEnabled() ), 0 ) );
 		while ( m_bRunning.load() && pConn->isConnected() ) {
 			IpcMessage msg;
 			if ( pConn->receive( msg, m_nPollTimeoutMs, false ) ) {

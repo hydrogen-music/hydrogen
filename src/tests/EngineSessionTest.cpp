@@ -159,6 +159,10 @@ void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 	CPPUNIT_ASSERT( pMirror1->getSelectedPatternNumber() != nSelectedPattern );
 	auto pEditor1 = EditorSession::connect( sEndpoint, pMirror1 );
 	CPPUNIT_ASSERT( pEditor1 != nullptr );
+	// The engine primes the attached editor's mirror with its current
+	// selection state (attach-time push over the event pipeline).
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror1->getSelectedPatternNumber() == nSelectedPattern; } ) );
 	auto pAccess1 = pEditor1->createEngineAccess();
 	CPPUNIT_ASSERT( pAccess1->getSelectedPatternNumber() == nSelectedPattern );
 
@@ -172,6 +176,8 @@ void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 	CPPUNIT_ASSERT( pMirror2->getSelectedPatternNumber() != nSelectedPattern );
 	auto pEditor2 = EditorSession::connect( sEndpoint, pMirror2, 5000 );
 	CPPUNIT_ASSERT( pEditor2 != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror2->getSelectedPatternNumber() == nSelectedPattern; } ) );
 	auto pAccess2 = pEditor2->createEngineAccess();
 	CPPUNIT_ASSERT( pAccess2->getSelectedPatternNumber() == nSelectedPattern );
 

@@ -90,6 +90,29 @@ bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 	if ( pQueue == nullptr ) {
 		return false;
 	}
+
+	// Selection and record state ride on the event payload (the engine-side
+	// producers push their stored values). Applying them here keeps the
+	// mirror's own state — and with it the object-flavor reads of
+	// IEngineAccess — consistent with the engine without a blocking query.
+	// Suppress: the forwarded event is already queued above; applying must
+	// not push a second, local-origin event.
+	switch ( type ) {
+	case Event::Type::SelectedInstrumentChanged:
+		m_pMirror->setSelectedInstrumentNumber(
+			nValue, Event::Trigger::Suppress );
+		break;
+	case Event::Type::SelectedPatternChanged:
+		m_pMirror->setSelectedPatternNumber(
+			nValue, true, Event::Trigger::Suppress );
+		break;
+	case Event::Type::RecordModeChanged:
+		m_pMirror->setRecordEnabled( nValue != 0 );
+		break;
+	default:
+		break;
+	}
+
 	// Tag as Headless so the editor's onEventQueueTimer() can distinguish
 	// remote-origin events from local mirror events.
 	pQueue->pushEvent( type, nValue, nId, H2Core::ProcessMode::Headless );

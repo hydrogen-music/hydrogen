@@ -45,47 +45,18 @@ void IpcEngineAccess::sequencerStop() {
 	m_pMirror->sequencerStop();
 }
 
-int IpcEngineAccess::getSelectedPatternNumber() const {
+void IpcEngineAccess::setSelectedInstrumentNumber(
+	int nInstrument, Event::Trigger trigger )
+{
+	// Instrument selection is engine-relevant: the headless engine's
+	// MIDI-to-selected-instrument routing follows it. Forward the change and
+	// apply it locally so the GUI updates immediately; the engine's echo
+	// event re-applies the same value on the mirror (idempotent).
 	if ( m_pChannel != nullptr ) {
-		IpcMessage reply;
-		if ( m_pChannel->request( IpcMessage( IpcOpcode::GetSelectedPattern ),
-								  reply ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				return args[0].toInt();
-			}
-		}
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetSelectedInstrument ).arg( nInstrument ) );
 	}
-	// Fall back to the mirror's (possibly stale) value on failure.
-	return m_pMirror->getSelectedPatternNumber();
-}
-
-int IpcEngineAccess::getSelectedInstrumentNumber() const {
-	if ( m_pChannel != nullptr ) {
-		IpcMessage reply;
-		if ( m_pChannel->request( IpcMessage( IpcOpcode::GetSelectedInstrument ),
-								  reply ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				return args[0].toInt();
-			}
-		}
-	}
-	return m_pMirror->getSelectedInstrumentNumber();
-}
-
-bool IpcEngineAccess::getRecordEnabled() const {
-	if ( m_pChannel != nullptr ) {
-		IpcMessage reply;
-		if ( m_pChannel->request( IpcMessage( IpcOpcode::GetRecordEnabled ),
-								  reply ) ) {
-			const auto& args = reply.getArgs();
-			if ( ! args.isEmpty() ) {
-				return args[0].toBool();
-			}
-		}
-	}
-	return m_pMirror->getRecordEnabled();
+	m_pMirror->setSelectedInstrumentNumber( nInstrument, trigger );
 }
 
 QStringList IpcEngineAccess::getAudioDevices(

@@ -42,6 +42,10 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testTelemetryLateAttach );
 	CPPUNIT_TEST( testAudioDriverInfoCarriesSampleRate );
 	CPPUNIT_TEST( testMirrorSyncsSampleRate );
+	CPPUNIT_TEST( testMirrorAppliesSelectionEvents );
+	CPPUNIT_TEST( testSelectionEventsCarryStoredState );
+	CPPUNIT_TEST( testEngineSelectionChangesReachMirror );
+	CPPUNIT_TEST( testEditorSelectionReachesEngine );
 	CPPUNIT_TEST( testEngineAccessFallsBackToLocal );
 	CPPUNIT_TEST( testSyncViaIpc );
 	CPPUNIT_TEST_SUITE_END();
@@ -61,6 +65,10 @@ public:
 	void testTelemetryLateAttach();
 	void testAudioDriverInfoCarriesSampleRate();
 	void testMirrorSyncsSampleRate();
+	void testMirrorAppliesSelectionEvents();
+	void testSelectionEventsCarryStoredState();
+	void testEngineSelectionChangesReachMirror();
+	void testEditorSelectionReachesEngine();
 	void testEngineAccessFallsBackToLocal();
 	void testSyncViaIpc();
 };

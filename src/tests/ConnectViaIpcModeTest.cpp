@@ -29,6 +29,8 @@
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
@@ -776,6 +778,245 @@ void ConnectViaIpcModeTest::testMirrorSyncsSampleRate() {
 			pMirror->getAudioEngine()->getPlayhead()->getTick() ),
 		1.0 );
 
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// EditorStateMirror::applyEvent() used to only queue forwarded events as
+// Headless-tagged GUI notifications; the mirror's own selection state was
+// never touched. That left the two IEngineAccess read flavors inconsistent:
+// getSelectedInstrumentNumber() asked the engine (fresh) while
+// getSelectedInstrument() read the mirror (stale). After the fix the payload
+// of a forwarded selection event becomes mirror state directly.
+void ConnectViaIpcModeTest::testMirrorAppliesSelectionEvents() {
+	___INFOLOG( "" );
+	auto* pMirror = TestHelper::makeMirror();
+	EditorStateMirror mirror( pMirror );
+
+	auto pSong = pMirror->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstruments = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->size() >= 2 );
+	auto pPatternList = pSong->getPatternList();
+	pMirror->getAudioEngine()->lock( RIGHT_HERE );
+	while ( pPatternList->size() < 2 ) {
+		pPatternList->add( std::make_shared<Pattern>() );
+	}
+	pMirror->getAudioEngine()->unlock();
+
+	// Instrument: the forwarded event's payload becomes mirror state ...
+	mirror.applyEvent( IpcMessage::fromEvent(
+		Event::Type::SelectedInstrumentChanged, 1, 0 ) );
+	CPPUNIT_ASSERT_EQUAL( 1, pMirror->getSelectedInstrumentNumber() );
+	// ... so the object flavor (the one ~40 GUI callers use) agrees with the
+	// number flavor.
+	CPPUNIT_ASSERT( pMirror->getSelectedInstrument() == pInstruments->get( 1 ) );
+
+	// Pattern.
+	mirror.applyEvent( IpcMessage::fromEvent(
+		Event::Type::SelectedPatternChanged, 1, 0 ) );
+	CPPUNIT_ASSERT_EQUAL( 1, pMirror->getSelectedPatternNumber() );
+
+	// Record mode (applied via the bare setter — no local event expected).
+	mirror.applyEvent( IpcMessage::fromEvent(
+		Event::Type::RecordModeChanged, 1, 0 ) );
+	CPPUNIT_ASSERT( pMirror->getRecordEnabled() );
+
+	// Non-Event messages are still refused.
+	CPPUNIT_ASSERT( ! mirror.applyEvent(
+		IpcMessage( IpcOpcode::GetSelectedInstrument ) ) );
+
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// The engine-side producers used to push selection events with a hard-coded
+// value of -1 (Hydrogen::setSelectedInstrumentNumber/setSelectedPatternNumber)
+// or 0 (CoreActionController::renameComponent/setPattern). Once the mirror
+// applies event payloads, those placeholders would corrupt the editor's
+// selection. Every producer must carry the stored (post-clamp) state instead.
+void ConnectViaIpcModeTest::testSelectionEventsCarryStoredState() {
+	___INFOLOG( "" );
+	auto* pEngine = TestHelper::makeMirror();
+	auto pQueue = pEngine->getEventQueue();
+
+	auto pSong = pEngine->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstruments = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->size() >= 2 );
+	auto pPatternList = pSong->getPatternList();
+	pEngine->getAudioEngine()->lock( RIGHT_HERE );
+	while ( pPatternList->size() < 2 ) {
+		pPatternList->add( std::make_shared<Pattern>() );
+	}
+	pEngine->getAudioEngine()->unlock();
+
+	// Pops the queue until an event of @a type shows up; reports whether one
+	// was found and returns its value.
+	bool bFound = false;
+	auto popValue = [&]( Event::Type type ) -> int {
+		bFound = false;
+		while ( auto pEvent = pQueue->popEvent() ) {
+			if ( pEvent->getType() == type ) {
+				bFound = true;
+				return pEvent->getValue();
+			}
+		}
+		return 0;
+	};
+
+	// Instrument: the event carries the stored number, not -1.
+	pEngine->setSelectedInstrumentNumber( 1, Event::Trigger::Default );
+	int nValue = popValue( Event::Type::SelectedInstrumentChanged );
+	CPPUNIT_ASSERT( bFound );
+	CPPUNIT_ASSERT_EQUAL( 1, nValue );
+	CPPUNIT_ASSERT_EQUAL( 1, pEngine->getSelectedInstrumentNumber() );
+
+	// Force on an unchanged value still refreshes, carrying the stored number.
+	pEngine->setSelectedInstrumentNumber( 1, Event::Trigger::Force );
+	nValue = popValue( Event::Type::SelectedInstrumentChanged );
+	CPPUNIT_ASSERT( bFound );
+	CPPUNIT_ASSERT_EQUAL( 1, nValue );
+
+	// Out-of-range clamps to "no selection" and the event reports that.
+	pEngine->setSelectedInstrumentNumber( 42, Event::Trigger::Default );
+	nValue = popValue( Event::Type::SelectedInstrumentChanged );
+	CPPUNIT_ASSERT( bFound );
+	CPPUNIT_ASSERT_EQUAL( -1, nValue );
+	CPPUNIT_ASSERT_EQUAL( -1, pEngine->getSelectedInstrumentNumber() );
+
+	// Restore a valid selection for the component rename below.
+	pEngine->setSelectedInstrumentNumber( 1, Event::Trigger::Default );
+	popValue( Event::Type::SelectedInstrumentChanged );
+	CPPUNIT_ASSERT( bFound );
+
+	// Pattern: same invariant.
+	pEngine->setSelectedPatternNumber( 1, true, Event::Trigger::Default );
+	nValue = popValue( Event::Type::SelectedPatternChanged );
+	CPPUNIT_ASSERT( bFound );
+	CPPUNIT_ASSERT_EQUAL( 1, nValue );
+
+	// CoreActionController producers must not clobber the payload either
+	// (renameComponent used to push a hard-coded 0).
+	CPPUNIT_ASSERT( pEngine->getCoreActionController()->renameComponent(
+		1, 0, "renamed" ) );
+	nValue = popValue( Event::Type::SelectedInstrumentChanged );
+	CPPUNIT_ASSERT( bFound );
+	CPPUNIT_ASSERT_EQUAL( 1, nValue );
+
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// End-to-end engine -> editor sync: an engine-side selection change (e.g. the
+// headless engine's MIDI-to-selected-instrument routing) must reach the
+// mirror, and both IEngineAccess read flavors must agree afterwards.
+void ConnectViaIpcModeTest::testEngineSelectionChangesReachMirror() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeMirror();
+
+	auto pSong = pEngine->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstruments = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->size() >= 2 );
+	auto pPatternList = pSong->getPatternList();
+	pEngine->getAudioEngine()->lock( RIGHT_HERE );
+	while ( pPatternList->size() < 2 ) {
+		pPatternList->add( std::make_shared<Pattern>() );
+	}
+	pEngine->getAudioEngine()->unlock();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	// Drive the pump below; this frame (hello reply / priming burst) was
+	// already emitted to the mirror and is intentionally discarded.
+	IpcMessage initialState;
+	pSession->getChannel()->receive( initialState, 500, false );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	// Instrument selection.
+	pEngine->setSelectedInstrumentNumber( 1, Event::Trigger::Default );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSelectedInstrumentNumber() == 1; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 1, pIpcAccess->getSelectedInstrumentNumber() );
+	CPPUNIT_ASSERT( pIpcAccess->getSelectedInstrument() ==
+		pMirror->getSong()->getDrumkit()->getInstruments()->get( 1 ) );
+
+	// Pattern selection.
+	pEngine->setSelectedPatternNumber( 1, true, Event::Trigger::Default );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSelectedPatternNumber() == 1; } ) );
+	CPPUNIT_ASSERT_EQUAL( 1, pIpcAccess->getSelectedPatternNumber() );
+
+	// Record mode via the controller (the engine-side producer).
+	pEngine->getCoreActionController()->activateRecordMode( true );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getRecordEnabled(); } ) );
+	CPPUNIT_ASSERT( pIpcAccess->getRecordEnabled() );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// End-to-end editor -> engine sync: the editor's selection change must reach
+// the engine (MIDI-to-selected-instrument routing runs there), and the echo
+// back must keep the mirror consistent.
+void ConnectViaIpcModeTest::testEditorSelectionReachesEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeMirror();
+
+	auto pSong = pEngine->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstruments = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->size() >= 2 );
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	// Drive the pump below; this frame (hello reply / priming burst) was
+	// already emitted to the mirror and is intentionally discarded.
+	IpcMessage initialState;
+	pSession->getChannel()->receive( initialState, 500, false );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	pIpcAccess->setSelectedInstrumentNumber( 1 );
+	// Pump until both sides agree: the engine applies the forwarded command
+	// and its echo event re-applies the value on the mirror. (The mirror
+	// briefly reads 0 in between: the attach-time priming push can arrive
+	// after the local apply of the command.)
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSelectedInstrumentNumber() == 1 &&
+			pMirror->getSelectedInstrumentNumber() == 1; } ) );
+
+	pIpcAccess.reset();
 	pSession.reset();
 	pEngineSession->stop();
 	delete pMirror;

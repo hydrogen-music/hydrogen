@@ -1142,8 +1142,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 	const int nInstrument =
 		HydrogenApp::pEngine()->getSelectedInstrumentNumber();
 	if ( nInstrument != -1 ) {
-		m_nSelectedRowDB =
-			HydrogenApp::pEngine()->getSelectedInstrumentNumber();
+		m_nSelectedRowDB = nInstrument;
 	}
 
 	ensureCursorIsVisible();
@@ -2233,15 +2232,18 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow )
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
 		 nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
-		// Within the kit, rows/ids are unique.
-		pHydrogen->setSelectedInstrumentNumber(
+		// Within the kit, rows/ids are unique. Routed through pEngine() so the
+		// change also reaches the authoritative engine (MIDI-to-selected
+		// routing runs there, ADR 0018).
+		HydrogenApp::pEngine()->setSelectedInstrumentNumber(
 			nNewRow, Event::Trigger::Default
 		);
 	}
 	else {
 		// For all other lines the cached instrument number does not change. But
 		// we still want to handle the update using the same event.
-		pHydrogen->setSelectedInstrumentNumber( -1, Event::Trigger::Force );
+		HydrogenApp::pEngine()->setSelectedInstrumentNumber(
+			-1, Event::Trigger::Force );
 	}
 }
 

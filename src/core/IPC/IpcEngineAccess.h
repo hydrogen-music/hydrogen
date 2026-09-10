@@ -41,7 +41,9 @@ class IpcChannel;
  * stream — so the GUI dereferences live local Song / Preferences / Playlist /
  * SoundLibraryDatabase objects exactly as in standalone. Transport commands are
  * forwarded over the #IpcChannel to the real engine; editor-local view state
- * (selection, dirty flags, view modes) is applied directly to the mirror.
+ * (dirty flags, view modes) is applied directly to the mirror, while selection
+ * and record state is applied to the mirror *and* forwarded when the engine
+ * has a stake in it (see setSelectedInstrumentNumber()).
  *
  * Neither the mirror nor the channel is owned by this object.
  *
@@ -90,8 +92,14 @@ class IpcEngineAccess : public IEngineAccess,
 		return m_pMirror->getMode(); }
 	std::shared_ptr<Instrument> getSelectedInstrument() const override {
 		return m_pMirror->getSelectedInstrument(); }
-	int getSelectedInstrumentNumber() const override;
-	int getSelectedPatternNumber() const override;
+	/** Selection and record state is applied to the mirror by
+	 * #EditorStateMirror from the forwarded event payloads (and refreshed by
+	 * the periodic syncViaIpc pull), so all read flavors are served locally
+	 * and agree with each other without a blocking IPC query. */
+	int getSelectedInstrumentNumber() const override {
+		return m_pMirror->getSelectedInstrumentNumber(); }
+	int getSelectedPatternNumber() const override {
+		return m_pMirror->getSelectedPatternNumber(); }
 	bool hasJackDriver() const override {
 		return m_pMirror->hasJackDriver(); }
 	bool hasJackTransport() const override {
@@ -100,7 +108,8 @@ class IpcEngineAccess : public IEngineAccess,
 		return m_pMirror->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {
 		return m_pMirror->isUnderSessionManagement(); }
-	bool getRecordEnabled() const override;
+	bool getRecordEnabled() const override {
+		return m_pMirror->getRecordEnabled(); }
 
 	// --- audio driver (ADR 0029) ---
 	//
@@ -170,10 +179,13 @@ class IpcEngineAccess : public IEngineAccess,
 		m_pMirror->setPatternMode( mode ); }
 	void setPatternModified( bool bIsModified, int nIndex ) override {
 		m_pMirror->setPatternModified( bIsModified, nIndex ); }
+	/** Instrument selection is engine-relevant — the headless engine's
+	 * MIDI-to-selected-instrument routing follows it — so the change is
+	 * forwarded over IPC and applied to the mirror. The engine's echo event
+	 * re-applies the same value on the mirror (idempotent). */
 	void setSelectedInstrumentNumber(
 		int nInstrument,
-		Event::Trigger trigger = Event::Trigger::Default ) override {
-		m_pMirror->setSelectedInstrumentNumber( nInstrument, trigger ); }
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	void setSongModified( bool bIsModified ) override {
 		m_pMirror->setSongModified( bIsModified ); }
 	void updateBeatCounterSettings() override {

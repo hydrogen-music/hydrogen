@@ -2893,7 +2893,8 @@ bool CoreActionController::renameComponent(
 	m_pHydrogen->setDrumkitModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
-		Event::Type::SelectedInstrumentChanged, 0
+		Event::Type::SelectedInstrumentChanged,
+		m_pHydrogen->getSelectedInstrumentNumber()
 	);
 
 	return true;
@@ -3096,7 +3097,8 @@ bool CoreActionController::setPattern(
 	m_pHydrogen->setSongModified( true );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
-		Event::Type::SelectedPatternChanged, 0
+		Event::Type::SelectedPatternChanged,
+		m_pHydrogen->getSelectedPatternNumber()
 	);
 
 	return true;

@@ -432,6 +432,10 @@ void HydrogenApp::syncViaIpc() {
 	}
 	auto pStateMirror = m_pEditorSession->getStateMirror();
 
+	// Ordering is load-bearing: the song (step 1) must be in place before the
+	// selection pulls (steps 3-5), because applying a selection clamps against
+	// the mirror's drumkit — with an empty kit every value would collapse to
+	// "no selection" (-1).
 	// 1. Song — deserialize the reply XML and apply to the mirror.
 	ipcSyncSong( pChannel );
 

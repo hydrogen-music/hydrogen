@@ -476,6 +476,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetRecordEnabled:
 		sOpcode = "GET_RECORD_ENABLED";
 		break;
+	case IpcOpcode::SetSelectedInstrument:
+		sOpcode = "SET_SELECTED_INSTRUMENT";
+		break;
 	case IpcOpcode::GetCorePreferences:
 		sOpcode = "GET_CORE_PREFERENCES";
 		break;

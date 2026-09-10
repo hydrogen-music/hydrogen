@@ -221,6 +221,15 @@ enum class IpcOpcode : quint16 {
 	// and transmitted to the authoritative engine.
 	ReleasePlayingNotes,
 
+	// ── Selection sync (editor → engine, ADR 0018) ──
+	// The engine's MIDI-to-selected-instrument routing follows the selection,
+	// so editor-side changes are forwarded as a plain command (fire-and-forget
+	// with local apply; the engine's echo event confirms on the mirror).
+	// Appended at the enum tail on purpose: opcodes cross the wire as raw
+	// u16, so inserting mid-enum would renumber every later opcode and silently
+	// break old peers that passed the (unchanged) protocol-version handshake.
+	SetSelectedInstrument,  ///< args: [int nInstrument]
+
 	OpcodeCount
 };
 /**

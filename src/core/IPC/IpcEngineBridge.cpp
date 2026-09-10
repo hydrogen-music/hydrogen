@@ -98,6 +98,17 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->selectPattern( args[0].toInt() );
 		}
 		return false;
+	case IpcOpcode::SetSelectedInstrument:
+		if ( args.size() >= 1 ) {
+			// No CoreActionController surface for this — apply on the engine
+			// directly (like Play/Stop). Default trigger: the resulting
+			// SelectedInstrumentChanged event echoes the change back to the
+			// editor's mirror.
+			pHydrogen->setSelectedInstrumentNumber(
+				args[0].toInt(), Event::Trigger::Default );
+			return true;
+		}
+		return false;
 	case IpcOpcode::SetStripVolume:
 		if ( args.size() >= 3 ) {
 			return pController->setStripVolume(

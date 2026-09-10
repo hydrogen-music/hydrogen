@@ -938,8 +938,8 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		if ( trigger == Event::Trigger::Force ) {
-			m_pEventQueue->pushEvent(
-				Event::Type::SelectedPatternChanged, -1 );
+			m_pEventQueue->pushEvent( Event::Type::SelectedPatternChanged,
+									  m_nSelectedPatternNumber );
 		}
 		return;
 	}
@@ -962,7 +962,8 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		m_pEventQueue->pushEvent( Event::Type::SelectedPatternChanged, -1 );
+		m_pEventQueue->pushEvent( Event::Type::SelectedPatternChanged,
+								  m_nSelectedPatternNumber );
 	}
 }
 
@@ -973,8 +974,8 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	// another type-only row might be selected in the GUI.
 	if ( m_nSelectedInstrumentNumber == nInstrument ) {
 		if ( trigger == Event::Trigger::Force ) {
-			m_pEventQueue->pushEvent(
-				Event::Type::SelectedInstrumentChanged, -1 );
+			m_pEventQueue->pushEvent( Event::Type::SelectedInstrumentChanged,
+									  m_nSelectedInstrumentNumber );
 		}
 		return;
 	}
@@ -989,8 +990,8 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		m_pEventQueue->pushEvent(
-			Event::Type::SelectedInstrumentChanged, -1 );
+		m_pEventQueue->pushEvent( Event::Type::SelectedInstrumentChanged,
+								  m_nSelectedInstrumentNumber );
 	}
 }
 

@@ -147,7 +147,7 @@ version is negotiated in `hello`; a mismatch fails gracefully.
 ## Amendment (2026-09-10): full telemetry payload, bridge-thread publish, editor-side apply
 
 Since acceptance, the telemetry pipeline was implemented end-to-end for the
-`--connect-via-ipc` editor mode. Three points refine the accepted text above
+`--connect-via-ipc` editor mode. Five points refine the accepted text above
 (which is kept as the baseline):
 
 1. **Publishing thread — bridge thread, not the audio thread.** The accepted
@@ -202,6 +202,26 @@ Since acceptance, the telemetry pipeline was implemented end-to-end for the
    buffer size deliberately stays local — it only paces the mirror's own
    clock loop; the engine's buffer size and latency ride along in the cached
    info for display only.
+
+5. **Selection and record state syncs bidirectionally on the event payload.**
+   The engine-side producers (`Hydrogen::setSelectedInstrumentNumber` /
+   `setSelectedPatternNumber`, `CoreActionController::renameComponent` /
+   `setPattern` / `activateRecordMode`) push their **stored, post-clamp**
+   values into the events — the previous hard-coded `-1`/`0` placeholders
+   carried no state. `EditorStateMirror::applyEvent()` applies those payloads
+   to the mirror (with `Event::Trigger::Suppress`, since the forwarded event
+   is already queued for the GUI), so both `IEngineAccess` read flavors
+   (`getSelectedInstrument()` object flavor and
+   `getSelectedInstrumentNumber()` number flavor) are served from the mirror
+   and agree without a blocking IPC query — the queries previously made the
+   two flavors disagree within a single event dispatch. In the reverse
+   direction, editor-side instrument selection forwards to the engine via the
+   new `SetSelectedInstrument` command (the engine's MIDI-to-selected-instrument
+   routing follows the selection); the engine's echo event re-applies the same
+   value on the mirror, which is idempotent because same-value writes
+   early-return. The periodic `syncViaIpc()` pull remains as a drift bound;
+   its ordering (song before selection) is load-bearing, because applying a
+   selection clamps against the mirror's drumkit.
 
 ## More Information
 
