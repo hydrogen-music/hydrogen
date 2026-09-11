@@ -361,6 +361,18 @@ class HydrogenApp : public QObject,
 	void changePreferences( const H2Core::Preferences::Changes& changes );
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );
 
+	/** Re-fetch AudioDriverInfo from the authoritative engine via IPC and
+	 * cache it in the mirror Hydrogen. Called during syncViaIpc() and on
+	 * AudioDriverChanged / JackTimebaseStateChanged events (ADR 0029), and
+	 * by the PreferencesDialog after forwarding a driver restart (the
+	 * channel is FIFO, so the refresh observes the post-restart state). */
+	void refreshCachedAudioDriverInfo();
+	/** Re-fetch MidiDriverInfo from the authoritative engine via IPC and
+	 * cache it in the mirror Hydrogen. Called during syncViaIpc() and on
+	 * MidiDriverChanged events (ADR 0029), and by the PreferencesDialog
+	 * after forwarding a driver restart. */
+	void refreshCachedMidiDriverInfo();
+
    private slots:
 	void propagatePreferences();
 	void onIpcConnectionLost();
@@ -369,14 +381,6 @@ class HydrogenApp : public QObject,
 
    private:
 	void updateEventListeners();
-	/** Re-fetch AudioDriverInfo from the authoritative engine via IPC and
-	 * cache it in the mirror Hydrogen. Called during syncViaIpc() and on
-	 * AudioDriverChanged / JackTimebaseStateChanged events (ADR 0029). */
-	void refreshCachedAudioDriverInfo();
-	/** Re-fetch MidiDriverInfo from the authoritative engine via IPC and
-	 * cache it in the mirror Hydrogen. Called during syncViaIpc() and on
-	 * MidiDriverChanged events (ADR 0029). */
-	void refreshCachedMidiDriverInfo();
 
 	static HydrogenApp* m_pInstance;  ///< HydrogenApp instance
 

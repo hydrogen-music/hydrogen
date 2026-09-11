@@ -35,6 +35,7 @@
 #include <core/Hydrogen.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IO/AudioDriverInfo.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/License.h>
 #include <core/Midi/Midi.h>
 #include <core/Preferences/Preferences.h>
@@ -733,6 +734,82 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 	case IpcOpcode::GetIsUnderPluginHost:
 		reply.arg( pHydrogen->isUnderPluginHost() );
 		break;
+	// ── Driver enumeration queries (ADR 0029): the engine owns the driver
+	// stacks, so these can only be answered here. ──
+	case IpcOpcode::GetMidiPorts: {
+		QStringList ports;
+		auto pDriver = pHydrogen->getMidiDriver();
+		if ( pDriver != nullptr && args.size() >= 1 ) {
+			// PortType semantics are inverted relative to Hydrogen's own
+			// direction (PortType::Output feeds the Input combo); all
+			// backends agree on them, so the value passes through verbatim.
+			for ( const auto& ssPort : pDriver->getExternalPortList(
+					  static_cast<MidiBaseDriver::PortType>(
+						  args[0].toInt() ) ) ) {
+				ports << ssPort;
+			}
+		}
+		reply.arg( ports );
+		break;
+	}
+	case IpcOpcode::GetHandledMidiInputs: {
+		auto pDriver = pHydrogen->getMidiDriver();
+		if ( pDriver == nullptr ) {
+			reply.arg( 0 );
+			break;
+		}
+		const auto inputs = pDriver->getHandledInputs();
+		reply.arg( static_cast<int>( inputs.size() ) );
+		for ( const auto& ppInput : inputs ) {
+			// Engine and editor run on the same host (QLocalSocket), so the
+			// clock epoch is shared and the count round-trips losslessly.
+			reply.arg( static_cast<qint64>(
+						   ppInput->timePoint.time_since_epoch().count() ) )
+				.arg( static_cast<int>( ppInput->type ) )
+				.arg( static_cast<int>( ppInput->data1 ) )
+				.arg( static_cast<int>( ppInput->data2 ) )
+				.arg( static_cast<int>( ppInput->channel ) );
+			QVariantList actionTypes;
+			for ( const auto& actionType : ppInput->actionTypes ) {
+				actionTypes << static_cast<int>( actionType );
+			}
+			reply.arg( actionTypes ).arg( ppInput->mappedInstruments );
+		}
+		break;
+	}
+	case IpcOpcode::GetHandledMidiOutputs: {
+		auto pDriver = pHydrogen->getMidiDriver();
+		if ( pDriver == nullptr ) {
+			reply.arg( 0 );
+			break;
+		}
+		const auto outputs = pDriver->getHandledOutputs();
+		reply.arg( static_cast<int>( outputs.size() ) );
+		for ( const auto& ppOutput : outputs ) {
+			reply.arg( static_cast<qint64>(
+						   ppOutput->timePoint.time_since_epoch().count() ) )
+				.arg( static_cast<int>( ppOutput->type ) )
+				.arg( static_cast<int>( ppOutput->data1 ) )
+				.arg( static_cast<int>( ppOutput->data2 ) )
+				.arg( static_cast<int>( ppOutput->channel ) );
+		}
+		break;
+	}
+	case IpcOpcode::GetAudioHostAPIs:
+		reply.arg( pHydrogen->getAudioHostAPIs() );
+		break;
+	case IpcOpcode::GetAudioDevices: {
+		QStringList devices;
+		if ( args.size() >= 2 ) {
+			devices = pHydrogen->getAudioDevices(
+				static_cast<Preferences::AudioDriver>( args[0].toInt() ),
+				args[1].toString() );
+		}
+		// Always answer with a list arg (like GetMidiPorts) so the client
+		// can treat a malformed request uniformly as "no devices".
+		reply.arg( devices );
+		break;
+	}
 	default:
 		break; // unknown request → empty Reply (correlated by id)
 	}

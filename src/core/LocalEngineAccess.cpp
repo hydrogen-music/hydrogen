@@ -68,44 +68,13 @@ int LocalEngineAccess::getAudioLatencyFrames() const {
 
 QStringList LocalEngineAccess::getAudioDevices(
 	Preferences::AudioDriver kind, const QString& sHostAPI ) const {
-	(void)kind;
-	(void)sHostAPI;
-#ifdef H2CORE_HAVE_ALSA
-	// ALSA devices are enumerated statically, independent of the running driver.
-	if ( kind == Preferences::AudioDriver::Alsa ) {
-		return AlsaAudioDriver::getAlsaDevices();
-	}
-#endif
-	const auto pDriver = m_pHydrogen->getAudioDriver();
-	if ( pDriver == nullptr ) {
-		return QStringList();
-	}
-#ifdef H2CORE_HAVE_PORTAUDIO
-	if ( kind == Preferences::AudioDriver::PortAudio ) {
-		if ( const auto pPortAudio =
-				 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
-			return pPortAudio->getDevices( sHostAPI );
-		}
-		return QStringList();
-	}
-#endif
-#ifdef H2CORE_HAVE_COREAUDIO
-	if ( kind == Preferences::AudioDriver::CoreAudio ) {
-		return pDriver->getDevices();
-	}
-#endif
-	return QStringList();
+	// Shared with the IPC bridge (Hydrogen::getAudioDevices) so both
+	// processes enumerate identically (ADR 0029).
+	return m_pHydrogen->getAudioDevices( kind, sHostAPI );
 }
 
 QStringList LocalEngineAccess::getAudioHostAPIs() const {
-#ifdef H2CORE_HAVE_PORTAUDIO
-	const auto pDriver = m_pHydrogen->getAudioDriver();
-	if ( const auto pPortAudio =
-			 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
-		return pPortAudio->getHostAPIs();
-	}
-#endif
-	return QStringList();
+	return m_pHydrogen->getAudioHostAPIs();
 }
 
 bool LocalEngineAccess::isExportWritingFailed() const {

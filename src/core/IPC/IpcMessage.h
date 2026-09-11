@@ -230,6 +230,28 @@ enum class IpcOpcode : quint16 {
 	// break old peers that passed the (unchanged) protocol-version handshake.
 	SetSelectedInstrument,  ///< args: [int nInstrument]
 
+	// ── Driver enumeration queries (editor → engine, ADR 0029) ──
+	// The engine owns the audio/MIDI driver stacks, so port and device
+	// enumeration can only be served there — the mirror owns no drivers
+	// (AudioEngine forces MidiDriver::None in editor mode). These are
+	// blocking queries rather than mirror reads or event feeds: the GUI
+	// re-queries on dialog open / driver events, and a query gets FIFO
+	// ordering after in-flight commands (e.g. log clears) plus attach-time
+	// freshness for free. Appended at the enum tail for the same
+	// wire-compatibility reason as SetSelectedInstrument above.
+	GetMidiPorts,           ///< args: [int portType]; reply: args = [QStringList]
+	GetHandledMidiInputs,   ///< reply: args = [int count, then per entry:
+	                        ///< qint64 timeEpoch, int type, int data1,
+	                        ///< int data2, int channel,
+	                        ///< QVariantList actionTypes (ints),
+	                        ///< QStringList mappedInstruments]
+	GetHandledMidiOutputs,  ///< reply: args = [int count, then per entry:
+	                        ///< qint64 timeEpoch, int type, int data1,
+	                        ///< int data2, int channel]
+	GetAudioHostAPIs,       ///< reply: args = [QStringList]
+	GetAudioDevices,        ///< args: [int kind, QString hostAPI]; reply:
+	                        ///< args = [QStringList]
+
 	OpcodeCount
 };
 /**

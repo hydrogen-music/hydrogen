@@ -49,6 +49,11 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEditorChannelDeliversViaSignalNotQueue );
 	CPPUNIT_TEST( testEngineAccessFallsBackToLocal );
 	CPPUNIT_TEST( testSyncViaIpc );
+	CPPUNIT_TEST( testMidiDriverReadsRoundTrip );
+	CPPUNIT_TEST( testHandledMidiLogClearOrdering );
+	CPPUNIT_TEST( testSetPreferencesSkipsMirrorRestarts );
+	CPPUNIT_TEST( testSetPreferencesRestartsEngineDrivers );
+	CPPUNIT_TEST( testAudioDeviceQueriesRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -73,6 +78,11 @@ public:
 	void testEditorChannelDeliversViaSignalNotQueue();
 	void testEngineAccessFallsBackToLocal();
 	void testSyncViaIpc();
+	void testMidiDriverReadsRoundTrip();
+	void testHandledMidiLogClearOrdering();
+	void testSetPreferencesSkipsMirrorRestarts();
+	void testSetPreferencesRestartsEngineDrivers();
+	void testAudioDeviceQueriesRoundTrip();
 };
 
 #endif

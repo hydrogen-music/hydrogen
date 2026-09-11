@@ -1315,19 +1315,11 @@ AudioDriverInfo Hydrogen::getAudioDriverInfo() const {
 			 std::dynamic_pointer_cast<AlsaAudioDriver>( pDriver ) ) {
 		info.kind = Preferences::AudioDriver::Alsa;
 		info.connectedDevice = pAlsa->m_sAlsaAudioDevice;
-		info.audioDevices[ "" ].append( AlsaAudioDriver::getAlsaDevices() );
 		return info;
 	}
 #endif
 #ifdef H2CORE_HAVE_PORTAUDIO
-	if ( const auto pPortAudio =
-			 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
-		info.hostApis = pPortAudio->getHostAPIs();
-		for ( const auto& ssHostApi : info.hostApis ) {
-			info.audioDevices[ssHostApi].append(
-				pPortAudio->getDevices( ssHostApi )
-			);
-		}
+	if ( std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) != nullptr ) {
 		info.kind = Preferences::AudioDriver::PortAudio;
 		return info;
 	}
@@ -1359,6 +1351,50 @@ AudioDriverInfo Hydrogen::getAudioDriverInfo() const {
 	// surfaced in the UI, e.g. the plugin/fake drivers).
 	info.kind = Preferences::AudioDriver::Null;
 	return info;
+}
+
+QStringList Hydrogen::getAudioDevices(
+	Preferences::AudioDriver kind, const QString& sHostAPI ) const
+{
+	(void)kind;
+	(void)sHostAPI;
+#ifdef H2CORE_HAVE_ALSA
+	// ALSA devices are enumerated statically, independent of the running driver.
+	if ( kind == Preferences::AudioDriver::Alsa ) {
+		return AlsaAudioDriver::getAlsaDevices();
+	}
+#endif
+	const auto pDriver = getAudioDriver();
+	if ( pDriver == nullptr ) {
+		return QStringList();
+	}
+#ifdef H2CORE_HAVE_PORTAUDIO
+	if ( kind == Preferences::AudioDriver::PortAudio ) {
+		if ( const auto pPortAudio =
+				 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
+			return pPortAudio->getDevices( sHostAPI );
+		}
+		return QStringList();
+	}
+#endif
+#ifdef H2CORE_HAVE_COREAUDIO
+	if ( kind == Preferences::AudioDriver::CoreAudio ) {
+		return pDriver->getDevices();
+	}
+#endif
+	return QStringList();
+}
+
+QStringList Hydrogen::getAudioHostAPIs() const
+{
+#ifdef H2CORE_HAVE_PORTAUDIO
+	const auto pDriver = getAudioDriver();
+	if ( const auto pPortAudio =
+			 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
+		return pPortAudio->getHostAPIs();
+	}
+#endif
+	return QStringList();
 }
 
 const AudioDriverInfo& Hydrogen::getCachedAudioDriverInfo() const {

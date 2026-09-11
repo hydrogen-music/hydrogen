@@ -477,6 +477,16 @@ public:
 	 * the live driver pointer (ADR 0029). In editor mode the mirror engine has
 	 * no real driver; use #getCachedAudioDriverInfo for the IPC-cached copy. */
 	AudioDriverInfo		getAudioDriverInfo() const;
+	/** \return The external audio devices the @a kind driver can open on this
+	 * host, for the GUI's driver dialogs. ALSA enumerates statically —
+	 * independent of the running driver — while PortAudio and CoreAudio
+	 * require their driver to be running. Shared by LocalEngineAccess and
+	 * the IPC bridge so both processes enumerate identically (ADR 0029). */
+	QStringList		getAudioDevices( Preferences::AudioDriver kind,
+									 const QString& sHostAPI ) const;
+	/** \return The host APIs the running PortAudio driver knows; empty for
+	 * any other driver (ADR 0029). */
+	QStringList		getAudioHostAPIs() const;
 	/** \return The cached AudioDriverInfo populated via IPC in editor mode
 	 * (ADR 0029). In standalone mode this is default-constructed and unused. */
 	const AudioDriverInfo&	getCachedAudioDriverInfo() const;

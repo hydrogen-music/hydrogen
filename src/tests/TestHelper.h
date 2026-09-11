@@ -125,6 +125,10 @@ class TestHelper {
 	static TestHelper*	get_instance();
 
 	static H2Core::Hydrogen* makeEngine();
+	/** Engine fixture with a LoopBack MIDI driver — for tests exercising the
+	 * MIDI read surface over IPC without hardware. MIDI clock output is
+	 * disabled so the handled-message logs only contain what a test seeds. */
+	static H2Core::Hydrogen* makeEngineWithLoopBackMidi();
 	/** A standalone headless engine standing in for the editor-side mirror that
 	 * the GUI would read from. Caller owns it. */
 	static H2Core::Hydrogen* makeMirror();

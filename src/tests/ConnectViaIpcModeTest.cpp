@@ -37,6 +37,7 @@
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
 #include <core/IO/AudioDriverInfo.h>
+#include <core/IO/MidiBaseDriver.h>
 #include <core/IO/SoftwareDriver.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/EditorStateMirror.h>
@@ -48,6 +49,8 @@
 #include <core/IPC/EngineTelemetry.h>
 #include <core/IPC/EngineTelemetryShm.h>
 #include <core/LocalEngineAccess.h>
+#include <core/Midi/Midi.h>
+#include <core/Midi/MidiMessage.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -1202,6 +1205,282 @@ void ConnectViaIpcModeTest::testSyncViaIpc() {
 
 	// Clean up: stop the serve loop (joins the bridge thread) before deleting
 	// the engines.
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The engine owns the MIDI drivers (ADR 0029): port enumeration and the
+// handled-message logs must cross the IPC boundary field-complete. The
+// editor re-wraps the entries and the GUI tables show exactly what the
+// engine logged.
+void ConnectViaIpcModeTest::testMidiDriverReadsRoundTrip() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngineWithLoopBackMidi();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	auto pDriver = pEngine->getMidiDriver();
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	// Seed the output log first: the LoopBack driver loops every sent
+	// message back as input, so this entry also lands in the input log.
+	pDriver->enqueueOutputMessage( MidiMessage(
+		MidiMessage::Type::NoteOn, static_cast<Midi::Parameter>( 60 ),
+		static_cast<Midi::Parameter>( 110 ), Midi::Channel( 1 ) ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pDriver->getHandledOutputs().size() == 1 &&
+			pDriver->getHandledInputs().size() == 1; } ) );
+
+	// Then a pure input entry with distinct field values (a marshaling swap
+	// between positions must fail the comparison below).
+	pDriver->enqueueInputMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, static_cast<Midi::Parameter>( 7 ),
+		static_cast<Midi::Parameter>( 64 ), Midi::Channel( 10 ) ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pDriver->getHandledInputs().size() == 2; } ) );
+
+	// Both logs are quiet now (no MIDI clock stream in this fixture), so
+	// the engine-side snapshot taken while serving the query and the local
+	// snapshot taken here are identical.
+	const auto localInputs = pDriver->getHandledInputs();
+	const auto ipcInputs = pIpcAccess->getHandledMidiInputs();
+	CPPUNIT_ASSERT_EQUAL( localInputs.size(), ipcInputs.size() );
+	for ( std::size_t ii = 0; ii < localInputs.size(); ++ii ) {
+		CPPUNIT_ASSERT( localInputs[ ii ]->type == ipcInputs[ ii ]->type );
+		CPPUNIT_ASSERT( localInputs[ ii ]->data1 == ipcInputs[ ii ]->data1 );
+		CPPUNIT_ASSERT( localInputs[ ii ]->data2 == ipcInputs[ ii ]->data2 );
+		CPPUNIT_ASSERT(
+			localInputs[ ii ]->channel == ipcInputs[ ii ]->channel );
+		// Engine and editor share the machine clock, so the epoch count
+		// must survive the round-trip bit-exactly.
+		CPPUNIT_ASSERT(
+			localInputs[ ii ]->timePoint.time_since_epoch().count() ==
+			ipcInputs[ ii ]->timePoint.time_since_epoch().count() );
+		CPPUNIT_ASSERT( localInputs[ ii ]->actionTypes ==
+			ipcInputs[ ii ]->actionTypes );
+		CPPUNIT_ASSERT( localInputs[ ii ]->mappedInstruments ==
+			ipcInputs[ ii ]->mappedInstruments );
+	}
+
+	const auto localOutputs = pDriver->getHandledOutputs();
+	const auto ipcOutputs = pIpcAccess->getHandledMidiOutputs();
+	CPPUNIT_ASSERT_EQUAL( localOutputs.size(), ipcOutputs.size() );
+	for ( std::size_t ii = 0; ii < localOutputs.size(); ++ii ) {
+		CPPUNIT_ASSERT( localOutputs[ ii ]->type == ipcOutputs[ ii ]->type );
+		CPPUNIT_ASSERT( localOutputs[ ii ]->data1 == ipcOutputs[ ii ]->data1 );
+		CPPUNIT_ASSERT( localOutputs[ ii ]->data2 == ipcOutputs[ ii ]->data2 );
+		CPPUNIT_ASSERT(
+			localOutputs[ ii ]->channel == ipcOutputs[ ii ]->channel );
+		CPPUNIT_ASSERT(
+			localOutputs[ ii ]->timePoint.time_since_epoch().count() ==
+			ipcOutputs[ ii ]->timePoint.time_since_epoch().count() );
+	}
+
+	// Port enumeration is a live query against the engine's driver too; the
+	// LoopBack driver exposes no external ports.
+	CPPUNIT_ASSERT( pIpcAccess->getMidiPorts(
+		MidiBaseDriver::PortType::Input ).empty() );
+	CPPUNIT_ASSERT( pIpcAccess->getMidiPorts(
+		MidiBaseDriver::PortType::Output ).empty() );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The MidiControlDialog clears the logs and re-queries right after. The
+// channel is FIFO, so a query issued after the clear command must observe
+// the cleared log — not a stale pre-clear snapshot.
+void ConnectViaIpcModeTest::testHandledMidiLogClearOrdering() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngineWithLoopBackMidi();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	auto pDriver = pEngine->getMidiDriver();
+	CPPUNIT_ASSERT( pDriver != nullptr );
+
+	pDriver->enqueueOutputMessage( MidiMessage(
+		MidiMessage::Type::NoteOn, static_cast<Midi::Parameter>( 60 ),
+		static_cast<Midi::Parameter>( 110 ), Midi::Channel( 1 ) ) );
+	pDriver->enqueueInputMessage( MidiMessage(
+		MidiMessage::Type::ControlChange, static_cast<Midi::Parameter>( 7 ),
+		static_cast<Midi::Parameter>( 64 ), Midi::Channel( 10 ) ) );
+	// Wait for the loopback of the output message to settle so no entry can
+	// sneak in behind the clears below.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pDriver->getHandledOutputs().size() == 1 &&
+			pDriver->getHandledInputs().size() == 2; } ) );
+
+	// The dialog clears both logs, then re-queries. The clears are async
+	// commands; wait for the engine-side effect first (the bridge applies
+	// them within its poll cadence).
+	pIpcAccess->getCoreActionController()->clearMidiInputLog();
+	pIpcAccess->getCoreActionController()->clearMidiOutputLog();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pDriver->getHandledInputs().empty() &&
+			pDriver->getHandledOutputs().empty(); } ) );
+
+	// The channel is FIFO, so queries issued after the clears must observe
+	// the post-clear state too.
+	CPPUNIT_ASSERT( pIpcAccess->getHandledMidiInputs().empty() );
+	CPPUNIT_ASSERT( pIpcAccess->getHandledMidiOutputs().empty() );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// In editor mode CoreActionController::setPreferences() runs on the mirror
+// as the dual-apply of the forwarded command. The mirror owns no audio/MIDI
+// drivers (ADR 0016), so restarting them is a no-op that still pushes
+// driver-changed events — noise the GUI would react to. The restarts belong
+// to the authoritative engine alone.
+void ConnectViaIpcModeTest::testSetPreferencesSkipsMirrorRestarts() {
+	___INFOLOG( "" );
+
+	auto* pMirror = TestHelper::makeMirror();
+
+	// Drain the queue so only events pushed by the call below are examined.
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+	}
+
+	pMirror->getCoreActionController()->setPreferences(
+		pMirror->getPreferences() );
+
+	bool bSpuriousDriverChange = false;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		if ( pEvent->getType() == Event::Type::MidiDriverChanged ||
+			 pEvent->getType() == Event::Type::AudioDriverChanged ) {
+			bSpuriousDriverChange = true;
+		}
+	}
+	CPPUNIT_ASSERT( ! bSpuriousDriverChange );
+
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// The editor's driver-restart affordances forward via setPreferences: the
+// engine applies the new configuration and restarts its drivers, and the
+// editor observes the restart through the forwarded MidiDriverChanged event.
+void ConnectViaIpcModeTest::testSetPreferencesRestartsEngineDrivers() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngineWithLoopBackMidi();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	const auto pDriverBefore = pEngine->getMidiDriver();
+	CPPUNIT_ASSERT( pDriverBefore != nullptr );
+
+	// The dialog forwards its local preferences; the engine restarts its
+	// MIDI driver while applying them. The mirror is configured with
+	// MidiDriver::None (EditorSession::configureMirrorPreferences) — and
+	// the test-only LoopBack driver is deliberately not parseable, so it
+	// crosses as None — leaving the restarted engine driverless. What
+	// matters here is that the restart cycle ran on the engine, not the
+	// resulting driver kind.
+	pIpcAccess->getCoreActionController()->setPreferences(
+		pMirror->getPreferences() );
+
+	// The engine cycled its MIDI driver ...
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getMidiDriver() != pDriverBefore; } ) );
+	// ... and the editor can observe the restart.
+	CPPUNIT_ASSERT( TestHelper::pumpUntilEvent(
+		pMirror, Event::Type::MidiDriverChanged, 0 ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Audio device and host-API enumeration is served by the engine's driver
+// stack. With the Fake driver running, the PortAudio branch must answer
+// with a clean empty list — the previous mirror-local implementation
+// dereferenced an empty device map here (UB) — and the ALSA branch must
+// answer (its content is host-specific).
+void ConnectViaIpcModeTest::testAudioDeviceQueriesRoundTrip() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	// The running Fake driver is not PortAudio: no host APIs, and a device
+	// query for a foreign kind must come back cleanly empty.
+	CPPUNIT_ASSERT( pIpcAccess->getAudioHostAPIs().empty() );
+	CPPUNIT_ASSERT( pIpcAccess->getAudioDevices(
+		Preferences::AudioDriver::PortAudio, QString( "nonexistent" )
+	).empty() );
+	CPPUNIT_ASSERT( pIpcAccess->getAudioDevices(
+		Preferences::AudioDriver::Fake, QString() ).empty() );
+	// ALSA enumerates statically, independent of the running driver; the
+	// result depends on the host, so only require an answer.
+	pIpcAccess->getAudioDevices( Preferences::AudioDriver::Alsa, QString() );
+
+	pIpcAccess.reset();
 	pSession.reset();
 	pEngineSession->stop();
 	delete pMirror;

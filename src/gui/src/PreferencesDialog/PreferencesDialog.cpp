@@ -1069,9 +1069,14 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->setTheme( m_pCurrentTheme );
 
-	if ( m_bAudioDriverRestartRequired || m_bMidiDriverRestartRequired ) {
+	if ( ( m_bAudioDriverRestartRequired || m_bMidiDriverRestartRequired ) &&
+		 pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
 		// Restart audio and MIDI drivers now that we updated all
-		// values in Preferences.
+		// values in Preferences. In editor mode the restart is the
+		// authoritative engine's job: it restarts its drivers while
+		// applying the forwarded preferences below (the mirror owns no
+		// drivers — a local restart would be a no-op pushing spurious
+		// driver-changed events).
 		QApplication::setOverrideCursor( Qt::WaitCursor );
 		if ( m_bAudioDriverRestartRequired ) {
 			pHydrogen->restartAudioDriver();
@@ -1903,7 +1908,19 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 
 	writeAudioDriverPreferences();
 	auto pHydrogen = HydrogenApp::pHydrogen();
-	pHydrogen->restartAudioDriver();
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		// The restart is meant for the authoritative engine's driver: the
+		// mirror owns none. Applying the just-written preferences restarts
+		// the engine's drivers (CoreActionController::setPreferences); the
+		// channel is FIFO, so the cache refresh below observes the
+		// post-restart state.
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences(
+			pHydrogen->getPreferences() );
+		HydrogenApp::get_instance()->refreshCachedAudioDriverInfo();
+	}
+	else {
+		pHydrogen->restartAudioDriver();
+	}
 
 	QApplication::restoreOverrideCursor();
 
@@ -1920,10 +1937,18 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 void PreferencesDialog::on_restartMidiDriverButton_clicked()
 {
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	
+
 	writeMidiDriverPreferences();
 	auto pHydrogen = HydrogenApp::pHydrogen();
-	pHydrogen->restartMidiDriver();
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		// Same forwarding as the audio driver restart above.
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences(
+			pHydrogen->getPreferences() );
+		HydrogenApp::get_instance()->refreshCachedMidiDriverInfo();
+	}
+	else {
+		pHydrogen->restartMidiDriver();
+	}
 
 	QApplication::restoreOverrideCursor();
 

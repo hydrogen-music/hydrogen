@@ -1379,7 +1379,7 @@ void MidiControlDialog::updateInputTable() {
 		if ( ii < nOldRowCount ) {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiInputTable->cellWidget( ii, 0 ) );
-			if ( ppLabel == nullptr || handledInputs[ ii ] != nullptr ||
+			if ( ppLabel == nullptr || handledInputs[ ii ] == nullptr ||
 				 ppLabel->text() != H2Core::timePointToQString(
 					 handledInputs[ ii ]->timePoint ) ) {
 				bInvalid = true;
@@ -1393,6 +1393,9 @@ void MidiControlDialog::updateInputTable() {
 		pLabel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 		pLabel->setAlignment( Qt::AlignCenter );
 		pLabel->setText( sText );
+		// Columns further right (action types, mapped instruments) can
+		// elide; the tooltip keeps the full text reachable.
+		pLabel->setToolTip( sText );
 
 		return pLabel;
 	};
@@ -1565,10 +1568,15 @@ void MidiControlDialog::updateOutputTable() {
 	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
 
 	// First, we check whether the table holds mostly the same entries and we
-	// just have to insert a new one at the bottom.
+	// just have to insert a new one at the bottom. But after
+	// MidiBaseDriver::nBacklogSize events the first one will be poped and a new
+	// one appended.
 	bool bInvalid = false;
 	for ( int ii = 0; ii < handledOutputs.size(); ++ii ) {
-		if ( ii < m_pMidiOutputTable->rowCount() ) {
+		// Rows beyond the pre-update count were just created by
+		// setRowCount() above and have no cell widgets yet — comparing
+		// against rowCount() instead would always invalidate the fast path.
+		if ( ii < nOldRowCount ) {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiOutputTable->cellWidget( ii, 0 ) );
 			if ( ppLabel == nullptr || handledOutputs[ ii ] == nullptr ||

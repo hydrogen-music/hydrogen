@@ -242,6 +242,61 @@ this ADR rather than split out):
 `IEngineAccess::getMidiDriver()` was removed; `LocalEngineAccess` backs the
 accessors off the live driver, `IpcEngineAccess` returns deferred stubs.
 
+## Amendment (2026-09-11): enumeration queries, handled-log reads, restart forwarding
+
+The deferred editor-mode steps named above are implemented for the
+`--connect-via-ipc` mode. Six points refine the accepted text (which is kept
+as the baseline):
+
+1. **Five enumeration queries, appended at the opcode tail.**
+   `GetMidiPorts` (args `[int portType]`, reply `[QStringList]`),
+   `GetHandledMidiInputs` / `GetHandledMidiOutputs` (reply: count-prefixed
+   positional entries), `GetAudioHostAPIs` (reply `[QStringList]`), and
+   `GetAudioDevices` (args `[int kind, QString hostAPI]`, reply
+   `[QStringList]`). `IpcEngineAccess` serves all five via blocking requests
+   with an empty-plus-warning fallback; the audio pair is answered by the
+   same `Hydrogen::getAudioDevices()` / `Hydrogen::getAudioHostAPIs()` that
+   `LocalEngineAccess` delegates to, so both processes enumerate identically
+   (the previous mirror-local `getAudioDevices` also dereferenced an empty
+   device map for foreign driver kinds — UB, gone with the query).
+
+2. **Handled logs: query, not event feed.** The baseline floated the logs as
+   an event stream. The implementation queries instead: `EventQueue` events
+   carry only `(type, int value, id)` — a log entry is five to seven fields,
+   so a feed would need a correlation side-channel — and the GUI re-queries
+   on every MidiInput/MidiOutput event anyway. A query is FIFO-ordered after
+   in-flight commands (log clears) and attach-fresh by construction.
+
+3. **TimePoint marshaling.** Engine and editor share the host (QLocalSocket),
+   hence the same clock epoch: entries carry
+   `time_since_epoch().count()` as `qint64` and reconstruct losslessly.
+
+4. **`PortType` passes through verbatim.** `MidiBaseDriver::PortType`
+   semantics are inverted relative to Hydrogen's own direction
+   (`PortType::Output` feeds the Input combo); all backends agree on them,
+   so the query forwards the raw value instead of "fixing" it at the
+   boundary.
+
+5. **Driver restarts are forwarded, not mirrored.** The PreferencesDialog
+   restart buttons forward via `CoreActionController::setPreferences()` —
+   the engine restarts its drivers while applying the forwarded preferences
+   — followed by a blocking cache refresh; the channel is FIFO, so the
+   refresh observes the post-restart state. The OK path's explicit restarts
+   are gated to non-Editor mode (they are load-bearing in standalone only),
+   and `CoreActionController::setPreferences()` skips the restarts in Editor
+   mode: the mirror owns no drivers, so its restarts were no-ops that still
+   pushed driver-changed events. Accepted coarseness: the engine's
+   `setPreferences()` semantics restart *both* drivers, so either restart
+   button bounces the engine's audio and MIDI stacks together (momentarily
+   dropping MIDI connections and clearing the handled-message logs, which
+   live in the driver instance) — matching what the OK path does. Dedicated
+   per-driver restart opcodes remain a possible refinement.
+
+6. **Enumeration is driver-kind-dependent by backend.** ALSA enumerates
+   statically (independent of the running driver); PortAudio host APIs and
+   devices and CoreAudio devices require their driver to be running — the
+   query answers empty otherwise.
+
 ## More Information
 
 * Code: `src/core/IO/AudioDriver.h` (`getSampleRate`/`getBufferSize`/`getLatency`/

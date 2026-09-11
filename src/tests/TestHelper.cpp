@@ -355,6 +355,22 @@ H2Core::Hydrogen* TestHelper::makeEngine() {
 	return pHydrogen;
 }
 
+H2Core::Hydrogen* TestHelper::makeEngineWithLoopBackMidi() {
+	auto pPref = H2Core::Preferences::create_instance();
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
+	pPref->setOscServerEnabled( false );
+	// Without this the driver's open() starts a MIDI clock stream whose
+	// ticks would continuously append to the handled-output log and make
+	// snapshot comparisons racy.
+	pPref->setMidiClockOutputSend( false );
+	auto* pHydrogen = new H2Core::Hydrogen(
+		pPref, H2Core::ProcessMode::Headless, -1
+	);
+	pHydrogen->setFullyOperational( true );
+	return pHydrogen;
+}
+
 H2Core::Hydrogen* TestHelper::makeMirror() {
 	auto pPref = H2Core::Preferences::create_instance();
 	// Same headless-mirror configuration main()'s editor branch uses (passive

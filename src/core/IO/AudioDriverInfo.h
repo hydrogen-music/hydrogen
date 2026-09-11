@@ -71,12 +71,6 @@ struct AudioDriverInfo {
 	int bufferSize = 1028;
 	/** Latency componensation supported by some audio drivers. */
 	int latencyFrames = 1028;
-	/** Available options displabed in #PreferencesDialog. */
-	QStringList hostApis;
-	/** Available devices for a specific driver. In case of Portaudio, those
-	 * devices are coupled to a particular host API stored as key. Drivers, for
-	 * which this is not applicable, use an empty key to store all devices. */
-	std::map<QString, QStringList> audioDevices;
 };
 
 }

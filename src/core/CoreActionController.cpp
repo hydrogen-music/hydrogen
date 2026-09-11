@@ -1581,9 +1581,16 @@ bool CoreActionController::setPreferences(
 		pPreferences->m_fMetronomeVolume
 	);
 
-	m_pHydrogen->restartAudioDriver();
-	m_pHydrogen->restartMidiDriver();
-	m_pHydrogen->recreateOscServer();
+	// In editor mode this controller runs on the mirror, which owns no
+	// audio/MIDI/OSC endpoints (ADR 0016): the restarts would be no-ops
+	// that still push driver-changed events — noise the GUI reacts to. The
+	// authoritative engine restarts its own drivers when it applies the
+	// same preferences via the forwarded command.
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+		m_pHydrogen->restartAudioDriver();
+		m_pHydrogen->restartMidiDriver();
+		m_pHydrogen->recreateOscServer();
+	}
 
 	// If the GUI is active, we have to update it to reflect the
 	// changes in the preferences.

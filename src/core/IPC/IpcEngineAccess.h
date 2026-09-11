@@ -136,10 +136,12 @@ class IpcEngineAccess : public IEngineAccess,
 	int getAudioLatencyFrames() const override {
 		return m_pMirror->getCachedAudioDriverInfo().latencyFrames; }
 	QStringList getAudioDevices(
-		Preferences::AudioDriver /*kind*/, const QString& /*sHostAPI*/
+		Preferences::AudioDriver kind, const QString& sHostAPI
 	) const override;
-	QStringList getAudioHostAPIs() const override {
-		return m_pMirror->getAudioDriverInfo().hostApis; }
+	/** Host APIs and devices are enumerated by the engine's driver stack —
+	 * the mirror owns no drivers — so these are blocking queries (ADR
+	 * 0029). */
+	QStringList getAudioHostAPIs() const override;
 	/** Audio export using #DiskWriterDriver is only done in the mirror engine
 	 * and not in the authoritative engine. */
 	bool isExportWritingFailed() const override;
@@ -152,15 +154,17 @@ class IpcEngineAccess : public IEngineAccess,
 	// that cache.
 	MidiDriverInfo getMidiDriverInfo() const override {
 			return m_pMirror->getCachedMidiDriverInfo(); }
+	// The mirror owns no MIDI driver (AudioEngine forces MidiDriver::None in
+	// editor mode), so the entire MIDI read surface is served by blocking
+	// queries against the authoritative engine (ADR 0029). A query is
+	// FIFO-ordered after in-flight commands (e.g. log clears) and always
+	// reflects the engine's current state.
 	std::vector<QString> getMidiPorts(
-		MidiBaseDriver::PortType /*portType*/ ) const override {
-		return std::vector<QString>(); }
+		MidiBaseDriver::PortType portType ) const override;
 	std::vector<std::shared_ptr<MidiInput::HandledInput>>
-		getHandledMidiInputs() const override {
-		return std::vector<std::shared_ptr<MidiInput::HandledInput>>(); }
+		getHandledMidiInputs() const override;
 	std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
-		getHandledMidiOutputs() const override {
-		return std::vector<std::shared_ptr<MidiOutput::HandledOutput>>(); }
+		getHandledMidiOutputs() const override;
 
 	// --- commands: transport forwarded over IPC, view state applied locally ---
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override {

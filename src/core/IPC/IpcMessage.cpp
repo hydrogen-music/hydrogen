@@ -506,6 +506,21 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::ReleasePlayingNotes:
 		sOpcode = "RELEASE_PLAYING_NOTES";
 		break;
+	case IpcOpcode::GetMidiPorts:
+		sOpcode = "GET_MIDI_PORTS";
+		break;
+	case IpcOpcode::GetHandledMidiInputs:
+		sOpcode = "GET_HANDLED_MIDI_INPUTS";
+		break;
+	case IpcOpcode::GetHandledMidiOutputs:
+		sOpcode = "GET_HANDLED_MIDI_OUTPUTS";
+		break;
+	case IpcOpcode::GetAudioHostAPIs:
+		sOpcode = "GET_AUDIO_HOST_APIS";
+		break;
+	case IpcOpcode::GetAudioDevices:
+		sOpcode = "GET_AUDIO_DEVICES";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";
