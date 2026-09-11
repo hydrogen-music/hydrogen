@@ -1841,6 +1841,16 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		return true;
 	}
 
+	case Event::Type::MidiDriverChanged: {
+		refreshCachedMidiDriverInfo();
+		// Now that GUI and mirror can work on correct data, retrigger the event
+		// locally.
+		m_pHydrogen->getEventQueue()->pushEvent(
+			pEvent->getType(), pEvent->getValue()
+		);
+		return true;
+	}
+
 	default:
 		return false;
 	}
