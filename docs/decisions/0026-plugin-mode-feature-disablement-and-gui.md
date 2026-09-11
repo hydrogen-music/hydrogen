@@ -183,3 +183,27 @@ closed by this amendment as well:
    editor's drumkit-export path. `DrumkitPropertiesDialog` replaced its
    local null-client guard with the query, so NSM-session export works
    identically in both modes and needs no OSC `#ifdef`.
+9. **Error events: runtime forward + boot replay.** Runtime errors
+   cross via the generic event forward (`isEngineOriginEvent` exempts
+   only editor-internal types) and reach the editor's popup path. Two
+   silent drops are closed: `EventQueue::pushEvent` no longer gates
+   `Event::Type::Error` on `isFullyOperational()` — constructor-time
+   failures (OSC port conflict at server start, driver start) must
+   survive — and `EngineSession` retains the last 16 error codes while
+   no editor is attached (instead of discarding them with the rest of
+   the queue) and replays them on accept, ahead of the live queue, so
+   the editor user still sees e.g. the boot-time OSC port-busy popup.
+10. **Engine-origin dirty-state sync.** `CoreActionController::setSong()`
+   preserves the incoming song's `isModified` flag instead of resetting
+   it: a song pulled over IPC (`ipcSyncSong`) carries the engine's
+   authoritative dirty state, and the installer no longer wipes it
+   (making point 7's pulled-flag claim true by construction). Engine-
+   origin flips (OSC/MIDI-reachable `CoreActionController` commands,
+   the NSM open re-mark) push `SongIsModified`, which crosses tagged
+   engine-origin; `handleRemoteEvent` answers it with the same full
+   re-pull the remote `UpdateSong` handler performs — flag and content
+   follow the authoritative engine. Editor-originated flips forward
+   with `Event::Trigger::Suppress` (no echo: the editor already applied
+   them locally, and an echo would trigger a redundant re-pull per
+   edit). The re-pull clears the editor's undo stack — intended, since
+   the engine-side edit is not part of the editor's undo history.

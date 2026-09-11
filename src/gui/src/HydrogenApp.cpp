@@ -1809,6 +1809,21 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		return true;
 	}
 
+	case Event::Type::SongIsModified: {
+		// An engine-origin dirty flip (OSC/MIDI-driven edit, NSM open
+		// re-mark): re-pull the song so the mirror's flag — and the
+		// content the engine changed — follow the authoritative state
+		// (ADR 0026 point 10). Editor-origin flips do not take this
+		// path: the bridge applies their command with Trigger::Suppress
+		// (no echo), and the mirror-local apply pushes an Editor-origin
+		// event which the origin gate above filters out. Note: the
+		// re-pull runs the mirror's setSong, whose local UpdateSong
+		// clears the undo stack — intended, since the engine-side edit
+		// is not part of the editor's undo history.
+		ipcSyncSong( pChannel );
+		return true;
+	}
+
 	case Event::Type::UpdatePreferences: {
 		// The authoritative engine changed core preferences — pull fresh state.
 		ipcSyncCorePreferences( pChannel );

@@ -320,7 +320,8 @@ public:
 	void setPatternModified( bool bIsModified, int nIndex );
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set.*/
-	void setSongModified( bool bIsModified );
+	void setSongModified( bool bIsModified,
+						  Event::Trigger trigger = Event::Trigger::Default );
 	/** Wrapper around Song::getIsModified() that checks whether a
 		song is set.*/
 	bool getSongModified() const;

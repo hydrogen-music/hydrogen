@@ -1466,8 +1466,13 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 2 );
 	}
 
-	// As we just set a fresh song, we can mark it not modified
-	m_pHydrogen->setSongModified( false );
+	// Preserve the incoming song's modified flag. Songs from disk or
+	// the empty-song factories are always clean, but a song pulled over
+	// IPC (ipcSyncSong / editor re-sync) carries the engine's
+	// authoritative dirty state and must not be wiped on install (ADR
+	// 0026 point 10). With equal flags the call below early-returns
+	// without pushing an event.
+	m_pHydrogen->setSongModified( pSong->getIsModified() );
 
 	return true;
 }

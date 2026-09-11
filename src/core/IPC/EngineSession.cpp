@@ -137,6 +137,10 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 		// the last discardEvents), so the priming below supersedes stale
 		// events — e.g. one queued before a Suppress-writer clamped the
 		// stored selection without pushing a new event.
+		// Replay errors retained while no editor was attached first, so
+		// the editor receives them in chronological order ahead of the
+		// live queue (ADR 0026 point 9).
+		flushPendingErrors( pConn );
 		forwardEvents( pConn );
 		// Plain unsynchronized reads on this bridge thread, like the telemetry
 		// snapshot: word-sized values, benign tearing-wise.
@@ -206,9 +210,33 @@ void EngineSession::discardEvents() {
 	if ( pQueue == nullptr ) {
 		return;
 	}
-	while ( pQueue->popEvent() != nullptr ) {
-		// no editor to forward to; just keep the queue drained
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+		// Errors must survive the detached phase: the editor attaches
+		// later and the user still needs to see e.g. the OSC port-busy
+		// popup from engine boot (ADR 0026 point 9). Bounded so a
+		// driver error storm can not grow the buffer unbounded.
+		if ( pEvent->getType() == Event::Type::Error ) {
+			if ( m_pendingErrorCodes.size() >=
+				 static_cast<size_t>( nMaxPendingErrors ) ) {
+				m_pendingErrorCodes.pop_front();
+			}
+			m_pendingErrorCodes.push_back( pEvent->getValue() );
+		}
 	}
+}
+
+void EngineSession::flushPendingErrors( IpcChannel* pConn ) {
+	if ( pConn == nullptr ) {
+		return;
+	}
+	for ( const int nErrorCode : m_pendingErrorCodes ) {
+		// nInvalidId: the replay carries no engine-side event id (the
+		// editor assigns a fresh one when re-queueing).
+		IpcEngineBridge::forwardEvent(
+			*pConn, Event::Type::Error, nErrorCode, Event::nInvalidId );
+	}
+	m_pendingErrorCodes.clear();
 }
 
 EngineTelemetrySnapshot EngineSession::buildTelemetrySnapshot( Hydrogen* pEngine ) {

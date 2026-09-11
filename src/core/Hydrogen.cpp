@@ -1758,7 +1758,7 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 	);
 }
 
-void Hydrogen::setSongModified( bool bIsModified )
+void Hydrogen::setSongModified( bool bIsModified, Event::Trigger trigger )
 {
 	if ( m_pSong == nullptr || m_pSong->getIsModified() == bIsModified ) {
 		return;
@@ -1766,7 +1766,13 @@ void Hydrogen::setSongModified( bool bIsModified )
 
 	m_pSong->setIsModified( bIsModified );
 
-	m_pEventQueue->pushEvent( Event::Type::SongIsModified, -1 );
+	// Suppress: the editor already applied an editor-originated flip on
+	// its mirror before forwarding the command — an echoed event would
+	// trigger a redundant full song re-pull per edit once the editor
+	// re-syncs on SongIsModified (ADR 0026 point 10).
+	if ( trigger != Event::Trigger::Suppress ) {
+		m_pEventQueue->pushEvent( Event::Type::SongIsModified, -1 );
+	}
 
 #ifdef H2CORE_HAVE_OSC
 	if ( isUnderSessionManagement() && m_pNsmClient != nullptr ) {

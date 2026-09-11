@@ -1829,3 +1829,264 @@ void ConnectViaIpcModeTest::testSessionFolderQueryRoundTrip() {
 
 	___INFOLOG( "passed" );
 }
+
+// The song XML carries isModified across the split (ipc-isModified), but
+// CoreActionController::setSong() resets the flag unconditionally on the
+// receiving side — every re-pull (HydrogenApp::ipcSyncSong, the remote
+// UpdateSong handler) wipes the engine's dirty state on the mirror. The
+// installer must preserve the pulled flag (ADR 0026 point 10).
+void ConnectViaIpcModeTest::testPulledSongPreservesModifiedFlag() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pChannel = pSession->getChannel();
+	CPPUNIT_ASSERT( pChannel != nullptr );
+
+	// An engine-side edit (OSC/MIDI-reachable CAC surface) marks the
+	// engine's song modified. (The call's return value only reflects
+	// OSC feedback, which is absent in this harness.)
+	pEngine->getCoreActionController()->setMasterIsMuted( true );
+	CPPUNIT_ASSERT( pEngine->getSong()->getIsModified() );
+
+	// The editor re-pulls the song exactly as HydrogenApp::ipcSyncSong
+	// does when handling a remote UpdateSong/SongIsModified event.
+	IpcMessage reply;
+	CPPUNIT_ASSERT( pChannel->request(
+		IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) );
+	CPPUNIT_ASSERT( ! reply.getPayload().isEmpty() );
+	auto pSong = Song::fromXmlBuffer(
+		reply.getPayload(), Xml::Flag::Ipc, true, pMirror );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	// The XML carries the engine's dirty state ...
+	CPPUNIT_ASSERT( pSong->getIsModified() );
+	pMirror->getCoreActionController()->setSong( pSong );
+	// ... and the mirror keeps it after installing the song.
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
+
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Engine-origin dirty flips (OSC/MIDI-reachable CAC commands) push
+// SongIsModified on the engine queue; the generic event forward carries
+// it to the editor tagged with the Headless origin — the signal
+// HydrogenApp::handleRemoteEvent re-syncs the mirror on (ADR 0026
+// point 10).
+void ConnectViaIpcModeTest::testEngineFlipEventCrosses() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	// Drain the mirror queue of connect-time noise first.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	// An engine-side edit (OSC/MIDI-reachable CAC surface) marks the
+	// engine's song modified. (The call's return value only reflects
+	// OSC feedback, which is absent in this harness.)
+	pEngine->getCoreActionController()->setMasterIsMuted( true );
+	CPPUNIT_ASSERT( pEngine->getSong()->getIsModified() );
+
+	// The flip event crosses tagged as engine-origin. The found state
+	// is sticky in the outer scope: pumpUntil() re-invokes the
+	// condition after the loop, and a draining lambda would re-run on
+	// an already-emptied queue.
+	bool bFound = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pEvent;
+		while ( ( pEvent = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pEvent->getType() == Event::Type::SongIsModified &&
+				 pEvent->getOrigin() == H2Core::ProcessMode::Headless ) {
+				bFound = true;
+			}
+		}
+		return bFound;
+	} ) );
+
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Editor-originated flips apply on the mirror directly and forward as
+// the SetSongModified command; the engine must not echo the flip back as
+// an event — the editor already knows, and the echo would trigger a
+// full song re-pull per edit once handleRemoteEvent re-syncs on
+// SongIsModified (ADR 0026 point 10).
+void ConnectViaIpcModeTest::testEditorFlipEchoSuppressed() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	// Drain the mirror queue of connect-time noise first.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	pIpcAccess->setSongModified( true );
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
+
+	// Give a (suppressed) echo ample time to not arrive.
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+
+	// No engine-origin SongIsModified may sit in the mirror queue. The
+	// mirror-local apply pushes one tagged Editor — that one is fine.
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		CPPUNIT_ASSERT( ! ( pEvent->getType() ==
+								Event::Type::SongIsModified &&
+							pEvent->getOrigin() ==
+								H2Core::ProcessMode::Headless ) );
+	}
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Errors raised while the editor is attached cross via the generic
+// event forward and reach the editor's error popup path
+// (MainForm::errorEvent) — only their origin tag distinguishes them
+// from local ones (ADR 0026 point 9).
+void ConnectViaIpcModeTest::testRuntimeErrorForwardsToEditor() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	// Drain the mirror queue of connect-time noise first.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	pEngine->getEventQueue()->pushEvent(
+		Event::Type::Error, Hydrogen::ERROR_STARTING_DRIVER );
+
+	// The error crosses tagged as engine-origin. The found state is
+	// sticky in the outer scope: pumpUntil() re-invokes the condition
+	// after the loop, and a draining lambda would re-run on an
+	// already-emptied queue.
+	bool bFound = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pEvent;
+		while ( ( pEvent = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pEvent->getType() == Event::Type::Error &&
+				 pEvent->getValue() == Hydrogen::ERROR_STARTING_DRIVER &&
+				 pEvent->getOrigin() == H2Core::ProcessMode::Headless ) {
+				bFound = true;
+			}
+		}
+		return bFound;
+	} ) );
+
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Errors raised before the editor attaches (engine boot, OSC port
+// conflicts) used to vanish: the engine's serve loop discards queued
+// events while no client is connected. The session retains the last
+// errors and replays them on accept, so the editor user still sees
+// e.g. the OSC port-busy popup (ADR 0026 point 9).
+void ConnectViaIpcModeTest::testBootErrorReplayedOnConnect() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	// An error "raised" while no editor is attached. Wait past several
+	// serve poll windows so the no-client branch has processed the
+	// queue (retaining the error) before the editor connects.
+	pEngine->getEventQueue()->pushEvent(
+		Event::Type::Error, Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	// The retained error is replayed to the freshly attached editor ...
+	int nSeen = 0;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pEvent;
+		while ( ( pEvent = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pEvent->getType() == Event::Type::Error &&
+				 pEvent->getOrigin() == H2Core::ProcessMode::Headless ) {
+				++nSeen;
+			}
+		}
+		return nSeen >= 1;
+	} ) );
+	// ... exactly once (no duplicate from the live pipeline).
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		if ( pEvent->getType() == Event::Type::Error &&
+			 pEvent->getOrigin() == H2Core::ProcessMode::Headless ) {
+			++nSeen;
+		}
+	}
+	CPPUNIT_ASSERT_EQUAL( 1, nSeen );
+
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

@@ -61,6 +61,11 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testRecreateOscServerForwardsToEngine );
 	CPPUNIT_TEST( testSongModifiedForwardsToEngine );
 	CPPUNIT_TEST( testSessionFolderQueryRoundTrip );
+	CPPUNIT_TEST( testPulledSongPreservesModifiedFlag );
+	CPPUNIT_TEST( testEngineFlipEventCrosses );
+	CPPUNIT_TEST( testEditorFlipEchoSuppressed );
+	CPPUNIT_TEST( testRuntimeErrorForwardsToEditor );
+	CPPUNIT_TEST( testBootErrorReplayedOnConnect );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -97,6 +102,11 @@ public:
 	void testRecreateOscServerForwardsToEngine();
 	void testSongModifiedForwardsToEngine();
 	void testSessionFolderQueryRoundTrip();
+	void testPulledSongPreservesModifiedFlag();
+	void testEngineFlipEventCrosses();
+	void testEditorFlipEchoSuppressed();
+	void testRuntimeErrorForwardsToEditor();
+	void testBootErrorReplayedOnConnect();
 };
 
 #endif

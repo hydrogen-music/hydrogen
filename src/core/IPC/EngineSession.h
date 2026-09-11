@@ -27,6 +27,7 @@
 #include <QtCore/QString>
 
 #include <atomic>
+#include <deque>
 #include <future>
 #include <memory>
 
@@ -99,9 +100,16 @@ private:
 	void handleMessage( IpcChannel* pConn, const IpcMessage& msg );
 	/** Forward all pending engine-origin events to the editor. */
 	void forwardEvents( IpcChannel* pConn );
-	/** Drain (and discard) the EventQueue while no editor is attached, so it does
-	 * not overflow. */
+	/** Drain the EventQueue while no editor is attached, so it does not
+	 * overflow. Error events are retained for replay on the next attach
+	 * (ADR 0026 point 9) instead of being discarded. */
 	void discardEvents();
+	/** Replay the errors retained while no editor was attached to a
+	 * freshly accepted editor connection, then clear the buffer.
+	 * Delivery is once per error: a respawned editor does not see the
+	 * first editor's boot errors again — only errors raised during a
+	 * later detached phase replay anew. */
+	void flushPendingErrors( IpcChannel* pConn );
 	/** Publish the engine's current transport into the telemetry block, if any. */
 	void publishTelemetry();
 
@@ -116,6 +124,13 @@ private:
 	std::unique_ptr<EngineTelemetryShm> m_pTelemetry;
 	/** Poll/accept granularity; also bounds stop() latency. */
 	int m_nPollTimeoutMs = 50;
+	/** Upper bound for retained error events; a driver error storm must
+	 * not grow the replay buffer unbounded (oldest dropped first). */
+	static constexpr int nMaxPendingErrors = 16;
+	/** Error codes raised while no editor was attached, replayed on the
+	 * next accept (ADR 0026 point 9). Only touched on the bridge
+	 * thread. */
+	std::deque<int> m_pendingErrorCodes;
 };
 
 }

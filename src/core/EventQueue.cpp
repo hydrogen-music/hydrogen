@@ -57,7 +57,13 @@ void EventQueue::pushEvent(
 	std::lock_guard< std::mutex > lock( m_mutex );
 
 	auto pHydrogen = m_pHydrogen;
-	if ( pHydrogen == nullptr || ! pHydrogen->isFullyOperational() ) {
+	// Errors are exempt from the fully-operational gate:
+	// constructor-time failures (OSC port conflict at server start,
+	// driver start) must survive until an editor attaches — the session
+	// retains and replays them so the user still sees the popup (ADR
+	// 0026 point 9).
+	if ( pHydrogen == nullptr ||
+		 ( type != Event::Type::Error && ! pHydrogen->isFullyOperational() ) ) {
 		return;
 	}
 

@@ -115,9 +115,12 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			// No CoreActionController surface for this — apply on the
 			// engine directly (like SetSelectedInstrument). The engine's
 			// NsmClient reports the flip to the session manager when one
-			// is connected; the SongIsModified event stays engine-side
-			// (the editor already applied the flip on its mirror).
-			pHydrogen->setSongModified( args[0].toBool() );
+			// is connected. Suppress: the editor already applied the
+			// flip on its mirror — an echoed SongIsModified would
+			// trigger a redundant full song re-pull per edit (ADR 0026
+			// point 10).
+			pHydrogen->setSongModified(
+				args[0].toBool(), Event::Trigger::Suppress );
 			return true;
 		}
 		return false;
