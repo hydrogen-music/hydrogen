@@ -820,6 +820,31 @@ bool CoreActionController::previewInstrument( int nInstrument, bool bStop )
 	return true;
 }
 
+bool CoreActionController::previewInstrument(
+	std::shared_ptr<Instrument> pInstrument, std::shared_ptr<Note> pNote )
+{
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		return false;
+	}
+
+	if ( pInstrument == nullptr || pNote == nullptr ) {
+		ERRORLOG( "Invalid input" );
+		return false;
+	}
+
+	// The instrument may have crossed the editor↔engine split as XML — its
+	// samples are referenced by (shared-disk) paths and not loaded yet
+	// (ADR 0026 point 11).
+	pInstrument->loadSamples(
+		m_pHydrogen->getAudioEngine()->getPlayhead()->getBpm(),
+		m_pHydrogen->getPreferences().get() );
+
+	m_pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
+		pInstrument, pNote );
+
+	return true;
+}
+
 bool CoreActionController::noteOn( std::shared_ptr<Note> pNote )
 {
 	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {

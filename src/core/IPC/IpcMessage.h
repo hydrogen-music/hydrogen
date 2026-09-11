@@ -276,6 +276,15 @@ enum class IpcOpcode : quint16 {
 	                        ///< (editor→engine, ADR 0030)
 	GetSessionFolderPath,   ///< reply: args = [QString folder]; empty:
 	                        ///< no NSM session in effect
+	// The file browser, sound library, and sample editor audition ad-hoc
+	// instruments that are not part of the current song's kit — the
+	// number-based PreviewInstrument command can not address them, and the
+	// mirror can not render audio anyway. The instrument crosses as an XML
+	// payload (samples referenced by shared-disk paths, reloaded by the
+	// engine), the note as an XML arg. Appended at the enum tail for the
+	// same wire-compatibility reason.
+	PreviewInstrumentSerialized, ///< command: payload = instrument XML;
+	                             ///< args = [note XML] (editor→engine)
 
 	OpcodeCount
 };

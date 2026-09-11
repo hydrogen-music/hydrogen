@@ -31,8 +31,10 @@
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
@@ -56,6 +58,7 @@
 #include <core/NsmClient.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Sampler/Sampler.h>
 
 #include <QtCore/QCoreApplication>
 
@@ -2083,6 +2086,70 @@ void ConnectViaIpcModeTest::testBootErrorReplayedOnConnect() {
 	}
 	CPPUNIT_ASSERT_EQUAL( 1, nSeen );
 
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The file browser, sound library, and sample editor audition instruments
+// that are not part of the current song's kit — the number-based preview
+// command can not address them, and the mirror's sampler can not render
+// audio anyway. The ad-hoc instrument and its preview note cross as XML;
+// the engine reloads the samples from their (shared-disk) paths and plays
+// the note (ADR 0026 point 11).
+void ConnectViaIpcModeTest::testAdhocInstrumentPreviewForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	// An ad-hoc preview instrument like SoundLibraryTree builds for
+	// auditioning a library kit: flagged as preview, without a kit id, so
+	// the engine can not resolve it from the song's drumkit either.
+	auto pSample = Sample::load( H2TEST_FILE( "/drumkits/baseKit/hh.wav" ) );
+	CPPUNIT_ASSERT( pSample != nullptr );
+	auto pInstrument = Instrument::from( pSample, pMirror );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+	pInstrument->setIsPreviewInstrument( true );
+	pInstrument->setId( Instrument::EmptyId );
+
+	auto pNote = std::make_shared<Note>(
+		pInstrument, 0, VELOCITY_MAX, PAN_DEFAULT, LENGTH_ENTIRE_SAMPLE );
+
+	CPPUNIT_ASSERT( pEngine->getAudioEngine()->getSampler()
+		->getPlayingNotesNumber() == 0 );
+
+	pIpcAccess->getCoreActionController()->previewInstrument(
+		pInstrument, pNote );
+
+	// The preview note must arrive in the engine's sampler queue. The
+	// found state is sticky in the outer scope: the sample is short and
+	// may finish playing before pumpUntil() re-invokes the condition
+	// after its loop.
+	bool bSawPreviewNote = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		if ( pEngine->getAudioEngine()->getSampler()
+				 ->getPlayingNotesNumber() > 0 ) {
+			bSawPreviewNote = true;
+		}
+		return bSawPreviewNote;
+	} ) );
+
+	pIpcAccess.reset();
 	pSession.reset();
 	pEngineSession->stop();
 	delete pMirror;

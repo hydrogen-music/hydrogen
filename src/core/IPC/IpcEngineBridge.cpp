@@ -403,6 +403,23 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );
 		}
 		return false;
+	case IpcOpcode::PreviewInstrumentSerialized: {
+		auto pInstrument = Instrument::fromXmlBuffer(
+			msg.getPayload(), Xml::Flag::KeepMissingSamples,
+			true /* bSilent */, pHydrogen );
+		if ( pInstrument == nullptr || args.size() < 1 ) {
+			return false;
+		}
+		auto pNote = Note::fromXmlBuffer(
+			args[0].toByteArray(), true /* bSilent */, pHydrogen );
+		if ( pNote == nullptr ) {
+			return false;
+		}
+		// The ad-hoc instrument is not part of any kit, so the note
+		// crossed without one; attach it to the reconstructed instrument.
+		pNote->mapToInstrument( pInstrument );
+		return pController->previewInstrument( pInstrument, pNote );
+	}
 	case IpcOpcode::ActivateTimeline:
 		if ( args.size() >= 1 ) {
 			return pController->activateTimeline( args[0].toBool() );

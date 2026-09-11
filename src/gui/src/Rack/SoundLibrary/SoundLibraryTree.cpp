@@ -1115,7 +1115,7 @@ void SoundLibraryTree::mousePressEvent( QMouseEvent* event )
 					LENGTH_ENTIRE_SAMPLE
 				);
 
-				pHydrogen->getAudioEngine()->getSampler()->previewInstrument(
+				pHydrogen->getCoreActionController()->previewInstrument(
 					pPreviewInstrument, pNote
 				);
 			}

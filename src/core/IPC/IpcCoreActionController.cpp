@@ -477,6 +477,23 @@ bool IpcCoreActionController::previewInstrument( int nInstrument, bool bStop ) {
 	return true;
 }
 
+bool IpcCoreActionController::previewInstrument(
+	std::shared_ptr<Instrument> pInstrument, std::shared_ptr<Note> pNote )
+{
+	if ( m_pChannel != nullptr && pInstrument != nullptr &&
+		 pNote != nullptr ) {
+		// The mirror can not render audio; the ad-hoc instrument and its
+		// preview note cross as XML (samples referenced by shared-disk
+		// paths, reloaded by the engine — ADR 0026 point 11).
+		IpcMessage msg( IpcOpcode::PreviewInstrumentSerialized );
+		msg.setPayload( pInstrument->toXmlBuffer() );
+		msg.arg( pNote->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	// No dual-apply: the mirror engine has no real sampler.
+	return true;
+}
+
 bool IpcCoreActionController::noteOn( std::shared_ptr<Note> pNote ) {
 	if ( m_pChannel != nullptr && pNote != nullptr ) {
 		IpcMessage msg( IpcOpcode::NoteOn );

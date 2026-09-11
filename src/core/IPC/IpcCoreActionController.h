@@ -114,6 +114,13 @@ public:
 	// ADR 0030 batch 2b — simple commands.
 	bool previewInstrument( int nInstrument, bool bStop ) override;
 
+	// Ad-hoc instrument preview (file browser, sound library, sample
+	// editor): the instrument and its note ride as XML buffers — the
+	// mirror can not render audio; the engine reloads the samples from
+	// their (shared-disk) paths (ADR 0026 point 11).
+	bool previewInstrument( std::shared_ptr<Instrument> pInstrument,
+							std::shared_ptr<Note> pNote ) override;
+
 	// Note preview: the note rides as an XML-buffer payload and is forwarded
 	// to the authoritative engine's Sampler (ADR 0030). No dual-apply — the
 	// mirror has no real sampler.

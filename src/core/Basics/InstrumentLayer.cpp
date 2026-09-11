@@ -363,7 +363,17 @@ void InstrumentLayer::saveTo(
 			}
 		}
 		else {
-			sFileName = pSample->getFileName();
+			if ( flags & Xml::Flag::Ipc ) {
+				// A stand-alone instrument crossing the editor↔engine
+				// split has no kit context the engine could resolve a
+				// bare filename against (ad-hoc preview instruments are
+				// not associated with any drumkit). loadFrom() accepts
+				// absolute filenames directly.
+				sFileName = pSample->getFilePath();
+			}
+			else {
+				sFileName = pSample->getFileName();
+			}
 		}
 	}
 	else {

@@ -542,7 +542,7 @@ void AudioFileBrowser::startPlayback()
 	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
 	// Render sample
-	pAudioEngine->getSampler()->previewInstrument(
+	HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
 		pNote->getInstrument(), pNote
 	);
 	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();

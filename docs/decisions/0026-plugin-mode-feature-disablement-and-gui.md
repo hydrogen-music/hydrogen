@@ -207,3 +207,28 @@ closed by this amendment as well:
    them locally, and an echo would trigger a redundant re-pull per
    edit). The re-pull clears the editor's undo stack — intended, since
    the engine-side edit is not part of the editor's undo history.
+11. **Ad-hoc instrument preview.** The file browser, sound library, and
+    sample editor audition instruments that are not part of the current
+    song's kit — the number-based `PreviewInstrument` command
+    ([ADR 0030] batch 2b) can not address them, and the sites' direct
+    `Sampler::previewInstrument()` calls hit the mirror's engine, which
+    can not render audio. `CoreActionController::previewInstrument(
+    instrument, note)` closes the gap: in the editor split both objects
+    cross as XML (`PreviewInstrumentSerialized`; instrument payload,
+    note arg) and the engine reconstructs them — the note crosses
+    without an instrument (an ad-hoc instrument resolves in no kit), so
+    the bridge attaches it via `Note::mapToInstrument()` before the
+    base implementation loads the samples and hands the pair to the
+    sampler. Stand-alone instruments carry no kit context the engine
+    could resolve a bare sample filename against, so
+    `InstrumentLayer::saveTo()` writes the absolute sample path under
+    `Xml::Flag::Ipc` (which `loadFrom()` accepts directly); on-disk
+    formats are unaffected. The sample editor's edits survive the
+    crossing: they are parametric (loop, velocity, and pan settings plus
+    the `ismodified` flag) and ride the layer XML, so the engine
+    re-bakes them on load — the preview is faithful. Residual limits: a
+    rubberband-modified sample re-bakes at the engine's playhead bpm
+    while the editor's in-memory copy was baked at the (frozen) mirror
+    bpm — audible only for rubberband edits after a tempo change — and
+    the browser/editor playhead animations read the mirror's frozen
+    realtime frames (pre-existing).

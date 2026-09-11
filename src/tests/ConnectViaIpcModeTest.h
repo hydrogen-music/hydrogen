@@ -66,6 +66,7 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEditorFlipEchoSuppressed );
 	CPPUNIT_TEST( testRuntimeErrorForwardsToEditor );
 	CPPUNIT_TEST( testBootErrorReplayedOnConnect );
+	CPPUNIT_TEST( testAdhocInstrumentPreviewForwardsToEngine );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -107,6 +108,7 @@ public:
 	void testEditorFlipEchoSuppressed();
 	void testRuntimeErrorForwardsToEditor();
 	void testBootErrorReplayedOnConnect();
+	void testAdhocInstrumentPreviewForwardsToEngine();
 };
 
 #endif

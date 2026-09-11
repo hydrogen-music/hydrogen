@@ -149,6 +149,20 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * @return true on success. */
 	virtual bool previewInstrument( int nInstrument, bool bStop );
 
+	/** Auditions an ad-hoc instrument — one that is not part of the current
+	 * song's kit (file browser, sound library, sample editor) — through the
+	 * #H2Core::Sampler. @a pNote must already be bound to @a pInstrument
+	 * (Sampler::previewInstrument() enforces this). In editor mode this is
+	 * forwarded over IPC to the authoritative engine — the instrument and
+	 * note cross as XML and the engine reloads the samples from their
+	 * (shared-disk) paths; in standalone the local sampler plays it. A
+	 * note's SelectedLayerInfo does not cross for ad-hoc instruments (it
+	 * is resolved only against kit instruments on deserialization).
+	 *
+	 * @return true on success. */
+	virtual bool previewInstrument( std::shared_ptr<Instrument> pInstrument,
+									std::shared_ptr<Note> pNote );
+
 	/** Triggers a note for immediate playback through the #H2Core::Sampler
 	 * (ADR 0030). The note carries its own instrument pointer, velocity,
 	 * key/octave, and optional SelectedLayerInfo (component/layer

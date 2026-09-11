@@ -533,6 +533,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetSessionFolderPath:
 		sOpcode = "GET_SESSION_FOLDER_PATH";
 		break;
+	case IpcOpcode::PreviewInstrumentSerialized:
+		sOpcode = "PREVIEW_INSTRUMENT_SERIALIZED";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

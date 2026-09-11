@@ -1282,7 +1282,7 @@ void SampleEditor::startPlayback( Playback playback )
 	updateSourceWaveDisplays();
 
 	// Render sample
-	pAudioEngine->getSampler()->previewInstrument(
+	HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
 		pNote->getInstrument(), pNote
 	);
 	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
