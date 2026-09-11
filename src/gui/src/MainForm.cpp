@@ -2802,7 +2802,7 @@ void MainForm::onAutoSaveTimer()
 			);
 
 			pSong->setPath( sOldPath );
-			pHydrogen->setSongModified( true );
+			HydrogenApp::pEngine()->setSongModified( true );
 		}
 	}
 

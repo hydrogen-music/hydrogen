@@ -492,6 +492,12 @@ public:
 	 * editor split only the authoritative engine has a server; the mirror
 	 * reports -1 (ADR 0016/0026). */
 	int				getOscTemporaryPort() const;
+	/** \return The NSM session folder the engine's NsmClient received in
+	 * the NSM open handshake; empty when not under session management (or
+	 * built without OSC support). In the editor split only the
+	 * authoritative engine has a folder — the GUI reads it through
+	 * IEngineAccess (IPC query, ADR 0032). */
+	QString			getSessionFolderPath() const;
 	/** \return The cached AudioDriverInfo populated via IPC in editor mode
 	 * (ADR 0029). In standalone mode this is default-constructed and unused. */
 	const AudioDriverInfo&	getCachedAudioDriverInfo() const;

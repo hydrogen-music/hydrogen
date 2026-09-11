@@ -1417,6 +1417,18 @@ int Hydrogen::getOscTemporaryPort() const
 	return -1;
 }
 
+QString Hydrogen::getSessionFolderPath() const
+{
+#ifdef H2CORE_HAVE_OSC
+	// The editor process holds no NsmClient (ADR 0016/0026); its folder
+	// state is served by the IPC query instead.
+	if ( m_ProcessMode != ProcessMode::Editor && m_pNsmClient != nullptr ) {
+		return m_pNsmClient->getSessionFolderPath();
+	}
+#endif
+	return QString();
+}
+
 const AudioDriverInfo& Hydrogen::getCachedAudioDriverInfo() const {
 	return m_cachedAudioDriverInfo;
 }

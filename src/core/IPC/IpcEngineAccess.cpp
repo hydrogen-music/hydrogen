@@ -75,6 +75,20 @@ void IpcEngineAccess::setSelectedInstrumentNumber(
 	m_pMirror->setSelectedInstrumentNumber( nInstrument, trigger );
 }
 
+void IpcEngineAccess::setSongModified( bool bIsModified )
+{
+	// NSM judges "unsaved changes" by the dirty state the engine's
+	// NsmClient reports, but modifications happen here in the editor.
+	// Forward the flip and apply it locally so the GUI title updates
+	// immediately; the SongIsModified event stays engine-side (the
+	// editor already knows — no echo needed).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetSongModified ).arg( bIsModified ) );
+	}
+	m_pMirror->setSongModified( bIsModified );
+}
+
 QStringList IpcEngineAccess::getAudioDevices(
 		Preferences::AudioDriver kind, const QString& sHostAPI
 	) const {
@@ -124,6 +138,21 @@ int IpcEngineAccess::getOscTemporaryPort() const {
 		return -1;
 	}
 	return args[0].toInt();
+}
+
+QString IpcEngineAccess::getSessionFolderPath() const {
+	IpcMessage reply;
+	if ( ! ipcRequest( m_pChannel,
+					   IpcMessage( IpcOpcode::GetSessionFolderPath ),
+					   reply ) ) {
+		WARNINGLOG( "Engine did not answer the session folder query" );
+		return QString();
+	}
+	const auto& args = reply.getArgs();
+	if ( args.isEmpty() ) {
+		return QString();
+	}
+	return args[0].toString();
 }
 
 std::vector<QString> IpcEngineAccess::getMidiPorts(

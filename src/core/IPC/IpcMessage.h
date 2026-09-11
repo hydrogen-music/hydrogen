@@ -264,6 +264,19 @@ enum class IpcOpcode : quint16 {
 	GetOscTemporaryPort,    ///< reply: args = [int temporaryPort]; -1: no
 	                        ///< fallback port in effect
 
+	// ── NSM session state: dirty-state command + session-folder query ──
+	// Only the engine's NsmClient talks to the session manager (ADR
+	// 0016/0026). Modifications happen in the editor, so the dirty-state
+	// flip is forwarded as a command (the engine's client reports it to
+	// the session manager); the session folder — needed by the editor's
+	// drumkit-export path — is served as a blocking query like the OSC
+	// port above. Appended at the enum tail for the same
+	// wire-compatibility reason.
+	SetSongModified,        ///< command: args = [bool isModified]
+	                        ///< (editor→engine, ADR 0030)
+	GetSessionFolderPath,   ///< reply: args = [QString folder]; empty:
+	                        ///< no NSM session in effect
+
 	OpcodeCount
 };
 /**

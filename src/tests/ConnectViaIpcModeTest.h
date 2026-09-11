@@ -59,6 +59,8 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testMirrorSetSongModifiedWithoutNsmClient );
 	CPPUNIT_TEST( testOscTemporaryPortQueryRoundTrip );
 	CPPUNIT_TEST( testRecreateOscServerForwardsToEngine );
+	CPPUNIT_TEST( testSongModifiedForwardsToEngine );
+	CPPUNIT_TEST( testSessionFolderQueryRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -93,6 +95,8 @@ public:
 	void testMirrorSetSongModifiedWithoutNsmClient();
 	void testOscTemporaryPortQueryRoundTrip();
 	void testRecreateOscServerForwardsToEngine();
+	void testSongModifiedForwardsToEngine();
+	void testSessionFolderQueryRoundTrip();
 };
 
 #endif

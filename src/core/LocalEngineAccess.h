@@ -81,6 +81,8 @@ public:
 		return m_pHydrogen->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {
 		return m_pHydrogen->isUnderSessionManagement(); }
+	QString getSessionFolderPath() const override {
+		return m_pHydrogen->getSessionFolderPath(); }
 	bool getRecordEnabled() const override {
 		return m_pHydrogen->getRecordEnabled(); }
 

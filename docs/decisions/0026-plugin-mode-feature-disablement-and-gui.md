@@ -164,3 +164,22 @@ closed by this amendment as well:
    and not a stale copy. `onRejected()` additionally forwards the restored
    preferences in Editor mode, closing the cancel-path hole: the engine
    previously kept the canceled OSC settings until the next OK.
+7. **Dirty-state command.** NSM judges "unsaved changes" by the dirty
+   state the engine's `NsmClient` reports, but modifications happen in
+   the editor. `IEngineAccess::setSongModified()` therefore forwards the
+   flip (`SetSongModified`, [ADR 0030]) and applies it to the mirror so
+   the GUI title updates immediately; the engine's
+   `Hydrogen::setSongModified()` then reports to the session manager.
+   The `SongIsModified` event stays engine-side — no echo is needed for
+   editor-originated flips. The GUI call sites go through
+   `IEngineAccess` in both modes. The `gui/main.cpp` bootstrap reset is
+   skipped entirely in the split: the flag pulled with the song is
+   authoritative — the engine's NSM open callback re-marks a new
+   session's fresh song after `CoreActionController::setSong()` resets
+   it — and a local reset would clobber the pulled flag.
+8. **Session-folder query.** `IEngineAccess::getSessionFolderPath()`
+   ([ADR 0029] query pattern, `GetSessionFolderPath` reply; empty = no
+   NSM session in effect) serves the engine's NSM session folder to the
+   editor's drumkit-export path. `DrumkitPropertiesDialog` replaced its
+   local null-client guard with the query, so NSM-session export works
+   identically in both modes and needs no OSC `#ifdef`.

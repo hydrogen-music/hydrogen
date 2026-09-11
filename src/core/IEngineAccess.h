@@ -91,6 +91,7 @@ public:
 	virtual bool hasJackTransport() const = 0;
 	virtual bool isPatternEditorLocked() const = 0;
 	virtual bool isUnderSessionManagement() const = 0;
+	virtual QString getSessionFolderPath() const = 0;
 	virtual bool getRecordEnabled() const = 0;
 
 	// --- audio driver: value views, never the driver object (ADR 0029) ---

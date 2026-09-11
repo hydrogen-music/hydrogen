@@ -217,7 +217,7 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
 			HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( false );
-			pHydrogen->setSongModified( true );
+			HydrogenApp::pEngine()->setSongModified( true );
 		}
 
 		HydrogenApp::pEngine()->getCoreActionController()->locateToTick( nNewTick );

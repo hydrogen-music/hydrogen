@@ -527,6 +527,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetOscTemporaryPort:
 		sOpcode = "GET_OSC_TEMPORARY_PORT";
 		break;
+	case IpcOpcode::SetSongModified:
+		sOpcode = "SET_SONG_MODIFIED";
+		break;
+	case IpcOpcode::GetSessionFolderPath:
+		sOpcode = "GET_SESSION_FOLDER_PATH";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

@@ -108,6 +108,7 @@ class IpcEngineAccess : public IEngineAccess,
 		return m_pMirror->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {
 		return m_pMirror->isUnderSessionManagement(); }
+	QString getSessionFolderPath() const override;
 	bool getRecordEnabled() const override {
 		return m_pMirror->getRecordEnabled(); }
 
@@ -191,8 +192,7 @@ class IpcEngineAccess : public IEngineAccess,
 	void setSelectedInstrumentNumber(
 		int nInstrument,
 		Event::Trigger trigger = Event::Trigger::Default ) override;
-	void setSongModified( bool bIsModified ) override {
-		m_pMirror->setSongModified( bIsModified ); }
+	void setSongModified( bool bIsModified ) override;
 	void updateBeatCounterSettings() override {
 		m_pMirror->updateBeatCounterSettings(); }
 

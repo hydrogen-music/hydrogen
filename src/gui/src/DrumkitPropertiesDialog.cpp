@@ -1253,22 +1253,26 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	// Store the drumkit in the NSM session folder
-#ifdef H2CORE_HAVE_OSC
-	// Only the standalone process has an NsmClient; in the editor split the
-	// headless engine owns the NSM session (its session folder is not
-	// available locally), so the regular save path applies.
+	// Only the engine's NsmClient talks to the session manager (ADR
+	// 0016/0026); the editor reads its session folder through the IPC
+	// query (ADR 0032). An empty folder means no NSM session is in
+	// effect and the regular save path applies. The blocking query runs
+	// only when the NsmSession action survived the constructor's
+	// downgrade — a round trip on every save would be wasteful.
 	if ( ( m_action & Action::NsmSession ) &&
-		 m_pDrumkit->getContext() == Filesystem::Context::Song &&
-		 HydrogenApp::pHydrogen()->getNsmClient() != nullptr ) {
-		m_pDrumkit->setPath(
-			QDir(
-				HydrogenApp::pHydrogen()->getNsmClient()->getSessionFolderPath() +
-				QDir::separator() + m_pDrumkit->getName()
-			)
-				.absoluteFilePath( Filesystem::drumkitXml() )
-		);
+		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
+		const QString sSessionFolderPath =
+			HydrogenApp::pEngine()->getSessionFolderPath();
+		if ( ! sSessionFolderPath.isEmpty() ) {
+			m_pDrumkit->setPath(
+				QDir(
+					sSessionFolderPath + QDir::separator() +
+					m_pDrumkit->getName()
+				)
+					.absoluteFilePath( Filesystem::drumkitXml() )
+			);
+		}
 	}
-#endif
 
 	// Check whether there is already a kit present we would overwrite.
 	if ( ( m_action & Action::SaveAs ) &&

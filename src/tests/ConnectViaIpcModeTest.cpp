@@ -53,6 +53,7 @@
 #include <core/LocalEngineAccess.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/NsmClient.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -1722,6 +1723,102 @@ void ConnectViaIpcModeTest::testRecreateOscServerForwardsToEngine() {
 		[&]() { return pIpcAccess->getOscTemporaryPort() == -1; } ) );
 	// The mirror never gains a server of its own (ADR 0016/0026).
 	CPPUNIT_ASSERT( pMirror->getOscServer() == nullptr );
+#endif
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// NSM judges "unsaved changes" by the dirty state the engine's NsmClient
+// reports, but modifications happen in the editor process. The flip must
+// cross the split (ADR 0030 command pattern): the engine's copy follows
+// (and its client reports to the session manager when one is connected),
+// while the mirror applies locally so the GUI title updates immediately.
+void ConnectViaIpcModeTest::testSongModifiedForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	CPPUNIT_ASSERT( pEngine->getSong() != nullptr );
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getIsModified() );
+	CPPUNIT_ASSERT( ! pMirror->getSong()->getIsModified() );
+
+	// An edit marks the song modified: the mirror reflects it at once ...
+	pIpcAccess->setSongModified( true );
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
+	// ... and the engine's copy follows via the forwarded command.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getIsModified(); } ) );
+
+	// Saving clears it on both sides.
+	pIpcAccess->setSongModified( false );
+	CPPUNIT_ASSERT( ! pMirror->getSong()->getIsModified() );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getSong()->getIsModified(); } ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The NSM session folder lives engine-side (only the engine's NsmClient
+// talks to the session manager); the editor's drumkit-export path needs it
+// across the split (ADR 0032 state-sync query). No live NSM server exists
+// in tests — the client's folder is set directly, as the NSM open callback
+// does in production.
+void ConnectViaIpcModeTest::testSessionFolderQueryRoundTrip() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	const QString sSessionFolder = "nsm-session-folder-roundtrip";
+#ifdef H2CORE_HAVE_OSC
+	CPPUNIT_ASSERT( pEngine->getNsmClient() != nullptr );
+	pEngine->getNsmClient()->setSessionFolderPath( sSessionFolder );
+#endif
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+#ifdef H2CORE_HAVE_OSC
+	// The editor sees the engine's session folder across the split ...
+	CPPUNIT_ASSERT(
+		pIpcAccess->getSessionFolderPath() == sSessionFolder );
+	// ... while the mirror holds no client of its own (ADR 0016/0026).
+	CPPUNIT_ASSERT( pMirror->getNsmClient() == nullptr );
+#else
+	// Without OSC support there is no NSM session at all.
+	CPPUNIT_ASSERT( pIpcAccess->getSessionFolderPath().isEmpty() );
 #endif
 
 	pIpcAccess.reset();

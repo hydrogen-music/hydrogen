@@ -605,7 +605,8 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		bIsModified = true;
 	}
 
-	pHydrogen->setSongModified( bIsModified && !( m_action & Action::SaveAs ) );
+	HydrogenApp::pEngine()->setSongModified(
+		bIsModified && !( m_action & Action::SaveAs ) );
 
 	accept();
 }

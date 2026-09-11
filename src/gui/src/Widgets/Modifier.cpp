@@ -62,7 +62,7 @@ void Modifier::modify()
 			);
 			break;
 		case Song:
-			pHydrogen->setSongModified( true );
+			HydrogenApp::pEngine()->setSongModified( true );
 			break;
 		default:
 			___ERRORLOG(

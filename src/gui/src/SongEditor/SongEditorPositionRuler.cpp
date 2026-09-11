@@ -402,7 +402,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 
 			if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 				HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( true );
-				pHydrogen->setSongModified( true );
+				HydrogenApp::pEngine()->setSongModified( true );
 			}
 
 			HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( nColumn );

@@ -150,7 +150,17 @@ int NsmClient::OpenCallback( const char *name,
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 	}
-	
+
+	// setSong() resets the fresh song's modified flag, which would
+	// discard the marking above (it applied to the *outgoing* song).
+	// Re-mark a new session's empty song so NSM — and the editor, which
+	// pulls the flag with the song — sees that an initial save is
+	// required. The standalone GUI bootstrap (gui/main.cpp) re-marks as
+	// well; idempotent.
+	if ( bEmptySongOpened ) {
+		pHydrogen->setSongModified( true );
+	}
+
 	NsmClient::printMessage( "Song loaded!" );
 
 	return ERR_OK;

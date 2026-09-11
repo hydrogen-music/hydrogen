@@ -244,7 +244,7 @@ void EditorPathExerciser::exerciseNextAction()
 					"quitting" );
 		// Avoid  handle unsaved changes modal on shutdown
 		auto pHydrogen = HydrogenApp::pHydrogen();
-		pHydrogen->setSongModified( false );
+		HydrogenApp::pEngine()->setSongModified( false );
 		pHydrogen->getEventQueue()->pushEvent( Event::Type::Quit, 0 );
 		return;
 	}

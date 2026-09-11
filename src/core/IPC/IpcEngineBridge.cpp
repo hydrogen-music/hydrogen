@@ -110,6 +110,17 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return true;
 		}
 		return false;
+	case IpcOpcode::SetSongModified:
+		if ( args.size() >= 1 ) {
+			// No CoreActionController surface for this — apply on the
+			// engine directly (like SetSelectedInstrument). The engine's
+			// NsmClient reports the flip to the session manager when one
+			// is connected; the SongIsModified event stays engine-side
+			// (the editor already applied the flip on its mirror).
+			pHydrogen->setSongModified( args[0].toBool() );
+			return true;
+		}
+		return false;
 	case IpcOpcode::SetStripVolume:
 		if ( args.size() >= 3 ) {
 			return pController->setStripVolume(
@@ -737,6 +748,10 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 		break;
 	case IpcOpcode::GetIsUnderPluginHost:
 		reply.arg( pHydrogen->isUnderPluginHost() );
+		break;
+	case IpcOpcode::GetSessionFolderPath:
+		// Empty string: no NSM session in effect (or no OSC support).
+		reply.arg( pHydrogen->getSessionFolderPath() );
 		break;
 	// ── Driver enumeration queries (ADR 0029): the engine owns the driver
 	// stacks, so these can only be answered here. ──

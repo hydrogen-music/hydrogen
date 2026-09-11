@@ -602,16 +602,26 @@ int main(int argc, char *argv[])
 		// the modification flag. This does not apply in case we are
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
-		if ( pHydrogen->getSong()->getPath() !=
+		//
+		// In the editor split this reset is skipped entirely: the flag
+		// pulled with the song is authoritative (the engine re-marks a
+		// new NSM session's fresh song in its open callback), and a
+		// local reset would clobber it — the GUI title would say clean
+		// while the engine's NsmClient reports dirty. Spurious
+		// widget-driven flagging never survives the song pull, and
+		// post-sync flips forward through IEngineAccess.
+		if ( ! bConnectViaIpc &&
+			 pHydrogen->getSong()->getPath() !=
 			 H2Core::Filesystem::emptyPath(
 				 H2Core::Filesystem::Artifact::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
 		// Mark empty song created in a new NSM session modified
 		// in order to emphasis that an initial song save is
 		// required to generate the song file and link the
-		// associated drumkit in the session folder. Only the standalone
-		// process has an NsmClient; in the editor split the headless
-		// engine owns NSM reporting.
+		// associated drumkit in the session folder. The engine's
+		// NSM open callback re-marks the fresh song as well
+		// (NsmClient.cpp); this standalone-only branch is the belt
+		// to those braces.
 		auto pNsmClient = pHydrogen->getNsmClient();
 		if ( pNsmClient != nullptr && pNsmClient->getIsNewSession() ) {
 
