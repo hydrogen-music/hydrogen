@@ -173,6 +173,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 
 	virtual bool initExternalControlInterfaces();
 
+	/** Restarts the OSC server of this instance's engine (re-reading the
+	 * OSC configuration from Preferences). Single write surface (ADR 0027):
+	 * in editor mode the IpcCoreActionController override forwards the
+	 * command to the authoritative engine — the mirror holds no server, so
+	 * its local base call is a no-op. */
+	virtual bool recreateOscServer();
+
 	// -----------------------------------------------------------
 	// Actions required for session management.
 

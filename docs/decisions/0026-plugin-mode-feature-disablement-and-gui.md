@@ -106,3 +106,61 @@ Notable non-obvious choices, recorded explicitly:
   [ADR 0022](0022-layered-plugin-configuration.md),
   [ADR 0024](0024-remove-ladspa-lrdf-effect-hosting.md),
   [proposal 0004](/docs/proposals/0004-plugin-port-implementation-plan.md)
+
+## Amendment (2026-09-11): the editor process holds no control-surface clients
+
+The disablement table above makes OSC and NSM *inert* in plugin mode: the
+objects exist but never bind or talk. For the IPC editor split
+(`--connect-via-ipc`, [ADR 0016](0016-out-of-process-plugin-ui.md) /
+[0032](0032-h2player-gui-connection-mode.md)) that is not strong enough —
+the mirror is a *separate process* whose OSC/NSM state would be a lie even
+when inert. The editor process therefore constructs **neither** an
+`OscServer` **nor** an `NsmClient` at all:
+
+1. **Null members, not gutted ones.** `Hydrogen` leaves `m_pOscServer` /
+   `m_pNsmClient` null in `ProcessMode::Editor` (in-class `= nullptr`
+   initializers; the constructor skips both `new` calls). A present-but-
+   empty client had already corrupted logic silently: the mirror's empty
+   NSM session folder made `QString::contains("")` match *every* song path,
+   so `Hydrogen::setSong()` pinned each replacement song to the previous
+   song's location. Null members turn that class of bug into a loud
+   null-guard.
+2. **Sink gates as defense in depth.** `Hydrogen::recreateOscServer()`
+   early-returns in Editor mode (joining the existing gate in
+   `toggleOscServer()`); `setSong()` / `setSongModified()` consult the
+   client only when it exists. The engine re-applies NSM session policy
+   (path pinning, dirty-state reporting) when changes sync across the
+   split.
+3. **Caller gates in the GUI.** The preferences dialog's OSC apply/restore
+   paths and `onRejected()`'s driver restarts skip their local
+   `toggleOscServer` / `recreateOscServer` / `restartAudioDriver` /
+   `restartMidiDriver` calls in Editor mode — the forwarded
+   `CoreActionController::setPreferences` lets the headless engine apply
+   them ([ADR 0029 amendment](0029-audio-driver-access-across-editor-split.md)).
+   The OSC temporary-port notes (preferences dialog, port-busy message box)
+   resolve through the engine-access query (point 5) in both modes.
+4. **Already-clean sites stay clean.** All seven
+   `CoreActionController::send*Feedback()` functions and the
+   `isUnderSessionManagement()` / `isUnderPluginHost()` accessors were
+   already Editor-gated or IPC-cached; the startup NSM handshake
+   (`createInitialClient`) never ran in the editor branch.
+
+Point 3's caller gates left two holes once the editor dialog became the
+*only* user-facing OSC surface: the engine's fallback port was invisible in
+the editor, and the dialog's restart call bypassed the engine. Both are
+closed by this amendment as well:
+
+5. **Query.** `IEngineAccess::getOscTemporaryPort()` (ADR 0029 query
+   pattern) reports the engine's fallback port — the one a remote control
+   surface must dial — to the preferences dialog and the port-busy message
+   box in both modes (`GetOscTemporaryPort` reply; `-1` = no fallback in
+   effect).
+6. **Restart command.** `CoreActionController::recreateOscServer()` is the
+   single write surface for the dialog's restart ([ADR 0027]); in the
+   editor split the `IpcCoreActionController` override forwards it
+   (`RecreateOscServer`, [ADR 0030]) so the *engine's* server restarts —
+   the mirror's local call is a no-op. The dialog issues it after the
+   preferences forward, so a recreated engine server binds the new port
+   and not a stale copy. `onRejected()` additionally forwards the restored
+   preferences in Editor mode, closing the cancel-path hole: the engine
+   previously kept the canceled OSC settings until the next OK.

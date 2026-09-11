@@ -252,6 +252,18 @@ enum class IpcOpcode : quint16 {
 	GetAudioDevices,        ///< args: [int kind, QString hostAPI]; reply:
 	                        ///< args = [QStringList]
 
+	// ── OSC server: restart command + fallback-port query ──
+	// The engine owns the OSC server in the editor split (ADR 0026
+	// amendment): the dialog-facing restart is forwarded as a command, and
+	// the fallback port — the one a remote control surface must dial — is
+	// served as a blocking query like the driver enumerations above.
+	// Appended at the enum tail for the same wire-compatibility reason.
+	RecreateOscServer,      ///< command: restart the engine's OSC server
+	                        ///< with the current OSC configuration
+	                        ///< (editor→engine, ADR 0030)
+	GetOscTemporaryPort,    ///< reply: args = [int temporaryPort]; -1: no
+	                        ///< fallback port in effect
+
 	OpcodeCount
 };
 /**

@@ -172,11 +172,17 @@ Hydrogen::Hydrogen(
 	}
 
 #ifdef H2CORE_HAVE_OSC
-	// OSC server + NSM client are owned per-instance (ADR 0015). The OscServer
-	// only binds a port when OSC is enabled in this instance's Preferences, so
-	// multiple instances coexist (disabled ones never touch the network).
-	m_pNsmClient = new NsmClient( this );
-	m_pOscServer = new OscServer( this, nOscPort );
+	// OSC server + NSM client are owned per-instance (ADR 0015). The
+	// OscServer only binds a port when OSC is enabled in this instance's
+	// Preferences, so multiple instances coexist (disabled ones never touch
+	// the network). The editor process constructs neither: the headless
+	// engine owns all control surfaces (ADR 0016/0026), and an inert local
+	// client would silently corrupt session-management logic (e.g. an empty
+	// session folder matching every song path).
+	if ( m_ProcessMode != ProcessMode::Editor ) {
+		m_pNsmClient = new NsmClient( this );
+		m_pOscServer = new OscServer( this, nOscPort );
+	}
 #endif
 
 	m_nBeatCounterDriftCompensation = pPref->m_nBeatCounterDriftCompensation;
@@ -343,7 +349,11 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-			if ( pCurrentSong->getPath().contains(
+			// Only a live NsmClient enforces the NSM session policy; the
+			// editor mirror has none and must not pin paths (an absent
+			// session folder would match every song). The headless engine
+			// re-applies the policy when the change syncs.
+			if ( m_pNsmClient != nullptr && pCurrentSong->getPath().contains(
 					 m_pNsmClient->getSessionFolderPath() ) ) {
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
@@ -1397,6 +1407,16 @@ QStringList Hydrogen::getAudioHostAPIs() const
 	return QStringList();
 }
 
+int Hydrogen::getOscTemporaryPort() const
+{
+#ifdef H2CORE_HAVE_OSC
+	if ( m_pOscServer != nullptr ) {
+		return m_pOscServer->getTemporaryPort();
+	}
+#endif
+	return -1;
+}
+
 const AudioDriverInfo& Hydrogen::getCachedAudioDriverInfo() const {
 	return m_cachedAudioDriverInfo;
 }
@@ -1658,6 +1678,12 @@ void Hydrogen::toggleOscServer( bool bEnable ) {
 }
 
 void Hydrogen::recreateOscServer() {
+	// The editor process holds no OscServer (ADR 0016/0026); OSC
+	// configuration is applied by the headless engine when the editor's
+	// preferences are forwarded to it.
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return;
+	}
 #ifdef H2CORE_HAVE_OSC
 	if ( m_pOscServer != nullptr ) {
 		delete m_pOscServer;
@@ -1731,9 +1757,10 @@ void Hydrogen::setSongModified( bool bIsModified )
 	m_pEventQueue->pushEvent( Event::Type::SongIsModified, -1 );
 
 #ifdef H2CORE_HAVE_OSC
-	if ( isUnderSessionManagement() ) {
+	if ( isUnderSessionManagement() && m_pNsmClient != nullptr ) {
 		// If Hydrogen is under session management (NSM), tell the
-		// NSM server that the Song was modified.
+		// NSM server that the Song was modified. In the editor split the
+		// headless engine's client does the reporting.
 		m_pNsmClient->sendDirtyState( bIsModified );
 	}
 #endif

@@ -77,6 +77,10 @@ QStringList LocalEngineAccess::getAudioHostAPIs() const {
 	return m_pHydrogen->getAudioHostAPIs();
 }
 
+int LocalEngineAccess::getOscTemporaryPort() const {
+	return m_pHydrogen->getOscTemporaryPort();
+}
+
 bool LocalEngineAccess::isExportWritingFailed() const {
 	const auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
 		m_pHydrogen->getAudioDriver() );

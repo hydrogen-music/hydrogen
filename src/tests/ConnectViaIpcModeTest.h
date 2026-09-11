@@ -54,6 +54,11 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetPreferencesSkipsMirrorRestarts );
 	CPPUNIT_TEST( testSetPreferencesRestartsEngineDrivers );
 	CPPUNIT_TEST( testAudioDeviceQueriesRoundTrip );
+	CPPUNIT_TEST( testMirrorHoldsNoOscOrNsmObjects );
+	CPPUNIT_TEST( testMirrorSetSongDoesNotPinPathUnderNsm );
+	CPPUNIT_TEST( testMirrorSetSongModifiedWithoutNsmClient );
+	CPPUNIT_TEST( testOscTemporaryPortQueryRoundTrip );
+	CPPUNIT_TEST( testRecreateOscServerForwardsToEngine );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -83,6 +88,11 @@ public:
 	void testSetPreferencesSkipsMirrorRestarts();
 	void testSetPreferencesRestartsEngineDrivers();
 	void testAudioDeviceQueriesRoundTrip();
+	void testMirrorHoldsNoOscOrNsmObjects();
+	void testMirrorSetSongDoesNotPinPathUnderNsm();
+	void testMirrorSetSongModifiedWithoutNsmClient();
+	void testOscTemporaryPortQueryRoundTrip();
+	void testRecreateOscServerForwardsToEngine();
 };
 
 #endif

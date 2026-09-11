@@ -131,6 +131,13 @@ public:
 	virtual std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
 		getHandledMidiOutputs() const = 0;
 
+	// --- OSC server: value views (ADR 0029 query pattern) ---
+	/** \return The fallback port the authoritative engine's OSC server took
+	 * when the configured port was unavailable, -1 when none is in effect.
+	 * In the editor split this crosses the IPC boundary — the preferences
+	 * dialog is the only place users can read the port to dial. */
+	virtual int getOscTemporaryPort() const = 0;
+
 	// --- commands / mutations ---
 	virtual bool handleBeatCounter( TimePoint start = TimePoint() ) = 0;
 	virtual void loadPlaybackTrack( const QString& sFileName ) = 0;

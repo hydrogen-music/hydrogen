@@ -165,6 +165,7 @@ class IpcEngineAccess : public IEngineAccess,
 		getHandledMidiInputs() const override;
 	std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
 		getHandledMidiOutputs() const override;
+	int getOscTemporaryPort() const override;
 
 	// --- commands: transport forwarded over IPC, view state applied locally ---
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override {

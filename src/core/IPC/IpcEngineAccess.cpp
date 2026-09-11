@@ -111,6 +111,21 @@ QStringList IpcEngineAccess::getAudioHostAPIs() const {
 	return args[0].toStringList();
 }
 
+int IpcEngineAccess::getOscTemporaryPort() const {
+	IpcMessage reply;
+	if ( ! ipcRequest( m_pChannel,
+					   IpcMessage( IpcOpcode::GetOscTemporaryPort ),
+					   reply ) ) {
+		WARNINGLOG( "Engine did not answer the OSC temporary port query" );
+		return -1;
+	}
+	const auto& args = reply.getArgs();
+	if ( args.isEmpty() ) {
+		return -1;
+	}
+	return args[0].toInt();
+}
+
 std::vector<QString> IpcEngineAccess::getMidiPorts(
 		MidiBaseDriver::PortType portType ) const {
 	std::vector<QString> ports;

@@ -617,6 +617,10 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		pPref->applyCorePropsFromXml( msg.getPayload() );
 		return pController->setPreferences( pPref );
 	}
+	case IpcOpcode::RecreateOscServer:
+		// The engine's controller is the base class here (only the editor
+		// side uses the forwarding subclass), so this cannot loop back.
+		return pController->recreateOscServer();
 	case IpcOpcode::AddToPlaylist:
 		if ( args.size() >= 2 ) {
 			return pController->addToPlaylist(
@@ -797,6 +801,9 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 	}
 	case IpcOpcode::GetAudioHostAPIs:
 		reply.arg( pHydrogen->getAudioHostAPIs() );
+		break;
+	case IpcOpcode::GetOscTemporaryPort:
+		reply.arg( pHydrogen->getOscTemporaryPort() );
 		break;
 	case IpcOpcode::GetAudioDevices: {
 		QStringList devices;

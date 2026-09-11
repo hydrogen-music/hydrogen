@@ -744,6 +744,16 @@ bool IpcCoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 	return CoreActionController::setSong( pSong );
 }
 
+bool IpcCoreActionController::recreateOscServer() {
+	if ( m_pChannel != nullptr ) {
+		// The authoritative engine owns the OSC server; the mirror's local
+		// base call below is a no-op (it holds no server).
+		m_pChannel->send( IpcMessage( IpcOpcode::RecreateOscServer ) );
+	}
+	// No dual apply since the editor will never feature an OSC server.
+	return true;
+}
+
 bool IpcCoreActionController::setPreferences(
 	std::shared_ptr<Preferences> pPreferences )
 {

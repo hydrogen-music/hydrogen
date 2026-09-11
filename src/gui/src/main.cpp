@@ -606,20 +606,24 @@ int main(int argc, char *argv[])
 			 H2Core::Filesystem::emptyPath(
 				 H2Core::Filesystem::Artifact::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
-			// Mark empty song created in a new NSM session modified
-			// in order to emphasis that an initial song save is
-			// required to generate the song file and link the
-			// associated drumkit in the session folder.
-			if ( pHydrogen->getNsmClient() != nullptr &&
-				 pHydrogen->getNsmClient()->getIsNewSession() ) {
-				
-				pHydrogen->getNsmClient()->sendDirtyState( true );
-				pHydrogen->setSongModified( true );
+		// Mark empty song created in a new NSM session modified
+		// in order to emphasis that an initial song save is
+		// required to generate the song file and link the
+		// associated drumkit in the session folder. Only the standalone
+		// process has an NsmClient; in the editor split the headless
+		// engine owns NSM reporting.
+		auto pNsmClient = pHydrogen->getNsmClient();
+		if ( pNsmClient != nullptr && pNsmClient->getIsNewSession() ) {
+
+			pNsmClient->sendDirtyState( true );
+			pHydrogen->setSongModified( true );
+		}
+		else {
+			if ( pNsmClient != nullptr ) {
+				pNsmClient->sendDirtyState( false );
 			}
-			else {
-				pHydrogen->getNsmClient()->sendDirtyState( false );
-				pHydrogen->setSongModified( false );
-			}
+			pHydrogen->setSongModified( false );
+		}
 #else
 			pHydrogen->setSongModified( false );
 #endif

@@ -102,6 +102,7 @@ public:
 		getHandledMidiInputs() const override;
 	std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
 		getHandledMidiOutputs() const override;
+	int getOscTemporaryPort() const override;
 
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override {
 		return m_pHydrogen->handleBeatCounter( start ); }

@@ -1564,6 +1564,17 @@ std::shared_ptr<Preferences> CoreActionController::loadPreferences(
 	return Preferences::load( sPath, false, m_pHydrogen );
 }
 
+bool CoreActionController::recreateOscServer()
+{
+	// Single write surface (ADR 0027). In editor mode the
+	// IpcCoreActionController override has already forwarded the command to
+	// the authoritative engine; this local call is then a no-op — the
+	// mirror holds no OscServer (Hydrogen::recreateOscServer gates on
+	// Editor mode).
+	m_pHydrogen->recreateOscServer();
+	return true;
+}
+
 bool CoreActionController::setPreferences(
 	std::shared_ptr<Preferences> pPreferences
 )

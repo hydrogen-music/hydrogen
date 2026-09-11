@@ -394,7 +394,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
 
 #ifdef H2CORE_HAVE_OSC
-	if ( HydrogenApp::pHydrogen()->getOscServer()->getTemporaryPort() != -1 ) {
+	// The authoritative engine owns the OSC server in the editor split; its
+	// fallback port is the one a remote control surface must dial, so query
+	// it across the split (standalone reads the local server).
+	const int nTemporaryOscPort = HydrogenApp::pEngine()->getOscTemporaryPort();
+	if ( nTemporaryOscPort != -1 ) {
 		oscTemporaryPortLabel->show();
 		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
 										.append( m_sColorRed )
@@ -403,8 +407,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 										.append( "</font></i></b>" ) );
 		oscTemporaryPort->show();
 		oscTemporaryPort->setEnabled( false );
-		oscTemporaryPort->setText(
-			QString::number( HydrogenApp::pHydrogen()->getOscServer()->getTemporaryPort() ) );
+		oscTemporaryPort->setText( QString::number( nTemporaryOscPort ) );
 	} else {
 #else
 	{
@@ -982,10 +985,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	// OSC tab
 	//////////////////////////////////////////////////////////////////
 	bool bOscOptionAltered = false;
+	bool bOscServerRequiresRestart = false;
 
 	if ( enableOscCheckbox->isChecked() != pPref->getOscServerEnabled() ) {
 		pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
-		pHydrogen->toggleOscServer( enableOscCheckbox->isChecked() );
+		// The restart itself happens after the preferences forward below,
+		// so the engine recreates its server on the new port and not on a
+		// stale copy.
+		bOscServerRequiresRestart = true;
 		bOscOptionAltered = true;
 	}
 	
@@ -997,7 +1004,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	
 	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
 		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
-		pHydrogen->recreateOscServer();
+		// The restart itself happens after the preferences forward below,
+		// so the engine recreates its server on the new port and not on a
+		// stale copy.
+		bOscServerRequiresRestart = true;
 		bOscOptionAltered = true;
 	}
 
@@ -1112,6 +1122,17 @@ void PreferencesDialog::on_okBtn_clicked()
 	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
 		HydrogenApp::pEngine()->getCoreActionController()->setPreferences( pPref
 		);
+	}
+
+	// Restart the OSC server via the controller (single write surface, ADR
+	// 0027). This sits after the forward above so a recreated engine server
+	// binds the new port, not a stale copy. Standalone restarts the local
+	// server; in the editor split the command is forwarded to the
+	// authoritative engine, which restarts its own server (the mirror holds
+	// none).
+	if ( bOscServerRequiresRestart ) {
+		HydrogenApp::pEngine()->getCoreActionController()
+			->recreateOscServer();
 	}
 
 	accept();
@@ -1669,21 +1690,33 @@ void PreferencesDialog::onRejected() {
 		pCurrentPref->m_nBufferSize = pOldPref->m_nBufferSize;
 		pCurrentPref->m_nSampleRate = pOldPref->m_nSampleRate;
 
-		pHydrogen->restartAudioDriver();
+		// In the editor split the headless engine owns the drivers; the
+		// mirror must not churn its local (Null/None) stand-ins.
+		if ( pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+			pHydrogen->restartAudioDriver();
+		}
 	}
 
 	if ( m_changes & Preferences::Changes::MidiTab ) {
 		pCurrentPref->m_midiDriver = pOldPref->m_midiDriver;
 		pCurrentPref->m_sMidiPortName = pOldPref->m_sMidiPortName;
 		pCurrentPref->m_sMidiOutputPortName = pOldPref->m_sMidiOutputPortName;
-		pHydrogen->restartMidiDriver();
+		if ( pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+			pHydrogen->restartMidiDriver();
+		}
 	}
 
 	if ( m_changes & Preferences::Changes::OscTab ) {
 		pCurrentPref->setOscServerEnabled( pOldPref->getOscServerEnabled() );
 		pCurrentPref->setOscFeedbackEnabled( pOldPref->getOscFeedbackEnabled() );
 		pCurrentPref->setOscServerPort( pOldPref->getOscServerPort() );
-		pHydrogen->recreateOscServer();
+		// Via the controller (ADR 0027): standalone restarts the local
+		// server; in the editor split the restored values are forwarded to
+		// the engine below, whose server restarts while applying them.
+		if ( pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+			HydrogenApp::pEngine()->getCoreActionController()
+				->recreateOscServer();
+		}
 	}
 
 	if ( m_changes & Preferences::Changes::ShortcutTab ) {
@@ -1693,6 +1726,15 @@ void PreferencesDialog::onRejected() {
 
 	// Notify other components of Hydrogen about what has been resetted.
 	HydrogenApp::get_instance()->changePreferences( m_changes );
+
+	// In the editor split the engine applied the canceled values when they
+	// were OK'd; it must learn the restored ones — its drivers and OSC
+	// server restart while applying them (the mirror's local restarts are
+	// skipped above).
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences(
+			pCurrentPref );
+	}
 }
 
 void PreferencesDialog::onFontSizeChanged( int nIndex ) {
@@ -1991,7 +2033,7 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 		incomingOscPortSpinBox->show();
 		incomingOscPortLabel->show();
 #ifdef H2CORE_HAVE_OSC
-		if ( HydrogenApp::pHydrogen()->getOscServer()->getTemporaryPort() != -1 ) {
+		if ( HydrogenApp::pEngine()->getOscTemporaryPort() != -1 ) {
 			oscTemporaryPortLabel->show();
 			oscTemporaryPort->show();
 		}

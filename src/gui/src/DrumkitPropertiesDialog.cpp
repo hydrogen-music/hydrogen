@@ -1254,8 +1254,12 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 	// Store the drumkit in the NSM session folder
 #ifdef H2CORE_HAVE_OSC
+	// Only the standalone process has an NsmClient; in the editor split the
+	// headless engine owns the NSM session (its session folder is not
+	// available locally), so the regular save path applies.
 	if ( ( m_action & Action::NsmSession ) &&
-		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
+		 m_pDrumkit->getContext() == Filesystem::Context::Song &&
+		 HydrogenApp::pHydrogen()->getNsmClient() != nullptr ) {
 		m_pDrumkit->setPath(
 			QDir(
 				HydrogenApp::pHydrogen()->getNsmClient()->getSessionFolderPath() +

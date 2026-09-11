@@ -23,6 +23,8 @@
 
 #include "TestHelper.h"
 
+#include <QtNetwork/QUdpSocket>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
 #include <core/Basics/Drumkit.h>
@@ -63,6 +65,25 @@
 #include <thread>
 
 using namespace H2Core;
+
+namespace {
+// Binds an ephemeral UDP port and returns the owning socket (nullptr on
+// failure). OSC travels over UDP, so occupying — or probing — a port
+// requires a UDP bind; a TCP listener would not conflict with liblo.
+// AnyIPv4 matches liblo's AF_INET wildcard and DontShareAddress binds
+// exclusively (no SO_REUSEADDR), so the engine's server cannot claim the
+// port while the socket lives; releasing the unique_ptr releases the port.
+// Qt networking keeps this portable across the Linux/macOS/Windows test
+// pipelines (raw POSIX sockets would not build on MSVC).
+std::unique_ptr<QUdpSocket> bindEphemeralUdpPort() {
+	auto pSocket = std::make_unique<QUdpSocket>();
+	if ( ! pSocket->bind( QHostAddress::AnyIPv4, 0,
+						  QAbstractSocket::DontShareAddress ) ) {
+		return nullptr;
+	}
+	return pSocket;
+}
+} // namespace
 
 // --connect-via-ipc <endpoint>: the editor attaches to the engine's control socket
 // and announces itself with a hello (ADR 0016/0018).
@@ -1479,6 +1500,229 @@ void ConnectViaIpcModeTest::testAudioDeviceQueriesRoundTrip() {
 	// ALSA enumerates statically, independent of the running driver; the
 	// result depends on the host, so only require an answer.
 	pIpcAccess->getAudioDevices( Preferences::AudioDriver::Alsa, QString() );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The editor process must never use OSC or NSM itself: the headless engine
+// owns all control surfaces (ADR 0016/0026). The mirror therefore holds no
+// OscServer/NsmClient objects at all — not inert placeholder ones — so a
+// stray control-surface call fails loudly instead of silently no-oping.
+void ConnectViaIpcModeTest::testMirrorHoldsNoOscOrNsmObjects() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	auto* pMirror = TestHelper::makeMirror();
+
+#ifdef H2CORE_HAVE_OSC
+	CPPUNIT_ASSERT( pMirror->getOscServer() == nullptr );
+	CPPUNIT_ASSERT( pMirror->getNsmClient() == nullptr );
+
+	// Recreate/toggle requests (e.g. from the preferences dialog) must stay
+	// no-ops in the editor instead of building local objects.
+	pMirror->recreateOscServer();
+	pMirror->toggleOscServer( true );
+	CPPUNIT_ASSERT( pMirror->getOscServer() == nullptr );
+
+	// The headless engine keeps its own instances (per-instance ownership,
+	// ADR 0015).
+	CPPUNIT_ASSERT( pEngine->getOscServer() != nullptr );
+	CPPUNIT_ASSERT( pEngine->getNsmClient() != nullptr );
+#endif
+
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Under NSM, Hydrogen::setSong() pins a replacement song to the current
+// session song's path (the session owns the file location). The mirror has
+// no NsmClient, so it must not run that pinning: an empty session folder
+// would capture every song (QString::contains("") is always true). The
+// engine re-applies the policy on its side when the change syncs.
+void ConnectViaIpcModeTest::testMirrorSetSongDoesNotPinPathUnderNsm() {
+	___INFOLOG( "" );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setCachedUnderSessionManagement( true );
+
+	auto pSongA = Song::getEmptySong( pMirror );
+	pSongA->setPath( "/tmp/nsm-session-a.h2song" );
+	pMirror->setSong( pSongA );
+
+	auto pSongB = Song::getEmptySong( pMirror );
+	pSongB->setPath( "/tmp/nsm-session-b.h2song" );
+	pMirror->setSong( pSongB );
+
+	CPPUNIT_ASSERT( pMirror->getSong()->getPath() ==
+					QString( "/tmp/nsm-session-b.h2song" ) );
+
+	pMirror->setCachedUnderSessionManagement( false );
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// setSongModified() reports the dirty state to the NSM server when under
+// session management. In the editor split that reporting belongs to the
+// engine's NsmClient; the mirror must tolerate the call (and still flag the
+// song locally) even while the cached under-session-management state is
+// true.
+void ConnectViaIpcModeTest::testMirrorSetSongModifiedWithoutNsmClient() {
+	___INFOLOG( "" );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setCachedUnderSessionManagement( true );
+
+	pMirror->setSongModified( true );
+	CPPUNIT_ASSERT( pMirror->getSongModified() );
+	pMirror->setSongModified( false );
+	CPPUNIT_ASSERT( ! pMirror->getSongModified() );
+
+	pMirror->setCachedUnderSessionManagement( false );
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// The OSC port a remote control surface must dial is only knowable in the
+// authoritative engine: when the configured port is unavailable its server
+// falls back to a temporary one, and in the editor split the preferences
+// dialog is the only place that value is shown to users. It must therefore
+// travel across the IPC boundary (ADR 0029 query pattern).
+void ConnectViaIpcModeTest::testOscTemporaryPortQueryRoundTrip() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	// Occupy the configured port so the engine's OSC server must fall back
+	// to a temporary one.
+	auto pOccupier = bindEphemeralUdpPort();
+	CPPUNIT_ASSERT( pOccupier != nullptr );
+	const int nConfiguredPort = pOccupier->localPort();
+	CPPUNIT_ASSERT( nConfiguredPort > 0 );
+
+	auto pPref = H2Core::Preferences::create_instance();
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::None;
+	pPref->setOscServerEnabled( true );
+	pPref->setOscServerPort( nConfiguredPort );
+	auto* pEngine = new H2Core::Hydrogen(
+		pPref, H2Core::ProcessMode::Headless, -1 );
+	pEngine->setFullyOperational( true );
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+#ifdef H2CORE_HAVE_OSC
+	// The engine fell back from the occupied port...
+	CPPUNIT_ASSERT( pEngine->getOscTemporaryPort() != -1 );
+	CPPUNIT_ASSERT( pEngine->getOscTemporaryPort() != nConfiguredPort );
+	// ...and the editor must see exactly that value across the split.
+	CPPUNIT_ASSERT( pIpcAccess->getOscTemporaryPort() ==
+					pEngine->getOscTemporaryPort() );
+	// The mirror itself holds no OSC server (ADR 0016/0026).
+	CPPUNIT_ASSERT( pMirror->getOscTemporaryPort() == -1 );
+#endif
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The dialog-facing restart of the OSC server must reach the authoritative
+// engine in the editor split: CoreActionController is the single write
+// surface (ADR 0027) and forwards the command over IPC (ADR 0030), while
+// the mirror — holding no server — stays untouched. Object identity is no
+// observable proof of the restart (the allocator may hand the recycled
+// block back), so the test drives the fallback state: the engine starts on
+// an occupied configured port (temporary fallback in effect) and must end
+// up serving the newly configured free port directly (no fallback).
+void ConnectViaIpcModeTest::testRecreateOscServerForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	// Stage 1: occupy the configured port so the engine's OSC server must
+	// fall back to a temporary one.
+	auto pOccupier = bindEphemeralUdpPort();
+	CPPUNIT_ASSERT( pOccupier != nullptr );
+	const int nOccupiedPort = pOccupier->localPort();
+	CPPUNIT_ASSERT( nOccupiedPort > 0 );
+
+	auto pPref = H2Core::Preferences::create_instance();
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::None;
+	pPref->setOscServerEnabled( true );
+	pPref->setOscServerPort( nOccupiedPort );
+	auto* pEngine = new H2Core::Hydrogen(
+		pPref, H2Core::ProcessMode::Headless, -1 );
+	pEngine->setFullyOperational( true );
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+#ifdef H2CORE_HAVE_OSC
+	// The engine fell back from the occupied port, and the editor sees
+	// exactly that value across the split.
+	const int nPortBefore = pEngine->getOscTemporaryPort();
+	CPPUNIT_ASSERT( nPortBefore != -1 );
+	CPPUNIT_ASSERT( nPortBefore != nOccupiedPort );
+	CPPUNIT_ASSERT( pIpcAccess->getOscTemporaryPort() == nPortBefore );
+
+	// Stage 2: the user picks a free port in the dialog and hits OK. The
+	// engine's preferences carry the new port (the forwarded SetPreferences
+	// applies them), and the dialog-facing restart command must make the
+	// engine rebuild its server on that port.
+	auto pProbe = bindEphemeralUdpPort();
+	CPPUNIT_ASSERT( pProbe != nullptr );
+	const int nFreePort = pProbe->localPort();
+	CPPUNIT_ASSERT( nFreePort > 0 );
+	pProbe.reset(); // release the port — the engine's new server binds it
+
+	pEngine->getPreferences()->setOscServerPort( nFreePort );
+
+	CPPUNIT_ASSERT(
+		pIpcAccess->getCoreActionController()->recreateOscServer() );
+
+	// The engine replaced its server: the new one binds the free configured
+	// port directly, so no fallback is in effect anymore. The state is
+	// polled through the IPC query rather than the engine object — the
+	// recreate runs on the engine's bridge thread, and only that thread may
+	// touch the server while it swaps it. FIFO ordering on the channel
+	// guarantees the first query is answered after the recreate.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pIpcAccess->getOscTemporaryPort() == -1; } ) );
+	// The mirror never gains a server of its own (ADR 0016/0026).
+	CPPUNIT_ASSERT( pMirror->getOscServer() == nullptr );
+#endif
 
 	pIpcAccess.reset();
 	pSession.reset();

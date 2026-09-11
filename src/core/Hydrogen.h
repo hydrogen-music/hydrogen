@@ -487,6 +487,11 @@ public:
 	/** \return The host APIs the running PortAudio driver knows; empty for
 	 * any other driver (ADR 0029). */
 	QStringList		getAudioHostAPIs() const;
+	/** \return The fallback port this instance's OSC server took when the
+	 * configured port was unavailable, -1 when none is in effect. In the
+	 * editor split only the authoritative engine has a server; the mirror
+	 * reports -1 (ADR 0016/0026). */
+	int				getOscTemporaryPort() const;
 	/** \return The cached AudioDriverInfo populated via IPC in editor mode
 	 * (ADR 0029). In standalone mode this is default-constructed and unused. */
 	const AudioDriverInfo&	getCachedAudioDriverInfo() const;
@@ -603,11 +608,14 @@ private:
 	EventQueue*		m_pEventQueue;
 
 #ifdef H2CORE_HAVE_OSC
-	/** OSC server owned by this instance (ADR 0015). Always constructed; only
-	 * binds a port when OSC is enabled in this instance's Preferences. */
-	OscServer*		m_pOscServer;
-	/** NSM client owned by this instance (ADR 0015). */
-	NsmClient*		m_pNsmClient;
+	/** OSC server owned by this instance (ADR 0015). Constructed in every
+	 * mode except Editor — the editor process never uses OSC itself; the
+	 * headless engine owns the control surface (ADR 0016/0026). Only binds
+	 * a port when OSC is enabled in this instance's Preferences. */
+	OscServer*		m_pOscServer = nullptr;
+	/** NSM client owned by this instance (ADR 0015). Not constructed in
+	 * Editor mode (the headless engine owns the NSM session). */
+	NsmClient*		m_pNsmClient = nullptr;
 #endif
 
 	/**

@@ -521,6 +521,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetAudioDevices:
 		sOpcode = "GET_AUDIO_DEVICES";
 		break;
+	case IpcOpcode::RecreateOscServer:
+		sOpcode = "RECREATE_OSC_SERVER";
+		break;
+	case IpcOpcode::GetOscTemporaryPort:
+		sOpcode = "GET_OSC_TEMPORARY_PORT";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";
