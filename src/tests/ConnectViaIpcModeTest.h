@@ -67,6 +67,12 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testRuntimeErrorForwardsToEditor );
 	CPPUNIT_TEST( testBootErrorReplayedOnConnect );
 	CPPUNIT_TEST( testAdhocInstrumentPreviewForwardsToEngine );
+	CPPUNIT_TEST( testUpdateBeatCounterSettingsForwardsToEngine );
+	CPPUNIT_TEST( testHandleBeatCounterForwardsToEngine );
+	CPPUNIT_TEST( testOnTapTempoAccelEventForwardsToEngine );
+	CPPUNIT_TEST( testSetIsTimelineActivatedForwardsToEngine );
+	CPPUNIT_TEST( testSetPatternModeForwardsToEngine );
+	CPPUNIT_TEST( testLoadPlaybackTrackForwardsToEngine );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -109,6 +115,12 @@ public:
 	void testRuntimeErrorForwardsToEditor();
 	void testBootErrorReplayedOnConnect();
 	void testAdhocInstrumentPreviewForwardsToEngine();
+	void testUpdateBeatCounterSettingsForwardsToEngine();
+	void testHandleBeatCounterForwardsToEngine();
+	void testOnTapTempoAccelEventForwardsToEngine();
+	void testSetIsTimelineActivatedForwardsToEngine();
+	void testSetPatternModeForwardsToEngine();
+	void testLoadPlaybackTrackForwardsToEngine();
 };
 
 #endif

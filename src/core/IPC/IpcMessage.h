@@ -286,6 +286,34 @@ enum class IpcOpcode : quint16 {
 	PreviewInstrumentSerialized, ///< command: payload = instrument XML;
 	                             ///< args = [note XML] (editor→engine)
 
+	// ── Engine-access commands without a CoreActionController surface ──
+	// Beat counter/tap tempo, timeline activation, pattern mode, and the
+	// playback track are Hydrogen-level commands the editor issues via
+	// IEngineAccess. Taps are engine-authoritative — the mirror's
+	// handlers are designed no-ops in editor mode (getTempoSource() ==
+	// Tempo::Remote) — so they cross as fire-and-forget commands with
+	// absolute timestamps; engine and editor share the host clock, so
+	// the epoch count reconstructs the TimePoint losslessly (ADR 0026
+	// point 12). updateBeatCounterSettings crosses as a config snapshot
+	// of the editor's current state: the engine's preferences copy goes
+	// stale between syncs and its TapAndPlay completion branch reads the
+	// mode from it. Appended at the enum tail for the same
+	// wire-compatibility reason.
+	HandleBeatCounter,        ///< command: args = [qint64 timeSinceEpochNs]
+	                          ///< (editor→engine)
+	TapTempoAccelEvent,       ///< command: args = [qint64 timeSinceEpochNs]
+	                          ///< (editor→engine)
+	UpdateBeatCounterSettings, ///< command: args = [float beatLength,
+	                          ///< int totalBeats, int driftCompensation,
+	                          ///< int startOffset, int beatCounterMode]
+	                          ///< (editor→engine)
+	SetIsTimelineActivated,   ///< command: args = [bool enabled]
+	                          ///< (editor→engine)
+	SetPatternMode,           ///< command: args = [int patternMode]
+	                          ///< (editor→engine)
+	LoadPlaybackTrack,        ///< command: args = [QString fileName]
+	                          ///< (editor→engine)
+
 	OpcodeCount
 };
 /**

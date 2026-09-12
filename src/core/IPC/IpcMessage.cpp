@@ -536,6 +536,24 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::PreviewInstrumentSerialized:
 		sOpcode = "PREVIEW_INSTRUMENT_SERIALIZED";
 		break;
+	case IpcOpcode::HandleBeatCounter:
+		sOpcode = "HANDLE_BEAT_COUNTER";
+		break;
+	case IpcOpcode::TapTempoAccelEvent:
+		sOpcode = "TAP_TEMPO_ACCEL_EVENT";
+		break;
+	case IpcOpcode::UpdateBeatCounterSettings:
+		sOpcode = "UPDATE_BEAT_COUNTER_SETTINGS";
+		break;
+	case IpcOpcode::SetIsTimelineActivated:
+		sOpcode = "SET_IS_TIMELINE_ACTIVATED";
+		break;
+	case IpcOpcode::SetPatternMode:
+		sOpcode = "SET_PATTERN_MODE";
+		break;
+	case IpcOpcode::LoadPlaybackTrack:
+		sOpcode = "LOAD_PLAYBACK_TRACK";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

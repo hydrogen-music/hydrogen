@@ -765,7 +765,7 @@ void ExportSongDialog::closeExport() {
 		pHydrogen->getAudioEngine()->unlock();
 	}
 	pPref->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
-	pHydrogen->setIsTimelineActivated( m_bOldTimeLineBPMMode );
+	HydrogenApp::pEngine()->setIsTimelineActivated( m_bOldTimeLineBPMMode );
 	
 	pHydrogen->clearInterpolateModeOverride();
 	accept();

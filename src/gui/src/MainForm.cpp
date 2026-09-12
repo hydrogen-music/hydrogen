@@ -3671,11 +3671,11 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 		break;
 
 	case Shortcuts::Action::BeatCounter:
-		pHydrogen->handleBeatCounter();
+		HydrogenApp::pEngine()->handleBeatCounter();
 		break;
 
 	case Shortcuts::Action::TapTempo:
-		pHydrogen->onTapTempoAccelEvent();
+		HydrogenApp::pEngine()->onTapTempoAccelEvent();
 		break;
 
 	case Shortcuts::Action::PlaylistNextSong:

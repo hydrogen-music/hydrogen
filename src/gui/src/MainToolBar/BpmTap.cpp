@@ -186,6 +186,9 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			fBeatLength = 8;
 		}
 		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
+		// The engine keeps its own beat-counter config: forward the new
+		// value as part of a config snapshot (ADR 0026 point 12).
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		updateBpmTap();
 	} );
 	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthUpBtn );
@@ -201,6 +204,9 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			fBeatLength = 1;
 		}
 		pHydrogen->setBeatCounterBeatLength( fBeatLength / 4 );
+		// The engine keeps its own beat-counter config: forward the new
+		// value as part of a config snapshot (ADR 0026 point 12).
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		updateBpmTap();
 	} );
 	pBeatLengthButtonsGroupLayout->addWidget( m_pBeatLengthDownBtn );
@@ -254,6 +260,9 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			nBeatsToCount = 2;
 		}
 		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
+		// The engine keeps its own beat-counter config: forward the new
+		// value as part of a config snapshot (ADR 0026 point 12).
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		updateBpmTap();
 	} );
 	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsUpBtn );
@@ -270,6 +279,9 @@ BpmTap::BpmTap( QWidget *pParent ) : QWidget( pParent )
 			nBeatsToCount = 16;
 		}
 		pHydrogen->setBeatCounterTotalBeats( nBeatsToCount );
+		// The engine keeps its own beat-counter config: forward the new
+		// value as part of a config snapshot (ADR 0026 point 12).
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		updateBpmTap();
 	} );
 	pTotalBeatsButtonsLayout->addWidget( m_pTotalBeatsDownBtn );

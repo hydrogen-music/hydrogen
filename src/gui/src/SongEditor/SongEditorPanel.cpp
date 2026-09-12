@@ -199,7 +199,7 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		if ( selectedFiles.isEmpty() ) {
 			return;
 		}
-		pHydrogen->loadPlaybackTrack( selectedFiles[0] );
+		HydrogenApp::pEngine()->loadPlaybackTrack( selectedFiles[0] );
 	} );
 
 	m_pDeletePlaybackTrackButton = createButton(

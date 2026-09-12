@@ -109,6 +109,12 @@ bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 	case Event::Type::RecordModeChanged:
 		m_pMirror->setRecordEnabled( nValue != 0 );
 		break;
+	case Event::Type::BeatCounter:
+		// The engine's beat-counter pushes carry their event count as
+		// the value: applying it keeps the mirror's "n/total" display in
+		// step without a blocking query (ADR 0026 point 12).
+		m_pMirror->setBeatCounterEventCount( nValue );
+		break;
 	default:
 		break;
 	}

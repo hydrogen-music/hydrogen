@@ -169,20 +169,33 @@ class IpcEngineAccess : public IEngineAccess,
 	int getOscTemporaryPort() const override;
 
 	// --- commands: transport forwarded over IPC, view state applied locally ---
-	bool handleBeatCounter( TimePoint start = TimePoint() ) override {
-		return m_pMirror->handleBeatCounter( start ); }
-	void loadPlaybackTrack( const QString& sFileName ) override {
-		m_pMirror->loadPlaybackTrack( sFileName ); }
-	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override {
-		m_pMirror->onTapTempoAccelEvent( start ); }
+	/** Taps are engine-authoritative: the mirror's handler is a designed
+	 * no-op in editor mode (getTempoSource() == Tempo::Remote), so the
+	 * tap crosses with its absolute timestamp. The engine's BeatCounter
+	 * echoes carry its event count back for the BpmTap display (ADR 0026
+	 * point 12). Falls back to the mirror when no channel is connected;
+	 * over IPC the engine's synchronous result is not available, so
+	 * `true` reports the hand-off, not the engine's gate. */
+	bool handleBeatCounter( TimePoint start = TimePoint() ) override;
+	/** The playback track is engine-audible: forwarded, plus a local
+	 * apply so the GUI's waveform shows immediately (ADR 0026 point 12). */
+	void loadPlaybackTrack( const QString& sFileName ) override;
+	/** Like handleBeatCounter(): the mirror's handler is a designed no-op
+	 * in editor mode, so the tap crosses with its absolute timestamp
+	 * (ADR 0026 point 12). */
+	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override;
 	void sequencerPlay() override;
 	void sequencerStop() override;
 	void setDrumkitModified( bool bIsModified ) override {
 		m_pMirror->setDrumkitModified( bIsModified ); }
-	void setIsTimelineActivated( bool bEnabled ) override {
-		m_pMirror->setIsTimelineActivated( bEnabled ); }
-	void setPatternMode( const Song::PatternMode& mode ) override {
-		m_pMirror->setPatternMode( mode ); }
+	/** Song state the GUI reads on the mirror: forwarded, plus a local
+	 * apply for immediate reflection (ADR 0026 point 12). */
+	void setIsTimelineActivated( bool bEnabled ) override;
+	/** Engine-authoritative song state: forwarded, plus a local apply.
+	 * The engine-side apply flips the dirty flag with the Default
+	 * trigger — the engine-origin SongIsModified echo then triggers the
+	 * editor's full song re-pull (ADR 0026 point 10/12). */
+	void setPatternMode( const Song::PatternMode& mode ) override;
 	void setPatternModified( bool bIsModified, int nIndex ) override {
 		m_pMirror->setPatternModified( bIsModified, nIndex ); }
 	/** Instrument selection is engine-relevant — the headless engine's
@@ -193,8 +206,11 @@ class IpcEngineAccess : public IEngineAccess,
 		int nInstrument,
 		Event::Trigger trigger = Event::Trigger::Default ) override;
 	void setSongModified( bool bIsModified ) override;
-	void updateBeatCounterSettings() override {
-		m_pMirror->updateBeatCounterSettings(); }
+	/** Beat-counter config is editor-owned (the BpmTap buttons and the
+	 * preferences dialog write the mirror's state; the engine's
+	 * preferences copy goes stale between syncs): crosses as a config
+	 * snapshot of the mirror's current state (ADR 0026 point 12). */
+	void updateBeatCounterSettings() override;
 
 private:
 	/** Editor-side headless engine serving reads; not owned. */

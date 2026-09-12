@@ -2157,3 +2157,378 @@ void ConnectViaIpcModeTest::testAdhocInstrumentPreviewForwardsToEngine() {
 
 	___INFOLOG( "passed" );
 }
+
+// Beat-counter/tap-tempo config is editor-owned: the BpmTap buttons write
+// the mirror's Hydrogen members and the mode actions write the mirror's
+// preferences — neither syncs to the engine on its own (the engine's
+// prefs copy goes stale, and its TapAndPlay branch reads it).
+// updateBeatCounterSettings() therefore crosses as a config snapshot of
+// the mirror's current state (ADR 0026 point 12).
+void ConnectViaIpcModeTest::testUpdateBeatCounterSettingsForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	// Engine-side defaults (Hydrogen constructor).
+	CPPUNIT_ASSERT( pEngine->getBeatCounterTotalBeats() == 4 );
+	CPPUNIT_ASSERT( pEngine->getBeatCounterBeatLength() == 1.f );
+
+	// Editor-side config: non-default values on the mirror's members and
+	// preferences.
+	auto pMirrorPrefs = pMirror->getPreferences();
+	pMirrorPrefs->m_nBeatCounterDriftCompensation = 17;
+	pMirrorPrefs->m_nBeatCounterStartOffset = 5;
+	pMirrorPrefs->m_beatCounter = Preferences::BeatCounter::TapAndPlay;
+	pMirror->setBeatCounterTotalBeats( 7 );
+	pMirror->setBeatCounterBeatLength( 0.75f );
+
+	pIpcAccess->updateBeatCounterSettings();
+
+	// The engine adopts the snapshot: the members plus the TapAndPlay
+	// mode preference its beat-counter completion branch reads.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getBeatCounterTotalBeats() == 7 &&
+			std::abs( pEngine->getBeatCounterBeatLength() - 0.75f ) <
+				0.001 &&
+			pEngine->getPreferences()->m_beatCounter ==
+				Preferences::BeatCounter::TapAndPlay;
+	} ) );
+	// Drift compensation and start offset cross in the same message (no
+	// getters): the drift argument is pinned by the shifted BPM math in
+	// testHandleBeatCounterForwardsToEngine (a swap with another
+	// argument changes the result); the start offset only affects the
+	// TapAndPlay lead-in sleep, not the BPM.
+
+	// The engine's BeatCounter echo — carrying its event count — crosses
+	// tagged as engine-origin. The found state is sticky in the outer
+	// scope: pumpUntil() re-invokes the condition after its loop, and a
+	// draining lambda would re-run on an already-emptied queue.
+	bool bSawEcho = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pEvent;
+		while ( ( pEvent = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pEvent->getType() == Event::Type::BeatCounter &&
+				 pEvent->getOrigin() == H2Core::ProcessMode::Headless ) {
+				bSawEcho = true;
+			}
+		}
+		return bSawEcho;
+	} ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Taps are engine-authoritative: the mirror's handleBeatCounter() is a
+// designed no-op in editor mode (getTempoSource() == Tempo::Remote), so
+// the tap must cross and the engine's beat counter must run on the
+// forwarded timestamps. The engine's BeatCounter echoes carry its event
+// count so the editor's "n/total" display keeps working (ADR 0026
+// point 12).
+void ConnectViaIpcModeTest::testHandleBeatCounterForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	// The beat counter only runs when the engine owns the tempo.
+	CPPUNIT_ASSERT( pEngine->getTempoSource() == Hydrogen::Tempo::Song );
+
+	// Distinguishable baseline: the taps below land on 130.43 BPM —
+	// distinct from both the baseline and the 120 default song tempo.
+	CPPUNIT_ASSERT( pEngine->getCoreActionController()->setBpm( 100.f ) );
+
+	// Editor-side config: count 3 taps, 40 ms drift compensation, no
+	// start offset, TapAndPlay — the completion branch must start
+	// playback on the engine. The nonzero drift pins the snapshot's
+	// drift argument: swapping it with another argument would shift the
+	// resulting BPM.
+	auto pMirrorPrefs = pMirror->getPreferences();
+	pMirrorPrefs->m_nBeatCounterDriftCompensation = 40;
+	pMirrorPrefs->m_nBeatCounterStartOffset = 0;
+	pMirrorPrefs->m_beatCounter = Preferences::BeatCounter::TapAndPlay;
+	pMirror->setBeatCounterTotalBeats( 3 );
+	pIpcAccess->updateBeatCounterSettings();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getBeatCounterTotalBeats() == 3 &&
+			pEngine->getPreferences()->m_beatCounter ==
+				Preferences::BeatCounter::TapAndPlay;
+	} ) );
+
+	// Explicit, evenly spaced stamps 0.5 s apart (exact in binary). With
+	// the 40 ms drift compensation the effective deltas are 0.46 s.
+	// Non-zero stamps: the epoch is the "no stamp" sentinel.
+	const auto tFirst = Clock::now();
+	pIpcAccess->handleBeatCounter( tFirst );
+	pIpcAccess->handleBeatCounter(
+		tFirst + std::chrono::milliseconds( 500 ) );
+
+	// Two taps in: the engine's count (3) must have crossed back as the
+	// BeatCounter echo value and been applied to the mirror.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getBeatCounterEventCount() == 3; } ) );
+
+	pIpcAccess->handleBeatCounter(
+		tFirst + std::chrono::milliseconds( 1000 ) );
+
+	// Completion: 0.46 s effective average per beat at beat length 1 →
+	// floor(60 / 0.46 · 100) / 100 = 130.43 BPM.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::abs( pEngine->getSong()->getBpm() - 130.43f ) < 0.05; } ) );
+	// TapAndPlay: after the one-beat lead-in sleep the engine starts
+	// playback.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getState() ==
+			AudioEngine::State::Playing; } ) );
+	// The post-completion reset (count back to 1) crosses as well.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getBeatCounterEventCount() == 1; } ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Tap tempo crosses like the beat counter: the mirror's
+// onTapTempoAccelEvent() is a designed no-op in editor mode
+// (getTempoSource() == Tempo::Remote). No echo events: the running
+// average feeds setBpm() directly (ADR 0026 point 12).
+void ConnectViaIpcModeTest::testOnTapTempoAccelEventForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	CPPUNIT_ASSERT( pEngine->getTempoSource() == Hydrogen::Tempo::Song );
+	CPPUNIT_ASSERT( pEngine->getCoreActionController()->setBpm( 100.f ) );
+
+	const auto tFirst = Clock::now();
+	// The first tap only initializes the reference point (the stale
+	// epoch default forces an average reset); the second sets the tempo.
+	pIpcAccess->onTapTempoAccelEvent( tFirst );
+	pIpcAccess->onTapTempoAccelEvent(
+		tFirst + std::chrono::milliseconds( 300 ) );
+
+	// 60 / 0.3 s = 200 BPM.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::abs( pEngine->getSong()->getBpm() - 200.f ) < 0.05; } ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Timeline activation is song state the GUI reads on the mirror —
+// dual-apply: immediate local reflection plus the forwarded command
+// (ADR 0026 point 12).
+void ConnectViaIpcModeTest::testSetIsTimelineActivatedForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	const bool bInitial = pMirror->getSong()->getIsTimelineActivated();
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getIsTimelineActivated() == bInitial );
+
+	// Toggle to the opposite so the command always changes state.
+	pIpcAccess->setIsTimelineActivated( ! bInitial );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getIsTimelineActivated() == ! bInitial );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getIsTimelineActivated() == ! bInitial;
+	} ) );
+
+	// And back again.
+	pIpcAccess->setIsTimelineActivated( bInitial );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getIsTimelineActivated() == bInitial );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getIsTimelineActivated() == bInitial;
+	} ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Pattern mode is engine-authoritative song state. The engine-side
+// apply flips the dirty flag with the Default trigger, whose
+// engine-origin SongIsModified echo triggers the editor's full song
+// re-pull — the required sync for editor-initiated engine-side content
+// changes (ADR 0026 point 10/12).
+void ConnectViaIpcModeTest::testSetPatternModeForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	const auto initialMode = pMirror->getPatternMode();
+	CPPUNIT_ASSERT( pEngine->getPatternMode() == initialMode );
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getIsModified() );
+
+	// Drain connect-time noise before the echo check below.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	const auto targetMode = initialMode == Song::PatternMode::Stacked
+		? Song::PatternMode::Selected
+		: Song::PatternMode::Stacked;
+	pIpcAccess->setPatternMode( targetMode );
+
+	// Immediate local reflection ...
+	CPPUNIT_ASSERT( pMirror->getPatternMode() == targetMode );
+	// ... the engine-side apply ...
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPatternMode() == targetMode; } ) );
+	// ... including the dirty flip ...
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getIsModified(); } ) );
+
+	// The engine-origin SongIsModified echo crosses — in the GUI it
+	// triggers the required full song re-pull (handleRemoteEvent). The
+	// found state is sticky in the outer scope: pumpUntil() re-invokes
+	// the condition after its loop, and a draining lambda would re-run
+	// on an already-emptied queue.
+	bool bSawFlipEcho = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pEvent;
+		while ( ( pEvent = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pEvent->getType() == Event::Type::SongIsModified &&
+				 pEvent->getOrigin() == H2Core::ProcessMode::Headless ) {
+				bSawFlipEcho = true;
+			}
+		}
+		return bSawFlipEcho;
+	} ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The playback track is engine-audible state: the local apply gives the
+// GUI its immediate waveform, the forwarded command loads the sample
+// engine-side (ADR 0026 point 12).
+void ConnectViaIpcModeTest::testLoadPlaybackTrackForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getPlaybackTrackInstrument() == nullptr );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getPlaybackTrackInstrument() == nullptr );
+
+	pIpcAccess->loadPlaybackTrack(
+		H2TEST_FILE( "/drumkits/baseKit/hh.wav" ) );
+
+	// Immediate local reflection: the mirror loads its own copy for the
+	// waveform display.
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getPlaybackTrackInstrument() != nullptr );
+
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getPlaybackTrackInstrument() != nullptr;
+	} ) );
+	CPPUNIT_ASSERT( pEngine->getSong()->getPlaybackTrackInstrument()
+					->getId() == Instrument::PlaybackTrackId );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

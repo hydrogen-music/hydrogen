@@ -1029,14 +1029,18 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
 	if ( m_nBeatCounterTotalBeats != nBeatsToCount ) {
 		m_nBeatCounterTotalBeats = nBeatsToCount;
-		m_pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+		// The value carries the event count so the editor's "n/total"
+		// display stays in step across the IPC split (ADR 0026 point 12).
+		m_pEventQueue->pushEvent( Event::Type::BeatCounter,
+								  m_nBeatCounterEventCount );
 	}
 }
 
 void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 	if ( m_fBeatCounterBeatLength != fBeatLength ) {
 		m_fBeatCounterBeatLength = fBeatLength;
-		m_pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+		m_pEventQueue->pushEvent( Event::Type::BeatCounter,
+								  m_nBeatCounterEventCount );
 	}
 }
 
@@ -1075,13 +1079,15 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 		m_nBeatCounterEventCount = 1;
 		m_nBeatCounterBeatCount = 1;
 
-		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+		pEventQueue->pushEvent( Event::Type::BeatCounter,
+								m_nBeatCounterEventCount );
 		return false;
 	}
 
 	// Only accept differences big enough
 	if ( m_nBeatCounterBeatCount != 1 && fTimeDeltaSeconds <= .001 ) {
-		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+		pEventQueue->pushEvent( Event::Type::BeatCounter,
+								m_nBeatCounterEventCount );
 		return false;
 	}
 
@@ -1119,7 +1125,8 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 
 	// Update counter numbers before starting playback. Else the user could
 	// experience visual delays in the BpmTap.
-	pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+	pEventQueue->pushEvent( Event::Type::BeatCounter,
+							m_nBeatCounterEventCount );
 
 	if ( bTempoSet && m_pPreferences->m_beatCounter ==
 		 Preferences::BeatCounter::TapAndPlay &&
@@ -1147,15 +1154,31 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 
 	return true;
 }
-
 void Hydrogen::updateBeatCounterSettings() {
 	const auto pPreferences = m_pPreferences;
 
-	m_nBeatCounterDriftCompensation =
-		pPreferences->m_nBeatCounterDriftCompensation;
-	m_nBeatCounterStartOffset = pPreferences->m_nBeatCounterStartOffset;
+	updateBeatCounterSettings( m_fBeatCounterBeatLength,
+							   m_nBeatCounterTotalBeats,
+							   pPreferences->m_nBeatCounterDriftCompensation,
+							   pPreferences->m_nBeatCounterStartOffset,
+							   pPreferences->m_beatCounter );
+}
 
-	m_pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+void Hydrogen::updateBeatCounterSettings(
+	float fBeatLength, int nTotalBeats, int nDriftCompensation,
+	int nStartOffset, Preferences::BeatCounter mode )
+{
+	m_fBeatCounterBeatLength = fBeatLength;
+	m_nBeatCounterTotalBeats = nTotalBeats;
+	m_nBeatCounterDriftCompensation = nDriftCompensation;
+	m_nBeatCounterStartOffset = nStartOffset;
+	// The TapAndPlay completion branch of handleBeatCounter() reads the
+	// mode from the preferences — keep them consistent with the applied
+	// snapshot.
+	m_pPreferences->m_beatCounter = mode;
+
+	m_pEventQueue->pushEvent( Event::Type::BeatCounter,
+							  m_nBeatCounterEventCount );
 }
 
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr )

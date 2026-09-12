@@ -124,6 +124,58 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return true;
 		}
 		return false;
+	case IpcOpcode::HandleBeatCounter:
+		if ( args.size() >= 1 ) {
+			// No CoreActionController surface for this — apply on the
+			// engine directly (like Play/Stop). Engine and editor share
+			// the host clock, so the epoch count reconstructs the
+			// TimePoint losslessly; 0 is the "no stamp" sentinel, which
+			// handleBeatCounter() resolves to its own clock.
+			return pHydrogen->handleBeatCounter( TimePoint(
+				TimePoint::duration( args[0].toLongLong() ) ) );
+		}
+		return false;
+	case IpcOpcode::TapTempoAccelEvent:
+		if ( args.size() >= 1 ) {
+			pHydrogen->onTapTempoAccelEvent( TimePoint(
+				TimePoint::duration( args[0].toLongLong() ) ) );
+			return true;
+		}
+		return false;
+	case IpcOpcode::UpdateBeatCounterSettings:
+		// Config snapshot from the editor: beat length, total beats,
+		// drift compensation, start offset, and the Tap/TapAndPlay mode
+		// (ADR 0026 point 12).
+		if ( args.size() >= 5 ) {
+			pHydrogen->updateBeatCounterSettings(
+				args[0].toFloat(), args[1].toInt(), args[2].toInt(),
+				args[3].toInt(),
+				static_cast<Preferences::BeatCounter>( args[4].toInt() ) );
+			return true;
+		}
+		return false;
+	case IpcOpcode::SetIsTimelineActivated:
+		if ( args.size() >= 1 ) {
+			pHydrogen->setIsTimelineActivated( args[0].toBool() );
+			return true;
+		}
+		return false;
+	case IpcOpcode::SetPatternMode:
+		if ( args.size() >= 1 ) {
+			// Default trigger on the engine-side dirty flip: the
+			// engine-origin SongIsModified echo tells the editor to
+			// re-pull the song (ADR 0026 point 10/12).
+			pHydrogen->setPatternMode(
+				static_cast<Song::PatternMode>( args[0].toInt() ) );
+			return true;
+		}
+		return false;
+	case IpcOpcode::LoadPlaybackTrack:
+		if ( args.size() >= 1 ) {
+			pHydrogen->loadPlaybackTrack( args[0].toString() );
+			return true;
+		}
+		return false;
 	case IpcOpcode::SetStripVolume:
 		if ( args.size() >= 3 ) {
 			return pController->setStripVolume(

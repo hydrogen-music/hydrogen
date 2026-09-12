@@ -232,3 +232,43 @@ closed by this amendment as well:
     bpm — audible only for rubberband edits after a tempo change — and
     the browser/editor playhead animations read the mirror's frozen
     realtime frames (pre-existing).
+12. **Engine-access commands without a CoreActionController surface.**
+    `handleBeatCounter()`, `onTapTempoAccelEvent()`,
+    `updateBeatCounterSettings()`, `setIsTimelineActivated()`,
+    `setPatternMode()`, and `loadPlaybackTrack()` are Hydrogen-level
+    commands the editor issues via `IEngineAccess`; until now their
+    `IpcEngineAccess` implementations applied them to the mirror only.
+    Taps are engine-authoritative — the mirror's handlers are designed
+    no-ops in editor mode (`getTempoSource() == Tempo::Remote`) — so
+    they cross as fire-and-forget commands carrying the absolute tap
+    timestamp as a nanosecond epoch count (engine and editor share the
+    host clock, so the `TimePoint` reconstructs losslessly). A
+    default-constructed `TimePoint` is stamped at call time on the
+    editor side — the engine must not stamp at bridge-thread processing
+    time, or a tap queued behind a TapAndPlay lead-in sleep would
+    inherit that delay as interval jitter.
+    Beat-counter *config* is editor-owned: the BpmTap buttons write the
+    mirror's Hydrogen members and the mode actions and preferences
+    dialog write the mirror's preferences — none of which sync to the
+    engine on their own, and the engine's TapAndPlay completion branch
+    reads the mode from its (stale) preferences copy. So
+    `updateBeatCounterSettings()` crosses as a *config snapshot* of the
+    editor's current state (beat length, total beats, drift
+    compensation, start offset, and Tap/TapAndPlay mode) instead of
+    letting the engine re-read its own preferences. The engine's
+    `BeatCounter` pushes carry their event count as the event value;
+    `EditorStateMirror::applyEvent()` applies it to the mirror's count
+    member, keeping the BpmTap "n/total" display in step without a
+    blocking query (listeners never read the value, so stand-alone
+    behavior is unchanged). Timeline activation, pattern mode, and the
+    playback track are dual-apply: forwarded for the engine's
+    authoritative copy, applied locally for immediate GUI reflection.
+    The engine-side `setPatternMode()` flips the dirty flag with the
+    `Default` trigger — the engine-origin `SongIsModified` echo then
+    triggers the editor's full song re-pull (point 10), which is the
+    required sync for editor-initiated engine-side content changes;
+    the *explicit* `setSongModified` command keeps `Suppress` (bare
+    flag flips are editor-known). Known residual: the TapAndPlay
+    completion branch sleeps one beat in the bridge thread before
+    starting playback — pre-existing semantics, kept synchronous so
+    FIFO ordering against a subsequent Stop is preserved.

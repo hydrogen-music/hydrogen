@@ -26,6 +26,7 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core {
 
@@ -87,6 +88,102 @@ void IpcEngineAccess::setSongModified( bool bIsModified )
 			IpcMessage( IpcOpcode::SetSongModified ).arg( bIsModified ) );
 	}
 	m_pMirror->setSongModified( bIsModified );
+}
+
+bool IpcEngineAccess::handleBeatCounter( TimePoint start ) {
+	// Taps are engine-authoritative: the mirror's handler is a designed
+	// no-op in editor mode (getTempoSource() == Tempo::Remote). Engine
+	// and editor share the host clock, so the epoch count reconstructs
+	// the TimePoint losslessly (like the handled-MIDI queries above). A
+	// default-constructed TimePoint is stamped HERE, at call time: the
+	// engine must not stamp at bridge-thread processing time — a tap
+	// queued behind e.g. a TapAndPlay lead-in sleep would inherit that
+	// delay as interval jitter (standalone stamps at call time too). The
+	// engine's BeatCounter echoes carry the event count back for the
+	// BpmTap display (ADR 0026 point 12).
+	if ( start == TimePoint() ) {
+		start = Clock::now();
+	}
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::HandleBeatCounter )
+			.arg( static_cast<qint64>(
+				start.time_since_epoch().count() ) ) );
+		return true;
+	}
+	return m_pMirror->handleBeatCounter( start );
+}
+
+void IpcEngineAccess::onTapTempoAccelEvent( TimePoint start ) {
+	// Like handleBeatCounter(): the mirror's handler is a designed no-op
+	// in editor mode, so the tap crosses with its absolute timestamp —
+	// stamped at call time, before queueing can add jitter (ADR 0026
+	// point 12).
+	if ( start == TimePoint() ) {
+		start = Clock::now();
+	}
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::TapTempoAccelEvent )
+			.arg( static_cast<qint64>(
+				start.time_since_epoch().count() ) ) );
+		return;
+	}
+	m_pMirror->onTapTempoAccelEvent( start );
+}
+
+void IpcEngineAccess::updateBeatCounterSettings() {
+	// Beat-counter config is editor-owned: the BpmTap buttons write the
+	// mirror's Hydrogen members and the mode actions and preferences
+	// dialog write the mirror's preferences — none of which sync to the
+	// engine on their own. Cross the whole configuration as a snapshot
+	// of the mirror's current state; the engine's TapAndPlay completion
+	// branch reads the mode from its (otherwise stale) preferences copy
+	// (ADR 0026 point 12).
+	if ( m_pChannel != nullptr ) {
+		const auto pPreferences = m_pMirror->getPreferences();
+		m_pChannel->send( IpcMessage( IpcOpcode::UpdateBeatCounterSettings )
+			.arg( m_pMirror->getBeatCounterBeatLength() )
+			.arg( m_pMirror->getBeatCounterTotalBeats() )
+			.arg( pPreferences->m_nBeatCounterDriftCompensation )
+			.arg( pPreferences->m_nBeatCounterStartOffset )
+			.arg( static_cast<int>( pPreferences->m_beatCounter ) ) );
+		return;
+	}
+	m_pMirror->updateBeatCounterSettings();
+}
+
+void IpcEngineAccess::setIsTimelineActivated( bool bEnabled ) {
+	// Song state the GUI reads on the mirror: forward the command and
+	// apply it locally so the timeline widgets update immediately (ADR
+	// 0026 point 12).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetIsTimelineActivated )
+			.arg( bEnabled ) );
+	}
+	m_pMirror->setIsTimelineActivated( bEnabled );
+}
+
+void IpcEngineAccess::setPatternMode( const Song::PatternMode& mode ) {
+	// Engine-authoritative song state: forward the command and apply it
+	// locally for immediate reflection. The engine-side apply flips the
+	// dirty flag with the Default trigger — the engine-origin
+	// SongIsModified echo then triggers the editor's full song re-pull
+	// (ADR 0026 point 10/12).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternMode )
+			.arg( static_cast<int>( mode ) ) );
+	}
+	m_pMirror->setPatternMode( mode );
+}
+
+void IpcEngineAccess::loadPlaybackTrack( const QString& sFileName ) {
+	// The playback track is engine-audible: forward the command and load
+	// a local copy so the GUI's waveform shows immediately (ADR 0026
+	// point 12).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::LoadPlaybackTrack )
+			.arg( sFileName ) );
+	}
+	m_pMirror->loadPlaybackTrack( sFileName );
 }
 
 QStringList IpcEngineAccess::getAudioDevices(

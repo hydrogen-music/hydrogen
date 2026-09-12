@@ -32,6 +32,7 @@
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Sampler/Interpolation.h>
 
 #include <cassert>
@@ -377,8 +378,25 @@ public:
 	void			setBeatCounterBeatLength( float fBeatLength );
 	float			getBeatCounterBeatLength() const;
 	int			getBeatCounterEventCount() const;
+	/** Mirror-side apply of the engine's BeatCounter echo: the engine's
+	 * beat-counter pushes carry their event count as the event value, so
+	 * the editor's "n/total" display stays in step without a blocking
+	 * query (ADR 0026 point 12). */
+	void			setBeatCounterEventCount( int nEventCount );
 	bool			handleBeatCounter( TimePoint start = TimePoint() );
 	void			updateBeatCounterSettings();
+	/** Applies an explicit beat-counter configuration. In editor mode the
+	 * editor owns this config (the BpmTap buttons and the preferences
+	 * dialog write the mirror's state), so the IPC layer forwards a
+	 * snapshot of it instead of letting the engine read its own
+	 * preferences copy — which goes stale between syncs (ADR 0026 point
+	 * 12). The mode is written to the preferences as well: the TapAndPlay
+	 * completion branch of #handleBeatCounter reads it from there. */
+	void			updateBeatCounterSettings( float fBeatLength,
+						int nTotalBeats,
+						int nDriftCompensation,
+						int nStartOffset,
+						Preferences::BeatCounter mode );
 
 	//export management
 	bool			getIsExportSessionActive() const;
@@ -865,6 +883,9 @@ inline float Hydrogen::getBeatCounterBeatLength() const {
 }
 inline int Hydrogen::getBeatCounterEventCount() const {
 	return m_nBeatCounterEventCount;
+}
+inline void Hydrogen::setBeatCounterEventCount( int nEventCount ) {
+	m_nBeatCounterEventCount = nEventCount;
 }
 inline bool Hydrogen::getSendBbtChangeEvents() const {
 	return m_bSendBbtChangeEvents;

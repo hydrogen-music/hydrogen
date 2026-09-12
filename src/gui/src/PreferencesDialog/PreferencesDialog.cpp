@@ -1042,7 +1042,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		 m_pBeatCounterDriftCompensationSpinBox->value() ) {
 		pPref->m_nBeatCounterDriftCompensation =
 			m_pBeatCounterDriftCompensationSpinBox->value();
-		pHydrogen->updateBeatCounterSettings();
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		bGeneralOptionAltered = true;
 	}
 	
@@ -1050,7 +1050,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		 m_pBeatCounterStartOffsetSpinBox->value() ) {
 		pPref->m_nBeatCounterStartOffset =
 			m_pBeatCounterStartOffsetSpinBox->value();
-		pHydrogen->updateBeatCounterSettings();
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		bGeneralOptionAltered = true;
 	}
 
@@ -1668,7 +1668,7 @@ void PreferencesDialog::onRejected() {
 		pCurrentPref->setMaxBars( pOldPref->getMaxBars() );
 		pCurrentPref->m_nAutosavesPerHour = pOldPref->m_nAutosavesPerHour;
 		pCurrentPref->setPreferredLanguage( pOldPref->getPreferredLanguage() );
-		pHydrogen->updateBeatCounterSettings();
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 	}
 
 	if ( m_changes & Preferences::Changes::AudioTab ) {
