@@ -263,12 +263,56 @@ closed by this amendment as well:
     behavior is unchanged). Timeline activation, pattern mode, and the
     playback track are dual-apply: forwarded for the engine's
     authoritative copy, applied locally for immediate GUI reflection.
-    The engine-side `setPatternMode()` flips the dirty flag with the
-    `Default` trigger — the engine-origin `SongIsModified` echo then
-    triggers the editor's full song re-pull (point 10), which is the
-    required sync for editor-initiated engine-side content changes;
-    the *explicit* `setSongModified` command keeps `Suppress` (bare
-    flag flips are editor-known). Known residual: the TapAndPlay
-    completion branch sleeps one beat in the bridge thread before
-    starting playback — pre-existing semantics, kept synchronous so
-    FIFO ordering against a subsequent Stop is preserved.
+     The engine-side `setPatternMode()` originally flipped the dirty
+     flag with the `Default` trigger so its echo re-pulled the song;
+     point 13 moves it — like all forwarded commands — to `Suppress`;
+     the *explicit* `setSongModified` command keeps `Suppress`
+     throughout (bare flag flips are editor-known). Known residual:
+     the TapAndPlay completion branch sleeps one beat in the bridge
+     thread before starting playback — pre-existing semantics, kept
+     synchronous so FIFO ordering against a subsequent Stop is
+     preserved.
+13. **Dirty-flip trigger split for forwarded commands.** Point 10 made
+     engine-origin `SongIsModified` echoes the editor's re-pull signal,
+     and the explicit `SetSongModified` opcode already applied with
+     `Suppress`. But every *forwarded edit command* — the
+     `IpcCoreActionController` overrides that marshal a command to the
+     engine and also apply it on the mirror — flipped the engine's
+     dirty flag with the `Default` trigger on the engine-side apply.
+     Each such edit therefore echoed `SongIsModified` back to the
+     editor, whose `handleRemoteEvent` re-pulled the full song:
+     redundant (the mirror had already applied the identical edit) and
+     damaging (the re-pull runs the mirror's `setSong`, which resets
+     the selected pattern to 0, clears the undo stack, and churns the
+     recent-files list — per edit). The fix is a trigger split along
+     the dual-apply seam: the mirror-local apply keeps `Default` (an
+     Editor-origin event, filtered by the origin gate, updating the
+     local GUI), while the bridge applies forwarded commands on the
+     engine with `Suppress` (flag flips, the engine's NsmClient
+     reports to the session manager, no echo). `Event::Trigger` is
+     threaded through every `CoreActionController` method that reaches
+     a `setSongModified()`/`setDrumkitModified()`/`setPatternModified()`
+     flip, through `Hydrogen::setPatternMode()`, and through the
+     drumkit/pattern/pattern-editor-lock wrappers, so engine-local
+     callers (OSC/MIDI on the engine, NSM open re-marks) keep the
+     `Default` argument and remain the editor's only echo source. Two
+     accompanying semantics: (a) on the headless engine
+     `setSongModified()` fires even when the flag is unchanged (unless
+     `Suppress`) — the transition-only early-return swallowed every
+     engine-local edit after the first while dirty, and the editor
+     would never have re-pulled them; stand-alone GUI and the editor
+     mirror keep transition-only behavior (the local UI already
+     knows), and the CLI player drains the extra events in its main
+     loop; (b) the `SongIsModified` re-pull branch in
+     `HydrogenApp::handleRemoteEvent` re-syncs the selected pattern
+     and instrument after `ipcSyncSong()` — the mirror's `setSong`
+     resets the pattern selection with new-song semantics, and the
+     surviving engine-local echoes must not cost the editor its
+     editing context (the undo-stack clear stays: engine-side edits
+     are not part of the editor's undo history). Known residual (next
+     task): the mirror-only flips — `IpcEngineAccess::setDrumkitModified()`
+     and `setPatternModified()`, and `setIsPatternEditorLocked()`
+     which bypasses `IEngineAccess` entirely — never reach the engine,
+     so NSM under-reports editor-side drumkit/pattern edits; their
+     `Hydrogen` signatures carry the trigger parameter already, the
+     IPC crossing is still missing.

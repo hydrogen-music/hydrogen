@@ -64,6 +64,7 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPulledSongPreservesModifiedFlag );
 	CPPUNIT_TEST( testEngineFlipEventCrosses );
 	CPPUNIT_TEST( testEditorFlipEchoSuppressed );
+	CPPUNIT_TEST( testForwardedEditDoesNotEchoSongModified );
 	CPPUNIT_TEST( testRuntimeErrorForwardsToEditor );
 	CPPUNIT_TEST( testBootErrorReplayedOnConnect );
 	CPPUNIT_TEST( testAdhocInstrumentPreviewForwardsToEngine );
@@ -112,6 +113,7 @@ public:
 	void testPulledSongPreservesModifiedFlag();
 	void testEngineFlipEventCrosses();
 	void testEditorFlipEchoSuppressed();
+	void testForwardedEditDoesNotEchoSongModified();
 	void testRuntimeErrorForwardsToEditor();
 	void testBootErrorReplayedOnConnect();
 	void testAdhocInstrumentPreviewForwardsToEngine();

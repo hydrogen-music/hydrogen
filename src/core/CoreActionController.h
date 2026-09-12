@@ -28,6 +28,7 @@
 #include <vector>
 
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Event.h>
 #include <core/Midi/Midi.h>
 #include <core/Object.h>
 
@@ -68,79 +69,229 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Virtual so editor mode can substitute #IpcCoreActionController, which
 	 * marshals each command over IPC instead of mutating locally (ADR 0030). */
 	virtual ~CoreActionController() = default;
-	virtual bool setMasterVolume( float masterVolumeValue );
+	virtual bool setMasterVolume(
+		float masterVolumeValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * \param nStrip Instrument which to set the volume for.
 	 * \param fVolumeValue New volume.
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	virtual bool
-	setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
+	virtual bool setStripVolume(
+		int nStrip,
+		float fVolumeValue,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * \param nStrip Instrument which to set the pan for.
 	 * \param fValue New pan.
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	virtual bool setStripPan( int nStrip, float fValue, bool bSelectStrip );
+	virtual bool setStripPan(
+		int nStrip,
+		float fValue,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * \param nStrip Instrument which to set the pan for.
 	 * \param fValue New pan. range in [-1;1] => symmetric respect to 0
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	virtual bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
-	virtual bool setInstrumentPitch( int nInstrument, float fValue );
-	virtual bool setInstrumentGain( int nInstrument, float fValue );
-	virtual bool setInstrumentRandomPitch( int nInstrument, float fValue );
-	virtual bool setInstrumentFilterCutoff( int nInstrument, float fValue );
-	virtual bool setInstrumentFilterResonance( int nInstrument, float fValue );
-	virtual bool setInstrumentAttack( int nInstrument, float fValue );
-	virtual bool setInstrumentDecay( int nInstrument, float fValue );
-	virtual bool setInstrumentSustain( int nInstrument, float fValue );
-	virtual bool setInstrumentRelease( int nInstrument, float fValue );
-	virtual bool setInstrumentFilterActive( int nInstrument, bool bActive );
-	virtual bool setInstrumentMuteGroup( int nInstrument, int nMuteGroup );
-	virtual bool setInstrumentStopNotes( int nInstrument, bool bStopNotes );
-	virtual bool setInstrumentApplyVelocity( int nInstrument, bool bApplyVelocity );
-	virtual bool setInstrumentHihatGroup( int nInstrument, int nHihatGroup );
-	virtual bool setInstrumentLowerCc( int nInstrument, int nCc );
-	virtual bool setInstrumentHigherCc( int nInstrument, int nCc );
-	virtual bool setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted );
-	virtual bool setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed );
-	virtual bool setComponentGain( int nInstrument, int nComponent, float fGain );
+	virtual bool setStripPanSym(
+		int nStrip,
+		float fValue,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentPitch(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentGain(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentRandomPitch(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentFilterCutoff(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentFilterResonance(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentAttack(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentDecay(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentSustain(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentRelease(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentFilterActive(
+		int nInstrument,
+		bool bActive,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentMuteGroup(
+		int nInstrument,
+		int nMuteGroup,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentStopNotes(
+		int nInstrument,
+		bool bStopNotes,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentApplyVelocity(
+		int nInstrument,
+		bool bApplyVelocity,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentHihatGroup(
+		int nInstrument,
+		int nHihatGroup,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentLowerCc(
+		int nInstrument,
+		int nCc,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentHigherCc(
+		int nInstrument,
+		int nCc,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setComponentIsMuted(
+		int nInstrument,
+		int nComponent,
+		bool bIsMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setComponentIsSoloed(
+		int nInstrument,
+		int nComponent,
+		bool bIsSoloed,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setComponentGain(
+		int nInstrument,
+		int nComponent,
+		float fGain,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** \param nSelection underlying value of #H2Core::InstrumentComponent::Selection. */
-	virtual bool setComponentSelection( int nInstrument, int nComponent, int nSelection );
-	virtual bool setLayerIsMuted( int nInstrument, int nComponent, int nLayer,
-						  bool bIsMuted );
-	virtual bool setLayerIsSoloed( int nInstrument, int nComponent, int nLayer,
-						   bool bIsSoloed );
-	virtual bool setLayerGain( int nInstrument, int nComponent, int nLayer, float fGain );
-	virtual bool setLayerPitchOffset( int nInstrument, int nComponent, int nLayer,
-							  float fPitchOffset );
-	virtual bool setLayerStartVelocity( int nInstrument, int nComponent, int nLayer,
-								float fVelocity );
-	virtual bool setLayerEndVelocity( int nInstrument, int nComponent, int nLayer,
-							  float fVelocity );
+	virtual bool setComponentSelection(
+		int nInstrument,
+		int nComponent,
+		int nSelection,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerIsMuted(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		bool bIsMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerIsSoloed(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		bool bIsSoloed,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerGain(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fGain,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerPitchOffset(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fPitchOffset,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerStartVelocity(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fVelocity,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerEndVelocity(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fVelocity,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	virtual bool setInstrumentMidiOutNote(
 		int nInstrument,
 		Midi::Note note,
-		long nEventId
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	virtual bool setInstrumentMidiOutChannel(
 		int nInstrument,
 		Midi::Channel channel,
-		long nEventId
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	virtual bool setMetronomeIsActive( bool isActive );
-	virtual bool setMasterIsMuted( bool isMuted );
-	virtual bool setHumanizeTime( float fValue );
-	virtual bool setHumanizeVelocity( float fValue );
-	virtual bool setSwing( float fValue );
+	virtual bool setMasterIsMuted(
+		bool isMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setHumanizeTime(
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setHumanizeVelocity(
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setSwing(
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Sets the song-global pan law (MixerSettingsDialog). @a nPanLawType is a
 	 * #H2Core::Sampler pan-law constant. */
-	virtual bool setPanLaw( int nPanLawType, float fPanLawKNorm );
+	virtual bool setPanLaw(
+		int nPanLawType,
+		float fPanLawKNorm,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Auditions an instrument through the #H2Core::Sampler (the mixer-strip
 	 * "play sample" / "stop sample" preview buttons). Builds a transient note
 	 * for the instrument at @a nInstrument and triggers it; @a bStop sends a
@@ -174,16 +325,37 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool noteOn( std::shared_ptr<Note> pNote );
 	/** Mutes/unmutes the song's playback-track instrument (and its sole
 	 * component/layer), which is not part of the drumkit instrument list. */
-	virtual bool setPlaybackTrackMuted( bool bMuted );
+	virtual bool setPlaybackTrackMuted(
+		bool bMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Sets the volume of the song's playback-track instrument. */
-	virtual bool setPlaybackTrackVolume( float fVolume );
+	virtual bool setPlaybackTrackVolume(
+		float fVolume,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
-	virtual bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip );
-	virtual bool toggleStripIsMuted( int nStrip );
+	virtual bool setStripIsMuted(
+		int nStrip,
+		bool isMuted,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool toggleStripIsMuted(
+		int nStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
-	virtual bool
-	setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip );
-	virtual bool toggleStripIsSoloed( int nStrip );
+	virtual bool setStripIsSoloed(
+		int nStrip,
+		bool isSoloed,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool toggleStripIsSoloed(
+		int nStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	virtual bool initExternalControlInterfaces();
 
@@ -224,7 +396,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * \param pSong Pointer to the #H2Core::Song to set.
 	 * \return true on success
 	 */
-	virtual bool setSong( std::shared_ptr<Song> pSong );
+	virtual bool setSong(
+		std::shared_ptr<Song> pSong,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Saves the current #H2Core::Song.
 	 *
@@ -310,7 +485,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	virtual bool addTempoMarker( int nPosition, float fBpm );
+	virtual bool addTempoMarker(
+		int nPosition,
+		float fBpm,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Delete a tempo marker from the Timeline.
 	 *
@@ -321,7 +500,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	virtual bool deleteTempoMarker( int nPosition );
+	virtual bool deleteTempoMarker(
+		int nPosition,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Adds a tag to the Timeline.
 	 *
@@ -330,7 +512,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	virtual bool addTag( int nPosition, const QString& sText );
+	virtual bool addTag(
+		int nPosition,
+		const QString& sText,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Delete a tag from the Timeline.
 	 *
@@ -341,7 +527,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	virtual bool deleteTag( int nPosition );
+	virtual bool deleteTag(
+		int nPosition,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * (De)activates the usage of Jack transport.
 	 *
@@ -401,7 +590,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \param pDrumkit Full-fledged #H2Core::Drumkit to load.
 	 */
-	virtual bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
+	virtual bool setDrumkit(
+		std::shared_ptr<Drumkit> pDrumkit,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Upgrades the drumkit found at absolute path @a sDrumkitDirOrXml.
 	 *
@@ -468,28 +660,35 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool addInstrument(
 		std::shared_ptr<Instrument> pInstrument,
 		int nIndex,
-		long nEventId
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Removes @a pInstrument from the current drumkit and adds it to the
 	 * instrument death row. This way it is guarantueed that its samples
 	 * stay loaded until the last #H2Core::Note is done rendering it.
 	 * Afterwards, its samples will be unloaded. */
-	virtual bool
-	removeInstrument( std::shared_ptr<Instrument> pInstrument, long nEventId );
+	virtual bool removeInstrument(
+		std::shared_ptr<Instrument> pInstrument,
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Replaces @a pOldInstrument by @a pNewInstrument in the current
 	 * drumkit without clearing notes, changing the selected instrument
 	 * number, etc. */
 	virtual bool replaceInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
-		std::shared_ptr<Instrument> pOldInstrument
+		std::shared_ptr<Instrument> pOldInstrument,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	virtual bool replaceDrumkitInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
-		std::shared_ptr<Instrument> pOldInstrument
+		std::shared_ptr<Instrument> pOldInstrument,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	virtual bool replacePlaybackTrackInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
-		std::shared_ptr<Instrument> pOldInstrument
+		std::shared_ptr<Instrument> pOldInstrument,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Moves instrument @a nSourceIndex of the instrument list of the
 	 * current drumkit to index @a nTargetIndex.
@@ -497,12 +696,17 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Note that both @a nSourceIndex and @a nTargetIndex are the position
 	 * within the instrument list and _not_ the ID of the instrument (which
 	 * stays the same during the move action). */
-	virtual bool moveInstrument( int nSourceIndex, int nTargetIndex );
+	virtual bool moveInstrument(
+		int nSourceIndex,
+		int nTargetIndex,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	virtual bool renameComponent(
 		int nInstrumentIdx,
 		int nComponentId,
-		const QString& sNewName
+		const QString& sNewName,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 
 	/** Relocates transport to the beginning of a particular
@@ -558,7 +762,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool setPattern(
 		std::shared_ptr<Pattern> pPattern,
 		int nPatternNumber,
-		bool bReplace
+		bool bReplace,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Selects a pattern from the current pattern list while taking into
 	 * account whether the pattern editor is currently locked.
@@ -575,14 +780,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * @a nTargetPattern (shifting the patterns in between). Owns the
 	 * `AudioEngine` lock; updates the selection and fires `PatternChanged` so the
 	 * editors refresh (ADR 0027). */
-	virtual bool movePattern( int nSourcePattern, int nTargetPattern );
+	virtual bool movePattern(
+		int nSourcePattern,
+		int nTargetPattern,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Removes a pattern from the pattern list.
 	 *
 	 * @param nPatternNumber Specifies the position/row of the pattern.
 	 *
 	 * @return bool true on success
 	 */
-	virtual bool removePattern( int nPatternNumber );
+	virtual bool removePattern(
+		int nPatternNumber,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Deletes all notes for instrument @a pInstrument in a specified
 	 * pattern.
 	 *
@@ -602,7 +814,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		const QString& sNewPatternInfo,
 		const H2Core::License& newLicense,
 		const QStringList& newTags,
-		int nPatternIndex
+		int nPatternIndex,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Sets the length and denominator of a pattern (real-time-sensitive:
 	 * holds the #H2Core::AudioEngine lock and refreshes the song size).
@@ -611,7 +824,12 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * @param nDenominator New pattern denominator.
 	 * @param nPatternNumber Position/row of the target pattern.
 	 * @return true on success */
-	virtual bool setPatternSize( int nLength, int nDenominator, int nPatternNumber );
+	virtual bool setPatternSize(
+		int nLength,
+		int nDenominator,
+		int nPatternNumber,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Edits a single property of one note, addressed by value identity
 	 * (pattern slot + position + instrument id/type + key/octave) so it is
 	 * split-safe. Real-time-sensitive: owns the #H2Core::AudioEngine lock
@@ -635,7 +853,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		int nNewKey,
 		int nOldKey,
 		int nNewOctave,
-		int nOldOctave
+		int nOldOctave,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Adds or removes a single note in a pattern (the engine half of the
 	 * PatternEditor add/remove undo action). The note is addressed by value
@@ -664,10 +883,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool bIsDelete,
 		bool bIsNoteOff,
 		bool bIsMappedToDrumkit,
-		Uuid* pNewNoteUUid
+		Uuid* pNewNoteUUid,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Removes a specific note @a noteUuid within pattern @n patternUuid */
-	virtual bool removeNote( Uuid noteUuid, Uuid patternUuid );
+	virtual bool removeNote(
+		Uuid noteUuid,
+		Uuid patternUuid,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	virtual bool setSongProperties(
 		const QString& sNewPath,
@@ -676,7 +900,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		const QString& sNewAuthor,
 		const QString& sNewNotes,
 		const H2Core::License& newLicense,
-		const QStringList& newTags
+		const QStringList& newTags,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 
 	/** Fills or clears a specific grid cell in the SongEditor.
@@ -685,7 +910,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	virtual bool toggleGridCell( const GridPoint& gridPoint );
+	virtual bool toggleGridCell(
+		const GridPoint& gridPoint,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	/** Handle an incoming note event, e.g. a MIDI or OSC Note-On or
 	 * Note-Off as well as virtual keyboard stroke.
@@ -753,7 +981,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Set's song-level tempo of the #AudioEngine and stores the value
 	 * in the current #Song.
 	 */
-	virtual bool setBpm( float fBpm );
+	virtual bool setBpm(
+		float fBpm,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	/** Makes the metronome count for the length of the largest pattern in
 	 * the current row (song mode)/largest active pattern (pattern mode)
@@ -817,8 +1048,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	/** Clear the MIDI driver's handled-output activity log (ADR 0029). */
 	virtual bool clearMidiOutputLog();
 
-	virtual bool addAutomationPoint( float fX, float fY );
-	virtual bool removeAutomationPoint( float fX );
+	virtual bool addAutomationPoint(
+		float fX,
+		float fY,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool removeAutomationPoint(
+		float fX,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
    private:
 	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */

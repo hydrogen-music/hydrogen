@@ -70,7 +70,7 @@ CoreActionController::CoreActionController( Hydrogen* pHydrogen )
 	: m_pHydrogen( pHydrogen ) {}
 
 
-bool CoreActionController::setMasterVolume( float fMasterVolumeValue )
+bool CoreActionController::setMasterVolume( float fMasterVolumeValue, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -85,7 +85,7 @@ bool CoreActionController::setMasterVolume( float fMasterVolumeValue )
 			Event::Type::MixerSettingsChanged, 0
 		);
 
-		m_pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true, trigger );
 	}
 
 	return sendMasterVolumeFeedback();
@@ -94,7 +94,8 @@ bool CoreActionController::setMasterVolume( float fMasterVolumeValue )
 bool CoreActionController::setStripVolume(
 	int nStrip,
 	float fVolumeValue,
-	bool bSelectStrip
+	bool bSelectStrip,
+	Event::Trigger trigger
 )
 {
 	auto pInstr = resolveInstrument( nStrip );
@@ -113,7 +114,7 @@ bool CoreActionController::setStripVolume(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 
 		return sendStripVolumeFeedback( nStrip );
 	}
@@ -137,7 +138,7 @@ std::shared_ptr<Instrument> CoreActionController::resolveInstrument(
 	return pInstrument;
 }
 
-bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue )
+bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -148,14 +149,14 @@ bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue )
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument
 		);
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 
 	return true;
 }
 
-bool CoreActionController::setInstrumentGain( int nInstrument, float fValue )
+bool CoreActionController::setInstrumentGain( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -165,14 +166,15 @@ bool CoreActionController::setInstrumentGain( int nInstrument, float fValue )
 		pInstrument->setGain( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentRandomPitch( int nInstrument,
-													 float fValue )
+													 float fValue,
+													 Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -182,14 +184,15 @@ bool CoreActionController::setInstrumentRandomPitch( int nInstrument,
 		pInstrument->setRandomPitchFactor( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentFilterCutoff( int nInstrument,
-													  float fValue )
+													  float fValue,
+													  Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -199,14 +202,15 @@ bool CoreActionController::setInstrumentFilterCutoff( int nInstrument,
 		pInstrument->setFilterCutoff( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentFilterResonance( int nInstrument,
-														 float fValue )
+														 float fValue,
+														 Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -216,13 +220,13 @@ bool CoreActionController::setInstrumentFilterResonance( int nInstrument,
 		pInstrument->setFilterResonance( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
-bool CoreActionController::setInstrumentAttack( int nInstrument, float fValue )
+bool CoreActionController::setInstrumentAttack( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -233,13 +237,13 @@ bool CoreActionController::setInstrumentAttack( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setAttack( nValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
-bool CoreActionController::setInstrumentDecay( int nInstrument, float fValue )
+bool CoreActionController::setInstrumentDecay( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -250,13 +254,13 @@ bool CoreActionController::setInstrumentDecay( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setDecay( nValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
-bool CoreActionController::setInstrumentSustain( int nInstrument, float fValue )
+bool CoreActionController::setInstrumentSustain( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -266,13 +270,13 @@ bool CoreActionController::setInstrumentSustain( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setSustain( fValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
-bool CoreActionController::setInstrumentRelease( int nInstrument, float fValue )
+bool CoreActionController::setInstrumentRelease( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -283,14 +287,15 @@ bool CoreActionController::setInstrumentRelease( int nInstrument, float fValue )
 		pInstrument->getAdsr()->setRelease( nValue );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentFilterActive( int nInstrument,
-													  bool bActive )
+													  bool bActive,
+													  Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -300,14 +305,15 @@ bool CoreActionController::setInstrumentFilterActive( int nInstrument,
 		pInstrument->setFilterActive( bActive );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentMuteGroup( int nInstrument,
-												   int nMuteGroup )
+												   int nMuteGroup,
+												   Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -317,14 +323,15 @@ bool CoreActionController::setInstrumentMuteGroup( int nInstrument,
 		pInstrument->setMuteGroup( nMuteGroup );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentStopNotes( int nInstrument,
-												   bool bStopNotes )
+												   bool bStopNotes,
+												   Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -334,14 +341,15 @@ bool CoreActionController::setInstrumentStopNotes( int nInstrument,
 		pInstrument->setStopNotes( bStopNotes );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentApplyVelocity( int nInstrument,
-													   bool bApplyVelocity )
+													   bool bApplyVelocity,
+													   Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -351,14 +359,15 @@ bool CoreActionController::setInstrumentApplyVelocity( int nInstrument,
 		pInstrument->setApplyVelocity( bApplyVelocity );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setInstrumentHihatGroup( int nInstrument,
-												    int nHihatGroup )
+												    int nHihatGroup,
+												    Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -368,13 +377,13 @@ bool CoreActionController::setInstrumentHihatGroup( int nInstrument,
 		pInstrument->setHihatGrp( nHihatGroup );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
-bool CoreActionController::setInstrumentLowerCc( int nInstrument, int nCc )
+bool CoreActionController::setInstrumentLowerCc( int nInstrument, int nCc, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -385,13 +394,13 @@ bool CoreActionController::setInstrumentLowerCc( int nInstrument, int nCc )
 		pInstrument->setLowerCc( param );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
-bool CoreActionController::setInstrumentHigherCc( int nInstrument, int nCc )
+bool CoreActionController::setInstrumentHigherCc( int nInstrument, int nCc, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
 	if ( pInstrument == nullptr ) {
@@ -402,7 +411,7 @@ bool CoreActionController::setInstrumentHigherCc( int nInstrument, int nCc )
 		pInstrument->setHigherCc( param );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -439,7 +448,8 @@ std::shared_ptr<InstrumentLayer> CoreActionController::resolveLayer(
 }
 
 bool CoreActionController::setComponentIsMuted( int nInstrument, int nComponent,
-												bool bIsMuted )
+												bool bIsMuted,
+												Event::Trigger trigger )
 {
 	auto pComponent = resolveComponent( nInstrument, nComponent );
 	if ( pComponent == nullptr ) {
@@ -449,14 +459,15 @@ bool CoreActionController::setComponentIsMuted( int nInstrument, int nComponent,
 		pComponent->setIsMuted( bIsMuted );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setComponentIsSoloed( int nInstrument, int nComponent,
-												 bool bIsSoloed )
+												 bool bIsSoloed,
+												 Event::Trigger trigger )
 {
 	auto pComponent = resolveComponent( nInstrument, nComponent );
 	if ( pComponent == nullptr ) {
@@ -466,14 +477,15 @@ bool CoreActionController::setComponentIsSoloed( int nInstrument, int nComponent
 		pComponent->setIsSoloed( bIsSoloed );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setComponentGain( int nInstrument, int nComponent,
-											 float fGain )
+											 float fGain,
+											 Event::Trigger trigger )
 {
 	auto pComponent = resolveComponent( nInstrument, nComponent );
 	if ( pComponent == nullptr ) {
@@ -483,14 +495,15 @@ bool CoreActionController::setComponentGain( int nInstrument, int nComponent,
 		pComponent->setGain( fGain );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setComponentSelection( int nInstrument,
-												  int nComponent, int nSelection )
+												  int nComponent, int nSelection,
+												  Event::Trigger trigger )
 {
 	auto pComponent = resolveComponent( nInstrument, nComponent );
 	if ( pComponent == nullptr ) {
@@ -502,14 +515,15 @@ bool CoreActionController::setComponentSelection( int nInstrument,
 		pComponent->setSelection( selection );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setLayerIsMuted( int nInstrument, int nComponent,
-											int nLayer, bool bIsMuted )
+											int nLayer, bool bIsMuted,
+											Event::Trigger trigger )
 {
 	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
 	if ( pLayer == nullptr ) {
@@ -519,14 +533,15 @@ bool CoreActionController::setLayerIsMuted( int nInstrument, int nComponent,
 		pLayer->setIsMuted( bIsMuted );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setLayerIsSoloed( int nInstrument, int nComponent,
-											 int nLayer, bool bIsSoloed )
+											 int nLayer, bool bIsSoloed,
+											 Event::Trigger trigger )
 {
 	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
 	if ( pLayer == nullptr ) {
@@ -536,14 +551,15 @@ bool CoreActionController::setLayerIsSoloed( int nInstrument, int nComponent,
 		pLayer->setIsSoloed( bIsSoloed );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setLayerGain( int nInstrument, int nComponent,
-										 int nLayer, float fGain )
+										 int nLayer, float fGain,
+										 Event::Trigger trigger )
 {
 	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
 	if ( pLayer == nullptr ) {
@@ -553,14 +569,15 @@ bool CoreActionController::setLayerGain( int nInstrument, int nComponent,
 		pLayer->setGain( fGain );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setLayerPitchOffset( int nInstrument, int nComponent,
-												int nLayer, float fPitchOffset )
+												int nLayer, float fPitchOffset,
+												Event::Trigger trigger )
 {
 	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
 	if ( pLayer == nullptr ) {
@@ -570,14 +587,15 @@ bool CoreActionController::setLayerPitchOffset( int nInstrument, int nComponent,
 		pLayer->setPitchOffset( fPitchOffset );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setLayerStartVelocity( int nInstrument, int nComponent,
-												  int nLayer, float fVelocity )
+												  int nLayer, float fVelocity,
+												  Event::Trigger trigger )
 {
 	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
 	if ( pLayer == nullptr ) {
@@ -587,14 +605,15 @@ bool CoreActionController::setLayerStartVelocity( int nInstrument, int nComponen
 		pLayer->setStartVelocity( fVelocity );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
 }
 
 bool CoreActionController::setLayerEndVelocity( int nInstrument, int nComponent,
-												int nLayer, float fVelocity )
+												int nLayer, float fVelocity,
+												Event::Trigger trigger )
 {
 	auto pLayer = resolveLayer( nInstrument, nComponent, nLayer );
 	if ( pLayer == nullptr ) {
@@ -604,7 +623,7 @@ bool CoreActionController::setLayerEndVelocity( int nInstrument, int nComponent,
 		pLayer->setEndVelocity( fVelocity );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument );
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 	m_pHydrogen->setSelectedInstrumentNumber( nInstrument );
 	return true;
@@ -613,7 +632,8 @@ bool CoreActionController::setLayerEndVelocity( int nInstrument, int nComponent,
 bool CoreActionController::setInstrumentMidiOutNote(
 	int nInstrument,
 	Midi::Note note,
-	long nEventId
+	long nEventId,
+	Event::Trigger trigger
 )
 {
 	auto pSong = m_pHydrogen->getSong();
@@ -639,7 +659,7 @@ bool CoreActionController::setInstrumentMidiOutNote(
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument, nEventId
 		);
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 
 	return true;
@@ -648,7 +668,8 @@ bool CoreActionController::setInstrumentMidiOutNote(
 bool CoreActionController::setInstrumentMidiOutChannel(
 	int nInstrument,
 	Midi::Channel channel,
-	long nEventId
+	long nEventId,
+	Event::Trigger trigger
 )
 {
 	auto pSong = m_pHydrogen->getSong();
@@ -674,7 +695,7 @@ bool CoreActionController::setInstrumentMidiOutChannel(
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentParametersChanged, nInstrument, nEventId
 		);
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 	}
 
 	return true;
@@ -694,7 +715,7 @@ bool CoreActionController::setMetronomeIsActive( bool isActive )
 	return true;
 }
 
-bool CoreActionController::setMasterIsMuted( bool bIsMuted )
+bool CoreActionController::setMasterIsMuted( bool bIsMuted, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -705,7 +726,7 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 	if ( pSong->getIsMuted() != bIsMuted ) {
 		pSong->setIsMuted( bIsMuted );
 
-		m_pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true, trigger );
 
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MixerSettingsChanged, 0
@@ -717,7 +738,7 @@ bool CoreActionController::setMasterIsMuted( bool bIsMuted )
 	return true;
 }
 
-bool CoreActionController::setHumanizeTime( float fValue )
+bool CoreActionController::setHumanizeTime( float fValue, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -732,13 +753,13 @@ bool CoreActionController::setHumanizeTime( float fValue )
 			Event::Type::MixerSettingsChanged, 0
 		);
 
-		m_pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true, trigger );
 	}
 
 	return true;
 }
 
-bool CoreActionController::setHumanizeVelocity( float fValue )
+bool CoreActionController::setHumanizeVelocity( float fValue, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -753,13 +774,13 @@ bool CoreActionController::setHumanizeVelocity( float fValue )
 			Event::Type::MixerSettingsChanged, 0
 		);
 
-		m_pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true, trigger );
 	}
 
 	return true;
 }
 
-bool CoreActionController::setSwing( float fValue )
+bool CoreActionController::setSwing( float fValue, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -774,13 +795,13 @@ bool CoreActionController::setSwing( float fValue )
 			Event::Type::MixerSettingsChanged, 0
 		);
 
-		m_pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true, trigger );
 	}
 
 	return true;
 }
 
-bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm )
+bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -794,7 +815,7 @@ bool CoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm )
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::MixerSettingsChanged, 0
 	);
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	return true;
 }
@@ -860,7 +881,7 @@ bool CoreActionController::noteOn( std::shared_ptr<Note> pNote )
 	return true;
 }
 
-bool CoreActionController::setPlaybackTrackMuted( bool bMuted )
+bool CoreActionController::setPlaybackTrackMuted( bool bMuted, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -878,14 +899,14 @@ bool CoreActionController::setPlaybackTrackMuted( bool bMuted )
 		pInstrument->getComponent( 0 )->getLayer( 0 )->setIsMuted( bMuted );
 	}
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::PlaybackTrackParameterChanged, 0 );
 
 	return true;
 }
 
-bool CoreActionController::setPlaybackTrackVolume( float fVolume )
+bool CoreActionController::setPlaybackTrackVolume( float fVolume, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -899,7 +920,7 @@ bool CoreActionController::setPlaybackTrackVolume( float fVolume )
 
 	if ( pInstrument->getVolume() != fVolume ) {
 		pInstrument->setVolume( fVolume );
-		m_pHydrogen->setSongModified( true );
+		m_pHydrogen->setSongModified( true, trigger );
 		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::PlaybackTrackParameterChanged, 0 );
 	}
@@ -907,20 +928,21 @@ bool CoreActionController::setPlaybackTrackVolume( float fVolume )
 	return true;
 }
 
-bool CoreActionController::toggleStripIsMuted( int nStrip )
+bool CoreActionController::toggleStripIsMuted( int nStrip, Event::Trigger trigger )
 {
 	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
 
-	return setStripIsMuted( nStrip, !pInstr->isMuted(), false );
+	return setStripIsMuted( nStrip, !pInstr->isMuted(), false, trigger );
 }
 
 bool CoreActionController::setStripIsMuted(
 	int nStrip,
 	bool bIsMuted,
-	bool bSelectStrip
+	bool bSelectStrip,
+	Event::Trigger trigger
 )
 {
 	auto pInstr = resolveInstrument( nStrip );
@@ -942,7 +964,7 @@ bool CoreActionController::setStripIsMuted(
 			Event::Type::InstrumentMuteSoloChanged, nStrip
 		);
 
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 
 		return sendStripIsMutedFeedback( nStrip );
 	}
@@ -950,20 +972,21 @@ bool CoreActionController::setStripIsMuted(
 	return true;
 }
 
-bool CoreActionController::toggleStripIsSoloed( int nStrip )
+bool CoreActionController::toggleStripIsSoloed( int nStrip, Event::Trigger trigger )
 {
 	auto pInstr = resolveInstrument( nStrip );
 	if ( pInstr == nullptr ) {
 		return false;
 	}
 
-	return setStripIsSoloed( nStrip, !pInstr->isSoloed(), false );
+	return setStripIsSoloed( nStrip, !pInstr->isSoloed(), false, trigger );
 }
 
 bool CoreActionController::setStripIsSoloed(
 	int nStrip,
 	bool isSoloed,
-	bool bSelectStrip
+	bool bSelectStrip,
+	Event::Trigger trigger
 )
 {
 	auto pInstr = resolveInstrument( nStrip );
@@ -985,7 +1008,7 @@ bool CoreActionController::setStripIsSoloed(
 			Event::Type::InstrumentMuteSoloChanged, nStrip
 		);
 
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 
 		return sendStripIsSoloedFeedback( nStrip );
 	}
@@ -996,7 +1019,8 @@ bool CoreActionController::setStripIsSoloed(
 bool CoreActionController::setStripPan(
 	int nStrip,
 	float fValue,
-	bool bSelectStrip
+	bool bSelectStrip,
+	Event::Trigger trigger
 )
 {
 	auto pInstr = resolveInstrument( nStrip );
@@ -1015,7 +1039,7 @@ bool CoreActionController::setStripPan(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 
 		return sendStripPanFeedback( nStrip );
 	}
@@ -1026,7 +1050,8 @@ bool CoreActionController::setStripPan(
 bool CoreActionController::setStripPanSym(
 	int nStrip,
 	float fValue,
-	bool bSelectStrip
+	bool bSelectStrip,
+	Event::Trigger trigger
 )
 {
 	auto pInstr = resolveInstrument( nStrip );
@@ -1045,7 +1070,7 @@ bool CoreActionController::setStripPanSym(
 			Event::Type::InstrumentParametersChanged, nStrip
 		);
 
-		m_pHydrogen->setDrumkitModified( true );
+		m_pHydrogen->setDrumkitModified( true, trigger );
 
 		return sendStripPanFeedback( nStrip );
 	}
@@ -1429,7 +1454,7 @@ std::shared_ptr<Song> CoreActionController::loadSong(
 	return pSong;
 }
 
-bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
+bool CoreActionController::setSong( std::shared_ptr<Song> pSong, Event::Trigger trigger )
 {
 	if ( pSong == nullptr ) {
 		ERRORLOG( "Invalid song" );
@@ -1496,8 +1521,10 @@ bool CoreActionController::setSong( std::shared_ptr<Song> pSong )
 	// IPC (ipcSyncSong / editor re-sync) carries the engine's
 	// authoritative dirty state and must not be wiped on install (ADR
 	// 0026 point 10). With equal flags the call below early-returns
-	// without pushing an event.
-	m_pHydrogen->setSongModified( pSong->getIsModified() );
+	// except on the headless engine, where a non-suppressed call still
+	// fires SongIsModified so the attached editor re-pulls (ADR 0026
+	// point 13).
+	m_pHydrogen->setSongModified( pSong->getIsModified(), trigger );
 
 	return true;
 }
@@ -1726,7 +1753,7 @@ bool CoreActionController::activateTimeline( bool bActivate )
 	return true;
 }
 
-bool CoreActionController::addTempoMarker( int nPosition, float fBpm )
+bool CoreActionController::addTempoMarker( int nPosition, float fBpm, Event::Trigger trigger )
 {
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
@@ -1751,14 +1778,14 @@ bool CoreActionController::addTempoMarker( int nPosition, float fBpm )
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
 	return true;
 }
 
-bool CoreActionController::deleteTempoMarker( int nPosition )
+bool CoreActionController::deleteTempoMarker( int nPosition, Event::Trigger trigger )
 {
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
@@ -1780,13 +1807,13 @@ bool CoreActionController::deleteTempoMarker( int nPosition )
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
 	return true;
 }
 
-bool CoreActionController::addTag( int nPosition, const QString& sText )
+bool CoreActionController::addTag( int nPosition, const QString& sText, Event::Trigger trigger )
 {
 
 	if ( m_pHydrogen->getSong() == nullptr ) {
@@ -1798,14 +1825,14 @@ bool CoreActionController::addTag( int nPosition, const QString& sText )
 	pTimeline->deleteTag( nPosition );
 	pTimeline->addTag( nPosition, sText );
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
 	return true;
 }
 
-bool CoreActionController::deleteTag( int nPosition )
+bool CoreActionController::deleteTag( int nPosition, Event::Trigger trigger )
 {
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 
@@ -1816,7 +1843,7 @@ bool CoreActionController::deleteTag( int nPosition )
 
 	m_pHydrogen->getSong()->getTimeline()->deleteTag( nPosition );
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateTimeline, 0 );
 
 	return true;
@@ -2065,7 +2092,7 @@ bool CoreActionController::toggleRecordMode()
 	return activateRecordMode( !m_pHydrogen->getRecordEnabled() );
 }
 
-bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
+bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit, Event::Trigger trigger )
 {
 	if ( pNewDrumkit == nullptr ) {
 		ERRORLOG( "Provided Drumkit is not valid" );
@@ -2149,7 +2176,7 @@ bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> pNewDrumkit )
 
 	initExternalControlInterfaces();
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -2617,7 +2644,8 @@ bool CoreActionController::extractDrumkit(
 bool CoreActionController::addInstrument(
 	std::shared_ptr<Instrument> pInstrument,
 	int nIndex,
-	long nEventId
+	long nEventId,
+	Event::Trigger trigger
 )
 {
 	auto pSong = m_pHydrogen->getSong();
@@ -2645,7 +2673,7 @@ bool CoreActionController::addInstrument(
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::DrumkitLoaded, 0, nEventId
@@ -2656,7 +2684,8 @@ bool CoreActionController::addInstrument(
 
 bool CoreActionController::removeInstrument(
 	std::shared_ptr<Instrument> pInstrument,
-	long nEventId
+	long nEventId,
+	Event::Trigger trigger
 )
 {
 	auto pSong = m_pHydrogen->getSong();
@@ -2720,7 +2749,7 @@ bool CoreActionController::removeInstrument(
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::DrumkitLoaded, 0, nEventId
@@ -2731,7 +2760,8 @@ bool CoreActionController::removeInstrument(
 
 bool CoreActionController::replaceInstrument(
 	std::shared_ptr<Instrument> pNewInstrument,
-	std::shared_ptr<Instrument> pOldInstrument
+	std::shared_ptr<Instrument> pOldInstrument,
+	Event::Trigger trigger
 )
 {
 
@@ -2746,19 +2776,20 @@ bool CoreActionController::replaceInstrument(
 		 ( pOldInstrument != nullptr &&
 		   pOldInstrument->getId() == Instrument::PlaybackTrackId ) ) {
 		return replacePlaybackTrackInstrument(
-			pNewInstrument, pOldInstrument
+			pNewInstrument, pOldInstrument, trigger
 		);
 	}
 	else {
 		return replaceDrumkitInstrument(
-			pNewInstrument, pOldInstrument
+			pNewInstrument, pOldInstrument, trigger
 		);
 	}
 }
 
 bool CoreActionController::replaceDrumkitInstrument(
 	std::shared_ptr<Instrument> pNewInstrument,
-	std::shared_ptr<Instrument> pOldInstrument
+	std::shared_ptr<Instrument> pOldInstrument,
+	Event::Trigger trigger
 )
 {
 
@@ -2817,7 +2848,7 @@ bool CoreActionController::replaceDrumkitInstrument(
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -2826,7 +2857,8 @@ bool CoreActionController::replaceDrumkitInstrument(
 
 bool CoreActionController::replacePlaybackTrackInstrument(
 	std::shared_ptr<Instrument> pNewInstrument,
-	std::shared_ptr<Instrument> pOldInstrument
+	std::shared_ptr<Instrument> pOldInstrument,
+	Event::Trigger trigger
 )
 {
 
@@ -2866,7 +2898,7 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::PlaybackTrackChanged, 0
@@ -2875,7 +2907,7 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 	return true;
 }
 
-bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex )
+bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex, Event::Trigger trigger )
 {
 	if ( nSourceIndex == nTargetIndex ) {
 		return true;
@@ -2910,7 +2942,7 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex )
 
 	m_pHydrogen->getAudioEngine()->unlock();
 
-	m_pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 
@@ -2920,7 +2952,8 @@ bool CoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex )
 bool CoreActionController::renameComponent(
 	int nInstrumentIdx,
 	int nComponentId,
-	const QString& sNewName
+	const QString& sNewName,
+	Event::Trigger trigger
 )
 {
 	const auto pInstrument = resolveInstrument( nInstrumentIdx );
@@ -2938,7 +2971,7 @@ bool CoreActionController::renameComponent(
 
 	pComponent->setName( sNewName );
 
-	m_pHydrogen->setDrumkitModified( true );
+	m_pHydrogen->setDrumkitModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SelectedInstrumentChanged,
@@ -3065,7 +3098,8 @@ std::shared_ptr<Pattern> CoreActionController::loadPattern( const QString& sPath
 bool CoreActionController::setPattern(
 	std::shared_ptr<Pattern> pNewPattern,
 	int nPatternPosition,
-	bool bReplace
+	bool bReplace,
+	Event::Trigger trigger
 )
 {
 
@@ -3142,7 +3176,7 @@ bool CoreActionController::setPattern(
 		m_pHydrogen->updateVirtualPatterns( Event::Trigger::Suppress );
 	}
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SelectedPatternChanged,
@@ -3202,7 +3236,7 @@ bool CoreActionController::toggleNextPattern( int nPatternNumber )
 	return true;
 }
 
-bool CoreActionController::movePattern( int nSourcePattern, int nTargetPattern )
+bool CoreActionController::movePattern( int nSourcePattern, int nTargetPattern, Event::Trigger trigger )
 {
 	if ( nSourcePattern == nTargetPattern ) {
 		return true;
@@ -3252,7 +3286,7 @@ bool CoreActionController::movePattern( int nSourcePattern, int nTargetPattern )
 		);
 	}
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	// The view reacts to the event (ADR 0027) — no GUI-side editor refresh in the
 	// mutation path.
@@ -3261,7 +3295,7 @@ bool CoreActionController::movePattern( int nSourcePattern, int nTargetPattern )
 	return true;
 }
 
-bool CoreActionController::removePattern( int nPatternNumber )
+bool CoreActionController::removePattern( int nPatternNumber, Event::Trigger trigger )
 {
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	auto pSong = m_pHydrogen->getSong();
@@ -3361,7 +3395,7 @@ bool CoreActionController::removePattern( int nPatternNumber )
 	}
 
 	m_pHydrogen->updateVirtualPatterns();
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	return true;
 }
@@ -3419,7 +3453,8 @@ bool CoreActionController::setPatternProperties(
 	const QString& sNewPatternInfo,
 	const H2Core::License& newLicense,
 	const QStringList& newTags,
-	int nPatternIndex
+	int nPatternIndex,
+	Event::Trigger trigger
 )
 {
 
@@ -3448,7 +3483,7 @@ bool CoreActionController::setPatternProperties(
 	}
 	pPattern->setTags( newTags );
 
-	m_pHydrogen->setPatternModified( true, nPatternIndex );
+	m_pHydrogen->setPatternModified( true, nPatternIndex, trigger );
 
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, -1 );
 
@@ -3456,7 +3491,8 @@ bool CoreActionController::setPatternProperties(
 }
 
 bool CoreActionController::setPatternSize( int nLength, int nDenominator,
-										  int nPatternNumber )
+										  int nPatternNumber,
+										  Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
@@ -3480,7 +3516,7 @@ bool CoreActionController::setPatternSize( int nLength, int nDenominator,
 	m_pHydrogen->updateSongSize();
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setPatternModified( true, nPatternNumber );
+	m_pHydrogen->setPatternModified( true, nPatternNumber, trigger );
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::PatternChanged, -1 );
 
 	return true;
@@ -3502,7 +3538,8 @@ bool CoreActionController::editNoteProperty(
 	int nNewKey,
 	int nOldKey,
 	int nNewOctave,
-	int nOldOctave )
+	int nOldOctave,
+	Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -3635,7 +3672,7 @@ bool CoreActionController::editNoteProperty(
 	pAudioEngine->unlock();
 
 	if ( bValueChanged ) {
-		m_pHydrogen->setPatternModified( true, nPatternNumber );
+		m_pHydrogen->setPatternModified( true, nPatternNumber, trigger );
 	}
 
 	return bValueChanged;
@@ -3656,7 +3693,8 @@ bool CoreActionController::addOrRemoveNote(
 	bool bIsDelete,
 	bool bIsNoteOff,
 	bool bIsMappedToDrumkit,
-	Uuid* pNewNoteUuid )
+	Uuid* pNewNoteUuid,
+	Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
@@ -3773,12 +3811,12 @@ bool CoreActionController::addOrRemoveNote(
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setPatternModified( true, nPatternNumber );
+	m_pHydrogen->setPatternModified( true, nPatternNumber, trigger );
 
 	return true;
 }
 
-bool CoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid ) {
+bool CoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid, Event::Trigger trigger ) {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song set" );
@@ -3804,7 +3842,7 @@ bool CoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid ) {
 	pPattern->removeNote( pNote );
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setPatternModified( true, nPatternNumber );
+	m_pHydrogen->setPatternModified( true, nPatternNumber, trigger );
 
 	return true;
 }
@@ -3816,7 +3854,8 @@ bool CoreActionController::setSongProperties(
 	const QString& sNewAuthor,
 	const QString& sNewNotes,
 	const H2Core::License& newLicense,
-	const QStringList& newTags
+	const QStringList& newTags,
+	Event::Trigger trigger
 )
 {
 
@@ -3838,12 +3877,12 @@ bool CoreActionController::setSongProperties(
 	}
 	pSong->setTags( newTags );
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	return true;
 }
 
-bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
+bool CoreActionController::toggleGridCell( const GridPoint& gridPoint, Event::Trigger trigger )
 {
 
 	if ( m_pHydrogen->getSong() == nullptr ) {
@@ -3919,7 +3958,7 @@ bool CoreActionController::toggleGridCell( const GridPoint& gridPoint )
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	// Update the SongEditor.
 	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::GridCellToggled, 0 );
@@ -4030,7 +4069,7 @@ void CoreActionController::insertRecentFile( const QString& sFileName )
 	pPref->setRecentFiles( recentFiles );
 }
 
-bool CoreActionController::setBpm( float fBpm )
+bool CoreActionController::setBpm( float fBpm, Event::Trigger trigger )
 {
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	auto pSong = m_pHydrogen->getSong();
@@ -4060,7 +4099,7 @@ bool CoreActionController::setBpm( float fBpm )
 
 	pAudioEngine->unlock();
 
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 
 	return true;
 }
@@ -4356,7 +4395,7 @@ bool CoreActionController::clearMidiOutputLog()
 	return true;
 }
 
-bool CoreActionController::addAutomationPoint( float fX, float fY )
+bool CoreActionController::addAutomationPoint( float fX, float fY, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getAutomationPath() == nullptr ) {
@@ -4364,11 +4403,11 @@ bool CoreActionController::addAutomationPoint( float fX, float fY )
 	}
 
 	pSong->getAutomationPath()->addPoint( fX, fY );
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 	return true;
 }
 
-bool CoreActionController::removeAutomationPoint( float fX )
+bool CoreActionController::removeAutomationPoint( float fX, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getAutomationPath() == nullptr ) {
@@ -4376,7 +4415,7 @@ bool CoreActionController::removeAutomationPoint( float fX )
 	}
 
 	pSong->getAutomationPath()->removePoint( fX );
-	m_pHydrogen->setSongModified( true );
+	m_pHydrogen->setSongModified( true, trigger );
 	return true;
 }
 }  // namespace H2Core

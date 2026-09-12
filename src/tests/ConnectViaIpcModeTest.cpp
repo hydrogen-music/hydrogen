@@ -1987,6 +1987,85 @@ void ConnectViaIpcModeTest::testEditorFlipEchoSuppressed() {
 	___INFOLOG( "passed" );
 }
 
+// A forwarded edit command (IpcCoreActionController: forward + mirror-local
+// apply) must not echo SongIsModified back from the engine: the editor
+// initiated and already applied the change, and the echo would trigger a
+// redundant full song re-pull per edit in HydrogenApp::handleRemoteEvent
+// (ADR 0026 point 13). Engine-local edits, on the other hand, are the
+// editor's only signal to re-pull — their SongIsModified must fire on the
+// headless engine even when the song is already dirty (the unchanged-flag
+// early-return would swallow every edit after the first).
+void ConnectViaIpcModeTest::testForwardedEditDoesNotEchoSongModified() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getIsModified() );
+
+	// Drain the mirror queue of connect-time noise first.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	// A forwarded edit: the mirror reflects it at once ...
+	pIpcAccess->getCoreActionController()->setMasterIsMuted( true );
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
+	// ... and the engine's copy follows via the forwarded command.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getIsModified(); } ) );
+
+	// Give a (suppressed) echo ample time to not arrive.
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+
+	// No engine-origin SongIsModified may sit in the mirror queue. The
+	// mirror-local apply pushes one tagged Editor — that one is fine.
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		CPPUNIT_ASSERT( ! ( pEvent->getType() ==
+								Event::Type::SongIsModified &&
+							pEvent->getOrigin() ==
+								H2Core::ProcessMode::Headless ) );
+	}
+
+	// An engine-local edit (OSC/MIDI-reachable CAC surface) while the song
+	// is already dirty: the flip event must still cross — it is the
+	// editor's signal to re-pull the changed content. The found state is
+	// sticky in the outer scope: pumpUntil() re-invokes the condition
+	// after its loop, and a draining lambda would re-run on an
+	// already-emptied queue.
+	CPPUNIT_ASSERT( pEngine->getCoreActionController()->setBpm( 140.f ) );
+	bool bFound = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pQueued;
+		while ( ( pQueued = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pQueued->getType() == Event::Type::SongIsModified &&
+				 pQueued->getOrigin() == H2Core::ProcessMode::Headless ) {
+				bFound = true;
+			}
+		}
+		return bFound;
+	} ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
 // Errors raised while the editor is attached cross via the generic
 // event forward and reach the editor's error popup path
 // (MainForm::errorEvent) — only their origin tag distinguishes them
@@ -2415,11 +2494,12 @@ void ConnectViaIpcModeTest::testSetIsTimelineActivatedForwardsToEngine() {
 	___INFOLOG( "passed" );
 }
 
-// Pattern mode is engine-authoritative song state. The engine-side
-// apply flips the dirty flag with the Default trigger, whose
-// engine-origin SongIsModified echo triggers the editor's full song
-// re-pull — the required sync for editor-initiated engine-side content
-// changes (ADR 0026 point 10/12).
+// Pattern mode is engine-authoritative song state: forwarded, plus a
+// local apply on the mirror. The engine-side apply flips the dirty flag
+// with the Suppress trigger — the editor initiated the change and
+// already applied it on its mirror, so an engine-origin SongIsModified
+// echo would only trigger a redundant full song re-pull
+// (ADR 0026 point 13).
 void ConnectViaIpcModeTest::testSetPatternModeForwardsToEngine() {
 	___INFOLOG( "" );
 	const QString sEndpoint = TestHelper::uniqueEndpoint();
@@ -2458,23 +2538,22 @@ void ConnectViaIpcModeTest::testSetPatternModeForwardsToEngine() {
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getSong()->getIsModified(); } ) );
 
-	// The engine-origin SongIsModified echo crosses — in the GUI it
-	// triggers the required full song re-pull (handleRemoteEvent). The
-	// found state is sticky in the outer scope: pumpUntil() re-invokes
-	// the condition after its loop, and a draining lambda would re-run
-	// on an already-emptied queue.
-	bool bSawFlipEcho = false;
-	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		std::unique_ptr<Event> pEvent;
-		while ( ( pEvent = pMirror->getEventQueue()->popEvent() )
-				!= nullptr ) {
-			if ( pEvent->getType() == Event::Type::SongIsModified &&
-				 pEvent->getOrigin() == H2Core::ProcessMode::Headless ) {
-				bSawFlipEcho = true;
-			}
-		}
-		return bSawFlipEcho;
-	} ) );
+	// The engine-side apply is Suppress-triggered: the dirty flag flipped
+	// (asserted above) but no engine-origin SongIsModified echo may
+	// cross — the editor initiated the change and already applied it on
+	// its mirror; the echo would trigger a redundant full song re-pull
+	// per edit (ADR 0026 point 13).
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		CPPUNIT_ASSERT( ! ( pEvent->getType() ==
+								Event::Type::SongIsModified &&
+							pEvent->getOrigin() ==
+								H2Core::ProcessMode::Headless ) );
+	}
+	// The mirror-local apply flipped the mirror's own flag (its
+	// Editor-origin event is filtered by the origin gate in the GUI).
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
 
 	pIpcAccess.reset();
 	pSession.reset();

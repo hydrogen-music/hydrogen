@@ -1819,8 +1819,21 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		// event which the origin gate above filters out. Note: the
 		// re-pull runs the mirror's setSong, whose local UpdateSong
 		// clears the undo stack — intended, since the engine-side edit
-		// is not part of the editor's undo history.
+		// is not part of the editor's undo history. The re-pull also
+		// resets the pattern selection (new-song semantics in
+		// Hydrogen::setSong) — re-sync both selections from the engine
+		// so the editor keeps its context (ADR 0026 point 13).
 		ipcSyncSong( pChannel );
+		ipcSyncSelectedPattern( pChannel );
+		ipcSyncSelectedInstrument( pChannel );
+		// Parity with the UpdateSong(load) branch: engine-local edits
+		// can be tempo-affecting (setBpm) — re-sync the mirror's
+		// transport instead of waiting for the periodic telemetry
+		// resync.
+		auto pStateMirror = m_pEditorSession->getStateMirror();
+		if ( pStateMirror != nullptr ) {
+			pStateMirror->forceTransportSync();
+		}
 		return true;
 	}
 

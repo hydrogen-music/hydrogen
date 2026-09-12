@@ -478,21 +478,26 @@ public:
 	/** Uses handleTimelineChange() */
 	friend void Hydrogen::setIsTimelineActivated( bool );
 	/** Uses handleTimelineChange() */
-	friend bool CoreActionController::addTempoMarker( int, float );
+	friend bool CoreActionController::addTempoMarker( int, float,
+													  Event::Trigger );
 	/** Uses handleTimelineChange() */
-	friend bool CoreActionController::deleteTempoMarker( int );
+	friend bool CoreActionController::deleteTempoMarker( int,
+														 Event::Trigger );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
 	/** Uses the private locateToFrame() for the editor-mirror follow relocate. */
 	friend bool CoreActionController::relocateToFrame( long long );
 	friend bool CoreActionController::activateSongMode( bool );
 	friend bool CoreActionController::activateLoopMode( bool );
-	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> );
+	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit>,
+												  Event::Trigger );
 	friend bool CoreActionController::removeInstrument(
-		std::shared_ptr<Instrument>, long );
+		std::shared_ptr<Instrument>, long, Event::Trigger );
 	friend bool CoreActionController::replaceDrumkitInstrument(
-		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument>,
+		Event::Trigger );
 	friend bool CoreActionController::replacePlaybackTrackInstrument(
-		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument>,
+		Event::Trigger );
 	friend bool CoreActionController::startCountIn();
 
 	friend class AudioEngineTests;

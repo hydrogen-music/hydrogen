@@ -349,10 +349,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-		friend bool CoreActionController::removeInstrument(
-			std::shared_ptr<Instrument>, long );
-		friend bool CoreActionController::replaceDrumkitInstrument(
-			std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+	friend bool CoreActionController::removeInstrument(
+		std::shared_ptr<Instrument>, long, Event::Trigger );
+	friend bool CoreActionController::replaceDrumkitInstrument(
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument>,
+		Event::Trigger );
 
 	private:
 		/** Transient property neither written to a drumkit.xml nor to a .h2song

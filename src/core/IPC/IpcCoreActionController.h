@@ -50,65 +50,106 @@ class IpcCoreActionController : public CoreActionController {
 public:
 	IpcCoreActionController( Hydrogen* pMirror, IpcChannel* pChannel );
 
-	bool setBpm( float fBpm ) override;
-	bool setMasterVolume( float fVolumeValue ) override;
-	bool setMasterIsMuted( bool bIsMuted ) override;
+	bool setBpm( float fBpm, Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setMasterVolume( float fVolumeValue, Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setMasterIsMuted( bool bIsMuted, Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setMetronomeIsActive( bool bIsActive ) override;
 	bool locateToColumn( int nPatternGroup ) override;
 	bool locateToTick( long nTick, bool bWithJackBroadcast ) override;
 	bool selectPattern( int nPatternNumber ) override;
-	bool setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip ) override;
-	bool setStripPan( int nStrip, float fValue, bool bSelectStrip ) override;
+	bool setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setStripPan( int nStrip, float fValue, bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool activateLoopMode( bool bActivate ) override;
 	bool activateSongMode( bool bActivate ) override;
 	bool activateRecordMode( bool bActivate ) override;
-	bool addTempoMarker( int nPosition, float fBpm ) override;
-	bool addTag( int nPosition, const QString& sText ) override;
-	bool addAutomationPoint( float fX, float fY ) override;
-	bool removeAutomationPoint( float fX ) override;
+	bool addTempoMarker( int nPosition, float fBpm,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool addTag( int nPosition, const QString& sText,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool addAutomationPoint( float fX, float fY,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool removeAutomationPoint( float fX,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool quit() override;
 	bool panic() override;
 
 	// ADR 0030 batch 2a — scalar parameter setters.
-	bool setInstrumentPitch( int nInstrument, float fValue ) override;
-	bool setInstrumentGain( int nInstrument, float fValue ) override;
-	bool setInstrumentRandomPitch( int nInstrument, float fValue ) override;
-	bool setInstrumentFilterCutoff( int nInstrument, float fValue ) override;
-	bool setInstrumentFilterResonance( int nInstrument, float fValue ) override;
-	bool setInstrumentAttack( int nInstrument, float fValue ) override;
-	bool setInstrumentDecay( int nInstrument, float fValue ) override;
-	bool setInstrumentSustain( int nInstrument, float fValue ) override;
-	bool setInstrumentRelease( int nInstrument, float fValue ) override;
-	bool setInstrumentFilterActive( int nInstrument, bool bActive ) override;
-	bool setInstrumentMuteGroup( int nInstrument, int nMuteGroup ) override;
-	bool setInstrumentStopNotes( int nInstrument, bool bStopNotes ) override;
-	bool setInstrumentApplyVelocity( int nInstrument, bool bApplyVelocity ) override;
-	bool setInstrumentHihatGroup( int nInstrument, int nHihatGroup ) override;
-	bool setInstrumentLowerCc( int nInstrument, int nCc ) override;
-	bool setInstrumentHigherCc( int nInstrument, int nCc ) override;
+	bool setInstrumentPitch( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentGain( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentRandomPitch( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentFilterCutoff( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentFilterResonance( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentAttack( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentDecay( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentSustain( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentRelease( int nInstrument, float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentFilterActive( int nInstrument, bool bActive,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentMuteGroup( int nInstrument, int nMuteGroup,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentStopNotes( int nInstrument, bool bStopNotes,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentApplyVelocity( int nInstrument, bool bApplyVelocity,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentHihatGroup( int nInstrument, int nHihatGroup,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentLowerCc( int nInstrument, int nCc,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setInstrumentHigherCc( int nInstrument, int nCc,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setInstrumentMidiOutNote( int nInstrument, Midi::Note note,
-		long nEventId ) override;
+		long nEventId, Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setInstrumentMidiOutChannel( int nInstrument, Midi::Channel channel,
-		long nEventId ) override;
-	bool setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted ) override;
-	bool setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed ) override;
-	bool setComponentGain( int nInstrument, int nComponent, float fGain ) override;
-	bool setComponentSelection( int nInstrument, int nComponent, int nSelection ) override;
-	bool setLayerIsMuted( int nInstrument, int nComponent, int nLayer, bool bIsMuted ) override;
-	bool setLayerIsSoloed( int nInstrument, int nComponent, int nLayer, bool bIsSoloed ) override;
-	bool setLayerGain( int nInstrument, int nComponent, int nLayer, float fGain ) override;
-	bool setLayerPitchOffset( int nInstrument, int nComponent, int nLayer, float fPitchOffset ) override;
-	bool setLayerStartVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity ) override;
-	bool setLayerEndVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity ) override;
-	bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip ) override;
-	bool setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip ) override;
-	bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip ) override;
-	bool setHumanizeTime( float fValue ) override;
-	bool setHumanizeVelocity( float fValue ) override;
-	bool setSwing( float fValue ) override;
-	bool setPanLaw( int nPanLawType, float fPanLawKNorm ) override;
-	bool setPlaybackTrackMuted( bool bMuted ) override;
-	bool setPlaybackTrackVolume( float fVolume ) override;
+		long nEventId, Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setComponentGain( int nInstrument, int nComponent, float fGain,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setComponentSelection( int nInstrument, int nComponent, int nSelection,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setLayerIsMuted( int nInstrument, int nComponent, int nLayer, bool bIsMuted,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setLayerIsSoloed( int nInstrument, int nComponent, int nLayer, bool bIsSoloed,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setLayerGain( int nInstrument, int nComponent, int nLayer, float fGain,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setLayerPitchOffset( int nInstrument, int nComponent, int nLayer, float fPitchOffset,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setLayerStartVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setLayerEndVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setHumanizeTime( float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setHumanizeVelocity( float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setSwing( float fValue,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setPanLaw( int nPanLawType, float fPanLawKNorm,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setPlaybackTrackMuted( bool bMuted,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setPlaybackTrackVolume( float fVolume,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 
 
 	// ADR 0030 batch 2b — simple commands.
@@ -128,20 +169,27 @@ public:
 	bool releasePlayingNotes( Uuid instrumentUuid ) override;
 	bool activateTimeline( bool bActivate ) override;
 	bool toggleTimeline(  ) override;
-	bool deleteTempoMarker( int nPosition ) override;
-	bool deleteTag( int nPosition ) override;
+	bool deleteTempoMarker( int nPosition,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool deleteTag( int nPosition,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool activateJackTransport( bool bActivate ) override;
 	bool toggleJackTransport(  ) override;
 	bool activateJackTimebaseControl( bool bActivate ) override;
 	bool toggleJackTimebaseControl(  ) override;
 	bool toggleSongMode(  ) override;
 	bool toggleLoopMode(  ) override;
-	bool moveInstrument( int nSourceIndex, int nTargetIndex ) override;
-	bool renameComponent( int nInstrumentIdx, int nComponentId, const QString& sNewName ) override;
+	bool moveInstrument( int nSourceIndex, int nTargetIndex,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool renameComponent( int nInstrumentIdx, int nComponentId, const QString& sNewName,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool toggleNextPattern( int nPatternNumber ) override;
-	bool movePattern( int nSourcePattern, int nTargetPattern ) override;
-	bool removePattern( int nPatternNumber ) override;
-	bool setPatternSize( int nLength, int nDenominator, int nPatternNumber ) override;
+	bool movePattern( int nSourcePattern, int nTargetPattern,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool removePattern( int nPatternNumber,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool setPatternSize( int nLength, int nDenominator, int nPatternNumber,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool startCountIn(  ) override;
 	bool activatePlaylistSong( int nSongNumber ) override;
 	bool setMidiClockInputHandling( bool bHandle ) override;
@@ -154,9 +202,12 @@ public:
 		int nPosition, int nOldInstrumentId, int nNewInstrumentId,
 		const QString& sOldType, const QString& sNewType, float fVelocity,
 		float fPan, float fLeadLag, float fProbability, int nLength, int nNewKey,
-		int nOldKey, int nNewOctave, int nOldOctave ) override;
-	bool removeNote( Uuid noteUuid, Uuid patternUuid ) override;
-	bool toggleGridCell( const GridPoint& gridPoint ) override;
+		int nOldKey, int nNewOctave, int nOldOctave,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool removeNote( Uuid noteUuid, Uuid patternUuid,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+	bool toggleGridCell( const GridPoint& gridPoint,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 
 	// ADR 0030 batch 2d — out-param commands. addOrRemoveNote/handleNote are
 	// dual-applied (out-param filled by the mirror via the base call);
@@ -164,13 +215,14 @@ public:
 		int nPatternNumber, int nOldLength, float fOldVelocity, float fOldPan,
 		float fOldLeadLag, int nOldKey, int nOldOctave, float fOldProbability,
 		bool bIsDelete, bool bIsNoteOff, bool bIsMappedToDrumkit,
-		Uuid* pNewNoteUUid ) override;
+		Uuid* pNewNoteUUid, Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool handleNote( Midi::Note note, Midi::Channel channel, float fVelocity,
 		bool bNoteOff, QStringList* pMappedInstruments ) override;
 
 	// ADR 0030 batch 2e — object-payload (setSong: song XML) / value-struct
 	// (*Properties: strings + License + tags) commands.
-	bool setSong( std::shared_ptr<Song> pSong ) override;
+	bool setSong( std::shared_ptr<Song> pSong,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setPreferences( std::shared_ptr<Preferences> pPreferences ) override;
 	/** Forwards the OSC-server restart to the authoritative engine (the
 	 * mirror holds no server; its local base call is a no-op). */
@@ -178,28 +230,32 @@ public:
 	bool setSongProperties( const QString& sNewPath, const int nNewVersion,
 		const QString& sNewName, const QString& sNewAuthor,
 		const QString& sNewNotes, const H2Core::License& newLicense,
-		const QStringList& newTags ) override;
+		const QStringList& newTags,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setPatternProperties( const QString& sNewPatternPath,
 		const int nNewVersion, const QString& sNewPatternName,
 		const QString& sNewAuthor, const QString& sNewPatternInfo,
 		const H2Core::License& newLicense, const QStringList& newTags,
-		int nPatternIndex ) override;
+		int nPatternIndex, Event::Trigger trigger = Event::Trigger::Default ) override;
 
 	// ADR 0030 batch 2f — object-payload (XML buffer) commands + file-save.
 	// setDrumkit/setPattern/replaceInstrument marshal the object as an XML-buffer
 	// payload and dual-apply; addInstrument is request/response when the caller
 	// needs the engine's event id. The save* commands are engine-only (no mirror
 	// write to the shared file).
-	bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) override;
+	bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setPattern( std::shared_ptr<Pattern> pPattern, int nPatternNumber,
-		bool bReplace ) override;
+		bool bReplace, Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool replaceInstrument( std::shared_ptr<Instrument> pNewInstrument,
-		std::shared_ptr<Instrument> pOldInstrument ) override;
+		std::shared_ptr<Instrument> pOldInstrument,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool addInstrument( std::shared_ptr<Instrument> pInstrument, int nIndex,
-		long nEventId ) override;
+		long nEventId, Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool removeInstrument(
 		std::shared_ptr<Instrument> pInstrument,
-		long nEventId
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
 	) override;
 	bool saveSong( bool bKeepMissingSamples ) override;
 	bool saveSongAs( const QString& sNewFileName,

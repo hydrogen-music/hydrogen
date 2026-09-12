@@ -1550,11 +1550,12 @@ bool Hydrogen::isPatternEditorLocked() const {
 	return false;
 }
 
-void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
+void Hydrogen::setIsPatternEditorLocked( bool bValue,
+										 Event::Trigger trigger ) {
 	if ( m_pSong != nullptr &&
 		 bValue != m_pSong->getIsPatternEditorLocked() ) {
 		m_pSong->setIsPatternEditorLocked( bValue );
-		setSongModified( true );
+		setSongModified( true, trigger );
 
 		updateSelectedPattern();
 			
@@ -1608,14 +1609,15 @@ Song::PatternMode Hydrogen::getPatternMode() const {
 	return Song::PatternMode::None;
 }
 
-void Hydrogen::setPatternMode( const Song::PatternMode& mode )
+void Hydrogen::setPatternMode( const Song::PatternMode& mode,
+							   Event::Trigger trigger )
 {
 	if ( m_pSong != nullptr &&
 		 getPatternMode() != mode ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 
 		m_pSong->setPatternMode( mode );
-		setSongModified( true );
+		setSongModified( true, trigger );
 		
 		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ||
 			 mode == Song::PatternMode::Selected ) {
@@ -1736,14 +1738,14 @@ void Hydrogen::recreateOscServer() {
 #endif
 }
 
-void Hydrogen::setDrumkitModified( bool bIsModified )
+void Hydrogen::setDrumkitModified( bool bIsModified, Event::Trigger trigger )
 {
 	if ( m_pSong == nullptr || m_pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
 	if ( bIsModified && ! m_pSong->getIsModified() ) {
-		setSongModified( true );
+		setSongModified( true, trigger );
 	}
 
 	if ( m_pSong->getDrumkit()->getIsModified() == bIsModified ) {
@@ -1755,7 +1757,8 @@ void Hydrogen::setDrumkitModified( bool bIsModified )
 	m_pEventQueue->pushEvent( Event::Type::DrumkitIsModified, -1 );
 }
 
-void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
+void Hydrogen::setPatternModified( bool bIsModified, int nIndex,
+								   Event::Trigger trigger )
 {
 	if ( m_pSong == nullptr ) {
 		return;
@@ -1767,7 +1770,7 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 	}
 
 	if ( bIsModified && ! m_pSong->getIsModified() ) {
-		setSongModified( true );
+		setSongModified( true, trigger );
 	}
 
 	if ( pPattern->getIsModified() == bIsModified ) {
@@ -1783,7 +1786,20 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 
 void Hydrogen::setSongModified( bool bIsModified, Event::Trigger trigger )
 {
-	if ( m_pSong == nullptr || m_pSong->getIsModified() == bIsModified ) {
+	if ( m_pSong == nullptr ) {
+		return;
+	}
+
+	// On the headless engine every non-suppressed call must be audible as
+	// an event: the attached editor's only signal to re-pull changed
+	// content is the engine-origin SongIsModified echo, so swallowing
+	// calls while the song is already dirty would hide every engine-local
+	// edit after the first (ADR 0026 point 13). Everywhere else the
+	// transition-only behavior stands: the local (G)UI already knows the
+	// current state and re-firing would be noise.
+	const bool bUnchanged = m_pSong->getIsModified() == bIsModified;
+	if ( bUnchanged && ! ( m_ProcessMode == ProcessMode::Headless &&
+						   trigger != Event::Trigger::Suppress ) ) {
 		return;
 	}
 

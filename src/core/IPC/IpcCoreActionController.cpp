@@ -47,27 +47,27 @@ IpcCoreActionController::IpcCoreActionController(
 // applies it to the local mirror via the base implementation (snappy UI). The
 // arg order matches IpcEngineBridge::dispatchCommand.
 
-bool IpcCoreActionController::setBpm( float fBpm ) {
+bool IpcCoreActionController::setBpm( float fBpm, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetBpm ).arg( fBpm ) );
 	}
-	return CoreActionController::setBpm( fBpm );
+	return CoreActionController::setBpm( fBpm, trigger );
 }
 
-bool IpcCoreActionController::setMasterVolume( float fVolumeValue ) {
+bool IpcCoreActionController::setMasterVolume( float fVolumeValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send(
 			IpcMessage( IpcOpcode::SetMasterVolume ).arg( fVolumeValue ) );
 	}
-	return CoreActionController::setMasterVolume( fVolumeValue );
+	return CoreActionController::setMasterVolume( fVolumeValue, trigger );
 }
 
-bool IpcCoreActionController::setMasterIsMuted( bool bIsMuted ) {
+bool IpcCoreActionController::setMasterIsMuted( bool bIsMuted, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send(
 			IpcMessage( IpcOpcode::SetMasterIsMuted ).arg( bIsMuted ) );
 	}
-	return CoreActionController::setMasterIsMuted( bIsMuted );
+	return CoreActionController::setMasterIsMuted( bIsMuted, trigger );
 }
 
 bool IpcCoreActionController::setMetronomeIsActive( bool bIsActive ) {
@@ -104,21 +104,21 @@ bool IpcCoreActionController::selectPattern( int nPatternNumber ) {
 }
 
 bool IpcCoreActionController::setStripVolume(
-	int nStrip, float fVolumeValue, bool bSelectStrip ) {
+	int nStrip, float fVolumeValue, bool bSelectStrip, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetStripVolume )
 							  .arg( nStrip ).arg( fVolumeValue ).arg( bSelectStrip ) );
 	}
-	return CoreActionController::setStripVolume( nStrip, fVolumeValue, bSelectStrip );
+	return CoreActionController::setStripVolume( nStrip, fVolumeValue, bSelectStrip, trigger );
 }
 
 bool IpcCoreActionController::setStripPan(
-	int nStrip, float fValue, bool bSelectStrip ) {
+	int nStrip, float fValue, bool bSelectStrip, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetStripPan )
 							  .arg( nStrip ).arg( fValue ).arg( bSelectStrip ) );
 	}
-	return CoreActionController::setStripPan( nStrip, fValue, bSelectStrip );
+	return CoreActionController::setStripPan( nStrip, fValue, bSelectStrip, trigger );
 }
 
 bool IpcCoreActionController::activateLoopMode( bool bActivate ) {
@@ -145,36 +145,36 @@ bool IpcCoreActionController::activateRecordMode( bool bActivate ) {
 	return CoreActionController::activateRecordMode( bActivate );
 }
 
-bool IpcCoreActionController::addTempoMarker( int nPosition, float fBpm ) {
+bool IpcCoreActionController::addTempoMarker( int nPosition, float fBpm, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::AddTempoMarker )
 							  .arg( nPosition ).arg( fBpm ) );
 	}
-	return CoreActionController::addTempoMarker( nPosition, fBpm );
+	return CoreActionController::addTempoMarker( nPosition, fBpm, trigger );
 }
 
-bool IpcCoreActionController::addTag( int nPosition, const QString& sText ) {
+bool IpcCoreActionController::addTag( int nPosition, const QString& sText, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send(
 			IpcMessage( IpcOpcode::AddTag ).arg( nPosition ).arg( sText ) );
 	}
-	return CoreActionController::addTag( nPosition, sText );
+	return CoreActionController::addTag( nPosition, sText, trigger );
 }
 
-bool IpcCoreActionController::addAutomationPoint( float fX, float fY ) {
+bool IpcCoreActionController::addAutomationPoint( float fX, float fY, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::AddAutomationPoint )
 						  .arg( fX ).arg( fY ) );
 	}
-	return CoreActionController::addAutomationPoint( fX, fY );
+	return CoreActionController::addAutomationPoint( fX, fY, trigger );
 }
 
-bool IpcCoreActionController::removeAutomationPoint( float fX ) {
+bool IpcCoreActionController::removeAutomationPoint( float fX, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::RemoveAutomationPoint )
 						  .arg( fX ) );
 	}
-	return CoreActionController::removeAutomationPoint( fX );
+	return CoreActionController::removeAutomationPoint( fX, trigger );
 }
 
 bool IpcCoreActionController::quit() {
@@ -191,122 +191,123 @@ bool IpcCoreActionController::panic() {
 	return CoreActionController::panic();
 }
 
-bool IpcCoreActionController::setInstrumentPitch( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentPitch( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentPitch ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentPitch( nInstrument, fValue );
+	return CoreActionController::setInstrumentPitch( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentGain( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentGain( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentGain ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentGain( nInstrument, fValue );
+	return CoreActionController::setInstrumentGain( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentRandomPitch( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentRandomPitch( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentRandomPitch ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentRandomPitch( nInstrument, fValue );
+	return CoreActionController::setInstrumentRandomPitch( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentFilterCutoff( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentFilterCutoff( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentFilterCutoff ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentFilterCutoff( nInstrument, fValue );
+	return CoreActionController::setInstrumentFilterCutoff( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentFilterResonance( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentFilterResonance( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentFilterResonance ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentFilterResonance( nInstrument, fValue );
+	return CoreActionController::setInstrumentFilterResonance( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentAttack( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentAttack( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentAttack ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentAttack( nInstrument, fValue );
+	return CoreActionController::setInstrumentAttack( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentDecay( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentDecay( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentDecay ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentDecay( nInstrument, fValue );
+	return CoreActionController::setInstrumentDecay( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentSustain( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentSustain( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentSustain ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentSustain( nInstrument, fValue );
+	return CoreActionController::setInstrumentSustain( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentRelease( int nInstrument, float fValue ) {
+bool IpcCoreActionController::setInstrumentRelease( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentRelease ).arg( nInstrument ).arg( fValue ) );
 	}
-	return CoreActionController::setInstrumentRelease( nInstrument, fValue );
+	return CoreActionController::setInstrumentRelease( nInstrument, fValue, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentFilterActive( int nInstrument, bool bActive ) {
+bool IpcCoreActionController::setInstrumentFilterActive( int nInstrument, bool bActive, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentFilterActive ).arg( nInstrument ).arg( bActive ) );
 	}
-	return CoreActionController::setInstrumentFilterActive( nInstrument, bActive );
+	return CoreActionController::setInstrumentFilterActive( nInstrument, bActive, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentMuteGroup( int nInstrument, int nMuteGroup ) {
+bool IpcCoreActionController::setInstrumentMuteGroup( int nInstrument, int nMuteGroup, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMuteGroup ).arg( nInstrument ).arg( nMuteGroup ) );
 	}
-	return CoreActionController::setInstrumentMuteGroup( nInstrument, nMuteGroup );
+	return CoreActionController::setInstrumentMuteGroup( nInstrument, nMuteGroup, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentStopNotes( int nInstrument, bool bStopNotes ) {
+bool IpcCoreActionController::setInstrumentStopNotes( int nInstrument, bool bStopNotes, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentStopNotes ).arg( nInstrument ).arg( bStopNotes ) );
 	}
-	return CoreActionController::setInstrumentStopNotes( nInstrument, bStopNotes );
+	return CoreActionController::setInstrumentStopNotes( nInstrument, bStopNotes, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentApplyVelocity( int nInstrument, bool bApplyVelocity ) {
+bool IpcCoreActionController::setInstrumentApplyVelocity( int nInstrument, bool bApplyVelocity, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentApplyVelocity ).arg( nInstrument ).arg( bApplyVelocity ) );
 	}
-	return CoreActionController::setInstrumentApplyVelocity( nInstrument, bApplyVelocity );
+	return CoreActionController::setInstrumentApplyVelocity( nInstrument, bApplyVelocity, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentHihatGroup( int nInstrument, int nHihatGroup ) {
+bool IpcCoreActionController::setInstrumentHihatGroup( int nInstrument, int nHihatGroup, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentHihatGroup ).arg( nInstrument ).arg( nHihatGroup ) );
 	}
-	return CoreActionController::setInstrumentHihatGroup( nInstrument, nHihatGroup );
+	return CoreActionController::setInstrumentHihatGroup( nInstrument, nHihatGroup, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentLowerCc( int nInstrument, int nCc ) {
+bool IpcCoreActionController::setInstrumentLowerCc( int nInstrument, int nCc, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentLowerCc ).arg( nInstrument ).arg( nCc ) );
 	}
-	return CoreActionController::setInstrumentLowerCc( nInstrument, nCc );
+	return CoreActionController::setInstrumentLowerCc( nInstrument, nCc, trigger );
 }
 
-bool IpcCoreActionController::setInstrumentHigherCc( int nInstrument, int nCc ) {
+bool IpcCoreActionController::setInstrumentHigherCc( int nInstrument, int nCc, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentHigherCc ).arg( nInstrument ).arg( nCc ) );
 	}
-	return CoreActionController::setInstrumentHigherCc( nInstrument, nCc );
+	return CoreActionController::setInstrumentHigherCc( nInstrument, nCc, trigger );
 }
 
 bool IpcCoreActionController::setInstrumentMidiOutNote(
 	int nInstrument,
 	Midi::Note note,
-	long nEventId
+	long nEventId,
+	Event::Trigger trigger
 )
 {
 	if ( m_pChannel != nullptr ) {
@@ -316,14 +317,15 @@ bool IpcCoreActionController::setInstrumentMidiOutNote(
 							  .arg( QVariant::fromValue( nEventId ) ) );
 	}
 	return CoreActionController::setInstrumentMidiOutNote(
-		nInstrument, note, nEventId
+		nInstrument, note, nEventId, trigger
 	);
 }
 
 bool IpcCoreActionController::setInstrumentMidiOutChannel(
 	int nInstrument,
 	Midi::Channel channel,
-	long nEventId
+	long nEventId,
+	Event::Trigger trigger
 )
 {
 	if ( m_pChannel != nullptr ) {
@@ -333,141 +335,141 @@ bool IpcCoreActionController::setInstrumentMidiOutChannel(
 							  .arg( QVariant::fromValue( nEventId ) ) );
 	}
 	return CoreActionController::setInstrumentMidiOutChannel(
-		nInstrument, channel, nEventId
+		nInstrument, channel, nEventId, trigger
 	);
 }
 
-bool IpcCoreActionController::setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted ) {
+bool IpcCoreActionController::setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentIsMuted ).arg( nInstrument ).arg( nComponent ).arg( bIsMuted ) );
 	}
-	return CoreActionController::setComponentIsMuted( nInstrument, nComponent, bIsMuted );
+	return CoreActionController::setComponentIsMuted( nInstrument, nComponent, bIsMuted, trigger );
 }
 
-bool IpcCoreActionController::setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed ) {
+bool IpcCoreActionController::setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentIsSoloed ).arg( nInstrument ).arg( nComponent ).arg( bIsSoloed ) );
 	}
-	return CoreActionController::setComponentIsSoloed( nInstrument, nComponent, bIsSoloed );
+	return CoreActionController::setComponentIsSoloed( nInstrument, nComponent, bIsSoloed, trigger );
 }
 
-bool IpcCoreActionController::setComponentGain( int nInstrument, int nComponent, float fGain ) {
+bool IpcCoreActionController::setComponentGain( int nInstrument, int nComponent, float fGain, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentGain ).arg( nInstrument ).arg( nComponent ).arg( fGain ) );
 	}
-	return CoreActionController::setComponentGain( nInstrument, nComponent, fGain );
+	return CoreActionController::setComponentGain( nInstrument, nComponent, fGain, trigger );
 }
 
-bool IpcCoreActionController::setComponentSelection( int nInstrument, int nComponent, int nSelection ) {
+bool IpcCoreActionController::setComponentSelection( int nInstrument, int nComponent, int nSelection, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentSelection ).arg( nInstrument ).arg( nComponent ).arg( nSelection ) );
 	}
-	return CoreActionController::setComponentSelection( nInstrument, nComponent, nSelection );
+	return CoreActionController::setComponentSelection( nInstrument, nComponent, nSelection, trigger );
 }
 
-bool IpcCoreActionController::setLayerIsMuted( int nInstrument, int nComponent, int nLayer, bool bIsMuted ) {
+bool IpcCoreActionController::setLayerIsMuted( int nInstrument, int nComponent, int nLayer, bool bIsMuted, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerIsMuted ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( bIsMuted ) );
 	}
-	return CoreActionController::setLayerIsMuted( nInstrument, nComponent, nLayer, bIsMuted );
+	return CoreActionController::setLayerIsMuted( nInstrument, nComponent, nLayer, bIsMuted, trigger );
 }
 
-bool IpcCoreActionController::setLayerIsSoloed( int nInstrument, int nComponent, int nLayer, bool bIsSoloed ) {
+bool IpcCoreActionController::setLayerIsSoloed( int nInstrument, int nComponent, int nLayer, bool bIsSoloed, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerIsSoloed ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( bIsSoloed ) );
 	}
-	return CoreActionController::setLayerIsSoloed( nInstrument, nComponent, nLayer, bIsSoloed );
+	return CoreActionController::setLayerIsSoloed( nInstrument, nComponent, nLayer, bIsSoloed, trigger );
 }
 
-bool IpcCoreActionController::setLayerGain( int nInstrument, int nComponent, int nLayer, float fGain ) {
+bool IpcCoreActionController::setLayerGain( int nInstrument, int nComponent, int nLayer, float fGain, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerGain ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fGain ) );
 	}
-	return CoreActionController::setLayerGain( nInstrument, nComponent, nLayer, fGain );
+	return CoreActionController::setLayerGain( nInstrument, nComponent, nLayer, fGain, trigger );
 }
 
-bool IpcCoreActionController::setLayerPitchOffset( int nInstrument, int nComponent, int nLayer, float fPitchOffset ) {
+bool IpcCoreActionController::setLayerPitchOffset( int nInstrument, int nComponent, int nLayer, float fPitchOffset, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerPitchOffset ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fPitchOffset ) );
 	}
-	return CoreActionController::setLayerPitchOffset( nInstrument, nComponent, nLayer, fPitchOffset );
+	return CoreActionController::setLayerPitchOffset( nInstrument, nComponent, nLayer, fPitchOffset, trigger );
 }
 
-bool IpcCoreActionController::setLayerStartVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity ) {
+bool IpcCoreActionController::setLayerStartVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerStartVelocity ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fVelocity ) );
 	}
-	return CoreActionController::setLayerStartVelocity( nInstrument, nComponent, nLayer, fVelocity );
+	return CoreActionController::setLayerStartVelocity( nInstrument, nComponent, nLayer, fVelocity, trigger );
 }
 
-bool IpcCoreActionController::setLayerEndVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity ) {
+bool IpcCoreActionController::setLayerEndVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerEndVelocity ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fVelocity ) );
 	}
-	return CoreActionController::setLayerEndVelocity( nInstrument, nComponent, nLayer, fVelocity );
+	return CoreActionController::setLayerEndVelocity( nInstrument, nComponent, nLayer, fVelocity, trigger );
 }
 
-bool IpcCoreActionController::setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip ) {
+bool IpcCoreActionController::setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetStripIsMuted ).arg( nStrip ).arg( isMuted ).arg( bSelectStrip ) );
 	}
-	return CoreActionController::setStripIsMuted( nStrip, isMuted, bSelectStrip );
+	return CoreActionController::setStripIsMuted( nStrip, isMuted, bSelectStrip, trigger );
 }
 
-bool IpcCoreActionController::setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip ) {
+bool IpcCoreActionController::setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetStripIsSoloed ).arg( nStrip ).arg( isSoloed ).arg( bSelectStrip ) );
 	}
-	return CoreActionController::setStripIsSoloed( nStrip, isSoloed, bSelectStrip );
+	return CoreActionController::setStripIsSoloed( nStrip, isSoloed, bSelectStrip, trigger );
 }
 
-bool IpcCoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip ) {
+bool IpcCoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetStripPanSym ).arg( nStrip ).arg( fValue ).arg( bSelectStrip ) );
 	}
-	return CoreActionController::setStripPanSym( nStrip, fValue, bSelectStrip );
+	return CoreActionController::setStripPanSym( nStrip, fValue, bSelectStrip, trigger );
 }
 
-bool IpcCoreActionController::setHumanizeTime( float fValue ) {
+bool IpcCoreActionController::setHumanizeTime( float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetHumanizeTime ).arg( fValue ) );
 	}
-	return CoreActionController::setHumanizeTime( fValue );
+	return CoreActionController::setHumanizeTime( fValue, trigger );
 }
 
-bool IpcCoreActionController::setHumanizeVelocity( float fValue ) {
+bool IpcCoreActionController::setHumanizeVelocity( float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetHumanizeVelocity ).arg( fValue ) );
 	}
-	return CoreActionController::setHumanizeVelocity( fValue );
+	return CoreActionController::setHumanizeVelocity( fValue, trigger );
 }
 
-bool IpcCoreActionController::setSwing( float fValue ) {
+bool IpcCoreActionController::setSwing( float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetSwing ).arg( fValue ) );
 	}
-	return CoreActionController::setSwing( fValue );
+	return CoreActionController::setSwing( fValue, trigger );
 }
 
-bool IpcCoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm ) {
+bool IpcCoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetPanLaw ).arg( nPanLawType ).arg( fPanLawKNorm ) );
 	}
-	return CoreActionController::setPanLaw( nPanLawType, fPanLawKNorm );
+	return CoreActionController::setPanLaw( nPanLawType, fPanLawKNorm, trigger );
 }
 
-bool IpcCoreActionController::setPlaybackTrackMuted( bool bMuted ) {
+bool IpcCoreActionController::setPlaybackTrackMuted( bool bMuted, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetPlaybackTrackMuted ).arg( bMuted ) );
 	}
-	return CoreActionController::setPlaybackTrackMuted( bMuted );
+	return CoreActionController::setPlaybackTrackMuted( bMuted, trigger );
 }
 
-bool IpcCoreActionController::setPlaybackTrackVolume( float fVolume ) {
+bool IpcCoreActionController::setPlaybackTrackVolume( float fVolume, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetPlaybackTrackVolume ).arg( fVolume ) );
 	}
-	return CoreActionController::setPlaybackTrackVolume( fVolume );
+	return CoreActionController::setPlaybackTrackVolume( fVolume, trigger );
 }
 
 bool IpcCoreActionController::previewInstrument( int nInstrument, bool bStop ) {
@@ -527,18 +529,18 @@ bool IpcCoreActionController::toggleTimeline(  ) {
 	return CoreActionController::toggleTimeline(  );
 }
 
-bool IpcCoreActionController::deleteTempoMarker( int nPosition ) {
+bool IpcCoreActionController::deleteTempoMarker( int nPosition, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::DeleteTempoMarker ).arg( nPosition ) );
 	}
-	return CoreActionController::deleteTempoMarker( nPosition );
+	return CoreActionController::deleteTempoMarker( nPosition, trigger );
 }
 
-bool IpcCoreActionController::deleteTag( int nPosition ) {
+bool IpcCoreActionController::deleteTag( int nPosition, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::DeleteTag ).arg( nPosition ) );
 	}
-	return CoreActionController::deleteTag( nPosition );
+	return CoreActionController::deleteTag( nPosition, trigger );
 }
 
 bool IpcCoreActionController::activateJackTransport( bool bActivate ) {
@@ -583,18 +585,18 @@ bool IpcCoreActionController::toggleLoopMode(  ) {
 	return CoreActionController::toggleLoopMode(  );
 }
 
-bool IpcCoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex ) {
+bool IpcCoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::MoveInstrument ).arg( nSourceIndex ).arg( nTargetIndex ) );
 	}
-	return CoreActionController::moveInstrument( nSourceIndex, nTargetIndex );
+	return CoreActionController::moveInstrument( nSourceIndex, nTargetIndex, trigger );
 }
 
-bool IpcCoreActionController::renameComponent( int nInstrumentIdx, int nComponentId, const QString& sNewName ) {
+bool IpcCoreActionController::renameComponent( int nInstrumentIdx, int nComponentId, const QString& sNewName, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::RenameComponent ).arg( nInstrumentIdx ).arg( nComponentId ).arg( sNewName ) );
 	}
-	return CoreActionController::renameComponent( nInstrumentIdx, nComponentId, sNewName );
+	return CoreActionController::renameComponent( nInstrumentIdx, nComponentId, sNewName, trigger );
 }
 
 bool IpcCoreActionController::toggleNextPattern( int nPatternNumber ) {
@@ -604,25 +606,25 @@ bool IpcCoreActionController::toggleNextPattern( int nPatternNumber ) {
 	return CoreActionController::toggleNextPattern( nPatternNumber );
 }
 
-bool IpcCoreActionController::movePattern( int nSourcePattern, int nTargetPattern ) {
+bool IpcCoreActionController::movePattern( int nSourcePattern, int nTargetPattern, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::MovePattern ).arg( nSourcePattern ).arg( nTargetPattern ) );
 	}
-	return CoreActionController::movePattern( nSourcePattern, nTargetPattern );
+	return CoreActionController::movePattern( nSourcePattern, nTargetPattern, trigger );
 }
 
-bool IpcCoreActionController::removePattern( int nPatternNumber ) {
+bool IpcCoreActionController::removePattern( int nPatternNumber, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::RemovePattern ).arg( nPatternNumber ) );
 	}
-	return CoreActionController::removePattern( nPatternNumber );
+	return CoreActionController::removePattern( nPatternNumber, trigger );
 }
 
-bool IpcCoreActionController::setPatternSize( int nLength, int nDenominator, int nPatternNumber ) {
+bool IpcCoreActionController::setPatternSize( int nLength, int nDenominator, int nPatternNumber, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternSize ).arg( nLength ).arg( nDenominator ).arg( nPatternNumber ) );
 	}
-	return CoreActionController::setPatternSize( nLength, nDenominator, nPatternNumber );
+	return CoreActionController::setPatternSize( nLength, nDenominator, nPatternNumber, trigger );
 }
 
 bool IpcCoreActionController::startCountIn(  ) {
@@ -672,7 +674,7 @@ bool IpcCoreActionController::editNoteProperty(
 	int nOldInstrumentId, int nNewInstrumentId, const QString& sOldType,
 	const QString& sNewType, float fVelocity, float fPan, float fLeadLag,
 	float fProbability, int nLength, int nNewKey, int nOldKey, int nNewOctave,
-	int nOldOctave ) {
+	int nOldOctave, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::EditNoteProperty )
 							  .arg( static_cast<int>( property ) )
@@ -686,25 +688,25 @@ bool IpcCoreActionController::editNoteProperty(
 	return CoreActionController::editNoteProperty(
 		property, nPatternNumber, nPosition, nOldInstrumentId, nNewInstrumentId,
 		sOldType, sNewType, fVelocity, fPan, fLeadLag, fProbability, nLength,
-		nNewKey, nOldKey, nNewOctave, nOldOctave );
+		nNewKey, nOldKey, nNewOctave, nOldOctave, trigger );
 }
 
-bool IpcCoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid ) {
+bool IpcCoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::RemoveNote )
 							  .arg( noteUuid.toQString() )
 							  .arg( patternUuid.toQString() ) );
 	}
-	return CoreActionController::removeNote( noteUuid, patternUuid );
+	return CoreActionController::removeNote( noteUuid, patternUuid, trigger );
 }
 
-bool IpcCoreActionController::toggleGridCell( const GridPoint& gridPoint ) {
+bool IpcCoreActionController::toggleGridCell( const GridPoint& gridPoint, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::ToggleGridCell )
 							  .arg( gridPoint.getColumn() )
 							  .arg( gridPoint.getRow() ) );
 	}
-	return CoreActionController::toggleGridCell( gridPoint );
+	return CoreActionController::toggleGridCell( gridPoint, trigger );
 }
 
 // ── ADR 0030 batch 2d — out-param commands ──
@@ -713,7 +715,8 @@ bool IpcCoreActionController::addOrRemoveNote(
 	int nPosition, int nInstrumentId, const QString& sType, int nPatternNumber,
 	int nOldLength, float fOldVelocity, float fOldPan, float fOldLeadLag,
 	int nOldKey, int nOldOctave, float fOldProbability, bool bIsDelete,
-	bool bIsNoteOff, bool bIsMappedToDrumkit, Uuid* pNewNoteUUid ) {
+	bool bIsNoteOff, bool bIsMappedToDrumkit, Uuid* pNewNoteUUid,
+	Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::AddOrRemoveNote )
 							  .arg( nPosition ).arg( nInstrumentId ).arg( sType )
@@ -729,7 +732,7 @@ bool IpcCoreActionController::addOrRemoveNote(
 	return CoreActionController::addOrRemoveNote(
 		nPosition, nInstrumentId, sType, nPatternNumber, nOldLength, fOldVelocity,
 		fOldPan, fOldLeadLag, nOldKey, nOldOctave, fOldProbability, bIsDelete,
-		bIsNoteOff, bIsMappedToDrumkit, pNewNoteUUid );
+		bIsNoteOff, bIsMappedToDrumkit, pNewNoteUUid, trigger );
 }
 
 bool IpcCoreActionController::handleNote(
@@ -749,7 +752,7 @@ bool IpcCoreActionController::handleNote(
 
 // ── ADR 0030 batch 2e — object-payload / value-struct commands ──
 
-bool IpcCoreActionController::setSong( std::shared_ptr<Song> pSong ) {
+bool IpcCoreActionController::setSong( std::shared_ptr<Song> pSong, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr && pSong != nullptr ) {
 		// Whole-song bulk load: the song XML is the payload (ADR 0027/0030 —
 		// reserved for genuine bulk loads). The engine reconstructs it.
@@ -758,7 +761,7 @@ bool IpcCoreActionController::setSong( std::shared_ptr<Song> pSong ) {
 		m_pChannel->send( msg );
 	}
 	// Dual-apply: the mirror takes the live object directly (no round-trip).
-	return CoreActionController::setSong( pSong );
+	return CoreActionController::setSong( pSong, trigger );
 }
 
 bool IpcCoreActionController::recreateOscServer() {
@@ -790,7 +793,8 @@ bool IpcCoreActionController::setPreferences(
 bool IpcCoreActionController::setSongProperties(
 	const QString& sNewPath, const int nNewVersion, const QString& sNewName,
 	const QString& sNewAuthor, const QString& sNewNotes,
-	const H2Core::License& newLicense, const QStringList& newTags ) {
+	const H2Core::License& newLicense, const QStringList& newTags,
+	Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetSongProperties )
 							  .arg( sNewPath ).arg( nNewVersion ).arg( sNewName )
@@ -801,14 +805,14 @@ bool IpcCoreActionController::setSongProperties(
 	}
 	return CoreActionController::setSongProperties(
 		sNewPath, nNewVersion, sNewName, sNewAuthor, sNewNotes, newLicense,
-		newTags );
+		newTags, trigger );
 }
 
 bool IpcCoreActionController::setPatternProperties(
 	const QString& sNewPatternPath, const int nNewVersion,
 	const QString& sNewPatternName, const QString& sNewAuthor,
 	const QString& sNewPatternInfo, const H2Core::License& newLicense,
-	const QStringList& newTags, int nPatternIndex ) {
+	const QStringList& newTags, int nPatternIndex, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternProperties )
 							  .arg( sNewPatternPath ).arg( nNewVersion )
@@ -820,12 +824,12 @@ bool IpcCoreActionController::setPatternProperties(
 	}
 	return CoreActionController::setPatternProperties(
 		sNewPatternPath, nNewVersion, sNewPatternName, sNewAuthor,
-		sNewPatternInfo, newLicense, newTags, nPatternIndex );
+		sNewPatternInfo, newLicense, newTags, nPatternIndex, trigger );
 }
 
 // ── ADR 0030 batch 2f — object-payload (XML buffer) + file-save commands ──
 
-bool IpcCoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
+bool IpcCoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr && pDrumkit != nullptr ) {
 		// The drumkit XML is the payload; the engine reconstructs it and reloads
 		// samples from their (shared-disk) paths (ADR 0030).
@@ -835,11 +839,12 @@ bool IpcCoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit ) {
 		m_pChannel->send( msg );
 	}
 	// Dual-apply: the mirror takes the live object directly (no round-trip).
-	return CoreActionController::setDrumkit( pDrumkit );
+	return CoreActionController::setDrumkit( pDrumkit, trigger );
 }
 
 bool IpcCoreActionController::setPattern(
-	std::shared_ptr<Pattern> pPattern, int nPatternNumber, bool bReplace ) {
+	std::shared_ptr<Pattern> pPattern, int nPatternNumber, bool bReplace,
+	Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr && pPattern != nullptr ) {
 		// Serialise the pattern against the current drumkit so the engine can
 		// resolve instrument ids/types on the far side.
@@ -852,12 +857,12 @@ bool IpcCoreActionController::setPattern(
 		msg.setPayload( pPattern->toXmlBuffer( pDrumkit ) );
 		m_pChannel->send( msg );
 	}
-	return CoreActionController::setPattern( pPattern, nPatternNumber, bReplace );
+	return CoreActionController::setPattern( pPattern, nPatternNumber, bReplace, trigger );
 }
 
 bool IpcCoreActionController::replaceInstrument(
 	std::shared_ptr<Instrument> pNewInstrument,
-	std::shared_ptr<Instrument> pOldInstrument ) {
+	std::shared_ptr<Instrument> pOldInstrument, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr && pNewInstrument != nullptr &&
 		 pOldInstrument != nullptr ) {
 		// The new instrument rides as payload; the old one is identified by id so
@@ -869,11 +874,12 @@ bool IpcCoreActionController::replaceInstrument(
 		m_pChannel->send( msg );
 	}
 	return CoreActionController::replaceInstrument(
-		pNewInstrument, pOldInstrument );
+		pNewInstrument, pOldInstrument, trigger );
 }
 
 bool IpcCoreActionController::addInstrument(
-	std::shared_ptr<Instrument> pInstrument, int nIndex, long nEventId ) {
+	std::shared_ptr<Instrument> pInstrument, int nIndex, long nEventId,
+	Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
 		IpcMessage msg( IpcOpcode::AddInstrument );
 		msg.arg( nIndex ).arg( QVariant::fromValue( nEventId ) );
@@ -881,11 +887,12 @@ bool IpcCoreActionController::addInstrument(
 			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
 		m_pChannel->send( msg );
 	}
-	return CoreActionController::addInstrument( pInstrument, nIndex, nEventId );
+	return CoreActionController::addInstrument( pInstrument, nIndex, nEventId, trigger );
 }
 
 bool IpcCoreActionController::removeInstrument(
-	std::shared_ptr<Instrument> pInstrument, long nEventId ) {
+	std::shared_ptr<Instrument> pInstrument, long nEventId,
+	Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
 		IpcMessage msg( IpcOpcode::RemoveInstrument );
 		msg.arg( QVariant::fromValue( nEventId ) );
@@ -893,7 +900,7 @@ bool IpcCoreActionController::removeInstrument(
 			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
 		m_pChannel->send( msg );
 	}
-	return CoreActionController::removeInstrument( pInstrument, nEventId );
+	return CoreActionController::removeInstrument( pInstrument, nEventId, trigger );
 }
 
 bool IpcCoreActionController::saveSong( bool bKeepMissingSamples ) {

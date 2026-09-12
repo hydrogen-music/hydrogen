@@ -280,9 +280,14 @@ public:
 
 	Song::PatternMode getPatternMode() const;
 	/** Wrapper around Song::setPatternMode() which also triggers
-	Event::Type::StackedModeActivation and should be used by all parts of the
-	code except for song reading/setting.*/
-	void setPatternMode( const Song::PatternMode& mode );
+		Event::Type::StackedModeActivation and should be used by all parts of
+		the code except for song reading/setting. The @a trigger parameter is
+		passed to the internal setSongModified() call (Suppress for the
+		engine-side apply of an editor-forwarded command, ADR 0026 point
+		13). */
+	void setPatternMode(
+		const Song::PatternMode& mode,
+		Event::Trigger trigger = Event::Trigger::Default );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
@@ -313,14 +318,20 @@ public:
 	 *
 	 * Use this wrapper function instead of Drumkit::setIsModified() since it
 	 * ensures the modification state of the enclosing song is set as well. */
-	void setDrumkitModified( bool bIsModified );
+	void setDrumkitModified(
+		bool bIsModified, Event::Trigger trigger = Event::Trigger::Default );
 	/** Sets the state of a pattern contained in #m_pSong to @a bIsModified.
 	 *
 	 * Use this wrapper function instead of Pattern::setIsModified() since it
 	 * ensures the modification state of the enclosing song is set as well. */
-	void setPatternModified( bool bIsModified, int nIndex );
+	void setPatternModified(
+		bool bIsModified, int nIndex,
+		Event::Trigger trigger = Event::Trigger::Default );
 	/** Wrapper around Song::setIsModified() that checks whether a
-		song is set.*/
+		song is set. On the headless engine a non-suppressed call fires
+		SongIsModified even when the flag is unchanged — the attached
+		editor re-pulls the song on that echo and would otherwise miss
+		every engine-local edit after the first (ADR 0026 point 13). */
 	void setSongModified( bool bIsModified,
 						  Event::Trigger trigger = Event::Trigger::Default );
 	/** Wrapper around Song::getIsModified() that checks whether a
@@ -463,7 +474,8 @@ public:
 	 * is locked in the song settings and the song is in song mode.
 	 */
 	bool isPatternEditorLocked() const;
-	void setIsPatternEditorLocked( bool bValue );
+	void setIsPatternEditorLocked(
+		bool bValue, Event::Trigger trigger = Event::Trigger::Default );
 
 	/** Tells what is currently controlling the tempo of Hydrogen.
 	 *

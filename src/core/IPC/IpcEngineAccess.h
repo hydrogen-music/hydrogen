@@ -192,9 +192,10 @@ class IpcEngineAccess : public IEngineAccess,
 	 * apply for immediate reflection (ADR 0026 point 12). */
 	void setIsTimelineActivated( bool bEnabled ) override;
 	/** Engine-authoritative song state: forwarded, plus a local apply.
-	 * The engine-side apply flips the dirty flag with the Default
-	 * trigger — the engine-origin SongIsModified echo then triggers the
-	 * editor's full song re-pull (ADR 0026 point 10/12). */
+	 * The engine-side apply flips the dirty flag with the Suppress
+	 * trigger — the editor initiated the change and already applied it
+	 * on its mirror, so no SongIsModified echo crosses (ADR 0026 point
+	 * 13). */
 	void setPatternMode( const Song::PatternMode& mode ) override;
 	void setPatternModified( bool bIsModified, int nIndex ) override {
 		m_pMirror->setPatternModified( bIsModified, nIndex ); }
