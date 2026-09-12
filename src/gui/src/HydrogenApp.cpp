@@ -444,8 +444,13 @@ void HydrogenApp::syncViaIpc() {
 	// selection pulls (steps 3-5), because applying a selection clamps against
 	// the mirror's drumkit — with an empty kit every value would collapse to
 	// "no selection" (-1).
-	// 1. Song — deserialize the reply XML and apply to the mirror.
+	// 1. Song — deserialize the reply XML and apply to the mirror. The attach
+	// is a new document for the editor: on a re-attach the engine's song may
+	// have changed while detached and the editor cannot know — reset the undo
+	// history (a no-op on the first attach, where the stack is still empty)
+	// (ADR 0026 point 15).
 	ipcSyncSong( pChannel );
+	m_pUndoStack->clear();
 
 	// 2. Playlist
 	ipcSyncPlaylist( pChannel );
@@ -1814,8 +1819,14 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 			ipcSyncSong( pChannel );
 		}
 		else {
-			// The authoritative engine loaded a song — pull fresh state
-			// including all side-effects, which could have been altered.
+			// The authoritative engine loaded a song — a new document.
+			// Reset the undo history here (its commands reference the
+			// previous song); re-syncs of the same document must keep it
+			// (ADR 0026 point 15).
+			m_pUndoStack->clear();
+
+			// Pull fresh state including all side-effects, which could
+			// have been altered.
 			pullSongStateFromEngine();
 		}
 		return true;
@@ -1833,10 +1844,10 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		// change) coalesce into few pulls, and the first echo of a
 		// burst pulls immediately so single edits keep zero latency
 		// (ADR 0026 point 14). Note: the re-pull runs the mirror's
-		// setSong, whose local UpdateSong clears the undo stack —
-		// intended, since the engine-side edit is not part of the
-		// editor's undo history. The re-pull also resets the pattern
-		// selection (new-song semantics in Hydrogen::setSong) — the
+		// setSong, whose local UpdateSong(0) no longer clears the undo
+		// stack while attached — the reset is reserved for new
+		// documents (ADR 0026 point 15). The re-pull also resets the
+		// pattern selection (new-song semantics in Hydrogen::setSong) — the
 		// pull re-syncs both selections from the engine so the editor
 		// keeps its context (ADR 0026 point 13).
 		scheduleSongModifiedResync();
@@ -2083,8 +2094,18 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 	}
 	
 	if ( nValue == 0 ) {
-		// Cleanup
-		m_pUndoStack->clear();
+		// While attached to the authoritative engine, local
+		// UpdateSong(0) pushes stem from re-syncs of the same document
+		// (dirty-echo and post-save pulls via the mirror's setSong) —
+		// the undo history must survive those. New documents reset it
+		// at their origin instead: the remote load in
+		// handleRemoteEvent() and the attach in syncViaIpc() (ADR 0026
+		// point 15). Standalone — and a detached editor, which falls
+		// back to local loads — keeps the reset here: every
+		// UpdateSong(0) there is the load/set of a new song.
+		if ( ! isIpcConnected() ) {
+			m_pUndoStack->clear();
+		}
 
 		// Update GUI components
 		updateWindowTitle();

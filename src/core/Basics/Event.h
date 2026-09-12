@@ -73,7 +73,9 @@ public:
 			BbtChanged,
 			BeatCounter,
 			DrumkitIsModified,
-			/** A the current drumkit was replaced by a new one. */
+			/** The current drumkit was replaced by a new one or its
+			 * instruments were altered — e.g. by discarding layers with
+			 * missing samples during a save. */
 			DrumkitLoaded,
 			Error,
 			GridCellToggled,

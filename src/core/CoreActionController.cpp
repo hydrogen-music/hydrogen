@@ -1556,9 +1556,22 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 
 	// Update the status bar.
 	if ( !bKeepMissingSamples && bHadMissingSamples ) {
-		// Some instrument layers might have been discarded. Reload the
-		// entire drumkit.
-		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 0 );
+		// Some instrument layers have been discarded — both on disk and
+		// in the in-memory song (InstrumentComponent::saveTo). The
+		// change is confined to the instruments of the current
+		// drumkit, so it must not be signaled with UpdateSong(0) — the
+		// GUI resets the undo stack on it as if a new song had been
+		// loaded, but this is a same-document save (ADR 0026 point 15).
+		// UpdateSong(1) keeps the regular save semantics: stand-alone
+		// refreshes the window title, and in editor mode the echo
+		// re-syncs the mirror (the save is engine-only there, so the
+		// mirror did not discard itself). DrumkitLoaded then refreshes
+		// the instrument-facing widgets; it is queued after
+		// UpdateSong(1) so in editor mode the pull it triggers has
+		// already applied the discard when the widgets re-read the
+		// song.
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 	}
 	else {
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );

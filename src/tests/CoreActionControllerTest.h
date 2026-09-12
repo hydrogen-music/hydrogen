@@ -34,6 +34,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testAddOrRemoveNote );
 	CPPUNIT_TEST( testSetPanLaw );
 	CPPUNIT_TEST( testPlaybackTrack );
+	CPPUNIT_TEST( testSaveSongDiscardEvent );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -45,6 +46,13 @@ public:
 		void testAddOrRemoveNote();
 		void testSetPanLaw();
 		void testPlaybackTrack();
+
+		/** saveSong() with discarded missing samples signals
+		 * DrumkitLoaded — the change is confined to the instruments of
+		 * the current drumkit — alongside the regular UpdateSong(1),
+		 * and never UpdateSong(0), which the GUI treats as a new
+		 * document and resets the undo stack for (ADR 0026 point 15). */
+		void testSaveSongDiscardEvent();
 
 	void testSessionManagement();
 };

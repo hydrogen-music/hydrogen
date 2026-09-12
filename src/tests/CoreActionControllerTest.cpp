@@ -26,6 +26,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
@@ -33,6 +34,7 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Helpers/Filesystem.h>
@@ -373,6 +375,73 @@ void CoreActionControllerTest::testSessionManagement() {
 	if ( QFile::exists( sFilePath2 ) ) {
 		QFile::remove( sFilePath2 );
 	}
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testSaveSongDiscardEvent() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	// A song containing layers with missing samples.
+	auto pSong = Song::load(
+		H2TEST_FILE( "song/legacy/test_song_invalid_sample_path.h2song" ),
+		false, pHydrogen );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	CPPUNIT_ASSERT( pSong->hasMissingSamples() );
+
+	// Redirect to a scratch path before installing — the fixture in
+	// src/tests/data must not be overwritten by the save below.
+	const QString sScratchPath = Filesystem::tmpFilePath(
+		"save-song-discard-event-XXXX.h2song" );
+	pSong->setPath( sScratchPath );
+	CPPUNIT_ASSERT( pCAC->setSong( pSong ) );
+
+	auto pQueue = pHydrogen->getEventQueue();
+	while ( pQueue->popEvent() != nullptr ) {}
+
+	CPPUNIT_ASSERT( pCAC->saveSong( /* bKeepMissingSamples */ false ) );
+
+	// Discarding the layers only alters the instruments of the current
+	// drumkit — both on disk and in the in-memory song — so the event
+	// must be scoped accordingly. An UpdateSong(0) would masquerade as
+	// a full song replacement and make the GUI reset its undo history
+	// for a same-document save (ADR 0026 point 15).
+	bool bSawDrumkitLoaded = false;
+	bool bSawUpdateSongSaved = false;
+	bool bSawUpdateSongLoaded = false;
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+		if ( pEvent->getType() == Event::Type::DrumkitLoaded ) {
+			bSawDrumkitLoaded = true;
+		}
+		else if ( pEvent->getType() == Event::Type::UpdateSong ) {
+			if ( pEvent->getValue() == 1 ) {
+				bSawUpdateSongSaved = true;
+			}
+			else if ( pEvent->getValue() == 0 ) {
+				bSawUpdateSongLoaded = true;
+			}
+		}
+	}
+	// DrumkitLoaded refreshes the instrument-facing widgets for the
+	// discarded layers and UpdateSong(1) keeps the regular save
+	// semantics (window title stand-alone, mirror re-sync via the echo
+	// in editor mode — the save is engine-only there). UpdateSong(0)
+	// must never fire for a same-document save: the GUI resets the
+	// undo stack on it (ADR 0026 point 15).
+	CPPUNIT_ASSERT( bSawDrumkitLoaded );
+	CPPUNIT_ASSERT( bSawUpdateSongSaved );
+	CPPUNIT_ASSERT( ! bSawUpdateSongLoaded );
+
+	// The discard also mutated the in-memory song.
+	CPPUNIT_ASSERT( ! pSong->hasMissingSamples() );
+
+	if ( QFile::exists( sScratchPath ) ) {
+		QFile::remove( sScratchPath );
+	}
+	pHydrogen->setSong( Song::getEmptySong( pTestHydrogen() ) );
 
 	___INFOLOG( "passed" );
 }

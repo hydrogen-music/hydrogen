@@ -308,8 +308,8 @@ closed by this amendment as well:
      and instrument after `ipcSyncSong()` — the mirror's `setSong`
      resets the pattern selection with new-song semantics, and the
      surviving engine-local echoes must not cost the editor its
-     editing context (the undo-stack clear stays: engine-side edits
-     are not part of the editor's undo history). The former residual —
+     editing context (the undo-stack clear that used to ride along was
+     later reserved for new documents — point 15). The former residual —
      mirror-only flips never reaching the engine, so NSM under-reported
      editor-side drumkit/pattern edits — is resolved by point 14's
      Class C routing.
@@ -369,3 +369,37 @@ closed by this amendment as well:
       state sync rides the `UpdateSong(1)` echo); and the GUI-side
       debounce is not covered by the core test harness (`HydrogenApp`
       is GUI-only) — it is review-covered instead.
+ 15. **Undo resets only on new documents.** Supersedes the undo-clear
+      behavior conceded in point 13 and motivating point 14(d): the
+      undo stack is reset exclusively when a new song is loaded or set
+      — never when the same document re-syncs.
+      `HydrogenApp::updateSongEvent(0)` keeps the reset only for
+      standalone (and a detached editor on local fallback, where every
+      `UpdateSong(0)` is a load/set); while attached via IPC the reset
+      moves to the two new-document origins: the remote
+      `UpdateSong(0)` (the engine loaded a song) in
+      `handleRemoteEvent()` and the attach in `syncViaIpc()` (on
+      re-attach the engine's song may have changed while detached —
+      the editor cannot know; a no-op on the first attach, where the
+      stack is still empty). Dirty-echo re-pulls and post-save syncs
+      keep the history. Relatedly, `CAC::saveSong()` with discarded
+      missing samples now pushes `DrumkitLoaded` alongside the regular
+      `UpdateSong(1)` — and never `UpdateSong(0)`: the discard is
+      confined to the instruments of the current drumkit (removed from
+      the in-memory song by `InstrumentComponent::saveTo`), so the
+      instrument-facing widgets refresh while the undo history
+      survives a same-document save. In editor mode the save is
+      engine-only (`IpcCoreActionController::saveSong` forwards
+      without a mirror write), so the mirror relies on the
+      `UpdateSong(1)` echo: `handleRemoteEvent` re-pulls the song
+      (undo preserved — the pull's local `UpdateSong(0)` is guarded
+      above), and the queued `DrumkitLoaded` is consumed after that
+      pull, so the widgets re-read an already-discarded mirror. The
+      saveSong event change is harness-covered
+      (`CoreActionControllerTest::testSaveSongDiscardEvent`); the
+      HydrogenApp routing is review-covered (GUI-only). Residuals: the
+      read-only advisory (`UpdateSong(2)`) still rides the setSong
+      install path, so re-syncs of a read-only song re-show the popup;
+      and engine-origin `DrumkitLoaded` from engine-side drumkit loads
+      (OSC) has no `handleRemoteEvent` case — the mirror is not
+      re-synced for those (pre-existing).
