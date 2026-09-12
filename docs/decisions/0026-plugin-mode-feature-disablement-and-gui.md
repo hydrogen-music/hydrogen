@@ -309,10 +309,63 @@ closed by this amendment as well:
      resets the pattern selection with new-song semantics, and the
      surviving engine-local echoes must not cost the editor its
      editing context (the undo-stack clear stays: engine-side edits
-     are not part of the editor's undo history). Known residual (next
-     task): the mirror-only flips — `IpcEngineAccess::setDrumkitModified()`
-     and `setPatternModified()`, and `setIsPatternEditorLocked()`
-     which bypasses `IEngineAccess` entirely — never reach the engine,
-     so NSM under-reports editor-side drumkit/pattern edits; their
-     `Hydrogen` signatures carry the trigger parameter already, the
-     IPC crossing is still missing.
+     are not part of the editor's undo history). The former residual —
+     mirror-only flips never reaching the engine, so NSM under-reported
+     editor-side drumkit/pattern edits — is resolved by point 14's
+     Class C routing.
+14. **Class C routing, echo hygiene, and re-pull debouncing.** Closes
+      the follow-ups from point 13's review. (a) *Class C routing*: the
+      drumkit/pattern modified flags and the pattern-editor lock are
+      song state the GUI writes through `IEngineAccess`; three opcodes
+      (`SetDrumkitModified`, `SetPatternModified`,
+      `SetIsPatternEditorLocked`, appended at the enum tail for wire
+      compatibility) cross them. The bridge applies them on the engine
+      `Hydrogen`-direct with `Suppress` (no echo — the editor initiated
+      and already applied the flip), `IpcEngineAccess` dual-applies
+      (forward + mirror), and `setIsPatternEditorLocked()` joins the
+      `IEngineAccess` command surface (`LocalEngineAccess` passes
+      through). The remaining GUI bypasses — `Modifier::modify()`,
+      `MainForm::onFixMidiSetup()`, and the SongEditorPanel lock
+      button — migrated from `HydrogenApp::pHydrogen()` to `pEngine()`.
+      (b) *Wrapper guards*: `Hydrogen::setDrumkitModified()` and
+      `setPatternModified()` forward every dirty flip to
+      `setSongModified()` — not just clean→dirty — so engine-local
+      instrument/note edits while already dirty still echo (the
+      editor's re-pull signal); stand-alone and the editor mirror are
+      unchanged (`setSongModified()`'s transition-only early-return
+      absorbs the redundant calls). On the headless engine under NSM,
+      unchanged flips also re-send the dirty state to the session
+      manager — idempotent (a boolean flag server-side) and one small
+      OSC send per edit, the same order as the edit traffic itself.
+      (c) *Force*: `setSongModified()`
+      honors `Event::Trigger::Force` in every process mode — bypassing
+      the transition-only early-return — matching the `Event.h`
+      contract ("queued regardless whether there are changes or not");
+      no caller uses it yet. (d) *Debounced re-pull*: engine-origin
+      `SongIsModified` echoes no longer re-pull inline per echo — an
+      OSC fader sweep would re-pull (and clear the undo stack) per
+      change. `HydrogenApp::scheduleSongModifiedResync()` pulls
+      immediately on the first echo of a burst (single edits keep zero
+      latency), restarts a 200 ms debounce on successive echoes, and
+      forces at least one pull per 1000 ms during continuous streams. A
+      full `UpdateSong` sync cancels a pending resync (it supersedes);
+      IPC connection loss drops it. (e) *Error re-anchor (deferred)*:
+      re-pulling on engine-origin `Error` events was considered and
+      dropped: no dispatched command emits `Error` events today —
+      command failures are `ERRORLOG`-only (`EngineSession` discards
+      the `dispatchCommand` result) — while the actual `Error` sources
+      are infrastructure (JACK port/activate/shutdown, driver start,
+      invalid playback track, OSC port). A re-pull on those would clear
+      the editor's undo stack and block the GUI on request timeouts
+      precisely when the engine is distressed — net-negative versus
+      the popup-only baseline. The hook lands together with the
+      upstream fix: propagate command-failure results in
+      `EngineSession` and push an `Error` event on failure; then the
+      debounced re-anchor becomes correct (the mirror may have applied
+      an edit the engine refused). Known residuals: engine-side
+      failures that only `ERRORLOG` (no `Error` event) still pass
+      unnoticed;
+      `saveSong`/`saveSongAs` stay forward-only by design (post-save
+      state sync rides the `UpdateSong(1)` echo); and the GUI-side
+      debounce is not covered by the core test harness (`HydrogenApp`
+      is GUI-only) — it is review-covered instead.

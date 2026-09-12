@@ -2066,6 +2066,139 @@ void ConnectViaIpcModeTest::testForwardedEditDoesNotEchoSongModified() {
 	___INFOLOG( "passed" );
 }
 
+// Event::Trigger::Force promises the event is queued "regardless whether
+// there are changes or not" (Event.h). setSongModified() must honor that
+// outside the headless engine too: the transition-only early-return may
+// not swallow an explicit Force (ADR 0026 point 13).
+void ConnectViaIpcModeTest::testSongModifiedForceFiresWhenUnchanged() {
+	___INFOLOG( "" );
+
+	auto* pMirror = TestHelper::makeMirror();
+	CPPUNIT_ASSERT( ! pMirror->getSongModified() );
+
+	// Clean -> dirty is a transition: Default fires.
+	pMirror->setSongModified( true );
+	CPPUNIT_ASSERT( pMirror->getSongModified() );
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	// Dirty -> dirty with Default: no event — the local GUI already
+	// knows the state.
+	pMirror->setSongModified( true );
+	bool bFound = false;
+	std::unique_ptr<Event> pQueued;
+	while ( ( pQueued = pMirror->getEventQueue()->popEvent() )
+			!= nullptr ) {
+		if ( pQueued->getType() == Event::Type::SongIsModified ) {
+			bFound = true;
+		}
+	}
+	CPPUNIT_ASSERT( ! bFound );
+
+	// Dirty -> dirty with Force: the event must be queued anyway.
+	pMirror->setSongModified( true, Event::Trigger::Force );
+	bFound = false;
+	while ( ( pQueued = pMirror->getEventQueue()->popEvent() )
+			!= nullptr ) {
+		if ( pQueued->getType() == Event::Type::SongIsModified ) {
+			bFound = true;
+		}
+	}
+	CPPUNIT_ASSERT( bFound );
+
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// The setDrumkitModified()/setPatternModified() wrappers must forward
+// their dirty flip to setSongModified() even while the song is already
+// dirty: on the headless engine the SongIsModified echo is the attached
+// editor's only signal to re-pull engine-local edits (OSC/MIDI-reachable
+// surface), and a clean->dirty-only guard would swallow every edit after
+// the first (ADR 0026 point 13).
+void ConnectViaIpcModeTest::testEngineWrapperFlipWhileDirtyEchoes() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	// Pattern::setIsModified() only sticks for file-backed patterns (a
+	// non-empty path); give pattern 0 one so its flag is observable.
+	pEngine->getSong()->getPatternList()->get( 0 )->setPath(
+		QString( "/tmp/h2-pattern-modified-test.h2pattern" ) );
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getIsModified() );
+
+	// Drain the mirror queue of connect-time noise first.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	// Make the engine's song dirty with an engine-local edit and let its
+	// echo cross, so the pumps below can only match the wrappers' own
+	// echoes.
+	pEngine->getCoreActionController()->setMasterIsMuted( true );
+	CPPUNIT_ASSERT( pEngine->getSong()->getIsModified() );
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	// A drumkit flip while already dirty: the echo must still cross. The
+	// found state is sticky in the outer scope: pumpUntil() re-invokes
+	// the condition after its loop, and a draining lambda would re-run
+	// on an already-emptied queue.
+	pEngine->setDrumkitModified( true );
+	CPPUNIT_ASSERT( pEngine->getSong()->getDrumkit()->getIsModified() );
+	bool bFound = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pQueued;
+		while ( ( pQueued = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pQueued->getType() == Event::Type::SongIsModified &&
+				 pQueued->getOrigin() == H2Core::ProcessMode::Headless ) {
+				bFound = true;
+			}
+		}
+		return bFound;
+	} ) );
+
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	// Same for a pattern flip (pattern 0 exists in the empty song).
+	pEngine->setPatternModified( true, 0 );
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getPatternList()->get( 0 )->getIsModified() );
+	bFound = false;
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		std::unique_ptr<Event> pQueued;
+		while ( ( pQueued = pMirror->getEventQueue()->popEvent() )
+				!= nullptr ) {
+			if ( pQueued->getType() == Event::Type::SongIsModified &&
+				 pQueued->getOrigin() == H2Core::ProcessMode::Headless ) {
+				bFound = true;
+			}
+		}
+		return bFound;
+	} ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
 // Errors raised while the editor is attached cross via the generic
 // event forward and reach the editor's error popup path
 // (MainForm::errorEvent) — only their origin tag distinguishes them
@@ -2602,6 +2735,212 @@ void ConnectViaIpcModeTest::testLoadPlaybackTrackForwardsToEngine() {
 	} ) );
 	CPPUNIT_ASSERT( pEngine->getSong()->getPlaybackTrackInstrument()
 					->getId() == Instrument::PlaybackTrackId );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The drumkit-modified flip is Class C song state (ADR 0026 point 13):
+// the GUI writes it through the engine-access handle — dual-apply, with
+// the engine-side apply under Suppress so no SongIsModified echo crosses
+// (the editor initiated and already applied the flip on its mirror).
+void ConnectViaIpcModeTest::testSetDrumkitModifiedForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getIsModified() );
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getDrumkit()->getIsModified() );
+
+	// Drain connect-time noise before the echo check below.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	pIpcAccess->setDrumkitModified( true );
+
+	// Immediate local reflection: the mirror's drumkit and song flags
+	// flip at once (the mirror-local apply pushes an Editor-origin
+	// SongIsModified — filtered by the origin gate in the GUI).
+	CPPUNIT_ASSERT( pMirror->getSong()->getDrumkit()->getIsModified() );
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
+
+	// The engine follows via the forwarded command.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getDrumkit()->getIsModified() &&
+			pEngine->getSong()->getIsModified();
+	} ) );
+
+	// No engine-origin SongIsModified echo may cross: the engine-side
+	// apply runs under Suppress.
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		CPPUNIT_ASSERT( ! ( pEvent->getType() ==
+								Event::Type::SongIsModified &&
+							pEvent->getOrigin() ==
+								H2Core::ProcessMode::Headless ) );
+	}
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The pattern-modified flip is Class C song state (ADR 0026 point 13):
+// dual-apply through the engine-access handle, engine-side under
+// Suppress (no SongIsModified echo — the editor already applied the
+// flip on its mirror).
+void ConnectViaIpcModeTest::testSetPatternModifiedForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	// Pattern::setIsModified() only sticks for file-backed patterns (a
+	// non-empty path); give pattern 0 one so its flag is observable. Set
+	// before connecting so the mirror's pulled copy carries the path
+	// too (the ipc-path attribute round-trips).
+	pEngine->getSong()->getPatternList()->get( 0 )->setPath(
+		QString( "/tmp/h2-pattern-modified-test.h2pattern" ) );
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	// The harness has no HydrogenApp, so no connect-time GetSong pull
+	// runs: the mirror keeps its own (path-less) empty song. Model the
+	// post-sync state — a real editor's pulled song carries the engine's
+	// ipc-path — by backing the mirror's pattern 0 with a path too.
+	pMirror->getSong()->getPatternList()->get( 0 )->setPath(
+		QString( "/tmp/h2-pattern-modified-test.h2pattern" ) );
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getIsModified() );
+	CPPUNIT_ASSERT(
+		! pEngine->getSong()->getPatternList()->get( 0 )->getIsModified() );
+
+	// Drain connect-time noise before the echo check below.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	pIpcAccess->setPatternModified( true, 0 );
+
+	// Immediate local reflection: the mirror's pattern and song flags
+	// flip at once.
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getPatternList()->get( 0 )->getIsModified() );
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
+
+	// The engine follows via the forwarded command.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getPatternList()->get( 0 )
+			->getIsModified() &&
+			pEngine->getSong()->getIsModified();
+	} ) );
+
+	// No engine-origin SongIsModified echo may cross: the engine-side
+	// apply runs under Suppress.
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		CPPUNIT_ASSERT( ! ( pEvent->getType() ==
+								Event::Type::SongIsModified &&
+							pEvent->getOrigin() ==
+								H2Core::ProcessMode::Headless ) );
+	}
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The pattern-editor lock is Class C song state (ADR 0026 point 13):
+// dual-apply through the engine-access handle, engine-side under
+// Suppress (no SongIsModified echo). The song-level flag is asserted —
+// Hydrogen::isPatternEditorLocked() additionally gates on song mode,
+// which the empty song does not satisfy.
+void ConnectViaIpcModeTest::testSetIsPatternEditorLockedForwardsToEngine() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+
+	const bool bInitial =
+		pMirror->getSong()->getIsPatternEditorLocked();
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getIsPatternEditorLocked() == bInitial );
+
+	// Drain connect-time noise before the echo check below.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	// Toggle to the opposite so the command always changes state.
+	pIpcAccess->setIsPatternEditorLocked( ! bInitial );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getIsPatternEditorLocked() == ! bInitial );
+	CPPUNIT_ASSERT( pMirror->getSong()->getIsModified() );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getIsPatternEditorLocked() == ! bInitial
+			&& pEngine->getSong()->getIsModified();
+	} ) );
+
+	// And back again.
+	pIpcAccess->setIsPatternEditorLocked( bInitial );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getIsPatternEditorLocked() == bInitial );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getIsPatternEditorLocked() == bInitial;
+	} ) );
+
+	// No engine-origin SongIsModified echo may cross: the engine-side
+	// applies run under Suppress (the PatternEditorLocked events do
+	// cross — they are the state mirror's regular feed).
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) != nullptr ) {
+		CPPUNIT_ASSERT( ! ( pEvent->getType() ==
+								Event::Type::SongIsModified &&
+							pEvent->getOrigin() ==
+								H2Core::ProcessMode::Headless ) );
+	}
 
 	pIpcAccess.reset();
 	pSession.reset();

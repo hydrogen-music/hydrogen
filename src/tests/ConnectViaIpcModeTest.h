@@ -65,6 +65,8 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEngineFlipEventCrosses );
 	CPPUNIT_TEST( testEditorFlipEchoSuppressed );
 	CPPUNIT_TEST( testForwardedEditDoesNotEchoSongModified );
+	CPPUNIT_TEST( testSongModifiedForceFiresWhenUnchanged );
+	CPPUNIT_TEST( testEngineWrapperFlipWhileDirtyEchoes );
 	CPPUNIT_TEST( testRuntimeErrorForwardsToEditor );
 	CPPUNIT_TEST( testBootErrorReplayedOnConnect );
 	CPPUNIT_TEST( testAdhocInstrumentPreviewForwardsToEngine );
@@ -74,6 +76,9 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetIsTimelineActivatedForwardsToEngine );
 	CPPUNIT_TEST( testSetPatternModeForwardsToEngine );
 	CPPUNIT_TEST( testLoadPlaybackTrackForwardsToEngine );
+	CPPUNIT_TEST( testSetDrumkitModifiedForwardsToEngine );
+	CPPUNIT_TEST( testSetPatternModifiedForwardsToEngine );
+	CPPUNIT_TEST( testSetIsPatternEditorLockedForwardsToEngine );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -114,6 +119,8 @@ public:
 	void testEngineFlipEventCrosses();
 	void testEditorFlipEchoSuppressed();
 	void testForwardedEditDoesNotEchoSongModified();
+	void testSongModifiedForceFiresWhenUnchanged();
+	void testEngineWrapperFlipWhileDirtyEchoes();
 	void testRuntimeErrorForwardsToEditor();
 	void testBootErrorReplayedOnConnect();
 	void testAdhocInstrumentPreviewForwardsToEngine();
@@ -123,6 +130,9 @@ public:
 	void testSetIsTimelineActivatedForwardsToEngine();
 	void testSetPatternModeForwardsToEngine();
 	void testLoadPlaybackTrackForwardsToEngine();
+	void testSetDrumkitModifiedForwardsToEngine();
+	void testSetPatternModifiedForwardsToEngine();
+	void testSetIsPatternEditorLockedForwardsToEngine();
 };
 
 #endif

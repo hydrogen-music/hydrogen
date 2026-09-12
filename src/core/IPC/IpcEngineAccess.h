@@ -186,8 +186,17 @@ class IpcEngineAccess : public IEngineAccess,
 	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override;
 	void sequencerPlay() override;
 	void sequencerStop() override;
-	void setDrumkitModified( bool bIsModified ) override {
-		m_pMirror->setDrumkitModified( bIsModified ); }
+	/** Class C song state (ADR 0026 point 13): the drumkit-modified
+	 * flip is dual-apply — immediate local reflection plus the
+	 * forwarded command; the engine-side apply runs under Suppress so
+	 * no SongIsModified echo crosses (the editor initiated and already
+	 * applied the flip on its mirror). */
+	void setDrumkitModified( bool bIsModified ) override;
+	/** Class C song state (ADR 0026 point 13): dual-apply like
+	 * setDrumkitModified(). The PatternEditorLocked event the engine
+	 * pushes crosses and re-applies the same value on the mirror
+	 * (idempotent). */
+	void setIsPatternEditorLocked( bool bLocked ) override;
 	/** Song state the GUI reads on the mirror: forwarded, plus a local
 	 * apply for immediate reflection (ADR 0026 point 12). */
 	void setIsTimelineActivated( bool bEnabled ) override;
@@ -197,8 +206,9 @@ class IpcEngineAccess : public IEngineAccess,
 	 * on its mirror, so no SongIsModified echo crosses (ADR 0026 point
 	 * 13). */
 	void setPatternMode( const Song::PatternMode& mode ) override;
-	void setPatternModified( bool bIsModified, int nIndex ) override {
-		m_pMirror->setPatternModified( bIsModified, nIndex ); }
+	/** Class C song state (ADR 0026 point 13): dual-apply like
+	 * setDrumkitModified(). */
+	void setPatternModified( bool bIsModified, int nIndex ) override;
 	/** Instrument selection is engine-relevant — the headless engine's
 	 * MIDI-to-selected-instrument routing follows it — so the change is
 	 * forwarded over IPC and applied to the mirror. The engine's echo event

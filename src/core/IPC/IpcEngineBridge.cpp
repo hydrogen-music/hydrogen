@@ -185,6 +185,33 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return true;
 		}
 		return false;
+	case IpcOpcode::SetDrumkitModified:
+		if ( args.size() >= 1 ) {
+			// Suppress: the editor already applied the flip on its
+			// mirror — an engine-origin SongIsModified echo would only
+			// trigger a redundant full song re-pull (ADR 0026 point 13).
+			pHydrogen->setDrumkitModified(
+				args[0].toBool(), Event::Trigger::Suppress );
+			return true;
+		}
+		return false;
+	case IpcOpcode::SetPatternModified:
+		if ( args.size() >= 2 ) {
+			// Suppress: like SetDrumkitModified above.
+			pHydrogen->setPatternModified(
+				args[0].toBool(), args[1].toInt(),
+				Event::Trigger::Suppress );
+			return true;
+		}
+		return false;
+	case IpcOpcode::SetIsPatternEditorLocked:
+		if ( args.size() >= 1 ) {
+			// Suppress: like SetDrumkitModified above.
+			pHydrogen->setIsPatternEditorLocked(
+				args[0].toBool(), Event::Trigger::Suppress );
+			return true;
+		}
+		return false;
 	case IpcOpcode::SetStripVolume:
 		if ( args.size() >= 3 ) {
 			return pController->setStripVolume(

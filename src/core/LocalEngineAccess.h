@@ -118,6 +118,8 @@ public:
 		m_pHydrogen->sequencerStop(); }
 	void setDrumkitModified( bool bIsModified ) override {
 		m_pHydrogen->setDrumkitModified( bIsModified ); }
+	void setIsPatternEditorLocked( bool bLocked ) override {
+		m_pHydrogen->setIsPatternEditorLocked( bLocked ); }
 	void setIsTimelineActivated( bool bEnabled ) override {
 		m_pHydrogen->setIsTimelineActivated( bEnabled ); }
 	void setPatternMode( const Song::PatternMode& mode ) override {

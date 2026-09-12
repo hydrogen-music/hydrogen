@@ -314,6 +314,19 @@ enum class IpcOpcode : quint16 {
 	LoadPlaybackTrack,        ///< command: args = [QString fileName]
 	                          ///< (editor→engine)
 
+	// ── Class C song-state commands (editor → engine, ADR 0026 point 13) ──
+	// The drumkit/pattern modified flags and the pattern-editor lock are
+	// song state the GUI writes through its engine-access handle:
+	// dual-apply (mirror + forward), with the engine-side apply under
+	// Suppress so no SongIsModified echo crosses. Appended at the enum
+	// tail for the same wire-compatibility reason.
+	SetDrumkitModified,       ///< command: args = [bool isModified]
+	                          ///< (editor→engine)
+	SetPatternModified,       ///< command: args = [bool isModified,
+	                          ///< int patternIndex] (editor→engine)
+	SetIsPatternEditorLocked, ///< command: args = [bool isLocked]
+	                          ///< (editor→engine)
+
 	OpcodeCount
 };
 /**

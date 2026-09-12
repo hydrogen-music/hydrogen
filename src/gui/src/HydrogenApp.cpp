@@ -128,6 +128,14 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
 	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()),
 			 this, SLOT(propagatePreferences()) );
 
+	// Debounce for engine-origin SongIsModified echoes: coalesce bursts
+	// of dirty flips (e.g. an OSC fader sweep) into few full re-pulls
+	// (ADR 0026 point 14).
+	m_pSongModifiedResyncTimer = new QTimer( this );
+	m_pSongModifiedResyncTimer->setSingleShot( true );
+	connect( m_pSongModifiedResyncTimer, SIGNAL( timeout() ),
+			 this, SLOT( onSongModifiedResyncTimeout() ) );
+
 	m_pCommonStrings = std::make_shared<CommonStrings>();
 
 	updateWindowTitle();
@@ -676,6 +684,12 @@ void HydrogenApp::refreshCachedMidiDriverInfo() {
 }
 
 void HydrogenApp::onIpcConnectionLost() {
+	// A pending debounced resync would block on the dead channel — drop
+	// it; the next engine-origin echo after a reconnect starts a fresh
+	// burst.
+	m_pSongModifiedResyncTimer->stop();
+	m_songModifiedResyncCapTimer.invalidate();
+
 	if ( m_bIpcDisconnectExpected ) {
 		return;
 	}
@@ -1785,6 +1799,10 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 	}
 
 	case Event::Type::UpdateSong: {
+		// A full song sync supersedes any pending debounced dirty-resync.
+		m_pSongModifiedResyncTimer->stop();
+		m_songModifiedResyncCapTimer.invalidate();
+
 		if ( pEvent->getValue() == 2 ) {
 			// With this additional event the core indicates that the song is
 			// read-only. No need to load anew or enqueue it locally.
@@ -1798,13 +1816,7 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		else {
 			// The authoritative engine loaded a song — pull fresh state
 			// including all side-effects, which could have been altered.
-			ipcSyncSong( pChannel );
-			ipcSyncSelectedPattern( pChannel );
-			ipcSyncSelectedInstrument( pChannel );
-			auto pStateMirror = m_pEditorSession->getStateMirror();
-			if ( pStateMirror != nullptr ) {
-				pStateMirror->forceTransportSync();
-			}
+			pullSongStateFromEngine();
 		}
 		return true;
 	}
@@ -1816,24 +1828,18 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		// (ADR 0026 point 10). Editor-origin flips do not take this
 		// path: the bridge applies their command with Trigger::Suppress
 		// (no echo), and the mirror-local apply pushes an Editor-origin
-		// event which the origin gate above filters out. Note: the
-		// re-pull runs the mirror's setSong, whose local UpdateSong
-		// clears the undo stack — intended, since the engine-side edit
-		// is not part of the editor's undo history. The re-pull also
-		// resets the pattern selection (new-song semantics in
-		// Hydrogen::setSong) — re-sync both selections from the engine
-		// so the editor keeps its context (ADR 0026 point 13).
-		ipcSyncSong( pChannel );
-		ipcSyncSelectedPattern( pChannel );
-		ipcSyncSelectedInstrument( pChannel );
-		// Parity with the UpdateSong(load) branch: engine-local edits
-		// can be tempo-affecting (setBpm) — re-sync the mirror's
-		// transport instead of waiting for the periodic telemetry
-		// resync.
-		auto pStateMirror = m_pEditorSession->getStateMirror();
-		if ( pStateMirror != nullptr ) {
-			pStateMirror->forceTransportSync();
-		}
+		// event which the origin gate above filters out. The re-pull is
+		// debounced: bursts of echoes (an OSC fader sweep fires one per
+		// change) coalesce into few pulls, and the first echo of a
+		// burst pulls immediately so single edits keep zero latency
+		// (ADR 0026 point 14). Note: the re-pull runs the mirror's
+		// setSong, whose local UpdateSong clears the undo stack —
+		// intended, since the engine-side edit is not part of the
+		// editor's undo history. The re-pull also resets the pattern
+		// selection (new-song semantics in Hydrogen::setSong) — the
+		// pull re-syncs both selections from the engine so the editor
+		// keeps its context (ADR 0026 point 13).
+		scheduleSongModifiedResync();
 		return true;
 	}
 
@@ -1869,6 +1875,54 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 	}
 }
 
+
+void HydrogenApp::scheduleSongModifiedResync() {
+	// First echo of a burst (or cap reached during a continuous stream):
+	// pull now — single edits keep zero-latency re-pulls and sweeps are
+	// still re-anchored at least once per cap period.
+	if ( ! m_songModifiedResyncCapTimer.isValid() ||
+		 m_songModifiedResyncCapTimer.elapsed() >=
+			 nSongModifiedResyncCapMs ) {
+		m_pSongModifiedResyncTimer->stop();
+		m_songModifiedResyncCapTimer.restart();
+		pullSongStateFromEngine();
+		return;
+	}
+
+	// Burst in progress: restart the debounce — the pull happens once
+	// the stream stays quiet for the debounce period.
+	m_pSongModifiedResyncTimer->start( nSongModifiedResyncDebounceMs );
+}
+
+void HydrogenApp::onSongModifiedResyncTimeout() {
+	// The burst ended: no echo arrived for a whole debounce period.
+	m_songModifiedResyncCapTimer.invalidate();
+	pullSongStateFromEngine();
+}
+
+void HydrogenApp::pullSongStateFromEngine() {
+	if ( ! m_bConnectViaIpcMode || m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+
+	ipcSyncSong( pChannel );
+	// The re-pull resets the pattern selection (new-song semantics in
+	// Hydrogen::setSong) — re-sync both selections from the engine so
+	// the editor keeps its context (ADR 0026 point 13).
+	ipcSyncSelectedPattern( pChannel );
+	ipcSyncSelectedInstrument( pChannel );
+	// Engine-local edits can be tempo-affecting (setBpm) — re-sync the
+	// mirror's transport instead of waiting for the periodic telemetry
+	// resync.
+	auto pStateMirror = m_pEditorSession->getStateMirror();
+	if ( pStateMirror != nullptr ) {
+		pStateMirror->forceTransportSync();
+	}
+}
 
 void HydrogenApp::addEventListener( EventListener* pListener ) {
 	if ( pListener != nullptr ) {

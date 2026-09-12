@@ -146,6 +146,7 @@ public:
 	virtual void sequencerPlay() = 0;
 	virtual void sequencerStop() = 0;
 	virtual void setDrumkitModified( bool bIsModified ) = 0;
+	virtual void setIsPatternEditorLocked( bool bLocked ) = 0;
 	virtual void setIsTimelineActivated( bool bEnabled ) = 0;
 	virtual void setPatternMode( const Song::PatternMode& mode ) = 0;
 	virtual void setPatternModified( bool bIsModified, int nIndex ) = 0;

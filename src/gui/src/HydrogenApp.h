@@ -46,6 +46,17 @@
  * This causes the GUI to update at 20 frames per second.*/
 constexpr uint16_t QUEUE_TIMER_PERIOD = 50;
 
+/** Debounce for the SongIsModified re-pull in editor mode: an
+ * engine-origin dirty echo re-pulls the song after this much quiet time,
+ * so bursts of echoes (e.g. an OSC fader sweep) coalesce into few full
+ * re-pulls instead of one per echo (ADR 0026 point 14). */
+constexpr int nSongModifiedResyncDebounceMs = 200;
+/** Cap for the debounce: during a continuous stream of echoes (quiet
+ * periods shorter than the debounce) the re-pull fires at least once per
+ * this period, so the mirror never lags the engine by more than this
+ * (ADR 0026 point 14). */
+constexpr int nSongModifiedResyncCapMs = 1000;
+
 
 namespace H2Core
 {
@@ -376,6 +387,9 @@ class HydrogenApp : public QObject,
    private slots:
 	void propagatePreferences();
 	void onIpcConnectionLost();
+	/** Fires the debounced SongIsModified re-pull (see
+	 * #scheduleSongModifiedResync). */
+	void onSongModifiedResyncTimeout();
 
 	friend class MainForm;
 
@@ -416,6 +430,24 @@ class HydrogenApp : public QObject,
 	/** Connects the current session's channel #disconnected signal to
 	 * #onIpcConnectionLost. Call after every (re)connect. */
 	void wireIpcDisconnectSignal();
+
+	/** Debounce for engine-origin SongIsModified echoes (editor mode):
+	 * the first echo of a burst re-pulls immediately; successive echoes
+	 * restart a #nSongModifiedResyncDebounceMs timer, and a burst longer
+	 * than #nSongModifiedResyncCapMs re-pulls at least once per cap
+	 * period (ADR 0026 point 14). */
+	void scheduleSongModifiedResync();
+	/** The actual re-pull: song + both selections + transport from the
+	 * authoritative engine. Shared by the debounced resync and the
+	 * UpdateSong(load) branch of handleRemoteEvent(). */
+	void pullSongStateFromEngine();
+
+	/** Debounce timer for #scheduleSongModifiedResync(); single-shot.
+	 * Created in the constructor; never null afterwards. */
+	QTimer* m_pSongModifiedResyncTimer = nullptr;
+	/** Anchors the current echo burst for the cap in
+	 * #scheduleSongModifiedResync(); invalid between bursts. */
+	QElapsedTimer m_songModifiedResyncCapTimer;
 
 	/** Used for accessibility reasons to show scroll bars in case Hydrogen
 	 * has to be shrunk below its minimum size - magnified using the Qt

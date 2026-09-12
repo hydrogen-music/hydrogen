@@ -446,9 +446,9 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	);
 	m_pPatternEditorLockedButton->setObjectName( "PatternEditorLockedButton" );
 	connect( m_pPatternEditorLockedButton, &QToolButton::clicked, [=](){
-		auto pHydrogen = HydrogenApp::pHydrogen();
-		pHydrogen->setIsPatternEditorLocked(
-			! pHydrogen->isPatternEditorLocked() );
+		auto pEngine = HydrogenApp::pEngine();
+		pEngine->setIsPatternEditorLocked(
+			! pEngine->isPatternEditorLocked() );
 	});
 	m_pSongEditorToolBar->addWidget( m_pPatternEditorLockedButton );
 

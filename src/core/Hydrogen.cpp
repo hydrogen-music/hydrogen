@@ -1744,7 +1744,10 @@ void Hydrogen::setDrumkitModified( bool bIsModified, Event::Trigger trigger )
 		return;
 	}
 
-	if ( bIsModified && ! m_pSong->getIsModified() ) {
+	// Forward every dirty flip, not just clean -> dirty: on the headless
+	// engine the SongIsModified echo is the attached editor's only
+	// signal to re-pull engine-local edits (ADR 0026 point 13).
+	if ( bIsModified ) {
 		setSongModified( true, trigger );
 	}
 
@@ -1769,7 +1772,10 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex,
 		return;
 	}
 
-	if ( bIsModified && ! m_pSong->getIsModified() ) {
+	// Forward every dirty flip, not just clean -> dirty: on the headless
+	// engine the SongIsModified echo is the attached editor's only
+	// signal to re-pull engine-local edits (ADR 0026 point 13).
+	if ( bIsModified ) {
 		setSongModified( true, trigger );
 	}
 
@@ -1796,10 +1802,13 @@ void Hydrogen::setSongModified( bool bIsModified, Event::Trigger trigger )
 	// calls while the song is already dirty would hide every engine-local
 	// edit after the first (ADR 0026 point 13). Everywhere else the
 	// transition-only behavior stands: the local (G)UI already knows the
-	// current state and re-firing would be noise.
+	// current state and re-firing would be noise. An explicit Force
+	// bypasses the transition-only rule everywhere — its contract
+	// (Event.h) is queueing regardless of a change.
 	const bool bUnchanged = m_pSong->getIsModified() == bIsModified;
-	if ( bUnchanged && ! ( m_ProcessMode == ProcessMode::Headless &&
-						   trigger != Event::Trigger::Suppress ) ) {
+	if ( bUnchanged && trigger != Event::Trigger::Force &&
+		 ! ( m_ProcessMode == ProcessMode::Headless &&
+			 trigger != Event::Trigger::Suppress ) ) {
 		return;
 	}
 

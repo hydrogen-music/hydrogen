@@ -90,6 +90,44 @@ void IpcEngineAccess::setSongModified( bool bIsModified )
 	m_pMirror->setSongModified( bIsModified );
 }
 
+void IpcEngineAccess::setDrumkitModified( bool bIsModified )
+{
+	// Class C song state (ADR 0026 point 13): dual-apply — the mirror
+	// reflects the flip immediately, the forwarded command applies it
+	// engine-side under Suppress (no SongIsModified echo: the editor
+	// initiated and already applied the flip).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetDrumkitModified ).arg( bIsModified ) );
+	}
+	m_pMirror->setDrumkitModified( bIsModified );
+}
+
+void IpcEngineAccess::setIsPatternEditorLocked( bool bLocked )
+{
+	// Class C song state (ADR 0026 point 13): dual-apply like
+	// setDrumkitModified(). The PatternEditorLocked event the engine
+	// pushes crosses and re-applies the same value on the mirror
+	// (idempotent).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetIsPatternEditorLocked ).arg( bLocked ) );
+	}
+	m_pMirror->setIsPatternEditorLocked( bLocked );
+}
+
+void IpcEngineAccess::setPatternModified( bool bIsModified, int nIndex )
+{
+	// Class C song state (ADR 0026 point 13): dual-apply like
+	// setDrumkitModified().
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternModified )
+			.arg( bIsModified )
+			.arg( nIndex ) );
+	}
+	m_pMirror->setPatternModified( bIsModified, nIndex );
+}
+
 bool IpcEngineAccess::handleBeatCounter( TimePoint start ) {
 	// Taps are engine-authoritative: the mirror's handler is a designed
 	// no-op in editor mode (getTempoSource() == Tempo::Remote). Engine

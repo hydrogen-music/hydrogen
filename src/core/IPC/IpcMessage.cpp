@@ -554,6 +554,15 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::LoadPlaybackTrack:
 		sOpcode = "LOAD_PLAYBACK_TRACK";
 		break;
+	case IpcOpcode::SetDrumkitModified:
+		sOpcode = "SET_DRUMKIT_MODIFIED";
+		break;
+	case IpcOpcode::SetPatternModified:
+		sOpcode = "SET_PATTERN_MODIFIED";
+		break;
+	case IpcOpcode::SetIsPatternEditorLocked:
+		sOpcode = "SET_IS_PATTERN_EDITOR_LOCKED";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

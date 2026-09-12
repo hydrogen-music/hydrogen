@@ -2486,11 +2486,11 @@ void MainForm::checkNecessaryDirectories()
 void MainForm::onFixMidiSetup()
 {
 	INFOLOG( "Fixing MIDI setup" );
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	auto pSong = pHydrogen->getSong();
+	auto pEngine = HydrogenApp::pEngine();
+	auto pSong = pEngine->getSong();
 	if ( pSong != nullptr ) {
 		pSong->getDrumkit()->getInstruments()->setDefaultMidiOutNotes();
-		pHydrogen->setDrumkitModified( true );
+		pEngine->setDrumkitModified( true );
 
 		m_pMidiSetupInfoBar->hide();
 	}
