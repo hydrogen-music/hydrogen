@@ -445,3 +445,74 @@ void CoreActionControllerTest::testSaveSongDiscardEvent() {
 
 	___INFOLOG( "passed" );
 }
+
+void CoreActionControllerTest::testSetSongPatternSelectionPreservation() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	// Install a song and move the selection off the first pattern.
+	CPPUNIT_ASSERT( pCAC->setSong( Song::getEmptySong( pHydrogen ) ) );
+	pHydrogen->setSelectedPatternNumber( 3, true, Event::Trigger::Suppress );
+	CPPUNIT_ASSERT_EQUAL( 3, pHydrogen->getSelectedPatternNumber() );
+
+	// A re-install of the same document — modeled with the actual
+	// mirror-pull mechanism (the IPC XML round-trip preserves both path
+	// and uuid) — must keep the selection.
+	auto pSongPulled = Song::fromXmlBuffer(
+		pHydrogen->getSong()->toXmlBuffer(
+			Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, false ),
+		Xml::Flag::Ipc, true, pHydrogen );
+	CPPUNIT_ASSERT( pSongPulled != nullptr );
+	CPPUNIT_ASSERT( pCAC->setSong( pSongPulled ) );
+	CPPUNIT_ASSERT_EQUAL( 3, pHydrogen->getSelectedPatternNumber() );
+
+	// A save-as is the same document at a new location — the engine's
+	// saveSongAs() only setPath()s the existing object before the pull —
+	// so the re-install must keep the selection too (standalone save-as
+	// never re-installs the song at all).
+	auto pSongSaveAs = Song::fromXmlBuffer(
+		pHydrogen->getSong()->toXmlBuffer(
+			Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, false ),
+		Xml::Flag::Ipc, true, pHydrogen );
+	CPPUNIT_ASSERT( pSongSaveAs != nullptr );
+	pSongSaveAs->setPath( Filesystem::tmpFilePath( "save-as.h2song" ) );
+	CPPUNIT_ASSERT( pCAC->setSong( pSongSaveAs ) );
+	CPPUNIT_ASSERT_EQUAL( 3, pHydrogen->getSelectedPatternNumber() );
+
+	// A brand-new document must still reset: two fresh empty songs
+	// share the sentinel path but never the instance-minted uuid (File
+	// > New over an unsaved song).
+	CPPUNIT_ASSERT( pCAC->setSong( Song::getEmptySong( pHydrogen ) ) );
+	CPPUNIT_ASSERT_EQUAL( 0, pHydrogen->getSelectedPatternNumber() );
+
+	// Installing a different document resets to the beginning.
+	auto pSongOther = Song::load(
+		QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ), false,
+		pHydrogen );
+	CPPUNIT_ASSERT( pSongOther != nullptr );
+	CPPUNIT_ASSERT( pCAC->setSong( pSongOther ) );
+	CPPUNIT_ASSERT_EQUAL( 0, pHydrogen->getSelectedPatternNumber() );
+
+	// A same-document re-install with fewer patterns must clamp the
+	// preserved selection into the new list's range (engine-side
+	// deletions before an editor re-pull) — mirroring the instrument
+	// clamp in Hydrogen::setSong.
+	CPPUNIT_ASSERT( pCAC->setSong( Song::getEmptySong( pHydrogen ) ) );
+	pHydrogen->setSelectedPatternNumber( 8, true, Event::Trigger::Suppress );
+	auto pSongShrunk = Song::fromXmlBuffer(
+		pHydrogen->getSong()->toXmlBuffer(
+			Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, false ),
+		Xml::Flag::Ipc, true, pHydrogen );
+	CPPUNIT_ASSERT( pSongShrunk != nullptr );
+	while ( pSongShrunk->getPatternList()->size() > 3 ) {
+		pSongShrunk->getPatternList()->del(
+			pSongShrunk->getPatternList()->size() - 1 );
+	}
+	CPPUNIT_ASSERT( pCAC->setSong( pSongShrunk ) );
+	CPPUNIT_ASSERT_EQUAL( 2, pHydrogen->getSelectedPatternNumber() );
+
+	pHydrogen->setSong( Song::getEmptySong( pTestHydrogen() ) );
+
+	___INFOLOG( "passed" );
+}

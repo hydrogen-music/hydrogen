@@ -35,6 +35,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetPanLaw );
 	CPPUNIT_TEST( testPlaybackTrack );
 	CPPUNIT_TEST( testSaveSongDiscardEvent );
+	CPPUNIT_TEST( testSetSongPatternSelectionPreservation );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -53,6 +54,12 @@ public:
 		 * and never UpdateSong(0), which the GUI treats as a new
 		 * document and resets the undo stack for (ADR 0026 point 15). */
 		void testSaveSongDiscardEvent();
+
+		/** Hydrogen::setSong() only resets the selected pattern number
+		 * when the document changes (path comparison) — a same-path
+		 * re-install (the editor mirror applying a pulled copy in the
+		 * IPC split) keeps the selection (ADR 0026 point 16). */
+		void testSetSongPatternSelectionPreservation();
 
 	void testSessionManagement();
 };

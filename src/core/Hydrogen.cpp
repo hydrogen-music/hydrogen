@@ -343,8 +343,20 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	// Move to the beginning.
-	setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
+	// Move to the beginning — but only when the document actually
+	// changes. Identity is the song's uuid, not its path: a re-install
+	// of the same document (e.g. the editor mirror applying a pulled
+	// copy in the IPC split, whose XML round-trip preserves the uuid)
+	// must keep the user's pattern context — including after a save-as,
+	// which only setPath()s the same object (standalone save-as never
+	// re-installs the song at all). Uuids are instance-minted, so a
+	// fresh load or File > New over the sentinel path still resets.
+	// Mirrors the identity check applied to the drumkit samples below
+	// (ADR 0026 point 16).
+	if ( pSong == nullptr || pCurrentSong == nullptr ||
+		 pCurrentSong->getUuid() != pSong->getUuid() ) {
+		setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
+	}
 
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
@@ -391,6 +403,18 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		 m_pSong->getDrumkit()->getInstruments()->size() ) {
 		m_nSelectedInstrumentNumber =
 			std::max( m_pSong->getDrumkit()->getInstruments()->size() - 1, 0 );
+	}
+
+	// A preserved pattern selection must stay within the new pattern
+	// list — the same document may have fewer patterns than before
+	// (e.g. engine-side deletions before an editor re-pull). Mirrors the
+	// instrument clamp above; -1 ("no selection") passes through. An
+	// empty list degrades to the reset-to-0 baseline (unreachable via
+	// deletePattern, which keeps at least one pattern).
+	if ( pSong != nullptr &&
+		 m_nSelectedPatternNumber >= pSong->getPatternList()->size() ) {
+		m_nSelectedPatternNumber =
+			std::max( pSong->getPatternList()->size() - 1, 0 );
 	}
 
 	// Update the audio engine to work with the new song.

@@ -1846,10 +1846,11 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		// (ADR 0026 point 14). Note: the re-pull runs the mirror's
 		// setSong, whose local UpdateSong(0) no longer clears the undo
 		// stack while attached — the reset is reserved for new
-		// documents (ADR 0026 point 15). The re-pull also resets the
-		// pattern selection (new-song semantics in Hydrogen::setSong) — the
-		// pull re-syncs both selections from the engine so the editor
-		// keeps its context (ADR 0026 point 13).
+		// documents (ADR 0026 point 15) — and no longer resets the
+		// pattern selection either (Hydrogen::setSong only resets on
+		// document change — ADR 0026 point 16). The pull still re-syncs
+		// both selections from the engine so engine-origin selection
+		// changes surface (ADR 0026 point 13).
 		scheduleSongModifiedResync();
 		return true;
 	}
@@ -1921,9 +1922,9 @@ void HydrogenApp::pullSongStateFromEngine() {
 	}
 
 	ipcSyncSong( pChannel );
-	// The re-pull resets the pattern selection (new-song semantics in
-	// Hydrogen::setSong) — re-sync both selections from the engine so
-	// the editor keeps its context (ADR 0026 point 13).
+	// The re-pull preserves the selection for same-document installs
+	// (ADR 0026 point 16) — the explicit re-sync below surfaces
+	// engine-origin selection changes (ADR 0026 point 13).
 	ipcSyncSelectedPattern( pChannel );
 	ipcSyncSelectedInstrument( pChannel );
 	// Engine-local edits can be tempo-affecting (setBpm) — re-sync the

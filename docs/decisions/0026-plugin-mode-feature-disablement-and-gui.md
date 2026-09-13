@@ -306,10 +306,12 @@ closed by this amendment as well:
      loop; (b) the `SongIsModified` re-pull branch in
      `HydrogenApp::handleRemoteEvent` re-syncs the selected pattern
      and instrument after `ipcSyncSong()` — the mirror's `setSong`
-     resets the pattern selection with new-song semantics, and the
-     surviving engine-local echoes must not cost the editor its
-     editing context (the undo-stack clear that used to ride along was
-     later reserved for new documents — point 15). The former residual —
+      used to reset the pattern selection with new-song semantics, and
+      the surviving engine-local echoes must not cost the editor its
+      editing context (the selection reset was later scoped to
+      document changes — point 16; the undo-stack clear that used to
+      ride along was reserved for new documents — point 15). The
+      former residual —
      mirror-only flips never reaching the engine, so NSM under-reported
      editor-side drumkit/pattern edits — is resolved by point 14's
      Class C routing.
@@ -403,3 +405,36 @@ closed by this amendment as well:
       and engine-origin `DrumkitLoaded` from engine-side drumkit loads
       (OSC) has no `handleRemoteEvent` case — the mirror is not
       re-synced for those (pre-existing).
+ 16. **Pattern selection survives same-document re-installs.**
+      `Hydrogen::setSong()` reset the selected pattern number to zero
+      on every install — originally a fresh-start semantic for opening
+      another song (`setSong` was the song-switch operation), but in
+      the IPC split the editor mirror re-installs the same document on
+      every pull, so the reset leaked into same-document flows — most
+      visibly every save in editor mode (the `UpdateSong(1)` branch
+      syncs the song without a selection re-sync). The reset is now
+      conditioned on the document actually changing: the incoming
+      song's uuid must match the current one's (or either song be
+      absent). Identity is the document, not its location: a save-as
+      only setPath()s the same object, so the mirror re-pull after a
+      save-as keeps the selection — matching standalone, where save-as
+      never re-installs the song. Uuids are instance-minted and
+      round-trip through the IPC XML (`ipc-uuid`), so genuine mirror
+      re-pulls compare equal while a fresh load, File > New (all
+      unsaved empty songs share the sentinel path), or an NSM
+      session-open (new object) still resets. This mirrors the
+      identity check the same function already applies to the drumkit
+      samples (drumkit UUID). The selection re-syncs in
+      `pullSongStateFromEngine()` remain load-bearing: the engine is
+      authoritative, and engine-origin selection changes (OSC pattern
+      switches) must still surface in the editor. A preserved selection
+      is clamped into the new pattern list's range — mirroring the
+      instrument-selection clamp in the same function — so a
+      same-document re-install with fewer patterns (engine-side
+      deletions before a re-pull) cannot leave an out-of-range number
+      for the unclamped consumers (e.g. the audio engine's pattern
+      lookup). Residuals: preservation is scoped to IPC round-trip re-installs
+      — a fresh `Song::load()` mints a new uuid (the file format does
+      not store one), so File > Open of the same file still resets
+      (fresh-start semantics preserved). Harness-covered
+      (`CoreActionControllerTest::testSetSongPatternSelectionPreservation`).
