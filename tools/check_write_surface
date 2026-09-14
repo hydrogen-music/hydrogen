@@ -125,16 +125,6 @@ allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setProbability( f
 allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( nullptr, pComponent );'
 allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );'
 
-# --- Preview / audition: play an editor-local or not-yet-in-song object through
-#     the sampler (layer audition; sample / file / library preview). These are
-#     transient render commands, not song-graph edits; routing them across the
-#     editor↔engine split is the editor-mode preview design (ADR 0016), tracked
-#     separately from the write-surface sweep. ---------------------------------
-allow "$GUI_DIR/SampleEditor/SampleEditor.cpp" 'pAudioEngine->getSampler()->previewInstrument('
-allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'HydrogenApp::pEngine()->getAudioEngine()->getSampler()->noteOn('
-allow "$GUI_DIR/Rack/SoundLibrary/SoundLibraryTree.cpp" 'pHydrogen->getAudioEngine()->getSampler()->previewInstrument('
-allow "$GUI_DIR/AudioFileBrowser/AudioFileBrowser.cpp" 'pAudioEngine->getSampler()->previewInstrument('
-
 violations=0
 while IFS= read -r line; do
 	[ -z "$line" ] && continue
