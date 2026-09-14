@@ -137,14 +137,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation type="unfinished"></translation>
     </message>

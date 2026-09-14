@@ -97,10 +97,6 @@
         <translation>Hang meghajtók állapota</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>Hangjegyek lejátszása</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Feldolgozási idő</translation>
     </message>
@@ -138,10 +134,6 @@
     </message>
     <message>
         <source>Connected to</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sampler</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

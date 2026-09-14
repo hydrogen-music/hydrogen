@@ -89,10 +89,6 @@
         <translation>###</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>Свирање нота</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Време процеса</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>Frames</source>
         <translation>Оквири</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Семплер</translation>
     </message>
     <message>
         <source>Sequencer</source>

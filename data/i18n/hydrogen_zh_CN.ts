@@ -89,14 +89,6 @@
         <translation>###</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>播放音符</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>采样器</translation>
-    </message>
-    <message>
         <source>Selected instrument</source>
         <translation>所选乐器</translation>
     </message>

@@ -85,10 +85,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Playing notes</source>
-        <translation>Polifonia</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Vrijeme izvođenja</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>Ticks</source>
         <translation>Udarci</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Sampler</translation>
     </message>
     <message>
         <source>Sequencer</source>

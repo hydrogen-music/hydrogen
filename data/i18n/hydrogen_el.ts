@@ -85,10 +85,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Playing notes</source>
-        <translation>Αναπαραγωγή μουσικών στιγμάτων</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Χρόνος επεξεργασίας</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>Ticks</source>
         <translation>Τίκια</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Δειγματιστής</translation>
     </message>
     <message>
         <source>Sequencer</source>

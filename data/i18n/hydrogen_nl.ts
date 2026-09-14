@@ -93,10 +93,6 @@
         <translation>###</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>Gespeelde noten</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Proces tijd</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>Connected to</source>
         <translation>Verbonden met</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Sampler</translation>
     </message>
     <message>
         <source>Sequencer</source>

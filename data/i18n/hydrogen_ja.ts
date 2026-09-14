@@ -86,10 +86,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Playing notes</source>
-        <translation>ノートの再生</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>経過時間</translation>
     </message>
@@ -140,10 +136,6 @@
     <message>
         <source>Connected to</source>
         <translation>接続</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>サンプラー</translation>
     </message>
     <message>
         <source>Sequencer</source>

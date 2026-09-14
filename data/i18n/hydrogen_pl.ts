@@ -129,20 +129,12 @@
         <translation>Wybrany układ rytmiczny</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>Odtwarzanie nut</translation>
-    </message>
-    <message>
         <source>Patterns</source>
         <translation>Układy</translation>
     </message>
     <message>
         <source>Song position</source>
         <translation>Pozycja utworu</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Sampler</translation>
     </message>
     <message>
         <source>Sequencer</source>

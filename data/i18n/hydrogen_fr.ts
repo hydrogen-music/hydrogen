@@ -85,10 +85,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Playing notes</source>
-        <translation>En lecture</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Temps de traitement</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>Frames</source>
         <translation>Trames</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Échantillonneur</translation>
     </message>
     <message>
         <source>Sequencer</source>

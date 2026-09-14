@@ -85,10 +85,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Playing notes</source>
-        <translation>Воспроизведение нот</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Время обработки</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>Connected to</source>
         <translation>Соединён с</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Сэмплер</translation>
     </message>
     <message>
         <source>Sequencer</source>

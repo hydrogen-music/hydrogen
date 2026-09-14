@@ -197,7 +197,7 @@ void AudioEngineInfoForm::updateInfo()
 		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
 	m_pMidiDeviceName->setText( pPref->m_sMidiPortName );
 
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if (nSelectedPatternNumber == -1) {
 		selectedPatLbl->setText( "N/A");
 	}
@@ -205,7 +205,7 @@ void AudioEngineInfoForm::updateInfo()
 		selectedPatLbl->setText( QString("%1").arg(nSelectedPatternNumber) );
 	}
 
-	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+	int nSelectedInstrumentNumber = pEngine->getSelectedInstrumentNumber();
 	if (nSelectedInstrumentNumber == -1) {
 		m_pSelectedInstrLbl->setText( "N/A" );
 	}
@@ -219,12 +219,6 @@ void AudioEngineInfoForm::updateInfo()
 	} else {
 		currentPatternLbl->setText( "N/A" );
 	}
-
-	// SAMPLER
-	Sampler *pSampler = pAudioEngine->getSampler();
-	sampler_playingNotesLbl->setText( QString( "%1 / %2" )
-									  .arg( pSampler->getPlayingNotesNumber() )
-									  .arg( pPref->m_nMaxNotes ) );
 }
 
 

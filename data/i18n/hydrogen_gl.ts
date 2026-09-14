@@ -85,10 +85,6 @@
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
-        <source>Playing notes</source>
-        <translation>Polifonía</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Tempo de procesado</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>Frames</source>
         <translation>Marcos</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Mostreador</translation>
     </message>
     <message>
         <source>Sequencer</source>

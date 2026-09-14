@@ -129,20 +129,12 @@
         <translation>Vybraný patern</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>Hrané noty</translation>
-    </message>
-    <message>
         <source>Patterns</source>
         <translation>Paterny</translation>
     </message>
     <message>
         <source>Song position</source>
         <translation>Pozice skladby</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Sampler</translation>
     </message>
     <message>
         <source>Sequencer</source>

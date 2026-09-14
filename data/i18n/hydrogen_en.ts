@@ -89,14 +89,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Selected instrument</source>
         <translation></translation>
     </message>

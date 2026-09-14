@@ -97,10 +97,6 @@
         <translation>Estado do Motor de Áudio</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>Reproduzindo notas</translation>
-    </message>
-    <message>
         <source>Process time</source>
         <translation>Tempo de processamento</translation>
     </message>
@@ -139,10 +135,6 @@
     <message>
         <source>###</source>
         <translation>###</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Sampler</translation>
     </message>
     <message>
         <source>Sequencer</source>
