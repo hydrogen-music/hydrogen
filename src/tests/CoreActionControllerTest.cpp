@@ -582,3 +582,25 @@ void CoreActionControllerTest::testSetMidiInstrumentMap() {
 
 	___INFOLOG( "passed" );
 }
+
+void CoreActionControllerTest::testSetLastMidiEvent() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	// The pair is one logical value: both members flip together.
+	CPPUNIT_ASSERT( pCAC->setLastMidiEvent(
+		MidiEvent::Type::CC, Midi::Parameter( 74 ) ) );
+	CPPUNIT_ASSERT( pHydrogen->getLastMidiEvent() == MidiEvent::Type::CC );
+	CPPUNIT_ASSERT( pHydrogen->getLastMidiEventParameter() ==
+					Midi::Parameter( 74 ) );
+
+	// The editor's reset before opening the sense dialog.
+	CPPUNIT_ASSERT( pCAC->setLastMidiEvent(
+		MidiEvent::Type::Null, Midi::ParameterInvalid ) );
+	CPPUNIT_ASSERT( pHydrogen->getLastMidiEvent() == MidiEvent::Type::Null );
+	CPPUNIT_ASSERT( pHydrogen->getLastMidiEventParameter() ==
+					Midi::ParameterInvalid );
+
+	___INFOLOG( "passed" );
+}

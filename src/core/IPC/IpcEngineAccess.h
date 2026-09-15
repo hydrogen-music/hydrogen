@@ -167,6 +167,11 @@ class IpcEngineAccess : public IEngineAccess,
 	std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
 		getHandledMidiOutputs() const override;
 	int getOscTemporaryPort() const override;
+	/** MIDI-learn channel (ADR 0030 batch 2j): the engine's MIDI input
+	 * is the only writer, so the pair is served as a single blocking
+	 * query — one consistent (type, parameter) snapshot per poll
+	 * instead of two tearable reads. */
+	LastMidiEvent getLastMidiEvent() const override;
 
 	// --- commands: transport forwarded over IPC, view state applied locally ---
 	/** Taps are engine-authoritative: the mirror's handler is a designed

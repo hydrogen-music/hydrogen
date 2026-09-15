@@ -25,6 +25,7 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 
@@ -273,6 +274,30 @@ int IpcEngineAccess::getOscTemporaryPort() const {
 		return -1;
 	}
 	return args[0].toInt();
+}
+
+LastMidiEvent IpcEngineAccess::getLastMidiEvent() const {
+	// The mirror owns no MIDI driver (AudioEngine forces
+	// MidiDriver::None in editor mode), so the learning channel can
+	// only be served by the authoritative engine. One query returns
+	// the (type, parameter) pair atomically: the engine's MIDI input
+	// writes both members for each event, and two separate queries
+	// could tear across consecutive events.
+	IpcMessage reply;
+	if ( ! ipcRequest( m_pChannel,
+					   IpcMessage( IpcOpcode::GetLastMidiEvent ),
+					   reply ) ) {
+		WARNINGLOG( "Engine did not answer the last MIDI event query" );
+		return LastMidiEvent();
+	}
+	const auto& args = reply.getArgs();
+	if ( args.size() < 2 ) {
+		WARNINGLOG( QString( "Malformed last MIDI event reply: args [%1]" )
+						.arg( args.size() ) );
+		return LastMidiEvent();
+	}
+	return { static_cast<MidiEvent::Type>( args[0].toInt() ),
+			 static_cast<Midi::Parameter>( args[1].toInt() ) };
 }
 
 QString IpcEngineAccess::getSessionFolderPath() const {

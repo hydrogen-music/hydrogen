@@ -338,6 +338,18 @@ enum class IpcOpcode : quint16 {
 	SetIsPatternEditorLocked, ///< command: args = [bool isLocked]
 	                          ///< (editor→engine)
 
+	// ── MIDI-learn channel (editor → engine, ADR 0030 batch 2j) ──
+	// The engine's MIDI input is the only writer of the last-event
+	// pair; the editor resets it before opening the sense dialog
+	// (command) and polls it while listening (blocking query — the
+	// mirror owns no MIDI input). The query returns the pair in one
+	// reply so the snapshot can not tear across two separate queries.
+	// Appended at the enum tail for the same wire-compatibility
+	// reason.
+	SetLastMidiEvent,        ///< command: args = [int type, int parameter]
+	                          ///< (editor→engine)
+	GetLastMidiEvent,        ///< reply: args = [int type, int parameter]
+
 	OpcodeCount
 };
 /**

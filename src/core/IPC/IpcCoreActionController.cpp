@@ -32,6 +32,7 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/License.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
@@ -999,6 +1000,18 @@ bool IpcCoreActionController::setMidiInstrumentMap(
 		m_pChannel->send( msg );
 	}
 	return CoreActionController::setMidiInstrumentMap( pMidiInstrumentMap );
+}
+
+// ── ADR 0030 batch 2j — MIDI-learn channel ──
+
+bool IpcCoreActionController::setLastMidiEvent( const MidiEvent::Type& type,
+												Midi::Parameter parameter ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLastMidiEvent )
+							  .arg( static_cast<int>( type ) )
+							  .arg( static_cast<int>( parameter ) ) );
+	}
+	return CoreActionController::setLastMidiEvent( type, parameter );
 }
 
 }

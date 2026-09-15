@@ -1722,6 +1722,19 @@ bool CoreActionController::setMidiInstrumentMap(
 	return true;
 }
 
+bool CoreActionController::setLastMidiEvent( const MidiEvent::Type& type,
+											 Midi::Parameter parameter )
+{
+	// The learning channel is engine-owned state: only the engine's
+	// MIDI input writes it (one pair per incoming event) and the GUI
+	// resets it before opening the sense dialog. No event is fired —
+	// the sense widget polls the channel while listening (ADR 0030).
+	m_pHydrogen->setLastMidiEvent( type );
+	m_pHydrogen->setLastMidiEventParameter( parameter );
+
+	return true;
+}
+
 bool CoreActionController::savePreferences()
 {
 	if ( !m_pHydrogen->getPreferences()->save( false ) ) {

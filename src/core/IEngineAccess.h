@@ -49,6 +49,15 @@ class Playlist;
 class Preferences;
 class SoundLibraryDatabase;
 
+/** The last MIDI event the engine's input registered, as one logical
+ * value: the MIDI input writes type and parameter together for every
+ * incoming event, and the MIDI-learn poll must see a consistent pair
+ * (ADR 0030 batch 2j). */
+struct LastMidiEvent {
+	MidiEvent::Type type = MidiEvent::Type::Null;
+	Midi::Parameter parameter = Midi::ParameterInvalid;
+};
+
 /**
  * \ingroup docCore
  *
@@ -131,6 +140,13 @@ public:
 	 * driver is present. */
 	virtual std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
 		getHandledMidiOutputs() const = 0;
+	/** The last MIDI event the authoritative engine's MIDI input
+	 * registered — the learning channel the MIDI sense widget polls
+	 * while listening. In the editor split this crosses the IPC
+	 * boundary as a single blocking query (the mirror owns no MIDI
+	 * input); the pair rides in one reply so the snapshot can not tear
+	 * across two separate queries (ADR 0030 batch 2j). */
+	virtual LastMidiEvent getLastMidiEvent() const = 0;
 
 	// --- OSC server: value views (ADR 0029 query pattern) ---
 	/** \return The fallback port the authoritative engine's OSC server took

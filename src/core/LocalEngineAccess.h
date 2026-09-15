@@ -106,6 +106,12 @@ public:
 		getHandledMidiOutputs() const override;
 	int getOscTemporaryPort() const override;
 
+	/** MIDI-learn channel (ADR 0030 batch 2j): standalone serves the
+	 * wrapped engine's pair directly. */
+	LastMidiEvent getLastMidiEvent() const override {
+		return { m_pHydrogen->getLastMidiEvent(),
+				 m_pHydrogen->getLastMidiEventParameter() }; }
+
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override {
 		return m_pHydrogen->handleBeatCounter( start ); }
 	void loadPlaybackTrack( const QString& sFileName ) override {

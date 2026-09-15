@@ -776,10 +776,7 @@ paths (no playlist file to resolve against over IPC).
   thread's live reads — a pre-existing hazard shape shared with
   `setPreferences` (whole-object swap) that deserves a class-level fix
   (mutex or atomics in the Preferences/Hydrogen accessors), tracked
-  here. Also outstanding: the editor-mode MIDI-learn gap —
-  `MidiSenseWidget` polls the mirror's `getLastMidiEvent`, which only
-  the engine's `MidiInput` ever sets, so event capture in the split
-  needs a forwarded last-event channel.
+  here.
 * Tested: `IpcRoundTripTest::testMidiEventMapRoundTrip` (serialization
   round-trip + `setMidiEventMap` over IPC, engine map asserted equal) and
   `CoreActionControllerTest::testSetMidiEventMap` (base install + null
@@ -805,6 +802,38 @@ paths (no playlist file to resolve against over IPC).
   mappings + `setMidiInstrumentMap` over IPC, engine map asserted
   equal) and `CoreActionControllerTest::testSetMidiInstrumentMap`
   (base install + null rejection).
+
+**MIDI-learn channel wiring (batch 2j) — DONE, suite `OK (427 tests)`.**
+* Closes the MIDI-learn gap tracked since batch 2h: the sense widget
+  polled the mirror's `getLastMidiEvent()`, which only the engine's
+  `MidiInput` ever sets — in the split the poll never saw an event.
+  The reset before listening now crosses as a command
+  (`CoreActionController::setLastMidiEvent`, args `[int type, int
+  parameter]` — type and parameter are one logical value, the MIDI
+  input writes both per event), and the poll is a new
+  `IEngineAccess::getLastMidiEvent()` read: standalone serves the
+  local engine (`LocalEngineAccess`), editor mode issues a single
+  blocking query (`GetLastMidiEvent`) so the (type, parameter)
+  snapshot can not tear across two separate queries — which could
+  mix an event type from one MIDI message with the parameter of the
+  next.
+* The widget polls at 10 Hz while its dialog is open; each poll is one
+  FIFO-ordered round-trip on the local channel (ordered after the
+  reset command, so the widget never re-learns a pre-reset event). No
+  event is fired — the widget polls; the engine has no listener.
+* Opcodes appended at the enum tail (wire compatibility, like the
+  ADR 0029 queries — unlike the mid-enum batch sections of 2a–2i).
+* The pair itself stays plain, unsynchronised Hydrogen state (MIDI
+  thread writes vs. bridge-thread reads engine-side, GUI-thread reads
+  standalone) — the same class-level hazard shape as the tracked
+  residual above.
+* Tested: `IpcRoundTripTest::testLastMidiEventRoundTrip` (query level:
+  the engine's pair is served and a divergent mirror value does not
+  shadow it; command level: the reset crosses; the reset is visible
+  through the query) and `CoreActionControllerTest::testSetLastMidiEvent`
+  (base install of the pair + the reset);
+  `EngineAccessTest::testLocalEngineAccess` covers the standalone
+  passthrough.
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

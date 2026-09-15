@@ -38,6 +38,7 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/License.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
@@ -788,6 +789,13 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		}
 		return pController->setMidiInstrumentMap( pMidiInstrumentMap );
 	}
+	case IpcOpcode::SetLastMidiEvent:
+		if ( args.size() >= 2 ) {
+			return pController->setLastMidiEvent(
+				static_cast<MidiEvent::Type>( args[0].toInt() ),
+				static_cast<Midi::Parameter>( args[1].toInt() ) );
+		}
+		break;
 	case IpcOpcode::SetPreferences: {
 		// The headless engine only needs the engine-core subset of
 		// Preferences (audio driver, MIDI maps, metronome, etc.).
@@ -1008,6 +1016,14 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 		break;
 	case IpcOpcode::GetOscTemporaryPort:
 		reply.arg( pHydrogen->getOscTemporaryPort() );
+		break;
+	case IpcOpcode::GetLastMidiEvent:
+		// The pair is one logical value (the MIDI input writes both
+		// per event); both ride in a single reply so the editor's
+		// snapshot can not tear.
+		reply.arg( static_cast<int>( pHydrogen->getLastMidiEvent() ) )
+			.arg( static_cast<int>(
+				pHydrogen->getLastMidiEventParameter() ) );
 		break;
 	case IpcOpcode::GetAudioDevices: {
 		QStringList devices;

@@ -30,6 +30,7 @@
 #include "../Skin.h"
 #include "../UndoActions.h"
 
+#include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
@@ -117,9 +118,12 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pTextLabel->setAlignment( Qt::AlignCenter );
 	pContainerLayout->addWidget( m_pTextLabel );
 
-	H2Core::Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
-	pHydrogen->setLastMidiEvent( H2Core::MidiEvent::Type::Null );
-	pHydrogen->setLastMidiEventParameter( H2Core::Midi::ParameterInvalid );
+	// Reset the engine's MIDI-learn channel so the poll below only sees
+	// events arriving after the dialog opened. The reset crosses to the
+	// authoritative engine in the editor split — its MIDI input is the
+	// only writer of the channel (ADR 0030).
+	HydrogenApp::pEngine()->getCoreActionController()->setLastMidiEvent(
+		H2Core::MidiEvent::Type::Null, H2Core::Midi::ParameterInvalid );
 
 	m_pUpdateTimer = new QTimer( this );
 
@@ -146,10 +150,13 @@ MidiSenseWidget::~MidiSenseWidget()
 
 void MidiSenseWidget::updateMidi()
 {
-	H2Core::Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
-	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiEvent::Type::Null ) {
-		m_lastMidiEvent = pHydrogen->getLastMidiEvent();
-		m_lastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
+	// Poll the engine's MIDI-learn channel. In the editor split this is
+	// a single blocking query returning the (event, parameter) pair —
+	// the mirror owns no MIDI input (ADR 0030).
+	const auto lastMidiEvent = HydrogenApp::pEngine()->getLastMidiEvent();
+	if ( lastMidiEvent.type != H2Core::MidiEvent::Type::Null ) {
+		m_lastMidiEvent = lastMidiEvent.type;
+		m_lastMidiEventParameter = lastMidiEvent.parameter;
 
 		if ( m_bDirectWrite ) {
 			// Write the MIDI-action / parameter combination to the map through

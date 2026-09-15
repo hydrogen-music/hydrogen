@@ -56,6 +56,14 @@ void EngineAccessTest::testLocalEngineAccess() {
 	CPPUNIT_ASSERT( engine.getSong() != nullptr );
 	CPPUNIT_ASSERT_EQUAL( pHydrogen->getMode(), engine.getMode() );
 
+	// The MIDI-learn channel reads the wrapped engine's pair as one
+	// value (ADR 0030 batch 2j).
+	pHydrogen->setLastMidiEvent( MidiEvent::Type::CC );
+	pHydrogen->setLastMidiEventParameter( Midi::Parameter( 74 ) );
+	const auto lastMidiEvent = engine.getLastMidiEvent();
+	CPPUNIT_ASSERT( lastMidiEvent.type == MidiEvent::Type::CC );
+	CPPUNIT_ASSERT( lastMidiEvent.parameter == Midi::Parameter( 74 ) );
+
 	// A command issued through the interface reaches the engine.
 	engine.setSongModified( true );
 	CPPUNIT_ASSERT( pHydrogen->getSong()->getIsModified() );

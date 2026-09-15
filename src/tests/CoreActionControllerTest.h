@@ -38,6 +38,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetSongPatternSelectionPreservation );
 	CPPUNIT_TEST( testSetMidiEventMap );
 	CPPUNIT_TEST( testSetMidiInstrumentMap );
+	CPPUNIT_TEST( testSetLastMidiEvent );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -70,6 +71,10 @@ public:
 		/** setMidiInstrumentMap() installs the provided map as the live
 		 * map of the current Preferences (ADR 0030). */
 		void testSetMidiInstrumentMap();
+
+		/** setLastMidiEvent() sets the engine's MIDI-learn channel —
+		 * type and parameter as one pair (ADR 0030). */
+		void testSetLastMidiEvent();
 
 	void testSessionManagement();
 };

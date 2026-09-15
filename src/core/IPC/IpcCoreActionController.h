@@ -283,6 +283,12 @@ public:
 	bool setMidiInstrumentMap(
 		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) override;
 
+	// ADR 0030 batch 2j — MIDI-learn channel. The reset crosses so the
+	// authoritative engine's MIDI input starts from a clean slate; the
+	// base call keeps the mirror's copy coherent.
+	bool setLastMidiEvent( const MidiEvent::Type& type,
+						   Midi::Parameter parameter ) override;
+
 private:
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;

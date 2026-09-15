@@ -569,6 +569,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetIsPatternEditorLocked:
 		sOpcode = "SET_IS_PATTERN_EDITOR_LOCKED";
 		break;
+	case IpcOpcode::SetLastMidiEvent:
+		sOpcode = "SET_LAST_MIDI_EVENT";
+		break;
+	case IpcOpcode::GetLastMidiEvent:
+		sOpcode = "GET_LAST_MIDI_EVENT";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

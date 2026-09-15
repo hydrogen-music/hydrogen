@@ -965,3 +965,57 @@ void IpcRoundTripTest::testMidiInstrumentMapRoundTrip()
 
 	___INFOLOG( "passed" );
 }
+
+void IpcRoundTripTest::testLastMidiEventRoundTrip()
+{
+	___INFOLOG( "" );
+
+	auto pEngine = TestHelper::makeEngine();
+	auto pMirror = TestHelper::makeMirror();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	auto pSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditorSession != nullptr );
+	auto pAccess = pEditorSession->createEngineAccess();
+	auto pController = std::dynamic_pointer_cast<IpcCoreActionController>(
+		pAccess->getCoreActionController() );
+	CPPUNIT_ASSERT( pController != nullptr );
+
+	// ── Query level: the poll reads the authoritative engine ──
+	// Seed the channel like an incoming MIDI event would — on the
+	// engine, and differently on the mirror: the engine's MIDI input
+	// is the only writer, so a stale mirror value must not shadow it.
+	pEngine->setLastMidiEvent( MidiEvent::Type::CC );
+	pEngine->setLastMidiEventParameter( Midi::Parameter( 74 ) );
+	pMirror->setLastMidiEvent( MidiEvent::Type::PC );
+	pMirror->setLastMidiEventParameter( Midi::Parameter( 3 ) );
+
+	const auto lastMidiEvent = pAccess->getLastMidiEvent();
+	CPPUNIT_ASSERT( lastMidiEvent.type == MidiEvent::Type::CC );
+	CPPUNIT_ASSERT( lastMidiEvent.parameter == Midi::Parameter( 74 ) );
+
+	// ── Command level: the editor's reset crosses to the engine ──
+	CPPUNIT_ASSERT( pController->setLastMidiEvent(
+		MidiEvent::Type::Null, Midi::ParameterInvalid ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getLastMidiEvent() == MidiEvent::Type::Null &&
+			pEngine->getLastMidiEventParameter() == Midi::ParameterInvalid;
+	} ) );
+
+	// The reset is visible through the query — what the widget polls
+	// while no event arrives. The query is FIFO-ordered after the
+	// reset command; the pump above is defensive.
+	const auto resetEvent = pAccess->getLastMidiEvent();
+	CPPUNIT_ASSERT( resetEvent.type == MidiEvent::Type::Null );
+	CPPUNIT_ASSERT( resetEvent.parameter == Midi::ParameterInvalid );
+
+	pSession->stop();
+	pEditorSession->disconnect();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

@@ -30,6 +30,7 @@
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Event.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -459,6 +460,18 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * the map live. */
 	virtual bool setMidiInstrumentMap(
 		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap );
+	/**
+	 * Sets the last MIDI event registered by the engine's MIDI input
+	 * — the learning channel the MIDI sense widget polls to bind
+	 * incoming events.
+	 *
+	 * The type and parameter form one logical value (the MIDI input
+	 * writes both for every event), so they are set together. The
+	 * editor resets the channel before listening; in the editor split
+	 * the reset must cross to the authoritative engine, whose MIDI
+	 * input is the only writer afterwards (ADR 0030). */
+	virtual bool setLastMidiEvent( const MidiEvent::Type& type,
+								   Midi::Parameter parameter );
 	/**
 	 * Saves the current state of the #H2Core::Preferences. */
 	virtual bool savePreferences();
