@@ -39,6 +39,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetMidiEventMap );
 	CPPUNIT_TEST( testSetMidiInstrumentMap );
 	CPPUNIT_TEST( testSetLastMidiEvent );
+	CPPUNIT_TEST( testAddRemoveCustomSoundLibraryDir );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -72,9 +73,14 @@ public:
 		 * map of the current Preferences (ADR 0030). */
 		void testSetMidiInstrumentMap();
 
-		/** setLastMidiEvent() sets the engine's MIDI-learn channel —
-		 * type and parameter as one pair (ADR 0030). */
-		void testSetLastMidiEvent();
+	/** setLastMidiEvent() sets the engine's MIDI-learn channel —
+	 * type and parameter as one pair (ADR 0030). */
+	void testSetLastMidiEvent();
+
+	/** addCustomSoundLibraryDir()/removeCustomSoundLibraryDir() keep
+	 * the Preferences list and the sound library database in sync
+	 * (ADR 0030). */
+	void testAddRemoveCustomSoundLibraryDir();
 
 	void testSessionManagement();
 };

@@ -835,6 +835,48 @@ paths (no playlist file to resolve against over IPC).
   `EngineAccessTest::testLocalEngineAccess` covers the standalone
   passthrough.
 
+**Custom sound library dirs wiring (batch 2k) — DONE, suite `OK (429 tests)`.**
+* `SoundLibraryTree::addDirToLibrary`/`removeDirFromLibrary` (driven by
+  `SE_modifyCustomLibraryDirsAction`) were mirror-local: they wrote the
+  editor's `Preferences` copy and rescanned the mirror's database. They
+  are now funnels into `CoreActionController::addCustomSoundLibraryDir`/
+  `removeCustomSoundLibraryDir` (args `[QString dirPath]`): the base
+  mutates that side's `Preferences` and rescans its
+  `SoundLibraryDatabase` — the rescan is the part a plain
+  `SetPreferences` sync would miss (`applyCorePropsFromXml` installs
+  the dirs but triggers no engine rescan, and live GUI edits never
+  send the bulk sync anyway). The engine-side apply's
+  `SoundLibraryChanged` crosses (`isEngineOriginEvent`) and refreshes
+  the editor's sound library idempotently — the established echo
+  shape.
+* Opcodes appended at the enum tail (wire compatibility, like 2j).
+* Behaviour notes: add is now idempotent (an already-registered dir is
+  a logged no-op returning true — previously a duplicate entry was
+  appended and then skipped with an `ERRORLOG` during the scan),
+  remove is idempotent (`removeAll` no-op), and an empty path is
+  rejected with `ERRORLOG` + false (previously a silent return in the
+  tree). The rescan runs only on an actual change. The undo action is
+  untouched — redo/undo call the funnels.
+* Race surface unchanged but resting on convention, not locks: each
+  side's write (prefs list swap + database rebuild) is confined to
+  that side's command thread (GUI thread editor-side, single bridge
+  thread engine-side — one connection, dispatch and event forwarding
+  serialized in the same loop). The prefs list and the database are
+  unguarded structures, and the engine's local OSC/MIDI/NSM inputs
+  can read the dirs list and mutate the database concurrently — a
+  hazard pre-dating this batch (shared with `SetPreferences` and
+  `RescanSoundLibrary`), which this batch makes more likely to
+  manifest by turning engine-side database rebuilds into a routine
+  side effect of ordinary GUI edits. Deserves the same class-level
+  fix as the tracked `shared_ptr`-swap residual.
+* Tested: `CoreActionControllerTest::testAddRemoveCustomSoundLibraryDir`
+  (base: prefs and database level with a real kit saved into a
+  `QTemporaryDir`, idempotence, empty rejection, original dirs
+  restored) and `IpcRoundTripTest::testCustomLibraryDirsRoundTrip`
+  (the add/remove cross; the engine's database gains and drops the
+  kit — proving the rescan crossed, not just the prefs list; the
+  mirror stays coherent synchronously via the dual-apply base call).
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

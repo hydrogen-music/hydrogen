@@ -35,6 +35,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
 #include <core/Sampler/Sampler.h>
 #include <core/SoundLibrary/DrumkitInfo.h>
@@ -426,29 +427,16 @@ void SoundLibraryTree::updateRegistry()
 
 void SoundLibraryTree::addDirToLibrary( const QString& sDirPath )
 {
-	if ( sDirPath.isEmpty() ) {
-		return;
-	}
-	auto pPref = HydrogenApp::pPreferences();
-
-	auto customDirs = pPref->getCustomSoundLibraryDirs();
-	customDirs << sDirPath;
-	pPref->setCustomSoundLibraryDirs( customDirs );
-
-	HydrogenApp::pEngine()->getSoundLibraryDatabase()->update();
+	// The prefs write and the rescan are engine-side concerns in the
+	// IPC split — the command crosses and the SoundLibraryChanged
+	// echo refreshes the tree (ADR 0030).
+	HydrogenApp::pEngine()->getCoreActionController()
+		->addCustomSoundLibraryDir( sDirPath );
 }
 void SoundLibraryTree::removeDirFromLibrary( const QString& sDirPath )
 {
-	if ( sDirPath.isEmpty() ) {
-		return;
-	}
-	auto pPref = HydrogenApp::pPreferences();
-
-	auto customDirs = pPref->getCustomSoundLibraryDirs();
-	customDirs.removeAll( sDirPath );
-	pPref->setCustomSoundLibraryDirs( customDirs );
-
-	HydrogenApp::pEngine()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pEngine()->getCoreActionController()
+		->removeCustomSoundLibraryDir( sDirPath );
 }
 
 void SoundLibraryTree::actionAdd()

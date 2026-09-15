@@ -350,6 +350,19 @@ enum class IpcOpcode : quint16 {
 	                          ///< (editor→engine)
 	GetLastMidiEvent,        ///< reply: args = [int type, int parameter]
 
+	// ── Custom sound library dirs (editor → engine, ADR 0030 batch 2k) ──
+	// The dirs are engine-consumed state: the database scans them on
+	// every update. Add/remove cross as commands so the authoritative
+	// engine's preferences AND its database rescan see them — a plain
+	// SetPreferences sync would miss the rescan. The engine's
+	// SoundLibraryChanged echo refreshes the editor's sound library
+	// idempotently. Appended at the enum tail for the same
+	// wire-compatibility reason.
+	AddCustomSoundLibraryDir,   ///< command: args = [QString dirPath]
+	                            ///< (editor→engine)
+	RemoveCustomSoundLibraryDir, ///< command: args = [QString dirPath]
+	                            ///< (editor→engine)
+
 	OpcodeCount
 };
 /**

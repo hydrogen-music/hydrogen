@@ -289,6 +289,13 @@ public:
 	bool setLastMidiEvent( const MidiEvent::Type& type,
 						   Midi::Parameter parameter ) override;
 
+	// ADR 0030 batch 2k — custom sound library dirs. The dir crosses
+	// so the authoritative engine's preferences and sound library
+	// database pick it up; the base call keeps the mirror's copy and
+	// database coherent.
+	bool addCustomSoundLibraryDir( const QString& sDirPath ) override;
+	bool removeCustomSoundLibraryDir( const QString& sDirPath ) override;
+
 private:
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;

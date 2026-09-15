@@ -1735,6 +1735,55 @@ bool CoreActionController::setLastMidiEvent( const MidiEvent::Type& type,
 	return true;
 }
 
+bool CoreActionController::addCustomSoundLibraryDir( const QString& sDirPath )
+{
+	if ( sDirPath.isEmpty() ) {
+		ERRORLOG( "Empty dir path" );
+		return false;
+	}
+
+	auto pPref = m_pHydrogen->getPreferences();
+	auto customDirs = pPref->getCustomSoundLibraryDirs();
+	if ( customDirs.contains( sDirPath ) ) {
+		WARNINGLOG( QString( "Custom dir [%1] is already registered" )
+					 .arg( sDirPath ) );
+		return true;
+	}
+	customDirs << sDirPath;
+	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	// The database scans the custom dirs on every update — the rescan
+	// is what a plain preferences sync would miss. The
+	// SoundLibraryChanged event it fires refreshes the GUI's sound
+	// library (idempotently for the editor-side echo, ADR 0030).
+	m_pHydrogen->getSoundLibraryDatabase()->update();
+
+	return true;
+}
+
+bool CoreActionController::removeCustomSoundLibraryDir(
+	const QString& sDirPath )
+{
+	if ( sDirPath.isEmpty() ) {
+		ERRORLOG( "Empty dir path" );
+		return false;
+	}
+
+	auto pPref = m_pHydrogen->getPreferences();
+	auto customDirs = pPref->getCustomSoundLibraryDirs();
+	if ( ! customDirs.contains( sDirPath ) ) {
+		WARNINGLOG( QString( "Custom dir [%1] is not registered" )
+					 .arg( sDirPath ) );
+		return true;
+	}
+	customDirs.removeAll( sDirPath );
+	pPref->setCustomSoundLibraryDirs( customDirs );
+
+	m_pHydrogen->getSoundLibraryDatabase()->update();
+
+	return true;
+}
+
 bool CoreActionController::savePreferences()
 {
 	if ( !m_pHydrogen->getPreferences()->save( false ) ) {

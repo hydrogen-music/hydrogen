@@ -473,6 +473,32 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool setLastMidiEvent( const MidiEvent::Type& type,
 								   Midi::Parameter parameter );
 	/**
+	 * Adds @a sDirPath to the list of custom sound library dirs held
+	 * by the current #H2Core::Preferences and rescans the sound
+	 * library database.
+	 *
+	 * The dirs are engine-consumed state: the database scans them on
+	 * every update (Filesystem::listContent in Context::Custom). The
+	 * editor's sound library tree funnels every add through this
+	 * command so the authoritative engine's preferences and database
+	 * see the dir (ADR 0030). Idempotent: an already-registered dir
+	 * is a no-op returning true.
+	 *
+	 * \return true on success */
+	virtual bool addCustomSoundLibraryDir( const QString& sDirPath );
+	/**
+	 * Removes @a sDirPath from the list of custom sound library dirs
+	 * held by the current #H2Core::Preferences and rescans the sound
+	 * library database.
+	 *
+	 * Counterpart to addCustomSoundLibraryDir(): the editor's sound
+	 * library tree funnels every remove through this command (ADR
+	 * 0030). Idempotent: a dir that is not registered is a no-op
+	 * returning true.
+	 *
+	 * \return true on success */
+	virtual bool removeCustomSoundLibraryDir( const QString& sDirPath );
+	/**
 	 * Saves the current state of the #H2Core::Preferences. */
 	virtual bool savePreferences();
 	/**

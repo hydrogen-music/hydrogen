@@ -796,6 +796,18 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				static_cast<Midi::Parameter>( args[1].toInt() ) );
 		}
 		break;
+	case IpcOpcode::AddCustomSoundLibraryDir:
+		if ( args.size() >= 1 ) {
+			return pController->addCustomSoundLibraryDir(
+				args[0].toString() );
+		}
+		break;
+	case IpcOpcode::RemoveCustomSoundLibraryDir:
+		if ( args.size() >= 1 ) {
+			return pController->removeCustomSoundLibraryDir(
+				args[0].toString() );
+		}
+		break;
 	case IpcOpcode::SetPreferences: {
 		// The headless engine only needs the engine-core subset of
 		// Preferences (audio driver, MIDI maps, metronome, etc.).

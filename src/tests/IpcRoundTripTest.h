@@ -38,6 +38,7 @@ class IpcRoundTripTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testMidiEventMapRoundTrip );
 	CPPUNIT_TEST( testMidiInstrumentMapRoundTrip );
 	CPPUNIT_TEST( testLastMidiEventRoundTrip );
+	CPPUNIT_TEST( testCustomLibraryDirsRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -52,6 +53,7 @@ public:
 	void testMidiEventMapRoundTrip();
 	void testMidiInstrumentMapRoundTrip();
 	void testLastMidiEventRoundTrip();
+	void testCustomLibraryDirsRoundTrip();
 };
 
 #endif // IPC_ROUND_TRIP_TEST_H

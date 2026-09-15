@@ -1014,4 +1014,25 @@ bool IpcCoreActionController::setLastMidiEvent( const MidiEvent::Type& type,
 	return CoreActionController::setLastMidiEvent( type, parameter );
 }
 
+// ── ADR 0030 batch 2k — custom sound library dirs ──
+
+bool IpcCoreActionController::addCustomSoundLibraryDir(
+	const QString& sDirPath ) {
+	if ( m_pChannel != nullptr && ! sDirPath.isEmpty() ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddCustomSoundLibraryDir )
+							  .arg( sDirPath ) );
+	}
+	return CoreActionController::addCustomSoundLibraryDir( sDirPath );
+}
+
+bool IpcCoreActionController::removeCustomSoundLibraryDir(
+	const QString& sDirPath ) {
+	if ( m_pChannel != nullptr && ! sDirPath.isEmpty() ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::RemoveCustomSoundLibraryDir )
+				.arg( sDirPath ) );
+	}
+	return CoreActionController::removeCustomSoundLibraryDir( sDirPath );
+}
+
 }

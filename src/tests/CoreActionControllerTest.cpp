@@ -42,7 +42,10 @@
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Helpers/Filesystem.h>
+
+#include <QtCore/QTemporaryDir>
 
 #include <chrono>
 #include <thread>
@@ -601,6 +604,83 @@ void CoreActionControllerTest::testSetLastMidiEvent() {
 	CPPUNIT_ASSERT( pHydrogen->getLastMidiEvent() == MidiEvent::Type::Null );
 	CPPUNIT_ASSERT( pHydrogen->getLastMidiEventParameter() ==
 					Midi::ParameterInvalid );
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testAddRemoveCustomSoundLibraryDir() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	// Reinstall the original dirs before leaving — the live list
+	// backs the sound library of subsequent tests.
+	const auto originalDirs =
+		pHydrogen->getPreferences()->getCustomSoundLibraryDirs();
+
+	// A real kit in a temporary dir — proves a registered dir reaches
+	// the database rescan, not just the Preferences list.
+	QTemporaryDir tmpDir( Filesystem::tmpDir() +
+						  "custom-lib-dirs-test-XXXXXX" );
+	CPPUNIT_ASSERT( tmpDir.isValid() );
+	auto pKit = Drumkit::load( H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ),
+							   false, nullptr, false, pHydrogen );
+	CPPUNIT_ASSERT( pKit != nullptr );
+	CPPUNIT_ASSERT( pKit->save(
+		Filesystem::drumkitPathFromDir( tmpDir.path() ), false ) );
+
+	const auto dbHasTmpKit = [&]() {
+		for ( const auto& it : pHydrogen->getSoundLibraryDatabase()
+					->getDrumkitDatabase() ) {
+			if ( it.first.contains( "custom-lib-dirs-test" ) ) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	// Add: the dir enters the Preferences list and the database
+	// rescans it.
+	CPPUNIT_ASSERT( pCAC->addCustomSoundLibraryDir( tmpDir.path() ) );
+	CPPUNIT_ASSERT( pHydrogen->getPreferences()->getCustomSoundLibraryDirs()
+					.contains( tmpDir.path() ) );
+	CPPUNIT_ASSERT( dbHasTmpKit() );
+
+	// Idempotent: a second add changes nothing.
+	CPPUNIT_ASSERT( pCAC->addCustomSoundLibraryDir( tmpDir.path() ) );
+	CPPUNIT_ASSERT(
+		pHydrogen->getPreferences()->getCustomSoundLibraryDirs().size() ==
+		originalDirs.size() + 1 );
+
+	// Remove: the dir leaves both the list and the database.
+	CPPUNIT_ASSERT( pCAC->removeCustomSoundLibraryDir( tmpDir.path() ) );
+	CPPUNIT_ASSERT( ! pHydrogen->getPreferences()->getCustomSoundLibraryDirs()
+					.contains( tmpDir.path() ) );
+	CPPUNIT_ASSERT( ! dbHasTmpKit() );
+
+	// Idempotent: removing a dir that is not registered is a no-op.
+	CPPUNIT_ASSERT( pCAC->removeCustomSoundLibraryDir( tmpDir.path() ) );
+
+	// A dir without any kit registers fine but leaves the database
+	// unchanged.
+	QTemporaryDir emptyDir( Filesystem::tmpDir() +
+							"custom-lib-dirs-empty-XXXXXX" );
+	CPPUNIT_ASSERT( emptyDir.isValid() );
+	CPPUNIT_ASSERT( pCAC->addCustomSoundLibraryDir( emptyDir.path() ) );
+	CPPUNIT_ASSERT( pHydrogen->getPreferences()->getCustomSoundLibraryDirs()
+					.contains( emptyDir.path() ) );
+	for ( const auto& it : pHydrogen->getSoundLibraryDatabase()
+					->getDrumkitDatabase() ) {
+		CPPUNIT_ASSERT( ! it.first.contains( "custom-lib-dirs-empty" ) );
+	}
+	CPPUNIT_ASSERT( pCAC->removeCustomSoundLibraryDir( emptyDir.path() ) );
+
+	// Empty paths are rejected.
+	CPPUNIT_ASSERT( ! pCAC->addCustomSoundLibraryDir( "" ) );
+	CPPUNIT_ASSERT( ! pCAC->removeCustomSoundLibraryDir( "" ) );
+
+	pHydrogen->getPreferences()->setCustomSoundLibraryDirs( originalDirs );
+	pHydrogen->getSoundLibraryDatabase()->update();
 
 	___INFOLOG( "passed" );
 }

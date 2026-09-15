@@ -39,6 +39,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/EngineSession.h>
@@ -54,10 +55,12 @@
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Timeline.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QTemporaryDir>
 #include <QtCore/QThread>
 
 #include <functional>
@@ -1011,6 +1014,91 @@ void IpcRoundTripTest::testLastMidiEventRoundTrip()
 	const auto resetEvent = pAccess->getLastMidiEvent();
 	CPPUNIT_ASSERT( resetEvent.type == MidiEvent::Type::Null );
 	CPPUNIT_ASSERT( resetEvent.parameter == Midi::ParameterInvalid );
+
+	pSession->stop();
+	pEditorSession->disconnect();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcRoundTripTest::testCustomLibraryDirsRoundTrip()
+{
+	___INFOLOG( "" );
+
+	auto pEngine = TestHelper::makeEngine();
+	auto pMirror = TestHelper::makeMirror();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	auto pSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditorSession != nullptr );
+	auto pAccess = pEditorSession->createEngineAccess();
+	auto pController = std::dynamic_pointer_cast<IpcCoreActionController>(
+		pAccess->getCoreActionController() );
+	CPPUNIT_ASSERT( pController != nullptr );
+
+	// A real kit in a temporary dir — proves the engine's database
+	// rescans the registered dir, not just its Preferences list.
+	QTemporaryDir tmpDir( Filesystem::tmpDir() +
+						  "custom-lib-dirs-ipc-test-XXXXXX" );
+	CPPUNIT_ASSERT( tmpDir.isValid() );
+	auto pKit = Drumkit::load( H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" ),
+							   false, nullptr, false, pMirror );
+	CPPUNIT_ASSERT( pKit != nullptr );
+	CPPUNIT_ASSERT( pKit->save(
+		Filesystem::drumkitPathFromDir( tmpDir.path() ), false ) );
+
+	const auto dbHasTmpKit = [&]( Hydrogen* pHydrogen ) {
+		for ( const auto& it : pHydrogen->getSoundLibraryDatabase()
+					->getDrumkitDatabase() ) {
+			if ( it.first.contains( "custom-lib-dirs-ipc-test" ) ) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	// ── Command level: the add crosses to the engine ──
+	CPPUNIT_ASSERT( pController->addCustomSoundLibraryDir( tmpDir.path() ) );
+
+	// The engine's Preferences pick up the dir ...
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getCustomSoundLibraryDirs()
+			.contains( tmpDir.path() );
+	} ) );
+	// ... and its database rescans it — the part a plain
+	// SetPreferences sync would miss.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return dbHasTmpKit( pEngine );
+	} ) );
+
+	// The base call keeps the mirror coherent — synchronously, as
+	// the dual-apply runs on the caller thread.
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getCustomSoundLibraryDirs()
+					.contains( tmpDir.path() ) );
+	CPPUNIT_ASSERT( dbHasTmpKit( pMirror ) );
+
+	// ── The remove crosses too ──
+	CPPUNIT_ASSERT( pController->removeCustomSoundLibraryDir(
+		tmpDir.path() ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getPreferences()->getCustomSoundLibraryDirs()
+			.contains( tmpDir.path() );
+	} ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! dbHasTmpKit( pEngine );
+	} ) );
+	CPPUNIT_ASSERT( ! pMirror->getPreferences()->getCustomSoundLibraryDirs()
+					.contains( tmpDir.path() ) );
+	CPPUNIT_ASSERT( ! dbHasTmpKit( pMirror ) );
+
+	// An empty path is rejected before anything is sent.
+	CPPUNIT_ASSERT( ! pController->addCustomSoundLibraryDir( "" ) );
+	CPPUNIT_ASSERT( ! pController->removeCustomSoundLibraryDir( "" ) );
 
 	pSession->stop();
 	pEditorSession->disconnect();

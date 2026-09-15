@@ -575,6 +575,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::GetLastMidiEvent:
 		sOpcode = "GET_LAST_MIDI_EVENT";
 		break;
+	case IpcOpcode::AddCustomSoundLibraryDir:
+		sOpcode = "ADD_CUSTOM_SOUND_LIBRARY_DIR";
+		break;
+	case IpcOpcode::RemoveCustomSoundLibraryDir:
+		sOpcode = "REMOVE_CUSTOM_SOUND_LIBRARY_DIR";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";
