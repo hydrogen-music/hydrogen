@@ -461,6 +461,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::RemoveFromPlaylist:
 		sOpcode = "REMOVE_FROM_PLAYLIST";
 		break;
+	case IpcOpcode::SetMidiEventMap:
+		sOpcode = "SET_MIDI_EVENT_MAP";
+		break;
 	case IpcOpcode::GetSong:
 		sOpcode = "GET_SONG";
 		break;

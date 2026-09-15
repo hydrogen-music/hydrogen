@@ -36,6 +36,10 @@
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiEvent.h>
+#include <core/Midi/MidiEventMap.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Helpers/Filesystem.h>
 
@@ -513,6 +517,37 @@ void CoreActionControllerTest::testSetSongPatternSelectionPreservation() {
 	CPPUNIT_ASSERT_EQUAL( 2, pHydrogen->getSelectedPatternNumber() );
 
 	pHydrogen->setSong( Song::getEmptySong( pTestHydrogen() ) );
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testSetMidiEventMap() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	// Other tests (MidiActionTest) work on the live map — reinstall the
+	// original before leaving.
+	const auto pOriginalMap = pHydrogen->getPreferences()->getMidiEventMap();
+
+	auto pMap = std::make_shared<MidiEventMap>();
+	pMap->registerEvent(
+		MidiEvent::Type::MmcStop, Midi::ParameterInvalid,
+		MidiAction::fromQStrings( MidiAction::Type::Stop, "", "", "" ),
+		Event::Trigger::Suppress, pHydrogen );
+
+	// The base install hands the very object to Preferences — the
+	// engine's MIDI dispatch then reads it live.
+	CPPUNIT_ASSERT( pCAC->setMidiEventMap( pMap ) );
+	CPPUNIT_ASSERT( pHydrogen->getPreferences()->getMidiEventMap() == pMap );
+	CPPUNIT_ASSERT(
+		pHydrogen->getPreferences()->getMidiEventMap()->getMidiEvents()
+			.size() == 1 );
+
+	// A null map is rejected.
+	CPPUNIT_ASSERT( ! pCAC->setMidiEventMap( nullptr ) );
+
+	pHydrogen->getPreferences()->setMidiEventMap( pOriginalMap );
 
 	___INFOLOG( "passed" );
 }

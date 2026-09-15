@@ -780,3 +780,51 @@ void RoundTripAssertions::assertCorePreferencesEqual(
 	assertStringEqual( "Preferences::coreProps",
 					a->corePropsToXml(), b->corePropsToXml() );
 }
+
+void RoundTripAssertions::assertMidiEventMapEqual(
+	std::shared_ptr<MidiEventMap> a, std::shared_ptr<MidiEventMap> b )
+{
+	CPPUNIT_ASSERT( a != nullptr );
+	CPPUNIT_ASSERT( b != nullptr );
+
+	const auto& eventsA = a->getMidiEvents();
+	const auto& eventsB = b->getMidiEvents();
+	assertIntEqual( "MidiEventMap::m_events.size",
+					static_cast<int>( eventsA.size() ),
+					static_cast<int>( eventsB.size() ) );
+
+	// The map preserves insertion order and loadFrom() re-registers in
+	// document order, so a per-index comparison is faithful.
+	for ( size_t ii = 0; ii < eventsA.size(); ++ii ) {
+		const auto& ppEventA = eventsA[ ii ];
+		const auto& ppEventB = eventsB[ ii ];
+		CPPUNIT_ASSERT( ppEventA != nullptr );
+		CPPUNIT_ASSERT( ppEventB != nullptr );
+
+		assertIntEqual( "MidiEvent::m_type",
+						static_cast<int>( ppEventA->getType() ),
+						static_cast<int>( ppEventB->getType() ) );
+		assertIntEqual( "MidiEvent::m_parameter",
+						static_cast<int>( ppEventA->getParameter() ),
+						static_cast<int>( ppEventB->getParameter() ) );
+
+		const auto pActionA = ppEventA->getMidiAction();
+		const auto pActionB = ppEventB->getMidiAction();
+		CPPUNIT_ASSERT( pActionA != nullptr );
+		CPPUNIT_ASSERT( pActionB != nullptr );
+		assertIntEqual( "MidiAction::m_type",
+						static_cast<int>( pActionA->getType() ),
+						static_cast<int>( pActionB->getType() ) );
+
+		// Action parameters are serialized as strings (legacy format);
+		// comparing their toQStrings() projection covers
+		// component/factor/instrument/layer/pattern/song at once.
+		QString sParam1A, sParam2A, sParam3A;
+		pActionA->toQStrings( &sParam1A, &sParam2A, &sParam3A );
+		QString sParam1B, sParam2B, sParam3B;
+		pActionB->toQStrings( &sParam1B, &sParam2B, &sParam3B );
+		assertStringEqual( "MidiAction::parameter1", sParam1A, sParam1B );
+		assertStringEqual( "MidiAction::parameter2", sParam2A, sParam2B );
+		assertStringEqual( "MidiAction::parameter3", sParam3A, sParam3B );
+	}
+}

@@ -49,6 +49,9 @@
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcServer.h>
 #include <core/License.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiEvent.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Timeline.h>
 
@@ -319,6 +322,45 @@ std::shared_ptr<Playlist> makePlaylist() {
 std::shared_ptr<PlaylistEntry> makePlaylistEntry() {
 	return std::make_shared<PlaylistEntry>( "/roundtrip/song.h2song",
 											"/roundtrip/script.sh", true );
+}
+
+std::shared_ptr<MidiEventMap> makeMidiEventMap() {
+	auto pMap = std::make_shared<MidiEventMap>();
+
+	// Events across all families (note/cc/pc/mmc) with actions covering
+	// every parameter slot of the legacy string format (pattern,
+	// instrument, component+layer, factor, song, and none).
+	pMap->registerEvent(
+		MidiEvent::Type::Note, Midi::parameterFromIntClamp( 60 ),
+		MidiAction::fromQStrings(
+			MidiAction::Type::SelectNextPattern, "5", "", "" ),
+		Event::Trigger::Suppress, nullptr );
+	pMap->registerEvent(
+		MidiEvent::Type::Note, Midi::parameterFromIntClamp( 22 ),
+		MidiAction::fromQStrings(
+			MidiAction::Type::PlaylistSong, "3", "", "" ),
+		Event::Trigger::Suppress, nullptr );
+	pMap->registerEvent(
+		MidiEvent::Type::CC, Midi::parameterFromIntClamp( 7 ),
+		MidiAction::fromQStrings(
+			MidiAction::Type::StripVolumeAbsolute, "2", "", "" ),
+		Event::Trigger::Suppress, nullptr );
+	pMap->registerEvent(
+		MidiEvent::Type::CC, Midi::parameterFromIntClamp( 74 ),
+		MidiAction::fromQStrings(
+			MidiAction::Type::BpmCcRelative, "0.5", "", "" ),
+		Event::Trigger::Suppress, nullptr );
+	pMap->registerEvent(
+		MidiEvent::Type::PC, Midi::ParameterInvalid,
+		MidiAction::fromQStrings(
+			MidiAction::Type::GainLevelAbsolute, "1", "0", "2" ),
+		Event::Trigger::Suppress, nullptr );
+	pMap->registerEvent(
+		MidiEvent::Type::MmcPlay, Midi::ParameterInvalid,
+		MidiAction::fromQStrings( MidiAction::Type::Play, "", "", "" ),
+		Event::Trigger::Suppress, nullptr );
+
+	return pMap;
 }
 
 } // namespace
@@ -788,6 +830,56 @@ void IpcRoundTripTest::testNoteRoundTrip()
 		return pEngine->getAudioEngine()->getSampler()
 			->getPlayingNotesNumber() > 0;
 	} ) );
+
+	pSession->stop();
+	pEditorSession->disconnect();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcRoundTripTest::testMidiEventMapRoundTrip()
+{
+	___INFOLOG( "" );
+
+	// ── Serialization level: toXmlBuffer → fromXmlBuffer ──
+	auto pMapA = makeMidiEventMap();
+	const auto xml = pMapA->toXmlBuffer();
+	auto pMapB = MidiEventMap::fromXmlBuffer( xml );
+	CPPUNIT_ASSERT( pMapB != nullptr );
+	RoundTripAssertions::assertMidiEventMapEqual( pMapA, pMapB );
+
+	// ── IPC level: setMidiEventMap via IpcCoreActionController ──
+	auto pEngine = TestHelper::makeEngine();
+	auto pMirror = TestHelper::makeMirror();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	auto pSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditorSession != nullptr );
+	auto pAccess = pEditorSession->createEngineAccess();
+	auto pController = std::dynamic_pointer_cast<IpcCoreActionController>(
+		pAccess->getCoreActionController() );
+	CPPUNIT_ASSERT( pController != nullptr );
+
+	auto pMap = makeMidiEventMap();
+	CPPUNIT_ASSERT( pController->setMidiEventMap( pMap ) );
+
+	// The engine boots with a default map of its own (loaded from the
+	// test preferences) which happens to have the same event count —
+	// waiting on the size alone could pass before our install lands.
+	// Wait for content equality instead.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		const auto pEngineMap = pEngine->getPreferences()->getMidiEventMap();
+		return pEngineMap != nullptr &&
+			   pEngineMap->toXmlBuffer() == pMap->toXmlBuffer();
+	} ) );
+
+	RoundTripAssertions::assertMidiEventMapEqual(
+		pMap, pEngine->getPreferences()->getMidiEventMap() );
 
 	pSession->stop();
 	pEditorSession->disconnect();

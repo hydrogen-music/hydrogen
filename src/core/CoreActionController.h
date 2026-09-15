@@ -39,6 +39,7 @@ class Hydrogen;
 class Instrument;
 class InstrumentComponent;
 class InstrumentLayer;
+class MidiEventMap;
 class Note;
 class Pattern;
 class Playlist;
@@ -434,6 +435,17 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Replaces the current #H2Core::Preferences singleton with the provided
 	 * instance. */
 	virtual bool setPreferences( std::shared_ptr<Preferences> pPreferences );
+	/**
+	 * Replaces the MIDI action map held by the current
+	 * #H2Core::Preferences.
+	 *
+	 * The map is GUI-authoritative: the editor's MIDI action table
+	 * funnels every change through this command so the authoritative
+	 * engine applies the same map (ADR 0030). Unlike setPreferences()
+	 * this is a granular install — no driver restarts, no
+	 * UpdatePreferences event; the engine's MIDI dispatch reads the map
+	 * live on every incoming event. */
+	virtual bool setMidiEventMap( std::shared_ptr<MidiEventMap> pMidiEventMap );
 	/**
 	 * Saves the current state of the #H2Core::Preferences. */
 	virtual bool savePreferences();

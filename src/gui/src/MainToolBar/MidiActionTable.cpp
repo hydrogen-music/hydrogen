@@ -149,6 +149,13 @@ void MidiActionTable::persistMidiMap()
 	// shutdown (ADR 0027 bucket C). GUI components stay in sync through the
 	// MidiEventMapChanged event fired by the (un)register calls.
 	HydrogenApp::pPreferences()->save( false );
+
+	// In the IPC split the engine does not share our Preferences object:
+	// hand it the edited map so its MIDI dispatch reacts live instead of
+	// only on the next config reload (ADR 0030). Standalone this is a
+	// local install of the very same object — a no-op.
+	HydrogenApp::pEngine()->getCoreActionController()->setMidiEventMap(
+		HydrogenApp::pPreferences()->getMidiEventMap() );
 }
 
 void MidiActionTable::insertRow(

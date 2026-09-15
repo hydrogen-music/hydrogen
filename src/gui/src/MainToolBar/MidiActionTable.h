@@ -104,7 +104,9 @@ class MidiActionTable : public QTableWidget,
 	/** Writes the (config) Preferences MIDI event map to disk after an edit so
 	 * table changes are persisted immediately — like every other Preferences
 	 * option on dialog OK — instead of living only in memory until shutdown
-	 * (ADR 0027 bucket C). */
+	 * (ADR 0027 bucket C). In editor mode the same call also forwards the
+	 * map to the authoritative engine via setMidiEventMap() so its MIDI
+	 * dispatch applies the changes live (ADR 0030). */
 	void persistMidiMap();
 
 	void updateRowContent(

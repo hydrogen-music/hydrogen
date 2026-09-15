@@ -181,6 +181,12 @@ enum class IpcOpcode : quint16 {
 	AddToPlaylist,          ///< args: [QString entryMimeText, int nIndex]
 	RemoveFromPlaylist,     ///< args: [QString entryMimeText, int nIndex]
 
+	// ── ADR 0030 batch 2h: MIDI action map ──
+	// The editor's MIDI action table is the sole writer of the map; the
+	// whole map travels as XML so the authoritative engine's MIDI dispatch
+	// sees the same bindings.
+	SetMidiEventMap,        ///< payload: MIDI event map XML (editor→engine)
+
 	// ── State-sync requests (editor → engine, ADR 0032) ──
 	// Pull-based full-state sync: the editor sends these on connect/reconnect
 	// to mirror the headless engine's authoritative state. Each is a

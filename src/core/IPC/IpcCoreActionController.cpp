@@ -32,6 +32,7 @@
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/License.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core {
@@ -973,6 +974,18 @@ bool IpcCoreActionController::removeFromPlaylist(
 							  .arg( pEntry->toMimeText() ).arg( nIndex ) );
 	}
 	return CoreActionController::removeFromPlaylist( pEntry, nIndex );
+}
+
+// ── ADR 0030 batch 2h — MIDI action map ──
+
+bool IpcCoreActionController::setMidiEventMap(
+	std::shared_ptr<MidiEventMap> pMidiEventMap ) {
+	if ( m_pChannel != nullptr && pMidiEventMap != nullptr ) {
+		IpcMessage msg( IpcOpcode::SetMidiEventMap );
+		msg.setPayload( pMidiEventMap->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::setMidiEventMap( pMidiEventMap );
 }
 
 }

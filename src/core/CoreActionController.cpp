@@ -1684,6 +1684,25 @@ bool CoreActionController::setPreferences(
 	return true;
 }
 
+bool CoreActionController::setMidiEventMap(
+	std::shared_ptr<MidiEventMap> pMidiEventMap )
+{
+	if ( pMidiEventMap == nullptr ) {
+		ERRORLOG( "Invalid MIDI event map" );
+		return false;
+	}
+
+	// Granular install: the engine's MIDI dispatch reads the map live on
+	// every incoming event (MidiInput), so — unlike setPreferences() — no
+	// driver restarts and no UpdatePreferences event are needed. The
+	// MidiEventMapChanged event stays with the editor side: the table
+	// that produced the change already fired it, and the engine has no
+	// listener for it (ADR 0030).
+	m_pHydrogen->getPreferences()->setMidiEventMap( pMidiEventMap );
+
+	return true;
+}
+
 bool CoreActionController::savePreferences()
 {
 	if ( !m_pHydrogen->getPreferences()->save( false ) ) {

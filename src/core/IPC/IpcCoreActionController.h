@@ -271,6 +271,12 @@ public:
 	bool removeFromPlaylist( std::shared_ptr<PlaylistEntry> pEntry,
 		int nIndex ) override;
 
+	// ADR 0030 batch 2h — MIDI action map. The editor's MIDI action table
+	// is the sole writer of the map; the override marshals it as an XML
+	// payload so the authoritative engine's MIDI dispatch applies the same
+	// bindings (the base call installs the very object on the mirror).
+	bool setMidiEventMap( std::shared_ptr<MidiEventMap> pMidiEventMap ) override;
+
 private:
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;

@@ -32,6 +32,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
 #include <QString>
@@ -105,6 +106,10 @@ public:
  static void assertAutomationPathEqual(
 	 std::shared_ptr<H2Core::AutomationPath> a,
 	 std::shared_ptr<H2Core::AutomationPath> b
+ );
+ static void assertMidiEventMapEqual(
+	 std::shared_ptr<H2Core::MidiEventMap> a,
+	 std::shared_ptr<H2Core::MidiEventMap> b
  );
 
 private:

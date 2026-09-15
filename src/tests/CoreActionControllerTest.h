@@ -36,6 +36,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPlaybackTrack );
 	CPPUNIT_TEST( testSaveSongDiscardEvent );
 	CPPUNIT_TEST( testSetSongPatternSelectionPreservation );
+	CPPUNIT_TEST( testSetMidiEventMap );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -60,6 +61,10 @@ public:
 		 * re-install (the editor mirror applying a pulled copy in the
 		 * IPC split) keeps the selection (ADR 0026 point 16). */
 		void testSetSongPatternSelectionPreservation();
+
+		/** setMidiEventMap() installs the provided map as the live map
+		 * of the current Preferences (ADR 0030). */
+		void testSetMidiEventMap();
 
 	void testSessionManagement();
 };

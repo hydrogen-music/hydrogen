@@ -31,6 +31,7 @@
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
+#include <QtCore/QByteArray>
 #include <QtCore/QMutex>
 
 namespace H2Core {
@@ -51,7 +52,21 @@ public:
 											  bool bSilent,
 											  Hydrogen* pHydrogen );
 	void saveTo( H2Core::XMLNode& node, bool bSilent = false ) const;
-	
+
+	/** Serializes the map into a self-contained XML buffer for IPC
+	 * transport (ADR 0030). */
+	QByteArray toXmlBuffer() const;
+	/** Reconstructs a map from a buffer produced by toXmlBuffer().
+	 *
+	 * \param bSilent Passed through to loadFrom().
+	 * \param pHydrogen loadFrom() registers the events with
+	 *   Event::Trigger::Suppress and never dereferences it, so a null
+	 *   value is safe (ADR 0015). */
+	static std::shared_ptr<MidiEventMap> fromXmlBuffer(
+		const QByteArray& xmlBuffer,
+		bool bSilent = false,
+		Hydrogen* pHydrogen = nullptr );
+
 	void reset();  ///< Reinitializes the object.
 
 	void registerEvent(

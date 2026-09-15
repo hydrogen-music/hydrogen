@@ -749,6 +749,43 @@ paths (no playlist file to resolve against over IPC).
 * Tested by `IpcTransportTest::testProxyPlaylistCommands` (set → add → remove,
   each reconstructed + applied on the engine end).
 
+**MIDI action map wiring (batch 2h) — DONE, suite `OK (423 tests)`.**
+* `setMidiEventMap` → **payload command**: the editor's MIDI action table
+  (`MidiActionTable`) is the sole writer of the map — every row edit,
+  including the two MIDI undo actions, funnels through `persistMidiMap()` —
+  which now, besides the config-file save, forwards the whole map via
+  `CAC::setMidiEventMap` so the authoritative engine's MIDI dispatch applies
+  the same bindings live. The proxy serialises the map with the new
+  `MidiEventMap::toXmlBuffer()` (reusing `saveTo`/`loadFrom`, mirroring the
+  file format's node nesting); the engine reconstructs with `fromXmlBuffer`
+  and installs it granularly — no driver restarts, no `UpdatePreferences`
+  (engine consumers read the map live per event; `MidiEventMapChanged`
+  stays editor-side — the table fires it and the `MidiLearnable` widgets
+  listen there).
+* Rejected: per-row commands (table row indices are GUI-internal — the
+  table keeps empty rows the map does not know — and the map is small
+  enough for a whole-map payload) and riding `SetPreferences` (its
+  core-props subset is coarser and couples the table to the prefs-dialog
+  flow).
+* Residual: engine-side preference replacements still override the
+  engine's map — an NSM session open reloads the whole engine
+  Preferences from the session file (`NsmClient` → `loadPreferences` +
+  `setPreferences`); the next table edit re-forwards the map. The
+  `shared_ptr` swap in `Preferences::setMidiEventMap` is unsynchronised
+  against the MIDI thread's live reads — a pre-existing hazard shape
+  shared with `setPreferences` (whole-object swap) that deserves a
+  class-level fix (mutex or atomics in the Preferences/Hydrogen
+  accessors), tracked here. `MidiInstrumentMap`
+  (instrument→channel/notes) is a follow-up candidate with the same
+  shape, as is the editor-mode MIDI-learn gap: `MidiSenseWidget` polls
+  the mirror's `getLastMidiEvent`, which only the engine's `MidiInput`
+  ever sets, so event capture in the split needs a forwarded
+  last-event channel.
+* Tested: `IpcRoundTripTest::testMidiEventMapRoundTrip` (serialization
+  round-trip + `setMidiEventMap` over IPC, engine map asserted equal) and
+  `CoreActionControllerTest::testSetMidiEventMap` (base install + null
+  rejection).
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

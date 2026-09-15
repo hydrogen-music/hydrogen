@@ -38,6 +38,7 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/License.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -733,6 +734,14 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return false;
 		}
 		return pController->setPlaylist( pPlaylist );
+	}
+	case IpcOpcode::SetMidiEventMap: {
+		auto pMidiEventMap = MidiEventMap::fromXmlBuffer(
+			msg.getPayload(), true, pHydrogen );
+		if ( pMidiEventMap == nullptr ) {
+			return false;
+		}
+		return pController->setMidiEventMap( pMidiEventMap );
 	}
 	case IpcOpcode::SetPreferences: {
 		// The headless engine only needs the engine-core subset of

@@ -247,6 +247,42 @@ void MidiEventMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 	}
 }
 
+QByteArray MidiEventMap::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "midiEventMap", "midiEventMap" );
+	// saveTo() nests the events in its own "midiEventMap" child node (in
+	// the file format the map lives below the preferences root), so the
+	// buffer mirrors that layout and fromXmlBuffer() unwraps it again.
+	saveTo( root );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<MidiEventMap> MidiEventMap::fromXmlBuffer(
+	const QByteArray& xmlBuffer, bool bSilent, Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( xmlBuffer ) ) {
+		ERRORLOG( "Unable to parse MIDI event map XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode root = doc.firstChildElement( "midiEventMap" );
+	if ( root.isNull() ) {
+		ERRORLOG( "Error reading MIDI event map buffer: 'midiEventMap' node not found" );
+		return nullptr;
+	}
+
+	XMLNode mapNode = root.firstChildElement( "midiEventMap" );
+	if ( mapNode.isNull() ) {
+		ERRORLOG( "Error reading MIDI event map buffer: nested 'midiEventMap' node not found" );
+		return nullptr;
+	}
+
+	return loadFrom( mapNode, bSilent, pHydrogen );
+}
+
 /**
  * Clears the complete midi map and releases the memory
  * of the contained actions
