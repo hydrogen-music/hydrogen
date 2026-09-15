@@ -277,6 +277,12 @@ public:
 	// bindings (the base call installs the very object on the mirror).
 	bool setMidiEventMap( std::shared_ptr<MidiEventMap> pMidiEventMap ) override;
 
+	// ADR 0030 batch 2i — MIDI instrument map. Same whole-map payload
+	// shape as batch 2h; the base call installs the very object on the
+	// mirror.
+	bool setMidiInstrumentMap(
+		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) override;
+
 private:
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;

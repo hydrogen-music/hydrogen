@@ -52,6 +52,7 @@
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Timeline.h>
 
@@ -359,6 +360,33 @@ std::shared_ptr<MidiEventMap> makeMidiEventMap() {
 		MidiEvent::Type::MmcPlay, Midi::ParameterInvalid,
 		MidiAction::fromQStrings( MidiAction::Type::Play, "", "", "" ),
 		Event::Trigger::Suppress, nullptr );
+
+	return pMap;
+}
+
+std::shared_ptr<MidiInstrumentMap> makeMidiInstrumentMap() {
+	auto pMap = std::make_shared<MidiInstrumentMap>();
+
+	pMap->setInput( MidiInstrumentMap::Input::Custom );
+	pMap->setOutput( MidiInstrumentMap::Output::Constant );
+	pMap->setUseGlobalInputChannel( true );
+	pMap->setGlobalInputChannel( Midi::channelFromInt( 3 ) );
+	pMap->setUseGlobalOutputChannel( true );
+	pMap->setGlobalOutputChannel( Midi::channelFromInt( 9 ) );
+
+	// A typed instrument lands in the type-based map, a typeless one in
+	// the id-based one.
+	auto pTypedInstrument = std::make_shared<Instrument>();
+	pTypedInstrument->setType( "Kick" );
+	pMap->insertCustomInputMapping(
+		pTypedInstrument, Midi::noteFromInt( 60 ),
+		Midi::channelFromInt( 5 ) );
+
+	auto pTypelessInstrument =
+		std::make_shared<Instrument>( Instrument::Id( 7 ) );
+	pMap->insertCustomInputMapping(
+		pTypelessInstrument, Midi::noteFromInt( 23 ),
+		Midi::channelFromInt( 13 ) );
 
 	return pMap;
 }
@@ -880,6 +908,55 @@ void IpcRoundTripTest::testMidiEventMapRoundTrip()
 
 	RoundTripAssertions::assertMidiEventMapEqual(
 		pMap, pEngine->getPreferences()->getMidiEventMap() );
+
+	pSession->stop();
+	pEditorSession->disconnect();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcRoundTripTest::testMidiInstrumentMapRoundTrip()
+{
+	___INFOLOG( "" );
+
+	// ── Serialization level: toXmlBuffer → fromXmlBuffer ──
+	auto pMapA = makeMidiInstrumentMap();
+	const auto xml = pMapA->toXmlBuffer();
+	auto pMapB = MidiInstrumentMap::fromXmlBuffer( xml );
+	CPPUNIT_ASSERT( pMapB != nullptr );
+	RoundTripAssertions::assertMidiInstrumentMapEqual( pMapA, pMapB );
+
+	// ── IPC level: setMidiInstrumentMap via IpcCoreActionController ──
+	auto pEngine = TestHelper::makeEngine();
+	auto pMirror = TestHelper::makeMirror();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	auto pSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditorSession != nullptr );
+	auto pAccess = pEditorSession->createEngineAccess();
+	auto pController = std::dynamic_pointer_cast<IpcCoreActionController>(
+		pAccess->getCoreActionController() );
+	CPPUNIT_ASSERT( pController != nullptr );
+
+	auto pMap = makeMidiInstrumentMap();
+	CPPUNIT_ASSERT( pController->setMidiInstrumentMap( pMap ) );
+
+	// The engine boots with a default map of its own (loaded from the
+	// test preferences) — wait for content equality, not just presence.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		const auto pEngineMap =
+			pEngine->getPreferences()->getMidiInstrumentMap();
+		return pEngineMap != nullptr &&
+			   pEngineMap->toXmlBuffer() == pMap->toXmlBuffer();
+	} ) );
+
+	RoundTripAssertions::assertMidiInstrumentMapEqual(
+		pMap, pEngine->getPreferences()->getMidiInstrumentMap() );
 
 	pSession->stop();
 	pEditorSession->disconnect();

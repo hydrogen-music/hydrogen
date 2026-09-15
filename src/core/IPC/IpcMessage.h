@@ -187,6 +187,11 @@ enum class IpcOpcode : quint16 {
 	// sees the same bindings.
 	SetMidiEventMap,        ///< payload: MIDI event map XML (editor→engine)
 
+	// ── ADR 0030 batch 2i: MIDI instrument map ──
+	// Same whole-map payload shape as batch 2h, for the instrument
+	// note/channel mapping edited in the MIDI control dialog.
+	SetMidiInstrumentMap,   ///< payload: MIDI instrument map XML (editor→engine)
+
 	// ── State-sync requests (editor → engine, ADR 0032) ──
 	// Pull-based full-state sync: the editor sends these on connect/reconnect
 	// to mirror the headless engine's authoritative state. Each is a

@@ -36,6 +36,7 @@ class IpcRoundTripTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPreferencesRoundTrip );
 	CPPUNIT_TEST( testNoteRoundTrip );
 	CPPUNIT_TEST( testMidiEventMapRoundTrip );
+	CPPUNIT_TEST( testMidiInstrumentMapRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -48,6 +49,7 @@ public:
 	void testPreferencesRoundTrip();
 	void testNoteRoundTrip();
 	void testMidiEventMapRoundTrip();
+	void testMidiInstrumentMapRoundTrip();
 };
 
 #endif // IPC_ROUND_TRIP_TEST_H

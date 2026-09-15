@@ -828,3 +828,66 @@ void RoundTripAssertions::assertMidiEventMapEqual(
 		assertStringEqual( "MidiAction::parameter3", sParam3A, sParam3B );
 	}
 }
+
+void RoundTripAssertions::assertMidiInstrumentMapEqual(
+	std::shared_ptr<MidiInstrumentMap> a, std::shared_ptr<MidiInstrumentMap> b )
+{
+	CPPUNIT_ASSERT( a != nullptr );
+	CPPUNIT_ASSERT( b != nullptr );
+
+	assertIntEqual( "MidiInstrumentMap::m_input",
+					static_cast<int>( a->getInput() ),
+					static_cast<int>( b->getInput() ) );
+	assertIntEqual( "MidiInstrumentMap::m_output",
+					static_cast<int>( a->getOutput() ),
+					static_cast<int>( b->getOutput() ) );
+	assertBoolEqual( "MidiInstrumentMap::m_bUseGlobalInputChannel",
+					 a->getUseGlobalInputChannel(),
+					 b->getUseGlobalInputChannel() );
+	assertIntEqual( "MidiInstrumentMap::m_globalInputChannel",
+					static_cast<int>( a->getGlobalInputChannel() ),
+					static_cast<int>( b->getGlobalInputChannel() ) );
+	assertBoolEqual( "MidiInstrumentMap::m_bUseGlobalOutputChannel",
+					 a->getUseGlobalOutputChannel(),
+					 b->getUseGlobalOutputChannel() );
+	assertIntEqual( "MidiInstrumentMap::m_globalOutputChannel",
+					static_cast<int>( a->getGlobalOutputChannel() ),
+					static_cast<int>( b->getGlobalOutputChannel() ) );
+
+	// std::map iterates in key order, so a per-position comparison of
+	// the entries is faithful.
+	const auto& typeA = a->getCustomInputMappingsType();
+	const auto& typeB = b->getCustomInputMappingsType();
+	assertIntEqual( "MidiInstrumentMap::m_customInputMappingsType.size",
+					static_cast<int>( typeA.size() ),
+					static_cast<int>( typeB.size() ) );
+	for ( auto itA = typeA.begin(), itB = typeB.begin();
+		  itA != typeA.end(); ++itA, ++itB ) {
+		assertStringEqual( "MidiInstrumentMap::customInputMapping type key",
+						   itA->first, itB->first );
+		assertIntEqual( "MidiInstrumentMap::customInputMapping note",
+						static_cast<int>( itA->second.note ),
+						static_cast<int>( itB->second.note ) );
+		assertIntEqual( "MidiInstrumentMap::customInputMapping channel",
+						static_cast<int>( itA->second.channel ),
+						static_cast<int>( itB->second.channel ) );
+	}
+
+	const auto& idA = a->getCustomInputMappingsId();
+	const auto& idB = b->getCustomInputMappingsId();
+	assertIntEqual( "MidiInstrumentMap::m_customInputMappingsId.size",
+					static_cast<int>( idA.size() ),
+					static_cast<int>( idB.size() ) );
+	for ( auto itA = idA.begin(), itB = idB.begin();
+		  itA != idA.end(); ++itA, ++itB ) {
+		assertIntEqual( "MidiInstrumentMap::customInputMapping id key",
+						static_cast<int>( itA->first ),
+						static_cast<int>( itB->first ) );
+		assertIntEqual( "MidiInstrumentMap::customInputMapping note",
+						static_cast<int>( itA->second.note ),
+						static_cast<int>( itB->second.note ) );
+		assertIntEqual( "MidiInstrumentMap::customInputMapping channel",
+						static_cast<int>( itA->second.channel ),
+						static_cast<int>( itB->second.channel ) );
+	}
+}

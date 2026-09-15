@@ -464,6 +464,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetMidiEventMap:
 		sOpcode = "SET_MIDI_EVENT_MAP";
 		break;
+	case IpcOpcode::SetMidiInstrumentMap:
+		sOpcode = "SET_MIDI_INSTRUMENT_MAP";
+		break;
 	case IpcOpcode::GetSong:
 		sOpcode = "GET_SONG";
 		break;

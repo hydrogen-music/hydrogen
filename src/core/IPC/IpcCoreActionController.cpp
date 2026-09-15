@@ -33,6 +33,7 @@
 #include <core/IPC/IpcMessage.h>
 #include <core/License.h>
 #include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
 namespace H2Core {
@@ -986,6 +987,18 @@ bool IpcCoreActionController::setMidiEventMap(
 		m_pChannel->send( msg );
 	}
 	return CoreActionController::setMidiEventMap( pMidiEventMap );
+}
+
+// ── ADR 0030 batch 2i — MIDI instrument map ──
+
+bool IpcCoreActionController::setMidiInstrumentMap(
+	std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) {
+	if ( m_pChannel != nullptr && pMidiInstrumentMap != nullptr ) {
+		IpcMessage msg( IpcOpcode::SetMidiInstrumentMap );
+		msg.setPayload( pMidiInstrumentMap->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::setMidiInstrumentMap( pMidiInstrumentMap );
 }
 
 }

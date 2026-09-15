@@ -39,6 +39,7 @@
 #include <core/License.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
@@ -776,6 +777,16 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return false;
 		}
 		return pController->setMidiEventMap( pMidiEventMap );
+	}
+	case IpcOpcode::SetMidiInstrumentMap: {
+		auto pMidiInstrumentMap = MidiInstrumentMap::fromXmlBuffer(
+			msg.getPayload(), true );
+		if ( pMidiInstrumentMap == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize MidiInstrumentMap from [%1]" )
+						  .arg( msg.toQString() ) );
+			return false;
+		}
+		return pController->setMidiInstrumentMap( pMidiInstrumentMap );
 	}
 	case IpcOpcode::SetPreferences: {
 		// The headless engine only needs the engine-core subset of

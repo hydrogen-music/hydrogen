@@ -91,7 +91,10 @@ class MidiControlDialog : public QDialog,
 	 * of living only in memory until shutdown. This keeps recovery after a crash
 	 * consistent: either all of these settings come back or none would. Settings
 	 * with a live engine side-effect still go through CoreActionController first;
-	 * this only adds the durable write (ADR 0027 bucket C). */
+	 * this only adds the durable write (ADR 0027 bucket C). In editor mode the
+	 * same call also forwards the instrument map to the authoritative engine
+	 * via setMidiInstrumentMap() so its MIDI/Sampler dispatch applies the
+	 * changes live (ADR 0030). */
 	void persistMidiSettings();
 
 	void updateInstrumentTable();

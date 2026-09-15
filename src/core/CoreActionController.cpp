@@ -1703,6 +1703,25 @@ bool CoreActionController::setMidiEventMap(
 	return true;
 }
 
+bool CoreActionController::setMidiInstrumentMap(
+	std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap )
+{
+	if ( pMidiInstrumentMap == nullptr ) {
+		ERRORLOG( "Invalid MIDI instrument map" );
+		return false;
+	}
+
+	// Granular install: the engine's MIDI I/O and Sampler read the map
+	// live (incoming note mapping, outgoing note/channel selection), so
+	// — unlike setPreferences() — no driver restarts and no
+	// UpdatePreferences event are needed. There is no dedicated
+	// MidiInstrumentMapChanged event; the GUI refreshes its MIDI widgets
+	// locally via changePreferences() (ADR 0030).
+	m_pHydrogen->getPreferences()->setMidiInstrumentMap( pMidiInstrumentMap );
+
+	return true;
+}
+
 bool CoreActionController::savePreferences()
 {
 	if ( !m_pHydrogen->getPreferences()->save( false ) ) {

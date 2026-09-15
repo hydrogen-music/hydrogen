@@ -965,6 +965,14 @@ void MidiControlDialog::persistMidiSettings()
 	// reach the engine via the shared config rather than living only in memory
 	// until shutdown (ADR 0027 bucket C).
 	HydrogenApp::pPreferences()->save( false );
+
+	// In the IPC split the engine does not share our Preferences object:
+	// hand it the current instrument map so its MIDI/Sampler dispatch
+	// reacts live instead of only on the next config reload (ADR 0030).
+	// Standalone this is a local install of the very same object — a
+	// no-op.
+	HydrogenApp::pEngine()->getCoreActionController()->setMidiInstrumentMap(
+		HydrogenApp::pPreferences()->getMidiInstrumentMap() );
 }
 
 void MidiControlDialog::updateInstrumentTable() {

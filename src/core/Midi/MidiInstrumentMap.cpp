@@ -283,6 +283,43 @@ MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent )
 	return pMidiInstrumentMap;
 }
 
+QByteArray MidiInstrumentMap::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "midiInstrumentMap", "midiInstrumentMap" );
+	// saveTo() nests the settings in its own "midiInstrumentMap" child
+	// node (in the file format the map lives below the preferences
+	// root), so the buffer mirrors that layout and fromXmlBuffer()
+	// unwraps it again.
+	saveTo( root );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::fromXmlBuffer(
+	const QByteArray& xmlBuffer, bool bSilent )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( xmlBuffer ) ) {
+		ERRORLOG( "Unable to parse MIDI instrument map XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode root = doc.firstChildElement( "midiInstrumentMap" );
+	if ( root.isNull() ) {
+		ERRORLOG( "Error reading MIDI instrument map buffer: 'midiInstrumentMap' node not found" );
+		return nullptr;
+	}
+
+	XMLNode mapNode = root.firstChildElement( "midiInstrumentMap" );
+	if ( mapNode.isNull() ) {
+		ERRORLOG( "Error reading MIDI instrument map buffer: nested 'midiInstrumentMap' node not found" );
+		return nullptr;
+	}
+
+	return loadFrom( mapNode, bSilent );
+}
+
 std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 	Midi::Note note,
 	Midi::Channel channel,

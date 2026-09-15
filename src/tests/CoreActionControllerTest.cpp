@@ -39,6 +39,7 @@
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Helpers/Filesystem.h>
@@ -548,6 +549,36 @@ void CoreActionControllerTest::testSetMidiEventMap() {
 	CPPUNIT_ASSERT( ! pCAC->setMidiEventMap( nullptr ) );
 
 	pHydrogen->getPreferences()->setMidiEventMap( pOriginalMap );
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testSetMidiInstrumentMap() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	// Reinstall the original map before leaving — the live one backs the
+	// MIDI I/O of subsequent tests.
+	const auto pOriginalMap =
+		pHydrogen->getPreferences()->getMidiInstrumentMap();
+
+	auto pMap = std::make_shared<MidiInstrumentMap>();
+	pMap->setOutput( MidiInstrumentMap::Output::Constant );
+
+	// The base install hands the very object to Preferences — the
+	// engine's MIDI/Sampler dispatch then reads it live.
+	CPPUNIT_ASSERT( pCAC->setMidiInstrumentMap( pMap ) );
+	CPPUNIT_ASSERT(
+		pHydrogen->getPreferences()->getMidiInstrumentMap() == pMap );
+	CPPUNIT_ASSERT(
+		pHydrogen->getPreferences()->getMidiInstrumentMap()->getOutput() ==
+			MidiInstrumentMap::Output::Constant );
+
+	// A null map is rejected.
+	CPPUNIT_ASSERT( ! pCAC->setMidiInstrumentMap( nullptr ) );
+
+	pHydrogen->getPreferences()->setMidiInstrumentMap( pOriginalMap );
 
 	___INFOLOG( "passed" );
 }

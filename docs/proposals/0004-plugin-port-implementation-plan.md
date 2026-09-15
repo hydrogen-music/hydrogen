@@ -771,20 +771,40 @@ paths (no playlist file to resolve against over IPC).
   engine's map — an NSM session open reloads the whole engine
   Preferences from the session file (`NsmClient` → `loadPreferences` +
   `setPreferences`); the next table edit re-forwards the map. The
-  `shared_ptr` swap in `Preferences::setMidiEventMap` is unsynchronised
-  against the MIDI thread's live reads — a pre-existing hazard shape
-  shared with `setPreferences` (whole-object swap) that deserves a
-  class-level fix (mutex or atomics in the Preferences/Hydrogen
-  accessors), tracked here. `MidiInstrumentMap`
-  (instrument→channel/notes) is a follow-up candidate with the same
-  shape, as is the editor-mode MIDI-learn gap: `MidiSenseWidget` polls
-  the mirror's `getLastMidiEvent`, which only the engine's `MidiInput`
-  ever sets, so event capture in the split needs a forwarded
-  last-event channel.
+  `shared_ptr` swap in `Preferences::setMidiEventMap` (and, since batch
+  2i, `setMidiInstrumentMap`) is unsynchronised against the MIDI
+  thread's live reads — a pre-existing hazard shape shared with
+  `setPreferences` (whole-object swap) that deserves a class-level fix
+  (mutex or atomics in the Preferences/Hydrogen accessors), tracked
+  here. Also outstanding: the editor-mode MIDI-learn gap —
+  `MidiSenseWidget` polls the mirror's `getLastMidiEvent`, which only
+  the engine's `MidiInput` ever sets, so event capture in the split
+  needs a forwarded last-event channel.
 * Tested: `IpcRoundTripTest::testMidiEventMapRoundTrip` (serialization
   round-trip + `setMidiEventMap` over IPC, engine map asserted equal) and
   `CoreActionControllerTest::testSetMidiEventMap` (base install + null
   rejection).
+
+**MIDI instrument map wiring (batch 2i) — DONE, suite `OK (425 tests)`.**
+* `setMidiInstrumentMap` → **payload command**, same whole-map shape as
+  batch 2h: the MIDI control dialog funnels every edit through
+  `persistMidiSettings()`, which now — besides the config-file save —
+  forwards the instrument map so the authoritative engine's MIDI I/O
+  (incoming note mapping, outgoing note/channel selection in the
+  Sampler) applies the same settings live. Serialisation reuses
+  `MidiInstrumentMap::saveTo`/`loadFrom` via the new
+  `toXmlBuffer`/`fromXmlBuffer` (same nested-node unwrap as 2h); no
+  driver restarts, no `UpdatePreferences`, and no event — none exists
+  for this map (the GUI refreshes via local `changePreferences()`).
+* Shares the residuals of batch 2h: an NSM session open replaces the
+  whole engine Preferences (the next dialog edit re-forwards), and the
+  `shared_ptr` swap is unsynchronised against live readers — here
+  including the Sampler's audio-thread reads.
+* Tested: `IpcRoundTripTest::testMidiInstrumentMapRoundTrip`
+  (serialization round-trip incl. type- and id-based custom input
+  mappings + `setMidiInstrumentMap` over IPC, engine map asserted
+  equal) and `CoreActionControllerTest::testSetMidiInstrumentMap`
+  (base install + null rejection).
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

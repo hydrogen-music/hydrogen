@@ -23,6 +23,7 @@
 #ifndef MIDI_INSTRUMENT_MAP_H
 #define MIDI_INSTRUMENT_MAP_H
 
+#include <QByteArray>
 #include <QString>
 #include <map>
 #include <memory>
@@ -127,6 +128,16 @@ public:
 
 	void saveTo( XMLNode& node ) const;
 	static std::shared_ptr<MidiInstrumentMap> loadFrom( const XMLNode& node, bool bSilent = false );
+
+	/** Serializes the map into a self-contained XML buffer for IPC
+	 * transport (ADR 0030). */
+	QByteArray toXmlBuffer() const;
+	/** Reconstructs a map from a buffer produced by toXmlBuffer().
+	 *
+	 * \param bSilent Passed through to loadFrom(). */
+	static std::shared_ptr<MidiInstrumentMap> fromXmlBuffer(
+		const QByteArray& xmlBuffer,
+		bool bSilent = false );
 
 	std::vector< std::shared_ptr<Instrument> > mapInput(
 		Midi::Note note, Midi::Channel channel, std::shared_ptr<Drumkit> pDrumkit,

@@ -37,6 +37,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSaveSongDiscardEvent );
 	CPPUNIT_TEST( testSetSongPatternSelectionPreservation );
 	CPPUNIT_TEST( testSetMidiEventMap );
+	CPPUNIT_TEST( testSetMidiInstrumentMap );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -65,6 +66,10 @@ public:
 		/** setMidiEventMap() installs the provided map as the live map
 		 * of the current Preferences (ADR 0030). */
 		void testSetMidiEventMap();
+
+		/** setMidiInstrumentMap() installs the provided map as the live
+		 * map of the current Preferences (ADR 0030). */
+		void testSetMidiInstrumentMap();
 
 	void testSessionManagement();
 };

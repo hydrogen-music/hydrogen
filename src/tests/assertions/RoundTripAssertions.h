@@ -33,6 +33,7 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 
 #include <QString>
@@ -110,6 +111,10 @@ public:
  static void assertMidiEventMapEqual(
 	 std::shared_ptr<H2Core::MidiEventMap> a,
 	 std::shared_ptr<H2Core::MidiEventMap> b
+ );
+ static void assertMidiInstrumentMapEqual(
+	 std::shared_ptr<H2Core::MidiInstrumentMap> a,
+	 std::shared_ptr<H2Core::MidiInstrumentMap> b
  );
 
 private:
