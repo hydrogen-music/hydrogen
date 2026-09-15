@@ -47,10 +47,12 @@ namespace H2Core {
 bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 									   Hydrogen* pHydrogen ) {
 	if ( pHydrogen == nullptr ) {
+		ERRORLOG( "Hydrogen instance invalid" );
 		return false;
 	}
 	auto pController = pHydrogen->getCoreActionController();
 	if ( pController == nullptr ) {
+		ERRORLOG( "CoreActionController instance invalid" );
 		return false;
 	}
 	const QVector<QVariant>& args = msg.getArgs();
@@ -76,38 +78,38 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( args.size() >= 1 ) {
 			return pController->setBpm( args[0].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetMasterVolume:
 		if ( args.size() >= 1 ) {
 			return pController->setMasterVolume( args[0].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetMasterIsMuted:
 		if ( args.size() >= 1 ) {
 			return pController->setMasterIsMuted( args[0].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetMetronomeIsActive:
 		if ( args.size() >= 1 ) {
 			return pController->setMetronomeIsActive( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::LocateToColumn:
 		if ( args.size() >= 1 ) {
 			return pController->locateToColumn( args[0].toInt() );
 		}
-		return false;
+		break;
 	case IpcOpcode::LocateToTick:
 		if ( args.size() >= 2 ) {
 			return pController->locateToTick(
 				static_cast<long>( args[0].toLongLong() ), args[1].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::SelectPattern:
 		if ( args.size() >= 1 ) {
 			return pController->selectPattern( args[0].toInt() );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetSelectedInstrument:
 		if ( args.size() >= 1 ) {
 			// No CoreActionController surface for this — apply on the engine
@@ -118,7 +120,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[0].toInt(), Event::Trigger::Default );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::SetSongModified:
 		if ( args.size() >= 1 ) {
 			// No CoreActionController surface for this — apply on the
@@ -132,7 +134,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[0].toBool(), Event::Trigger::Suppress );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::HandleBeatCounter:
 		if ( args.size() >= 1 ) {
 			// No CoreActionController surface for this — apply on the
@@ -143,14 +145,14 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pHydrogen->handleBeatCounter( TimePoint(
 				TimePoint::duration( args[0].toLongLong() ) ) );
 		}
-		return false;
+		break;
 	case IpcOpcode::TapTempoAccelEvent:
 		if ( args.size() >= 1 ) {
 			pHydrogen->onTapTempoAccelEvent( TimePoint(
 				TimePoint::duration( args[0].toLongLong() ) ) );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::UpdateBeatCounterSettings:
 		// Config snapshot from the editor: beat length, total beats,
 		// drift compensation, start offset, and the Tap/TapAndPlay mode
@@ -162,13 +164,13 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				static_cast<Preferences::BeatCounter>( args[4].toInt() ) );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::SetIsTimelineActivated:
 		if ( args.size() >= 1 ) {
 			pHydrogen->setIsTimelineActivated( args[0].toBool() );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::SetPatternMode:
 		if ( args.size() >= 1 ) {
 			// Suppress: the editor already applied the mode flip on its
@@ -179,7 +181,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				Event::Trigger::Suppress );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::LoadPlaybackTrack:
 		if ( args.size() >= 1 ) {
 			pHydrogen->loadPlaybackTrack( args[0].toString() );
@@ -195,7 +197,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[0].toBool(), Event::Trigger::Suppress );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::SetPatternModified:
 		if ( args.size() >= 2 ) {
 			// Suppress: like SetDrumkitModified above.
@@ -204,7 +206,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				Event::Trigger::Suppress );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::SetIsPatternEditorLocked:
 		if ( args.size() >= 1 ) {
 			// Suppress: like SetDrumkitModified above.
@@ -212,63 +214,65 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[0].toBool(), Event::Trigger::Suppress );
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::SetStripVolume:
 		if ( args.size() >= 3 ) {
 			return pController->setStripVolume(
 				args[0].toInt(), args[1].toFloat(), args[2].toBool(),
 				Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetStripPan:
 		if ( args.size() >= 3 ) {
 			return pController->setStripPan(
 				args[0].toInt(), args[1].toFloat(), args[2].toBool(),
 				Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::ActivateLoopMode:
 		if ( args.size() >= 1 ) {
 			return pController->activateLoopMode( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::ActivateSongMode:
 		if ( args.size() >= 1 ) {
 			return pController->activateSongMode( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::ActivateRecordMode:
 		if ( args.size() >= 1 ) {
 			return pController->activateRecordMode( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::AddTempoMarker:
 		if ( args.size() >= 2 ) {
 			return pController->addTempoMarker( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::AddTag:
 		if ( args.size() >= 2 ) {
 			return pController->addTag( args[0].toInt(), args[1].toString(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::AddAutomationPoint:
 		if ( args.size() >= 2 ) {
 			return pController->addAutomationPoint(
 				args[0].toFloat(), args[1].toFloat(), Event::Trigger::Suppress
 			);
 		}
-		return false;
+		break;
 		case IpcOpcode::RemoveAutomationPoint:
 		if ( args.size() >= 1 ) {
 			return pController->removeAutomationPoint( args[0].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetSong: {
 		auto pSong = Song::fromXmlBuffer(
 			msg.getPayload(), Xml::Flag::Ipc, true, pHydrogen
 		);
 		if ( pSong == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize song from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->setSong( pSong, Event::Trigger::Suppress );
@@ -282,7 +286,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				License( args[5].toString(), args[6].toString() ),
 				args[7].toStringList(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	// args: path, version, name, author, info, licenseString, copyrightHolder,
 	//       tags, patternIndex
 	case IpcOpcode::SetPatternProperties:
@@ -294,217 +298,224 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[7].toStringList(), args[8].toInt(),
 				Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::RescanSoundLibrary:
 		if ( pHydrogen->getSoundLibraryDatabase() != nullptr ) {
 			pHydrogen->getSoundLibraryDatabase()->update();
 			return true;
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentPitch:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentPitch( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentGain:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentGain( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentRandomPitch:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentRandomPitch( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentFilterCutoff:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentFilterCutoff( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentFilterResonance:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentFilterResonance( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentAttack:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentAttack( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentDecay:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentDecay( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentSustain:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentSustain( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentRelease:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentRelease( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentFilterActive:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentFilterActive( args[0].toInt(), args[1].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentMuteGroup:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentMuteGroup( args[0].toInt(), args[1].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentStopNotes:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentStopNotes( args[0].toInt(), args[1].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentApplyVelocity:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentApplyVelocity( args[0].toInt(), args[1].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentHihatGroup:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentHihatGroup( args[0].toInt(), args[1].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentLowerCc:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentLowerCc( args[0].toInt(), args[1].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentHigherCc:
 		if ( args.size() >= 2 ) {
 			return pController->setInstrumentHigherCc( args[0].toInt(), args[1].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentMidiOutNote:
 		if ( args.size() >= 3 ) {
 			return pController->setInstrumentMidiOutNote(
 				args[0].toInt(), static_cast<Midi::Note>( args[1].toInt() ),
 				args[2].value<long>(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetInstrumentMidiOutChannel:
 		if ( args.size() >= 3 ) {
 			return pController->setInstrumentMidiOutChannel(
 				args[0].toInt(), static_cast<Midi::Channel>( args[1].toInt() ),
 				args[2].value<long>(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetComponentIsMuted:
 		if ( args.size() >= 3 ) {
 			return pController->setComponentIsMuted( args[0].toInt(), args[1].toInt(), args[2].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetComponentIsSoloed:
 		if ( args.size() >= 3 ) {
 			return pController->setComponentIsSoloed( args[0].toInt(), args[1].toInt(), args[2].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetComponentGain:
 		if ( args.size() >= 3 ) {
 			return pController->setComponentGain( args[0].toInt(), args[1].toInt(), args[2].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetComponentSelection:
 		if ( args.size() >= 3 ) {
 			return pController->setComponentSelection( args[0].toInt(), args[1].toInt(), args[2].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetLayerIsMuted:
 		if ( args.size() >= 4 ) {
 			return pController->setLayerIsMuted( args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetLayerIsSoloed:
 		if ( args.size() >= 4 ) {
 			return pController->setLayerIsSoloed( args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetLayerGain:
 		if ( args.size() >= 4 ) {
 			return pController->setLayerGain( args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetLayerPitchOffset:
 		if ( args.size() >= 4 ) {
 			return pController->setLayerPitchOffset( args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetLayerStartVelocity:
 		if ( args.size() >= 4 ) {
 			return pController->setLayerStartVelocity( args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetLayerEndVelocity:
 		if ( args.size() >= 4 ) {
 			return pController->setLayerEndVelocity( args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetStripIsMuted:
 		if ( args.size() >= 3 ) {
 			return pController->setStripIsMuted( args[0].toInt(), args[1].toBool(), args[2].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetStripIsSoloed:
 		if ( args.size() >= 3 ) {
 			return pController->setStripIsSoloed( args[0].toInt(), args[1].toBool(), args[2].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetStripPanSym:
 		if ( args.size() >= 3 ) {
 			return pController->setStripPanSym( args[0].toInt(), args[1].toFloat(), args[2].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetHumanizeTime:
 		if ( args.size() >= 1 ) {
 			return pController->setHumanizeTime( args[0].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetHumanizeVelocity:
 		if ( args.size() >= 1 ) {
 			return pController->setHumanizeVelocity( args[0].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetSwing:
 		if ( args.size() >= 1 ) {
 			return pController->setSwing( args[0].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetPanLaw:
 		if ( args.size() >= 2 ) {
 			return pController->setPanLaw( args[0].toInt(), args[1].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetPlaybackTrackMuted:
 		if ( args.size() >= 1 ) {
 			return pController->setPlaybackTrackMuted( args[0].toBool(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetPlaybackTrackVolume:
 		if ( args.size() >= 1 ) {
 			return pController->setPlaybackTrackVolume( args[0].toFloat(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::PreviewInstrumentSerialized: {
 		auto pInstrument = Instrument::fromXmlBuffer(
 			msg.getPayload(), Xml::Flag::KeepMissingSamples,
 			true /* bSilent */, pHydrogen );
-		if ( pInstrument == nullptr || args.size() < 1 ) {
+		if ( args.size() < 1 ) {
+			break;
+		}
+		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize instrument from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		auto pNote = Note::fromXmlBuffer(
 			args[0].toByteArray(), true /* bSilent */, pHydrogen );
 		if ( pNote == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize note from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		// The ad-hoc instrument is not part of any kit, so the note
@@ -516,31 +527,31 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( args.size() >= 1 ) {
 			return pController->activateTimeline( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::ToggleTimeline:
 		return pController->toggleTimeline();
 	case IpcOpcode::DeleteTempoMarker:
 		if ( args.size() >= 1 ) {
 			return pController->deleteTempoMarker( args[0].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::DeleteTag:
 		if ( args.size() >= 1 ) {
 			return pController->deleteTag( args[0].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::ActivateJackTransport:
 		if ( args.size() >= 1 ) {
 			return pController->activateJackTransport( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::ToggleJackTransport:
 		return pController->toggleJackTransport();
 	case IpcOpcode::ActivateJackTimebaseControl:
 		if ( args.size() >= 1 ) {
 			return pController->activateJackTimebaseControl( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::ToggleJackTimebaseControl:
 		return pController->toggleJackTimebaseControl();
 	case IpcOpcode::ToggleSongMode:
@@ -551,49 +562,49 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( args.size() >= 2 ) {
 			return pController->moveInstrument( args[0].toInt(), args[1].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::RenameComponent:
 		if ( args.size() >= 3 ) {
 			return pController->renameComponent( args[0].toInt(), args[1].toInt(), args[2].toString(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::ToggleNextPattern:
 		if ( args.size() >= 1 ) {
 			return pController->toggleNextPattern( args[0].toInt() );
 		}
-		return false;
+		break;
 	case IpcOpcode::MovePattern:
 		if ( args.size() >= 2 ) {
 			return pController->movePattern( args[0].toInt(), args[1].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::RemovePattern:
 		if ( args.size() >= 1 ) {
 			return pController->removePattern( args[0].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetPatternSize:
 		if ( args.size() >= 3 ) {
 			return pController->setPatternSize( args[0].toInt(), args[1].toInt(), args[2].toInt(), Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::StartCountIn:
 		return pController->startCountIn();
 	case IpcOpcode::ActivatePlaylistSong:
 		if ( args.size() >= 1 ) {
 			return pController->activatePlaylistSong( args[0].toInt() );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetMidiClockInputHandling:
 		if ( args.size() >= 1 ) {
 			return pController->setMidiClockInputHandling( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetMidiClockOutputSend:
 		if ( args.size() >= 1 ) {
 			return pController->setMidiClockOutputSend( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::ClearMidiInputLog:
 		return pController->clearMidiInputLog();
 	case IpcOpcode::ClearMidiOutputLog:
@@ -610,7 +621,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[13].toInt(), args[14].toInt(), args[15].toInt(),
 				Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::RemoveNote:
 		if ( args.size() >= 2 ) {
 			return pController->removeNote(
@@ -618,14 +629,14 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				Uuid::fromQString( args[1].toString() ),
 				Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::ToggleGridCell:
 		if ( args.size() >= 2 ) {
 			return pController->toggleGridCell(
 				GridPoint( args[0].toInt(), args[1].toInt() ),
 				Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::AddOrRemoveNote:
 		if ( args.size() >= 14 ) {
 			return pController->addOrRemoveNote(
@@ -636,7 +647,7 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[12].toBool(), args[13].toBool(), nullptr,
 				Event::Trigger::Suppress );
 		}
-		return false;
+		break;
 	case IpcOpcode::HandleNote:
 		if ( args.size() >= 4 ) {
 			return pController->handleNote(
@@ -644,11 +655,13 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				static_cast<Midi::Channel>( args[1].toInt() ),
 				args[2].toFloat(), args[3].toBool(), nullptr );
 		}
-		return false;
+		break;
  	case IpcOpcode::SetDrumkit: {
 		auto pDrumkit = Drumkit::fromXmlBuffer(
 			msg.getPayload(), "", Xml::Flag::SongKit, true, pHydrogen );
 		if ( pDrumkit == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize drumkit from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->setDrumkit( pDrumkit, Event::Trigger::Suppress );
@@ -661,6 +674,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			msg.getPayload(), pHydrogen->getSong()->getDrumkit(), true,
 			pHydrogen->getSoundLibraryDatabase() );
 		if ( pPattern == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize pattern from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->setPattern(
@@ -668,16 +683,27 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			Event::Trigger::Suppress );
 	}
 	case IpcOpcode::ReplaceInstrument: {
-		if ( args.size() < 1 || pHydrogen->getSong() == nullptr ||
+		if ( args.size() < 1 ) {
+			break;
+		}
+		if ( pHydrogen->getSong() == nullptr ||
 			 pHydrogen->getSong()->getDrumkit() == nullptr ) {
+			ERRORLOG( "Invalid current song" );
 			return false;
 		}
 		auto pNewInstrument = Instrument::fromXmlBuffer(
 			msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
+		if ( pNewInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize new instrument from [%1]" )
+						  .arg( msg.toQString() ) );
+			return false;
+		}
 		auto pOldInstrument =
 			pHydrogen->getSong()->getDrumkit()->getInstruments()->find(
 				static_cast<Instrument::Id>( args[0].toInt() ) );
-		if ( pNewInstrument == nullptr || pOldInstrument == nullptr ) {
+		if ( pOldInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize old instrument from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->replaceInstrument( pNewInstrument, pOldInstrument, Event::Trigger::Suppress );
@@ -685,11 +711,13 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	case IpcOpcode::AddInstrument: {
 		// Fire-and-forget path (the request/response path is in handleRequest).
 		if ( args.size() < 2 ) {
-			return false;
+			break;
 		}
 		auto pInstrument = Instrument::fromXmlBuffer(
 			msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
 		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize instrument from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->addInstrument(
@@ -700,11 +728,13 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	case IpcOpcode::RemoveInstrument: {
 		// Fire-and-forget path (the request/response path is in handleRequest).
 		if ( args.size() < 1 ) {
-			return false;
+			break;
 		}
 		auto pInstrument = Instrument::fromXmlBuffer(
 			msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
 		if ( pInstrument == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize instrument from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->removeInstrument(
@@ -715,22 +745,24 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( args.size() >= 1 ) {
 			return pController->saveSong( args[0].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::SaveSongAs:
 		if ( args.size() >= 2 ) {
 			return pController->saveSongAs( args[0].toString(), args[1].toBool() );
 		}
-		return false;
+		break;
 	case IpcOpcode::SavePlaylist:
 		return pController->savePlaylist();
 	case IpcOpcode::SavePlaylistAs:
 		if ( args.size() >= 1 ) {
 			return pController->savePlaylistAs( args[0].toString() );
 		}
-		return false;
+		break;
 	case IpcOpcode::SetPlaylist: {
 		auto pPlaylist = Playlist::fromXmlBuffer( msg.getPayload() );
 		if ( pPlaylist == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize playlist from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->setPlaylist( pPlaylist );
@@ -739,6 +771,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		auto pMidiEventMap = MidiEventMap::fromXmlBuffer(
 			msg.getPayload(), true, pHydrogen );
 		if ( pMidiEventMap == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize MidiEventMap from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->setMidiEventMap( pMidiEventMap );
@@ -749,6 +783,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		// GUI-only fields are not relevant and not sent.
 		auto pPref = pHydrogen->getPreferences();
 		if ( pPref == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize Preferences from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		pPref->applyCorePropsFromXml( msg.getPayload() );
@@ -764,20 +800,22 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				PlaylistEntry::fromMimeText( args[0].toString() ),
 				args[1].toInt() );
 		}
-		return false;
+		break;
 	case IpcOpcode::RemoveFromPlaylist:
 		if ( args.size() >= 2 ) {
 			return pController->removeFromPlaylist(
 				PlaylistEntry::fromMimeText( args[0].toString() ),
 				args[1].toInt() );
 		}
-		return false;
+		break;
 	case IpcOpcode::Panic:
 		return pController->panic();
 	case IpcOpcode::NoteOn: {
 		auto pNote = Note::fromXmlBuffer(
 			msg.getPayload(), true /* bSilent */, pHydrogen );
 		if ( pNote == nullptr ) {
+			ERRORLOG( QString( "Unable to serialize note from [%1]" )
+						  .arg( msg.toQString() ) );
 			return false;
 		}
 		return pController->noteOn( pNote );
@@ -788,8 +826,20 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		return pController->releasePlayingNotes( uuid );
 	}
 	default:
+		ERRORLOG( QString( "Unknown opcode [%1 : %2]" )
+				  .arg( static_cast<int>( msg.getOpcode() ) )
+					.arg( H2Core::IpcOpcodeToQString(
+						static_cast<quint16>( msg.getOpcode() )
+					) ) );
 		return false; // Hello / Event / unknown are not engine commands
 	}
+
+	WARNINGLOG( QString( "Invalid numbar of arguments [%1] in [%2]" )
+					.arg( args.size() )
+					.arg( H2Core::IpcOpcodeToQString(
+						static_cast<quint16>( msg.getOpcode() )
+					) ) );
+	return false;
 }
 
 IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
@@ -797,10 +847,12 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 	IpcMessage reply( IpcOpcode::Reply );
 	reply.setRequestId( msg.getRequestId() );
 	if ( pHydrogen == nullptr ) {
+		ERRORLOG( "Hydrogen instance invalid" );
 		return reply;
 	}
 	auto pController = pHydrogen->getCoreActionController();
 	if ( pController == nullptr ) {
+		ERRORLOG( "CoreActionController instance invalid" );
 		return reply;
 	}
 	const QVector<QVariant>& args = msg.getArgs();
