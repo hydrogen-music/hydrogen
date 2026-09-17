@@ -296,6 +296,20 @@ public:
 	bool addCustomSoundLibraryDir( const QString& sDirPath ) override;
 	bool removeCustomSoundLibraryDir( const QString& sDirPath ) override;
 
+	// ADR 0030 batch 2l — song export. The render pipeline only runs
+	// in the authoritative engine (the mirror's process loop skips
+	// rendering by design), so the whole plan crosses as one
+	// request/response and the mirror must not also run it. The stop
+	// is a fire-and-forget command: the engine restores its own
+	// state, and the dialog keeps its editor-local preferences
+	// restore.
+	bool exportSong( int nSampleRate, int nSampleDepth,
+					 double fCompressionLevel,
+					 Interpolation::InterpolateMode interpolateMode,
+					 bool bRubberbandBatchMode,
+					 const std::vector<ExportRender>& renders ) override;
+	void stopExportSession() override;
+
 private:
 	/** Control channel to the authoritative engine; not owned. */
 	IpcChannel* m_pChannel;

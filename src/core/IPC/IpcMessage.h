@@ -363,6 +363,22 @@ enum class IpcOpcode : quint16 {
 	RemoveCustomSoundLibraryDir, ///< command: args = [QString dirPath]
 	                            ///< (editor→engine)
 
+	// ── Song export (editor → engine, ADR 0030 batch 2l) ──
+	// The render pipeline only runs in the authoritative engine, so
+	// the whole export plan crosses as one request: the engine arms
+	// the session synchronously and renders on a background thread (a
+	// synchronous render would starve the serve loop and deadlock the
+	// reply). The stop is a fire-and-forget command; the writer's
+	// failure state is a query.
+	ExportSong,               ///< request: args = [int sampleRate,
+	                          ///< int sampleDepth, double compressionLevel,
+	                          ///< int interpolateMode, bool rubberbandBatch,
+	                          ///< int renderCount, per render: QString fileName
+	                          ///< + QStringList excluded instrument ids]
+	                          ///< (editor→engine); reply: args = [bool success]
+	StopExportSession,        ///< command (editor→engine)
+	GetExportWritingFailed,   ///< query; reply: args = [bool failed]
+
 	OpcodeCount
 };
 /**

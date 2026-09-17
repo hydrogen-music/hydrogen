@@ -40,6 +40,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetMidiInstrumentMap );
 	CPPUNIT_TEST( testSetLastMidiEvent );
 	CPPUNIT_TEST( testAddRemoveCustomSoundLibraryDir );
+	CPPUNIT_TEST( testExportSong );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -81,6 +82,11 @@ public:
 	 * the Preferences list and the sound library database in sync
 	 * (ADR 0030). */
 	void testAddRemoveCustomSoundLibraryDir();
+
+	/** exportSong() runs a whole export plan on the engine — session,
+	 * renders, restore — including the empty-plan no-op and
+	 * stopExportSession() cancel/idempotency (ADR 0030 batch 2l). */
+	void testExportSong();
 
 	void testSessionManagement();
 };

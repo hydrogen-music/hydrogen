@@ -581,6 +581,15 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::RemoveCustomSoundLibraryDir:
 		sOpcode = "REMOVE_CUSTOM_SOUND_LIBRARY_DIR";
 		break;
+	case IpcOpcode::ExportSong:
+		sOpcode = "EXPORT_SONG";
+		break;
+	case IpcOpcode::StopExportSession:
+		sOpcode = "STOP_EXPORT_SESSION";
+		break;
+	case IpcOpcode::GetExportWritingFailed:
+		sOpcode = "GET_EXPORT_WRITING_FAILED";
+		break;
 	case IpcOpcode::OpcodeCount:
 	default:
 		sOpcode = "Unknown IPC opcode";

@@ -21,7 +21,6 @@
 
 #include <core/IPC/IpcEngineAccess.h>
 
-#include <core/IO/DiskWriterDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
@@ -430,9 +429,16 @@ IpcEngineAccess::getHandledMidiOutputs() const {
 
 bool IpcEngineAccess::isExportWritingFailed() const
 {
-	const auto pDriver =
-		std::dynamic_pointer_cast<DiskWriterDriver>( m_pMirror->getAudioDriver()
-		);
-	return pDriver != nullptr && pDriver->writingFailed();
+	// The mirror owns no disk writer — the engine's writer state
+	// crosses as a query (ADR 0030 batch 2l). On timeout we report
+	// "not failed": the -1 progress event is the authoritative failure
+	// signal, this query only disambiguates a completed 100.
+	IpcMessage reply;
+	if ( ! ipcRequest( m_pChannel,
+					   IpcMessage( IpcOpcode::GetExportWritingFailed ),
+					   reply ) ) {
+		return false;
+	}
+	return reply.getArgs().size() >= 1 && reply.getArgs()[0].toBool();
 }
 };

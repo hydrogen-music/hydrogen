@@ -1784,6 +1784,21 @@ bool CoreActionController::removeCustomSoundLibraryDir(
 	return true;
 }
 
+bool CoreActionController::exportSong(
+	int nSampleRate, int nSampleDepth, double fCompressionLevel,
+	Interpolation::InterpolateMode interpolateMode,
+	bool bRubberbandBatchMode, const std::vector<ExportRender>& renders )
+{
+	return m_pHydrogen->exportSong( nSampleRate, nSampleDepth,
+									fCompressionLevel, interpolateMode,
+									bRubberbandBatchMode, renders );
+}
+
+void CoreActionController::stopExportSession()
+{
+	m_pHydrogen->stopExportSession();
+}
+
 bool CoreActionController::savePreferences()
 {
 	if ( !m_pHydrogen->getPreferences()->save( false ) ) {

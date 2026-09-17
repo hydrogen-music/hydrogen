@@ -297,14 +297,13 @@ void EditorPathExerciser::exerciseNextAction()
 			const QString sTmpFile = Filesystem::tmpFilePath(
 				"editor-path-exerciser-export-song.h2song"
 			);
-			HydrogenApp::pHydrogen()->startExportSession( 48000, 16, 0 );
-			HydrogenApp::pHydrogen()->startExportSong( sTmpFile );
-			HydrogenApp::pHydrogen()->stopExportSong();
-			HydrogenApp::pHydrogen()->stopExportSession();
-			HydrogenApp::pHydrogen()
-				->getSong()
-				->getDrumkit()
-				->recalculateRubberband( 120, HydrogenApp::pHydrogen() );
+			// One-shot export through the controller (batch 2l) — the
+			// engine runs the plan and restores the session state.
+			HydrogenApp::pEngine()->getCoreActionController()->exportSong(
+				48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
+				{ ExportRender{ sTmpFile, {} } } );
+			HydrogenApp::pEngine()->getCoreActionController()
+				->stopExportSession();
 			HydrogenApp::pHydrogen()->getSoundLibraryDatabase()->updateSongs(
 				Event::Trigger::Default
 			);

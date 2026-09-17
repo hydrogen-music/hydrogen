@@ -1035,4 +1035,61 @@ bool IpcCoreActionController::removeCustomSoundLibraryDir(
 	return CoreActionController::removeCustomSoundLibraryDir( sDirPath );
 }
 
+// ── ADR 0030 batch 2l — song export ──
+
+bool IpcCoreActionController::exportSong(
+	int nSampleRate, int nSampleDepth, double fCompressionLevel,
+	Interpolation::InterpolateMode interpolateMode,
+	bool bRubberbandBatchMode, const std::vector<ExportRender>& renders ) {
+	// Engine-only: the render pipeline just runs in the authoritative
+	// engine — the mirror's process loop skips rendering by design —
+	// so the plan crosses as one request and there is no base call.
+	// The engine arms the session synchronously before answering, so
+	// a true reply means the session is already active.
+	if ( m_pChannel == nullptr ) {
+		WARNINGLOG( "No engine channel — export not started" );
+		return false;
+	}
+
+	IpcMessage msg( IpcOpcode::ExportSong );
+	msg.arg( nSampleRate )
+		.arg( nSampleDepth )
+		.arg( fCompressionLevel )
+		.arg( static_cast<int>( interpolateMode ) )
+		.arg( bRubberbandBatchMode )
+		.arg( static_cast<int>( renders.size() ) );
+	for ( const auto& render : renders ) {
+		QStringList excluded;
+		for ( const auto& uuid : render.excludedInstruments ) {
+			excluded << uuid.toQString();
+		}
+		msg.arg( render.sFileName ).arg( excluded );
+	}
+
+	IpcMessage reply;
+	if ( ! m_pChannel->request( msg, reply, 3000 ) ) {
+		ERRORLOG( QString( "Export request failed or timed out [%1]" )
+					  .arg( msg.toQString() ) );
+		return false;
+	}
+	if ( reply.getArgs().size() < 1 ) {
+		ERRORLOG( QString( "Malformed export reply [%1]" )
+					  .arg( reply.toQString() ) );
+		return false;
+	}
+	return reply.getArgs()[0].toBool();
+}
+
+void IpcCoreActionController::stopExportSession() {
+	// Engine-only fire-and-forget: the engine cancels the remaining
+	// plan and restores its own state; the dialog keeps its
+	// editor-local preferences restore.
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::StopExportSession ) );
+	}
+	else {
+		CoreActionController::stopExportSession();
+	}
+}
+
 }

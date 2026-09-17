@@ -84,6 +84,23 @@ static int interpolateModeToComboBoxIndex(Interpolation::InterpolateMode interpo
 	return Index;
 }
 
+static Interpolation::InterpolateMode comboBoxIndexToInterpolateMode( int nIndex )
+{
+	switch ( nIndex ) {
+	case 1:
+		return Interpolation::InterpolateMode::Cosine;
+	case 2:
+		return Interpolation::InterpolateMode::Third;
+	case 3:
+		return Interpolation::InterpolateMode::Cubic;
+	case 4:
+		return Interpolation::InterpolateMode::Hermite;
+	case 0:
+	default:
+		return Interpolation::InterpolateMode::Linear;
+	}
+}
+
 // Here we are going to store export filename 
 QString ExportSongDialog::sLastFileName = "";
 
@@ -122,11 +139,11 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	m_pProgressBar->setValue( 0 );
 	
 	m_bQfileDialog = false;
-	m_bExportTrackouts = false;
-	m_nInstrument = 0;
 	m_sExtension = Filesystem::AudioFormatToSuffix( Filesystem::AudioFormat::Flac );
 	m_bOverwriteFiles = false;
-	m_bOldRubberbandBatchMode = pPref->getRubberBandBatchMode();
+	m_nOldRubberbandBatchMode = pPref->getRubberBandBatchMode();
+	m_nPlanDone = 0;
+	m_nPlanTotal = 0;
 
 	// Format combo box
 	formatCombo->addItem( "FLAC (Free Lossless Audio Codec)" );
@@ -166,10 +183,10 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	// default.
 	compressionLevelSpinBox->setValue( 0.0 );
 
-	// use of rubberband batch
+	// use of rubberband batch — the checkbox state is applied when the
+	// export starts (batch 2l), not live on toggling.
 	if( checkUseOfRubberband() ) {
-		toggleRubberbandCheckBox->setChecked( m_bOldRubberbandBatchMode );
-		connect(toggleRubberbandCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleRubberbandBatchMode( bool )));
+		toggleRubberbandCheckBox->setChecked( m_nOldRubberbandBatchMode != 0 );
 	} else {
 		toggleRubberbandCheckBox->setEnabled( false );
 		toggleRubberbandCheckBox->setToolTip( tr( "No sample in the current song uses Rubberband" ) );
@@ -231,13 +248,11 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 				this, SLOT( toggleTimeLineBPMMode( bool ) ) );
 
 		// use of interpolation mode — initialise from the persistent
-		// preference; a change applies an export-only override on the engine
-		// (cleared in closeExport()).
+		// preference; the selected mode is applied as an export-only
+		// override on the engine when the export starts (batch 2l).
 		resampleComboBox->setCurrentIndex(
 			interpolateModeToComboBoxIndex(
 				pHydrogen->getPreferences()->m_interpolateMode ) );
-		connect( resampleComboBox, SIGNAL( currentIndexChanged(int) ),
-				 this, SLOT( resampleComboBoIndexChanged(int) ) );
 
 	}
 
@@ -537,62 +552,138 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	m_bOverwriteFiles = false;
 
-	if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ||
-		exportTypeCombo->currentIndex() == EXPORT_TO_BOTH ){
-		m_bExportTrackouts = false;
+	// Build the full export plan upfront (batch 2l): the engine runs
+	// every file within a single session and the dialog never chains
+	// renders through progress events.
+	std::vector<H2Core::ExportRender> renders;
 
-		QString sFileName = exportNameTxt->text();
+	const int nExportType = exportTypeCombo->currentIndex();
+
+	if ( nExportType == EXPORT_TO_SINGLE_TRACK ||
+		 nExportType == EXPORT_TO_BOTH ) {
+		const QString sFileName = exportNameTxt->text();
 		if ( fileInfo.exists() == true && m_bQfileDialog == false ) {
 
-			int res;
-			if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ){
-				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFileName), QMessageBox::Yes | QMessageBox::No );
+			int nRes;
+			if ( nExportType == EXPORT_TO_SINGLE_TRACK ) {
+				nRes = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFileName), QMessageBox::Yes | QMessageBox::No );
 			} else {
-				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFileName), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
+				nRes = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFileName), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
 			}
 
-			if (res == QMessageBox::YesToAll ){
+			if ( nRes == QMessageBox::YesToAll ) {
 				m_bOverwriteFiles = true;
 			}
-			
-			if (res == QMessageBox::No ) {
+
+			if ( nRes == QMessageBox::No ) {
 				return;
 			}
 		}
 
-		if( exportTypeCombo->currentIndex() == EXPORT_TO_BOTH ){
-			m_bExportTrackouts = true;
-		}
-		
-		if ( ! pHydrogen->startExportSession(
-				 nSampleRate, nSampleDepth, fCompressionLevel ) ) {
-			QMessageBox::critical( this, "Hydrogen",
-								   pCommonStrings->getExportSongFailure() );
-			return;
-		}
 		// No exclusion list -> all instruments are exported (ADR 0027).
-		pHydrogen->startExportSong( sFileName );
-		return;
+		renders.push_back( H2Core::ExportRender{ sFileName, {} } );
 	}
 
-	if ( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
-		m_bExportTrackouts = true;
-		if ( ! pHydrogen->startExportSession(
-				 nSampleRate, nSampleDepth, fCompressionLevel ) ) {
-			QMessageBox::critical( this, "Hydrogen",
-								   pCommonStrings->getExportSongFailure() );
-			return;
+	if ( nExportType == EXPORT_TO_SEPARATE_TRACKS ||
+		 nExportType == EXPORT_TO_BOTH ) {
+		// Ensure we use the right extension.
+		const QString sSuffix = QString( ".%1" ).arg( m_sExtension );
+		const QString sTemplateName = exportNameTxt->text();
+		QString sBaseName = sTemplateName;
+		if ( sTemplateName.endsWith( sSuffix, Qt::CaseInsensitive ) ) {
+			sBaseName.chop( sSuffix.size() );
 		}
-		exportTracks();
+
+		for ( int ii = 0; ii < pInstrumentList->size(); ++ii ) {
+			const auto pInstrument = pInstrumentList->get( ii );
+			if ( pInstrument == nullptr || ! instrumentHasNotes( ii ) ) {
+				continue;
+			}
+
+			const QString sInstrumentName =
+				findUniqueExportFileNameForInstrument( pInstrument );
+			QString sExportName;
+			if ( sBaseName.isEmpty() || sBaseName.endsWith( "/" ) ||
+				 sBaseName.endsWith( "\\" ) ) {
+				// Allow to use just the instrument names when leaving the
+				// song name blank.
+				sExportName = QString( "%1%2" ).arg( sBaseName )
+					.arg( sInstrumentName );
+			}
+			else {
+				sExportName = QString( "%1-%2" ).arg( sBaseName )
+					.arg( sInstrumentName );
+			}
+
+			const QString sFileName = QString( "%1%2" ).arg( sExportName )
+				.arg( sSuffix );
+
+			if ( QFile( sFileName ).exists() == true &&
+				 m_bQfileDialog == false && ! m_bOverwriteFiles ) {
+				const int nRes = QMessageBox::information(
+					this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?")
+					.arg( sFileName ),
+					QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
+				if ( nRes == QMessageBox::No ) {
+					// Nothing has been rendered yet — abort the whole
+					// export instead of leaving a partial plan behind.
+					return;
+				}
+				if ( nRes == QMessageBox::YesToAll ) {
+					m_bOverwriteFiles = true;
+				}
+			}
+
+			// Export only this instrument: exclude every other one. The
+			// engine arms the per-instrument export flag from this list
+			// (ADR 0027).
+			std::vector<H2Core::Uuid> excludedInstruments;
+			for ( int jj = 0; jj < pInstrumentList->size(); ++jj ) {
+				if ( jj != ii && pInstrumentList->get( jj ) != nullptr ) {
+					excludedInstruments.push_back(
+						pInstrumentList->get( jj )->getUuid() );
+				}
+			}
+
+			renders.push_back(
+				H2Core::ExportRender{ sFileName, excludedInstruments } );
+		}
+	}
+
+	if ( renders.empty() ) {
+		// Trackout-only export of a song in which no instrument has
+		// any notes.
+		WARNINGLOG( "No file to export" );
 		return;
 	}
 
+	m_nPlanTotal = static_cast<int>( renders.size() );
+	m_nPlanDone = 0;
+	m_bExporting = true;
+	m_pProgressBar->setValue( 0 );
+	closeBtn->setEnabled( false );
+	resampleComboBox->setEnabled( false );
+
+	if ( ! HydrogenApp::pEngine()->getCoreActionController()->exportSong(
+			 nSampleRate, nSampleDepth, fCompressionLevel,
+			 comboBoxIndexToInterpolateMode( resampleComboBox->currentIndex() ),
+			 toggleRubberbandCheckBox->isChecked(), renders ) ) {
+		// The engine rolled the session back itself; the stop is
+		// idempotent and only cleans up what might still be armed.
+		HydrogenApp::pEngine()->getCoreActionController()->stopExportSession();
+		m_bExporting = false;
+		closeBtn->setEnabled( true );
+		resampleComboBox->setEnabled( true );
+		QMessageBox::critical( this, "Hydrogen",
+							   pCommonStrings->getExportSongFailure() );
+		return;
+	}
 }
 
 bool ExportSongDialog::instrumentHasNotes( int nInstrumentIndex )
 {
 	const auto pSong = HydrogenApp::pEngine()->getSong();
-	if ( pSong == nullptr && pSong->getDrumkit() == nullptr ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return false;
 	}
 	const auto pInstrument =
@@ -628,8 +719,10 @@ QString ExportSongDialog::findUniqueExportFileNameForInstrument( std::shared_ptr
 	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	
 	int instrumentOccurence = 0;
-	for(int i=0; i  < pInstrumentList->size(); i++ ){
-		if( pInstrumentList->get(m_nInstrument)->getName() == pInstrument->getName()){
+	for( int i = 0; i < pInstrumentList->size(); i++ ){
+		const auto pOtherInstrument = pInstrumentList->get( i );
+		if( pOtherInstrument != nullptr &&
+			pOtherInstrument->getName() == pInstrument->getName() ){
 			instrumentOccurence++;
 		}
 	}
@@ -646,97 +739,6 @@ QString ExportSongDialog::findUniqueExportFileNameForInstrument( std::shared_ptr
 	return uniqueInstrumentName;
 }
 
-void ExportSongDialog::exportTracks()
-{
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	const auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	
-	if( m_nInstrument < pInstrumentList->size() ){
-		
-		//if a instrument contains no notes we jump to the next instrument
-		bool bInstrumentHasNotes = instrumentHasNotes( m_nInstrument );
-
-		if ( !bInstrumentHasNotes ) {
-			if ( m_nInstrument >= pInstrumentList->size() - 1 ) {
-				m_bExportTrackouts = false;
-				m_nInstrument = 0;
-				return;
-			}
-			else {
-				m_nInstrument++;
-				exportTracks();
-				return;
-			}
-		}
-
-		// Ensure we use the right extension.
-		const QString sSuffix = QString( ".%1" ).arg( m_sExtension );
-		const QString sTemplateName = exportNameTxt->text();
-		QString sBaseName = sTemplateName;
-		if ( sTemplateName.endsWith( sSuffix, Qt::CaseInsensitive ) ) {
-			sBaseName.chop( sSuffix.size() );
-		}
-
-		const QString sInstrumentName = findUniqueExportFileNameForInstrument(
-			pInstrumentList->get( m_nInstrument ) );
-		QString sExportName;
-		if ( sBaseName.isEmpty() || sBaseName.endsWith( "/" ) ||
-			 sBaseName.endsWith( "\\" ) ) {
-			// Allow to use just the instrument names when leaving the song name
-			// blank.
-			sExportName = QString( "%1%2" ).arg( sBaseName )
-				.arg( sInstrumentName );
-		}
-		else {
-			sExportName = QString( "%1-%2" ).arg( sBaseName )
-				.arg( sInstrumentName );
-		}
-
-		const QString sFileName = QString( "%1%2" ).arg( sExportName )
-			.arg( sSuffix );
-
-		if ( QFile( sFileName ).exists() == true && m_bQfileDialog == false &&
-			 ! m_bOverwriteFiles ) {
-			const int nRes = QMessageBox::information(
-				this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?")
-				.arg( sFileName ),
-				QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
-			if ( nRes == QMessageBox::No ) {
-				return;
-			}
-			if ( nRes == QMessageBox::YesToAll ) {
-				m_bOverwriteFiles = true;
-			}
-		}
-		
-		if( m_nInstrument > 0 ){
-			pHydrogen->stopExportSong();
-			m_bExporting = false;
-		}
-		
-		// Export only the current instrument: exclude every other one. The core
-		// arms the per-instrument export flag from this list (ADR 0027).
-		std::vector<H2Core::Uuid> excludedInstruments;
-		for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-			if ( i != m_nInstrument && pInstrumentList->get( i ) != nullptr ) {
-				excludedInstruments.push_back(
-					pInstrumentList->get( i )->getUuid() );
-			}
-		}
-
-		pHydrogen->startExportSong( sFileName, excludedInstruments );
-
-		if(! (m_nInstrument == pInstrumentList->size()) ){
-			m_nInstrument++;
-		}
-	}
-    
-}
-
 void ExportSongDialog::closeEvent( QCloseEvent *event ) {
 	UNUSED( event );
 	closeExport();
@@ -746,28 +748,17 @@ void ExportSongDialog::on_closeBtn_clicked()
 	closeExport();
 }
 void ExportSongDialog::closeExport() {
-	auto pPref = HydrogenApp::pPreferences();
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	const auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
+	// The engine-side stop is idempotent: it cancels a running export
+	// plan, restores the parked transport state, the batch mode and
+	// interpolation overrides and the audio drivers (batch 2l).
+	HydrogenApp::pEngine()->getCoreActionController()->stopExportSession();
 
-	pHydrogen->stopExportSong();
-	pHydrogen->stopExportSession();
-	
 	m_bExporting = false;
-	
-	if ( pPref->getRubberBandBatchMode() ){
-		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-		pSong->getDrumkit()->recalculateRubberband(
-			pHydrogen->getAudioEngine()->getPlayhead()->getBpm(), pHydrogen );
-		pHydrogen->getAudioEngine()->unlock();
-	}
-	pPref->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
+
+	HydrogenApp::pPreferences()->setRubberBandBatchMode(
+		m_nOldRubberbandBatchMode );
 	HydrogenApp::pEngine()->setIsTimelineActivated( m_bOldTimeLineBPMMode );
-	
-	pHydrogen->clearInterpolateModeOverride();
+
 	accept();
 }
 
@@ -869,90 +860,50 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 void ExportSongDialog::audioExportProgressEvent( int nValue )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	
-	m_pProgressBar->setValue( std::min( nValue, 0 ) );
-	if ( nValue == 100 ) {
 
-		m_bExporting = false;
-
-		const auto pSong = HydrogenApp::pEngine()->getSong();
-		// Check whether an error occured during export (ADR 0029).
-		if ( HydrogenApp::pEngine()->isExportWritingFailed() ) {
-			m_nInstrument = 0;
-			m_bExportTrackouts = false;
-			QMessageBox::critical( this, "Hydrogen",
-								   pCommonStrings->getExportSongFailure(),
-								   QMessageBox::Ok );
-			m_pProgressBar->setValue( 0 );
-		}
-		else {
-			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
-				 m_nInstrument == pSong->getDrumkit()->getInstruments()->size() ) {
-				m_nInstrument = 0;
-				m_bExportTrackouts = false;
-			}
-
-			if ( m_bExportTrackouts ) {
-				exportTracks();
-			}
-		}
-	}
-	else if ( nValue == -1 ) {
+	if ( nValue == -1 ) {
+		// The engine reports a render it had to abort (ADR 0029).
 		m_bExporting = false;
 		QMessageBox::critical(
 			this, "Hydrogen",
 			pCommonStrings->getExportSongFailure());
-			
+		m_pProgressBar->setValue( 0 );
+	}
+	else if ( nValue == 100 ) {
+		++m_nPlanDone;
+
+		// Both a completed and a failed render report 100 — ask the
+		// engine which one it was (ADR 0029).
+		if ( HydrogenApp::pEngine()->isExportWritingFailed() ) {
+			m_bExporting = false;
+			QMessageBox::critical(
+				this, "Hydrogen",
+				pCommonStrings->getExportSongFailure());
+			m_pProgressBar->setValue( 0 );
+		}
+		else if ( m_nPlanDone >= m_nPlanTotal ) {
+			// Last file of the plan done.
+			m_bExporting = false;
+			m_pProgressBar->setValue( 100 );
+		}
+		else {
+			m_pProgressBar->setValue( ( m_nPlanDone * 100 ) / m_nPlanTotal );
+		}
+	}
+	else if ( m_bExporting ) {
+		// Intermediate progress of the current file, scaled over the
+		// whole plan.
+		m_pProgressBar->setValue(
+			( m_nPlanDone * 100 + nValue ) / m_nPlanTotal );
 	}
 
-	if ( nValue < 100 ) {
-		closeBtn->setEnabled( false );
-		resampleComboBox->setEnabled( false );
-	}
-	else {
-		closeBtn->setEnabled( true );
-		resampleComboBox->setEnabled( true );
-	}
-}
-
-void ExportSongDialog::toggleRubberbandBatchMode(bool toggled)
-{
-	HydrogenApp::pPreferences()->setRubberBandBatchMode(toggled);
+	closeBtn->setEnabled( ! m_bExporting );
+	resampleComboBox->setEnabled( ! m_bExporting );
 }
 
 void ExportSongDialog::toggleTimeLineBPMMode(bool toggled)
 {
 	HydrogenApp::pEngine()->setIsTimelineActivated( toggled );
-}
-
-void ExportSongDialog::resampleComboBoIndexChanged(int index )
-{
-	setResamplerMode(index);
-}
-
-void ExportSongDialog::setResamplerMode(int index)
-{
-	// Apply an export-only interpolation override on the engine (ADR 0027); it
-	// takes priority over the persistent preference and is cleared in
-	// closeExport().
-	auto pHydrogen = HydrogenApp::pHydrogen();
-	switch ( index ){
-	case 0:
-		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Linear );
-		break;
-	case 1:
-		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Cosine );
-		break;
-	case 2:
-		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Third );
-		break;
-	case 3:
-		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Cubic );
-		break;
-	case 4:
-		pHydrogen->setInterpolateModeOverride( Interpolation::InterpolateMode::Hermite );
-		break;
-	}
 }
 
 bool ExportSongDialog::checkUseOfRubberband()

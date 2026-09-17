@@ -39,6 +39,7 @@ class IpcRoundTripTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testMidiInstrumentMapRoundTrip );
 	CPPUNIT_TEST( testLastMidiEventRoundTrip );
 	CPPUNIT_TEST( testCustomLibraryDirsRoundTrip );
+	CPPUNIT_TEST( testExportSongRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -54,6 +55,11 @@ public:
 	void testMidiInstrumentMapRoundTrip();
 	void testLastMidiEventRoundTrip();
 	void testCustomLibraryDirsRoundTrip();
+
+	/** exportSong() crosses the whole one-shot plan to the engine,
+	 * which renders and restores itself — the mirror never renders
+	 * (ADR 0030 batch 2l). */
+	void testExportSongRoundTrip();
 };
 
 #endif // IPC_ROUND_TRIP_TEST_H

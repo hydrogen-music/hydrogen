@@ -37,10 +37,13 @@
 
 #include <cassert>
 #include <chrono>
+#include <deque>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <stdint.h> // for uint32_t et al
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace H2Core
@@ -58,6 +61,15 @@ namespace H2Core
 	class Preferences;
 	class SoundLibraryDatabase;
 	class TimeHelper;
+
+	/** One file to render in a one-shot export plan (ADR 0030 batch
+	 * 2l): the target file plus the identities of the instruments to
+	 * leave out of it (per-instrument / track-out renders; an empty
+	 * list exports every instrument). */
+	struct ExportRender {
+		QString sFileName;
+		std::vector<Uuid> excludedInstruments;
+	};
 
 ///
 /// Hydrogen Audio Engine.
@@ -411,6 +423,10 @@ public:
 
 	//export management
 	bool			getIsExportSessionActive() const;
+	/** Whether the disk writer driver of an active export session
+	 * failed to write the current file (false without an active
+	 * session). */
+	bool			isExportWritingFailed() const;
 	/**
 	 * @param nSampleRate sample rate using which to export
 	 * @param nSampleDepth sample depth using which to export
@@ -433,6 +449,20 @@ public:
 		const QString& sFileName,
 		const std::vector<Uuid>& excludedInstruments = {} );
 	void			stopExportSong();
+	/** Runs a whole export plan in one shot (ADR 0030 batch 2l):
+	 * opens an export session with the given render settings, renders
+	 * one file per #ExportRender entry on a background thread, and
+	 * restores the previous drivers, transport state, rubberband
+	 * batch mode flag, and interpolation override afterwards. An
+	 * empty plan is an acknowledged no-op.
+	 *
+	 * \return true on success */
+	bool			exportSong(
+		int nSampleRate, int nSampleDepth,
+		double fCompressionLevel,
+		Interpolation::InterpolateMode interpolateMode,
+		bool bRubberbandBatchMode,
+		const std::vector<ExportRender>& renders );
 	
 	/************************************************************/
 	/********************** Playback track **********************/
@@ -631,6 +661,16 @@ private:
 
 	void			midiNoteOn( std::shared_ptr<Note> pNote );
 
+	/** Consumes #m_exportPlanQueue on the plan thread: renders one
+	 * file per entry and — on natural completion — restores the
+	 * session state itself (ADR 0030 batch 2l). */
+	void			runExportPlan();
+	/** Full export-session teardown: the parked transport state and
+	 * drivers (like the pre-split stop path) plus, for sessions armed
+	 * by exportSong(), the rubberband batch mode flag and
+	 * interpolation override it applied. */
+	void			finishExportSession();
+
 	/** Per-instance Logger owned by this instance (ADR 0015, T1.6) — own queue,
 	 * worker thread and log file. */
 	Logger* m_pLogger;
@@ -693,6 +733,25 @@ private:
 	Song::Mode		m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
+	/** Preferences value of the rubberband batch mode flag, captured
+	 * before an export session applies its own (int-typed in
+	 * Preferences — restored verbatim). */
+	int				m_nOldRubberBandBatchMode = 0;
+	/** Remaining renders of the active one-shot export plan. */
+	std::deque<ExportRender> m_exportPlanQueue;
+	/** Set by stopExportSession() to abort the plan thread. */
+	bool			m_bExportPlanCancelled = false;
+	std::thread		m_exportPlanThread;
+	/** Guards #m_exportPlanQueue and #m_bExportPlanCancelled. */
+	std::mutex		m_exportPlanMutex;
+	/** Whether the active export session was armed by exportSong()
+	 * (as opposed to direct startExportSession() use) — only then do
+	 * the plan-only restores in finishExportSession() apply. */
+	bool			m_bExportPlanSession = false;
+	/** Serializes stopExportSession()/exportSong() around the
+	 * plan-thread join and (re)arm — a concurrent stop would
+	 * otherwise double-join or race the thread assignment. */
+	std::mutex		m_exportStopMutex;
 	
 	/**
 	 * Specifies whether the Qt5 GUI is active.

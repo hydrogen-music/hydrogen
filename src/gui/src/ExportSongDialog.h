@@ -62,32 +62,31 @@ private slots:
 	void		on_okBtn_clicked();
 	void		on_exportNameTxt_textChanged(const QString& text);
 	void		formatComboIndexChanged(int index);
-	void		toggleRubberbandBatchMode(bool toggled);
 	void		toggleTimeLineBPMMode(bool toggled);
-	void		resampleComboBoIndexChanged(int index);
 
 private:
 
-	void		setResamplerMode(int index);
 	bool		checkUseOfRubberband();
 
 	bool		instrumentHasNotes( int nInstrumentIndex );
 	QString		findUniqueExportFileNameForInstrument( std::shared_ptr<H2Core::Instrument> pInstrument );
 
-	void		exportTracks();
 	bool 		validateUserInput();
 	QString		createDefaultFileName();
 
 	void		closeExport();
 	
 	bool					m_bExporting;
-	bool					m_bExportTrackouts;
 	bool					m_bOverwriteFiles;
-	uint					m_nInstrument;
 	QString					m_sExtension;
-	bool					m_bOldRubberbandBatchMode;
+	int						m_nOldRubberbandBatchMode;
 	bool					m_bOldTimeLineBPMMode;
 	bool					m_bQfileDialog;
+
+	// Bookkeeping of the one-shot export plan (batch 2l): how many
+	// files it holds and how many of them reported completion.
+	int						m_nPlanDone;
+	int						m_nPlanTotal;
 
 		std::map<int, H2Core::Filesystem::AudioFormat> m_formatMap;
 	static QString 			sLastFileName;

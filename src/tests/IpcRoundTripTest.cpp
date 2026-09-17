@@ -41,6 +41,7 @@
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/IO/DiskWriterDriver.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/EngineSession.h>
 #include <core/IPC/IpcChannel.h>
@@ -60,6 +61,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
 #include <QtCore/QThread>
 
@@ -1099,6 +1101,100 @@ void IpcRoundTripTest::testCustomLibraryDirsRoundTrip()
 	// An empty path is rejected before anything is sent.
 	CPPUNIT_ASSERT( ! pController->addCustomSoundLibraryDir( "" ) );
 	CPPUNIT_ASSERT( ! pController->removeCustomSoundLibraryDir( "" ) );
+
+	pSession->stop();
+	pEditorSession->disconnect();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcRoundTripTest::testExportSongRoundTrip()
+{
+	___INFOLOG( "" );
+
+	auto pEngine = TestHelper::makeEngine();
+	auto pMirror = TestHelper::makeMirror();
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+	auto pSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditorSession != nullptr );
+	auto pAccess = pEditorSession->createEngineAccess();
+	auto pController = std::dynamic_pointer_cast<IpcCoreActionController>(
+		pAccess->getCoreActionController() );
+	CPPUNIT_ASSERT( pController != nullptr );
+
+	// A song with notes, so the render produces audio.
+	auto pSong = Song::load(
+		QString( H2TEST_FILE( "functional/test_adsr.h2song" ) ), false,
+		pMirror );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	const QString sNewSongName( "IPC_EXPORT_SONG_TEST" );
+	pSong->setName( sNewSongName );
+	pController->setSong( pSong );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong() != nullptr &&
+			   pEngine->getSong()->getName() == sNewSongName;
+	} ) );
+
+	// The mirror never renders: no disk writer before, during, or
+	// after the export.
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pMirror->getAudioDriver() ) == nullptr );
+
+	QTemporaryDir tmpDir( Filesystem::tmpDir() +
+						  "export-song-ipc-test-XXXXXX" );
+	CPPUNIT_ASSERT( tmpDir.isValid() );
+	const QString sFile = tmpDir.path() + "/export.wav";
+
+	// One-shot plan: a single render with a per-instrument exclusion,
+	// exercising the full marshalled payload.
+	auto pExcluded = pSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pExcluded != nullptr );
+	std::vector<ExportRender> renders;
+	renders.push_back( ExportRender{ sFile, { pExcluded->getUuid() } } );
+	CPPUNIT_ASSERT( pController->exportSong(
+		48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
+		renders ) );
+
+	// The session opens on the engine ...
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getIsExportSessionActive();
+	} ) );
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pEngine->getAudioDriver() ) != nullptr );
+	// ... but never on the mirror.
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pMirror->getAudioDriver() ) == nullptr );
+
+	// The final progress event crosses to the mirror.
+	CPPUNIT_ASSERT( TestHelper::pumpUntilEvent(
+		pMirror, Event::Type::AudioExportProgress, 100, 30000 ) );
+
+	// The engine tears the session down itself and the file holds
+	// audio.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getIsExportSessionActive();
+	}, 30000 ) );
+	CPPUNIT_ASSERT( QFileInfo( sFile ).size() > 0 );
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pEngine->getAudioDriver() ) == nullptr );
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pMirror->getAudioDriver() ) == nullptr );
+
+	// The failure query reads the engine's writer — which did not
+	// fail — not the mirror's (nonexistent) one.
+	CPPUNIT_ASSERT( ! pAccess->isExportWritingFailed() );
+
+	// Stopping without an active session is an idempotent no-op.
+	pController->stopExportSession();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getIsExportSessionActive();
+	} ) );
 
 	pSession->stop();
 	pEditorSession->disconnect();

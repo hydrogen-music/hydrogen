@@ -32,9 +32,11 @@
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
+#include <core/Sampler/Interpolation.h>
 
 namespace H2Core {
 class Drumkit;
+struct ExportRender;
 class GridPoint;
 class Hydrogen;
 class Instrument;
@@ -498,6 +500,30 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \return true on success */
 	virtual bool removeCustomSoundLibraryDir( const QString& sDirPath );
+	/**
+	 * Exports the current song in one shot: opens an export session
+	 * with the given render settings, renders one file per entry in
+	 * @a renders (minus the entry's excluded instruments, ADR 0027),
+	 * and restores the previous drivers, transport state, rubberband
+	 * batch mode flag, and interpolation override afterwards.
+	 *
+	 * The render pipeline only runs in the authoritative engine — the
+	 * editor mirror's process loop skips rendering by design — so in
+	 * the editor split the ExportSongDialog funnels the whole plan
+	 * through this command (ADR 0030). The plan runs on a background
+	 * thread in the engine; this call returns once the plan is armed.
+	 * An empty plan is an acknowledged no-op.
+	 *
+	 * \return true on success */
+	virtual bool exportSong(
+		int nSampleRate, int nSampleDepth, double fCompressionLevel,
+		Interpolation::InterpolateMode interpolateMode,
+		bool bRubberbandBatchMode,
+		const std::vector<ExportRender>& renders );
+	/** Ends a running export session — also safe without one: cancels
+	 * the remaining plan, aborts a running render, and restores the
+	 * previous audio/MIDI drivers and transport state. */
+	virtual void stopExportSession();
 	/**
 	 * Saves the current state of the #H2Core::Preferences. */
 	virtual bool savePreferences();

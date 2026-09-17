@@ -215,6 +215,10 @@ Hydrogen::~Hydrogen()
 	// We reuse this member to indicate shutdown as well.
 	m_bIsFullyOperational = false;
 
+	// A still-armed export plan owns a thread and parked driver state
+	// — cancel and restore before anything else tears down.
+	stopExportSession();
+
 #ifdef H2CORE_HAVE_OSC
 	// This instance owns its OSC server and NSM client (ADR 0015).
 	if ( m_pNsmClient != nullptr ) {
@@ -811,6 +815,17 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 		std::dynamic_pointer_cast<DiskWriterDriver>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
 		ERRORLOG( "Unable to start up DiskWriterDriver" );
+		// The transport state was parked and the previous drivers
+		// stopped above — restore both, the session never became
+		// active.
+		pSong->setMode( m_oldEngineMode );
+		if ( m_bOldLoopEnabled ) {
+			pSong->setLoopMode( Song::LoopMode::Enabled );
+		} else {
+			pSong->setLoopMode( Song::LoopMode::Disabled );
+		}
+		pAudioEngine->startAudioDriver( Event::Trigger::Default );
+		pAudioEngine->startMidiDriver( Event::Trigger::Default );
 		return false;
 	}
 
@@ -854,6 +869,11 @@ void Hydrogen::startExportSong( const QString& sFileName,
 
 	auto pDiskWriterDriver =
 		std::dynamic_pointer_cast<DiskWriterDriver>( pAudioEngine->getAudioDriver() );
+	if ( pDiskWriterDriver == nullptr ) {
+		ERRORLOG( QString( "Unable to export audio to [%1]: no disk writer driver" )
+					  .arg( sFileName ) );
+		return;
+	}
 	pDiskWriterDriver->setFileName( sFileName );
 	pDiskWriterDriver->write();
 }
@@ -867,18 +887,188 @@ void Hydrogen::stopExportSong()
 
 void Hydrogen::stopExportSession()
 {
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong == nullptr ) {
+	std::lock_guard<std::mutex> stopLock( m_exportStopMutex );
+
+	// Idempotent: without an active session (and nothing left to
+	// reap) this is a no-op — the export dialog and the destructor
+	// both call it unconditionally.
+	if ( ! m_bExportSessionIsActive && ! m_exportPlanThread.joinable() ) {
 		return;
 	}
 
-	pSong->setMode( m_oldEngineMode );
-	if ( m_bOldLoopEnabled ) {
-		pSong->setLoopMode( Song::LoopMode::Enabled );
-	} else {
-		pSong->setLoopMode( Song::LoopMode::Disabled );
+	// Cancel the plan and drain the queue before joining — the plan
+	// thread must not be waiting on the plan mutex while we wait for
+	// it here.
+	{
+		std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+		m_bExportPlanCancelled = true;
+		m_exportPlanQueue.clear();
 	}
-	
+	if ( m_exportPlanThread.joinable() ) {
+		m_exportPlanThread.join();
+	}
+
+	// On natural completion the plan thread restored everything
+	// itself; finish the session here only when it exited early
+	// (cancel or write failure).
+	if ( m_bExportSessionIsActive ) {
+		finishExportSession();
+	}
+}
+
+bool Hydrogen::exportSong( int nSampleRate, int nSampleDepth,
+						   double fCompressionLevel,
+						   Interpolation::InterpolateMode interpolateMode,
+						   bool bRubberbandBatchMode,
+						   const std::vector<ExportRender>& renders )
+{
+	std::lock_guard<std::mutex> stopLock( m_exportStopMutex );
+
+	if ( m_bExportSessionIsActive ) {
+		ERRORLOG( "An export session is already active" );
+		return false;
+	}
+
+	if ( renders.empty() ) {
+		WARNINGLOG( "Empty export plan — nothing to render" );
+		return true;
+	}
+
+	// A previous plan may have completed naturally without anyone
+	// joining it — reap it before arming a new one.
+	if ( m_exportPlanThread.joinable() ) {
+		m_exportPlanThread.join();
+	}
+
+	auto pPref = getPreferences();
+	m_nOldRubberBandBatchMode = pPref->getRubberBandBatchMode();
+	pPref->setRubberBandBatchMode( bRubberbandBatchMode ? 1 : 0 );
+	setInterpolateModeOverride( interpolateMode );
+	m_bExportPlanSession = true;
+
+	if ( ! startExportSession( nSampleRate, nSampleDepth,
+							   fCompressionLevel ) ) {
+		// startExportSession() restored the parked transport state and
+		// the drivers itself; the flag and the override are ours to
+		// undo.
+		pPref->setRubberBandBatchMode( m_nOldRubberBandBatchMode );
+		clearInterpolateModeOverride();
+		m_bExportPlanSession = false;
+		return false;
+	}
+
+	{
+		std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+		m_bExportPlanCancelled = false;
+		m_exportPlanQueue.assign( renders.begin(), renders.end() );
+	}
+
+	// std::thread construction throws on resource exhaustion — the
+	// session is armed already, so finish it here instead of leaving
+	// it dangling (and before the exception can escape through the
+	// IPC handler).
+	try {
+		m_exportPlanThread = std::thread( &Hydrogen::runExportPlan, this );
+	}
+	catch ( const std::system_error& e ) {
+		ERRORLOG( QString( "Unable to spawn the export plan thread: %1" )
+					  .arg( e.what() ) );
+		finishExportSession();
+		return false;
+	}
+
+	return true;
+}
+
+bool Hydrogen::isExportWritingFailed() const
+{
+	const auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
+		m_pAudioEngine->getAudioDriver() );
+	return pDriver != nullptr && pDriver->writingFailed();
+}
+
+void Hydrogen::runExportPlan()
+{
+	while ( true ) {
+		ExportRender render;
+		{
+			std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+			if ( m_bExportPlanCancelled || m_exportPlanQueue.empty() ) {
+				break;
+			}
+			render = m_exportPlanQueue.front();
+			m_exportPlanQueue.pop_front();
+		}
+
+		startExportSong( render.sFileName, render.excludedInstruments );
+
+		auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
+			m_pAudioEngine->getAudioDriver() );
+		if ( pDriver == nullptr ) {
+			ERRORLOG( QString( "Unable to render [%1]: no disk writer driver" )
+						  .arg( render.sFileName ) );
+			break;
+		}
+
+		// The render itself runs on the audio engine's process loop;
+		// poll the writer thread until this file is finished.
+		while ( ! pDriver->isDoneWriting() ) {
+			if ( pDriver->writingFailed() ) {
+				break;
+			}
+			std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+			std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+			if ( m_bExportPlanCancelled ) {
+				break;
+			}
+		}
+
+		if ( pDriver->writingFailed() ) {
+			ERRORLOG( QString( "Unable to render [%1]" )
+						  .arg( render.sFileName ) );
+			// Abort the remaining plan — the files after this one
+			// would miss the context of the failed one.
+			break;
+		}
+
+		bool bCancelled = false;
+		{
+			std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+			bCancelled = m_bExportPlanCancelled;
+		}
+		if ( bCancelled ) {
+			break;
+		}
+	}
+
+	// Natural completion (queue drained, nobody cancelled): the
+	// engine restores itself — nobody will call stopExportSession()
+	// afterwards. On cancel or failure the external
+	// stopExportSession() finishes the job after joining us.
+	bool bCancelled = false;
+	{
+		std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+		bCancelled = m_bExportPlanCancelled;
+	}
+	if ( ! bCancelled ) {
+		finishExportSession();
+	}
+}
+
+void Hydrogen::finishExportSession()
+{
+	stopExportSong();
+
+	auto pSong = getSong();
+	if ( pSong != nullptr ) {
+		pSong->setMode( m_oldEngineMode );
+		if ( m_bOldLoopEnabled ) {
+			pSong->setLoopMode( Song::LoopMode::Enabled );
+		} else {
+			pSong->setLoopMode( Song::LoopMode::Disabled );
+		}
+	}
+
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 
 	pAudioEngine->stop();
@@ -891,6 +1081,26 @@ void Hydrogen::stopExportSession()
 	if ( pAudioEngine->getMidiDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart MIDI driver after exporting song." );
 	}
+
+	if ( m_bExportPlanSession ) {
+		// Session armed by exportSong(): restore what it applied on
+		// top of the parked transport state.
+		auto pPref = getPreferences();
+		if ( pPref->getRubberBandBatchMode() != 0 && pSong != nullptr &&
+			 pSong->getDrumkit() != nullptr ) {
+			// Like the pre-split dialog: batch mode recalculates every
+			// sample's rubberband pre-processing for the playhead
+			// tempo, under the audio engine lock.
+			pAudioEngine->lock( RIGHT_HERE );
+			pSong->getDrumkit()->recalculateRubberband(
+				pAudioEngine->getPlayhead()->getBpm(), this );
+			pAudioEngine->unlock();
+		}
+		pPref->setRubberBandBatchMode( m_nOldRubberBandBatchMode );
+		clearInterpolateModeOverride();
+		m_bExportPlanSession = false;
+	}
+
 	m_bExportSessionIsActive = false;
 }
 

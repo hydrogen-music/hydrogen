@@ -808,6 +808,11 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[0].toString() );
 		}
 		break;
+	case IpcOpcode::StopExportSession:
+		// Fire-and-forget: the engine cancels the remaining plan and
+		// restores its own state (ADR 0030 batch 2l).
+		pController->stopExportSession();
+		return true;
 	case IpcOpcode::SetPreferences: {
 		// The headless engine only needs the engine-core subset of
 		// Preferences (audio driver, MIDI maps, metronome, etc.).
@@ -1049,6 +1054,53 @@ IpcMessage IpcEngineBridge::handleRequest( const IpcMessage& msg,
 		reply.arg( devices );
 		break;
 	}
+	case IpcOpcode::ExportSong: {
+		// One-shot plan (ADR 0030 batch 2l): [sampleRate, sampleDepth,
+		// compressionLevel, interpolateMode, rubberbandBatch,
+		// renderCount, then per render: fileName + excluded instrument
+		// ids]. The engine arms the session synchronously and renders
+		// on a background thread, so this handler stays fast and the
+		// serve loop keeps pumping events while the plan runs.
+		bool bMalformed = args.size() < 6;
+		std::vector<ExportRender> renders;
+		if ( ! bMalformed ) {
+			const int nRenderCount = args[5].toInt();
+			if ( nRenderCount < 0 ) {
+				// A negative count would silently yield an empty plan.
+				bMalformed = true;
+			}
+			int nn = 6;
+			for ( int ii = 0; ii < nRenderCount; ++ii ) {
+				if ( nn + 2 > args.size() ) {
+					bMalformed = true;
+					break;
+				}
+				ExportRender render;
+				render.sFileName = args[nn].toString();
+				++nn;
+				for ( const auto& sUuid : args[nn].toStringList() ) {
+					render.excludedInstruments.push_back(
+						Uuid::fromQString( sUuid ) );
+				}
+				++nn;
+				renders.push_back( std::move( render ) );
+			}
+		}
+		if ( bMalformed ) {
+			ERRORLOG( QString( "Malformed export request [%1]" )
+						  .arg( msg.toQString() ) );
+			reply.arg( false );
+			break;
+		}
+		reply.arg( pController->exportSong(
+			args[0].toInt(), args[1].toInt(), args[2].toDouble(),
+			static_cast<Interpolation::InterpolateMode>( args[3].toInt() ),
+			args[4].toBool(), renders ) );
+		break;
+	}
+	case IpcOpcode::GetExportWritingFailed:
+		reply.arg( pHydrogen->isExportWritingFailed() );
+		break;
 	default:
 		break; // unknown request → empty Reply (correlated by id)
 	}

@@ -143,8 +143,9 @@ class IpcEngineAccess : public IEngineAccess,
 	 * the mirror owns no drivers — so these are blocking queries (ADR
 	 * 0029). */
 	QStringList getAudioHostAPIs() const override;
-	/** Audio export using #DiskWriterDriver is only done in the mirror engine
-	 * and not in the authoritative engine. */
+	/** Audio export runs in the authoritative engine only — the mirror
+	 * owns no disk writer — so the writer's failure state crosses as a
+	 * blocking query (ADR 0030 batch 2l). */
 	bool isExportWritingFailed() const override;
 	// --- MIDI driver (ADR 0029) ---
 	//

@@ -26,6 +26,7 @@
 #include <sndfile.h>
 
 #include <inttypes.h>
+#include <pthread.h>
 
 #include <core/IO/AudioDriver.h>
 #include <core/Object.h>
@@ -97,9 +98,15 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 			m_sFileName = sFileName;
 		}
 
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
-
+		// Writer thread of the most recent write() call. Only valid
+		// while m_bWriterThreadCreated is true — a session stopped
+		// before its first render has no thread to join. The flag is
+		// not synchronised: write() and disconnect() must stay
+		// serialized (same thread, or via the export plan join).
+		pthread_t m_writerThread;
+		bool m_bWriterThreadCreated;
 };
 
 };

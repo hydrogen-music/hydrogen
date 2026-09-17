@@ -877,6 +877,98 @@ paths (no playlist file to resolve against over IPC).
   kit — proving the rescan crossed, not just the prefs list; the
   mirror stays coherent synchronously via the dual-apply base call).
 
+**Song export wiring (batch 2l) — DONE, suite `OK (431 tests)`.**
+* One-shot design (decided against a per-file re-drive after review): the
+  pre-split dialog chained renders through progress events —
+  `audioExportProgressEvent` called `exportTracks()` which issued the next
+  `startExportSong`. Across IPC that would turn every file into a
+  round-trip with the dialog re-driving engine state it cannot see.
+  Instead `CoreActionController::exportSong(sampleRate, sampleDepth,
+  compression, interpolateMode, rubberbandBatch, renders)` carries the
+  whole plan — the master file plus per-instrument trackouts with their
+  exclusion lists (ADR 0027) — in a single request. The engine
+  (`Hydrogen::exportSong`) parks the transport state, applies the batch
+  flag and interpolation override, arms the session, and a dedicated plan
+  thread renders the queue sequentially within one `DiskWriterDriver`
+  session, polling the writer's per-file done/failed flags. The mirror
+  never renders.
+* `stopExportSession` is the universal stop and idempotent: it cancels
+  the plan, joins the plan thread, and finishes the session (restore
+  song mode/loop, recalculate rubberband when the batch flag was set,
+  restore flag + interpolation override, restart the drivers). On
+  natural completion the plan thread finishes the session itself, so a
+  later editor-side stop joins the exited thread and does nothing.
+  `TestHelper::exportSong` and the CLI keep using the primitives
+  directly (the plan-session gating keeps them compatible).
+* GUI: `ExportSongDialog` builds the plan upfront — overwrite prompts
+  included (No aborts before anything renders; YesToAll honoured) —
+  reads the rubberband checkbox and resampler combo fresh at OK, and
+  sends one `exportSong`. Progress events only update the bar (scaled
+  over `m_nPlanDone`/`m_nPlanTotal`) and detect completion/failure
+  (`IEngineAccess::isExportWritingFailed` disambiguates a failed 100,
+  ADR 0029); `closeExport` reduces to the idempotent
+  `stopExportSession` plus the editor-local pref/timeline restores.
+  Deleted: the `exportTracks()` chaining, the live
+  `toggleRubberbandBatchMode`/`setResamplerMode` slots (both applied at
+  export start now), and the `m_bExportTrackouts`/`m_nInstrument`
+  members. The `EditorPathExerciser` exports through the controller as
+  well.
+* IPC surface: `ExportSong` request (args `[int rate, int depth, double
+  compression, int mode, bool batch, int renderCount, per render:
+  QString fileName + QStringList excluded uuids]`, reply `[bool]`),
+  `StopExportSession` command, `GetExportWritingFailed` query —
+  appended at the enum tail (wire compatibility, like 2j/2k).
+  `IpcCoreActionController::exportSong` is engine-only (no channel →
+  `WARNINGLOG` + false — a base call would render on the mirror);
+  `stopExportSession` sends when a channel exists, else base call (the
+  `saveSong` pattern). In editor mode `isExportWritingFailed` is a
+  blocking query; the -1 progress event stays the authoritative failure
+  signal, the query only disambiguates a completed 100.
+* Driver fixes surfaced by the new cancel test: `DiskWriterDriver` kept
+  its writer-thread handle in a file-scope global that survived across
+  the per-session driver instances — `disconnect()` joined it
+  unconditionally, so stopping a session before its first render joined
+  a stale, already-reaped handle (segfault), and every additional file
+  in a multi-render session leaked a zombie thread. The handle is now a
+  per-instance member with a validity flag: `write()` reaps the previous
+  finished writer before spawning the next, `disconnect()` joins only
+  when a writer exists. `write()` also resets the done/failed flags per
+  file (plan polling), and libsndfile errors report
+  `sf_strerror(pSndfile)`.
+* Drive-by dialog fixes: `findUniqueExportFileNameForInstrument`
+  compared a fixed `m_nInstrument` instead of the loop index (the
+  occurrence count was constant — colliding instrument names were never
+  disambiguated) and dereferenced without a null check; the progress bar
+  computed `std::min(nValue, 0)` (always zero); the -1 failure path left
+  the close button disabled (only a 100 re-enabled it). All three are
+  resolved by the rewrite.
+* Residuals: non-export transport commands during an active session are
+  not rejected (pre-split behaviour — the session parks song mode/loop,
+  so a locate would fight the render; same exposure as before); a
+  single file's render is uncancellable mid-way (a stop takes effect
+  between process callbacks, as today); a user-initiated cancel makes
+  the aborted writer push a spurious `AudioExportProgress -1`
+  (harmless today — the modal dialog is deleted before the GUI thread
+  can dispatch it; a trap if the dialog ever becomes non-modal); the
+  IPC-level cancel and
+  write-failure paths rest on the base test's coverage (the IPC test
+  exercises the happy path and exclusion marshalling); `m_bIsRunning`
+  remains an unsynchronised bool (writer-thread read vs. disconnect
+  write) — the pre-existing hazard shape shared with the tracked
+  `Preferences` swap residual; an NSM session open reloads the engine
+  `Preferences` and overrides the batch-flag restore (same shape as the
+  2h/2i residual).
+* Tested: `CoreActionControllerTest::testExportSong` (base: two-render
+  plan with an excluded instrument, both files written, batch flag
+  flipped and restored, interpolation override applied and cleared,
+  drivers back, immediate cancel + idempotent second stop) and
+  `IpcRoundTripTest::testExportSongRoundTrip` (the mirror's driver is
+  never a `DiskWriterDriver` before/during/after, the exclusion-list
+  marshalling is exercised (its semantics stay asserted at engine
+  level in `AudioExportTest`), the session lifecycle is observable via
+  the query,
+  the stop is idempotent over IPC).
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

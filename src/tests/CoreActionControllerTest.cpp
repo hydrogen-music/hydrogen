@@ -36,6 +36,7 @@
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
+#include <core/IO/DiskWriterDriver.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
@@ -45,6 +46,7 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Helpers/Filesystem.h>
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
 
 #include <chrono>
@@ -681,6 +683,100 @@ void CoreActionControllerTest::testAddRemoveCustomSoundLibraryDir() {
 
 	pHydrogen->getPreferences()->setCustomSoundLibraryDirs( originalDirs );
 	pHydrogen->getSoundLibraryDatabase()->update();
+
+	___INFOLOG( "passed" );
+}
+
+void CoreActionControllerTest::testExportSong() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	auto pSong = Song::load(
+		QString( H2TEST_FILE( "functional/test_adsr.h2song" ) ), false,
+		pHydrogen );
+	ASSERT_SONG( pSong );
+	CPPUNIT_ASSERT( pCAC->setSong( pSong ) );
+
+	// Capture the state a session has to restore afterwards.
+	const int nOriginalBatchMode =
+		pHydrogen->getPreferences()->getRubberBandBatchMode();
+	const auto originalInterpolateMode = pHydrogen->getInterpolateMode();
+	// Flip both, so the restore is observable.
+	const bool bFlippedBatchMode = ! ( nOriginalBatchMode != 0 );
+	const auto overriddenInterpolateMode =
+		originalInterpolateMode == Interpolation::InterpolateMode::Linear ?
+		Interpolation::InterpolateMode::Cosine :
+		Interpolation::InterpolateMode::Linear;
+
+	QTemporaryDir tmpDir( Filesystem::tmpDir() +
+						  "export-song-test-XXXXXX" );
+	CPPUNIT_ASSERT( tmpDir.isValid() );
+	const QString sFile1 = tmpDir.path() + "/export-1.wav";
+	const QString sFile2 = tmpDir.path() + "/export-2.wav";
+
+	// Empty plan: acknowledged no-op, no session.
+	CPPUNIT_ASSERT( pCAC->exportSong(
+		48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
+		{} ) );
+	CPPUNIT_ASSERT( ! pHydrogen->getIsExportSessionActive() );
+
+	// Single-render plan: the engine renders and tears the session
+	// down itself, restoring everything it parked.
+	std::vector<ExportRender> renders;
+	renders.push_back( ExportRender{ sFile1, {} } );
+	CPPUNIT_ASSERT( pCAC->exportSong(
+		48000, 16, 0.0, overriddenInterpolateMode, bFlippedBatchMode,
+		renders ) );
+
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pHydrogen->getIsExportSessionActive();
+	}, 30000 ) );
+	CPPUNIT_ASSERT( QFileInfo( sFile1 ).size() > 0 );
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pHydrogen->getAudioDriver() ) == nullptr );
+	CPPUNIT_ASSERT( pHydrogen->getPreferences()->getRubberBandBatchMode() ==
+					nOriginalBatchMode );
+	CPPUNIT_ASSERT( pHydrogen->getInterpolateMode() ==
+					originalInterpolateMode );
+
+	// Two-render plan with a per-instrument exclusion (trackout
+	// shape). The exclusion semantics themselves are covered by
+	// AudioExportTest; this exercises the plan plumbing.
+	auto pExcluded = pSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pExcluded != nullptr );
+	renders.clear();
+	renders.push_back( ExportRender{ sFile1, {} } );
+	renders.push_back( ExportRender{ sFile2, { pExcluded->getUuid() } } );
+	CPPUNIT_ASSERT( pCAC->exportSong(
+		48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
+		renders ) );
+
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pHydrogen->getIsExportSessionActive();
+	}, 30000 ) );
+	CPPUNIT_ASSERT( QFileInfo( sFile1 ).size() > 0 );
+	CPPUNIT_ASSERT( QFileInfo( sFile2 ).size() > 0 );
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pHydrogen->getAudioDriver() ) == nullptr );
+
+	// Cancel: stopping right after the plan was armed is safe and
+	// restores everything.
+	renders.clear();
+	renders.push_back( ExportRender{ sFile2, {} } );
+	CPPUNIT_ASSERT( pCAC->exportSong(
+		48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
+		renders ) );
+	pCAC->stopExportSession();
+	CPPUNIT_ASSERT( ! pHydrogen->getIsExportSessionActive() );
+	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
+		pHydrogen->getAudioDriver() ) == nullptr );
+	CPPUNIT_ASSERT( pHydrogen->getPreferences()->getRubberBandBatchMode() ==
+					nOriginalBatchMode );
+
+	// Idempotent: stopping without an active session is a no-op.
+	pCAC->stopExportSession();
+	CPPUNIT_ASSERT( ! pHydrogen->getIsExportSessionActive() );
 
 	___INFOLOG( "passed" );
 }
