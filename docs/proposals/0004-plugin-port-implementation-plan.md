@@ -1252,6 +1252,31 @@ paths (no playlist file to resolve against over IPC).
   shape). `testMidiNoteRecordingRoundTrip` converted to the snapshot
   API, unchanged in behaviour. Three consecutive full-suite runs green.
 
+**Metronome volume across the split (batch 2r) — DONE, suite
+`OK (433 tests)`.**
+* User report: `HydrogenApp::onPreferencesChanged()` applied the
+  metronome volume chosen in `PreferencesDialog` via
+  `m_pHydrogen->getAudioEngine()->getMetronomeInstrument()->setVolume()`
+  — in the split that pokes the editor's *mirror* engine; the
+  authoritative engine never heard the change and kept clicking at the
+  old volume.
+* Fix: the setting becomes a CAC command, `setMetronomeVolume(float)`,
+  following the `setMetronomeIsActive` sibling end to end. The base
+  implementation writes the engine's `Preferences::m_fMetronomeVolume`
+  copy (what a restarted engine re-applies — see the AudioEngine
+  constructor) and pokes the runtime volume on the engine-owned
+  metronome instrument; `IpcCoreActionController` dual-applies (send
+  `SetMetronomeVolume` [float] + base call, so the mirror stays
+  consistent too); `IpcEngineBridge` dispatches the opcode onto the
+  engine-side controller. `onPreferencesChanged` now routes through
+  the CAC — in standalone the base call reproduces the old direct poke
+  exactly (plus an idempotent pref write).
+* Tested: `EngineSessionTest::testCommandDispatchedToEngine` extended
+  (RED first: the method did not exist) — the editor-side controller
+  sets 0.25 and the authoritative engine ends up with both its pref
+  copy and its metronome instrument at 0.25. Three consecutive
+  full-suite runs green.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

@@ -54,6 +54,7 @@ public:
 	bool setMasterVolume( float fVolumeValue, Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setMasterIsMuted( bool bIsMuted, Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setMetronomeIsActive( bool bIsActive ) override;
+	bool setMetronomeVolume( float fVolume ) override;
 	bool locateToColumn( int nPatternGroup ) override;
 	bool locateToTick( long nTick, bool bWithJackBroadcast ) override;
 	bool selectPattern( int nPatternNumber ) override;

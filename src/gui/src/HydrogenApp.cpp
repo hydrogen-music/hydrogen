@@ -2339,8 +2339,10 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 
 void HydrogenApp::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
-		m_pHydrogen->getAudioEngine()->
-			getMetronomeInstrument()->setVolume(
-				m_pHydrogen->getPreferences()->m_fMetronomeVolume );
+		// Via the CAC so the authoritative engine applies it too — in the
+		// split a direct poke would only hit the editor's mirror (ADR
+		// 0030 batch 2r).
+		m_pHydrogen->getCoreActionController()->setMetronomeVolume(
+			m_pHydrogen->getPreferences()->m_fMetronomeVolume );
 	}
 }

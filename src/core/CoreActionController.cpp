@@ -715,6 +715,23 @@ bool CoreActionController::setMetronomeIsActive( bool isActive )
 	return true;
 }
 
+bool CoreActionController::setMetronomeVolume( float fVolume )
+{
+	m_pHydrogen->getPreferences()->m_fMetronomeVolume = fVolume;
+
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	auto pMetronomeInstrument = pAudioEngine != nullptr ?
+		pAudioEngine->getMetronomeInstrument() : nullptr;
+	if ( pMetronomeInstrument != nullptr ) {
+		// The runtime volume lives on the engine-owned metronome
+		// instrument; the pref copy above is what a restarted engine
+		// re-applies (see the AudioEngine constructor).
+		pMetronomeInstrument->setVolume( fVolume );
+	}
+
+	return true;
+}
+
 bool CoreActionController::setMasterIsMuted( bool bIsMuted, Event::Trigger trigger )
 {
 	auto pSong = m_pHydrogen->getSong();

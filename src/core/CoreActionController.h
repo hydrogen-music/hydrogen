@@ -274,6 +274,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		Event::Trigger trigger = Event::Trigger::Default
 	);
 	virtual bool setMetronomeIsActive( bool isActive );
+	virtual bool setMetronomeVolume( float fVolume );
 	virtual bool setMasterIsMuted(
 		bool isMuted,
 		Event::Trigger trigger = Event::Trigger::Default

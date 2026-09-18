@@ -63,6 +63,7 @@ enum class IpcOpcode : quint16 {
 	SetMasterVolume,        ///< args: [float]
 	SetMasterIsMuted,       ///< args: [bool]
 	SetMetronomeIsActive,   ///< args: [bool]
+	SetMetronomeVolume,     ///< args: [float]
 	LocateToColumn,         ///< args: [int]
 	LocateToTick,           ///< args: [qlonglong, bool]
 	SelectPattern,          ///< args: [int]

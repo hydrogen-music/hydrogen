@@ -96,6 +96,11 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->setMetronomeIsActive( args[0].toBool() );
 		}
 		break;
+	case IpcOpcode::SetMetronomeVolume:
+		if ( args.size() >= 1 ) {
+			return pController->setMetronomeVolume( args[0].toFloat() );
+		}
+		break;
 	case IpcOpcode::LocateToColumn:
 		if ( args.size() >= 1 ) {
 			return pController->locateToColumn( args[0].toInt() );

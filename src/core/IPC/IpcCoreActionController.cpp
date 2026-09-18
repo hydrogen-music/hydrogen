@@ -82,6 +82,14 @@ bool IpcCoreActionController::setMetronomeIsActive( bool bIsActive ) {
 	return CoreActionController::setMetronomeIsActive( bIsActive );
 }
 
+bool IpcCoreActionController::setMetronomeVolume( float fVolume ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetMetronomeVolume ).arg( fVolume ) );
+	}
+	return CoreActionController::setMetronomeVolume( fVolume );
+}
+
 bool IpcCoreActionController::locateToColumn( int nPatternGroup ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send(

@@ -211,6 +211,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetMetronomeIsActive:
 		sOpcode = "SET_METRONOME_IS_ACTIVE";
 		break;
+	case IpcOpcode::SetMetronomeVolume:
+		sOpcode = "SET_METRONOME_VOLUME";
+		break;
 	case IpcOpcode::LocateToColumn:
 		sOpcode = "LOCATE_TO_COLUMN";
 		break;

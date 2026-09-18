@@ -99,6 +99,18 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 	} );
 	CPPUNIT_ASSERT( bApplied );
 
+	// The metronome volume chosen in the editor's preferences dialog must
+	// be applied by the authoritative engine — not only the editor's own
+	// mirror (batch 2r): both its preferences copy and the runtime volume
+	// of its metronome instrument.
+	pAccess->getCoreActionController()->setMetronomeVolume( 0.25f );
+	const bool bMetronomeApplied = TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->m_fMetronomeVolume == 0.25f &&
+			pEngine->getAudioEngine()->getMetronomeInstrument()->getVolume()
+				== 0.25f;
+	} );
+	CPPUNIT_ASSERT( bMetronomeApplied );
+
 	pEditor.reset();
 	pServer->stop();
 	delete pMirror;
