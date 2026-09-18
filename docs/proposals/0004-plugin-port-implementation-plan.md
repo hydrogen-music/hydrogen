@@ -1277,6 +1277,39 @@ paths (no playlist file to resolve against over IPC).
   copy and its metronome instrument at 0.25. Three consecutive
   full-suite runs green.
 
+**Is-modified flags across the split (batch 2s) — DONE, suite
+`OK (433 tests)`.**
+* User report: the save handlers in `MainForm` (`action_pattern_save`,
+  `action_pattern_save_as`, `action_drumkit_save`,
+  `action_drumkit_save_as`, `onAutoSaveTimer`) cleared the is-modified
+  flag directly on the editor's objects (`Pattern::setIsModified(false)`
+  + a manual event push). In the split the authoritative engine's
+  copies stayed dirty forever.
+* Design correction: the pattern/drumkit crossings already exist as Class C song
+  state on the `IEngineAccess` surface (ADR 0026 point 13) —
+  `IpcEngineAccess::setPatternModified()/setDrumkitModified()` dual-apply and
+  the bridge applies them under `Suppress`. The sites now route through
+  `HydrogenApp::pEngine()` (the `IEngineAccess` handle) like `Modifier` and
+  `NotePropertiesRuler` already do — the manual event pushes went away too
+  (`Hydrogen::setPatternModified()`/ `setDrumkitModified()` push them).
+* Only the playlist variant was missing: new
+  `Hydrogen::setPlaylistIsModified(bool)` wrapper (no song-dirty
+  coupling — the playlist is an artifact in its own right, and no
+  event: none exists for playlists), `IEngineAccess` virtual +
+  `LocalEngineAccess`/`IpcEngineAccess` impls (dual-apply; no
+  `Suppress` needed engine-side since the flip queues no event),
+  `SetPlaylistIsModified` opcode + bridge case.
+* `onAutoSaveTimer` re-asserts playlist dirty *after* the autosave
+  write (an autosave is not a save) — that flip crosses now too.
+* Gotcha: `Pattern::setIsModified()`/`Drumkit::setIsModified()` only
+  stick for file-backed objects (non-empty path); the test gives
+  pattern 0 a path first (idiom from
+  `ConnectViaIpcModeTest::testEngineWrapperFlipWhileDirtyEchoes`).
+* Tested: `EngineSessionTest::testCommandDispatchedToEngine` extended
+  (RED first: `setPlaylistIsModified` did not exist) — both directions
+  (mark + clear) for all three flags on the authoritative engine.
+  Three consecutive full-suite runs green.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

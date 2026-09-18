@@ -215,6 +215,10 @@ class IpcEngineAccess : public IEngineAccess,
 	/** Class C song state (ADR 0026 point 13): dual-apply like
 	 * setDrumkitModified(). */
 	void setPatternModified( bool bIsModified, int nIndex ) override;
+	/** Class C state like setPatternModified() (ADR 0026 point 13), but
+	 * no Suppress is needed on the engine-side apply: the playlist flip
+	 * queues no event. */
+	void setPlaylistIsModified( bool bIsModified ) override;
 	/** Instrument selection is engine-relevant — the headless engine's
 	 * MIDI-to-selected-instrument routing follows it — so the change is
 	 * forwarded over IPC and applied to the mirror. The engine's echo event

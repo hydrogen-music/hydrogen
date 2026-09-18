@@ -338,6 +338,8 @@ enum class IpcOpcode : quint16 {
 	                          ///< (editor→engine)
 	SetPatternModified,       ///< command: args = [bool isModified,
 	                          ///< int patternIndex] (editor→engine)
+	SetPlaylistIsModified,    ///< command: args = [bool isModified]
+	                          ///< (editor→engine)
 	SetIsPatternEditorLocked, ///< command: args = [bool isLocked]
 	                          ///< (editor→engine)
 

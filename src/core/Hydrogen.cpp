@@ -2065,6 +2065,15 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex,
 	);
 }
 
+void Hydrogen::setPlaylistIsModified( bool bIsModified )
+{
+	if ( m_pPlaylist == nullptr ) {
+		return;
+	}
+
+	m_pPlaylist->setIsModified( bIsModified );
+}
+
 void Hydrogen::setSongModified( bool bIsModified, Event::Trigger trigger )
 {
 	if ( m_pSong == nullptr ) {

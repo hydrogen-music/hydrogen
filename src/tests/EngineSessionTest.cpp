@@ -25,6 +25,9 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
@@ -78,6 +81,11 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 	auto* pEngine = TestHelper::makeEngine();
 	pEngine->setSong( Song::getEmptySong( pEngine ) );
 
+	// Pattern::setIsModified() only sticks for file-backed patterns (a
+	// non-empty path); give pattern 0 one so its flag is observable.
+	pEngine->getSong()->getPatternList()->get( 0 )->setPath(
+		QString( "/tmp/h2-2s-pattern-flag-test.h2pattern" ) );
+
 	const QString sEndpoint = TestHelper::uniqueEndpoint();
 	auto pServer = EngineSession::start( pEngine, sEndpoint );
 	CPPUNIT_ASSERT( pServer != nullptr );
@@ -110,6 +118,41 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 				== 0.25f;
 	} );
 	CPPUNIT_ASSERT( bMetronomeApplied );
+
+	// The save-clears-dirty flips must cross the split (batch 2s): the
+	// pattern, drumkit, and playlist flags are dual-applied through the
+	// engine access — MainForm's save handlers route through these
+	// instead of poking the mirror's objects directly. Both directions
+	// are exercised: marking and clearing.
+	pAccess->setPatternModified( true, 0 );
+	pAccess->setDrumkitModified( true );
+	pAccess->setPlaylistIsModified( true );
+	const bool bFlagsApplied = TestHelper::pumpUntil( [&]() {
+		auto pEngineSong = pEngine->getSong();
+		auto pEnginePlaylist = pEngine->getPlaylist();
+		return pEngineSong != nullptr &&
+			pEngineSong->getPatternList()->get( 0 ) != nullptr &&
+			pEngineSong->getPatternList()->get( 0 )->getIsModified() &&
+			pEngineSong->getDrumkit() != nullptr &&
+			pEngineSong->getDrumkit()->getIsModified() &&
+			pEnginePlaylist != nullptr && pEnginePlaylist->getIsModified();
+	} );
+	CPPUNIT_ASSERT( bFlagsApplied );
+
+	pAccess->setPatternModified( false, 0 );
+	pAccess->setDrumkitModified( false );
+	pAccess->setPlaylistIsModified( false );
+	const bool bFlagsCleared = TestHelper::pumpUntil( [&]() {
+		auto pEngineSong = pEngine->getSong();
+		auto pEnginePlaylist = pEngine->getPlaylist();
+		return pEngineSong != nullptr &&
+			pEngineSong->getPatternList()->get( 0 ) != nullptr &&
+			! pEngineSong->getPatternList()->get( 0 )->getIsModified() &&
+			pEngineSong->getDrumkit() != nullptr &&
+			! pEngineSong->getDrumkit()->getIsModified() &&
+			pEnginePlaylist != nullptr && ! pEnginePlaylist->getIsModified();
+	} );
+	CPPUNIT_ASSERT( bFlagsCleared );
 
 	pEditor.reset();
 	pServer->stop();

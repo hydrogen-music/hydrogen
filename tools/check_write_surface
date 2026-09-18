@@ -54,7 +54,7 @@ GUI_DIR="src/gui/src"
 # mutating method (set/insert/remove/add/purge/clear/move/replace/erase + a
 # capital). Qt-widget pointers (pButton, pLabel, m_pFader, ...) are not named
 # like this, so they do not match.
-PATTERN='\b(pNote|ppNote|pNotes|pNewNote|pSelectedNote|pInstrument|ppInstrument|pInstr|pPattern|ppPattern|pComponent|ppComponent|pLayer|ppLayer|pSong|pDrumkit|pSample|pAdsr|pAutomationPath)[[:space:]]*->[[:space:]]*(set|insert|remove|add|purge|clear|move|replace|erase)[A-Z]'
+PATTERN='\b(pNote|ppNote|pNotes|pNewNote|pSelectedNote|pInstrument|ppInstrument|pInstr|pPattern|ppPattern|pComponent|ppComponent|pLayer|ppLayer|pSong|pDrumkit|pSample|pAdsr|pAutomationPath)[[:space:]]*->[[:space:]]*(set|insert|remove|add|purge|clear|move|replace|erase|setIsModified)[A-Z]'
 
 # Direct mutation / playback commands on the engine, transport or sampler — these
 # must go through CoreActionController too (ADR 0027/0029). Reads

@@ -214,6 +214,14 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return true;
 		}
 		break;
+	case IpcOpcode::SetPlaylistIsModified:
+		if ( args.size() >= 1 ) {
+			// No Suppress needed (unlike SetPatternModified above): the
+			// playlist flip queues no event.
+			pHydrogen->setPlaylistIsModified( args[0].toBool() );
+			return true;
+		}
+		break;
 	case IpcOpcode::SetIsPatternEditorLocked:
 		if ( args.size() >= 1 ) {
 			// Suppress: like SetDrumkitModified above.

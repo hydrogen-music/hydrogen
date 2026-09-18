@@ -601,6 +601,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetPatternModified:
 		sOpcode = "SET_PATTERN_MODIFIED";
 		break;
+	case IpcOpcode::SetPlaylistIsModified:
+		sOpcode = "SET_PLAYLIST_IS_MODIFIED";
+		break;
 	case IpcOpcode::SetIsPatternEditorLocked:
 		sOpcode = "SET_IS_PATTERN_EDITOR_LOCKED";
 		break;

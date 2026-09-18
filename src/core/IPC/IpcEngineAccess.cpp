@@ -128,6 +128,17 @@ void IpcEngineAccess::setPatternModified( bool bIsModified, int nIndex )
 	m_pMirror->setPatternModified( bIsModified, nIndex );
 }
 
+void IpcEngineAccess::setPlaylistIsModified( bool bIsModified )
+{
+	// Dual-apply like setPatternModified() above; the engine-side apply
+	// needs no Suppress since the playlist flip queues no event.
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetPlaylistIsModified ).arg( bIsModified ) );
+	}
+	m_pMirror->setPlaylistIsModified( bIsModified );
+}
+
 bool IpcEngineAccess::handleBeatCounter( TimePoint start ) {
 	// Taps are engine-authoritative: the mirror's handler is a designed
 	// no-op in editor mode (getTempoSource() == Tempo::Remote). Engine

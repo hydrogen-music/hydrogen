@@ -166,6 +166,7 @@ public:
 	virtual void setIsTimelineActivated( bool bEnabled ) = 0;
 	virtual void setPatternMode( const Song::PatternMode& mode ) = 0;
 	virtual void setPatternModified( bool bIsModified, int nIndex ) = 0;
+	virtual void setPlaylistIsModified( bool bIsModified ) = 0;
 	virtual void setSelectedInstrumentNumber(
 		int nInstrument, Event::Trigger trigger = Event::Trigger::Default ) = 0;
 	virtual void setSongModified( bool bIsModified ) = 0;

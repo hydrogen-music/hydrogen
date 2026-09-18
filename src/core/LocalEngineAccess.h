@@ -132,6 +132,8 @@ public:
 		m_pHydrogen->setPatternMode( mode ); }
 	void setPatternModified( bool bIsModified, int nIndex ) override {
 		m_pHydrogen->setPatternModified( bIsModified, nIndex ); }
+	void setPlaylistIsModified( bool bIsModified ) override {
+		m_pHydrogen->setPlaylistIsModified( bIsModified ); }
 	void setSelectedInstrumentNumber(
 		int nInstrument,
 		Event::Trigger trigger = Event::Trigger::Default ) override {

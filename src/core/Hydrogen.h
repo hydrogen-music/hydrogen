@@ -343,6 +343,11 @@ public:
 	void setPatternModified(
 		bool bIsModified, int nIndex,
 		Event::Trigger trigger = Event::Trigger::Default );
+	/** Wrapper around Playlist::setIsModified() that checks whether a
+	 * playlist is set. Unlike the wrappers above it does not touch the
+	 * modification state of the enclosing song: the playlist is an
+	 * artifact in its own right. */
+	void setPlaylistIsModified( bool bIsModified );
 	/** Wrapper around Song::setIsModified() that checks whether a
 		song is set. On the headless engine a non-suppressed call fires
 		SongIsModified even when the flag is unchanged — the attached

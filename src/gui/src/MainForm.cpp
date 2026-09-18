@@ -589,8 +589,6 @@ void MainForm::createMenuBar()
 		HydrogenApp::get_instance()->getMainToolBar()
 			->setMidiControlDialogVisible( true );
 	} );
-	// pActionMidiControlDialog->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::ShowPreferencesDialog ) );
 	auto pActionPreferences = m_pOptionsMenu->addAction(
 		tr("&Preferences"), this, SLOT( showPreferencesDialog() ) );
 	pActionPreferences->setShortcut(
@@ -1379,11 +1377,9 @@ void MainForm::action_pattern_save( int nPatternRow )
 	}
 	else {
 		// Done in the GUI instead of Pattern::save() itself because this only
-		// concerns patterns of the current song.
-		pPattern->setIsModified( false );
-		HydrogenApp::pEventQueue()->pushEvent(
-			Event::Type::PatternIsModified, nPatternRow
-		);
+		// concerns patterns of the current song. Routed through the engine
+		// access so the flip crosses to the authoritative engine too.
+		HydrogenApp::pEngine()->setPatternModified( false, nPatternRow );
 		pHydrogenApp->showStatusBarMessage(
 			pCommonStrings->getStatusPatternLoaded()
 		);
@@ -1467,11 +1463,10 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 		// Done in the GUI instead of Pattern::save() itself because this only
 		// concerns patterns of the current song. We have to change the is
 		// modified state on the original pattern and not the copy we did in
-		// order to not leak any information in case saving did fail.
-		pSong->getPatternList()->get( nPatternRow )->setIsModified( false );
-		HydrogenApp::pEventQueue()->pushEvent(
-			Event::Type::PatternIsModified, nPatternRow
-		);
+		// order to not leak any information in case saving did fail. Routed
+		// through the engine access so the flip crosses to the authoritative
+		// engine too.
+		HydrogenApp::pEngine()->setPatternModified( false, nPatternRow );
 		pPref->setLastExportPatternAsDirectory(
 			QFileInfo( pPattern->getPath() ).absoluteDir().absolutePath()
 		);
@@ -2089,10 +2084,7 @@ void MainForm::action_drumkit_save()
 
 	}
 	else {
-		pDrumkit->setIsModified( false );
-		HydrogenApp::pEventQueue()->pushEvent(
-			Event::Type::DrumkitIsModified, -1
-		);
+		HydrogenApp::pEngine()->setDrumkitModified( false );
 		pHydrogenApp->showStatusBarMessage(
 			QString( "%1 [%2]" )
 				.arg( pCommonStrings->getStatusPatternLoaded() )
@@ -2140,10 +2132,7 @@ void MainForm::action_drumkit_save_as()
 		// We have to change the is modified state on the original pattern and
 		// not the copy we did in order to not leak any information in case
 		// saving did fail.
-		pSong->getDrumkit()->setIsModified( false );
-		HydrogenApp::pEventQueue()->pushEvent(
-			Event::Type::DrumkitIsModified, -1
-		);
+		HydrogenApp::pEngine()->setDrumkitModified( false );
 
 		pPref->setLastSaveDrumkitAsDirectory(
 			Filesystem::drumkitDirFromPath( pDrumkit->getPath() )
@@ -2822,7 +2811,9 @@ void MainForm::onAutoSaveTimer()
 		pPlaylist->saveAs( sAutoSavePath, HydrogenApp::pEngine()->getPreferences() );
 
 		pPlaylist->setPath( sOldPath );
-		pPlaylist->setIsModified( true );
+		// An autosave is not a save: the playlist stays dirty. Routed
+		// through the engine access so the engine's copy stays in sync.
+		HydrogenApp::pEngine()->setPlaylistIsModified( true );
 
 	}
 }
