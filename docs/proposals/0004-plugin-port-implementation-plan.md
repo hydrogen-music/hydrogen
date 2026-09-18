@@ -1025,6 +1025,74 @@ paths (no playlist file to resolve against over IPC).
   testExportSong` (local mode: neither rolling nor a sticky pending
   Playing after the plan).
 
+**MIDI note recording crossing (batch 2n) — DONE, suite `OK (432 tests)`.**
+* User report: MIDI notes recorded in the split never appeared in the
+  pattern editor. `Hydrogen::addRealtimeNote()` (engine-only, reached from
+  `CoreActionController::handleNote` — engines own all control surfaces,
+  ADR 0016) queues note-ons into the engine-local
+  `EventQueue::m_addMidiNoteVector`; in standalone the GUI's
+  `HydrogenApp::onEventQueueTimer` drains that vector and integrates each
+  note as an undoable pattern edit (pattern-editor DB row correlation +
+  `SE_addOrRemoveNoteAction` under an undo macro). In the split the
+  editor drains the *mirror's* vector — the engine's entries never
+  crossed, so the recording was lost entirely (and the engine's vector
+  grew unboundedly: nothing else drains it in the split).
+* Design: cross the raw note, reuse the GUI drain verbatim. The engine
+  stays authoritative for the *input* (MIDI in, record-arm, playhead,
+  quantize — all engine-side, unchanged), the editor for the *edit* (the
+  drain's undo macro and toggle semantics are editor-domain; replicating
+  them engine-side would duplicate GUI logic and lose the undo history).
+  The note closes the loop through the existing editor→engine write
+  path: the drain's undo action dual-applies via
+  `IpcCoreActionController`, so both songs end up with the note.
+  Rejected alternatives: engine-side integration + `UpdateSong` re-pull
+  (loses undo, a full-song XML pull per note), a new `Event::Type`
+  (events carry only type+value+id — eight fields don't fit), telemetry
+  SHM (lossy-tolerant by classification, ADR 0018 — recorded notes must
+  not drop).
+* Mechanics: new fire-and-forget opcode `IpcOpcode::MidiNoteRecorded`
+  carrying the eight `AddMidiNoteVector` fields as args
+  (`IpcMessage::fromMidiNote`/`toMidiNoteFields`, the `fromEvent`/
+  `toEventFields` pattern). The engine's serve loop drains the vector
+  beside `forwardEvents` (`EngineSession::forwardMidiNotes`): the drain
+  takes the audio engine lock with the telemetry discipline —
+  `tryLockFor(2ms)`; the pushing audio thread only try-locks itself, so
+  it can not be starved; on contention the notes wait one serve cycle —
+  swaps the vector out under the lock, and sends outside it (a
+  potentially blocking write must never hold the engine lock).
+  `addRealtimeNote()` itself is untouched: the realtime path stays
+  exactly as in standalone. While no editor is attached,
+  `discardMidiNotes()` drains instead (without a GUI consuming them the
+  notes are unrecordable, and the vector must not pile up — the
+  `discardEvents` rationale). Editor-side, `EditorStateMirror::
+  applyEvent` handles the opcode by re-queueing the note into the
+  mirror's `m_addMidiNoteVector`; `onEventQueueTimer` then consumes it
+  unchanged. Ordering is single-serve-thread → FIFO channel →
+  single-reader-thread; latency is one serve cycle — imperceptible for
+  recording.
+* Residuals: note-off length edits stay engine-side (the authoritative
+  playhead computes the length) and reach the mirror via the existing
+  `SongIsModified` debounced re-pull — functional, but the length
+  appears after the debounce window and the interim `PatternChanged`
+  redraw is stale; a dedicated crossing message for the mutated note is
+  the follow-up if the latency bothers. A very short tap (shorter than
+  the note-on's crossing + dual-apply round-trip, ~60-100ms) can note
+  off on the engine before the note exists there — the length edit
+  finds nothing and the default length stands. The vector keeps its
+  pre-existing unsynchronised pop shape (standalone: audio-thread push
+  under the engine lock vs. GUI-timer erase without; the split adds a
+  reader-thread push against the same erase) — a class-level
+  `EventQueue` mutex is the clean fix if it ever bites.
+* Tested: `IpcRoundTripTest::testMidiNoteRecordingRoundTrip` (RED first:
+  the note never reached the mirror) — the engine records while Playing
+  with record armed, the note crosses with all eight fields intact
+  (id/pattern/velocity/pan/length/key/octave exact, the column bounded
+  by the quantized playhead), and the engine's vector is drained (no
+  unbounded growth). The GUI-side integration (undo macro, DB row
+  correlation) is GUI code and stays manually verified in the running
+  split. Standalone is untouched by construction (the serve loop only
+  exists in the split); three consecutive full-suite runs green.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

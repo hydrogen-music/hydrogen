@@ -40,6 +40,7 @@ class IpcRoundTripTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testLastMidiEventRoundTrip );
 	CPPUNIT_TEST( testCustomLibraryDirsRoundTrip );
 	CPPUNIT_TEST( testExportSongRoundTrip );
+	CPPUNIT_TEST( testMidiNoteRecordingRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -60,6 +61,12 @@ public:
 	 * which renders and restores itself — the mirror never renders
 	 * (ADR 0030 batch 2l). */
 	void testExportSongRoundTrip();
+
+	/** A MIDI note recorded by the engine (addRealtimeNote() fills the
+	 * engine's EventQueue::m_addMidiNoteVector) must cross the split so
+	 * the editor's HydrogenApp::onEventQueueTimer can integrate it as an
+	 * undoable pattern edit (ADR 0030 batch 2n). */
+	void testMidiNoteRecordingRoundTrip();
 };
 
 #endif // IPC_ROUND_TRIP_TEST_H

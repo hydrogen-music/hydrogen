@@ -100,6 +100,15 @@ private:
 	void handleMessage( IpcChannel* pConn, const IpcMessage& msg );
 	/** Forward all pending engine-origin events to the editor. */
 	void forwardEvents( IpcChannel* pConn );
+	/** Forward all MIDI notes the engine recorded
+	 * (EventQueue::m_addMidiNoteVector) to the editor's mirror, which
+	 * re-queues them for HydrogenApp::onEventQueueTimer's undoable
+	 * pattern integration (ADR 0030 batch 2n). */
+	void forwardMidiNotes( IpcChannel* pConn );
+	/** Drain the recorded MIDI notes while no editor is attached: without
+	 * a GUI consuming them they are unrecordable, and the vector would
+	 * grow unboundedly. */
+	void discardMidiNotes();
 	/** Drain the EventQueue while no editor is attached, so it does not
 	 * overflow. Error events are retained for replay on the next attach
 	 * (ADR 0026 point 9) instead of being discarded. */

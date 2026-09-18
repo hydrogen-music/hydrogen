@@ -23,6 +23,7 @@
 #define H2C_IPC_MESSAGE_H
 
 #include <core/Basics/Event.h>
+#include <core/EventQueue.h>
 #include <core/Object.h>
 
 #include <QtCore/QByteArray>
@@ -50,6 +51,7 @@ constexpr int IPC_DATASTREAM_VERSION = QDataStream::Qt_5_15;
 enum class IpcOpcode : quint16 {
 	Hello = 0,
 	Event,                  ///< engine → editor: (type, value, id)
+	MidiNoteRecorded,       ///< engine → editor: recorded MIDI note
 	Reply,                  ///< response to a request, correlated by requestId (ADR 0030)
 	RescanSoundLibrary,     ///< editor → engine (ADR 0016)
 
@@ -427,6 +429,17 @@ public:
 	static IpcMessage fromEvent( Event::Type type, int nValue, long nId );
 	/** Extract the (type, value, id) of an Event opcode message. */
 	bool toEventFields( Event::Type& type, int& nValue, long& nId ) const;
+
+	// ── Recorded MIDI note convenience (ADR 0030 batch 2n) ──
+	/** Marshal an EventQueue::AddMidiNoteVector entry the engine's
+	 * Hydrogen::addRealtimeNote() queued, so the editor's mirror can
+	 * re-queue it for HydrogenApp::onEventQueueTimer (which integrates it
+	 * as an undoable pattern edit). */
+	static IpcMessage fromMidiNote(
+		const EventQueue::AddMidiNoteVector& noteAction );
+	/** Extract the AddMidiNoteVector fields of a MidiNoteRecorded
+	 * message. */
+	bool toMidiNoteFields( EventQueue::AddMidiNoteVector& noteAction ) const;
 
 	/** Hello handshake message carrying the protocol version. */
 	static IpcMessage hello( quint16 nProtocolVersion = IPC_PROTOCOL_VERSION );

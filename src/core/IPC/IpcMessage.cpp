@@ -87,6 +87,36 @@ bool IpcMessage::toEventFields( Event::Type& type, int& nValue, long& nId ) cons
 	return true;
 }
 
+IpcMessage IpcMessage::fromMidiNote(
+	const EventQueue::AddMidiNoteVector& noteAction ) {
+	IpcMessage msg( IpcOpcode::MidiNoteRecorded );
+	msg.arg( noteAction.nColumn )
+		.arg( static_cast<int>( noteAction.id ) )
+		.arg( noteAction.nPattern )
+		.arg( noteAction.nLength )
+		.arg( noteAction.fVelocity )
+		.arg( noteAction.fPan )
+		.arg( static_cast<int>( noteAction.key ) )
+		.arg( static_cast<int>( noteAction.octave ) );
+	return msg;
+}
+
+bool IpcMessage::toMidiNoteFields(
+	EventQueue::AddMidiNoteVector& noteAction ) const {
+	if ( m_opcode != IpcOpcode::MidiNoteRecorded || m_args.size() < 8 ) {
+		return false;
+	}
+	noteAction.nColumn = m_args[0].toInt();
+	noteAction.id = static_cast<Instrument::Id>( m_args[1].toInt() );
+	noteAction.nPattern = m_args[2].toInt();
+	noteAction.nLength = m_args[3].toInt();
+	noteAction.fVelocity = m_args[4].toFloat();
+	noteAction.fPan = m_args[5].toFloat();
+	noteAction.key = static_cast<Note::Key>( m_args[6].toInt() );
+	noteAction.octave = static_cast<Note::Octave>( m_args[7].toInt() );
+	return true;
+}
+
 IpcMessage IpcMessage::hello( quint16 nProtocolVersion ) {
 	IpcMessage msg( IpcOpcode::Hello );
 	msg.arg( static_cast<int>( nProtocolVersion ) );

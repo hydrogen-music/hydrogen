@@ -39,6 +39,7 @@
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/IO/DiskWriterDriver.h>
@@ -51,6 +52,7 @@
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcServer.h>
 #include <core/License.h>
+#include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
@@ -1284,6 +1286,85 @@ void IpcRoundTripTest::testExportSongRoundTrip()
 		CPPUNIT_ASSERT( nFiles < 6 );
 	}
 
+	pSession->stop();
+	pEditorSession->disconnect();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
+{
+	___INFOLOG( "" );
+
+	auto pEngine = TestHelper::makeEngine();
+
+	// The empty song ships a drumkit with at least one instrument and ten
+	// patterns (the first one active) in pattern mode.
+	pEngine->getCoreActionController()->setSong(
+		Song::getEmptySong( pEngine ) );
+	auto pEngineSong = pEngine->getSong();
+	CPPUNIT_ASSERT( pEngineSong != nullptr );
+	CPPUNIT_ASSERT( pEngineSong->getPatternList()->size() > 0 );
+	auto pEngineInstr = pEngineSong->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pEngineInstr != nullptr );
+	const auto engineInstrId = pEngineInstr->getId();
+
+	auto pMirror = TestHelper::makeMirror();
+	pMirror->getCoreActionController()->setSong(
+		Song::getEmptySong( pMirror ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pSession != nullptr );
+
+	auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditorSession != nullptr );
+
+	// Recording only happens while the audio engine is actually Playing
+	// (Hydrogen::addRealtimeNote) and lands in the selected pattern.
+	pEngine->setSelectedPatternNumber( 0 );
+	pEngine->setRecordEnabled( true );
+	pEngine->sequencerPlay();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getState() ==
+			AudioEngine::State::Playing;
+	} ) );
+
+	// Simulate a MIDI note-on arriving at the headless engine (engines own
+	// all control surfaces, ADR 0016). NoteInvalid keeps key/octave at
+	// their defaults regardless of the MIDI instrument map mode.
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+	CPPUNIT_ASSERT(
+		pEngine->addRealtimeNote( 0, 0.8f, false, Midi::NoteInvalid ) );
+
+	// The note must cross the split: the bridge drains the engine's
+	// m_addMidiNoteVector and the editor's mirror re-queues it for
+	// HydrogenApp::onEventQueueTimer (which turns it into an undoable
+	// pattern edit).
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 1;
+	} ) );
+
+	const auto& noteAction =
+		pMirror->getEventQueue()->m_addMidiNoteVector[ 0 ];
+	CPPUNIT_ASSERT( noteAction.id == engineInstrId );
+	CPPUNIT_ASSERT( noteAction.nPattern == 0 );
+	CPPUNIT_ASSERT( noteAction.fVelocity == 0.8f );
+	CPPUNIT_ASSERT( noteAction.fPan == 0.f );
+	CPPUNIT_ASSERT( noteAction.nLength == -1 );
+	CPPUNIT_ASSERT( noteAction.key == Note::KeyDefault );
+	CPPUNIT_ASSERT( noteAction.octave == Note::OctaveDefault );
+	CPPUNIT_ASSERT( noteAction.nColumn >= 0 );
+	CPPUNIT_ASSERT( noteAction.nColumn <
+					pEngineSong->getPatternList()->get( 0 )->getLength() );
+
+	// The engine-side vector must be drained — nothing else consumes it in
+	// the split, an undrained vector would grow unboundedly.
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+
+	pEngine->sequencerStop();
 	pSession->stop();
 	pEditorSession->disconnect();
 	delete pMirror;

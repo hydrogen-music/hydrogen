@@ -117,8 +117,11 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 	while ( m_bRunning.load() ) {
 		IpcChannel* pConn = server.waitForChannel( m_nPollTimeoutMs );
 		if ( pConn == nullptr ) {
-			// No editor attached: keep the EventQueue from overflowing.
+			// No editor attached: keep the EventQueue from overflowing and
+			// the recorded MIDI notes from piling up (nothing else consumes
+			// them in the split).
 			discardEvents();
+			discardMidiNotes();
 			publishTelemetry();
 			continue;
 		}
@@ -159,6 +162,7 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 				handleMessage( pConn, msg );
 			}
 			forwardEvents( pConn );
+			forwardMidiNotes( pConn );
 			publishTelemetry();
 		}
 
@@ -200,6 +204,51 @@ void EngineSession::forwardEvents( IpcChannel* pConn ) {
 		IpcEngineBridge::forwardEvent( *pConn, pEvent->getType(),
 									   pEvent->getValue(), pEvent->getId() );
 	}
+}
+
+namespace {
+
+/** Swap out the engine's pending recorded MIDI notes.
+ * Hydrogen::addRealtimeNote() pushes on the audio thread while holding the
+ * audio engine lock, so the drain takes the same lock — with a small
+ * budget, like the telemetry snapshot: the audio thread only try-locks
+ * itself, so this can not starve it. On contention the notes wait for the
+ * next serve cycle; recording is human-scale, so a poll-timeout delay is
+ * imperceptible. */
+std::vector<EventQueue::AddMidiNoteVector> drainMidiNotes( Hydrogen* pEngine ) {
+	std::vector<EventQueue::AddMidiNoteVector> notes;
+	if ( pEngine == nullptr ) {
+		return notes;
+	}
+	auto pAudioEngine = pEngine->getAudioEngine();
+	auto pQueue = pEngine->getEventQueue();
+	if ( pAudioEngine == nullptr || pQueue == nullptr ) {
+		return notes;
+	}
+	if ( ! pAudioEngine->tryLockFor( std::chrono::microseconds( 2000 ),
+									 RIGHT_HERE ) ) {
+		return notes;
+	}
+	notes.swap( pQueue->m_addMidiNoteVector );
+	pAudioEngine->unlock();
+	return notes;
+}
+
+}
+
+void EngineSession::forwardMidiNotes( IpcChannel* pConn ) {
+	if ( pConn == nullptr ) {
+		return;
+	}
+	// Send outside the audio engine lock: a potentially blocking write
+	// must never hold it.
+	for ( const auto& noteAction : drainMidiNotes( m_pEngine ) ) {
+		pConn->send( IpcMessage::fromMidiNote( noteAction ) );
+	}
+}
+
+void EngineSession::discardMidiNotes() {
+	drainMidiNotes( m_pEngine );
 }
 
 void EngineSession::discardEvents() {

@@ -75,6 +75,24 @@ bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 	if ( m_pMirror == nullptr ) {
 		return false;
 	}
+
+	// A MIDI note recorded by the engine: re-queue it on the mirror's
+	// EventQueue so the editor's HydrogenApp::onEventQueueTimer integrates
+	// it as an undoable pattern edit — exactly as in standalone, where the
+	// GUI drains the local engine's vector (ADR 0030 batch 2n).
+	if ( msg.getOpcode() == IpcOpcode::MidiNoteRecorded ) {
+		auto pQueue = m_pMirror->getEventQueue();
+		if ( pQueue == nullptr ) {
+			return false;
+		}
+		EventQueue::AddMidiNoteVector noteAction;
+		if ( ! msg.toMidiNoteFields( noteAction ) ) {
+			return false;
+		}
+		pQueue->m_addMidiNoteVector.push_back( noteAction );
+		return true;
+	}
+
 	if ( msg.getOpcode() != IpcOpcode::Event ) {
 		return false;
 	}
