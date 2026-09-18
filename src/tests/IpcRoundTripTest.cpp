@@ -1196,6 +1196,94 @@ void IpcRoundTripTest::testExportSongRoundTrip()
 		return ! pEngine->getIsExportSessionActive();
 	} ) );
 
+	// Multi-render phase, modeling the reported failure: the
+	// transport was rolling when the export started, several files
+	// render in one plan, and afterwards the editor must not roll on
+	// and the toolbar's stop must still take.
+	pAccess->sequencerPlay();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getState() ==
+			AudioEngine::State::Playing;
+	}, 5000 ) );
+
+	const QString sFile2 = tmpDir.path() + "/export2.wav";
+	const QString sFile3 = tmpDir.path() + "/export3.wav";
+	std::vector<ExportRender> renders2;
+	renders2.push_back( ExportRender{ sFile2, {} } );
+	renders2.push_back( ExportRender{ sFile3, { pExcluded->getUuid() } } );
+	CPPUNIT_ASSERT( pController->exportSong(
+		48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
+		renders2 ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getIsExportSessionActive();
+	}, 30000 ) );
+	CPPUNIT_ASSERT( QFileInfo( sFile2 ).size() > 0 );
+	CPPUNIT_ASSERT( QFileInfo( sFile3 ).size() > 0 );
+
+	// Both sides must be at rest afterwards: the engine parks and
+	// restores its own transport, the export command parks the
+	// mirror's, and the telemetry play-follow must not roll the
+	// mirror along with the engine's background renders.
+	CPPUNIT_ASSERT( pEngine->getAudioEngine()->getState() !=
+					AudioEngine::State::Playing );
+	CPPUNIT_ASSERT( pEngine->getAudioEngine()->getNextState() !=
+					AudioEngine::State::Playing );
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "mirror left rolling: state [%1] next [%2] "
+				 "(2=Initialized 3=Prepared 4=Ready 5=CountIn 6=Playing)" )
+			.arg( static_cast<int>( pMirror->getAudioEngine()->getState() ) )
+			.arg( static_cast<int>( pMirror->getAudioEngine()->getNextState() ) )
+			.toStdString(),
+		pMirror->getAudioEngine()->getState() != AudioEngine::State::Playing );
+	CPPUNIT_ASSERT( pMirror->getAudioEngine()->getNextState() !=
+					AudioEngine::State::Playing );
+
+	// The toolbar's stop path must still take: the command crosses
+	// the channel and both engines settle at rest.
+	pAccess->sequencerStop();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getState() !=
+				AudioEngine::State::Playing &&
+			   pMirror->getAudioEngine()->getState() !=
+				AudioEngine::State::Playing;
+	}, 5000 ) );
+
+	// A stop while a plan is still running cancels it: no later
+	// render may call play() over the user's stop. Arm a
+	// six-render plan and stop right away — the engine must tear
+	// the session down, leave the transport at rest, and never run
+	// the queued renders.
+	std::vector<ExportRender> renders3;
+	for ( int ii = 0; ii < 6; ++ii ) {
+		renders3.push_back( ExportRender{
+			QString( "%1/export-cancel-%2.wav" )
+				.arg( tmpDir.path() ).arg( ii ),
+			{} } );
+	}
+	CPPUNIT_ASSERT( pController->exportSong(
+		48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
+		renders3 ) );
+	pAccess->sequencerStop();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getIsExportSessionActive();
+	}, 5000 ) );
+	CPPUNIT_ASSERT( pEngine->getAudioEngine()->getState() !=
+					AudioEngine::State::Playing );
+	CPPUNIT_ASSERT( pMirror->getAudioEngine()->getState() !=
+					AudioEngine::State::Playing );
+	{
+		int nFiles = 0;
+		for ( int ii = 0; ii < 6; ++ii ) {
+			if ( QFileInfo( QString( "%1/export-cancel-%2.wav" )
+							 .arg( tmpDir.path() ).arg( ii ) ).size() > 0 ) {
+				++nFiles;
+			}
+		}
+		// The stop landed while the first render was still running —
+		// the plan must have been cancelled, not run to completion.
+		CPPUNIT_ASSERT( nFiles < 6 );
+	}
+
 	pSession->stop();
 	pEditorSession->disconnect();
 	delete pMirror;

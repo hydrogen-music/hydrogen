@@ -283,8 +283,13 @@ void* diskWriterDriver_thread( void* param )
 													 // all notes are
 													 // processed
 				  ( nFrameNumber < nPatternLengthInFrames ||
-					pSampler->isRenderingNotes() ) ) ) {
-			
+				pSampler->isRenderingNotes() ) ) ) {
+			if ( pDriver->m_bCancelRequested ) {
+				// A stop asked for the session mid-render — bail out
+				// without finishing the file.
+				tearDown();
+			}
+
 			int nUsedBuffer = pDriver->m_nBufferSize;
 			
 			// This will calculate the size from -last- (end of
@@ -441,7 +446,8 @@ DiskWriterDriver::DiskWriterDriver( Hydrogen* pHydrogen, audioProcessCallback pr
 		, m_bDoneWriting( false )
 		, m_bWritingFailed( false )
 		, m_fCompressionLevel( 0.0 )
-	, m_bWriterThreadCreated( false ) {
+	, m_bWriterThreadCreated( false )
+	, m_bCancelRequested( false ) {
 }
 
 
@@ -473,10 +479,12 @@ void DiskWriterDriver::write()
 	INFOLOG( "" );
 
 	// Per-file flags: the previous render in this session (or on this
-	// driver) left them done/failed — reset so isDoneWriting() and
-	// writingFailed() reflect *this* file.
+	// driver) left them done/failed/cancelled — reset so
+	// isDoneWriting(), writingFailed() and the render loop reflect
+	// *this* file.
 	m_bDoneWriting = false;
 	m_bWritingFailed = false;
+	m_bCancelRequested = false;
 
 	// Reap the previous render's writer thread before spawning the
 	// next one. write() is only called once the previous file is
@@ -502,6 +510,11 @@ void DiskWriterDriver::disconnect()
 	INFOLOG( "" );
 	
 	m_bIsRunning = false;
+
+	// Ask a mid-render writer to bail out before joining — the render
+	// loop checks this every buffer, so the join is bounded by one
+	// buffer instead of the rest of the song.
+	m_bCancelRequested = true;
 
 	// A session can be stopped before its first render started (an
 	// export plan cancelled right away) — there is no writer thread

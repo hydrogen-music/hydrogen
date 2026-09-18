@@ -21,6 +21,7 @@
 
 #include <core/IPC/IpcCoreActionController.h>
 
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/GridPoint.h>
@@ -1077,7 +1078,21 @@ bool IpcCoreActionController::exportSong(
 					  .arg( reply.toQString() ) );
 		return false;
 	}
-	return reply.getArgs()[0].toBool();
+	if ( ! reply.getArgs()[0].toBool() ) {
+		return false;
+	}
+
+	// The engine parks its own transport while arming the session
+	// (Hydrogen::startExportSession); park the mirror's too so the
+	// editor's transport stops with it. Otherwise the mirror keeps
+	// rolling through the export and afterwards while the engine is
+	// at rest — the split twin of standalone's "export stops
+	// playback". Unconditional on purpose: the mirror's state may
+	// still be mid-transition (a pending play), and stopping an
+	// already-idle transport is a harmless no-op.
+	m_pMirror->sequencerStop();
+
+	return true;
 }
 
 void IpcCoreActionController::stopExportSession() {

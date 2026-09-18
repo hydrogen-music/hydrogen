@@ -25,6 +25,7 @@
 
 #include <sndfile.h>
 
+#include <atomic>
 #include <inttypes.h>
 #include <pthread.h>
 
@@ -73,6 +74,14 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 		}
 		bool m_bDoneWriting;
 		bool m_bWritingFailed;
+		// Cooperative cancel: disconnect() raises it before joining;
+		// the render loop checks it every buffer and tears down, so a
+		// mid-render stop joins within one buffer instead of waiting
+		// out the song. Atomic: written under the engine lock on the
+		// teardown path, read on the writer thread. Public like the
+		// sibling flags — the writer thread function is a free
+		// function that accesses the driver's state directly.
+		std::atomic<bool> m_bCancelRequested;
 
 		virtual unsigned getBufferSize() override {
 			return m_nBufferSize;

@@ -27,6 +27,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Note.h>
@@ -759,6 +760,16 @@ void CoreActionControllerTest::testExportSong() {
 	CPPUNIT_ASSERT( QFileInfo( sFile2 ).size() > 0 );
 	CPPUNIT_ASSERT( std::dynamic_pointer_cast<DiskWriterDriver>(
 		pHydrogen->getAudioDriver() ) == nullptr );
+
+	// The finished session must leave the transport at rest: neither
+	// rolling (state Playing) nor armed to roll (a sticky pending
+	// Playing the next process callback would apply) — a wedged
+	// engine would ignore later stops, which only queue a pending
+	// transition.
+	CPPUNIT_ASSERT( pHydrogen->getAudioEngine()->getState() !=
+					AudioEngine::State::Playing );
+	CPPUNIT_ASSERT( pHydrogen->getAudioEngine()->getNextState() !=
+					AudioEngine::State::Playing );
 
 	// Cancel: stopping right after the plan was armed is safe and
 	// restores everything.

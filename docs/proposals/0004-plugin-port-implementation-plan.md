@@ -969,6 +969,62 @@ paths (no playlist file to resolve against over IPC).
   the query,
   the stop is idempotent over IPC).
 
+**Export transport fixes (batch 2m) — DONE, suite `OK (431 tests)`.**
+* User report: after a multi-instrument export the editor's transport kept
+  rolling and the toolbar stop seemed not to take. Two root causes, both
+  reproduced in `IpcRoundTripTest::testExportSongRoundTrip` (extended:
+  transport rolling into the export, both state machines asserted at rest
+  afterwards, a stop issued over the channel during a six-render plan):
+  1. The telemetry play-follow (`EditorStateMirror::applyTransportSnapshot`)
+     mirrors the engine's rolling state into the editor — including the
+     export's background renders. Every render's `play()` rolled the
+     mirror, and a stale in-flight `playing=1` snapshot (built during the
+     last render) re-armed the mirror *after* the engine's final stop,
+     leaving the editor rolling with the engine at rest.
+     `EngineSession::buildTelemetrySnapshot` now reports the user-facing
+     transport: `playing=0` while an export session is active (the
+     session parks the user transport in `Hydrogen::startExportSession`).
+  2. A stop landing while the plan was still running was overridden by the
+     next render's `play()` (engine) and by the play-follow (mirror) — the
+     "unstoppable" wedge. `Hydrogen::sequencerStop()` now cancels an
+     active export session (the teardown parks the transport itself; the
+     arm-time park runs before the session flag is set, so no recursion).
+  3. The cancel path raced the writer thread: `finishExportSession` ran
+     `stopExportSong()` (an unlocked `Sampler::stopPlayingNotes()` flush
+     plus a locate) and the song mode/loop restore *before* the disk
+     writer was joined — in the cancel path the writer is still
+     mid-render, and the sampler-queue mutation under the live render
+     surfaced as an ADSR use-after-free segfault in the writer's render
+     path (a ~1-in-2 flake once the IPC test stopped mid-render
+     deterministically). `finishExportSession` now tears the driver down
+     first: between that teardown and the driver restart no audio
+     callback exists at all, so the unlocked flush is safe by
+     construction. The join is bounded by a new cooperative cancel flag
+     on `DiskWriterDriver` (`std::atomic<bool> m_bCancelRequested`,
+     raised in `disconnect()`, checked by the render loop every buffer,
+     reset on arm) — a mid-render stop joins within one buffer instead
+     of waiting out the song.
+* Belt and suspenders: `IpcCoreActionController::exportSong` parks the
+  mirror's transport directly on a successful command — the editor's
+  transport stops the moment the export starts, without waiting a
+  telemetry cycle. Unconditional on purpose: the mirror's state may be
+  mid-transition (a pending play), and stopping an idle transport is a
+  no-op.
+* This partially resolves the 2l residuals: "non-export transport
+  commands during an active session are not rejected" — a stop now
+  cancels the session instead of fighting the renders (other transport
+  commands like locate/play keep the pre-split exposure); and "a single
+  file's render is uncancellable mid-way" — the cancel flag ends the
+  in-flight render within one buffer.
+* Tested: the extended `testExportSongRoundTrip` phases (at-rest asserts
+  on both sides after a two-render plan that started rolling, the
+  stop-during-plan cancel with the queued renders never run — this phase
+  also exercises the mid-render teardown window that produced the
+  segfault, verified with three consecutive full-suite runs) plus new
+  engine-state asserts in the base `CoreActionControllerTest::
+  testExportSong` (local mode: neither rolling nor a sticky pending
+  Playing after the plan).
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

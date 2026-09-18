@@ -268,8 +268,19 @@ EngineTelemetrySnapshot EngineSession::buildTelemetrySnapshot( Hydrogen* pEngine
 		snapshot.beat = static_cast<int32_t>( pPlayhead->getBeat() );
 		snapshot.bpm = pPlayhead->getBpm();
 	}
-	snapshot.playing =
-		( pAudioEngine->getState() == AudioEngine::State::Playing ) ? 1 : 0;
+	// An export session rolls the engine's transport for a background
+	// render, not for the user — the user-facing transport is parked
+	// (Hydrogen::startExportSession stops it). Reporting the render as
+	// playing would roll the editor's mirror via the telemetry
+	// play-follow, and a stale in-flight snapshot re-arms it even
+	// after the engine's final stop.
+	if ( pEngine->getIsExportSessionActive() ) {
+		snapshot.playing = 0;
+	}
+	else {
+		snapshot.playing =
+			( pAudioEngine->getState() == AudioEngine::State::Playing ) ? 1 : 0;
+	}
 
 	// Process time of the authoritative engine (plain reads; advisory).
 	snapshot.procTimeCur = pAudioEngine->getProcessTime();

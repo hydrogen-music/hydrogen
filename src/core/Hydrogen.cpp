@@ -298,6 +298,16 @@ void Hydrogen::sequencerPlay()
 /// Stop the internal sequencer
 void Hydrogen::sequencerStop()
 {
+	// A user-initiated stop must win over an export plan still
+	// running: every remaining render would call play() again and
+	// roll the transport over this stop. Cancel the plan — the
+	// session teardown parks the transport itself. (The park in
+	// startExportSession() runs before the session flag is set, so
+	// this cannot recurse.)
+	if ( m_bExportSessionIsActive ) {
+		stopExportSession();
+	}
+
 	m_pAudioEngine->stop();
 	m_pCoreActionController->activateRecordMode( false );
 
@@ -1057,6 +1067,18 @@ void Hydrogen::runExportPlan()
 
 void Hydrogen::finishExportSession()
 {
+	AudioEngine* pAudioEngine = m_pAudioEngine;
+
+	// Tear the disk writer down before touching anything else: in the
+	// cancel path its render loop is still running, and the sampler
+	// flush and locate in stopExportSong() (and the song mode/loop
+	// restore below) must not mutate state under a live render. The
+	// driver's cancel flag bounds the join to one buffer. Between
+	// this teardown and the restart below no audio callback exists,
+	// so the unlocked sampler flush cannot race any render.
+	pAudioEngine->stop();
+	pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
+
 	stopExportSong();
 
 	auto pSong = getSong();
@@ -1069,10 +1091,6 @@ void Hydrogen::finishExportSession()
 		}
 	}
 
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	pAudioEngine->stop();
-	pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
 	pAudioEngine->startAudioDriver( Event::Trigger::Default );
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
