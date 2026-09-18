@@ -136,6 +136,11 @@ public:
 		float fPan;
 		Note::Key key;
 		Note::Octave octave;
+		/** Distinguishes a note-on (the editor integrates a new note)
+		 * from a note-off (the editor adjusts the length of the
+		 * previously recorded note; #nLength then carries the
+		 * engine-computed hold length). */
+		bool bNoteOff;
 	};
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 

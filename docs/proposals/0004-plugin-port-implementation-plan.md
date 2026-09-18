@@ -1086,12 +1086,115 @@ paths (no playlist file to resolve against over IPC).
 * Tested: `IpcRoundTripTest::testMidiNoteRecordingRoundTrip` (RED first:
   the note never reached the mirror) — the engine records while Playing
   with record armed, the note crosses with all eight fields intact
-  (id/pattern/velocity/pan/length/key/octave exact, the column bounded
-  by the quantized playhead), and the engine's vector is drained (no
+  (id/pattern/velocity/pan/length/key/octave exact, the column bounded by
+  the quantized playhead), and the engine's vector is drained (no
   unbounded growth). The GUI-side integration (undo macro, DB row
   correlation) is GUI code and stays manually verified in the running
   split. Standalone is untouched by construction (the serve loop only
   exists in the split); three consecutive full-suite runs green.
+
+**Note-off length edits via the undo path (batch 2o) — DONE, suite
+`OK (432 tests)`.**
+* User report: the note-off length adjustment in
+  `Hydrogen::addRealtimeNote()` mutated the engine's pattern directly —
+  in the split the edit never reached the editor (only the debounced
+  `SongIsModified` re-pull carried it, with a stale `PatternChanged`
+  redraw in between), and the mutation itself was the last remaining
+  direct pattern writer besides the CAC-owned path (ADR 0027), running on
+  the audio thread. Dormant races it carried: the audio-thread mutation
+  vs. the editor's edit path; a pitch-blind search that matched *any*
+  note of the instrument at the last recorded tick and mutated *every*
+  match (two same-instrument notes at one column with different pitches
+  had their lengths clobbered by one note-off); in the split, two writers
+  (engine mutation vs. dual-apply) racing for the same note; and the
+  length edit was invisible to undo.
+* Reroute (user-prescribed): `EventQueue::AddMidiNoteVector` gains
+  `bNoteOff`. The engine still computes the hold length — only the
+  authoritative playhead knows it, and the mirror's lags — including the
+  wrap trim and pattern-size clamp (hoisted out of the removed mutation
+  loop; the clamp condition never depended on the matched note), but
+  instead of mutating, it queues a note-off entry (`nColumn` =
+  `m_nLastRecordedMIDINoteTick`, `nLength` = computed, key/octave with
+  the same derivation as note-on; the common fields and the pitch
+  derivation are now built once for both entry kinds). The note-on entry
+  sets `bNoteOff=false`; `m_nLastRecordedMIDINoteTick` stays note-on-only.
+  The `PatternChanged` push and `setPatternModified` call are gone — the
+  edit's own flow marks the modification.
+* Editor side, the drain (`HydrogenApp::onEventQueueTimer`) branches on
+  `bNoteOff`: the same DB-row correlation and pitch-aware `findNote`, then
+  a single `SE_editNotePropertiesAction(Property::Length, …)` in the
+  pass-through idiom (only `nLength`/`nOldLength` differ; everything else
+  old==new from the found note) — no undo macro for the single command.
+  The action routes through `PatternEditor::editNotePropertiesAction` →
+  `CoreActionController::editNoteProperty` (ADR 0027), so in the split it
+  dual-applies to the engine like every other edit, and the length edit
+  is undoable in both modes. A note-off with no matching note (the
+  note-on not integrated yet, undone, or removed) degrades to a
+  `WARNINGLOG` + skip — the same lost-tap outcome as before, minus the
+  wrong-note clobbering. Drive-by fix in the same loop: the
+  no-DB-row case returned *before* erasing the head entry, wedging the
+  whole vector behind an unmappable instrument (pre-existing; now drops
+  the note and continues).
+* IPC: `fromMidiNote`/`toMidiNoteFields` carry the ninth `bNoteOff` arg
+  (same-binary wire compatibility, as established).
+* Residual: the tap race — a note-off arriving before the note-on's
+  crossing + integration (~60-100ms in the split, one GUI timer cycle in
+  standalone) finds no note and the tap keeps the default length. The
+  vector's unsynchronised push/erase shape stays pre-existing (documented
+  in 2n).
+* Tested: `testMidiNoteRecordingRoundTrip` extended (RED first: the
+  note-off entry never crossed) — after the note-on phase a note-off
+  crosses with `bNoteOff=true`, `nColumn` equal to the note-on's column,
+  the length bounded by the pattern, id/pattern/key/octave matching; the
+  engine's vector is drained again; and the engine's pattern still holds
+  zero notes — the regression assert that the direct mutation is gone
+  (in the headless harness nobody integrates the entries, so any note in
+  the engine's pattern could only come from the removed path). The GUI
+  branch (undoable length edit, skip-on-no-note) is GUI code and stays
+  manually verified. Three consecutive full-suite runs green.
+
+**Note-off targeting (batch 2p) — DONE, suite `OK (432 tests)`.**
+* User report: 2o's note-offs did not work. The note-off entry targeted
+  `m_nLastRecordedMIDINoteTick` — the tick of whichever note-on was
+  recorded *last*, not of the note-on this note-off belongs to. Any
+  intervening note-on (another instrument or pitch held or tapped while
+  the first note was still held — the normal polyphonic case) moved the
+  scalar, so the editor's exact-position `findNote` missed the actual
+  note (or, pre-2o, the engine's pitch-blind search mutated the wrong
+  one). The exact-position lookup itself is right — the note *is* at an
+  exact position — the entry just carried the wrong one.
+* Fix: the scalar is replaced by
+  `Hydrogen::m_pendingRecordedNoteOns`, a map keyed by
+  (instrument id, key, octave) with (tick, pattern number) of the
+  recorded note-on. A note-on stores its position; the matching note-off
+  resolves *its own* note-on from the map, computes the hold length
+  against that tick (wrap trim and pattern-size clamp against the
+  recorded pattern's length — the entry also carries the recorded
+  pattern, so a pattern switch between on and off no longer retargets
+  into the wrong pattern), and erases the spent entry. A note-off with
+  no pending note-on (not recorded, already released, or the recorded
+  pattern deleted) queues nothing — the playback section still releases
+  the sounding note. A re-trigger of a still-pending pitch overwrites
+  its entry, matching the editor's note-on replace semantics. The
+  `m_nLastRecordedMIDINoteTick` member is gone (it had no other
+  consumer; `toQString()` reports the map size instead).
+* Test calibration facts surfaced on the way: the empty song's patterns
+  are one 4/4 bar — `nTicksPerQuarter` is 48, so `Pattern()` is 192
+  ticks (not 768), the default quantize grid is 12 ticks, and
+  `AudioEngine::getPlayhead()` returns a `shared_ptr<Transport>` that
+  the engine may swap — polls must re-fetch it, a captured pointer reads
+  a frozen tick.
+* Tested: `testMidiNoteRecordingRoundTrip` extended again (RED first:
+  `noteOffA2.nColumn == noteOnA2.nColumn` failed — the note-off carried
+  the intervening note-on B's tick): a second instrument is added to the
+  engine's kit; note-on A2, an intervening note-on B of the other
+  instrument, then the note-off for A2 must target A2's column; a
+  transport-wrap phase (note-on past the pattern midpoint, note-off
+  after the wrap) asserts the exact trim
+  `length == patternLength - noteOnColumn`; a stray note-off asserts
+  nothing is queued. Four full-suite runs: green, green, one known
+  `MidiDriverTest::testMidiClock` BPM-tolerance flake (unrelated,
+  rerun green), green.
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

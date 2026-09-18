@@ -1311,6 +1311,14 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( pEngineInstr != nullptr );
 	const auto engineInstrId = pEngineInstr->getId();
 
+	// A second instrument: the note-off targeting test needs an
+	// intervening note-on of a different instrument while the first one
+	// is still held.
+	auto pEngineInstr1 = std::make_shared<Instrument>(
+		static_cast<Instrument::Id>( 1 ) );
+	pEngineSong->getDrumkit()->getInstruments()->add( pEngineInstr1 );
+	const auto engineInstr1Id = pEngineInstr1->getId();
+
 	auto pMirror = TestHelper::makeMirror();
 	pMirror->getCoreActionController()->setSong(
 		Song::getEmptySong( pMirror ) );
@@ -1347,13 +1355,14 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 1;
 	} ) );
 
-	const auto& noteAction =
+	const auto noteAction =
 		pMirror->getEventQueue()->m_addMidiNoteVector[ 0 ];
 	CPPUNIT_ASSERT( noteAction.id == engineInstrId );
 	CPPUNIT_ASSERT( noteAction.nPattern == 0 );
 	CPPUNIT_ASSERT( noteAction.fVelocity == 0.8f );
 	CPPUNIT_ASSERT( noteAction.fPan == 0.f );
 	CPPUNIT_ASSERT( noteAction.nLength == -1 );
+	CPPUNIT_ASSERT( ! noteAction.bNoteOff );
 	CPPUNIT_ASSERT( noteAction.key == Note::KeyDefault );
 	CPPUNIT_ASSERT( noteAction.octave == Note::OctaveDefault );
 	CPPUNIT_ASSERT( noteAction.nColumn >= 0 );
@@ -1362,6 +1371,129 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 
 	// The engine-side vector must be drained — nothing else consumes it in
 	// the split, an undrained vector would grow unboundedly.
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+
+	// ── Note-off: the engine computes the held length from the
+	// authoritative playhead and queues it for the editor's undoable
+	// length edit — the engine must not mutate its pattern itself. ──
+	CPPUNIT_ASSERT(
+		pEngine->addRealtimeNote( 0, 0.0f, true, Midi::NoteInvalid ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 2;
+	} ) );
+
+	const auto noteOffAction =
+		pMirror->getEventQueue()->m_addMidiNoteVector[ 1 ];
+	CPPUNIT_ASSERT( noteOffAction.bNoteOff );
+	CPPUNIT_ASSERT( noteOffAction.id == engineInstrId );
+	CPPUNIT_ASSERT( noteOffAction.nPattern == 0 );
+	CPPUNIT_ASSERT( noteOffAction.nColumn == noteAction.nColumn );
+	CPPUNIT_ASSERT( noteOffAction.nLength >= 0 );
+	CPPUNIT_ASSERT( noteOffAction.nLength <=
+					pEngineSong->getPatternList()->get( 0 )->getLength() );
+	CPPUNIT_ASSERT( noteOffAction.key == Note::KeyDefault );
+	CPPUNIT_ASSERT( noteOffAction.octave == Note::OctaveDefault );
+
+	// The engine applied nothing itself — the length edit is editor-domain
+	// (the GUI drain's SE_editNotePropertiesAction). In this headless
+	// harness nobody integrates the notes, so the pattern must still be
+	// empty and the engine's vector drained again.
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+	CPPUNIT_ASSERT(
+		pEngineSong->getPatternList()->get( 0 )->getNotes()->size() == 0 );
+
+	// ── Intervening note-on (batch 2p): a note-off must resize the note
+	// its OWN note-on recorded — not whichever note-on was recorded last.
+	// ──
+	// The playhead is re-fetched per poll: the engine may swap the
+	// Transport object, a captured shared_ptr would read a frozen tick.
+	// The empty song's patterns are one 4/4 bar (192 ticks at 48 TPQ);
+	// the quantize grid is 12 ticks, so +24 is two grid steps.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getPlayhead()->
+				getPatternTickPosition() > noteAction.nColumn + 24;
+	} ) );
+	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
+		0, 0.8f, false, Midi::NoteInvalid ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 3;
+	} ) );
+	const auto noteOnA2 = pMirror->getEventQueue()->m_addMidiNoteVector[ 2 ];
+	CPPUNIT_ASSERT( noteOnA2.id == engineInstrId );
+	CPPUNIT_ASSERT( ! noteOnA2.bNoteOff );
+	CPPUNIT_ASSERT( noteOnA2.nColumn > noteAction.nColumn );
+
+	// The intervening note-on of another instrument moves any single
+	// "last recorded" tick — the note-off for the first instrument must
+	// still target the first note-on.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getPlayhead()->
+				getPatternTickPosition() > noteOnA2.nColumn + 24;
+	} ) );
+	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
+		1, 0.8f, false, Midi::NoteInvalid ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 4;
+	} ) );
+	const auto noteOnB = pMirror->getEventQueue()->m_addMidiNoteVector[ 3 ];
+	CPPUNIT_ASSERT( noteOnB.id == engineInstr1Id );
+	CPPUNIT_ASSERT( noteOnB.nColumn > noteOnA2.nColumn );
+
+	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
+		0, 0.0f, true, Midi::NoteInvalid ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 5;
+	} ) );
+	const auto noteOffA2 = pMirror->getEventQueue()->m_addMidiNoteVector[ 4 ];
+	CPPUNIT_ASSERT( noteOffA2.bNoteOff );
+	CPPUNIT_ASSERT( noteOffA2.id == engineInstrId );
+	// The bug: this must be A2's column — the last recorded one (B's)
+	// belongs to another instrument's note.
+	CPPUNIT_ASSERT( noteOffA2.nColumn == noteOnA2.nColumn );
+	CPPUNIT_ASSERT( noteOffA2.nPattern == 0 );
+	CPPUNIT_ASSERT( noteOffA2.nLength > 0 );
+	CPPUNIT_ASSERT( noteOffA2.nLength <=
+					pEngineSong->getPatternList()->get( 0 )->getLength() );
+
+	// ── Transport wrap: the note-off lands before the note-on's tick —
+	// the length is trimmed at the pattern end. ──
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getPlayhead()->
+				getPatternTickPosition() >= 96;
+	} ) );
+	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
+		0, 0.8f, false, Midi::NoteInvalid ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 6;
+	} ) );
+	const auto noteOnD = pMirror->getEventQueue()->m_addMidiNoteVector[ 5 ];
+	CPPUNIT_ASSERT( noteOnD.id == engineInstrId );
+	CPPUNIT_ASSERT( noteOnD.nColumn >= 96 );
+
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getAudioEngine()->getPlayhead()->
+				getPatternTickPosition() < noteOnD.nColumn;
+	} ) );
+	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
+		0, 0.0f, true, Midi::NoteInvalid ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 7;
+	} ) );
+	const auto noteOffD = pMirror->getEventQueue()->m_addMidiNoteVector[ 6 ];
+	CPPUNIT_ASSERT( noteOffD.bNoteOff );
+	CPPUNIT_ASSERT( noteOffD.nColumn == noteOnD.nColumn );
+	// Wrapped past the pattern end: trimmed to the remaining pattern.
+	CPPUNIT_ASSERT( noteOffD.nLength ==
+					pEngineSong->getPatternList()->get( 0 )->getLength() -
+						noteOnD.nColumn );
+
+	// ── Stray note-off (nothing pending for this pitch): no resize entry
+	// is queued — the playback section still releases the sounding note,
+	// but the editor must not be asked to resize anything. ──
+	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
+		0, 0.0f, true, Midi::NoteInvalid ) );
+	TestHelper::pumpUntil( []() { return false; }, 300 );
+	CPPUNIT_ASSERT( pMirror->getEventQueue()->m_addMidiNoteVector.size() == 7 );
 	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
 
 	pEngine->sequencerStop();

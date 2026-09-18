@@ -119,7 +119,6 @@ Hydrogen::Hydrogen(
 	  m_lastMidiEventParameter( Midi::ParameterInvalid ),
 	  m_oldEngineMode( Song::Mode::Song ),
 	  m_bOldLoopEnabled( false ),
-	  m_nLastRecordedMIDINoteTick( 0 ),
 	  m_bRecordEnabled( false ),
 	  m_hihatOpenness( Midi::ParameterMaximum ),
 	  m_pPreferences( pPref ),
@@ -575,84 +574,108 @@ bool Hydrogen::addRealtimeNote(
 				 .arg( nCurrentPatternNumber ).arg( pCurrentPattern->getName() )
 				 .arg( nTickInPattern ).arg( pCurrentPattern->getLength() ) );
 
+		// Both note-on and note-off are queued for the editor to integrate
+		// (HydrogenApp::onEventQueueTimer): the note-on as an undoable add,
+		// the note-off as an undoable length edit. The engine never mutates
+		// the pattern here — the CAC-owned write path is the single writer
+		// (ADR 0027) — and this code runs on the audio thread.
+		EventQueue::AddMidiNoteVector noteAction;
+		noteAction.id = instrumentId;
+		noteAction.nPattern = nCurrentPatternNumber;
+		noteAction.fVelocity = fVelocity;
+		noteAction.fPan = fPan;
+		noteAction.bNoteOff = bNoteOff;
+
+		if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
+			noteAction.octave = Note::octaveFrom( note );
+			noteAction.key = Note::keyFrom( note );
+		}
+		else {
+			noteAction.octave = Note::OctaveDefault;
+			noteAction.key = Note::KeyDefault;
+		}
+		const auto noteOnKey = std::make_tuple(
+			instrumentId, noteAction.key, noteAction.octave );
+
+		bool bQueueNoteAction = true;
 		if ( bNoteOff ) {
-            // Handle the Note-Off event corresponding to the previous Note-On.
-            // This is used to record notes of custom lengths.
-			const int nPatternSize = pCurrentPattern->getLength();
-			const int nCurrentTick = static_cast<int>(
-				pAudioEngine->getPlayhead()->getPatternTickPosition()
-			);
-
-			int nNoteLength;
-			if ( nCurrentTick < m_nLastRecordedMIDINoteTick ) {
-				// BUG: We passed the boundary between to patterns or
-				// transported got looped. As we do not support the notion of
-				// custom note lengths reaching from one pattern into the next
-				// one, we trim it at the end of the pattern instead.
-				nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
-
-				// We also omit pitch-related rescaling as we do not know the
-                // true length of the note (transport could have been wrapped
-                // multiple times).
+			// Handle the Note-Off event corresponding to the previous
+			// Note-On of the same instrument and pitch. This is used to
+			// record notes of custom lengths. The pending note-on is
+			// tracked per (instrument, pitch): a single "last recorded"
+			// tick would be moved by any intervening note-on, and the
+			// resize would target — or miss — the wrong note.
+			const auto itPending = m_pendingRecordedNoteOns.find( noteOnKey );
+			if ( itPending == m_pendingRecordedNoteOns.end() ) {
+				// No recorded note-on pending for this pitch — it was not
+				// recorded (yet), or already released. Nothing to resize;
+				// the playback section below still releases the sounding
+				// note.
+				bQueueNoteAction = false;
 			}
 			else {
-				nNoteLength =
-					static_cast<int>( pAudioEngine->getPlayhead()
-										  ->getPatternTickPosition() ) -
-					m_nLastRecordedMIDINoteTick;
-			}
-
-			bool bPatternModified = false;
-			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
-				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH(
-					notes, it, nnNote, pCurrentPattern
-				)
-				{
-					auto pNote = it->second;
-					if ( pNote != nullptr &&
-						 pNote->getPosition() == m_nLastRecordedMIDINoteTick &&
-						 sameObject( pInstrument, pNote->getInstrument() ) ) {
-						int nNewNoteLength = nNoteLength;
-						if ( m_nLastRecordedMIDINoteTick + nNoteLength >
-							 nPatternSize ) {
-							nNewNoteLength =
-								nPatternSize - m_nLastRecordedMIDINoteTick;
-						}
-						pNote->setLength( nNewNoteLength );
-						bPatternModified = true;
-					}
+				const int nNoteOnTick = itPending->second.first;
+				const int nNoteOnPattern = itPending->second.second;
+				auto pRecordedPattern =
+					pSong->getPatternList()->get( nNoteOnPattern );
+				if ( pRecordedPattern == nullptr ) {
+					// The pattern holding the recorded note-on is gone
+					// (deleted in the editor meanwhile) — nothing to
+					// resize.
+					bQueueNoteAction = false;
 				}
-			}
+				else {
+					// The length is computed here — only the authoritative
+					// playhead knows how long the note was actually held —
+					// while the edit itself is applied editor-side.
+					const int nPatternSize = pRecordedPattern->getLength();
+					const int nCurrentTick = static_cast<int>(
+						pAudioEngine->getPlayhead()
+							->getPatternTickPosition() );
 
-			if ( bPatternModified && ! pCurrentPattern->getIsModified() ) {
-				m_pEventQueue->pushEvent(
-					Event::Type::PatternChanged, -1
-				);
-				setPatternModified( true, nCurrentPatternNumber );
+					int nNoteLength;
+					if ( nCurrentTick < nNoteOnTick ) {
+						// BUG: We passed the boundary between to patterns or
+						// transported got looped. As we do not support the
+						// notion of custom note lengths reaching from one
+						// pattern into the next one, we trim it at the end
+						// of the pattern instead.
+						nNoteLength = nPatternSize - nNoteOnTick;
+
+						// We also omit pitch-related rescaling as we do not
+						// know the true length of the note (transport could
+						// have been wrapped multiple times).
+					}
+					else {
+						nNoteLength = nCurrentTick - nNoteOnTick;
+					}
+					if ( nNoteOnTick + nNoteLength > nPatternSize ) {
+						nNoteLength = nPatternSize - nNoteOnTick;
+					}
+
+					noteAction.nColumn = nNoteOnTick;
+					noteAction.nPattern = nNoteOnPattern;
+					noteAction.nLength = nNoteLength;
+				}
+				// The pending note-on is spent either way — a later
+				// note-off of the same pitch must not resize a stale
+				// target.
+				m_pendingRecordedNoteOns.erase( itPending );
 			}
 		}
 		else { // note on
-			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.nColumn = nTickInPattern;
-			noteAction.id = instrumentId;
-			noteAction.nPattern = nCurrentPatternNumber;
-			noteAction.fVelocity = fVelocity;
-			noteAction.fPan = fPan;
 			noteAction.nLength = -1;
+			// Remember where this pitch's note-on landed; the matching
+			// note-off resizes exactly this note. A re-trigger of a still
+			// pending pitch overwrites the entry — the editor's note-on
+			// integration replaces the previous note at the new position.
+			m_pendingRecordedNoteOns[ noteOnKey ] =
+				std::make_pair( nTickInPattern, nCurrentPatternNumber );
+		}
 
-			if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
-				noteAction.octave = Note::octaveFrom( note );
-				noteAction.key = Note::keyFrom( note );
-			}
-			else {
-				noteAction.octave = Note::OctaveDefault;
-				noteAction.key = Note::KeyDefault;
-			}
-
+		if ( bQueueNoteAction ) {
 			m_pEventQueue->m_addMidiNoteVector.push_back(noteAction);
-
-			m_nLastRecordedMIDINoteTick = nTickInPattern;
 		}
 	}
 
@@ -2364,8 +2387,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( "%1%2m_nSelectedPatternNumber: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nSelectedPatternNumber ) )
-			.append( QString( "%1%2m_nLastRecordedMIDINoteTick: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( "%1%2m_pendingRecordedNoteOns: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pendingRecordedNoteOns.size() ) )
 			.append( QString( "%1%2m_bRecordEnabled: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bRecordEnabled ) )
 			.append( QString( "%1%2m_pAudioEngine:\n" ).arg( sPrefix ).arg( s ) );
@@ -2452,8 +2475,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 						.arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( ", m_nSelectedPatternNumber: %1" )
 						.arg( m_nSelectedPatternNumber ) )
-			.append( QString( ", m_nLastRecordedMIDINoteTick: %1" )
-						.arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( ", m_pendingRecordedNoteOns: %1" )
+					 .arg( m_pendingRecordedNoteOns.size() ) )
 			.append( QString( ", m_bRecordEnabled: %1" )
 						.arg( m_bRecordEnabled ) )
 			.append( ", m_pAudioEngine:" );

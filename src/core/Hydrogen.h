@@ -23,6 +23,7 @@
 #define HYDROGEN_H
 
 #include <core/Basics/Event.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Song.h>
 #include <core/config.h>
 #include <core/Helpers/Time.h>
@@ -38,11 +39,14 @@
 #include <cassert>
 #include <chrono>
 #include <deque>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <sstream>
 #include <stdint.h> // for uint32_t et al
 #include <string>
+#include <tuple>
+#include <utility>
 #include <thread>
 #include <vector>
 
@@ -790,11 +794,17 @@ private:
 	int				m_nSelectedPatternNumber;
 
 	/**
-	 * Onset of the recorded last in addRealtimeNote(). It is used to
-	 * determine the custom length of the note in case the note on
-	 * event is followed by a note off event.
+	 * Note-ons recorded in addRealtimeNote() that have not seen their
+	 * matching note-off yet — keyed by (instrument id, key, octave),
+	 * value = (tick within the pattern, pattern number) of the recorded
+	 * note-on. The note-off resizes exactly the note its own note-on
+	 * recorded: a single "last recorded" tick would be moved by any
+	 * intervening note-on of another pitch or instrument, and the resize
+	 * would target — or miss — the wrong note.
 	 */
-	int				m_nLastRecordedMIDINoteTick;
+	std::map<std::tuple<Instrument::Id, Note::Key, Note::Octave>,
+			 std::pair<int, int>>
+		m_pendingRecordedNoteOns;
 
 		bool m_bRecordEnabled;
 

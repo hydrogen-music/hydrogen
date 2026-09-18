@@ -97,13 +97,14 @@ IpcMessage IpcMessage::fromMidiNote(
 		.arg( noteAction.fVelocity )
 		.arg( noteAction.fPan )
 		.arg( static_cast<int>( noteAction.key ) )
-		.arg( static_cast<int>( noteAction.octave ) );
+		.arg( static_cast<int>( noteAction.octave ) )
+		.arg( noteAction.bNoteOff );
 	return msg;
 }
 
 bool IpcMessage::toMidiNoteFields(
 	EventQueue::AddMidiNoteVector& noteAction ) const {
-	if ( m_opcode != IpcOpcode::MidiNoteRecorded || m_args.size() < 8 ) {
+	if ( m_opcode != IpcOpcode::MidiNoteRecorded || m_args.size() < 9 ) {
 		return false;
 	}
 	noteAction.nColumn = m_args[0].toInt();
@@ -114,6 +115,7 @@ bool IpcMessage::toMidiNoteFields(
 	noteAction.fPan = m_args[5].toFloat();
 	noteAction.key = static_cast<Note::Key>( m_args[6].toInt() );
 	noteAction.octave = static_cast<Note::Octave>( m_args[7].toInt() );
+	noteAction.bNoteOff = m_args[8].toBool();
 	return true;
 }
 

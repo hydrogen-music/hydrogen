@@ -1719,7 +1719,13 @@ void HydrogenApp::onEventQueueTimer()
 						  .arg( static_cast<int>(
 							  pQueue->m_addMidiNoteVector[0].id
 						  ) ) );
-			return;
+			// Drop the note instead of returning: a return would leave it
+			// at the head of the vector and wedge every later note behind
+			// it (the instrument is not in the editor's DB, so retrying
+			// can not succeed either).
+			pQueue->m_addMidiNoteVector.erase(
+				pQueue->m_addMidiNoteVector.begin() );
+			continue;
 		}
 
 		// find if a (pitch matching) note is already present
@@ -1729,7 +1735,48 @@ void HydrogenApp::onEventQueueTimer()
 					  row.id, row.sType,
 					  pQueue->m_addMidiNoteVector[0].key,
 					  pQueue->m_addMidiNoteVector[0].octave );
-		
+
+		if ( pQueue->m_addMidiNoteVector[0].bNoteOff ) {
+			// A recorded note-off: the engine computed the hold length from
+			// the authoritative playhead; the edit itself is editor-domain
+			// — an undoable property edit on the single CAC-owned write
+			// path (ADR 0027), which dual-applies to the engine in the
+			// split.
+			if ( pOldNote == nullptr ) {
+				// The note-on was not integrated (yet) — nothing to resize.
+				WARNINGLOG( QString( "Skipping note-off at column [%1] in "
+									 "pattern [%2]: no matching note" )
+								.arg( pQueue->m_addMidiNoteVector[0].nColumn )
+								.arg( pQueue->m_addMidiNoteVector[0]
+										  .nPattern ) );
+			}
+			else {
+				pushUndoCommand( new SE_editNotePropertiesAction(
+									 PatternEditor::Property::Length,
+									 pQueue->m_addMidiNoteVector[0].nPattern,
+									 pOldNote->getPosition(),
+									 row.id, row.id,
+									 row.sType, row.sType,
+									 pOldNote->getVelocity(),
+									 pOldNote->getVelocity(),
+									 pOldNote->getPan(),
+									 pOldNote->getPan(),
+									 pOldNote->getLeadLag(),
+									 pOldNote->getLeadLag(),
+									 pOldNote->getProbability(),
+									 pOldNote->getProbability(),
+									 pQueue->m_addMidiNoteVector[0].nLength,
+									 pOldNote->getLength(),
+									 pOldNote->getKey(),
+									 pOldNote->getKey(),
+									 pOldNote->getOctave(),
+									 pOldNote->getOctave() ) );
+			}
+			pQueue->m_addMidiNoteVector.erase(
+				pQueue->m_addMidiNoteVector.begin() );
+			continue;
+		}
+
 		beginUndoMacro( tr( "Input Midi Note" ) );
 		if ( pOldNote != nullptr ) { // note found => remove it
 			pushUndoCommand( new SE_addOrRemoveNoteAction(
