@@ -142,7 +142,25 @@ public:
 		 * engine-computed hold length). */
 		bool bNoteOff;
 	};
-	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
+	/** Queues @a noteAction for the editor's HydrogenApp::onEventQueueTimer.
+	 *
+	 * Thread-safe: the vector is pushed from the audio thread
+	 * (standalone MIDI recording, Hydrogen::addRealtimeNote) and from the
+	 * IPC reader thread (EditorStateMirror re-queuing an engine-recorded
+	 * note, ADR 0030 batch 2n) while the consumers below drain it. */
+	void pushMidiNoteAction( const AddMidiNoteVector& noteAction );
+
+	/** Atomically swaps out and returns all queued midi note actions.
+	 *
+	 * Thread-safe drain for the consumers: the GUI timer
+	 * (HydrogenApp::onEventQueueTimer, both modes) and the engine's serve
+	 * loop (EngineSession::forwardMidiNotes in the split). The caller owns
+	 * the returned batch; the queue is left empty. */
+	std::vector<AddMidiNoteVector> drainMidiNoteActions();
+
+	/** Non-consuming copy of the queued midi note actions (testing and
+	 * debugging). */
+	std::vector<AddMidiNoteVector> getMidiNoteActions() const;
 
 	bool getSilent() const;
 	void setSilent( bool bSilent );
@@ -168,6 +186,12 @@ private:
 	std::deque< std::unique_ptr<Event> >m_eventQueue;
 
 	std::mutex m_mutex;
+
+	/** Midi note actions queued for the editor. Guarded by
+	 * #m_addMidiNoteMutex: producers and consumers live on different
+	 * threads (see #pushMidiNoteAction). */
+	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
+	mutable std::mutex m_addMidiNoteMutex;
 
 	/** Whether or not to push log messages.*/
 	bool m_bSilent;

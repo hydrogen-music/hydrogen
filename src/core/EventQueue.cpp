@@ -117,6 +117,25 @@ void EventQueue::dropEvents( const Event::Type& type ) {
     }
 }
 
+void EventQueue::pushMidiNoteAction( const AddMidiNoteVector& noteAction ) {
+	std::lock_guard< std::mutex > lock( m_addMidiNoteMutex );
+	m_addMidiNoteVector.push_back( noteAction );
+}
+
+std::vector<EventQueue::AddMidiNoteVector>
+EventQueue::drainMidiNoteActions() {
+	std::lock_guard< std::mutex > lock( m_addMidiNoteMutex );
+	std::vector<AddMidiNoteVector> notes;
+	notes.swap( m_addMidiNoteVector );
+	return notes;
+}
+
+std::vector<EventQueue::AddMidiNoteVector>
+EventQueue::getMidiNoteActions() const {
+	std::lock_guard< std::mutex > lock( m_addMidiNoteMutex );
+	return m_addMidiNoteVector;
+}
+
 long EventQueue::createEventId() {
 	const long id = m_randomDistribution( m_randomEngine );
 

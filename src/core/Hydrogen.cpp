@@ -675,7 +675,7 @@ bool Hydrogen::addRealtimeNote(
 		}
 
 		if ( bQueueNoteAction ) {
-			m_pEventQueue->m_addMidiNoteVector.push_back(noteAction);
+			m_pEventQueue->pushMidiNoteAction( noteAction );
 		}
 	}
 

@@ -1075,14 +1075,16 @@ paths (no playlist file to resolve against over IPC).
   `SongIsModified` debounced re-pull — functional, but the length
   appears after the debounce window and the interim `PatternChanged`
   redraw is stale; a dedicated crossing message for the mutated note is
-  the follow-up if the latency bothers. A very short tap (shorter than
-  the note-on's crossing + dual-apply round-trip, ~60-100ms) can note
-  off on the engine before the note exists there — the length edit
-  finds nothing and the default length stands. The vector keeps its
-  pre-existing unsynchronised pop shape (standalone: audio-thread push
-  under the engine lock vs. GUI-timer erase without; the split adds a
-  reader-thread push against the same erase) — a class-level
-  `EventQueue` mutex is the clean fix if it ever bites.
+   the follow-up if the latency bothers. A very short tap (shorter than
+   the note-on's crossing + dual-apply round-trip, ~60-100ms) can note
+   off on the engine before the note exists there — the length edit
+   finds nothing and the default length stands. The vector keeps its
+   pre-existing unsynchronised pop shape (standalone: audio-thread push
+   under the engine lock vs. GUI-timer erase without; the split adds a
+   reader-thread push against the same erase) — a class-level
+   `EventQueue` mutex is the clean fix if it ever bites. Both residuals
+   are resolved later: the reroute became batch 2o; the tap-race window
+   is verified structurally closed and the mutex landed as batch 2q.
 * Tested: `IpcRoundTripTest::testMidiNoteRecordingRoundTrip` (RED first:
   the note never reached the mirror) — the engine records while Playing
   with record armed, the note crosses with all eight fields intact
@@ -1141,7 +1143,13 @@ paths (no playlist file to resolve against over IPC).
   crossing + integration (~60-100ms in the split, one GUI timer cycle in
   standalone) finds no note and the tap keeps the default length. The
   vector's unsynchronised push/erase shape stays pre-existing (documented
-  in 2n).
+  in 2n). Later verified structurally closed (see 2q): MIDI ordering, the
+  end-to-end FIFO, and the drain's same-thread synchronous dual-apply
+  mean the note-off's `findNote` can never run before its note-on's
+  local apply — the window is zero by construction, not by timing luck.
+  The skip-on-no-note branch remains as the tripwire for the genuine
+  drop paths (DB-row miss, local-apply failure); the vector hazard
+  itself was fixed as batch 2q.
 * Tested: `testMidiNoteRecordingRoundTrip` extended (RED first: the
   note-off entry never crossed) — after the note-on phase a note-off
   crosses with `bNoteOff=true`, `nColumn` equal to the note-on's column,
@@ -1195,6 +1203,54 @@ paths (no playlist file to resolve against over IPC).
   nothing is queued. Four full-suite runs: green, green, one known
   `MidiDriverTest::testMidiClock` BPM-tolerance flake (unrelated,
   rerun green), green.
+
+**Midi-note vector locking (batch 2q) — DONE, suite `OK (433 tests)`.**
+* Follow-up to the 2n/2o residuals: one verification, one fix.
+* Verified closed — the tap race as feared in 2n/2o. A fast tap's
+  note-off entry can not overtake its note-on's integration: MIDI
+  ordering (a note-off for a pitch follows its note-on), the
+  end-to-end FIFO (engine vector → serve drain → channel → reader →
+  mirror vector), and the GUI drain's same-thread processing with a
+  synchronous dual-apply (`IpcCoreActionController::addOrRemoveNote`
+  sends *and* applies locally in one call) stack up — the note exists
+  in the mirror's pattern before the loop advances to the note-off
+  entry. Post-2p the engine side has no existence dependency either
+  (the pending map is populated under the same lock at note-on time).
+  The `findNote`-miss `WARNINGLOG` stays as the tripwire for the
+  genuine drop paths (DB-row miss, local-apply failure, pattern
+  deleted mid-flight).
+* Fixed — the vector push/erase hazard. `m_addMidiNoteVector` was a
+  public member pushed by the audio thread (standalone,
+  `Hydrogen::addRealtimeNote`) or the IPC reader thread
+  (`EditorStateMirror::applyEvent`, split) while the GUI timer
+  iterated/erased it with no lock — undefined behaviour that could eat
+  a fast tap's note-off or corrupt the vector. The member is private
+  now, behind a dedicated mutex with three methods:
+  `pushMidiNoteAction` (producers), `drainMidiNoteActions`
+  (swap-under-lock for the consumers — the GUI timer in both modes and
+  the engine serve loop in the split), and `getMidiNoteActions` (a
+  non-consuming snapshot for tests/debugging, which also makes the
+  round-trip test's own cross-thread polling defined behaviour). The
+  GUI drain swaps the batch out once and iterates its private copy —
+  the per-entry `erase(begin())` is gone, and with it the whole
+  wedge class from 2o (a skipped entry is just a `continue`). The
+  engine-side `drainMidiNotes` drops its audio-engine `tryLockFor`
+  detour: the queue's own mutex serializes push against swap, both
+  critical sections are a single vector operation, so neither side can
+  stall the other and the audio engine lock is not involved at all.
+* One corner changes semantics: a null song mid-drain used to `return`
+  and retry the whole vector against the next song; the batch drain
+  drops the remainder with a `WARNINGLOG` instead — the entries were
+  recorded against a song that is being replaced, so retrying them
+  against the next one would be wrong (the 2o drop-not-wedge
+  principle).
+* Tested: `EventQueueTest::testMidiNoteVectorThreadedAccess` (RED
+  first: the API did not exist) — FIFO drain order, drain-consumes,
+  snapshot-does-not-consume, and a 2000-entry producer thread drained
+  concurrently by the test thread with every entry accounted for
+  exactly once and in order (the audio/reader-thread vs. GUI-timer
+  shape). `testMidiNoteRecordingRoundTrip` converted to the snapshot
+  API, unchanged in behaviour. Three consecutive full-suite runs green.
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

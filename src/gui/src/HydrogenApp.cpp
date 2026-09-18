@@ -1692,10 +1692,20 @@ void HydrogenApp::onEventQueueTimer()
 	}
 
 	// midi notes
-	while( !pQueue->m_addMidiNoteVector.empty() ){
+	// Swap the whole batch out under the queue's lock: the vector is
+	// pushed concurrently by the audio thread (standalone) or the IPC
+	// reader thread (split), so it must not be inspected or erased in
+	// place (ADR 0030 batch 2q).
+	const auto midiNoteActions = pQueue->drainMidiNoteActions();
+	for ( const auto& noteAction : midiNoteActions ) {
 		auto pSong = m_pHydrogen->getSong();
 		if ( pSong == nullptr ) {
-			return;
+			// Without a song the entries can not be integrated. The
+			// remainder of the batch is dropped, not re-queued: these
+			// notes were recorded against a song that is being replaced,
+			// so retrying them against the next one would be wrong.
+			WARNINGLOG( "No song set: dropping remaining recorded midi notes" );
+			break;
 		}
 
 		// The core registers the ID of the instrument the note is associated
@@ -1705,7 +1715,7 @@ void HydrogenApp::onEventQueueTimer()
 		int nRow = 0;
 		DrumPatternRow row;
 		for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
-			if ( rrow.id == pQueue->m_addMidiNoteVector[0].id ) {
+			if ( rrow.id == noteAction.id ) {
 				row = rrow;
 				bFound = true;
 				break;
@@ -1716,27 +1726,21 @@ void HydrogenApp::onEventQueueTimer()
 		if ( !bFound ) {
 			ERRORLOG( QString( "Could not find row in Pattern Editor "
 							   "corresponding to instrument ID [%1]" )
-						  .arg( static_cast<int>(
-							  pQueue->m_addMidiNoteVector[0].id
-						  ) ) );
-			// Drop the note instead of returning: a return would leave it
-			// at the head of the vector and wedge every later note behind
-			// it (the instrument is not in the editor's DB, so retrying
-			// can not succeed either).
-			pQueue->m_addMidiNoteVector.erase(
-				pQueue->m_addMidiNoteVector.begin() );
+						  .arg( static_cast<int>( noteAction.id ) ) );
+			// Drop the note: the instrument is not in the editor's DB, so
+			// retrying can not succeed either.
 			continue;
 		}
 
 		// find if a (pitch matching) note is already present
 		const auto pOldNote = pSong->getPatternList()->
-			get( pQueue->m_addMidiNoteVector[0].nPattern )->
-			findNote( pQueue->m_addMidiNoteVector[0].nColumn,
+			get( noteAction.nPattern )->
+			findNote( noteAction.nColumn,
 					  row.id, row.sType,
-					  pQueue->m_addMidiNoteVector[0].key,
-					  pQueue->m_addMidiNoteVector[0].octave );
+					  noteAction.key,
+					  noteAction.octave );
 
-		if ( pQueue->m_addMidiNoteVector[0].bNoteOff ) {
+		if ( noteAction.bNoteOff ) {
 			// A recorded note-off: the engine computed the hold length from
 			// the authoritative playhead; the edit itself is editor-domain
 			// — an undoable property edit on the single CAC-owned write
@@ -1746,14 +1750,13 @@ void HydrogenApp::onEventQueueTimer()
 				// The note-on was not integrated (yet) — nothing to resize.
 				WARNINGLOG( QString( "Skipping note-off at column [%1] in "
 									 "pattern [%2]: no matching note" )
-								.arg( pQueue->m_addMidiNoteVector[0].nColumn )
-								.arg( pQueue->m_addMidiNoteVector[0]
-										  .nPattern ) );
+								.arg( noteAction.nColumn )
+								.arg( noteAction.nPattern ) );
 			}
 			else {
 				pushUndoCommand( new SE_editNotePropertiesAction(
 									 PatternEditor::Property::Length,
-									 pQueue->m_addMidiNoteVector[0].nPattern,
+									 noteAction.nPattern,
 									 pOldNote->getPosition(),
 									 row.id, row.id,
 									 row.sType, row.sType,
@@ -1765,15 +1768,13 @@ void HydrogenApp::onEventQueueTimer()
 									 pOldNote->getLeadLag(),
 									 pOldNote->getProbability(),
 									 pOldNote->getProbability(),
-									 pQueue->m_addMidiNoteVector[0].nLength,
+									 noteAction.nLength,
 									 pOldNote->getLength(),
 									 pOldNote->getKey(),
 									 pOldNote->getKey(),
 									 pOldNote->getOctave(),
 									 pOldNote->getOctave() ) );
 			}
-			pQueue->m_addMidiNoteVector.erase(
-				pQueue->m_addMidiNoteVector.begin() );
 			continue;
 		}
 
@@ -1783,7 +1784,7 @@ void HydrogenApp::onEventQueueTimer()
 								 pOldNote->getPosition(),
 								 pOldNote->getInstrumentId(),
 								 pOldNote->getType(),
-								 pQueue->m_addMidiNoteVector[0].nPattern,
+								 noteAction.nPattern,
 								 pOldNote->getLength(),
 								 pOldNote->getVelocity(),
 								 pOldNote->getPan(),
@@ -1799,24 +1800,22 @@ void HydrogenApp::onEventQueueTimer()
 		
 		// add the new note
 		pushUndoCommand( new SE_addOrRemoveNoteAction(
-							 pQueue->m_addMidiNoteVector[0].nColumn,
+							 noteAction.nColumn,
 							 row.id,
 							 row.sType,
-							 pQueue->m_addMidiNoteVector[0].nPattern,
-							 pQueue->m_addMidiNoteVector[0].nLength,
-							 pQueue->m_addMidiNoteVector[0].fVelocity,
-							 pQueue->m_addMidiNoteVector[0].fPan,
+							 noteAction.nPattern,
+							 noteAction.nLength,
+							 noteAction.fVelocity,
+							 noteAction.fPan,
 							 LEAD_LAG_DEFAULT,
-							 pQueue->m_addMidiNoteVector[0].key,
-							 pQueue->m_addMidiNoteVector[0].octave,
+							 noteAction.key,
+							 noteAction.octave,
 							 PROBABILITY_DEFAULT,
 							 Editor::Action::Add,
 							 /*isNoteOff*/ false,
 							 row.bMappedToDrumkit,
 							 Editor::ActionModifier::Playback ) );
 		endUndoMacro();
-
-		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
 	}
 }
 

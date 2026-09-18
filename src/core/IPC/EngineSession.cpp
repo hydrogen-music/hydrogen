@@ -209,29 +209,21 @@ void EngineSession::forwardEvents( IpcChannel* pConn ) {
 namespace {
 
 /** Swap out the engine's pending recorded MIDI notes.
- * Hydrogen::addRealtimeNote() pushes on the audio thread while holding the
- * audio engine lock, so the drain takes the same lock — with a small
- * budget, like the telemetry snapshot: the audio thread only try-locks
- * itself, so this can not starve it. On contention the notes wait for the
- * next serve cycle; recording is human-scale, so a poll-timeout delay is
- * imperceptible. */
+ * Hydrogen::addRealtimeNote() pushes on the audio thread; the queue's own
+ * midi-note lock serializes that push against this swap. Both critical
+ * sections are a single vector operation, so neither side can stall the
+ * other — the audio engine lock is not involved at all (ADR 0030 batch
+ * 2q). */
 std::vector<EventQueue::AddMidiNoteVector> drainMidiNotes( Hydrogen* pEngine ) {
 	std::vector<EventQueue::AddMidiNoteVector> notes;
 	if ( pEngine == nullptr ) {
 		return notes;
 	}
-	auto pAudioEngine = pEngine->getAudioEngine();
 	auto pQueue = pEngine->getEventQueue();
-	if ( pAudioEngine == nullptr || pQueue == nullptr ) {
+	if ( pQueue == nullptr ) {
 		return notes;
 	}
-	if ( ! pAudioEngine->tryLockFor( std::chrono::microseconds( 2000 ),
-									 RIGHT_HERE ) ) {
-		return notes;
-	}
-	notes.swap( pQueue->m_addMidiNoteVector );
-	pAudioEngine->unlock();
-	return notes;
+	return pQueue->drainMidiNoteActions();
 }
 
 }

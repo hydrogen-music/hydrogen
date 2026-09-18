@@ -38,6 +38,29 @@ static void *pushThread(void *p) {
 	return nullptr;
 }
 
+/** Entries pushed by the concurrent-drain test below. Kept larger than a
+ * single serve/timer cycle so the producer is still pushing while the
+ * main thread drains — the overlap the lock has to survive. */
+static constexpr int nMidiNotesToPush = 2000;
+
+static void *pushMidiNoteThread(void *) {
+	auto pEventQueue = pTestEventQueue();
+	for ( int i = 0; i < nMidiNotesToPush; i++ ) {
+		EventQueue::AddMidiNoteVector noteAction;
+		noteAction.nColumn = i;
+		noteAction.id = static_cast<Instrument::Id>( 0 );
+		noteAction.nPattern = 0;
+		noteAction.nLength = -1;
+		noteAction.fVelocity = 0.5;
+		noteAction.fPan = 0.0;
+		noteAction.key = static_cast<Note::Key>( 0 );
+		noteAction.octave = static_cast<Note::Octave>( 0 );
+		noteAction.bNoteOff = false;
+		pEventQueue->pushMidiNoteAction( noteAction );
+	}
+	return nullptr;
+}
+
 void EventQueueTest::setUp() {
 	auto pEventQueue = pTestEventQueue();
 	pEventQueue->setSilent( false );
@@ -197,5 +220,76 @@ void EventQueueTest::testIndependentInstances() {
 					pEvent->getValue() == 1 );
 	CPPUNIT_ASSERT( pA->popEvent() == nullptr );
 
+	___INFOLOG( "passed" );
+}
+
+void EventQueueTest::testMidiNoteVectorThreadedAccess() {
+	___INFOLOG( "" );
+	auto pEventQueue = pTestEventQueue();
+
+	// Clear any residue earlier tests may have left on the same queue.
+	pEventQueue->drainMidiNoteActions();
+	CPPUNIT_ASSERT( pEventQueue->getMidiNoteActions().empty() );
+
+	// Semantics: FIFO drain and a non-consuming snapshot.
+	EventQueue::AddMidiNoteVector noteAction;
+	noteAction.id = static_cast<Instrument::Id>( 0 );
+	noteAction.nPattern = 3;
+	noteAction.nLength = -1;
+	noteAction.fVelocity = 0.5;
+	noteAction.fPan = 0.0;
+	noteAction.key = static_cast<Note::Key>( 0 );
+	noteAction.octave = static_cast<Note::Octave>( 0 );
+	noteAction.bNoteOff = false;
+
+	noteAction.nColumn = 23;
+	pEventQueue->pushMidiNoteAction( noteAction );
+	noteAction.nColumn = 42;
+	pEventQueue->pushMidiNoteAction( noteAction );
+
+	const auto snapshot = pEventQueue->getMidiNoteActions();
+	CPPUNIT_ASSERT( snapshot.size() == 2 );
+	CPPUNIT_ASSERT( snapshot[ 0 ].nColumn == 23 );
+	CPPUNIT_ASSERT( snapshot[ 1 ].nColumn == 42 );
+	// A snapshot must not consume the queued entries.
+	CPPUNIT_ASSERT( pEventQueue->getMidiNoteActions().size() == 2 );
+
+	const auto batch = pEventQueue->drainMidiNoteActions();
+	CPPUNIT_ASSERT( batch.size() == 2 );
+	CPPUNIT_ASSERT( batch[ 0 ].nColumn == 23 );
+	CPPUNIT_ASSERT( batch[ 1 ].nColumn == 42 );
+	// Draining consumed the entries — exactly once.
+	CPPUNIT_ASSERT( pEventQueue->drainMidiNoteActions().empty() );
+	CPPUNIT_ASSERT( pEventQueue->getMidiNoteActions().empty() );
+
+	// Concurrency: a producer thread pushes while this thread drains —
+	// the shape of the GUI timer racing the audio thread (standalone) or
+	// the IPC reader thread (split). Every entry must survive exactly
+	// once and in order.
+	pthread_t thread;
+	CPPUNIT_ASSERT( pthread_create( &thread, nullptr, pushMidiNoteThread,
+									nullptr ) == 0 );
+
+	int nSeen = 0;
+	int nIdleSpins = 0;
+	while ( nSeen < nMidiNotesToPush && nIdleSpins < 10000000 ) {
+		const auto drained = pEventQueue->drainMidiNoteActions();
+		if ( drained.empty() ) {
+			++nIdleSpins;
+			continue;
+		}
+		for ( const auto& drainedNote : drained ) {
+			CPPUNIT_ASSERT( drainedNote.nColumn == nSeen );
+			++nSeen;
+		}
+	}
+	pthread_join( thread, nullptr );
+	// Whatever the producer pushed after our last drain.
+	for ( const auto& drainedNote : pEventQueue->drainMidiNoteActions() ) {
+		CPPUNIT_ASSERT( drainedNote.nColumn == nSeen );
+		++nSeen;
+	}
+
+	CPPUNIT_ASSERT( nSeen == nMidiNotesToPush );
 	___INFOLOG( "passed" );
 }

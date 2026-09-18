@@ -89,7 +89,7 @@ bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 		if ( ! msg.toMidiNoteFields( noteAction ) ) {
 			return false;
 		}
-		pQueue->m_addMidiNoteVector.push_back( noteAction );
+		pQueue->pushMidiNoteAction( noteAction );
 		return true;
 	}
 

@@ -1343,7 +1343,7 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	// Simulate a MIDI note-on arriving at the headless engine (engines own
 	// all control surfaces, ADR 0016). NoteInvalid keeps key/octave at
 	// their defaults regardless of the MIDI instrument map mode.
-	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->getMidiNoteActions().empty() );
 	CPPUNIT_ASSERT(
 		pEngine->addRealtimeNote( 0, 0.8f, false, Midi::NoteInvalid ) );
 
@@ -1352,11 +1352,11 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	// HydrogenApp::onEventQueueTimer (which turns it into an undoable
 	// pattern edit).
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 1;
+		return pMirror->getEventQueue()->getMidiNoteActions().size() == 1;
 	} ) );
 
 	const auto noteAction =
-		pMirror->getEventQueue()->m_addMidiNoteVector[ 0 ];
+		pMirror->getEventQueue()->getMidiNoteActions()[ 0 ];
 	CPPUNIT_ASSERT( noteAction.id == engineInstrId );
 	CPPUNIT_ASSERT( noteAction.nPattern == 0 );
 	CPPUNIT_ASSERT( noteAction.fVelocity == 0.8f );
@@ -1371,7 +1371,7 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 
 	// The engine-side vector must be drained — nothing else consumes it in
 	// the split, an undrained vector would grow unboundedly.
-	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->getMidiNoteActions().empty() );
 
 	// ── Note-off: the engine computes the held length from the
 	// authoritative playhead and queues it for the editor's undoable
@@ -1379,11 +1379,11 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT(
 		pEngine->addRealtimeNote( 0, 0.0f, true, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 2;
+		return pMirror->getEventQueue()->getMidiNoteActions().size() == 2;
 	} ) );
 
 	const auto noteOffAction =
-		pMirror->getEventQueue()->m_addMidiNoteVector[ 1 ];
+		pMirror->getEventQueue()->getMidiNoteActions()[ 1 ];
 	CPPUNIT_ASSERT( noteOffAction.bNoteOff );
 	CPPUNIT_ASSERT( noteOffAction.id == engineInstrId );
 	CPPUNIT_ASSERT( noteOffAction.nPattern == 0 );
@@ -1398,7 +1398,7 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	// (the GUI drain's SE_editNotePropertiesAction). In this headless
 	// harness nobody integrates the notes, so the pattern must still be
 	// empty and the engine's vector drained again.
-	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->getMidiNoteActions().empty() );
 	CPPUNIT_ASSERT(
 		pEngineSong->getPatternList()->get( 0 )->getNotes()->size() == 0 );
 
@@ -1416,9 +1416,9 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.8f, false, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 3;
+		return pMirror->getEventQueue()->getMidiNoteActions().size() == 3;
 	} ) );
-	const auto noteOnA2 = pMirror->getEventQueue()->m_addMidiNoteVector[ 2 ];
+	const auto noteOnA2 = pMirror->getEventQueue()->getMidiNoteActions()[ 2 ];
 	CPPUNIT_ASSERT( noteOnA2.id == engineInstrId );
 	CPPUNIT_ASSERT( ! noteOnA2.bNoteOff );
 	CPPUNIT_ASSERT( noteOnA2.nColumn > noteAction.nColumn );
@@ -1433,18 +1433,18 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		1, 0.8f, false, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 4;
+		return pMirror->getEventQueue()->getMidiNoteActions().size() == 4;
 	} ) );
-	const auto noteOnB = pMirror->getEventQueue()->m_addMidiNoteVector[ 3 ];
+	const auto noteOnB = pMirror->getEventQueue()->getMidiNoteActions()[ 3 ];
 	CPPUNIT_ASSERT( noteOnB.id == engineInstr1Id );
 	CPPUNIT_ASSERT( noteOnB.nColumn > noteOnA2.nColumn );
 
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.0f, true, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 5;
+		return pMirror->getEventQueue()->getMidiNoteActions().size() == 5;
 	} ) );
-	const auto noteOffA2 = pMirror->getEventQueue()->m_addMidiNoteVector[ 4 ];
+	const auto noteOffA2 = pMirror->getEventQueue()->getMidiNoteActions()[ 4 ];
 	CPPUNIT_ASSERT( noteOffA2.bNoteOff );
 	CPPUNIT_ASSERT( noteOffA2.id == engineInstrId );
 	// The bug: this must be A2's column — the last recorded one (B's)
@@ -1464,9 +1464,9 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.8f, false, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 6;
+		return pMirror->getEventQueue()->getMidiNoteActions().size() == 6;
 	} ) );
-	const auto noteOnD = pMirror->getEventQueue()->m_addMidiNoteVector[ 5 ];
+	const auto noteOnD = pMirror->getEventQueue()->getMidiNoteActions()[ 5 ];
 	CPPUNIT_ASSERT( noteOnD.id == engineInstrId );
 	CPPUNIT_ASSERT( noteOnD.nColumn >= 96 );
 
@@ -1477,9 +1477,9 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.0f, true, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return pMirror->getEventQueue()->m_addMidiNoteVector.size() == 7;
+		return pMirror->getEventQueue()->getMidiNoteActions().size() == 7;
 	} ) );
-	const auto noteOffD = pMirror->getEventQueue()->m_addMidiNoteVector[ 6 ];
+	const auto noteOffD = pMirror->getEventQueue()->getMidiNoteActions()[ 6 ];
 	CPPUNIT_ASSERT( noteOffD.bNoteOff );
 	CPPUNIT_ASSERT( noteOffD.nColumn == noteOnD.nColumn );
 	// Wrapped past the pattern end: trimmed to the remaining pattern.
@@ -1493,8 +1493,8 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.0f, true, Midi::NoteInvalid ) );
 	TestHelper::pumpUntil( []() { return false; }, 300 );
-	CPPUNIT_ASSERT( pMirror->getEventQueue()->m_addMidiNoteVector.size() == 7 );
-	CPPUNIT_ASSERT( pEngine->getEventQueue()->m_addMidiNoteVector.empty() );
+	CPPUNIT_ASSERT( pMirror->getEventQueue()->getMidiNoteActions().size() == 7 );
+	CPPUNIT_ASSERT( pEngine->getEventQueue()->getMidiNoteActions().empty() );
 
 	pEngine->sequencerStop();
 	pSession->stop();
