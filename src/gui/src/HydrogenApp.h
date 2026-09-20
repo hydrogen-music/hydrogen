@@ -204,11 +204,15 @@ class HydrogenApp : public QObject,
 	 *
 	 * \param sFileName Absolute or relative path used to load the next
 	 *   #H2Core::Song or #H2Core::Playlist.
+	 * \param bOpenAsUnsaved Load the song as an unsaved scratch copy: its
+	 *   path is cleared before the crossing so a plain save does not
+	 *   overwrite the original file (batch 2t).
 	 * \return bool true on success
 	 */
 	static bool openFile(
 		const H2Core::Filesystem::Artifact& type,
-		const QString& sFileName
+		const QString& sFileName,
+		bool bOpenAsUnsaved = false
 	);
 	static bool openSong( std::shared_ptr<H2Core::Song> pSong );
 	static QString findAutoSaveFile(

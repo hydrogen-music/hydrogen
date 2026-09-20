@@ -1591,7 +1591,14 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::DrumkitLoaded, 0 );
 	}
 	else {
-		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
+		// Standalone refreshes the window title on this. In editor mode
+		// the IpcCoreActionController override pushes it on the mirror
+		// instead: an engine-origin echo would only trigger a redundant
+		// full song re-pull (batch 2t).
+		if ( m_pHydrogen->getProcessMode() != ProcessMode::Headless ) {
+			m_pHydrogen->getEventQueue()->pushEvent(
+				Event::Type::UpdateSong, 1 );
+		}
 	}
 
 	return true;
@@ -1599,7 +1606,8 @@ bool CoreActionController::saveSong( bool bKeepMissingSamples )
 
 bool CoreActionController::saveSongAs(
 	const QString& sNewPath,
-	bool bKeepMissingSamples
+	bool bKeepMissingSamples,
+	PathPolicy policy
 )
 {
 	auto pSong = m_pHydrogen->getSong();
@@ -1616,6 +1624,13 @@ bool CoreActionController::saveSongAs(
 		return false;
 	}
 
+	// The policy decides whether the saved file becomes the song's
+	// backing path (regular save-as) or a copy is written while the
+	// current backing is kept (NSM export-from-session). Song::save()
+	// assigns the path it saves to, so Keep has to restore it.
+	const QString sFormerPath = pSong->getPath();
+	const bool bWasBackedByProject = pSong->getBackedByProject();
+
 	pSong->setPath( sNewPath );
 	pSong->setBackedByProject( false );
 
@@ -1629,7 +1644,18 @@ bool CoreActionController::saveSongAs(
 					.arg( sNewPath )
 			);
 		}
+		if ( policy == PathPolicy::Keep ) {
+			// A failed export must not re-point the session song at the
+			// failed target.
+			pSong->setPath( sFormerPath );
+			pSong->setBackedByProject( bWasBackedByProject );
+		}
 		return false;
+	}
+
+	if ( policy == PathPolicy::Keep ) {
+		pSong->setPath( sFormerPath );
+		pSong->setBackedByProject( bWasBackedByProject );
 	}
 
 	// Update the recentFiles list by replacing the former file name
@@ -1639,7 +1665,12 @@ bool CoreActionController::saveSongAs(
 		m_pHydrogen->getPreferences()->setLastSongPath( pSong->getPath() );
 	}
 
-	m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
+	if ( m_pHydrogen->getProcessMode() != ProcessMode::Headless ) {
+		// Standalone refreshes the window title on this. In editor mode
+		// the IpcCoreActionController override pushes it on the mirror
+		// instead (batch 2t).
+		m_pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
+	}
 
 	return true;
 }
@@ -3993,7 +4024,6 @@ bool CoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid, Event::T
 }
 
 bool CoreActionController::setSongProperties(
-	const QString& sNewPath,
 	const int nNewVersion,
 	const QString& sNewName,
 	const QString& sNewAuthor,
@@ -4010,7 +4040,8 @@ bool CoreActionController::setSongProperties(
 		return false;
 	}
 
-	pSong->setPath( sNewPath );
+	// The backing path is deliberately not touched here: it is the
+	// single-writer domain of the save commands (batch 2t).
 	pSong->setVersion( nNewVersion );
 	pSong->setName( sNewName );
 	pSong->setAuthor( sNewAuthor );

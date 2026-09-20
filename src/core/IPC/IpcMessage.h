@@ -173,7 +173,7 @@ enum class IpcOpcode : quint16 {
 	AddInstrument,          ///< args: [int nIndex, long nEventId]; payload: instrument XML;
 	RemoveInstrument,       ///< args: [long nEventId]; payload: instrument XML;
 	SaveSong,               ///< args: [bool bKeepMissingSamples]
-	SaveSongAs,             ///< args: [QString sNewFileName, bool bKeepMissingSamples]
+	SaveSongAs,             ///< args: [QString sNewFileName, bool bKeepMissingSamples, int pathPolicy]
 	SavePlaylist,           ///< (no args)
 	SavePlaylistAs,         ///< args: [QString sPath]
 

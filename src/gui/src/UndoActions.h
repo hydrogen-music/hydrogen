@@ -214,14 +214,12 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 class SE_modifySongPropertiesAction : public QUndoCommand {
    public:
 	SE_modifySongPropertiesAction(
-		const QString& sOldPath,
 		const int nOldVersion,
 		const QString& sOldName,
 		const QString& sOldAuthor,
 		const QString& sOldNotes,
 		const H2Core::License& oldLicense,
 		const QStringList& oldTags,
-		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& sNewName,
 		const QString sNewAuthor,
@@ -230,15 +228,14 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 		const QStringList& newTags
 	)
 	{
-		setText( QObject::tr( "Modify pattern properties" ) );
-		m_sOldPath = sOldPath;
+		setText( HydrogenApp::get_instance()->getCommonStrings()
+					 ->getActionModifySongProperties() );
 		m_nOldVersion = nOldVersion;
 		m_sOldName = sOldName;
 		m_sOldAuthor = sOldAuthor;
 		m_sOldNotes = sOldNotes;
 		m_oldLicense = oldLicense;
 		m_oldTags = oldTags;
-		m_sNewPatternPath = sNewPatternPath;
 		m_nNewVersion = nNewVersion;
 		m_sNewName = sNewName;
 		m_sNewAuthor = sNewAuthor;
@@ -249,7 +246,7 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 	virtual void undo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->setSongProperties(
-			m_sOldPath, m_nOldVersion, m_sOldName, m_sOldAuthor,
+			m_nOldVersion, m_sOldName, m_sOldAuthor,
 			m_sOldNotes, m_oldLicense, m_oldTags
 		);
 	}
@@ -257,13 +254,12 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 	virtual void redo()
 	{
 		HydrogenApp::pEngine()->getCoreActionController()->setSongProperties(
-			m_sNewPatternPath, m_nNewVersion, m_sNewName, m_sNewAuthor,
+			m_nNewVersion, m_sNewName, m_sNewAuthor,
 			m_sNewNotes, m_newLicense, m_newTags
 		);
 	}
 
    private:
-	QString m_sOldPath;
 	int m_nOldVersion;
 	QString m_sOldName;
 	QString m_sOldAuthor;
@@ -271,7 +267,6 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 	H2Core::License m_oldLicense;
 	QStringList m_oldTags;
 
-	QString m_sNewPatternPath;
 	int m_nNewVersion;
 	QString m_sNewName;
 	QString m_sNewAuthor;

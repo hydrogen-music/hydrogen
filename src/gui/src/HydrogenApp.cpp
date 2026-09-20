@@ -1016,7 +1016,7 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 	}
 }
 
-bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFileName ) {
+bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFileName, bool bOpenAsUnsaved ) {
 
 	QString sText;
 	switch( type ) {
@@ -1056,6 +1056,14 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 			pSong = Song::getEmptySong( HydrogenApp::pHydrogen() );
 		} else {
 			pSong = pEngine()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
+		}
+
+		if ( bOpenAsUnsaved ) {
+			// Demos are opened as a scratch copy: the song must not point at
+			// the shipped file, or the first plain save would overwrite it.
+			// Clearing the path on the payload before the crossing keeps
+			// engine and mirror consistent in a single hop (batch 2t).
+			pSong->setPath( "" );
 		}
 
 		bRet = pEngine()->getCoreActionController()->setSong( pSong );

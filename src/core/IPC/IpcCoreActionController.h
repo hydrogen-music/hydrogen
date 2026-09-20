@@ -228,7 +228,7 @@ public:
 	/** Forwards the OSC-server restart to the authoritative engine (the
 	 * mirror holds no server; its local base call is a no-op). */
 	bool recreateOscServer() override;
-	bool setSongProperties( const QString& sNewPath, const int nNewVersion,
+	bool setSongProperties( const int nNewVersion,
 		const QString& sNewName, const QString& sNewAuthor,
 		const QString& sNewNotes, const H2Core::License& newLicense,
 		const QStringList& newTags,
@@ -260,7 +260,9 @@ public:
 	) override;
 	bool saveSong( bool bKeepMissingSamples ) override;
 	bool saveSongAs( const QString& sNewFileName,
-		bool bKeepMissingSamples ) override;
+		bool bKeepMissingSamples,
+		CoreActionController::PathPolicy policy
+			= CoreActionController::PathPolicy::Adopt ) override;
 	bool savePlaylist() override;
 	bool savePlaylistAs( const QString& sPath ) override;
 

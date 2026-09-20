@@ -430,8 +430,18 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   should be kept or discarded.
 	 * \return true on success
 	 */
+	/** How #saveSongAs treats the path it saves to. */
+	enum class PathPolicy {
+		/** The saved file becomes the song's backing path (regular
+		 * save-as). */
+		Adopt,
+		/** A copy is written while the current backing path is kept
+		 * (NSM export-from-session). */
+		Keep
+	};
 	virtual bool
-	saveSongAs( const QString& sNewFileName, bool bKeepMissingSamples );
+	saveSongAs( const QString& sNewFileName, bool bKeepMissingSamples,
+				PathPolicy policy = PathPolicy::Adopt );
 	/**
 	 * Loads an instance of #H2Core::Preferences from the corresponding XML
 	 * file. */
@@ -985,7 +995,6 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	);
 
 	virtual bool setSongProperties(
-		const QString& sNewPath,
 		const int nNewVersion,
 		const QString& sNewName,
 		const QString& sNewAuthor,
@@ -1149,6 +1158,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		Event::Trigger trigger = Event::Trigger::Default
 	);
 
+protected:
+	/** \return The owning Hydrogen instance — in editor mode the local
+	 * mirror the IPC override applies state to (batch 2t). */
+	Hydrogen* getHydrogen() const {
+		return m_pHydrogen;
+	}
+
    private:
 	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
 	Hydrogen* m_pHydrogen;
@@ -1180,6 +1196,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	// -----------------------------------------------------------
 	// Actions required for session management.
 
+protected:
 	/**
 	 * Add @a sFileName to the list of recent songs in
 	 * Preferences::m_recentFiles.

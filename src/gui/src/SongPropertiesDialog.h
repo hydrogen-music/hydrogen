@@ -72,9 +72,14 @@ class SongPropertiesDialog : public QDialog,
 	explicit SongPropertiesDialog(
 		QWidget* parent,
 		std::shared_ptr<H2Core::Song> pSong,
-		Action action
+		Action action,
+		const QString& sDefaultPath = QString()
 	);
 	~SongPropertiesDialog();
+
+	/** \return The path seeded into — or chosen in — the dialog. Empty if
+	 * neither the song is backed by a file nor a default was supplied. */
+	QString getChosenPath() const;
 
    private slots:
 	void on_cancelBtn_clicked();

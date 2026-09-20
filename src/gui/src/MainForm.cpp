@@ -766,7 +766,7 @@ void MainForm::action_file_new()
 	m_sPreviousAutoSaveSongFile = "";
 }
 
-bool MainForm::action_file_save_as()
+bool MainForm::action_file_save_as( const QString& sSuggestedPath )
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	auto pPref = HydrogenApp::pPreferences();
@@ -782,23 +782,33 @@ bool MainForm::action_file_save_as()
 		return false;
 	}
 
-	// Cache a couple of things we have to restore when under session
-	// management.
+	// Used to decide whether the autosave file of a never-saved song has to
+	// be cleaned up afterwards.
 	const QString sLastPath = pSong->getPath();
 
-	// In case the song is not backed by a .h2song file yet, we default to the
-	// file in the last used folder to store songs in (or the user-level song
-	// folder after first boot).
-	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
-		 pSong->getBackedByProject() || sLastPath.isEmpty() ) {
-		QString sDir = pPref->getLastSaveSongAsDirectory();
-		if ( sDir.isEmpty() ) {
-			sDir = Filesystem::userSongsDir();
+	// Deduce the default path upfront instead of pre-seeding it into the
+	// song: the dialog receives it as an explicit default and the save
+	// command below adopts whatever the user chose. The mirror-local song is
+	// never re-pointed behind the engine's back (batch 2t).
+	QString sDefaultPath = sSuggestedPath;
+	if ( sDefaultPath.isEmpty() ) {
+		if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ||
+			 pSong->getBackedByProject() || sLastPath.isEmpty() ) {
+			// In case the song is not backed by a .h2song file yet, we default
+			// to the file in the last used folder to store songs in (or the
+			// user-level song folder after first boot).
+			QString sDir = pPref->getLastSaveSongAsDirectory();
+			if ( sDir.isEmpty() ) {
+				sDir = Filesystem::userSongsDir();
+			}
+			sDefaultPath = QString( "%1/%2%3" )
+							   .arg( sDir )
+							   .arg( pSong->getName() )
+							   .arg( Filesystem::sSongSuffix );
 		}
-		pSong->setPath( QString( "%1/%2%3" )
-							.arg( sDir )
-							.arg( pSong->getName() )
-							.arg( Filesystem::sSongSuffix ) );
+		else {
+			sDefaultPath = sLastPath;
+		}
 	}
 
 	SongPropertiesDialog dialog(
@@ -806,23 +816,26 @@ bool MainForm::action_file_save_as()
 		static_cast<SongPropertiesDialog::Action>(
 			SongPropertiesDialog::Action::ModifyViaUndo |
 			SongPropertiesDialog::Action::SaveAs
-		)
+		),
+		sDefaultPath
 	);
 	if ( dialog.exec() != QDialog::Accepted ) {
-		// Revert possible path changes
-		pSong->setPath( sLastPath );
 		return false;
 	}
 
+	const QString sNewPath = dialog.getChosenPath();
 	const bool bUnderSessionManagement = pHydrogen->isUnderSessionManagement();
 	if ( !HydrogenApp::pEngine()->getCoreActionController()->saveSongAs(
-			 pSong->getPath(), bKeepMissingSamples
+			 sNewPath, bKeepMissingSamples,
+			 bUnderSessionManagement
+				 ? CoreActionController::PathPolicy::Keep
+				 : CoreActionController::PathPolicy::Adopt
 		 ) ) {
 		ERRORLOG( "Unable to save song" );
 		return false;
 	}
 	pPref->setLastSaveSongAsDirectory(
-		QFileInfo( pSong->getPath() ).absoluteDir().absolutePath()
+		QFileInfo( sNewPath ).absoluteDir().absolutePath()
 	);
 
 #ifdef H2CORE_HAVE_OSC
@@ -830,21 +843,15 @@ bool MainForm::action_file_save_as()
 	// backup of the song to a different place but keep working on
 	// the original.
 	if ( bUnderSessionManagement ) {
-		pSong->setPath( sLastPath );
-
-		// Ensure the remote engine is in sync.
-		if ( HydrogenApp::isConnectViaIpcMode() ) {
-			HydrogenApp::pEngine()->getCoreActionController()->setSong( pSong );
-		}
-		h2app->showStatusBarMessage( tr( "Song exported as: " ) + sLastPath );
+		h2app->showStatusBarMessage( tr( "Song exported as: " ) + sNewPath );
 	}
 	else {
 		h2app->showStatusBarMessage(
-			tr( "Song saved as: " ) + pSong->getPath()
+			tr( "Song saved as: " ) + sNewPath
 		);
 	}
 #else
-	h2app->showStatusBarMessage( tr( "Song saved as: " ) + pSong->getPath() );
+	h2app->showStatusBarMessage( tr( "Song saved as: " ) + sNewPath );
 #endif
 
 	if ( sLastPath == Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
@@ -887,11 +894,12 @@ bool MainForm::action_file_save( bool bTriggerMessage )
 			  Filesystem::Context::System ) {
 		// Although the system-level sound library paths are valid, the user
 		// does not have sufficient permission to write to it. Instead, the
-		// artifact will be copied to the user-level counterpart.
-		auto sPath = pSong->getPath();
-		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
-		pSong->setPath( sPath );
-		return action_file_save_as();
+		// artifact will be copied to the user-level counterpart. The
+		// redirected path is suggested to the save-as dialog instead of
+		// being written into the song upfront (batch 2t).
+		auto sSuggestedPath = pSong->getPath();
+		sSuggestedPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		return action_file_save_as( sSuggestedPath );
 	}
 
 	bool bKeepMissingSamples = false;
@@ -1028,11 +1036,13 @@ void MainForm::openSongWithDialog( const QString& sWindowTitle, const QString& s
 	}
 
 	if ( !sFileName.isEmpty() ) {
-		HydrogenApp::get_instance()->openFile( Filesystem::Artifact::Song, sFileName );
-		if ( bIsDemo &&
-			 ! pHydrogen->isUnderSessionManagement() ) {
-			pHydrogen->getSong()->setPath( "" );
-		}
+		// Demos are opened as scratch copies (path cleared) so a plain save
+		// does not overwrite the shipped file — handled inside openFile in
+		// a single crossing (batch 2t).
+		HydrogenApp::get_instance()->openFile(
+			Filesystem::Artifact::Song, sFileName,
+			bIsDemo && ! pHydrogen->isUnderSessionManagement()
+		);
 	}
 
 	// Ensure we are not removing an autosave file belonging to the previous
@@ -2790,6 +2800,9 @@ void MainForm::onAutoSaveTimer()
 				/* bSilent */ true
 			);
 
+			// Song::save() adopts the target path — the autosave file must
+			// not become the song's backing path (an autosave is not a
+			// save). Editor-local recovery write; nothing crossed.
 			pSong->setPath( sOldPath );
 			HydrogenApp::pEngine()->setSongModified( true );
 		}
@@ -2810,6 +2823,8 @@ void MainForm::onAutoSaveTimer()
 
 		pPlaylist->saveAs( sAutoSavePath, HydrogenApp::pEngine()->getPreferences() );
 
+		// Playlist::saveAs() adopts the target path — restore the backing
+		// path (an autosave is not a save).
 		pPlaylist->setPath( sOldPath );
 		// An autosave is not a save: the playlist stays dirty. Routed
 		// through the engine access so the engine's copy stays in sync.

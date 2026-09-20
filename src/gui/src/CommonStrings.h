@@ -505,6 +505,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getActionLoadDrumkit() const { return m_sActionLoadDrumkit; }
 	const QString& getActionSaveDrumkit() const { return m_sActionSaveDrumkit; }
 	const QString& getActionSaveSong() const { return m_sActionSaveSong; }
+	const QString& getActionModifySongProperties() const
+	{
+		return m_sActionModifySongProperties;
+	}
 	const QString& getActionSaveCurrentDrumkit() const
 	{
 		return m_sActionSaveCurrentDrumkit;
@@ -1000,6 +1004,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sActionLoadDrumkit;
 	QString m_sActionSaveDrumkit;
 	QString m_sActionSaveSong;
+	QString m_sActionModifySongProperties;
 	QString m_sActionSaveCurrentDrumkit;
 	QString m_sActionAddComponent;
 	QString m_sActionDeleteComponent;

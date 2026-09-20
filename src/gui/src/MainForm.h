@@ -173,7 +173,7 @@ class MainForm :  public QMainWindow,
 		 * name provided by the NSM server must be used or the restart
 		 * of the session fails.
 		 */
-		bool action_file_save_as();
+		bool action_file_save_as( const QString& sSuggestedPath = QString() );
 		void action_file_exit();
 
 		void action_file_export();

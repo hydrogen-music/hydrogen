@@ -292,14 +292,14 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		}
 		return pController->setSong( pSong, Event::Trigger::Suppress );
 	}
-	// args: path, version, name, author, notes, licenseString, copyrightHolder, tags
+	// args: version, name, author, notes, licenseString, copyrightHolder, tags
 	case IpcOpcode::SetSongProperties:
-		if ( args.size() >= 8 ) {
+		if ( args.size() >= 7 ) {
 			return pController->setSongProperties(
-				args[0].toString(), args[1].toInt(), args[2].toString(),
-				args[3].toString(), args[4].toString(),
-				License( args[5].toString(), args[6].toString() ),
-				args[7].toStringList(), Event::Trigger::Suppress );
+				args[0].toInt(), args[1].toString(),
+				args[2].toString(), args[3].toString(),
+				License( args[4].toString(), args[5].toString() ),
+				args[6].toStringList(), Event::Trigger::Suppress );
 		}
 		break;
 	// args: path, version, name, author, info, licenseString, copyrightHolder,
@@ -761,9 +761,16 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->saveSong( args[0].toBool() );
 		}
 		break;
+	// args: newFileName, keepMissingSamples, pathPolicy (optional;
+	//       0 = Adopt, 1 = Keep)
 	case IpcOpcode::SaveSongAs:
 		if ( args.size() >= 2 ) {
-			return pController->saveSongAs( args[0].toString(), args[1].toBool() );
+			return pController->saveSongAs(
+				args[0].toString(), args[1].toBool(),
+				args.size() >= 3
+					? static_cast<CoreActionController::PathPolicy>(
+						args[2].toInt() )
+					: CoreActionController::PathPolicy::Adopt );
 		}
 		break;
 	case IpcOpcode::SavePlaylist:

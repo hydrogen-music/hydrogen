@@ -31,6 +31,7 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
 #include <core/IPC/EditorSession.h>
@@ -153,6 +154,41 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 			pEnginePlaylist != nullptr && ! pEnginePlaylist->getIsModified();
 	} );
 	CPPUNIT_ASSERT( bFlagsCleared );
+
+	// The save command is the single writer of the song path (batch 2t):
+	// saveSongAs assigns it on the authoritative engine AND on the
+	// mirror (the file write itself stays engine-only), and the Keep
+	// policy writes a copy while both sides keep their backing path
+	// (NSM export-from-session).
+	const QString sTmpAdopt = Filesystem::tmpFilePath(
+		"2t-save-song-as-adopt.h2song" );
+	const QString sTmpKeep = Filesystem::tmpFilePath(
+		"2t-save-song-as-keep.h2song" );
+
+	pAccess->getCoreActionController()->saveSongAs(
+		sTmpAdopt, true, CoreActionController::PathPolicy::Adopt );
+	const bool bAdopted = TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong() != nullptr &&
+			pEngine->getSong()->getPath() == sTmpAdopt;
+	} );
+	CPPUNIT_ASSERT( bAdopted );
+	// The mirror adopts synchronously in the dual-apply — no full-song
+	// re-sync round-trip.
+	CPPUNIT_ASSERT( pMirror->getSong()->getPath() == sTmpAdopt );
+	CPPUNIT_ASSERT( Filesystem::fileExists( sTmpAdopt, true ) );
+
+	const QString sPathBeforeKeep = pEngine->getSong()->getPath();
+	pAccess->getCoreActionController()->saveSongAs(
+		sTmpKeep, true, CoreActionController::PathPolicy::Keep );
+	const bool bKept = TestHelper::pumpUntil( [&]() {
+		return Filesystem::fileExists( sTmpKeep, true );
+	} );
+	CPPUNIT_ASSERT( bKept );
+	CPPUNIT_ASSERT( pEngine->getSong()->getPath() == sPathBeforeKeep );
+	CPPUNIT_ASSERT( pMirror->getSong()->getPath() == sPathBeforeKeep );
+
+	Filesystem::rm( sTmpAdopt );
+	Filesystem::rm( sTmpKeep );
 
 	pEditor.reset();
 	pServer->stop();

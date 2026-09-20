@@ -803,20 +803,20 @@ bool IpcCoreActionController::setPreferences(
 }
 
 bool IpcCoreActionController::setSongProperties(
-	const QString& sNewPath, const int nNewVersion, const QString& sNewName,
+	const int nNewVersion, const QString& sNewName,
 	const QString& sNewAuthor, const QString& sNewNotes,
 	const H2Core::License& newLicense, const QStringList& newTags,
 	Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetSongProperties )
-							  .arg( sNewPath ).arg( nNewVersion ).arg( sNewName )
+							  .arg( nNewVersion ).arg( sNewName )
 							  .arg( sNewAuthor ).arg( sNewNotes )
 							  .arg( newLicense.getLicenseString() )
 							  .arg( newLicense.getCopyrightHolder() )
 							  .arg( newTags ) );
 	}
 	return CoreActionController::setSongProperties(
-		sNewPath, nNewVersion, sNewName, sNewAuthor, sNewNotes, newLicense,
+		nNewVersion, sNewName, sNewAuthor, sNewNotes, newLicense,
 		newTags, trigger );
 }
 
@@ -921,6 +921,14 @@ bool IpcCoreActionController::saveSong( bool bKeepMissingSamples ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send(
 			IpcMessage( IpcOpcode::SaveSong ).arg( bKeepMissingSamples ) );
+
+		// Mirror-side apply of what the engine's Song::save() changes in
+		// memory — the dirty flip — without writing the file.
+		// UpdateSong(1) refreshes the title like the standalone base does;
+		// the engine's own push is Headless-gated (batch 2t).
+		auto pHydrogen = getHydrogen();
+		pHydrogen->setSongModified( false );
+		pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
 		return true;
 	}
 	else {
@@ -929,16 +937,46 @@ bool IpcCoreActionController::saveSong( bool bKeepMissingSamples ) {
 }
 
 bool IpcCoreActionController::saveSongAs(
-	const QString& sNewFileName, bool bKeepMissingSamples ) {
+	const QString& sNewFileName, bool bKeepMissingSamples,
+	CoreActionController::PathPolicy policy ) {
 	// Engine-only: the authoritative engine writes the shared file. The editor
 	// mirror must NOT also write it (double-write / race on the same path).
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SaveSongAs )
-							  .arg( sNewFileName ).arg( bKeepMissingSamples ) );
+							  .arg( sNewFileName ).arg( bKeepMissingSamples )
+							  .arg( static_cast<int>( policy ) ) );
+
+		// Mirror-side apply of what the engine's saveSongAs() changes in
+		// memory — the path adoption (or, for Keep, just the dirty flip) —
+		// without writing the file. This lands the dialog-chosen path on
+		// the mirror song directly, instead of re-syncing the whole song
+		// via setSong() afterwards (batch 2t).
+		auto pHydrogen = getHydrogen();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong != nullptr ) {
+			if ( policy == CoreActionController::PathPolicy::Adopt ) {
+				pSong->setPath( sNewFileName );
+				pSong->setBackedByProject( false );
+			}
+			pHydrogen->setSongModified( false );
+
+			insertRecentFile( sNewFileName );
+			if ( !pHydrogen->isUnderSessionManagement() ) {
+				pHydrogen->getPreferences()->setLastSongPath(
+					policy == CoreActionController::PathPolicy::Adopt
+						? sNewFileName
+						: pSong->getPath() );
+			}
+		}
+
+		// Refreshes the title like the standalone base does; the engine's
+		// own push is Headless-gated (batch 2t).
+		pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
 		return true;
 	}
 	else {
-		return CoreActionController::saveSongAs( sNewFileName, bKeepMissingSamples );
+		return CoreActionController::saveSongAs(
+			sNewFileName, bKeepMissingSamples, policy );
 	}
 }
 

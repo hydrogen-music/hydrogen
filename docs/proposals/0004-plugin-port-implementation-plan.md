@@ -1310,6 +1310,72 @@ paths (no playlist file to resolve against over IPC).
   (mark + clear) for all three flags on the authoritative engine.
   Three consecutive full-suite runs green.
 
+**Save-as path policy across the split (batch 2t) — DONE, suite
+`OK (433 tests)`.**
+* User report: after `SongPropertiesDialog` or save/save-as the mirror-local
+  `Song::setPath()` diverged from the engine, patched over with full-XML
+  `CAC::setSong()` re-syncs in `MainForm` (reject path, NSM export restore,
+  demo open) — costly (whole-song round-trip per save) and error-prone.
+* Prescription: deduce the final path upfront and let the dual-apply CAC
+  save routines assign it directly. The mirror-local song is never re-pointed
+  behind the engine's back anymore.
+* `CoreActionController::PathPolicy` (Adopt default / Keep): `saveSongAs()`
+  gains the policy; the base snapshots the former path/backed-by-project and
+  restores it for Keep on success *and* failure (a failed export must not
+  re-point the session song). `IpcCoreActionController::saveSongAs()` is no
+  longer send-only: it sends `[path, keepMissing, policy]` and applies
+  mirror-side (Adopt: `setPath` + `setBackedByProject(false)`; both: dirty
+  flip + recent-files + last-song-path + local `UpdateSong(1)`).
+  `saveSong()` gains the mirror-side dirty flip + `UpdateSong(1)`.
+* Echo gating: the engine's own `UpdateSong(1)` pushes (plain save branch +
+  save-as) are now `ProcessMode::Headless`-gated — in editor mode the
+  override pushes on the mirror instead; the engine-origin echo only ever
+  triggered a redundant full `ipcSyncSong` re-pull. The discard-autosave
+  branch keeps its unconditional push (content actually changed).
+* The path left `setSongProperties()` end-to-end (param dropped in base,
+  IPC send, bridge case `args.size() >= 7`): its only caller was the undo
+  action, and undoing a properties edit must not re-point the song anyway.
+  `SE_modifySongPropertiesAction` drops both path fields (14 → 12 ctor
+  args); the dialog's ok-handler no longer `setPath()`s in its SaveAs
+  branch.
+* GUI: `SongPropertiesDialog` gains a `sDefaultPath` ctor param (wins over
+  the song's stale backing path when non-empty) + `getChosenPath()`.
+  `MainForm::action_file_save_as(sSuggestedPath = {})` computes the default
+  locally (no pre-seeding `setPath`), passes `Keep` under NSM / `Adopt`
+  otherwise, and the reject path is a plain `return` — both `setSong()`
+  re-syncs deleted. The System-context redirect in `action_file_save`
+  suggests the user-level path instead of writing it into the song.
+  Demo open: `HydrogenApp::openFile(..., bOpenAsUnsaved)` clears the path on
+  the payload *before* the single `setSong` crossing (was: open + local
+  `setPath("")` + second crossing). `SoundLibraryTree`'s two detached
+  flows save to `dialog.getChosenPath()`.
+* Side effect (bug fix): the NSM export status bar message now shows the
+  chosen export target (was: the unchanged session path). Follow-up
+  (user-approved): the song properties undo entry was labeled
+  "Modify pattern properties" (copy-paste from the pattern action) — new
+  commonized string `CommonStrings::getActionModifySongProperties()`
+  ("Modify song properties").
+* Follow-up audit (user-reported): the two remaining `setPath()` calls in
+  `MainForm::onAutoSaveTimer()` (song + playlist restores after the
+  autosave write) are legitimate and stay: `Song::save()` /
+  `Playlist::saveAs()` adopt the target path unconditionally, the autosave
+  file must not become the backing path, and the writes are editor-local
+  recovery writes that cross nothing. Routing them through the save-as
+  commands would pollute recent-files/last-path preferences and fire
+  events — `PathPolicy::Keep` is export semantics, not recovery semantics.
+  `tools/check_write_surface` updated to the post-2t `setPath` surface:
+  the three stale MainForm allow entries removed (sites deleted in this
+  batch), the restores regrouped under a documented autosave section,
+  `pPlaylist` added to the guarded pointer set, and the
+  `HydrogenApp::openFile` scratch-copy clear allowlisted.
+* Base-class access: `getHydrogen()` protected accessor +
+  `insertRecentFile()` moved to protected for the mirror-side bookkeeping.
+* Tested: `EngineSessionTest::testCommandDispatchedToEngine` extended
+  (RED first: `PathPolicy` did not exist) — Adopt: engine and mirror both
+  carry the target path synchronously after the call, file exists; Keep:
+  file written, both paths unchanged. Three consecutive full-suite runs
+  green.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

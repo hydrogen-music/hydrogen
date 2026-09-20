@@ -585,7 +585,7 @@ void SoundLibraryTree::actionProperties()
 			this, pSong, SongPropertiesDialog::Action::None
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			pSong->save( pSong->getPath(), true, true );
+			pSong->save( dialog.getChosenPath(), true, true );
 			pDB->updateSongs( Event::Trigger::Default );
 		}
 	}
@@ -678,7 +678,7 @@ void SoundLibraryTree::actionDuplicate()
 			)
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
-			pSong->save( pSong->getPath(), true, true );
+			pSong->save( dialog.getChosenPath(), true, true );
 			pDB->updateSongs( Event::Trigger::Default );
 		}
 	}
