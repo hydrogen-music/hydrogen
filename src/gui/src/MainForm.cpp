@@ -1370,10 +1370,9 @@ void MainForm::action_pattern_save( int nPatternRow )
 			  Filesystem::Context::System ) {
 		// Although the system-level sound library paths are valid, the user
 		// does not have sufficient permission to write to it. Instead, the
-		// artifact will be copied to the user-level counterpart.
-		auto sPath = pPattern->getPath();
-		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
-		pPattern->setPath( sPath );
+		// artifact will be copied to the user-level counterpart. The
+		// redirect happens on the copy inside action_pattern_save_as() —
+		// mutating the live pattern here would only reach the mirror.
 		action_pattern_save_as( nPatternRow );
 		return;
 	}
@@ -1426,6 +1425,17 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 		ERRORLOG( QString( "Pattern [%1] could not be retrieved" )
 				  .arg( nPatternRow ) );
 		return;
+	}
+
+	// System-level paths are valid but not user-writable; default the
+	// dialog to the user-level counterpart instead. This happens on the
+	// copy — a cancelled dialog leaves the live pattern (and the
+	// engine's copy of it) untouched.
+	if ( Filesystem::DetermineContext( pPattern->getPath(), HydrogenApp::pHydrogen() ) ==
+		 Filesystem::Context::System ) {
+		auto sPath = pPattern->getPath();
+		sPath.replace( Filesystem::systemDataPath(), Filesystem::userDataPath() );
+		pPattern->setPath( sPath );
 	}
 
 	// In case the original pattern does not feature license and/or author, fall

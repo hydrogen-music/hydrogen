@@ -1061,3 +1061,85 @@ void EngineSessionTest::testMoveAutomationPointCrossesSplit() {
 
 	___INFOLOG( "passed" );
 }
+
+// ADR 0030 batch 2ab — virtual pattern relationships are song structure
+// shared by both sides: the editor dialog used to clear/add them on its
+// mirror only, so the authoritative engine kept playing the old set. The
+// command crosses as a whole-set replacement (clear + add + recompute of
+// the flattened sets), validated atomically before anything is touched.
+void EngineSessionTest::testSetVirtualPatternsCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// The empty song ships ten named patterns; "Pattern 1" becomes the
+	// virtual container of "Pattern 2" and "Pattern 3".
+	const QStringList virtuals = { "Pattern 2", "Pattern 3" };
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->setVirtualPatterns(
+		0, virtuals ) );
+
+	// Settled post-state: the engine's pattern holds the direct set, its
+	// flattened set was recomputed by the engine-side
+	// updateVirtualPatterns(), and the song is dirty. Pumping on the
+	// direct set alone could sample the state between the add and the
+	// recompute.
+	const auto fEngineSettled = [&]( const QStringList& expected ) {
+		auto pPattern = pEngine->getSong()->getPatternList()->get( 0 );
+		return pPattern != nullptr &&
+			pPattern->getVirtualPatterns()->size() ==
+				static_cast<int>( expected.size() ) &&
+			pPattern->getFlattenedVirtualPatterns()->size() ==
+				static_cast<int>( expected.size() ) &&
+			pEngine->getSong()->getIsModified();
+	};
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return fEngineSettled( virtuals ); } ) );
+	// The mirror applied synchronously in the dual-apply.
+	{
+		auto pPattern = pMirror->getSong()->getPatternList()->get( 0 );
+		CPPUNIT_ASSERT( pPattern->getVirtualPatterns()->size() == 2 );
+		CPPUNIT_ASSERT( pPattern->getFlattenedVirtualPatterns()->size() == 2 );
+	}
+
+	// A second call replaces the set instead of merging into it.
+	const QStringList fewer = { "Pattern 2" };
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->setVirtualPatterns(
+		0, fewer ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return fEngineSettled( fewer ); } ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getPatternList()->get( 0 )
+					->getVirtualPatterns()->size() == 1 );
+
+	// Refusals are atomic — the engine-side set is left untouched.
+	// Out-of-range pattern number.
+	CPPUNIT_ASSERT( ! pAccess->getCoreActionController()->setVirtualPatterns(
+		42, virtuals ) );
+	// Unknown virtual pattern name.
+	CPPUNIT_ASSERT( ! pAccess->getCoreActionController()->setVirtualPatterns(
+		0, { "Pattern 2", "no such pattern" } ) );
+	// A virtual pattern must not contain itself.
+	CPPUNIT_ASSERT( ! pAccess->getCoreActionController()->setVirtualPatterns(
+		0, { "Pattern 1" } ) );
+	CPPUNIT_ASSERT( pEngine->getSong()->getPatternList()->get( 0 )
+					->getVirtualPatterns()->size() == 1 );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

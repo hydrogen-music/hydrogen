@@ -866,6 +866,20 @@ bool IpcCoreActionController::moveAutomationPoint(
 		fOldX, fOldY, fNewX, fNewY, trigger );
 }
 
+bool IpcCoreActionController::setVirtualPatterns(
+	int nPatternNumber, const QStringList& virtualPatternNames,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetVirtualPatterns )
+							  .arg( nPatternNumber )
+							  .arg( virtualPatternNames ) );
+	}
+	// Dual-apply: the mirror takes over the new set synchronously,
+	// including the flattened recompute for its own views.
+	return CoreActionController::setVirtualPatterns(
+		nPatternNumber, virtualPatternNames, trigger );
+}
+
 bool IpcCoreActionController::setSongProperties(
 	const int nNewVersion, const QString& sNewName,
 	const QString& sNewAuthor, const QString& sNewNotes,

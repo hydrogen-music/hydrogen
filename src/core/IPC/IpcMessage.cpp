@@ -397,6 +397,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::MoveAutomationPoint:
 		sOpcode = "MOVE_AUTOMATION_POINT";
 		break;
+	case IpcOpcode::SetVirtualPatterns:
+		sOpcode = "SET_VIRTUAL_PATTERNS";
+		break;
 	case IpcOpcode::PreviewInstrument:
 		sOpcode = "PREVIEW_INSTRUMENT";
 		break;

@@ -333,6 +333,13 @@ public:
 		float fOldX, float fOldY, float fNewX, float fNewY,
 		Event::Trigger trigger = Event::Trigger::Default ) override;
 
+	// ADR 0030 batch 2ab — virtual pattern editing. The whole new set
+	// crosses as pattern names (unique within the song); the base call
+	// replaces the mirror's set and recomputes its flattened views.
+	bool setVirtualPatterns(
+		int nPatternNumber, const QStringList& virtualPatternNames,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+
 	// ADR 0030 batch 2l — song export. The render pipeline only runs
 	// in the authoritative engine (the mirror's process loop skips
 	// rendering by design), so the whole plan crosses as one

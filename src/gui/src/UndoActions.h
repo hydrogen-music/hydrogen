@@ -211,6 +211,36 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 };
 
 /** \ingroup docGUI*/
+class SE_setVirtualPatternsAction : public QUndoCommand {
+   public:
+	SE_setVirtualPatternsAction( const QStringList& oldVirtualPatterns,
+								 const QStringList& newVirtualPatterns,
+								 int nPatternNumber )
+	{
+		setText( HydrogenApp::get_instance()->getCommonStrings()
+					 ->getActionModifyVirtualPatterns() );
+		m_oldVirtualPatterns = oldVirtualPatterns;
+		m_newVirtualPatterns = newVirtualPatterns;
+		m_nPatternNumber = nPatternNumber;
+	}
+	virtual void undo()
+	{
+		HydrogenApp::pEngine()->getCoreActionController()->setVirtualPatterns(
+			m_nPatternNumber, m_oldVirtualPatterns );
+	}
+	virtual void redo()
+	{
+		HydrogenApp::pEngine()->getCoreActionController()->setVirtualPatterns(
+			m_nPatternNumber, m_newVirtualPatterns );
+	}
+
+   private:
+	QStringList m_oldVirtualPatterns;
+	QStringList m_newVirtualPatterns;
+	int m_nPatternNumber;
+};
+
+/** \ingroup docGUI*/
 class SE_modifySongPropertiesAction : public QUndoCommand {
    public:
 	SE_modifySongPropertiesAction(

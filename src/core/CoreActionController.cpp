@@ -3794,6 +3794,67 @@ bool CoreActionController::setPatternSize( int nLength, int nDenominator,
 	return true;
 }
 
+bool CoreActionController::setVirtualPatterns(
+	int nPatternNumber, const QStringList& virtualPatternNames,
+	Event::Trigger trigger )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+
+	auto pPatternList = pSong->getPatternList();
+	auto pPattern = pPatternList->get( nPatternNumber );
+	if ( pPattern == nullptr ) {
+		ERRORLOG( QString( "Unable to find pattern [%1]" )
+					  .arg( nPatternNumber ) );
+		return false;
+	}
+
+	// Validate the whole set before touching anything: the command is a
+	// replacement, and a rejected one must not leave a half-applied set
+	// behind.
+	std::vector<std::shared_ptr<Pattern>> virtualPatterns;
+	for ( const auto& sName : virtualPatternNames ) {
+		std::shared_ptr<Pattern> pVirtual = nullptr;
+		for ( const auto& ppPattern : *pPatternList ) {
+			if ( ppPattern->getName() == sName ) {
+				pVirtual = ppPattern;
+				break;
+			}
+		}
+		if ( pVirtual == nullptr ) {
+			ERRORLOG( QString( "Unable to find virtual pattern [%1]" )
+						  .arg( sName ) );
+			return false;
+		}
+		if ( pVirtual == pPattern ) {
+			// A virtual pattern must not contain itself.
+			ERRORLOG( QString( "Pattern [%1] must not reference itself" )
+						  .arg( sName ) );
+			return false;
+		}
+		virtualPatterns.push_back( pVirtual );
+	}
+
+	pPattern->virtualPatternsClear();
+	for ( const auto& pVirtual : virtualPatterns ) {
+		pPattern->virtualPatternsAdd( pVirtual );
+	}
+
+	// Recomputes the flattened sets and updates the playing patterns in
+	// the audio engine (locked internally); pushes PatternChanged unless
+	// suppressed.
+	m_pHydrogen->updateVirtualPatterns( trigger );
+
+	// Virtual relationships live in the song file, not in the pattern
+	// files, so the song is the artifact that changed.
+	m_pHydrogen->setSongModified( true, trigger );
+
+	return true;
+}
+
 bool CoreActionController::editNoteProperty(
 	NoteProperty property,
 	int nPatternNumber,

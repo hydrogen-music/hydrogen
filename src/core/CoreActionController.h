@@ -989,6 +989,24 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		int nPatternNumber,
 		Event::Trigger trigger = Event::Trigger::Default
 	);
+	/** Replaces the set of virtual patterns of one pattern with the ones
+	 * referenced by @a virtualPatternNames (whole-set replacement, not a
+	 * merge). The flattened virtual patterns are recomputed and the
+	 * playing patterns refreshed. Virtual relationships are song
+	 * structure, so the song — not the pattern files — is marked dirty.
+	 *
+	 * The command is validated atomically: an out-of-range pattern
+	 * number, an unknown name, or a self-reference is refused without
+	 * touching the current set.
+	 *
+	 * @param nPatternNumber Position/row of the target pattern.
+	 * @param virtualPatternNames Names of the new virtual pattern set.
+	 * @return true on success */
+	virtual bool setVirtualPatterns(
+		int nPatternNumber,
+		const QStringList& virtualPatternNames,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Edits a single property of one note, addressed by value identity
 	 * (pattern slot + position + instrument id/type + key/octave) so it is
 	 * split-safe. Real-time-sensitive: owns the #H2Core::AudioEngine lock

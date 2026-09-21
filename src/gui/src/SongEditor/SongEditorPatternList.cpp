@@ -303,15 +303,17 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 	}
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		pPatternClicked->virtualPatternsClear();
+		// The whole new set is collected first and applied as a single
+		// command — it crosses to the authoritative engine (which
+		// recomputes its flattened virtual patterns and refreshes the
+		// playing patterns) and lands on the mirror in the dual-apply.
+		QStringList newVirtualPatterns;
 		for ( int ii = 0; ii < pPatternListWidget->count(); ++ii ) {
 			QListWidgetItem* pListItem = pPatternListWidget->item( ii );
 			if ( pListItem != nullptr && pListItem->isSelected() ) {
 				if ( patternNameMap.find( pListItem->text() ) !=
 					 patternNameMap.end() ) {
-					pPatternClicked->virtualPatternsAdd(
-						patternNameMap[pListItem->text()]
-					);
+					newVirtualPatterns << pListItem->text();
 				}
 				else {
 					ERRORLOG( QString(
@@ -322,7 +324,16 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 			}
 		}
 
-		pHydrogen->updateVirtualPatterns();
+		QStringList oldVirtualPatterns;
+		for ( const auto& ppVirtual :
+			  *pPatternClicked->getVirtualPatterns() ) {
+			oldVirtualPatterns << ppVirtual->getName();
+		}
+
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_setVirtualPatternsAction(
+				oldVirtualPatterns, newVirtualPatterns, m_nRowClicked )
+		);
 	}
 
 	delete pDialog;

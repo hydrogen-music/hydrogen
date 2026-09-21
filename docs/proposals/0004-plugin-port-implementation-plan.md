@@ -1805,6 +1805,46 @@ FIXED, suite `OK (444 tests)` ×7 consecutive.**
   races by nature — so verification is the strengthened predicates plus
   the soak: 7 consecutive green full-suite runs (~140 s each).
 
+**Batch 2ab — virtual pattern editing + pattern save-as path redirect:
+split-safe (suite `OK (445 tests)` ×3 consecutive).**
+* Audit: every Pattern mutator call site in the GUI swept (54 raw
+  hits). Three live-state bugs; all other flows stage on copies/fresh
+  objects or route through the controller already — notably
+  PatternPropertiesDialog's seven direct writes operate on the
+  `make_shared<Pattern>` copies every caller passes, crossing via
+  `SE_modifyPatternPropertiesAction` → `setPatternProperties`.
+* Bugs 1+2 (`SongEditorPatternList::patternPopup_virtualPattern`): the
+  dialog cleared/added virtual patterns on the mirror's pattern only
+  and recomputed the mirror's flattened sets — the authoritative engine
+  kept playing the old set. Fix: new
+  `CoreActionController::setVirtualPatterns(nPatternNumber, names,
+  trigger)` — a validated whole-set replacement (out-of-range number,
+  unknown name, or self-reference refused atomically, nothing
+  half-applied) that recomputes the flattened sets and refreshes the
+  engine's playing patterns via `updateVirtualPatterns`, and marks the
+  song — not the pattern files — dirty, since virtual relationships
+  live in the song XML. Crosses as `SetVirtualPatterns`
+  [int, stringlist]; dual-applied on the mirror. The dialog now
+  collects the selected names and pushes `SE_setVirtualPatternsAction`
+  — making virtual-pattern edits undoable for the first time (new
+  CommonStrings entry "Modify virtual patterns").
+* Bug 3 (`MainForm::action_pattern_save`): the system→user path
+  redirect mutated the **live** pattern — the only caller not operating
+  on a copy — so the change never crossed, and a cancelled save-as
+  dialog left mirror and engine paths permanently diverged. Fix: the
+  redirect moved into `action_pattern_save_as`, operating on its
+  discarded-on-cancel copy. Side effect (intentional): "Save Pattern
+  as" on a system-backed pattern now defaults the dialog to the
+  user-level path instead of the read-only system path.
+* Guard: `PATTERN_VIRTUAL_DIRECT_WRITES` (virtualPatternsAdd/Del/Clear
+  + updateVirtualPatterns) added to `tools/check_write_surface`.
+* RED/GREEN: two-stage — build failure (missing command), then a
+  runtime RED with all plumbing but the bridge case (445 tests, exactly
+  `testSetVirtualPatternsCrossesSplit` failing at the engine-settled
+  pump), then green. The new test pumps on the full settled post-state
+  (direct set + flattened set + song dirty) per the flakiness-part-2
+  lesson.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

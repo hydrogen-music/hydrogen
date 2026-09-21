@@ -629,6 +629,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sActionRemovePattern;
 	}
+	const QString& getActionModifyVirtualPatterns() const
+	{
+		return m_sActionModifyVirtualPatterns;
+	}
 	const QString& getActionCopyPatternCells() const
 	{
 		return m_sActionCopyPatternCells;
@@ -1041,6 +1045,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sActionSavePatternAs;
 	QString m_sActionDuplicatePattern;
 	QString m_sActionRemovePattern;
+	QString m_sActionModifyVirtualPatterns;
 	QString m_sActionCopyPatternCells;
 	QString m_sActionDeletePatternCells;
 	QString m_sActionMovePatternCells;

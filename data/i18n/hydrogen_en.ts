@@ -1928,6 +1928,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Label of the song properties entry in the undo history.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Modify virtual patterns</source>
+        <extracomment>Shown in the undo history after editing which patterns a virtual * pattern is composed of.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

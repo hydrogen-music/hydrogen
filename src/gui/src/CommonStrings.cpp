@@ -821,6 +821,9 @@ CommonStrings::CommonStrings(){
 	m_sActionSavePatternAs = tr( "Save Pattern as" );
 	/*: Shown in the undo history after removing a pattern. */
 	m_sActionRemovePattern = tr( "Delete pattern from list" );
+	/*: Shown in the undo history after editing which patterns a virtual
+	 * pattern is composed of. */
+	m_sActionModifyVirtualPatterns = tr( "Modify virtual patterns" );
 	/*: Shown in the undo history copying pattern cells in the song editor to
 	 *  another location. */
 	m_sActionCopyPatternCells = tr( "Copy selected cells" );

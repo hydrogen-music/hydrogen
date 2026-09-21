@@ -629,6 +629,16 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				Event::Trigger::Suppress );
 		}
 		break;
+	// ADR 0030 batch 2ab — args: pattern number as int, virtual pattern
+	// names as a stringlist. Whole-set replacement; the editor already
+	// applied it on its mirror.
+	case IpcOpcode::SetVirtualPatterns:
+		if ( args.size() >= 2 ) {
+			return pController->setVirtualPatterns(
+				args[0].toInt(), args[1].toStringList(),
+				Event::Trigger::Suppress );
+		}
+		break;
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );
