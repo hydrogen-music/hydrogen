@@ -1661,6 +1661,76 @@ suite `OK (437 tests)`.**
   the scalar channel spin boxes defer to commit — an inconsistency in
   write frequency, not in correctness.
 
+**Automation path view write paths (batch 2aa) — DONE, suite
+`OK (444 tests)`.**
+* User report: `AutomationPathView` stores a shared_ptr to the current
+  song's `AutomationPath` and its setters (`move()`, `addPoint()`,
+  `removePoint()`) mutate that mirror object directly — the writes had
+  to cross the IPC split and be undoable, via new `UndoActions.h`
+  classes wrapping new `CoreActionController` methods.
+* Audit: the view mutated the mirror's path at press/drag/keypress and
+  only crossed at mouse-release — `SongEditorPanel` pushed
+  `SE_automationPath*Action`s on the view's `pointAdded/Removed/Moved`
+  signals, whose redo-on-push re-applied onto the already-mutated
+  mirror (the add overwrote idempotently, the move's remove leg and
+  the remove's own leg no-opped on the missing point). A move crossed
+  as a remove+add pair (two commands, non-atomic). Two edges were
+  outright broken: a release outside the widget bounds never emitted
+  the signal, so a press-added point never reached the engine at all
+  (and wasn't undoable either); and the grab-move captured the origin
+  *after* the press-snap, so undo restored the snap position instead
+  of where the point actually came from. The add/remove commands also
+  carried no validation (an occupied-x add silently overwrote the
+  sitting point, an absent-x remove silently succeeded) and had no
+  test coverage.
+* New atomic command `CoreActionController::moveAutomationPoint( oldX,
+  oldY, newX, newY )` with full validation: refused when no point sits
+  at the exact source coordinates (new `AutomationPath::findExact()` —
+  the tolerance-based `find()` could grab a neighbouring point), when
+  the source value differs from `oldY` (a stale command), or when
+  another point occupies `newX` (`AutomationPath::move()` erases
+  before inserting and `std::map::insert` does not overwrite — the
+  moved point would be silently dropped). `addAutomationPoint` now
+  refuses an occupied x, `removeAutomationPoint` an absent point.
+  `IpcCoreActionController` dual-applies the move
+  (`MoveAutomationPoint`, four float args); the bridge case applies it
+  on the engine.
+* View reroute: the three undo classes lost their unused `m_pPath`
+  member and the legacy `pHydrogen()` accessor (now `pEngine()`), and
+  the move action wraps the atomic command. The view pushes the
+  commands as the *only* write path — add at press, one move per drag
+  step, remove at keypress — under a shared `automationPath:edit`
+  undo context closed in `mouseReleaseEvent()` (also on the
+  out-of-bounds path), coalescing a whole press-drag-release
+  interaction into a single undo step, mixer-style. The grab-move now
+  captures the true pre-snap origin. The `pointAdded`/`pointRemoved`/
+  `pointMoved` signals, the `SongEditorPanel` slots and their
+  connections are gone (the commands fire at interaction time now);
+  the direct `setSongModified()` pokes went with them — the commands
+  mark it on both sides.
+* Tested: two new `EngineSessionTest` crossing tests (add/remove
+  including the refusals; the atomic move including stale-source,
+  absent-source, occupied-destination and y-only cases). RED in two
+  stages: the build failed on the missing command (EXIT=2), then —
+  command plumbed, validation not yet applied — the suite ran 444
+  with exactly the two new tests failing on the refusal asserts. Three
+  consecutive full-suite runs green after (a fourth run hit a one-off
+  crash in the pre-existing
+  `ConnectViaIpcModeTest::testHandledMidiLogClearOrdering` — "pure
+  virtual method called" mid-`pumpUntil`, outside this batch's call
+  graph; same family as the batch 2y flakiness observation, but a
+  crash rather than a pump timeout — worth its own pass).
+* `tools/check_write_surface` gained
+  `PATTERN_AUTOMATION_PATH_DIRECT_WRITES` (direct
+  `addPoint`/`removePoint`/`move` calls on path receivers barred from
+  the GUI for good).
+* Behavior notes: dragging a point onto an occupied x now refuses the
+  step (the point stays put) instead of the old silent drop — the
+  latent erase-without-overwrite data loss; after a refused step the
+  view's selection follows the tolerance `find()` and grabs the
+  occupying point, the nearest sane behaviour for a measure-zero
+  mouse collision.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

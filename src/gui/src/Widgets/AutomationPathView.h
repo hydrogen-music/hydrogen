@@ -79,10 +79,6 @@ public slots:
 signals:
 	void valueChanged();
 
-	void pointAdded(float x, float y);
-	void pointRemoved(float x, float y);
-	void pointMoved(float ox, float oy, float tx, float ty);
-
 private:
 	void createBackground();
 
@@ -92,9 +88,6 @@ private:
 	int m_nMaxPatternSequence;
 
 	bool m_bIsHolding; /** < Whether any points are being dragged */
-	bool m_bPointAdded;/** < Whether a new point was added during mouse move */
-	float m_fOriginX;  /** < Original position of selected point */
-	float m_fOriginY;  /** < Original position of selected point */
 	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
 
 	float m_fTick;

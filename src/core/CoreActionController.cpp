@@ -4690,8 +4690,15 @@ bool CoreActionController::addAutomationPoint( float fX, float fY, Event::Trigge
 	if ( pSong == nullptr || pSong->getAutomationPath() == nullptr ) {
 		return false;
 	}
+	auto pPath = pSong->getAutomationPath();
 
-	pSong->getAutomationPath()->addPoint( fX, fY );
+	// addPoint() would silently overwrite a point already sitting at
+	// fX — surface the collision instead of destroying it.
+	if ( pPath->findExact( fX ) != pPath->end() ) {
+		return false;
+	}
+
+	pPath->addPoint( fX, fY );
 	m_pHydrogen->setSongModified( true, trigger );
 	return true;
 }
@@ -4702,8 +4709,44 @@ bool CoreActionController::removeAutomationPoint( float fX, Event::Trigger trigg
 	if ( pSong == nullptr || pSong->getAutomationPath() == nullptr ) {
 		return false;
 	}
+	auto pPath = pSong->getAutomationPath();
 
-	pSong->getAutomationPath()->removePoint( fX );
+	// removePoint() is a silent no-op when no point is near fX —
+	// report the absence so stale double-applications surface.
+	if ( pPath->find( fX ) == pPath->end() ) {
+		return false;
+	}
+
+	pPath->removePoint( fX );
+	m_pHydrogen->setSongModified( true, trigger );
+	return true;
+}
+
+bool CoreActionController::moveAutomationPoint(
+	float fOldX, float fOldY, float fNewX, float fNewY, Event::Trigger trigger )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getAutomationPath() == nullptr ) {
+		return false;
+	}
+	auto pPath = pSong->getAutomationPath();
+
+	// Commands carry the exact coordinates previously read from the
+	// path; the tolerance-based find() could grab a neighbouring point
+	// instead. A y mismatch means the command is stale — the path
+	// changed underneath it.
+	auto itSource = pPath->findExact( fOldX );
+	if ( itSource == pPath->end() || itSource->second != fOldY ) {
+		return false;
+	}
+
+	if ( fNewX != fOldX && pPath->findExact( fNewX ) != pPath->end() ) {
+		// move() erases before inserting and std::map::insert does not
+		// overwrite — the moved point would be silently dropped.
+		return false;
+	}
+
+	pPath->move( itSource, fNewX, fNewY );
 	m_pHydrogen->setSongModified( true, trigger );
 	return true;
 }

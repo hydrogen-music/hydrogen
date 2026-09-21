@@ -1215,6 +1215,20 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		float fX,
 		Event::Trigger trigger = Event::Trigger::Default
 	);
+	/** Move the automation point at (fOldX, fOldY) to (fNewX, fNewY).
+	 *
+	 * Refused (returning false) when no point sits at the exact source
+	 * coordinates, when its value differs from fOldY (a stale command),
+	 * or when another point already occupies fNewX — moving would
+	 * otherwise silently drop it (AutomationPath::move() erases before
+	 * inserting and std::map::insert does not overwrite). */
+	virtual bool moveAutomationPoint(
+		float fOldX,
+		float fOldY,
+		float fNewX,
+		float fNewY,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 protected:
 	/** \return The owning Hydrogen instance — in editor mode the local

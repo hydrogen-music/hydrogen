@@ -568,9 +568,6 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
 	m_pAutomationPathScrollView->setFixedHeight(
 		AutomationPathView::m_nMinimumHeight );
-	connect( m_pAutomationPathView, SIGNAL( pointAdded(float, float) ), this, SLOT( automationPathPointAdded(float,float) ) );
-	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
-	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
 	m_pAutomationCombo = new LCDCombo( nullptr, QSize( m_nPatternListWidth, 18 ) );
 	m_pAutomationCombo->setModifierTarget( Modifier::Song );
@@ -1229,29 +1226,6 @@ void SongEditorPanel::faderChanged( WidgetWithInput *pRef )
 			"SongEditorPanel:PlaybackTrackVolume"
 		);
 	}
-}
-
-void SongEditorPanel::automationPathPointAdded(float x, float y)
-{
-	auto pPath = m_pAutomationPathView->getAutomationPath();
-	auto pUndoAction = new SE_automationPathAddPointAction(pPath, x, y);
-	HydrogenApp::get_instance()->pushUndoCommand( pUndoAction );
-}
-
-
-void SongEditorPanel::automationPathPointRemoved(float x, float y)
-{
-	auto pPath = m_pAutomationPathView->getAutomationPath();
-	auto pUndoAction = new SE_automationPathRemovePointAction(pPath, x, y);
-	HydrogenApp::get_instance()->pushUndoCommand( pUndoAction );
-}
-
-
-void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, float ty)
-{
-	auto pPath = m_pAutomationPathView->getAutomationPath();
-	auto pUndoAction = new SE_automationPathMovePointAction(pPath, ox, oy, tx, ty);
-	HydrogenApp::get_instance()->pushUndoCommand( pUndoAction );
 }
 
 void SongEditorPanel::toggleAutomationAreaVisibility() {

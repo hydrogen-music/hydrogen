@@ -25,6 +25,7 @@
 #include "../Compatibility/MouseEvent.h"
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
+#include "../UndoActions.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -323,15 +324,22 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 
 	_selectedPoint = m_pPath->find(x);
 	if (_selectedPoint == m_pPath->end()) {
-		m_pPath->addPoint(x, y);
+		// The command is the only write path: it crosses the IPC split
+		// (dual-apply) and is undoable. The undo context opened here
+		// swallows the drag's move commands into the same undo step.
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_automationPathAddPointAction( x, y ),
+			QString( "automationPath:edit" ) );
 		_selectedPoint = m_pPath->find(x);
-
-		m_bPointAdded = true;
 	} else {
-		_selectedPoint = m_pPath->move(_selectedPoint, x, y);
-		m_fOriginX = x;
-		m_fOriginY = y;
-		m_bPointAdded = false;
+		// Capture the true pre-grab position before the snap move, so
+		// undo restores where the point actually came from.
+		float fOriginX = _selectedPoint->first;
+		float fOriginY = _selectedPoint->second;
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_automationPathMovePointAction( fOriginX, fOriginY, x, y ),
+			QString( "automationPath:edit" ) );
+		_selectedPoint = m_pPath->find(x);
 	}
 
 	createBackground();
@@ -353,17 +361,12 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 	updateAutomationPath();
 	m_bIsHolding = false;
 
+	// Close the interaction's undo context no matter where the release
+	// landed, so the next press starts a fresh undo step.
+	HydrogenApp::get_instance()->endUndoContext();
+
 	if (! checkBounds(event) || !m_pPath) {
 		return;
-	}
-
-	auto p = locate(event);
-	float x = p.first;
-	float y = p.second;
-	if (m_bPointAdded) {
-		emit pointAdded(x, y);
-	} else {
-		emit pointMoved(m_fOriginX, m_fOriginY, x, y);
 	}
 
 	emit valueChanged();
@@ -387,8 +390,15 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	float y = p.second;
 
 	if ( m_bIsHolding && m_pPath && _selectedPoint != m_pPath->end() ) {
-		_selectedPoint = m_pPath->move(_selectedPoint, x, y);
-		HydrogenApp::pEngine()->setSongModified( true );
+		// One command per drag step — the shared context coalesces them
+		// into a single undo step, and each step crosses to the engine
+		// as the drag proceeds.
+		float fPrevX = _selectedPoint->first;
+		float fPrevY = _selectedPoint->second;
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_automationPathMovePointAction( fPrevX, fPrevY, x, y ),
+			QString( "automationPath:edit" ) );
+		_selectedPoint = m_pPath->find(x);
 	}
 
 	createBackground();
@@ -408,12 +418,12 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 		if ( m_pPath && _selectedPoint != m_pPath->end() ) {
 			float x = _selectedPoint->first;
 			float y = _selectedPoint->second;
-			m_pPath->removePoint(_selectedPoint->first);
-			_selectedPoint = m_pPath->end();
-			
-			HydrogenApp::pEngine()->setSongModified( true );
 
-			emit pointRemoved( x, y );
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_automationPathRemovePointAction( x, y ) );
+
+			_selectedPoint = m_pPath->end();
+
 			createBackground();
 			update();
 			emit valueChanged();

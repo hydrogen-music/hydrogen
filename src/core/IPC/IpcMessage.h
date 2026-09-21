@@ -137,6 +137,9 @@ enum class IpcOpcode : quint16 {
 	// ── ADR 0030 batch 2z: MIDI control dialog settings ──
 	SetMidiControlSettings,
 
+	// ── ADR 0030 batch 2aa: automation path editing ──
+	MoveAutomationPoint,      ///< args: [float, float, float, float]
+
 	// ── ADR 0030 batch 2b: simple transport/pattern/instrument/jack/midi commands ──
 	PreviewInstrument,
 	ActivateTimeline,

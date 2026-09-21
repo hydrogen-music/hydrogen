@@ -325,6 +325,14 @@ public:
 		Midi::Channel feedbackChannel,
 		Preferences::MidiSendNoteOff sendNoteOff ) override;
 
+	// ADR 0030 batch 2aa — atomic automation point move. The four
+	// coordinates cross as floats; the base call moves the mirror's
+	// point. (The add/remove automation point overrides live in the
+	// base command block above.)
+	bool moveAutomationPoint(
+		float fOldX, float fOldY, float fNewX, float fNewY,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+
 	// ADR 0030 batch 2l — song export. The render pipeline only runs
 	// in the authoritative engine (the mirror's process loop skips
 	// rendering by design), so the whole plan crosses as one

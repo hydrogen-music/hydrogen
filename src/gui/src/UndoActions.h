@@ -1254,24 +1254,25 @@ class SE_renameComponentAction : public QUndoCommand {
 	int m_nComponentId;
 };
 
+// ADR 0030 batch 2aa — the automation path view pushes these actions
+// as the only write path for automation points: redo() crosses the
+// IPC split via the CoreActionController commands (dual-apply on the
+// mirror and the authoritative engine). A drag pushes one move action
+// per mouse step under a shared undo context, coalescing the whole
+// interaction into a single undo step.
 /** \ingroup docGUI*/
 class SE_automationPathAddPointAction : public QUndoCommand {
    public:
-	SE_automationPathAddPointAction(
-		std::shared_ptr<H2Core::AutomationPath> pPath,
-		float fX,
-		float fY
-	)
+	SE_automationPathAddPointAction( float fX, float fY )
 	{
 		setText( QObject::tr( "Add point" ) );
-		m_pPath = pPath;
 		m_fX = fX;
 		m_fY = fY;
 	}
 
 	virtual void undo()
 	{
-		HydrogenApp::pHydrogen()
+		HydrogenApp::pEngine()
 			->getCoreActionController()
 			->removeAutomationPoint( m_fX );
 
@@ -1281,7 +1282,7 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		HydrogenApp::pHydrogen()
+		HydrogenApp::pEngine()
 			->getCoreActionController()
 			->addAutomationPoint( m_fX, m_fY );
 
@@ -1290,7 +1291,6 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 	}
 
    private:
-	std::shared_ptr<H2Core::AutomationPath> m_pPath;
 	float m_fX;
 	float m_fY;
 };
@@ -1298,21 +1298,16 @@ class SE_automationPathAddPointAction : public QUndoCommand {
 /** \ingroup docGUI*/
 class SE_automationPathRemovePointAction : public QUndoCommand {
    public:
-	SE_automationPathRemovePointAction(
-		std::shared_ptr<H2Core::AutomationPath> path,
-		float fX,
-		float fY
-	)
+	SE_automationPathRemovePointAction( float fX, float fY )
 	{
 		setText( QObject::tr( "Remove point" ) );
-		m_pPath = path;
 		m_fX = fX;
 		m_fY = fY;
 	}
 
 	virtual void redo()
 	{
-		HydrogenApp::pHydrogen()
+		HydrogenApp::pEngine()
 			->getCoreActionController()
 			->removeAutomationPoint( m_fX );
 
@@ -1322,7 +1317,7 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		HydrogenApp::pHydrogen()
+		HydrogenApp::pEngine()
 			->getCoreActionController()
 			->addAutomationPoint( m_fX, m_fY );
 
@@ -1331,7 +1326,6 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 	}
 
    private:
-	std::shared_ptr<H2Core::AutomationPath> m_pPath;
 	float m_fX;
 	float m_fY;
 };
@@ -1340,7 +1334,6 @@ class SE_automationPathRemovePointAction : public QUndoCommand {
 class SE_automationPathMovePointAction : public QUndoCommand {
    public:
 	SE_automationPathMovePointAction(
-		std::shared_ptr<H2Core::AutomationPath> path,
 		float fOldX,
 		float fOldY,
 		float fNewX,
@@ -1348,7 +1341,6 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 	)
 	{
 		setText( QObject::tr( "Move point" ) );
-		m_pPath = path;
 		m_fOldX = fOldX;
 		m_fOldY = fOldY;
 		m_fNewX = fNewX;
@@ -1357,12 +1349,9 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		HydrogenApp::pHydrogen()
+		HydrogenApp::pEngine()
 			->getCoreActionController()
-			->removeAutomationPoint( m_fOldX );
-		HydrogenApp::pHydrogen()
-			->getCoreActionController()
-			->addAutomationPoint( m_fNewX, m_fNewY );
+			->moveAutomationPoint( m_fOldX, m_fOldY, m_fNewX, m_fNewY );
 
 		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
@@ -1370,19 +1359,15 @@ class SE_automationPathMovePointAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		HydrogenApp::pHydrogen()
+		HydrogenApp::pEngine()
 			->getCoreActionController()
-			->removeAutomationPoint( m_fNewX );
-		HydrogenApp::pHydrogen()
-			->getCoreActionController()
-			->addAutomationPoint( m_fOldX, m_fOldY );
+			->moveAutomationPoint( m_fNewX, m_fNewY, m_fOldX, m_fOldY );
 
 		auto h2app = HydrogenApp::get_instance();
 		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
    private:
-	std::shared_ptr<H2Core::AutomationPath> m_pPath;
 	float m_fOldX;
 	float m_fOldY;
 	float m_fNewX;

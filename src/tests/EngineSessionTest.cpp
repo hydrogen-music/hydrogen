@@ -24,6 +24,7 @@
 #include "TestHelper.h"
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/AutomationPath.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -883,6 +884,155 @@ void EngineSessionTest::testSetMidiClockOutputSendCrossesSplit() {
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return ! pEngine->getPreferences()->getMidiClockOutputSend(); } ) );
 	CPPUNIT_ASSERT( ! pMirror->getPreferences()->getMidiClockOutputSend() );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2aa — the automation path view used to mutate the
+// mirror's path directly and only crossed at mouse-release via the
+// undo actions. The add/remove commands were untested so far and
+// carried no validation: adding onto an occupied x silently
+// overwrote the sitting point, removing an absent point was a silent
+// no-op returning success.
+void EngineSessionTest::testAddRemoveAutomationPointCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	auto pController = pAccess->getCoreActionController();
+
+	CPPUNIT_ASSERT( pEngine->getSong()->getAutomationPath()->empty() );
+	CPPUNIT_ASSERT( pMirror->getSong()->getAutomationPath()->empty() );
+
+	// Add crosses: the engine's path fills under the bridge thread
+	// (pumped), the mirror's synchronously in the dual-apply.
+	CPPUNIT_ASSERT( pController->addAutomationPoint( 1.5f, 0.7f ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getSong()->getAutomationPath()->empty(); } ) );
+	CPPUNIT_ASSERT( ! pMirror->getSong()->getAutomationPath()->empty() );
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getAutomationPath()->getValue( 1.5f ) == 0.7f );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getAutomationPath()->getValue( 1.5f ) == 0.7f );
+
+	// Adding onto an occupied x would silently overwrite the sitting
+	// point — refused.
+	CPPUNIT_ASSERT( ! pController->addAutomationPoint( 1.5f, 0.1f ) );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getAutomationPath()->getValue( 1.5f ) == 0.7f );
+
+	// Remove crosses; removing an absent point is refused instead of
+	// being a silent no-op that still reports success.
+	CPPUNIT_ASSERT( pController->removeAutomationPoint( 1.5f ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getAutomationPath()->empty(); } ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getAutomationPath()->empty() );
+	CPPUNIT_ASSERT( ! pController->removeAutomationPoint( 1.5f ) );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2aa — point moves used to cross as a remove+add
+// pair (two commands, non-atomic) and the direct view mutations never
+// crossed at all. The new atomic move command has to carry its own
+// validation: a stale source, an absent source, or an occupied
+// destination must fail cleanly instead of corrupting the path.
+void EngineSessionTest::testMoveAutomationPointCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	auto pController = pAccess->getCoreActionController();
+
+	CPPUNIT_ASSERT( pController->addAutomationPoint( 1.0f, 0.3f ) );
+	CPPUNIT_ASSERT( pController->addAutomationPoint( 4.0f, 0.9f ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getAutomationPath()->getValue( 4.0f ) ==
+			0.9f; } ) );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getAutomationPath()->getValue( 4.0f ) == 0.9f );
+
+	// The move crosses as one atomic command: source gone, destination
+	// set — on both sides.
+	CPPUNIT_ASSERT(
+		pController->moveAutomationPoint( 1.0f, 0.3f, 2.0f, 0.6f ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		auto pPath = pEngine->getSong()->getAutomationPath();
+		return pPath->find( 2.0f ) != pPath->end() &&
+			pPath->find( 2.0f )->second == 0.6f; } ) );
+	{
+		auto pPath = pMirror->getSong()->getAutomationPath();
+		CPPUNIT_ASSERT( pPath->find( 1.0f ) == pPath->end() );
+		CPPUNIT_ASSERT( pPath->find( 2.0f ) != pPath->end() );
+		CPPUNIT_ASSERT( pPath->find( 2.0f )->second == 0.6f );
+		CPPUNIT_ASSERT( pPath->find( 4.0f ) != pPath->end() );
+	}
+
+	// Stale source coordinates (wrong y) — refused, nothing moves.
+	CPPUNIT_ASSERT(
+		! pController->moveAutomationPoint( 2.0f, 0.123f, 3.0f, 0.5f ) );
+	// Absent source — refused.
+	CPPUNIT_ASSERT(
+		! pController->moveAutomationPoint( 9.0f, 0.5f, 3.0f, 0.5f ) );
+	// Occupied destination — refused: AutomationPath::move() erases
+	// before inserting and std::map::insert does not overwrite, so the
+	// moved point would be silently dropped.
+	CPPUNIT_ASSERT(
+		! pController->moveAutomationPoint( 2.0f, 0.6f, 4.0f, 0.5f ) );
+	{
+		auto pPath = pMirror->getSong()->getAutomationPath();
+		CPPUNIT_ASSERT( pPath->find( 2.0f ) != pPath->end() );
+		CPPUNIT_ASSERT( pPath->find( 2.0f )->second == 0.6f );
+		CPPUNIT_ASSERT( pPath->find( 4.0f ) != pPath->end() );
+		CPPUNIT_ASSERT( pPath->find( 4.0f )->second == 0.9f );
+	}
+
+	// A y-only move (same x) is a plain erase+insert of the same key.
+	CPPUNIT_ASSERT(
+		pController->moveAutomationPoint( 2.0f, 0.6f, 2.0f, 0.8f ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		auto pPath = pEngine->getSong()->getAutomationPath();
+		return pPath->find( 2.0f ) != pPath->end() &&
+			pPath->find( 2.0f )->second == 0.8f; } ) );
+	CPPUNIT_ASSERT(
+		pMirror->getSong()->getAutomationPath()->find( 2.0f )->second ==
+		0.8f );
 
 	pEditor.reset();
 	pServer->stop();

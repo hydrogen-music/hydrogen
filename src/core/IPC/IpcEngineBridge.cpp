@@ -618,6 +618,17 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 					args[6].toInt() ) );
 		}
 		break;
+	// ADR 0030 batch 2aa — args: old and new point coordinates (x, y
+	// pairs) as floats. One atomic move instead of the remove+add
+	// pair; the editor already applied it on its mirror.
+	case IpcOpcode::MoveAutomationPoint:
+		if ( args.size() >= 4 ) {
+			return pController->moveAutomationPoint(
+				args[0].toFloat(), args[1].toFloat(),
+				args[2].toFloat(), args[3].toFloat(),
+				Event::Trigger::Suppress );
+		}
+		break;
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );

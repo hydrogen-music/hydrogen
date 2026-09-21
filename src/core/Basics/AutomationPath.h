@@ -73,6 +73,13 @@ class AutomationPath : public Object<AutomationPath> {
 	iterator find( float x );
 	iterator move( iterator& in, float x, float y );
 
+	/** Exact-coordinate lookup. Unlike find() this does not snap to
+	 * points within the 0.5 tolerance — command application carries
+	 * the precise coordinates previously read from the path and must
+	 * not grab a neighbouring point instead. */
+	iterator findExact( float x ) { return m_points.find( x ); }
+	const_iterator findExact( float x ) const { return m_points.find( x ); }
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line

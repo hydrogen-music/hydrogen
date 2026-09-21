@@ -138,10 +138,6 @@ class SongEditorPanel : public QWidget,
 		
 		void faderChanged( WidgetWithInput* pRef );
 
-		void automationPathPointAdded(float x, float y);
-		void automationPathPointRemoved(float x, float y);
-		void automationPathPointMoved(float ox, float oy, float tx, float ty);
-
 	private:
 		virtual void resizeEvent( QResizeEvent *ev ) override;
 		/** Closes the playback-track volume-drag undo context (ADR 0027 /

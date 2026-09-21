@@ -394,6 +394,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetMidiControlSettings:
 		sOpcode = "SET_MIDI_CONTROL_SETTINGS";
 		break;
+	case IpcOpcode::MoveAutomationPoint:
+		sOpcode = "MOVE_AUTOMATION_POINT";
+		break;
 	case IpcOpcode::PreviewInstrument:
 		sOpcode = "PREVIEW_INSTRUMENT";
 		break;

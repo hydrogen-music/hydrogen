@@ -854,6 +854,18 @@ bool IpcCoreActionController::setMidiControlSettings(
 		feedbackChannel, sendNoteOff );
 }
 
+bool IpcCoreActionController::moveAutomationPoint(
+	float fOldX, float fOldY, float fNewX, float fNewY,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::MoveAutomationPoint )
+							  .arg( fOldX ).arg( fOldY )
+							  .arg( fNewX ).arg( fNewY ) );
+	}
+	return CoreActionController::moveAutomationPoint(
+		fOldX, fOldY, fNewX, fNewY, trigger );
+}
+
 bool IpcCoreActionController::setSongProperties(
 	const int nNewVersion, const QString& sNewName,
 	const QString& sNewAuthor, const QString& sNewNotes,
