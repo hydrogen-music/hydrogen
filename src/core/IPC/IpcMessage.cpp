@@ -190,6 +190,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::RescanSoundLibrary:
 		sOpcode = "RESCAN_SOUND_LIBRARY";
 		break;
+	case IpcOpcode::UpdateSoundLibrary:
+		sOpcode = "UPDATE_SOUND_LIBRARY";
+		break;
 	case IpcOpcode::Play:
 		sOpcode = "PLAY";
 		break;

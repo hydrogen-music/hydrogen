@@ -190,6 +190,13 @@ class IpcEngineAccess : public IEngineAccess,
 	 * in editor mode, so the tap crosses with its absolute timestamp
 	 * (ADR 0026 point 12). */
 	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override;
+	/** Full sound-library rescan (ADR 0016): dual-apply — the mirror's
+	 * database rebuilds immediately (its SoundLibraryChanged push
+	 * refreshes the GUI), and the command crosses so the authoritative
+	 * engine's database rebuilds too. The engine-side update() pushes
+	 * SoundLibraryChanged unconditionally; its echo re-fans-out on the
+	 * editor as a harmless redundant refresh. */
+	void rescanSoundLibrary() override;
 	void sequencerPlay() override;
 	void sequencerStop() override;
 	/** Class C song state (ADR 0026 point 13): the drumkit-modified
@@ -227,6 +234,16 @@ class IpcEngineAccess : public IEngineAccess,
 		int nInstrument,
 		Event::Trigger trigger = Event::Trigger::Default ) override;
 	void setSongModified( bool bIsModified ) override;
+	/** Per-type sound-library rescan (ADR 0016): dual-apply — the mirror's
+	 * database re-scans @a type immediately with @a trigger, and the
+	 * command crosses so the authoritative engine's database re-scans it
+	 * too (under Suppress: the editor already pushed the event on its
+	 * mirror, so no SoundLibraryChanged echo crosses). The engine resolves
+	 * songs, patterns, and fallback kits through its own database, so a
+	 * rescan that stays mirror-local would leave it stale. */
+	void updateSoundLibrary(
+		SoundLibraryInfo::Type type,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	/** Beat-counter config is editor-owned (the BpmTap buttons and the
 	 * preferences dialog write the mirror's state; the engine's
 	 * preferences copy goes stale between syncs): crosses as a config

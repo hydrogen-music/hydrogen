@@ -47,6 +47,7 @@
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Shortcuts.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 #include <core/Timeline.h>
 #include <core/Version.h>
 
@@ -1393,9 +1394,8 @@ void MainForm::action_pattern_save( int nPatternRow )
 		pHydrogenApp->showStatusBarMessage(
 			pCommonStrings->getStatusPatternLoaded()
 		);
-		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
-			Event::Trigger::Default
-		);
+		HydrogenApp::pEngine()->updateSoundLibrary(
+			SoundLibraryInfo::Type::Pattern );
 	}
 }
 
@@ -1480,9 +1480,8 @@ void MainForm::action_pattern_save_as( int nPatternRow )
 		pPref->setLastExportPatternAsDirectory(
 			QFileInfo( pPattern->getPath() ).absoluteDir().absolutePath()
 		);
-		pHydrogen->getSoundLibraryDatabase()->updatePatterns(
-			Event::Trigger::Default
-		);
+		HydrogenApp::pEngine()->updateSoundLibrary(
+			SoundLibraryInfo::Type::Pattern );
 	}
 	else {
 		QMessageBox::warning(
@@ -1996,7 +1995,8 @@ void MainForm::loadDrumkit( const QString& sFileName, bool bLoad ) {
 	}
 
 	// update the drumkit list
-	pSoundLibraryDatabase->updateDrumkits( Event::Trigger::Default );
+	HydrogenApp::pEngine()->updateSoundLibrary(
+		SoundLibraryInfo::Type::Drumkit );
 
 	if ( bLoad ) {
 #ifdef H2CORE_HAVE_LIBARCHIVE
@@ -2100,9 +2100,8 @@ void MainForm::action_drumkit_save()
 				.arg( pCommonStrings->getStatusPatternLoaded() )
 				.arg( pDrumkit->getName() )
 		);
-		pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
-			Event::Trigger::Default
-		);
+		HydrogenApp::pEngine()->updateSoundLibrary(
+			SoundLibraryInfo::Type::Drumkit );
 	}
 }
 

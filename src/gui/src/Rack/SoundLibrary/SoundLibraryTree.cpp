@@ -531,8 +531,6 @@ void SoundLibraryTree::actionProperties()
 		return;
 	}
 
-	auto pDB = pHydrogen->getSoundLibraryDatabase();
-
 	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
 		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
 			it->second->getPath()
@@ -569,7 +567,8 @@ void SoundLibraryTree::actionProperties()
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			pPattern->save( pPattern->getPath() );
-			pDB->updatePatterns( Event::Trigger::Default );
+			HydrogenApp::pEngine()->updateSoundLibrary(
+				SoundLibraryInfo::Type::Pattern );
 		}
 	}
 	else {
@@ -586,7 +585,8 @@ void SoundLibraryTree::actionProperties()
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			pSong->save( dialog.getChosenPath(), true, true );
-			pDB->updateSongs( Event::Trigger::Default );
+			HydrogenApp::pEngine()->updateSoundLibrary(
+				SoundLibraryInfo::Type::Song );
 		}
 	}
 }
@@ -598,8 +598,6 @@ void SoundLibraryTree::actionDuplicate()
 	if ( it == m_registry.end() || it->second == nullptr ) {
 		return;
 	}
-
-	auto pDB = pHydrogen->getSoundLibraryDatabase();
 
 	if ( m_type == SoundLibraryInfo::Type::Drumkit ) {
 		auto pDrumkit = pHydrogen->getSoundLibraryDatabase()->getDrumkit(
@@ -652,7 +650,8 @@ void SoundLibraryTree::actionDuplicate()
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			if ( pPattern->save( pPattern->getPath() ) ) {
-				pDB->updatePatterns( Event::Trigger::Default );
+				HydrogenApp::pEngine()->updateSoundLibrary(
+					SoundLibraryInfo::Type::Pattern );
 			}
 			else {
 				QMessageBox::warning(
@@ -679,7 +678,8 @@ void SoundLibraryTree::actionDuplicate()
 		);
 		if ( dialog.exec() == QDialog::Accepted ) {
 			pSong->save( dialog.getChosenPath(), true, true );
-			pDB->updateSongs( Event::Trigger::Default );
+			HydrogenApp::pEngine()->updateSoundLibrary(
+				SoundLibraryInfo::Type::Song );
 		}
 	}
 }
@@ -827,19 +827,16 @@ void SoundLibraryTree::actionDelete()
 
 	switch ( m_type ) {
 		case SoundLibraryInfo::Type::Drumkit:
-			HydrogenApp::pEngine()->getSoundLibraryDatabase()->updateDrumkits(
-				Event::Trigger::Default
-			);
+			HydrogenApp::pEngine()->updateSoundLibrary(
+				SoundLibraryInfo::Type::Drumkit );
 			break;
 		case SoundLibraryInfo::Type::Pattern:
-			HydrogenApp::pEngine()->getSoundLibraryDatabase()->updatePatterns(
-				Event::Trigger::Default
-			);
+			HydrogenApp::pEngine()->updateSoundLibrary(
+				SoundLibraryInfo::Type::Pattern );
 			break;
 		default:
-			HydrogenApp::pEngine()->getSoundLibraryDatabase()->updateSongs(
-				Event::Trigger::Default
-			);
+			HydrogenApp::pEngine()->updateSoundLibrary(
+				SoundLibraryInfo::Type::Song );
 	}
 
 	QApplication::restoreOverrideCursor();

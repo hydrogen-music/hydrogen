@@ -36,6 +36,8 @@
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PulseAudioDriver.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core {
 
@@ -114,6 +116,37 @@ LocalEngineAccess::getHandledMidiOutputs() const {
 		return pDriver->getHandledOutputs();
 	}
 	return std::vector<std::shared_ptr<MidiOutput::HandledOutput>>();
+}
+
+void LocalEngineAccess::rescanSoundLibrary() {
+	const auto pDatabase = m_pHydrogen->getSoundLibraryDatabase();
+	if ( pDatabase != nullptr ) {
+		pDatabase->update();
+	}
+}
+
+void LocalEngineAccess::updateSoundLibrary( SoundLibraryInfo::Type type,
+											Event::Trigger trigger ) {
+	const auto pDatabase = m_pHydrogen->getSoundLibraryDatabase();
+	if ( pDatabase == nullptr ) {
+		return;
+	}
+	switch ( type ) {
+	case SoundLibraryInfo::Type::Drumkit:
+		pDatabase->updateDrumkits( trigger );
+		break;
+	case SoundLibraryInfo::Type::Pattern:
+		pDatabase->updatePatterns( trigger );
+		break;
+	case SoundLibraryInfo::Type::Song:
+		pDatabase->updateSongs( trigger );
+		break;
+	case SoundLibraryInfo::Type::Instrument:
+		// The database tracks no instrument list — nothing to re-scan.
+		// ___ERRORLOG: this class is no Object<> subclass (static log form).
+		___ERRORLOG( "There is no instrument list in the sound library database" );
+		break;
+	}
 }
 
 }

@@ -1376,6 +1376,47 @@ paths (no playlist file to resolve against over IPC).
   file written, both paths unchanged. Three consecutive full-suite runs
   green.
 
+**Sound-library rescans across the split (batch 2u) — DONE, suite
+`OK (434 tests)`.**
+* User report: `MainForm::loadDrumkit()` and the other GUI library mutations
+  rescan only the mirror-local `SoundLibraryDatabase` — but the authoritative
+  engine owns one too (built unconditionally in its `Hydrogen` ctor) and
+  resolves songs (`PatternList::loadFrom`), bridge pattern deserialization,
+  `GetSoundLibraryInfo`, and the `getEmptySong()` GMRockKit fallback through
+  it. A GUI-side rescan that stays mirror-local leaves the engine stale.
+* New `IEngineAccess::updateSoundLibrary(SoundLibraryInfo::Type, trigger)` +
+  `rescanSoundLibrary()`: one general per-type rescan (Drumkit / Pattern /
+  Song) plus the full rescan, replacing the per-type db calls at all
+  editor-side call sites. `LocalEngineAccess` forwards to the wrapped
+  engine's db (standalone behavior unchanged); `IpcEngineAccess` dual-applies
+  — mirror db sub-scan with the caller's trigger (its `SoundLibraryChanged`
+  push refreshes the GUI) + new `UpdateSoundLibrary` opcode `[int type]`;
+  the bridge applies the engine-side sub-scan under `Suppress` (the editor
+  already pushed the event on its mirror — no echo). `rescanSoundLibrary()`
+  reuses the existing (previously sender-less) `RescanSoundLibrary` opcode;
+  the engine-side `update()` pushes unconditionally, its echo re-fans-out on
+  the editor as a harmless redundant refresh. `Type::Instrument` is a
+  programming error (the db tracks no instrument list): ERRORLOG + no-op,
+  no send; values outside the enum fall through to the bridge's generic
+  failure.
+* GUI reroute: `OnlineImportDialog` (3 per-type calls),
+  `SoundLibraryTree` (properties / duplicate / delete flows, 7),
+  `DrumkitPropertiesDialog` (1), `MainForm` (pattern saves ×2, loadDrumkit,
+  drumkit save), `SoundLibraryPanel::onRescanClicked` (full rescan) — all
+  routed through the engine access; the now-dead `pDB` locals removed.
+* Tested: new `EngineSessionTest::testSoundLibraryRescanCrossesSplit`
+  (RED first: the methods did not exist). Fixture artifacts (flat baseKit
+  copy, pattern, song) land in the user-level library dirs *after* both
+  databases were built, under unique names; per type the rescan must make
+  the engine's db know the artifact (pumped — bridge thread) and the
+  mirror's synchronously (dual-apply); the full rescan must drop a removed
+  pattern from both. Probe gotchas: `SoundLibraryDatabase::getDrumkit()`
+  loads a missing kit from file and inserts it (session-drumkit fallback),
+  so the drumkit probe asserts map membership via `getDrumkitDatabase()`;
+  and the user-level dirs come back with a trailing separator, so probe
+  keys go through `QDir::cleanPath` (a stray `//` never matches a scan
+  key). Three consecutive full-suite runs green.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

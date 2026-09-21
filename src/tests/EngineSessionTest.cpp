@@ -39,13 +39,18 @@
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <memory>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QFile>
 #include <QtCore/QThread>
 
 using namespace H2Core;
@@ -275,6 +280,123 @@ void EngineSessionTest::testEngineSurvivesEditorReconnect() {
 	pEditor2.reset();
 	pServer->stop();
 	delete pMirror2;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Sound library rescans must cross the split (batch 2u): GUI-side library
+// mutations (import, delete, save-to-library) rescan the editor's mirror
+// database — but the authoritative engine owns one too and resolves
+// songs/patterns through it, so the rescan has to reach it as well.
+void EngineSessionTest::testSoundLibraryRescanCrossesSplit() {
+	___INFOLOG( "" );
+
+	// One artifact of each type lands in the user-level library dirs —
+	// behind the back of both databases (they were built at construction
+	// time). Unique names keep the run immune to leftovers of earlier runs.
+	const QString sTestDataDir = TestHelper::get_instance()->getTestDataDir();
+	// The user-level library dirs come back with a trailing separator;
+	// cleanPath keeps the probe keys identical to the ones the database
+	// scans register (a stray "//" would never match a map key).
+	const QString sKitDir = QDir::cleanPath(
+		Filesystem::userDrumkitsDir() + "/" +
+		QString( "2u-crossing-kit-%1" ).arg(
+			QCoreApplication::applicationPid() ) );
+	const QString sPatternPath = QDir::cleanPath(
+		Filesystem::userPatternsDir() + "/2u-crossing-pattern.h2pattern" );
+	const QString sSongPath = QDir::cleanPath(
+		Filesystem::userSongsDir() + "/2u-crossing-song.h2song" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// Now the artifacts land — behind the back of both databases, which
+	// were built at construction time above.
+	CPPUNIT_ASSERT( QDir().mkpath( sKitDir ) );
+	for ( const auto& sFile : QDir( sTestDataDir + "/drumkits/baseKit" )
+			  .entryList( QDir::Files ) ) {
+		CPPUNIT_ASSERT( QFile::copy( sTestDataDir + "/drumkits/baseKit/" +
+									 sFile, sKitDir + "/" + sFile ) );
+	}
+	CPPUNIT_ASSERT( QFile::copy( sTestDataDir + "/pattern/pattern.h2pattern",
+								 sPatternPath ) );
+	CPPUNIT_ASSERT( QFile::copy( sTestDataDir + "/song/AE_songSizeChanged.h2song",
+								 sSongPath ) );
+
+	// NB: map membership, not getDrumkit() — that one loads a missing kit
+	// from file and inserts it (session-drumkit fallback), so it can never
+	// report "unknown" for an on-disk kit and would mutate the db under
+	// the probe.
+	const auto fDrumkitKnown = [&]( H2Core::Hydrogen* pH ) {
+		return pH->getSoundLibraryDatabase()->getDrumkitDatabase().count(
+			Filesystem::drumkitPathFromDir( sKitDir ) ) > 0; };
+	const auto fPatternKnown = [&]( H2Core::Hydrogen* pH ) {
+		const auto& infos = pH->getSoundLibraryDatabase()->getPatternInfos();
+		return std::any_of( infos.begin(), infos.end(),
+			[&]( const std::shared_ptr<SoundLibraryInfo>& pInfo ) {
+				return pInfo->getPath() == sPatternPath; } ); };
+	const auto fSongKnown = [&]( H2Core::Hydrogen* pH ) {
+		const auto& infos = pH->getSoundLibraryDatabase()->getSongInfos();
+		return std::any_of( infos.begin(), infos.end(),
+			[&]( const std::shared_ptr<SoundLibraryInfo>& pInfo ) {
+				return pInfo->getPath() == sSongPath; } ); };
+
+	// Neither database has rescanned since the artifacts landed.
+	CPPUNIT_ASSERT( ! fDrumkitKnown( pEngine ) );
+	CPPUNIT_ASSERT( ! fPatternKnown( pEngine ) );
+	CPPUNIT_ASSERT( ! fSongKnown( pEngine ) );
+	CPPUNIT_ASSERT( ! fDrumkitKnown( pMirror ) );
+	CPPUNIT_ASSERT( ! fPatternKnown( pMirror ) );
+	CPPUNIT_ASSERT( ! fSongKnown( pMirror ) );
+
+	// The per-type rescan crosses: the engine applies it via the bridge
+	// thread (pumped), the mirror synchronously in the dual-apply.
+	pAccess->updateSoundLibrary( SoundLibraryInfo::Type::Drumkit );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return fDrumkitKnown( pEngine ); } ) );
+	CPPUNIT_ASSERT( fDrumkitKnown( pMirror ) );
+
+	pAccess->updateSoundLibrary( SoundLibraryInfo::Type::Pattern );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return fPatternKnown( pEngine ); } ) );
+	CPPUNIT_ASSERT( fPatternKnown( pMirror ) );
+
+	pAccess->updateSoundLibrary( SoundLibraryInfo::Type::Song );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return fSongKnown( pEngine ); } ) );
+	CPPUNIT_ASSERT( fSongKnown( pMirror ) );
+
+	// The full rescan crosses too — and drops artifacts that went away in
+	// the meantime (the pattern file is removed first).
+	Filesystem::rm( sPatternPath );
+	pAccess->rescanSoundLibrary();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! fPatternKnown( pEngine ); } ) );
+	CPPUNIT_ASSERT( ! fPatternKnown( pMirror ) );
+	// The other two survived the full rescan.
+	CPPUNIT_ASSERT( fDrumkitKnown( pEngine ) );
+	CPPUNIT_ASSERT( fSongKnown( pEngine ) );
+
+	// Cleanup.
+	Filesystem::rm( sKitDir, true );
+	Filesystem::rm( sSongPath );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
 	delete pEngine;
 
 	___INFOLOG( "passed" );

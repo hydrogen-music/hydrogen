@@ -35,6 +35,7 @@
 #include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/MidiDriverInfo.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core {
 
@@ -159,6 +160,13 @@ public:
 	virtual bool handleBeatCounter( TimePoint start = TimePoint() ) = 0;
 	virtual void loadPlaybackTrack( const QString& sFileName ) = 0;
 	virtual void onTapTempoAccelEvent( TimePoint start = TimePoint() ) = 0;
+	/** Full sound-library rescan (ADR 0016): the shared library filesystem
+	 * changed (or the user asked for a refresh) — every sound-library
+	 * database in the process graph rebuilds. In the editor split the
+	 * authoritative engine owns a database of its own (it resolves songs,
+	 * patterns, and fallback kits through it), so the rescan has to cross
+	 * the IPC boundary instead of staying mirror-local. */
+	virtual void rescanSoundLibrary() = 0;
 	virtual void sequencerPlay() = 0;
 	virtual void sequencerStop() = 0;
 	virtual void setDrumkitModified( bool bIsModified ) = 0;
@@ -170,6 +178,13 @@ public:
 	virtual void setSelectedInstrumentNumber(
 		int nInstrument, Event::Trigger trigger = Event::Trigger::Default ) = 0;
 	virtual void setSongModified( bool bIsModified ) = 0;
+	/** Per-type sound-library rescan (ADR 0016): a library artifact of
+	 * @a type was written, installed, or removed on the shared filesystem —
+	 * every sound-library database in the process graph re-scans that
+	 * type. */
+	virtual void updateSoundLibrary(
+		SoundLibraryInfo::Type type,
+		Event::Trigger trigger = Event::Trigger::Default ) = 0;
 	virtual void updateBeatCounterSettings() = 0;
 };
 

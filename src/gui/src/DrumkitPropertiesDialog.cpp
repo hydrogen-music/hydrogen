@@ -44,6 +44,7 @@
 #include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -1343,9 +1344,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		Filesystem::rm( sOldImagePath, false, false );
 	}
 
-	pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
-		Event::Trigger::Default
-	);
+	HydrogenApp::pEngine()->updateSoundLibrary(
+		SoundLibraryInfo::Type::Drumkit );
 
 	QApplication::restoreOverrideCursor();
 

@@ -43,7 +43,7 @@ constexpr int IPC_DATASTREAM_VERSION = QDataStream::Qt_5_15;
 
 /**
  * Message opcodes (ADR 0018): the `hello` handshake, forwarded engine events,
- * the sound-library rescan command (ADR 0016), and the CoreActionController
+ * the sound-library rescan commands (ADR 0016), and the CoreActionController
  * command vocabulary (editor → engine). Each CoreActionController method maps to
  * one opcode; scalar arguments ride in IpcMessage::m_args, large structured
  * payloads (Song/Drumkit/state XML) in IpcMessage::m_payload.
@@ -54,6 +54,7 @@ enum class IpcOpcode : quint16 {
 	MidiNoteRecorded,       ///< engine → editor: recorded MIDI note
 	Reply,                  ///< response to a request, correlated by requestId (ADR 0030)
 	RescanSoundLibrary,     ///< editor → engine (ADR 0016)
+	UpdateSoundLibrary,     ///< editor → engine: args [int SoundLibraryInfo::Type] (ADR 0016)
 
 	// ── CoreActionController commands (editor → engine) ──
 	Play,

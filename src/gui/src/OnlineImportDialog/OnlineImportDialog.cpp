@@ -30,6 +30,7 @@
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include <QComboBox>
 #include <QFrame>
@@ -329,24 +330,27 @@ OnlineImportDialog::OnlineImportDialog(
 	connect( m_pImporter, &OnlineImporter::batchFinished, [&]() {
 		setDownloadingState( false );
 
-		auto pDB = HydrogenApp::pEngine()->getSoundLibraryDatabase();
-
-		// Re-resolve statuses to reflect newly installed items
+		// Re-resolve statuses to reflect newly installed items. Routed
+		// through the engine access so the rescan crosses to the
+		// authoritative engine's database too (ADR 0016).
 		switch ( m_pTypeCombo->currentIndex() ) {
 			case 0:
-				pDB->updatePatterns( Event::Trigger::Default );
+				HydrogenApp::pEngine()->updateSoundLibrary(
+					SoundLibraryInfo::Type::Pattern );
 				for ( auto& a : m_allPatterns ) {
 					m_pImporter->resolveLocalStatus( a );
 				}
 				break;
 			case 1:
-				pDB->updateSongs( Event::Trigger::Default );
+				HydrogenApp::pEngine()->updateSoundLibrary(
+					SoundLibraryInfo::Type::Song );
 				for ( auto& a : m_allSongs ) {
 					m_pImporter->resolveLocalStatus( a );
 				}
 				break;
 			case 2:
-				pDB->updateDrumkits( Event::Trigger::Default );
+				HydrogenApp::pEngine()->updateSoundLibrary(
+					SoundLibraryInfo::Type::Drumkit );
 				for ( auto& a : m_allDrumkits ) {
 					m_pImporter->resolveLocalStatus( a );
 				}

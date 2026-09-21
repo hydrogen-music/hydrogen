@@ -118,6 +118,11 @@ public:
 		m_pHydrogen->loadPlaybackTrack( sFileName ); }
 	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override {
 		m_pHydrogen->onTapTempoAccelEvent( start ); }
+	// Sound-library rescans are defined out-of-line in LocalEngineAccess.cpp
+	// (like the driver views above): they drive the wrapped engine's
+	// SoundLibraryDatabase, whose header stays out of this widely-included
+	// file.
+	void rescanSoundLibrary() override;
 	void sequencerPlay() override {
 		m_pHydrogen->sequencerPlay(); }
 	void sequencerStop() override {
@@ -140,6 +145,9 @@ public:
 		m_pHydrogen->setSelectedInstrumentNumber( nInstrument, trigger ); }
 	void setSongModified( bool bIsModified ) override {
 		m_pHydrogen->setSongModified( bIsModified ); }
+	void updateSoundLibrary(
+		SoundLibraryInfo::Type type,
+		Event::Trigger trigger = Event::Trigger::Default ) override;
 	void updateBeatCounterSettings() override {
 		m_pHydrogen->updateBeatCounterSettings(); }
 

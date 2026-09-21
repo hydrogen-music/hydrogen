@@ -27,6 +27,8 @@
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core {
 
@@ -233,6 +235,55 @@ void IpcEngineAccess::loadPlaybackTrack( const QString& sFileName ) {
 			.arg( sFileName ) );
 	}
 	m_pMirror->loadPlaybackTrack( sFileName );
+}
+
+void IpcEngineAccess::rescanSoundLibrary() {
+	// Full library rescan (ADR 0016): dual-apply — the mirror's database
+	// rebuilds immediately (its SoundLibraryChanged push refreshes the
+	// GUI), and the command crosses so the authoritative engine's
+	// database rebuilds too. Unlike the per-type rescan the engine-side
+	// update() pushes SoundLibraryChanged unconditionally; its echo
+	// re-fans-out on the editor as a harmless redundant refresh.
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RescanSoundLibrary ) );
+	}
+	const auto pDatabase = m_pMirror->getSoundLibraryDatabase();
+	if ( pDatabase != nullptr ) {
+		pDatabase->update();
+	}
+}
+
+void IpcEngineAccess::updateSoundLibrary( SoundLibraryInfo::Type type,
+										  Event::Trigger trigger ) {
+	// Per-type library rescan (ADR 0016): dual-apply — the mirror's
+	// database re-scans the type immediately (its push refreshes the
+	// GUI), and the command crosses so the authoritative engine's
+	// database re-scans it too. The engine-side apply runs under
+	// Suppress: the editor initiated the rescan and already pushed the
+	// event on its mirror, so no SoundLibraryChanged echo crosses.
+	if ( m_pChannel != nullptr && type != SoundLibraryInfo::Type::Instrument ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::UpdateSoundLibrary )
+			.arg( static_cast<int>( type ) ) );
+	}
+	const auto pDatabase = m_pMirror->getSoundLibraryDatabase();
+	if ( pDatabase == nullptr ) {
+		return;
+	}
+	switch ( type ) {
+	case SoundLibraryInfo::Type::Drumkit:
+		pDatabase->updateDrumkits( trigger );
+		break;
+	case SoundLibraryInfo::Type::Pattern:
+		pDatabase->updatePatterns( trigger );
+		break;
+	case SoundLibraryInfo::Type::Song:
+		pDatabase->updateSongs( trigger );
+		break;
+	case SoundLibraryInfo::Type::Instrument:
+		// The database tracks no instrument list — nothing to re-scan.
+		ERRORLOG( "There is no instrument list in the sound library database" );
+		break;
+	}
 }
 
 QStringList IpcEngineAccess::getAudioDevices(

@@ -287,7 +287,7 @@ void SoundLibraryPanel::onSearchTextChanged( const QString& sText )
 
 void SoundLibraryPanel::onRescanClicked()
 {
-	HydrogenApp::pEngine()->getSoundLibraryDatabase()->update();
+	HydrogenApp::pEngine()->rescanSoundLibrary();
 }
 
 void SoundLibraryPanel::switchDrumkit(

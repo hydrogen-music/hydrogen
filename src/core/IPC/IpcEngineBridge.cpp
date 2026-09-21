@@ -43,6 +43,7 @@
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core {
 
@@ -318,6 +319,33 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 		if ( pHydrogen->getSoundLibraryDatabase() != nullptr ) {
 			pHydrogen->getSoundLibraryDatabase()->update();
 			return true;
+		}
+		break;
+	// args: SoundLibraryInfo::Type as int
+	case IpcOpcode::UpdateSoundLibrary:
+		if ( args.size() >= 1 ) {
+			const auto pDatabase = pHydrogen->getSoundLibraryDatabase();
+			if ( pDatabase != nullptr ) {
+				// The editor already pushed SoundLibraryChanged on its
+				// mirror — the engine-side re-scan stays silent (no echo).
+				// Values outside the enum fall through to the generic
+				// failure below.
+				switch ( static_cast<SoundLibraryInfo::Type>(
+							 args[0].toInt() ) ) {
+				case SoundLibraryInfo::Type::Drumkit:
+					pDatabase->updateDrumkits( Event::Trigger::Suppress );
+					return true;
+				case SoundLibraryInfo::Type::Pattern:
+					pDatabase->updatePatterns( Event::Trigger::Suppress );
+					return true;
+				case SoundLibraryInfo::Type::Song:
+					pDatabase->updateSongs( Event::Trigger::Suppress );
+					return true;
+				case SoundLibraryInfo::Type::Instrument:
+					ERRORLOG( "There is no instrument list in the sound library database" );
+					return false;
+				}
+			}
 		}
 		break;
 	case IpcOpcode::SetInstrumentPitch:
