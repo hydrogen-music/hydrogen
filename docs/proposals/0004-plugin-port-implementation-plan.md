@@ -1759,13 +1759,51 @@ FIXED, suite `OK (444 tests)` ×7 consecutive.**
   full-suite runs post-fix (~140 s each), on top of a 6-run pre-fix
   baseline that was 6/6 green, with the crash sitting at roughly
   1-in-10 across the batch's runs.
-* Still open (part 2, not chased): the two pump-timeout flakes
+* Open at the time (resolved by part 2 below): the two pump-timeout flakes
   (`testSoundLibraryRescanCrossesSplit` — the bridge runs the
   sound-library rescan directly on its thread, filesystem-heavy work
   under the 4000 ms `pumpUntil` budget — and
   `testCommandDispatchedToEngine`). Neither recurred in either soak
   (0/12 runs); both look like load-dependent budget misses rather than
   races.
+
+**Flakiness pass, part 2: the two pump-timeout flakes (post-2aa) —
+FIXED, suite `OK (444 tests)` ×7 consecutive.**
+* Trigger: the two one-off failures from the 2y-era stability runs —
+  `testSoundLibraryRescanCrossesSplit` at the "survived the full
+  rescan" assert and `testCommandDispatchedToEngine` at the Keep-policy
+  path assert (one each across ~7 runs, never since). Part 1's
+  load-dependent-budget-miss guess was wrong on both counts: neither
+  failure was a `pumpUntil` timeout — each was a direct assert racing
+  an in-flight bridge-thread operation.
+* Root cause 1 (rescan): `SoundLibraryDatabase::update()` rebuilds the
+  pattern, song, and drumkit databases in sequence, **clearing each one
+  before rescanning it**. The test's pump waited on a negative
+  predicate — pattern gone — which the *first* clear already satisfies;
+  the pump returned while the song and drumkit databases were still
+  mid-rebuild, and the follow-up "survived" asserts sampled a cleared
+  drumkit map.
+* Root cause 2 (Keep save): `Filesystem::tmpFilePath()` reserves its
+  unique name by **leaving an empty file behind**
+  (`setAutoRemove(false)`). The test pumped on mere file existence of
+  the Keep export — true before the bridge thread had even started the
+  save — so the pump synchronized nothing, and the path assert raced
+  the entire engine-side save, throughout which
+  `CoreActionController::saveSongAs()` points the song at the export
+  target (path assigned first, `QSaveFile` commit, backing path
+  restored only afterwards). The same reservation file made the Adopt
+  save's file-existence companion assert vacuous.
+* Fix (test-side only, `EngineSessionTest.cpp` — in the product the
+  engine's database rebuild and the save-path window are confined to
+  the bridge thread, with no cross-thread reader): the full-rescan pump
+  waits for the settled post-state of all three databases; the
+  reservation files are removed up front so file existence observes the
+  actual `QSaveFile` commit; and both save pumps wait for their settled
+  states (file landed + path adopted, respectively backing path
+  restored).
+* No deterministic RED test is feasible — the failures are scheduling
+  races by nature — so verification is the strengthened predicates plus
+  the soak: 7 consecutive green full-suite runs (~140 s each).
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

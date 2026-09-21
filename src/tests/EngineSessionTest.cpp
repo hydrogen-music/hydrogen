@@ -173,16 +173,25 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 	// mirror (the file write itself stays engine-only), and the Keep
 	// policy writes a copy while both sides keep their backing path
 	// (NSM export-from-session).
+	// tmpFilePath() reserves the name by leaving an empty file behind;
+	// removing it lets file existence below observe the save's actual
+	// QSaveFile commit instead of the reservation.
 	const QString sTmpAdopt = Filesystem::tmpFilePath(
 		"2t-save-song-as-adopt.h2song" );
+	Filesystem::rm( sTmpAdopt );
 	const QString sTmpKeep = Filesystem::tmpFilePath(
 		"2t-save-song-as-keep.h2song" );
+	Filesystem::rm( sTmpKeep );
 
 	pAccess->getCoreActionController()->saveSongAs(
 		sTmpAdopt, true, CoreActionController::PathPolicy::Adopt );
+	// The engine assigns the new path before writing the file
+	// (CoreActionController::saveSongAs), so the path flip alone is an
+	// intermediate state — the file landing is the settled one.
 	const bool bAdopted = TestHelper::pumpUntil( [&]() {
 		return pEngine->getSong() != nullptr &&
-			pEngine->getSong()->getPath() == sTmpAdopt;
+			pEngine->getSong()->getPath() == sTmpAdopt &&
+			Filesystem::fileExists( sTmpAdopt, true );
 	} );
 	CPPUNIT_ASSERT( bAdopted );
 	// The mirror adopts synchronously in the dual-apply — no full-song
@@ -193,8 +202,12 @@ void EngineSessionTest::testCommandDispatchedToEngine() {
 	const QString sPathBeforeKeep = pEngine->getSong()->getPath();
 	pAccess->getCoreActionController()->saveSongAs(
 		sTmpKeep, true, CoreActionController::PathPolicy::Keep );
+	// Keep points the song at the export target for the whole engine-side
+	// save and restores the backing path only afterwards — the settled
+	// state is the file landed AND the backing path back in place.
 	const bool bKept = TestHelper::pumpUntil( [&]() {
-		return Filesystem::fileExists( sTmpKeep, true );
+		return Filesystem::fileExists( sTmpKeep, true ) &&
+			pEngine->getSong()->getPath() == sPathBeforeKeep;
 	} );
 	CPPUNIT_ASSERT( bKept );
 	CPPUNIT_ASSERT( pEngine->getSong()->getPath() == sPathBeforeKeep );
@@ -391,8 +404,15 @@ void EngineSessionTest::testSoundLibraryRescanCrossesSplit() {
 	// the meantime (the pattern file is removed first).
 	Filesystem::rm( sPatternPath );
 	pAccess->rescanSoundLibrary();
+	// SoundLibraryDatabase::update() rebuilds all three databases in
+	// sequence, clearing each one before rescanning it. A negative
+	// predicate on the pattern list is satisfied by the very first
+	// clear — long before the drumkit and song databases are
+	// repopulated — so the pump has to wait for the settled post-state
+	// of the whole rescan, not just the pattern's disappearance.
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
-		return ! fPatternKnown( pEngine ); } ) );
+		return ! fPatternKnown( pEngine ) && fDrumkitKnown( pEngine ) &&
+			fSongKnown( pEngine ); } ) );
 	CPPUNIT_ASSERT( ! fPatternKnown( pMirror ) );
 	// The other two survived the full rescan.
 	CPPUNIT_ASSERT( fDrumkitKnown( pEngine ) );
