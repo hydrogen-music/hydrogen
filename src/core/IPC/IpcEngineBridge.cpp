@@ -537,6 +537,10 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			return pController->setPlaybackTrackVolume( args[0].toFloat(), Event::Trigger::Suppress );
 		}
 		break;
+	// ADR 0030 batch 2v — no args; the editor already applied the reset on
+	// its mirror, the engine-side apply stays silent (no echo).
+	case IpcOpcode::SetDefaultMidiOutNotes:
+		return pController->setDefaultMidiOutNotes( Event::Trigger::Suppress );
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );

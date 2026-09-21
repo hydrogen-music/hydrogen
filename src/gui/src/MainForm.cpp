@@ -2487,8 +2487,7 @@ void MainForm::onFixMidiSetup()
 	auto pEngine = HydrogenApp::pEngine();
 	auto pSong = pEngine->getSong();
 	if ( pSong != nullptr ) {
-		pSong->getDrumkit()->getInstruments()->setDefaultMidiOutNotes();
-		pEngine->setDrumkitModified( true );
+		pEngine->getCoreActionController()->setDefaultMidiOutNotes();
 
 		m_pMidiSetupInfoBar->hide();
 	}

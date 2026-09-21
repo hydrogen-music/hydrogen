@@ -1417,6 +1417,39 @@ paths (no playlist file to resolve against over IPC).
   keys go through `QDir::cleanPath` (a stray `//` never matches a scan
   key). Three consecutive full-suite runs green.
 
+**MIDI setup fix across the split (batch 2v) — DONE, suite
+`OK (435 tests)`.**
+* User report: `MainForm::onFixMidiSetup()` reset the MIDI out notes of
+  the current drumkit's instruments directly on the GUI's song copy and
+  flipped the modified flag via the engine access — the first half never
+  reached the engine's drumkit.
+* New `CoreActionController::setDefaultMidiOutNotes(trigger)`: validates
+  every instrument slot up front (a bulk reset must not land half-applied
+  on a null slot), then resets each note to its list-slot default —
+  `InstrumentList::defaultMidiOutNote(ii)` is the new single definition of
+  the default formula (slot index + MIDI note offset, clamped), reused by
+  `InstrumentList::setDefaultMidiOutNotes()`. Per changed instrument it
+  pushes `InstrumentParametersChanged` (same event the scalar instrument
+  setters use) and flips the drumkit modified flag through
+  `setDrumkitModified(true, trigger)`; idempotent — an all-default kit
+  changes nothing. `IpcCoreActionController` dual-applies: arg-less
+  `SetDefaultMidiOutNotes` opcode + base call on the mirror; the bridge
+  applies on the engine under `Suppress` (no SongIsModified echo).
+* GUI reroute: `onFixMidiSetup()` calls
+  `getCoreActionController()->setDefaultMidiOutNotes()` — the explicit
+  `setDrumkitModified()` call is bundled in the command now; the infobar
+  hide stays local. `tools/check_write_surface` gained
+  `PATTERN_SET_DEFAULT_MIDI_OUT_NOTES` — the generic pointer pattern can
+  not see through the `getInstruments()` getter chain, the new pattern
+  keeps the direct call out of the GUI for good.
+* Tested: new `EngineSessionTest::testSetDefaultMidiOutNotesCrossesSplit`
+  (RED first: neither the command nor the default-note helper existed).
+  Both sides' kits are broken to a single shared out note (the condition
+  that makes the GUI offer the fix); the command must restore the
+  per-slot defaults on the engine (pumped — bridge thread) and the mirror
+  (synchronously, dual-apply) and flip both drumkits' modified flags.
+  Three consecutive full-suite runs green.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

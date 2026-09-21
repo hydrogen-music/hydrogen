@@ -71,6 +71,13 @@ PATTERN_ENGINE='(getAudioEngine\(\)|pAudioEngine|getTransport\(\)|pTransport|get
 # point, we make our intention explicit and assert that they are not called.
 PATTERN_CORE_ACTION_CONTROLLER='(getCoreActionController\(\)|pCoreActionController|pCac|pCAC)[[:space:]]*->[[:space:]]*(toggleRecordMode|initExternalControlInterfaces|toggleStripIsMuted|toggleStripIsSoloed|upgradeDrumkit|validateDrumkit|retrieveDrumkit|extractDrumkit|replaceDrumkitInstrument|replacePlaybackTrackInstrument|relocateToFrame|clearInstrumentInPattern|newPattern)'
 
+# ADR 0030 batch 2v — the MIDI setup fix mutates the current drumkit and has
+# to cross the split via CoreActionController::setDefaultMidiOutNotes; a
+# direct call on the GUI's song copy would only fix the mirror. The generic
+# PATTERN can not see through the getInstruments() getter chain, so this one
+# is matched explicitly.
+PATTERN_SET_DEFAULT_MIDI_OUT_NOTES='getInstruments[[:space:]]*\([[:space:]]*\)[[:space:]]*->[[:space:]]*setDefaultMidiOutNotes'
+
 
 # Normalize a source line: strip leading/trailing whitespace, collapse internal
 # whitespace runs to single spaces.
@@ -162,7 +169,7 @@ while IFS= read -r line; do
 	fi
 	echo "  $file:$lineno: $norm"
 	violations=$((violations + 1))
-done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)" "$GUI_DIR" 2>/dev/null )
+done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)|($PATTERN_SET_DEFAULT_MIDI_OUT_NOTES)" "$GUI_DIR" 2>/dev/null )
 
 if [ "$violations" -gt 0 ]; then
 	echo

@@ -138,6 +138,36 @@ std::shared_ptr<Instrument> CoreActionController::resolveInstrument(
 	return pInstrument;
 }
 
+bool CoreActionController::setDefaultMidiOutNotes( Event::Trigger trigger )
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "no song or drumkit set" );
+		return false;
+	}
+	const auto pInstruments = pSong->getDrumkit()->getInstruments();
+
+	bool bChanged = false;
+	for ( int ii = 0; ii < pInstruments->size(); ii++ ) {
+		auto pInstrument = pInstruments->get( ii );
+		if ( pInstrument == nullptr ) {
+			continue;
+		}
+		const auto note = InstrumentList::defaultMidiOutNote( ii );
+		if ( pInstrument->getMidiOutNote() != note ) {
+			pInstrument->setMidiOutNote( note );
+			m_pHydrogen->getEventQueue()->pushEvent(
+				Event::Type::InstrumentParametersChanged, ii );
+			bChanged = true;
+		}
+	}
+	if ( bChanged ) {
+		m_pHydrogen->setDrumkitModified( true, trigger );
+	}
+
+	return true;
+}
+
 bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );

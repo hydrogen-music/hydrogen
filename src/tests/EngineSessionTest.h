@@ -35,6 +35,7 @@ class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEventForwardedToEditor );
 	CPPUNIT_TEST( testEngineSurvivesEditorReconnect );
 	CPPUNIT_TEST( testSoundLibraryRescanCrossesSplit );
+	CPPUNIT_TEST( testSetDefaultMidiOutNotesCrossesSplit );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +44,7 @@ public:
 	void testEventForwardedToEditor();
 	void testEngineSurvivesEditorReconnect();
 	void testSoundLibraryRescanCrossesSplit();
+	void testSetDefaultMidiOutNotesCrossesSplit();
 };
 
 #endif

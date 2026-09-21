@@ -236,6 +236,10 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		bool hasAllMidiNotesSame() const;
 
+		/** The per-slot default MIDI out note: slot index shifted by the
+		 * MIDI note offset, clamped into the valid range. */
+		static Midi::Note defaultMidiOutNote( int ii );
+
 		void setDefaultMidiOutNotes();
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of

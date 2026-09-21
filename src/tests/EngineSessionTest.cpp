@@ -25,6 +25,7 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
@@ -37,6 +38,7 @@
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/EngineSession.h>
 #include <core/IPC/IpcEngineAccess.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -393,6 +395,79 @@ void EngineSessionTest::testSoundLibraryRescanCrossesSplit() {
 	// Cleanup.
 	Filesystem::rm( sKitDir, true );
 	Filesystem::rm( sSongPath );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2v — the MIDI setup fix (reset every MIDI out note to
+// its list-slot default) mutates the current drumkit; initiated from the
+// GUI it has to reach the engine's drumkit as well, not just the
+// editor's mirror copy.
+void EngineSessionTest::testSetDefaultMidiOutNotesCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// Break the MIDI setup on both sides: every instrument answers on the
+	// same note — the condition that makes the GUI offer the fix.
+	const auto fBreakMidiSetup = [&]( H2Core::Hydrogen* pH ) {
+		const auto pInstruments =
+			pH->getSong()->getDrumkit()->getInstruments();
+		CPPUNIT_ASSERT( pInstruments->size() >= 2 );
+		for ( int ii = 0; ii < pInstruments->size(); ii++ ) {
+			pInstruments->get( ii )->setMidiOutNote(
+				Midi::noteFromIntClamp( 60 ) );
+		}
+		CPPUNIT_ASSERT( pInstruments->hasAllMidiNotesSame() );
+	};
+	fBreakMidiSetup( pEngine );
+	fBreakMidiSetup( pMirror );
+
+	// A fresh song starts with a clean drumkit on both sides.
+	CPPUNIT_ASSERT( ! pEngine->getSong()->getDrumkit()->getIsModified() );
+	CPPUNIT_ASSERT( ! pMirror->getSong()->getDrumkit()->getIsModified() );
+
+	const auto fNotesDefaulted = [&]( H2Core::Hydrogen* pH ) {
+		const auto pInstruments =
+			pH->getSong()->getDrumkit()->getInstruments();
+		for ( int ii = 0; ii < pInstruments->size(); ii++ ) {
+			if ( pInstruments->get( ii )->getMidiOutNote() !=
+				 InstrumentList::defaultMidiOutNote( ii ) ) {
+				return false;
+			}
+		}
+		return true; };
+
+	// The command crosses: the mirror is reset synchronously in the
+	// dual-apply, the engine via the bridge thread (pumped).
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setDefaultMidiOutNotes() );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return fNotesDefaulted( pEngine ); } ) );
+	CPPUNIT_ASSERT( fNotesDefaulted( pMirror ) );
+
+	// The fix flipped the modified flag on both drumkits (the engine side
+	// without the SongIsModified echo — Suppress at the bridge).
+	CPPUNIT_ASSERT( pEngine->getSong()->getDrumkit()->getIsModified() );
+	CPPUNIT_ASSERT( pMirror->getSong()->getDrumkit()->getIsModified() );
 
 	pEditor.reset();
 	pServer->stop();

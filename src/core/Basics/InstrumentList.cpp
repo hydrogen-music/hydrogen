@@ -350,12 +350,15 @@ bool InstrumentList::hasAllMidiNotesSame() const
 	return notes.size() == 1;
 }
 
+Midi::Note InstrumentList::defaultMidiOutNote( int ii )
+{
+	return Midi::noteFromIntClamp( ii + static_cast<int>( Midi::NoteOffset ) );
+}
+
 void InstrumentList::setDefaultMidiOutNotes()
 {
 	for ( int ii = 0; ii < m_pInstruments.size(); ii++ ) {
-		m_pInstruments[ii]->setMidiOutNote(
-			Midi::noteFromIntClamp( ii + static_cast<int>( Midi::NoteOffset ) )
-		);
+		m_pInstruments[ii]->setMidiOutNote( defaultMidiOutNote( ii ) );
 	}
 }
 

@@ -76,6 +76,10 @@ public:
 	bool quit() override;
 	bool panic() override;
 
+	// ADR 0030 batch 2v — bulk MIDI setup fix (no wire arguments).
+	bool setDefaultMidiOutNotes(
+		Event::Trigger trigger = Event::Trigger::Default ) override;
+
 	// ADR 0030 batch 2a — scalar parameter setters.
 	bool setInstrumentPitch( int nInstrument, float fValue,
 		Event::Trigger trigger = Event::Trigger::Default ) override;

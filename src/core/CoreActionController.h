@@ -114,6 +114,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool bSelectStrip,
 		Event::Trigger trigger = Event::Trigger::Default
 	);
+	/**
+	 * Resets the MIDI out note of every instrument in the current
+	 * drumkit to its list-slot default.
+	 *
+	 * Idempotent: when every instrument already carries its default
+	 * note, neither the modified flag nor parameter events are touched.
+	 */
+	virtual bool setDefaultMidiOutNotes(
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	virtual bool setInstrumentPitch(
 		int nInstrument,
 		float fValue,

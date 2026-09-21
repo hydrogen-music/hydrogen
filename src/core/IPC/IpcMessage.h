@@ -121,6 +121,9 @@ enum class IpcOpcode : quint16 {
 	SetPlaybackTrackMuted,
 	SetPlaybackTrackVolume,
 
+	// ── ADR 0030 batch 2v: bulk MIDI setup fix ──
+	SetDefaultMidiOutNotes,
+
 	// ── ADR 0030 batch 2b: simple transport/pattern/instrument/jack/midi commands ──
 	PreviewInstrument,
 	ActivateTimeline,
