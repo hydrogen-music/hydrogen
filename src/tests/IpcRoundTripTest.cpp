@@ -746,6 +746,12 @@ void IpcRoundTripTest::testPreferencesRoundTrip()
 	// ADR 0030 batch 2y — seed a non-default batch mode so the
 	// core-props fragment explicitly carries the flag.
 	pPrefA->setRubberBandBatchMode( 1 );
+	// ADR 0030 batch 2z — seed non-default MIDI control settings so
+	// the core-props fragment explicitly carries the dialog's tuple
+	// (the action channel also exercises its dedicated codec).
+	pPrefA->m_bMidiNoteOffIgnore = false;
+	pPrefA->m_midiActionChannel = Midi::channelFromInt( 3 );
+	pPrefA->setMidiSendNoteOff( Preferences::MidiSendNoteOff::Never );
 
 	const auto xml = pPrefA->corePropsToXml();
 

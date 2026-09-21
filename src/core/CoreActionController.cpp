@@ -1820,6 +1820,28 @@ bool CoreActionController::setMidiInstrumentMap(
 	return true;
 }
 
+bool CoreActionController::setMidiControlSettings(
+	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
+	bool bTransportInputHandling, bool bTransportOutputSend,
+	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff )
+{
+	// Granular install: the engine's MIDI I/O reads all of these live
+	// (note-off handling and the action dispatch channel in MidiInput,
+	// feedback and transport sends in MidiOutput/AudioEngine, note-off
+	// sending in Sampler), so — unlike setPreferences() — no driver
+	// restarts and no UpdatePreferences event are needed (ADR 0030).
+	auto pPref = m_pHydrogen->getPreferences();
+	pPref->m_bMidiNoteOffIgnore = bNoteOffIgnore;
+	pPref->m_midiActionChannel = actionChannel;
+	pPref->m_bEnableMidiFeedback = bEnableFeedback;
+	pPref->setMidiTransportInputHandling( bTransportInputHandling );
+	pPref->setMidiTransportOutputSend( bTransportOutputSend );
+	pPref->setMidiFeedbackChannel( feedbackChannel );
+	pPref->setMidiSendNoteOff( sendNoteOff );
+
+	return true;
+}
+
 bool CoreActionController::setRubberBandBatchMode( int nMode )
 {
 	// Granular install: the engine's transport and drumkit read the
@@ -4554,20 +4576,29 @@ bool CoreActionController::activatePlaylistSong( int nSongNumber )
 
 bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 {
-	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
-		return false;
-	}
 	auto pPref = m_pHydrogen->getPreferences();
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
 
-	if ( pPref->getMidiClockInputHandling() == bHandle ) {
-		return false;
+	const bool bChanged = pPref->getMidiClockInputHandling() != bHandle;
+
+	// Install on the local preferences in every process mode: in the
+	// editor split this is the mirror the dialog saves to disk, so
+	// skipping the install would revert the toggle on the next config
+	// write (ADR 0030 batch 2z).
+	pPref->setMidiClockInputHandling( bHandle );
+
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		// The authoritative engine applies the live side-effects when
+		// the IPC message lands; the mirror has no transport to act on.
+		return true;
 	}
 
-	pPref->setMidiClockInputHandling( bHandle );
+	if ( ! bChanged ) {
+		return false;
+	}
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		H2Core::Event::Type::MidiClockActivation, 0
@@ -4586,21 +4617,29 @@ bool CoreActionController::setMidiClockInputHandling( bool bHandle )
 
 bool CoreActionController::setMidiClockOutputSend( bool bHandle )
 {
-	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
-		return false;
-	}
-
 	auto pPref = m_pHydrogen->getPreferences();
 	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return false;
 	}
 
-	if ( pPref->getMidiClockOutputSend() == bHandle ) {
-		return false;
+	const bool bChanged = pPref->getMidiClockOutputSend() != bHandle;
+
+	// Install on the local preferences in every process mode: in the
+	// editor split this is the mirror the dialog saves to disk, so
+	// skipping the install would revert the toggle on the next config
+	// write (ADR 0030 batch 2z).
+	pPref->setMidiClockOutputSend( bHandle );
+
+	if ( m_pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		// The authoritative engine applies the live side-effects when
+		// the IPC message lands; the mirror has no MIDI driver.
+		return true;
 	}
 
-	pPref->setMidiClockOutputSend( bHandle );
+	if ( ! bChanged ) {
+		return false;
+	}
 
 	// Jump start sending MIDI clock messages. Else they would only be send on
 	// the next tempo change or start of the audio engine.

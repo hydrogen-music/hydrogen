@@ -1600,6 +1600,67 @@ suite `OK (437 tests)`.**
   `pumpUntil` budget gets tighter as the suite grows; a dedicated
   flakiness pass may be due.
 
+**MIDI control dialog write paths (batch 2z) — DONE, suite
+`OK (442 tests)`.**
+* User report: `MidiControlDialog::persistMidiSettings()` only covered
+  the MIDI instrument map, while the callbacks also change other
+  MIDI-related `Preferences` members. Persisting those members and the
+  `MidiInstrumentMap` had to be split into two methods, plus a
+  `CoreActionController` method dual-applying the members currently
+  only altered on the local mirror.
+* Audit: seven scalar members were written on the mirror only — all
+  Core-owned schema rows, all read live by the engine
+  (`m_bMidiNoteOffIgnore` and `m_midiActionChannel` in MidiInput's
+  dispatch, `m_bEnableMidiFeedback`/`m_midiFeedbackChannel` in the
+  feedback sends, `m_bMidiTransportInputHandling` in MidiInput's
+  transport handling, `m_bMidiTransportOutputSend` in AudioEngine's
+  transport sends, `m_midiSendNoteOff` in Sampler/MidiOutput/
+  MidiBaseDriver/SMF). The clock in/out toggles already cross via
+  their dedicated commands. No other GUI site writes any of them.
+* New granular command `CoreActionController::setMidiControlSettings(
+  noteOffIgnore, actionChannel, enableFeedback, transportInputHandling,
+  transportOutputSend, feedbackChannel, sendNoteOff)` — the
+  `setMidiInstrumentMap()` shape (installs on the local preferences,
+  no driver restarts, no UpdatePreferences event).
+  `IpcCoreActionController` dual-applies it
+  (`SetMidiControlSettings` + base call); the bridge installs the
+  tuple on the engine's preferences.
+* Dialog split: `persistMidiSettings()` now routes the seven scalars
+  through the command — reading them from the dialog's widgets, which
+  are the staging state, so no direct mirror writes remain — and then
+  writes the config (command-before-save, so the config stores what
+  the engine runs). `persistMidiInstrumentMap()` pushes the whole map
+  (still staged in place on the mirror by the mapping callbacks) and
+  saves. The eight map callbacks rerouted; the two channel spin boxes
+  dropped their `valueChanged` mirror writes (the widget holds the
+  intermediate state; the commit on focus-out/Enter crosses it, as the
+  durable write always did).
+* Clock mirror fix (folded in on user approval): both clock commands
+  early-returned in `ProcessMode::Editor` *before* installing on the
+  preferences — the toggle crossed to the engine, but the mirror kept
+  the stale value and the dialog's `save(false)` wrote it back to the
+  config (the toggle silently reverted on restart). Restructured: the
+  install now happens in every process mode; Editor mode returns right
+  after it (the authoritative engine applies the live side-effects
+  when the IPC message lands); the unchanged-value check now only
+  guards the side-effects.
+* Tested: three new `EngineSessionTest` crossing tests. RED in two
+  stages: the build failed on the missing command (EXIT=2), then —
+  command implemented, clock fix not yet applied — the suite ran 442
+  with exactly the two clock tests failing on the Editor-mode
+  early-return. Three consecutive full-suite runs green after the fix.
+  `IpcRoundTripTest::testPreferencesRoundTrip` seeds a non-default
+  MIDI control tuple (note-off not ignored, action channel 3 — which
+  also exercises the action channel's dedicated config codec — and
+  send-note-off "never").
+* `tools/check_write_surface` gained `PATTERN_SET_MIDI_CONTROL_SETTINGS`
+  (direct member writes and setter calls on the live preferences
+  barred from the GUI for good).
+* Observation (pre-existing, left as-is): the mapping tab's global
+  channel spin boxes still persist on every `valueChanged` tick, while
+  the scalar channel spin boxes defer to commit — an inconsistency in
+  write frequency, not in correctness.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

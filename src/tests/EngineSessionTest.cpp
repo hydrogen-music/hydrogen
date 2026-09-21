@@ -719,3 +719,175 @@ void EngineSessionTest::testSetPunchAreaCrossesSplit() {
 
 	___INFOLOG( "passed" );
 }
+
+// ADR 0030 batch 2z — the MIDI control dialog's scalar settings were
+// written on the editor's mirror preferences only; the engine's MIDI
+// I/O (note-off handling and action dispatch in MidiInput, feedback
+// and transport sends in AudioEngine/MidiOutput, note-off sending in
+// Sampler) read them live and stayed stale.
+void EngineSessionTest::testSetMidiControlSettingsCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// Default (Preferences.h): incoming note-off events are ignored.
+	CPPUNIT_ASSERT( pEngine->getPreferences()->m_bMidiNoteOffIgnore );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->m_bMidiNoteOffIgnore );
+
+	// The tuple crosses as one command: the engine's settings land
+	// under the bridge thread (pumped), the mirror's synchronously in
+	// the dual-apply.
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->setMidiControlSettings(
+		false, Midi::channelFromInt( 3 ), true, true, true,
+		Midi::channelFromInt( 5 ),
+		Preferences::MidiSendNoteOff::Never ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getPreferences()->m_bMidiNoteOffIgnore &&
+			pEngine->getPreferences()->m_midiActionChannel ==
+				Midi::channelFromInt( 3 ) &&
+			pEngine->getPreferences()->m_bEnableMidiFeedback &&
+			pEngine->getPreferences()->getMidiTransportInputHandling() &&
+			pEngine->getPreferences()->getMidiTransportOutputSend() &&
+			pEngine->getPreferences()->getMidiFeedbackChannel() ==
+				Midi::channelFromInt( 5 ) &&
+			pEngine->getPreferences()->getMidiSendNoteOff() ==
+				Preferences::MidiSendNoteOff::Never; } ) );
+	CPPUNIT_ASSERT( ! pMirror->getPreferences()->m_bMidiNoteOffIgnore );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->m_midiActionChannel ==
+		Midi::channelFromInt( 3 ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->m_bEnableMidiFeedback );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getMidiTransportInputHandling() );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getMidiTransportOutputSend() );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getMidiFeedbackChannel() ==
+		Midi::channelFromInt( 5 ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getMidiSendNoteOff() ==
+		Preferences::MidiSendNoteOff::Never );
+
+	// A second round proves repeated crossing — back to the defaults.
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->setMidiControlSettings(
+		true, Midi::ChannelAll, false, false, false, Midi::ChannelOff,
+		Preferences::MidiSendNoteOff::Always ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->m_bMidiNoteOffIgnore &&
+			pEngine->getPreferences()->m_midiActionChannel ==
+				Midi::ChannelAll &&
+			pEngine->getPreferences()->getMidiSendNoteOff() ==
+				Preferences::MidiSendNoteOff::Always; } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->m_bMidiNoteOffIgnore );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->m_midiActionChannel ==
+		Midi::ChannelAll );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getMidiSendNoteOff() ==
+		Preferences::MidiSendNoteOff::Always );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2z — the clock commands early-returned in Editor
+// mode before installing on the preferences: the toggle crossed to
+// the engine, but the editor's mirror kept the stale value and the
+// dialog's next config save reverted it.
+void EngineSessionTest::testSetMidiClockInputHandlingCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	CPPUNIT_ASSERT( ! pEngine->getPreferences()->getMidiClockInputHandling() );
+	CPPUNIT_ASSERT( ! pMirror->getPreferences()->getMidiClockInputHandling() );
+
+	// The command crosses AND installs on the mirror: the engine's
+	// flag lands under the bridge thread (pumped), the mirror's
+	// synchronously — else the dialog's config save would revert the
+	// toggle.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setMidiClockInputHandling( true ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getMidiClockInputHandling(); } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getMidiClockInputHandling() );
+
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setMidiClockInputHandling( false ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getPreferences()->getMidiClockInputHandling(); } ) );
+	CPPUNIT_ASSERT( ! pMirror->getPreferences()->getMidiClockInputHandling() );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2z — same mirror-desync shape as the clock input
+// handling above, for the outgoing clock stream toggle.
+void EngineSessionTest::testSetMidiClockOutputSendCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	CPPUNIT_ASSERT( ! pEngine->getPreferences()->getMidiClockOutputSend() );
+	CPPUNIT_ASSERT( ! pMirror->getPreferences()->getMidiClockOutputSend() );
+
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setMidiClockOutputSend( true ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getMidiClockOutputSend(); } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getMidiClockOutputSend() );
+
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setMidiClockOutputSend( false ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getPreferences()->getMidiClockOutputSend(); } ) );
+	CPPUNIT_ASSERT( ! pMirror->getPreferences()->getMidiClockOutputSend() );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

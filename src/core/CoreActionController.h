@@ -32,6 +32,7 @@
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Sampler/Interpolation.h>
 
 namespace H2Core {
@@ -490,6 +491,26 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * the map live. */
 	virtual bool setMidiInstrumentMap(
 		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap );
+	/**
+	 * Sets the scalar MIDI control settings of the current
+	 * #H2Core::Preferences: note-off handling, the action dispatch
+	 * channel, MIDI feedback, transport message handling/sending, the
+	 * feedback channel and note-off sending.
+	 *
+	 * Granular install — no driver restarts, no UpdatePreferences
+	 * event: the engine's MIDI I/O reads all of them live
+	 * (MidiInput/MidiOutput/Sampler/AudioEngine). In the editor split
+	 * the MIDI control dialog funnels every change through this
+	 * command so the authoritative engine applies the same settings
+	 * (ADR 0030). */
+	virtual bool setMidiControlSettings(
+		bool bNoteOffIgnore,
+		Midi::Channel actionChannel,
+		bool bEnableFeedback,
+		bool bTransportInputHandling,
+		bool bTransportOutputSend,
+		Midi::Channel feedbackChannel,
+		Preferences::MidiSendNoteOff sendNoteOff );
 	/**
 	 * Sets whether rubberband batch recalculation is active in the
 	 * current #H2Core::Preferences.

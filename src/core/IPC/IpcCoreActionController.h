@@ -313,6 +313,18 @@ public:
 	bool setRubberBandBatchMode( int nMode ) override;
 	bool setPunchArea( int nPunchInPos, int nPunchOutPos ) override;
 
+	// ADR 0030 batch 2z — scalar MIDI control settings. The tuple
+	// crosses as bools/ints; the base call installs the very values on
+	// the mirror.
+	bool setMidiControlSettings(
+		bool bNoteOffIgnore,
+		Midi::Channel actionChannel,
+		bool bEnableFeedback,
+		bool bTransportInputHandling,
+		bool bTransportOutputSend,
+		Midi::Channel feedbackChannel,
+		Preferences::MidiSendNoteOff sendNoteOff ) override;
+
 	// ADR 0030 batch 2l — song export. The render pipeline only runs
 	// in the authoritative engine (the mirror's process loop skips
 	// rendering by design), so the whole plan crosses as one

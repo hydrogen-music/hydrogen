@@ -600,6 +600,24 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[0].toInt(), args[1].toInt() );
 		}
 		break;
+	// ADR 0030 batch 2z — args: the seven scalar MIDI control settings
+	// (note-off ignore, action channel, feedback enable, transport
+	// in/out handling, feedback channel, send-note-off) as a
+	// bool/int tuple. Granular install on the engine's preferences;
+	// the editor already applied them on its mirror.
+	case IpcOpcode::SetMidiControlSettings:
+		if ( args.size() >= 7 ) {
+			return pController->setMidiControlSettings(
+				args[0].toBool(),
+				static_cast<Midi::Channel>( args[1].toInt() ),
+				args[2].toBool(),
+				args[3].toBool(),
+				args[4].toBool(),
+				static_cast<Midi::Channel>( args[5].toInt() ),
+				static_cast<Preferences::MidiSendNoteOff>(
+					args[6].toInt() ) );
+		}
+		break;
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );

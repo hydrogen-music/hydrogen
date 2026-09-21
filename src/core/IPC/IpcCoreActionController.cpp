@@ -833,6 +833,27 @@ bool IpcCoreActionController::setPunchArea( int nPunchInPos, int nPunchOutPos ) 
 	return CoreActionController::setPunchArea( nPunchInPos, nPunchOutPos );
 }
 
+bool IpcCoreActionController::setMidiControlSettings(
+	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
+	bool bTransportInputHandling, bool bTransportOutputSend,
+	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetMidiControlSettings )
+				.arg( bNoteOffIgnore )
+				.arg( static_cast<int>( actionChannel ) )
+				.arg( bEnableFeedback )
+				.arg( bTransportInputHandling )
+				.arg( bTransportOutputSend )
+				.arg( static_cast<int>( feedbackChannel ) )
+				.arg( static_cast<int>( sendNoteOff ) ) );
+	}
+	return CoreActionController::setMidiControlSettings(
+		bNoteOffIgnore, actionChannel, bEnableFeedback,
+		bTransportInputHandling, bTransportOutputSend,
+		feedbackChannel, sendNoteOff );
+}
+
 bool IpcCoreActionController::setSongProperties(
 	const int nNewVersion, const QString& sNewName,
 	const QString& sNewAuthor, const QString& sNewNotes,

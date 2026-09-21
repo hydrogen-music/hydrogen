@@ -134,6 +134,9 @@ enum class IpcOpcode : quint16 {
 	SetRubberBandBatchMode,
 	SetPunchArea,
 
+	// ── ADR 0030 batch 2z: MIDI control dialog settings ──
+	SetMidiControlSettings,
+
 	// ── ADR 0030 batch 2b: simple transport/pattern/instrument/jack/midi commands ──
 	PreviewInstrument,
 	ActivateTimeline,
