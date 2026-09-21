@@ -743,6 +743,9 @@ void IpcRoundTripTest::testPreferencesRoundTrip()
 	pPrefA->m_nSampleRate = 48000;
 	pPrefA->setCountIn( true );
 	pPrefA->m_bUseMetronome = true;
+	// ADR 0030 batch 2y — seed a non-default batch mode so the
+	// core-props fragment explicitly carries the flag.
+	pPrefA->setRubberBandBatchMode( 1 );
 
 	const auto xml = pPrefA->corePropsToXml();
 

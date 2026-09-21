@@ -38,6 +38,8 @@ class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetDefaultMidiOutNotesCrossesSplit );
 	CPPUNIT_TEST( testMidiActionCrossesSplit );
 	CPPUNIT_TEST( testRecalculateRubberbandCrossesSplit );
+	CPPUNIT_TEST( testSetRubberBandBatchModeCrossesSplit );
+	CPPUNIT_TEST( testSetPunchAreaCrossesSplit );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -49,6 +51,8 @@ public:
 	void testSetDefaultMidiOutNotesCrossesSplit();
 	void testMidiActionCrossesSplit();
 	void testRecalculateRubberbandCrossesSplit();
+	void testSetRubberBandBatchModeCrossesSplit();
+	void testSetPunchAreaCrossesSplit();
 };
 
 #endif

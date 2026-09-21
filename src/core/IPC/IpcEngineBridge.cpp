@@ -583,6 +583,23 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	// copies (each side locks its own audio engine).
 	case IpcOpcode::RecalculateRubberband:
 		return pController->recalculateRubberband();
+	// ADR 0030 batch 2y — args: batch mode as int. Granular install on
+	// the engine's preferences; the editor already applied it on its
+	// mirror.
+	case IpcOpcode::SetRubberBandBatchMode:
+		if ( args.size() >= 1 ) {
+			return pController->setRubberBandBatchMode( args[0].toInt() );
+		}
+		break;
+	// ADR 0030 batch 2y — args: punch-in and punch-out positions. The
+	// pair crosses as one command so the engine's recording decision
+	// never sees a half-updated area.
+	case IpcOpcode::SetPunchArea:
+		if ( args.size() >= 2 ) {
+			return pController->setPunchArea(
+				args[0].toInt(), args[1].toInt() );
+		}
+		break;
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );

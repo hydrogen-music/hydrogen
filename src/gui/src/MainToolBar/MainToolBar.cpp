@@ -841,9 +841,9 @@ void MainToolBar::bpmChanged( double fNewBpm )
 
 void MainToolBar::rubberbandButtonToggle()
 {
-	auto pPref = HydrogenApp::pPreferences();
 	if ( m_pRubberBandAction->isChecked() ) {
-		pPref->setRubberBandBatchMode( true );
+		HydrogenApp::pEngine()->getCoreActionController()
+			->setRubberBandBatchMode( 1 );
 
 		// Recalculate all samples ones just to be safe since the
 		// recalculation is just triggered if there is a tempo change in
@@ -856,7 +856,8 @@ void MainToolBar::rubberbandButtonToggle()
 			);
 	}
 	else {
-		pPref->setRubberBandBatchMode( false );
+		HydrogenApp::pEngine()->getCoreActionController()
+			->setRubberBandBatchMode( 0 );
 		( HydrogenApp::get_instance() )
 			->showStatusBarMessage(
 				tr( "Recalculate all samples using Rubberband OFF" )

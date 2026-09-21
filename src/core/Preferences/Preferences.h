@@ -670,7 +670,6 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	int getPunchOutPos() const;
 	void setPunchOutPos( unsigned pos );
 	bool inPunchArea( int pos ) const;
-	void unsetPunchArea();
 
 	bool getQuantizeEvents() const;
 	void setQuantizeEvents( bool value );
@@ -1311,12 +1310,6 @@ inline bool Preferences::inPunchArea( int pos ) const
 		}
 	}
 	return true;
-}
-
-inline void Preferences::unsetPunchArea()
-{
-	m_nPunchInPos = 0;
-	m_nPunchOutPos = -1;
 }
 
 inline void Preferences::setQuantizeEvents( bool value )

@@ -1820,6 +1820,30 @@ bool CoreActionController::setMidiInstrumentMap(
 	return true;
 }
 
+bool CoreActionController::setRubberBandBatchMode( int nMode )
+{
+	// Granular install: the engine's transport and drumkit read the
+	// flag live (rubberband recalculation on tempo changes), so —
+	// unlike setPreferences() — no driver restarts and no
+	// UpdatePreferences event are needed (ADR 0030).
+	m_pHydrogen->getPreferences()->setRubberBandBatchMode( nMode );
+
+	return true;
+}
+
+bool CoreActionController::setPunchArea( int nPunchInPos, int nPunchOutPos )
+{
+	// Granular install of a runtime-only pair: the engine's recording
+	// decision reads the area live (Hydrogen's realtime loop), so no
+	// driver restarts and no UpdatePreferences event. The pair is set
+	// as one command — the engine must never see a half-updated area.
+	auto pPref = m_pHydrogen->getPreferences();
+	pPref->setPunchInPos( static_cast<unsigned>( nPunchInPos ) );
+	pPref->setPunchOutPos( static_cast<unsigned>( nPunchOutPos ) );
+
+	return true;
+}
+
 bool CoreActionController::setLastMidiEvent( const MidiEvent::Type& type,
 											 Midi::Parameter parameter )
 {

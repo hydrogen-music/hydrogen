@@ -130,6 +130,10 @@ enum class IpcOpcode : quint16 {
 	// ── ADR 0030 batch 2x: rubberband batch recalculation ──
 	RecalculateRubberband,
 
+	// ── ADR 0030 batch 2y: granular preferences installs ──
+	SetRubberBandBatchMode,
+	SetPunchArea,
+
 	// ── ADR 0030 batch 2b: simple transport/pattern/instrument/jack/midi commands ──
 	PreviewInstrument,
 	ActivateTimeline,

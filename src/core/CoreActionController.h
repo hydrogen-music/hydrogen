@@ -491,6 +491,26 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool setMidiInstrumentMap(
 		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap );
 	/**
+	 * Sets whether rubberband batch recalculation is active in the
+	 * current #H2Core::Preferences.
+	 *
+	 * Granular install — no driver restarts, no UpdatePreferences
+	 * event: the engine's transport and drumkit read the flag live
+	 * (rubberband recalculation on tempo changes). In the editor split
+	 * the GUI toggle must cross it to the authoritative engine
+	 * (ADR 0030). */
+	virtual bool setRubberBandBatchMode( int nMode );
+	/**
+	 * Sets the punch-in/out area markers the engine's recording
+	 * decision reads.
+	 *
+	 * The pair is installed as one command so the engine never sees a
+	 * half-updated area; an out position below the in position (the
+	 * ruler's unset uses `(0, -1)`) clears the area — every position
+	 * records. Runtime-only state — not part of the serialized
+	 * preferences (ADR 0030). */
+	virtual bool setPunchArea( int nPunchInPos, int nPunchOutPos );
+	/**
 	 * Sets the last MIDI event registered by the engine's MIDI input
 	 * — the learning channel the MIDI sense widget polls to bind
 	 * incoming events.

@@ -294,13 +294,15 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 		auto pPref = HydrogenApp::pPreferences();
 		
 		if ( nColumn > pSong->getPatternGroupVector()->size() ) {
-			pPref->setPunchOutPos(-1);
+			HydrogenApp::pEngine()->getCoreActionController()
+				->setPunchArea( pPref->getPunchInPos(), -1 );
 			return;
 		}
 		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
 			return;
 		}
-		pPref->setPunchOutPos( nColumn - 1 );
+		HydrogenApp::pEngine()->getCoreActionController()
+			->setPunchArea( pPref->getPunchInPos(), nColumn - 1 );
 		update();
 	}
 }
@@ -419,9 +421,9 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		showTagWidget( nColumn );
 	}
 	else if (ev->button() == Qt::RightButton && pEv->position().y() >= 26) {
-		auto pPref = HydrogenApp::pPreferences();
 		if ( nColumn >= pSong->getPatternGroupVector()->size() ) {
-			pPref->unsetPunchArea();
+			HydrogenApp::pEngine()->getCoreActionController()
+				->setPunchArea( 0, -1 );
 			return;
 		}
 		if ( pHydrogen->getMode() == Song::Mode::Pattern ) {
@@ -429,8 +431,8 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		}
 		m_bRightBtnPressed = true;
 		// Disable until mouse is moved
-		pPref->setPunchInPos( nColumn );
-		pPref->setPunchOutPos(-1);
+		HydrogenApp::pEngine()->getCoreActionController()
+			->setPunchArea( nColumn, -1 );
 		update();
 	}
 

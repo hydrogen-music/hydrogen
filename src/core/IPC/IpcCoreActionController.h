@@ -307,6 +307,12 @@ public:
 	bool addCustomSoundLibraryDir( const QString& sDirPath ) override;
 	bool removeCustomSoundLibraryDir( const QString& sDirPath ) override;
 
+	// ADR 0030 batch 2y — rubberband batch mode + punch area. Granular
+	// preferences installs: the flag and the marker pair cross as
+	// scalars; the base calls keep the mirror's copies coherent.
+	bool setRubberBandBatchMode( int nMode ) override;
+	bool setPunchArea( int nPunchInPos, int nPunchOutPos ) override;
+
 	// ADR 0030 batch 2l — song export. The render pipeline only runs
 	// in the authoritative engine (the mirror's process loop skips
 	// rendering by design), so the whole plan crosses as one

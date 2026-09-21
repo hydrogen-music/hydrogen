@@ -617,3 +617,105 @@ void EngineSessionTest::testRecalculateRubberbandCrossesSplit() {
 
 	___INFOLOG( "passed" );
 }
+
+// ADR 0030 batch 2y — the rubberband batch mode toggle wrote the
+// editor's mirror preferences directly; the engine's copy (read live
+// by its transport and drumkit) stayed stale.
+void EngineSessionTest::testSetRubberBandBatchModeCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	CPPUNIT_ASSERT( pEngine->getPreferences()->getRubberBandBatchMode() == 0 );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getRubberBandBatchMode() == 0 );
+
+	// The command crosses: the engine's flag lands under the bridge
+	// thread (pumped), the mirror's synchronously in the dual-apply.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setRubberBandBatchMode( 1 ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getRubberBandBatchMode() ==
+			1; } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getRubberBandBatchMode() == 1 );
+
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setRubberBandBatchMode( 0 ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getRubberBandBatchMode() ==
+			0; } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getRubberBandBatchMode() == 0 );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2y — the punch-in/out markers were written by the GUI
+// ruler on the mirror only; the engine's recording decision (Hydrogen's
+// realtime loop) never saw them.
+void EngineSessionTest::testSetPunchAreaCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	CPPUNIT_ASSERT( pEngine->getPreferences()->getPunchInPos() == 0 );
+	CPPUNIT_ASSERT( pEngine->getPreferences()->getPunchOutPos() == -1 );
+
+	// The pair crosses as one command: the engine's markers land under
+	// the bridge thread (pumped), the mirror's synchronously.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setPunchArea( 4, 9 ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getPunchInPos() == 4 &&
+			pEngine->getPreferences()->getPunchOutPos() == 9; } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getPunchInPos() == 4 );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getPunchOutPos() == 9 );
+	CPPUNIT_ASSERT( pEngine->getPreferences()->inPunchArea( 6 ) );
+	CPPUNIT_ASSERT( ! pEngine->getPreferences()->inPunchArea( 10 ) );
+
+	// The unset semantics (out = -1) clear the area restriction on
+	// both sides: with no area defined every position records.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setPunchArea( 0, -1 ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getPunchOutPos() == -1; } ) );
+	CPPUNIT_ASSERT( pEngine->getPreferences()->inPunchArea( 0 ) );
+	CPPUNIT_ASSERT( pEngine->getPreferences()->inPunchArea( 999 ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getPunchOutPos() == -1 );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

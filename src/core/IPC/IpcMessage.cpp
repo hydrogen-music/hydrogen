@@ -385,6 +385,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::RecalculateRubberband:
 		sOpcode = "RECALCULATE_RUBBERBAND";
 		break;
+	case IpcOpcode::SetRubberBandBatchMode:
+		sOpcode = "SET_RUBBERBAND_BATCH_MODE";
+		break;
+	case IpcOpcode::SetPunchArea:
+		sOpcode = "SET_PUNCH_AREA";
+		break;
 	case IpcOpcode::PreviewInstrument:
 		sOpcode = "PREVIEW_INSTRUMENT";
 		break;

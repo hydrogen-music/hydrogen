@@ -755,7 +755,7 @@ void ExportSongDialog::closeExport() {
 
 	m_bExporting = false;
 
-	HydrogenApp::pPreferences()->setRubberBandBatchMode(
+	HydrogenApp::pEngine()->getCoreActionController()->setRubberBandBatchMode(
 		m_nOldRubberbandBatchMode );
 	HydrogenApp::pEngine()->setIsTimelineActivated( m_bOldTimeLineBPMMode );
 

@@ -1531,12 +1531,74 @@ suite `OK (437 tests)`.**
   `shared_ptr<Sample>` in the layer, which lands even without the
   rubberband CLI (`Sample::load` only warns on CLI failure). Three
   consecutive full-suite runs green.
-* Finding (pre-existing, deliberately not changed here):
-  `m_nRubberBandBatchMode` is not part of the synced core-preferences
-  XML, so the engine's copy never arms in production — the engine-side
-  recalculation (this command *and* the tempo-change path) stays inert
-  until the pref joins `SetPreferences` (a Preferences-serialization
-  change with its own artifact chain).
+* Finding (pre-existing, resolved in batch 2y — corrected diagnosis
+  there): the engine's copy of the batch-mode flag never armed, so the
+  engine-side recalculation (this command *and* the tempo-change path)
+  stayed inert in production. The original 2x diagnosis was wrong in
+  one respect: there is no separate `m_nRubberBandBatchMode` — the
+  getter/setter alias the Core-owned
+  `m_bUseTheRubberbandBpmChangeEvent` schema row, which does cross
+  with every `setPreferences` push. The gap was the write path: the
+  toggle wrote the mirror's flag directly and no push followed.
+
+**Preferences write-path crossings (batch 2y) — DONE, suite
+`OK (439 tests)`.**
+* User report (follow-up to the 2x finding): the rubberband batch
+  mode must be exchanged via IPC; audit requested for other affected
+  `Preferences` members.
+* Audit: zipped the 136 schema rows (`PreferencesSchema::kSchemaRows`,
+  55 `Owner::Core` / 81 `Owner::Gui`) against every `Preferences`
+  access in `src/core` (the engine-side runtime surface). The Core
+  set is complete for engine behavior — audio driver/buffer/rate,
+  metronome, count-in, max notes, interpolation, all JACK flags, the
+  full MIDI driver block, OSC, beat counter, rubberband CLI path,
+  custom sound-library dirs, the pattern-editor grid/triplets/
+  quantize/hear-new-notes flags (read engine-side in Hydrogen's
+  realtime recording code), recent files, last song/playlist paths.
+  The Gui-owned rows (theme, geometry, last-directories, export
+  dialog state, sound-library display flags, shortcuts) have no
+  engine readers. Two real gaps, both *write-path* gaps: the batch
+  mode flag (aliasing the Core-owned row — see the corrected 2x
+  finding above) was written directly on the mirror by the MainToolBar
+  toggle and the export dialog's restore, with no `setPreferences`
+  push following; and the punch-in/out markers
+  (`m_nPunchInPos`/`m_nPunchOutPos` — runtime-only members on the
+  outer `Preferences` class, outside `PreferencesData`/schema by
+  design) are written by the SongEditor ruler only, while the
+  engine's recording decision reads `inPunchArea()` live — punch
+  recording was silently dead in the split.
+* New granular commands (the `setMidiEventMap()` shape — installs on
+  the local preferences, no driver restarts, no UpdatePreferences
+  event): `CoreActionController::setRubberBandBatchMode(int)` and
+  `setPunchArea(int,int)` — the punch pair crosses as one command so
+  the engine never sees a half-updated area; an out position below
+  the in position clears the area (every position records).
+  `IpcCoreActionController` dual-applies both
+  (`SetRubberBandBatchMode [mode]`, `SetPunchArea [in, out]` + base
+  call on the mirror); the bridge installs them on the engine's
+  preferences.
+* GUI reroute: the MainToolBar toggle (both branches, dead `pPref`
+  local gone), the export dialog's batch-mode restore, and all five
+  ruler punch sites (dead `pPref` local in `mousePressEvent` gone).
+  `tools/check_write_surface` gained
+  `PATTERN_SET_RUBBERBAND_BATCH_MODE` and `PATTERN_SET_PUNCH_AREA`
+  (direct preferences writes barred from the GUI for good).
+* Tested: new `EngineSessionTest::testSetRubberBandBatchModeCrossesSplit`
+  and `testSetPunchAreaCrossesSplit` (RED first: neither command
+  existed) — each must land on the engine (pumped — bridge thread)
+  and the mirror (synchronously, dual-apply); the punch test asserts
+  the `inPunchArea()` semantics both defined (4,9) and cleared
+  (0,-1 — every position records; the first test version had the
+  clearing semantics backwards and the failure taught the real one).
+  `IpcRoundTripTest::testPreferencesRoundTrip` now seeds a
+  non-default batch mode so the core-props fragment carries the flag
+  explicitly. Three consecutive full-suite runs green.
+* Observation (pre-existing, not 2y's): two legacy IPC tests flaked
+  once each across seven runs (`testSoundLibraryRescanCrossesSplit`,
+  `testCommandDispatchedToEngine` — pump-timeout-shaped, on code 2y
+  does not touch; both green in every other run). The 4 s
+  `pumpUntil` budget gets tighter as the suite grows; a dedicated
+  flakiness pass may be due.
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

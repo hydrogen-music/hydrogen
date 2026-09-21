@@ -816,6 +816,23 @@ bool IpcCoreActionController::setPreferences(
 	return CoreActionController::setPreferences( pPreferences );
 }
 
+bool IpcCoreActionController::setRubberBandBatchMode( int nMode ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetRubberBandBatchMode ).arg( nMode ) );
+	}
+	return CoreActionController::setRubberBandBatchMode( nMode );
+}
+
+bool IpcCoreActionController::setPunchArea( int nPunchInPos, int nPunchOutPos ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPunchArea )
+							  .arg( nPunchInPos )
+							  .arg( nPunchOutPos ) );
+	}
+	return CoreActionController::setPunchArea( nPunchInPos, nPunchOutPos );
+}
+
 bool IpcCoreActionController::setSongProperties(
 	const int nNewVersion, const QString& sNewName,
 	const QString& sNewAuthor, const QString& sNewNotes,
