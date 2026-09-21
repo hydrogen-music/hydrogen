@@ -39,6 +39,8 @@
 #include <core/IPC/EngineSession.h>
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -468,6 +470,77 @@ void EngineSessionTest::testSetDefaultMidiOutNotesCrossesSplit() {
 	// without the SongIsModified echo — Suppress at the bridge).
 	CPPUNIT_ASSERT( pEngine->getSong()->getDrumkit()->getIsModified() );
 	CPPUNIT_ASSERT( pMirror->getSong()->getDrumkit()->getIsModified() );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2w — MIDI actions triggered from the GUI (keyboard
+// shortcuts in MainForm::executeShortcut) used to run only on the
+// editor's mirror; they have to reach the authoritative engine's song
+// and drumkit too.
+void EngineSessionTest::testMidiActionCrossesSplit() {
+	___INFOLOG( "" );
+
+	// Editor-local classification: undo/redo drive the editor's command
+	// stack (the engine holds none) and must never cross; everything
+	// else is engine-relevant.
+	CPPUNIT_ASSERT( MidiActionManager::isEditorLocal(
+		MidiAction::Type::UndoAction ) );
+	CPPUNIT_ASSERT( MidiActionManager::isEditorLocal(
+		MidiAction::Type::RedoAction ) );
+	CPPUNIT_ASSERT( ! MidiActionManager::isEditorLocal(
+		MidiAction::Type::StripMuteToggle ) );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// A drumkit mutation: strip mute on instrument 0 crosses — the
+	// engine applies it via the bridge thread (pumped), the mirror
+	// synchronously in the dual-apply.
+	auto pMuteAction = std::make_shared<MidiAction>(
+		MidiAction::Type::StripMuteToggle );
+	pMuteAction->setInstrument( 0 );
+	CPPUNIT_ASSERT( pAccess->handleMidiAction( pMuteAction ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getDrumkit()->getInstruments()
+			->get( 0 )->isMuted(); } ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getDrumkit()->getInstruments()
+		->get( 0 )->isMuted() );
+
+	// A song mutation: BPM increment by the action's factor crosses the
+	// same way (observable on both audio engines' next BPM).
+	const float fBpmBefore = pEngine->getAudioEngine()->getNextBpm();
+	auto pBpmAction = std::make_shared<MidiAction>(
+		MidiAction::Type::BpmIncr );
+	pBpmAction->setFactor( 1.5f );
+	CPPUNIT_ASSERT( pAccess->handleMidiAction( pBpmAction ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::abs( pEngine->getAudioEngine()->getNextBpm()
+						 - ( fBpmBefore + 1.5f ) ) < 0.5; } ) );
+	// The mirror's bpmIncrease is a designed no-op in editor mode (its
+	// tempo source is Remote, like handleBeatCounter) — the mirror's BPM
+	// lands via the engine's TempoChanged echo and its telemetry-based
+	// correction, not the dual-apply.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::abs( pMirror->getAudioEngine()->getNextBpm()
+						 - ( fBpmBefore + 1.5f ) ) < 0.5; } ) );
 
 	pEditor.reset();
 	pServer->stop();

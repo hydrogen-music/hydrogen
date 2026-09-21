@@ -114,6 +114,11 @@ public:
 
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override {
 		return m_pHydrogen->handleBeatCounter( start ); }
+	// Defined out-of-line in LocalEngineAccess.cpp (like the sound-library
+	// rescans below): it drives the wrapped engine's MidiActionManager,
+	// whose header stays out of this widely-included file.
+	bool handleMidiAction(
+		const std::shared_ptr<MidiAction> pAction ) override;
 	void loadPlaybackTrack( const QString& sFileName ) override {
 		m_pHydrogen->loadPlaybackTrack( sFileName ); }
 	void onTapTempoAccelEvent( TimePoint start = TimePoint() ) override {

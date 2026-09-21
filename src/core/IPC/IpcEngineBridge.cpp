@@ -38,6 +38,8 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/License.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -541,6 +543,41 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	// its mirror, the engine-side apply stays silent (no echo).
 	case IpcOpcode::SetDefaultMidiOutNotes:
 		return pController->setDefaultMidiOutNotes( Event::Trigger::Suppress );
+	// ADR 0030 batch 2w — args: MidiAction::Type as int, then value,
+	// instrument, component, layer, pattern, song, factor. The editor
+	// already executed the action on its mirror; this is the
+	// authoritative engine-side execution. Only parameters the type
+	// supports are set — setting an unsupported one asserts. Types
+	// outside the enum fail the manager's dispatch-map lookup
+	// (graceful false).
+	case IpcOpcode::HandleMidiAction:
+		if ( args.size() >= 8 ) {
+			auto pAction = std::make_shared<MidiAction>(
+				static_cast<MidiAction::Type>( args[0].toInt() ) );
+			pAction->setValue( args[1].toInt() );
+			const auto requires = pAction->getRequires();
+			if ( requires & MidiAction::RequiresInstrument ) {
+				pAction->setInstrument( args[2].toInt() );
+			}
+			if ( requires & MidiAction::RequiresComponent ) {
+				pAction->setComponent( args[3].toInt() );
+			}
+			if ( requires & MidiAction::RequiresLayer ) {
+				pAction->setLayer( args[4].toInt() );
+			}
+			if ( requires & MidiAction::RequiresPattern ) {
+				pAction->setPattern( args[5].toInt() );
+			}
+			if ( requires & MidiAction::RequiresSong ) {
+				pAction->setSong( args[6].toInt() );
+			}
+			if ( requires & MidiAction::RequiresFactor ) {
+				pAction->setFactor( args[7].toFloat() );
+			}
+			return pHydrogen->getMidiActionManager()
+				->handleMidiActionSync( pAction );
+		}
+		break;
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );

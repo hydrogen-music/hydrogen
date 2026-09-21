@@ -24,6 +24,8 @@
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcMessage.h>
+#include <core/Midi/MidiAction.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
@@ -162,6 +164,64 @@ bool IpcEngineAccess::handleBeatCounter( TimePoint start ) {
 		return true;
 	}
 	return m_pMirror->handleBeatCounter( start );
+}
+
+bool IpcEngineAccess::handleMidiAction(
+	const std::shared_ptr<MidiAction> pAction ) {
+	// MIDI action (ADR 0030 batch 2w): dual-apply — the mirror's manager
+	// executes the action immediately (its event pushes refresh the GUI),
+	// and the command crosses so the authoritative engine's manager
+	// executes it on the real song, drumkit, and transport. Engine-side
+	// event echoes re-fan-out on the editor as harmless redundant
+	// refreshes. Editor-local actions (undo/redo — the engine holds no
+	// command stack) never cross.
+	if ( pAction == nullptr ) {
+		return false;
+	}
+	if ( m_pChannel != nullptr &&
+		 ! MidiActionManager::isEditorLocal( pAction->getType() ) ) {
+		// Only parameters the action's type actually supports cross the
+		// wire — reading an unsupported one asserts (MidiAction models
+		// its parameter space strictly). The positional slots stay
+		// fixed; unsupported ones cross as 0 and are never read by the
+		// engine-side handler.
+		const auto requires = pAction->getRequires();
+		int nInstrument = 0;
+		int nComponent = 0;
+		int nLayer = 0;
+		int nPattern = 0;
+		int nSong = 0;
+		float fFactor = 0.0;
+		if ( requires & MidiAction::RequiresInstrument ) {
+			nInstrument = pAction->getInstrument();
+		}
+		if ( requires & MidiAction::RequiresComponent ) {
+			nComponent = pAction->getComponent();
+		}
+		if ( requires & MidiAction::RequiresLayer ) {
+			nLayer = pAction->getLayer();
+		}
+		if ( requires & MidiAction::RequiresPattern ) {
+			nPattern = pAction->getPattern();
+		}
+		if ( requires & MidiAction::RequiresSong ) {
+			nSong = pAction->getSong();
+		}
+		if ( requires & MidiAction::RequiresFactor ) {
+			fFactor = pAction->getFactor();
+		}
+		m_pChannel->send( IpcMessage( IpcOpcode::HandleMidiAction )
+			.arg( static_cast<int>( pAction->getType() ) )
+			.arg( pAction->getValue() )
+			.arg( nInstrument )
+			.arg( nComponent )
+			.arg( nLayer )
+			.arg( nPattern )
+			.arg( nSong )
+			.arg( fFactor ) );
+	}
+	return m_pMirror->getMidiActionManager()
+		->handleMidiActionSync( pAction );
 }
 
 void IpcEngineAccess::onTapTempoAccelEvent( TimePoint start ) {

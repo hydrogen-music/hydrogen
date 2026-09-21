@@ -379,6 +379,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetDefaultMidiOutNotes:
 		sOpcode = "SET_DEFAULT_MIDI_OUT_NOTES";
 		break;
+	case IpcOpcode::HandleMidiAction:
+		sOpcode = "HANDLE_MIDI_ACTION";
+		break;
 	case IpcOpcode::PreviewInstrument:
 		sOpcode = "PREVIEW_INSTRUMENT";
 		break;

@@ -123,6 +123,12 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		void resetTimingClockTicks();
 
+		/** Whether @a type only makes sense in the process owning the GUI:
+		 * the action must not cross the editor/engine IPC split (ADR
+		 * 0030). Undo/redo drive the editor's command stack; the engine
+		 * holds none. */
+		static bool isEditorLocal( const MidiAction::Type& type );
+
 	private:
 		/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
 		Hydrogen* m_pHydrogen;

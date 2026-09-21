@@ -1450,6 +1450,56 @@ paths (no playlist file to resolve against over IPC).
   (synchronously, dual-apply) and flip both drumkits' modified flags.
   Three consecutive full-suite runs green.
 
+**MIDI actions across the split (batch 2w) — DONE, suite
+`OK (436 tests)`.**
+* User report: `MainForm::executeShortcut` (keyboard shortcuts) triggered
+  MIDI actions via `HydrogenApp::pHydrogen()->getMidiActionManager()` —
+  the *mirror's* manager (`IpcEngineAccess::getMidiActionManager()` is a
+  mirror passthrough, the exact analogue of the pre-ADR-0030 mirror-CAC
+  bug). All 16 trigger sites applied to the mirror only — even the 30
+  CAC-routed handlers, since the mirror's manager fetches the mirror's
+  *local* controller. Engine-side paths stay untouched: `MidiInput`
+  (every MIDI driver) and `OscServer` call the manager on their owning
+  engine via the async worker queue.
+* New `IEngineAccess::handleMidiAction(shared_ptr<MidiAction>)`:
+  `LocalEngineAccess` forwards to the wrapped engine's manager
+  (out-of-line in the .cpp — `Hydrogen.h` only fwd-declares the manager,
+  same precedent as the db commands); `IpcEngineAccess` dual-applies —
+  arg-carrying `HandleMidiAction` opcode `[type, value, instrument,
+  component, layer, pattern, song, factor]` + synchronous mirror apply.
+  The bridge reconstructs the action and runs the engine's own
+  `handleMidiActionSync` on the bridge thread. Wire discipline: only
+  parameters the action's type supports cross as non-zero —
+  `MidiAction`'s getters *and* setters assert on unsupported params
+  (found the hard way: an assert-abort mid-suite), so both sides gate on
+  the instance's `Requires` mask; `value` is unguarded. Types outside
+  the enum fail the dispatch-map lookup (graceful false).
+* Editor-local classification: new static
+  `MidiActionManager::isEditorLocal(Type)` — undo/redo only (they drive
+  the editor's command stack; the engine holds none). Everything else
+  crosses; engine-side event echoes re-fan-out on the editor as
+  harmless redundant refreshes. Relative actions apply the same delta
+  to both sides from the same base.
+* GUI reroute: `executeShortcut` hoists `pAccess = HydrogenApp::pEngine()`
+  and all 16 sites call `pAccess->handleMidiAction( pAction )` — action
+  construction unchanged. `tools/check_write_surface` gained
+  `PATTERN_MIDI_ACTION_MANAGER`: direct manager triggering (sync or
+  async) is barred from the GUI for good.
+* Tested: new `EngineSessionTest::testMidiActionCrossesSplit` (RED
+  first: neither the access method nor the classification existed).
+  `StripMuteToggle` must flip the engine's strip (pumped — bridge
+  thread) and the mirror's (synchronously); `BpmIncr` must raise the
+  engine's next BPM — the mirror's `bpmIncrease` is a designed no-op in
+  editor mode (tempo source Remote, like `handleBeatCounter`), so the
+  mirror's BPM lands via the engine's `TempoChanged` echo and its
+  telemetry-based correction (pumped, not synchronous). Plus unit
+  asserts on the `isEditorLocal` classification. Three consecutive
+  full-suite runs green.
+* Deferred (batch 2x candidate): 12 of the 15 DIRECT-core handlers
+  bypass CAC with direct Basics writes *inside* the engine too
+  (engine-side MIDI/OSC path). Correct today; a write-surface-purity
+  refactor onto their existing CAC equivalents.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

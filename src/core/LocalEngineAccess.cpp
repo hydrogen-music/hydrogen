@@ -35,6 +35,7 @@
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PulseAudioDriver.h>
+#include <core/Midi/MidiActionManager.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
@@ -116,6 +117,15 @@ LocalEngineAccess::getHandledMidiOutputs() const {
 		return pDriver->getHandledOutputs();
 	}
 	return std::vector<std::shared_ptr<MidiOutput::HandledOutput>>();
+}
+
+bool LocalEngineAccess::handleMidiAction(
+	const std::shared_ptr<MidiAction> pAction ) {
+	const auto pManager = m_pHydrogen->getMidiActionManager();
+	if ( pManager == nullptr ) {
+		return false;
+	}
+	return pManager->handleMidiActionSync( pAction );
 }
 
 void LocalEngineAccess::rescanSoundLibrary() {

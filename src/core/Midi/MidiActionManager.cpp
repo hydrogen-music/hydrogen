@@ -1693,6 +1693,12 @@ static bool isPlaylistAction( MidiAction::Type type ) {
 		   type == MidiAction::Type::PlaylistPrevSong;
 }
 
+bool MidiActionManager::isEditorLocal( const MidiAction::Type& type )
+{
+	return type == MidiAction::Type::UndoAction ||
+		   type == MidiAction::Type::RedoAction;
+}
+
 bool MidiActionManager::handleMidiActionsAsync( const std::vector<std::shared_ptr<MidiAction>>& midiActions ) {
 
 	bool bResult = false;

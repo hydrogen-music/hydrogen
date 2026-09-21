@@ -3349,7 +3349,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
-	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	auto pAccess = HydrogenApp::pEngine();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	const auto pSoundLibraryDataBase = pHydrogen->getSoundLibraryDatabase();
@@ -3391,14 +3391,14 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::SelectInstrument );
 			pAction->setValue( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::MasterVolume: {
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::MasterVolumeAbsolute );
 			pAction->setValue( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 
@@ -3406,21 +3406,21 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::SelectNextPattern );
 			pAction->setPattern( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::SelectOnlyNextPattern: {
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::SelectOnlyNextPattern );
 			pAction->setPattern( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::SelectAndPlayPattern: {
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::SelectAndPlayPattern );
 			pAction->setPattern( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 
@@ -3428,7 +3428,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::PlaylistSong );
 			pAction->setSong( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 
@@ -3437,7 +3437,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 				MidiAction::Type::StripVolumeRelative );
 			pAction->setInstrument( sArg.toInt() );
 			pAction->setValue( 1 );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::StripVolumeDecrease: {
@@ -3445,21 +3445,21 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 				MidiAction::Type::StripVolumeRelative );
 			pAction->setInstrument( sArg.toInt() );
 			pAction->setValue( -1 );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::StripMuteToggle: {
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::StripMuteToggle );
 			pAction->setInstrument( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::StripSoloToggle: {
 			auto pAction = std::make_shared<MidiAction>(
 				MidiAction::Type::StripSoloToggle );
 			pAction->setInstrument( sArg.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 
@@ -3490,7 +3490,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 				MidiAction::Type::StripVolumeAbsolute );
 			pAction->setValue( sArg1.toInt() );
 			pAction->setInstrument( sArg2.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::StripPan: {
@@ -3498,7 +3498,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 				MidiAction::Type::PanAbsolute );
 			pAction->setValue( sArg1.toInt() );
 			pAction->setInstrument( sArg2.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 		case Shortcuts::Action::StripFilterCutoff: {
@@ -3506,7 +3506,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 				MidiAction::Type::FilterCutoffLevelAbsolute );
 			pAction->setValue( sArg1.toInt() );
 			pAction->setInstrument( sArg2.toInt() );
-			pMidiActionManager->handleMidiActionSync( pAction );
+			pAccess->handleMidiAction( pAction );
 			break;
 		}
 
@@ -3569,7 +3569,7 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 		pAction->setInstrument( nInstrument );
 		pAction->setComponent( nComponent );
 		pAction->setLayer( nLayer );
-		pMidiActionManager->handleMidiActionSync( pAction );
+		pAccess->handleMidiAction( pAction );
 		return;
 	}
 
@@ -3929,6 +3929,6 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 	}
 
 	if ( pAction != nullptr ) {
-		pMidiActionManager->handleMidiActionSync( pAction );
+		pAccess->handleMidiAction( pAction );
 	}
 }

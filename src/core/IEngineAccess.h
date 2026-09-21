@@ -35,6 +35,7 @@
 #include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
 #include <core/IO/MidiDriverInfo.h>
+#include <core/Midi/MidiAction.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core {
@@ -158,6 +159,13 @@ public:
 
 	// --- commands / mutations ---
 	virtual bool handleBeatCounter( TimePoint start = TimePoint() ) = 0;
+	/** Executes a MIDI action on the authoritative engine (ADR 0030
+	 * batch 2w). GUI-triggered actions (keyboard shortcuts) must not
+	 * stay mirror-local: the engine's song, drumkit, and transport are
+	 * the real ones. Editor-local actions (undo/redo — the engine holds
+	 * no command stack) apply on the mirror only. */
+	virtual bool handleMidiAction(
+		const std::shared_ptr<MidiAction> pAction ) = 0;
 	virtual void loadPlaybackTrack( const QString& sFileName ) = 0;
 	virtual void onTapTempoAccelEvent( TimePoint start = TimePoint() ) = 0;
 	/** Full sound-library rescan (ADR 0016): the shared library filesystem

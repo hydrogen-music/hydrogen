@@ -183,6 +183,14 @@ class IpcEngineAccess : public IEngineAccess,
 	 * over IPC the engine's synchronous result is not available, so
 	 * `true` reports the hand-off, not the engine's gate. */
 	bool handleBeatCounter( TimePoint start = TimePoint() ) override;
+	/** MIDI action (ADR 0030 batch 2w): dual-apply — the mirror's manager
+	 * executes the action immediately (its event pushes refresh the GUI),
+	 * and the command crosses so the authoritative engine's manager
+	 * executes it on the real song, drumkit, and transport. Engine-side
+	 * event echoes re-fan-out on the editor as harmless redundant
+	 * refreshes. Editor-local actions (undo/redo) never cross. */
+	bool handleMidiAction(
+		const std::shared_ptr<MidiAction> pAction ) override;
 	/** The playback track is engine-audible: forwarded, plus a local
 	 * apply so the GUI's waveform shows immediately (ADR 0026 point 12). */
 	void loadPlaybackTrack( const QString& sFileName ) override;
