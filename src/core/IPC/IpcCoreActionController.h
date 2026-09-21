@@ -80,6 +80,10 @@ public:
 	bool setDefaultMidiOutNotes(
 		Event::Trigger trigger = Event::Trigger::Default ) override;
 
+	// ADR 0030 batch 2x — rubberband batch recalculation (no wire
+	// arguments; each side resolves its own playhead tempo).
+	bool recalculateRubberband() override;
+
 	// ADR 0030 batch 2a — scalar parameter setters.
 	bool setInstrumentPitch( int nInstrument, float fValue,
 		Event::Trigger trigger = Event::Trigger::Default ) override;

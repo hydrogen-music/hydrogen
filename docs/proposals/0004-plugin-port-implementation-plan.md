@@ -1495,10 +1495,48 @@ paths (no playlist file to resolve against over IPC).
   telemetry-based correction (pumped, not synchronous). Plus unit
   asserts on the `isEditorLocal` classification. Three consecutive
   full-suite runs green.
-* Deferred (batch 2x candidate): 12 of the 15 DIRECT-core handlers
+* Deferred (later-batch candidate): 12 of the 15 DIRECT-core handlers
   bypass CAC with direct Basics writes *inside* the engine too
   (engine-side MIDI/OSC path). Correct today; a write-surface-purity
   refactor onto their existing CAC equivalents.
+
+**Rubberband batch recalculation across the split (batch 2x) — DONE,
+suite `OK (437 tests)`.**
+* User report: `MainToolBar::rubberbandButtonToggle` called
+  `Drumkit::recalculateRubberband` directly on the GUI's song copy
+  (under a hand-rolled audio engine lock) — only the mirror's samples
+  got re-pitched. Engine-side paths stay untouched:
+  `Transport::setBpm` (tempo change) and the export-session restore
+  call it on the engine's own kit.
+* New `CoreActionController::recalculateRubberband()`: resolves song,
+  drumkit and the *local* playhead tempo inside the command (no wire
+  arguments — each side's tempo is telemetry-close), locks its own
+  audio engine (same shape as `panic()` and the export restore) and
+  swaps the rubberband-enabled samples in memory. No events, no
+  modified flip — the drumkit-internal `setSample` runs under
+  `Suppress`, matching the pre-split GUI call. `IpcCoreActionController`
+  dual-applies: arg-less `RecalculateRubberband` opcode + base call on
+  the mirror; the bridge applies on the engine.
+* GUI reroute: the toggle calls
+  `getCoreActionController()->recalculateRubberband()`; the dead
+  `pHydrogen`/`pSong`/`pDrumkit` locals are gone.
+  `tools/check_write_surface` gained `PATTERN_RECALCULATE_RUBBERBAND`
+  (direct drumkit-pointer calls barred; the generic pointer pattern
+  can not see through the `getDrumkit()` getter chain).
+* Tested: new `EngineSessionTest::testRecalculateRubberbandCrossesSplit`
+  (RED first: the command did not exist). Both sides' kits are armed
+  (batch mode on + instrument 0's first sample marked `bUse`); the
+  command must swap the engine's layer sample (pumped — bridge thread)
+  and the mirror's (synchronously, dual-apply) — observable as a new
+  `shared_ptr<Sample>` in the layer, which lands even without the
+  rubberband CLI (`Sample::load` only warns on CLI failure). Three
+  consecutive full-suite runs green.
+* Finding (pre-existing, deliberately not changed here):
+  `m_nRubberBandBatchMode` is not part of the synced core-preferences
+  XML, so the engine's copy never arms in production — the engine-side
+  recalculation (this command *and* the tempo-change path) stays inert
+  until the pref joins `SetPreferences` (a Preferences-serialization
+  change with its own artifact chain).
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

@@ -37,6 +37,7 @@ class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSoundLibraryRescanCrossesSplit );
 	CPPUNIT_TEST( testSetDefaultMidiOutNotesCrossesSplit );
 	CPPUNIT_TEST( testMidiActionCrossesSplit );
+	CPPUNIT_TEST( testRecalculateRubberbandCrossesSplit );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -47,6 +48,7 @@ public:
 	void testSoundLibraryRescanCrossesSplit();
 	void testSetDefaultMidiOutNotesCrossesSplit();
 	void testMidiActionCrossesSplit();
+	void testRecalculateRubberbandCrossesSplit();
 };
 
 #endif

@@ -25,10 +25,13 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Playlist.h>
+#include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
@@ -541,6 +544,71 @@ void EngineSessionTest::testMidiActionCrossesSplit() {
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return std::abs( pMirror->getAudioEngine()->getNextBpm()
 						 - ( fBpmBefore + 1.5f ) ) < 0.5; } ) );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2x — the rubberband batch recalculation (MainToolBar
+// toggle) swapped only the editor's mirror samples; the engine's
+// in-memory copies have to be swapped too.
+void EngineSessionTest::testRecalculateRubberbandCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// Arm the recalculation on both sides: batch mode on (in the app the
+	// engine's copy lands via the SetPreferences sync) and the first
+	// layer's sample of instrument 0 marked for rubberband processing.
+	const auto fArmRubberband = [&]( H2Core::Hydrogen* pH ) {
+		pH->getPreferences()->setRubberBandBatchMode( 1 );
+		const auto pInstrument =
+			pH->getSong()->getDrumkit()->getInstruments()->get( 0 );
+		CPPUNIT_ASSERT( pInstrument != nullptr );
+		const auto pComponent = pInstrument->getComponent( 0 );
+		CPPUNIT_ASSERT( pComponent != nullptr );
+		const auto pLayer = pComponent->getLayer( 0 );
+		CPPUNIT_ASSERT( pLayer != nullptr );
+		CPPUNIT_ASSERT( pLayer->getSample() != nullptr );
+		auto rubberband = pLayer->getSample()->getRubberband();
+		rubberband.bUse = true;
+		pLayer->getSample()->setRubberband( rubberband );
+		return pLayer->getSample();
+	};
+	const auto pEngineSample = fArmRubberband( pEngine );
+	const auto pMirrorSample = fArmRubberband( pMirror );
+
+	const auto fLayerSample = [&]( H2Core::Hydrogen* pH ) {
+		return pH->getSong()->getDrumkit()->getInstruments()
+			->get( 0 )->getComponent( 0 )->getLayer( 0 )->getSample();
+	};
+	CPPUNIT_ASSERT( fLayerSample( pEngine ) == pEngineSample );
+	CPPUNIT_ASSERT( fLayerSample( pMirror ) == pMirrorSample );
+
+	// The command crosses: the engine swaps its sample under the bridge
+	// thread (pumped), the mirror synchronously in the dual-apply.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->recalculateRubberband() );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return fLayerSample( pEngine ) != pEngineSample; } ) );
+	CPPUNIT_ASSERT( fLayerSample( pMirror ) != pMirrorSample );
 
 	pEditor.reset();
 	pServer->stop();

@@ -124,6 +124,13 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	virtual bool setDefaultMidiOutNotes(
 		Event::Trigger trigger = Event::Trigger::Default
 	);
+	/**
+	 * Recalculates the rubberband preprocessing of all samples in the
+	 * current drumkit for the current tempo (no-op unless rubberband
+	 * batch mode is enabled). Swaps in-memory samples; each side of the
+	 * split applies it on its own copy.
+	 */
+	virtual bool recalculateRubberband();
 	virtual bool setInstrumentPitch(
 		int nInstrument,
 		float fValue,

@@ -842,23 +842,14 @@ void MainToolBar::bpmChanged( double fNewBpm )
 void MainToolBar::rubberbandButtonToggle()
 {
 	auto pPref = HydrogenApp::pPreferences();
-	auto pHydrogen = HydrogenApp::pHydrogen();
 	if ( m_pRubberBandAction->isChecked() ) {
-		auto pSong = pHydrogen->getSong();
-
-		if ( pSong != nullptr ) {
-			auto pDrumkit = pSong->getDrumkit();
-			if ( pDrumkit != nullptr ) {
-				// Recalculate all samples ones just to be safe since the
-				// recalculation is just triggered if there is a tempo
-				// change in the audio engine.
-				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-				pDrumkit->recalculateRubberband(
-					pHydrogen->getAudioEngine()->getPlayhead()->getBpm(), pHydrogen );
-				pHydrogen->getAudioEngine()->unlock();
-			}
-		}
 		pPref->setRubberBandBatchMode( true );
+
+		// Recalculate all samples ones just to be safe since the
+		// recalculation is just triggered if there is a tempo change in
+		// the audio engine.
+		HydrogenApp::pEngine()->getCoreActionController()->recalculateRubberband();
+
 		( HydrogenApp::get_instance() )
 			->showStatusBarMessage(
 				tr( "Recalculate all samples using Rubberband ON" )

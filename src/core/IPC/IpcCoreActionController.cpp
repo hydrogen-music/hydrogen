@@ -210,6 +210,13 @@ bool IpcCoreActionController::setDefaultMidiOutNotes( Event::Trigger trigger ) {
 	return CoreActionController::setDefaultMidiOutNotes( trigger );
 }
 
+bool IpcCoreActionController::recalculateRubberband() {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RecalculateRubberband ) );
+	}
+	return CoreActionController::recalculateRubberband();
+}
+
 bool IpcCoreActionController::setInstrumentPitch( int nInstrument, float fValue, Event::Trigger trigger ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentPitch ).arg( nInstrument ).arg( fValue ) );

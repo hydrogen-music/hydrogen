@@ -382,6 +382,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::HandleMidiAction:
 		sOpcode = "HANDLE_MIDI_ACTION";
 		break;
+	case IpcOpcode::RecalculateRubberband:
+		sOpcode = "RECALCULATE_RUBBERBAND";
+		break;
 	case IpcOpcode::PreviewInstrument:
 		sOpcode = "PREVIEW_INSTRUMENT";
 		break;

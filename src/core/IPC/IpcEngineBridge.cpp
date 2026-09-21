@@ -578,6 +578,11 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				->handleMidiActionSync( pAction );
 		}
 		break;
+	// ADR 0030 batch 2x — no args; the editor already recalculated its
+	// mirror's samples, the engine-side apply swaps its own in-memory
+	// copies (each side locks its own audio engine).
+	case IpcOpcode::RecalculateRubberband:
+		return pController->recalculateRubberband();
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );

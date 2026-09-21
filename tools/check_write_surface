@@ -83,6 +83,14 @@ PATTERN_SET_DEFAULT_MIDI_OUT_NOTES='getInstruments[[:space:]]*\([[:space:]]*\)[[
 # (sync or async) would only hit the editor's mirror.
 PATTERN_MIDI_ACTION_MANAGER='getMidiActionManager[[:space:]]*\([[:space:]]*\)[[:space:]]*->[[:space:]]*handleMidiAction(Sync|Async)'
 
+# ADR 0030 batch 2x — the rubberband batch recalculation swaps in-memory
+# samples and has to cross the split via
+# CoreActionController::recalculateRubberband; a direct call on the GUI's
+# drumkit copy would only re-pitch the mirror. The generic PATTERN can not
+# see through the getDrumkit() getter chain, so this one is matched
+# explicitly.
+PATTERN_RECALCULATE_RUBBERBAND='(pDrumkit|ppDrumkit|getDrumkit[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*recalculateRubberband'
+
 
 # Normalize a source line: strip leading/trailing whitespace, collapse internal
 # whitespace runs to single spaces.
@@ -174,7 +182,7 @@ while IFS= read -r line; do
 	fi
 	echo "  $file:$lineno: $norm"
 	violations=$((violations + 1))
-done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)|($PATTERN_SET_DEFAULT_MIDI_OUT_NOTES)|($PATTERN_MIDI_ACTION_MANAGER)" "$GUI_DIR" 2>/dev/null )
+done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)|($PATTERN_SET_DEFAULT_MIDI_OUT_NOTES)|($PATTERN_MIDI_ACTION_MANAGER)|($PATTERN_RECALCULATE_RUBBERBAND)" "$GUI_DIR" 2>/dev/null )
 
 if [ "$violations" -gt 0 ]; then
 	echo

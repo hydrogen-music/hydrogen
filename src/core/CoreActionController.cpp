@@ -168,6 +168,26 @@ bool CoreActionController::setDefaultMidiOutNotes( Event::Trigger trigger )
 	return true;
 }
 
+bool CoreActionController::recalculateRubberband()
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		ERRORLOG( "no song or drumkit set" );
+		return false;
+	}
+
+	// The swap touches in-memory samples only; each side of the split
+	// applies the command on its own copy under its own audio engine
+	// lock (like the export-session restore in Hydrogen).
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	pSong->getDrumkit()->recalculateRubberband(
+		pAudioEngine->getPlayhead()->getBpm(), m_pHydrogen );
+	pAudioEngine->unlock();
+
+	return true;
+}
+
 bool CoreActionController::setInstrumentPitch( int nInstrument, float fValue, Event::Trigger trigger )
 {
 	auto pInstrument = resolveInstrument( nInstrument );
