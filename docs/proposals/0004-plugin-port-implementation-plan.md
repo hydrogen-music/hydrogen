@@ -1731,6 +1731,42 @@ suite `OK (437 tests)`.**
   occupying point, the nearest sane behaviour for a measure-zero
   mouse collision.
 
+**Flakiness pass, part 1: handled-MIDI-log clear race (post-2aa) —
+FIXED, suite `OK (444 tests)` ×7 consecutive.**
+* Trigger: a one-off suite crash during 2aa's stability runs —
+  "pure virtual method called" mid-`pumpUntil` in
+  `ConnectViaIpcModeTest::testHandledMidiLogClearOrdering`, outside
+  2aa's call graph (same binary green before and after).
+* Root cause (captured backtrace + code reading):
+  `MidiBaseDriver::clearHandledInput()`/`clearHandledOutput()` cleared
+  the handled-message deques **without** taking
+  `m_handledInputsMutex`/`m_handledOutputMutex` — the only unlocked
+  accessors in the file and a violation of the snapshot contract the
+  class itself documents. The bridge thread's `clearMidiInputLog`
+  command raced the pump lambda's locked snapshot copy:
+  `deque::clear()` destroyed elements mid-copy, the snapshot bumped a
+  refcount on a freed `shared_ptr` control block, and the temporary's
+  later release hit "last use" on an already-disposed block —
+  `_M_dispose()` is pure virtual in `_Sp_counted_base`, hence the
+  abort. A product-code bug, not a test-harness one: any GUI
+  "clear MIDI log" click races the engine's MIDI processing the same
+  way.
+* Fix: the two inline clears now take their mutex (two lines,
+  `MidiBaseDriver.h`). No deterministic RED test is feasible for this
+  race — a probabilistic stress test would add the very flakiness the
+  suite is meant to avoid — so the verification is the fix itself, the
+  existing test that caught it once, and the soak: 7 consecutive green
+  full-suite runs post-fix (~140 s each), on top of a 6-run pre-fix
+  baseline that was 6/6 green, with the crash sitting at roughly
+  1-in-10 across the batch's runs.
+* Still open (part 2, not chased): the two pump-timeout flakes
+  (`testSoundLibraryRescanCrossesSplit` — the bridge runs the
+  sound-library rescan directly on its thread, filesystem-heavy work
+  under the 4000 ms `pumpUntil` budget — and
+  `testCommandDispatchedToEngine`). Neither recurred in either soak
+  (0/12 runs); both look like load-dependent budget misses rather than
+  races.
+
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).
 * New core helper `EditorSession` (`src/core/IPC/`): `connect(endpoint, mirror)`

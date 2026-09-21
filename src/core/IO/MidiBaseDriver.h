@@ -203,10 +203,12 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 
 inline void MidiBaseDriver::clearHandledInput()
 {
+	QMutexLocker mx( &m_handledInputsMutex );
 	m_handledInputs.clear();
 }
 inline void MidiBaseDriver::clearHandledOutput()
 {
+	QMutexLocker mx( &m_handledOutputMutex );
 	m_handledOutputs.clear();
 }
 
