@@ -34,7 +34,7 @@ libraries and development header files installed on your system:
 
 - Qt 6 or Qt 5
 - GNU g++ compiler (>=4.0, 3.x might work)
-- cmake (>=3.5)
+- cmake (>=3.16)
 - libsndfile >=1.0.18
 - zlib and libtar *OR* libarchive
 - At least one of the following audio and midi driver

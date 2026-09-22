@@ -302,6 +302,7 @@ All notable changes to this project will be documented in this file.
   like).
  - `h2player` must be started with `--interactive` for previous keyboard-driver
    transport control.
+- Minimal `CMake` version was bumped to `3.16`.
 
 ### Fixed
 

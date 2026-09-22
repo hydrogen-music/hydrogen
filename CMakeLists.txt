@@ -2,15 +2,12 @@
 # CMAKE SETUP
 #
 
-cmake_minimum_required(VERSION 3.8)
+# The floor is dictated by Qt6 (which requires 3.16 policies) and by
+# target_precompile_headers() in src/gui. Building the VST3 plugin via
+# clap-wrapper additionally requires 3.21 (enforced by that submodule's own
+# cmake_minimum_required).
+cmake_minimum_required(VERSION 3.16)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-# The CMake Policy mechanism is designed to help keep existing projects building as new versions of CMake introduce changes in behavior.
-# http://www.cmake.org/cmake/help/cmake2.6docs.html#command:cmake_policy
-if(COMMAND CMAKE_POLICY)
-    #	cmake_policy(SET CMP0005 NEW)
-	cmake_policy(SET CMP0003 NEW)   # add_library
-	cmake_policy(SET CMP0006 NEW)   # bundle destination property
-endif()
 
 project(hydrogen)
 
