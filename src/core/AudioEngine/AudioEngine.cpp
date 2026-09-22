@@ -377,8 +377,7 @@ void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
 	updatePlayingPatterns( trigger );
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor &&
-		 m_pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
+	if ( m_pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
 		// Tell the JACK server to locate to the beginning as well
 		// (done in the next run of audioEngine_process()).
 		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )
@@ -433,13 +432,6 @@ void AudioEngine::locate( const double fTick, bool bWithJackBroadcast,
 	// does so after the current cycle of audioEngine_process() and we
 	// will pick it up at the beginning of the next one.
 	if ( pHydrogen->hasJackTransport() && bWithJackBroadcast ) {
-		if ( m_pHydrogen->getProcessMode() ==
-			 H2Core::ProcessMode::Editor ) {
-			// The authoritative engine handles communication with the JACK
-			// server. We just wait till it reports back.
-			return;
-		}
-
 		double fNewTick = fTick;
 		// As the tick mismatch is lost when converting a sought location from
 		// ticks into frames, sending it to the JACK server, receiving it in a
@@ -3317,12 +3309,6 @@ void AudioEngine::play() {
 
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->hasJackTransport() ) {
-		if ( m_pHydrogen->getProcessMode() ==
-			 H2Core::ProcessMode::Editor ) {
-			// The authoritative engine handles communication with the JACK
-			// server. We just wait till it reports back.
-			return;
-		}
 		// Tell all other JACK clients to start as well and wait for
 		// the JACK server to give the signal.
 		std::dynamic_pointer_cast<JackDriver>( m_pAudioDriver )->startTransport();
@@ -3338,12 +3324,6 @@ void AudioEngine::stop() {
 	
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pHydrogen->hasJackTransport() ) {
-		if ( m_pHydrogen->getProcessMode() ==
-			 H2Core::ProcessMode::Editor ) {
-			// The authoritative engine handles communication with the JACK
-			// server. We just wait till it reports back.
-			return;
-		}
 
 #if AUDIO_ENGINE_DEBUG
 		AE_DEBUGLOG( "Stopping engine via JACK server" );

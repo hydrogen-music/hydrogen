@@ -1363,3 +1363,148 @@ void EngineSessionTest::testReplaceInstrumentCrossesSplit() {
 
 	___INFOLOG( "passed" );
 }
+
+// ADR 0031: while the authoritative engine plays, the mirror's transport
+// free-runs on its own SoftwareDriver clock — the playhead must advance
+// steadily, with telemetry only correcting drift. If the mirror relied on
+// telemetry snapshots alone, the playhead would stand still between syncs
+// and jump on each one.
+void EngineSessionTest::testMirrorTransportFreeRuns() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSong() != nullptr; } ) );
+
+	// The engine starts rolling; the mirror follows the state via telemetry.
+	pEngine->sequencerPlay();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getAudioEngine()->getState() ==
+			AudioEngine::State::Playing; } ) );
+
+	// Sampled every ~100 ms, a free-running playhead advances by roughly
+	// that interval worth of frames: it must move (not frozen) but never
+	// jump by half a second or more (a telemetry resync snap).
+	const auto pPlayhead = pMirror->getAudioEngine()->getPlayhead();
+	const unsigned nSampleRate =
+		pMirror->getAudioEngine()->getAudioDriver()->getSampleRate();
+	long long nLastFrame = pPlayhead->getFrame();
+	QElapsedTimer timer;
+	timer.start();
+	qint64 nLastSampleAt = 0;
+	while ( timer.elapsed() < 1500 ) {
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
+		QThread::msleep( 5 );
+		if ( timer.elapsed() - nLastSampleAt >= 100 ) {
+			const long long nAdvanced = pPlayhead->getFrame() - nLastFrame;
+			CPPUNIT_ASSERT( nAdvanced > 0 );
+			CPPUNIT_ASSERT( nAdvanced < static_cast<long long>( nSampleRate ) / 2 );
+			nLastFrame += nAdvanced;
+			nLastSampleAt = timer.elapsed();
+		}
+	}
+
+	// The engine stops; the mirror follows back to Ready.
+	pEngine->sequencerStop();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getAudioEngine()->getState() ==
+			AudioEngine::State::Ready; } ) );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// A JACK-transport engine must not stall the mirror's clock. The mirror has
+// no JACK client (the authoritative engine owns the server transport), and
+// its engine core must not consume the GUI-facing cached AudioDriverInfo:
+// hasJackTransport() asks the local driver only — false on the mirror by
+// construction — so play()/stop() roll the local state machine (ADR 0031's
+// free-running playhead) and the telemetry correction keeps it aligned.
+// Regression: AudioEngine::play()/stop() used to branch on
+// hasJackTransport() while that still answered the cross-process question
+// in editor mode, bailing out without setNextState() and freezing the
+// mirror playhead except for per-beat BbtChanged resync snaps.
+void EngineSessionTest::testMirrorTransportFreeRunsUnderJackTransport() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSong() != nullptr; } ) );
+
+	// Simulate an engine whose driver uses JACK transport. The mirror knows
+	// about this only through the IPC-cached AudioDriverInfo (ADR 0029) —
+	// the coreUses*() question. The engine-local hasJack*() question must
+	// stay unaffected by it.
+	auto info = pMirror->getCachedAudioDriverInfo();
+	info.jackTransportEnabled = true;
+	pMirror->setCachedAudioDriverInfo( info );
+
+	// The layering contract: the cached info answers the GUI's
+	// cross-process question; the mirror engine's own transport branching
+	// asks the local driver only.
+	CPPUNIT_ASSERT( ! pMirror->hasJackTransport() );
+	CPPUNIT_ASSERT( pMirror->coreUsesJackTransport() );
+
+	// The engine starts rolling; the mirror must follow into Playing —
+	// its own clock, not a JACK server it cannot talk to.
+	pEngine->sequencerPlay();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getAudioEngine()->getState() ==
+			AudioEngine::State::Playing; } ) );
+
+	// Same steady-advance contract as the non-JACK case.
+	const auto pPlayhead = pMirror->getAudioEngine()->getPlayhead();
+	const unsigned nSampleRate =
+		pMirror->getAudioEngine()->getAudioDriver()->getSampleRate();
+	long long nLastFrame = pPlayhead->getFrame();
+	QElapsedTimer timer;
+	timer.start();
+	qint64 nLastSampleAt = 0;
+	while ( timer.elapsed() < 1500 ) {
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
+		QThread::msleep( 5 );
+		if ( timer.elapsed() - nLastSampleAt >= 100 ) {
+			const long long nAdvanced = pPlayhead->getFrame() - nLastFrame;
+			CPPUNIT_ASSERT( nAdvanced > 0 );
+			CPPUNIT_ASSERT( nAdvanced < static_cast<long long>( nSampleRate ) / 2 );
+			nLastFrame += nAdvanced;
+			nLastSampleAt = timer.elapsed();
+		}
+	}
+
+	// The engine stops; the mirror must follow back to Ready instead of
+	// rolling on forever.
+	pEngine->sequencerStop();
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getAudioEngine()->getState() ==
+			AudioEngine::State::Ready; } ) );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

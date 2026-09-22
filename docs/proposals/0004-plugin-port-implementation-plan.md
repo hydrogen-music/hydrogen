@@ -1916,8 +1916,52 @@ split-safe (suite `OK (445 tests)` ×3 consecutive).**
     setup) + two transport-level legs in
     `IpcTransportTest::testProxyObjectPayloadCommands` (empty-payload
     message shape, then a full dispatch round trip of both null
-    combos). RED: exactly the two tests failing (448 run, 446 pass);
-    GREEN ×3. No new write surface — `check_write_surface` OK.
+     combos). RED: exactly the two tests failing (448 run, 446 pass);
+     GREEN ×3. No new write surface — `check_write_surface` OK.
+
+ **Batch 2ae — editor playhead frozen under JACK transport: split-safe
+  (suite `OK (451 tests)` ×3 consecutive).**
+  * Bug (`AudioEngine::play()`/`stop()` + `Hydrogen::hasJack*()`): under
+    `hasJackTransport()` the Editor branch returned early — without
+    `setNextState()` — "we just wait till it reports back". But the mirror
+    has no JACK client (the authoritative engine owns the server
+    transport), so nothing reports back: the mirror never entered
+    `Playing`, its SoftwareDriver clock never rolled the playhead, and the
+    only motion came from the per-beat `BbtChanged` events triggering
+    `EditorStateMirror` syncs whose drift correction (`relocateToFrame`,
+    ~0.5 s threshold) snapped the playhead forward — the reported
+    "jumping, only updated when resynced to telemetry, at a rate a bit
+    above the resync rate". `stop()` had the mirror-inverse defect: a
+    JACK engine stopping would leave the mirror rolling on.
+  * Root cause was a layering violation: `hasJack*()` answered the
+    cross-process question (Editor → IPC-cached `AudioDriverInfo`,
+    ADR 0029) and the engine's transport state machine consumed it.
+    Fix (see the ADR 0029 amendment): `hasJack*()` reverted to pure
+    local-driver checks (cast + prefs — false on the mirror by
+    construction, its driver is a SoftwareDriver), and the GUI's question
+    moved to new `coreUsesJackDriver()` / `coreUsesJackTransport()`
+    (Editor → cached info, otherwise local). `play()/stop()` lost their
+    Editor branches entirely (pre-split shape again); the redundant
+    Editor clauses in `reset()`'s JACK guards went too. Callers:
+    `CoreActionController::activateJackTransport`'s guard and
+    MainToolBar's six JACK-control sites moved to `coreUses*()` (the
+    `IEngineAccess` facade methods renamed along); engine-core sites
+    (Sampler, Hydrogen track-outs/timebase, the process loop) stay on the
+    local `hasJack*()`. `getJackTimebaseState()` keeps its Editor-cached
+    branch — its only core caller (`getBpmAtColumn`) is behind an Editor
+    early-return, so it serves the GUI only.
+  * Tests: `EngineSessionTest::testMirrorTransportFreeRuns` (baseline:
+    play/stop follow via telemetry + steady playhead advance — sampled
+    every ~100 ms it must move, but never jump half a second's worth of
+    frames) and `testMirrorTransportFreeRunsUnderJackTransport` (same
+    contract with the mirror's cached `jackTransportEnabled` set, plus
+    the layering pin: `hasJackTransport()` stays false while
+    `coreUsesJackTransport()` is true). RED: build failure (missing
+    `coreUsesJackTransport`), before that the runtime RED of the frozen
+    mirror under the cached-JACK simulation (451 run, 1 failure);
+    GREEN ×3. Also fixed two stale pre-ADR-0031 comments that still
+    described the mirror as thread-less (`main.cpp` editor branch,
+    `TestHelper::makeMirror`). `check_write_surface` OK.
 
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**

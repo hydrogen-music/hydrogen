@@ -2163,7 +2163,10 @@ bool CoreActionController::activateJackTransport( bool bActivate )
 {
 
 #ifdef H2CORE_HAVE_JACK
-	if ( !m_pHydrogen->hasJackDriver() ) {
+	// The guard runs on the mirror in editor mode too (before the action
+	// crosses IPC): it must ask the authoritative engine's driver state
+	// (coreUsesJackDriver), not the mirror's local SoftwareDriver.
+	if ( !m_pHydrogen->coreUsesJackDriver() ) {
 		ERRORLOG(
 			"Unable to (de)activate Jack transport. Please select the Jack "
 			"driver first."

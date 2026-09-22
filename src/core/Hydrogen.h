@@ -491,13 +491,28 @@ public:
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
 	   #m_ProcessMode.*/
 	void			setProcessMode( const H2Core::ProcessMode& state );
+	/** \return Whether a #H2Core::JackDriver is the local audio driver of
+	 * this process. Engine-core question: branches on the live driver
+	 * only, never on the IPC-cached editor copy (ADR 0029). */
 	bool			hasJackDriver() const;
 	/**
-	 * \return Whether #H2Core::JackDriver is used as current audio driver and
-	 * JACK transport was activated via the GUI
-	 * (#H2Core::Preferences::m_nJackTransportMode).
+	 * \return Whether #H2Core::JackDriver is used as current local audio
+	 * driver and JACK transport was activated via the GUI
+	 * (#H2Core::Preferences::m_nJackTransportMode). Engine-core question:
+	 * branches on the live driver only, never on the IPC-cached editor
+	 * copy (ADR 0029).
 	 */
 	bool			hasJackTransport() const;
+	/** \return Whether the authoritative engine uses a #H2Core::JackDriver.
+	 * GUI-facing question: in editor mode answered from the IPC-cached
+	 * #m_cachedAudioDriverInfo (ADR 0029), locally via hasJackDriver()
+	 * otherwise. */
+	bool			coreUsesJackDriver() const;
+	/** \return Whether the authoritative engine uses JACK transport.
+	 * GUI-facing question: in editor mode answered from the IPC-cached
+	 * #m_cachedAudioDriverInfo (ADR 0029), locally via hasJackTransport()
+	 * otherwise. */
+	bool			coreUsesJackTransport() const;
 
 	/**
 	 * Convenience function checking whether using the Timeline tempo is set in
@@ -839,8 +854,8 @@ private:
 	bool m_bSendBbtChangeEvents;
 
 	/** Cached audio-driver state for editor mode (ADR 0029). Populated via IPC
-	 * from the authoritative engine; read by hasJackDriver() /
-	 * hasJackTransport() / getJackTimebaseState() when m_ProcessMode ==
+	 * from the authoritative engine; read by coreUsesJackDriver() /
+	 * coreUsesJackTransport() / getJackTimebaseState() when m_ProcessMode ==
 	 * Editor. Unused (default-constructed) in standalone. */
 	AudioDriverInfo m_cachedAudioDriverInfo;
 

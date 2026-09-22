@@ -100,10 +100,10 @@ class IpcEngineAccess : public IEngineAccess,
 		return m_pMirror->getSelectedInstrumentNumber(); }
 	int getSelectedPatternNumber() const override {
 		return m_pMirror->getSelectedPatternNumber(); }
-	bool hasJackDriver() const override {
-		return m_pMirror->hasJackDriver(); }
-	bool hasJackTransport() const override {
-		return m_pMirror->hasJackTransport(); }
+	bool coreUsesJackDriver() const override {
+		return m_pMirror->coreUsesJackDriver(); }
+	bool coreUsesJackTransport() const override {
+		return m_pMirror->coreUsesJackTransport(); }
 	bool isPatternEditorLocked() const override {
 		return m_pMirror->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {

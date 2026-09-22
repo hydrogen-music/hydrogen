@@ -297,6 +297,31 @@ as the baseline):
    devices and CoreAudio devices require their driver to be running — the
    query answers empty otherwise.
 
+## Amendment (2026-09-22): consumption rule for the cached copy
+
+The first iteration let `Hydrogen::hasJackDriver()` / `hasJackTransport()`
+answer from the cached copy in editor mode — and the engine core consumed
+that answer: `AudioEngine::play()`/`stop()` branched on it and bailed out
+without rolling the local state machine ("we just wait till it reports
+back"). With a JACK-transport engine the mirror's clock therefore never
+ran and the playhead only moved in per-beat telemetry resync snaps.
+
+The cached copy now answers the GUI's cross-process question only:
+
+* `hasJackDriver()` / `hasJackTransport()` are pure local-driver checks
+  again (cast + preferences). The engine core branches on its own live
+  driver; on the editor mirror they are false by construction (its driver
+  is a clocked, output-less `SoftwareDriver`, ADR 0031).
+* The GUI asks about the authoritative engine via the new
+  `coreUsesJackDriver()` / `coreUsesJackTransport()` (editor mode →
+  cached copy, otherwise → local `hasJack*()`). The `IEngineAccess`
+  facade methods were renamed accordingly.
+* `getJackTimebaseState()` keeps its editor-cached branch: its only
+  engine-core caller (`AudioEngine::getBpmAtColumn`) sits behind an
+  editor early-return, so the cached branch serves the GUI only.
+* The mirror's clock *rate* alignment in `setCachedAudioDriverInfo()`
+  (ADR 0031) is unaffected — rate is configuration, not branching.
+
 ## More Information
 
 * Code: `src/core/IO/AudioDriver.h` (`getSampleRate`/`getBufferSize`/`getLatency`/

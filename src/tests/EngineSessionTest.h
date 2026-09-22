@@ -49,6 +49,8 @@ class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetQuantizeEventsCrossesSplit );
 	CPPUNIT_TEST( testSetPatternEditorGridCrossesSplit );
 	CPPUNIT_TEST( testReplaceInstrumentCrossesSplit );
+	CPPUNIT_TEST( testMirrorTransportFreeRuns );
+	CPPUNIT_TEST( testMirrorTransportFreeRunsUnderJackTransport );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -71,6 +73,8 @@ public:
 	void testSetQuantizeEventsCrossesSplit();
 	void testSetPatternEditorGridCrossesSplit();
 	void testReplaceInstrumentCrossesSplit();
+	void testMirrorTransportFreeRuns();
+	void testMirrorTransportFreeRunsUnderJackTransport();
 };
 
 #endif

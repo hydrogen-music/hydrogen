@@ -473,10 +473,10 @@ int main(int argc, char *argv[])
 
 		H2Core::Hydrogen* pHydrogen = nullptr;
 		if ( bConnectViaIpc ) {
-			// Local headless mirror: passive (Null) audio driver, no MIDI, no
-			// OSC. It must not spawn an audio-processing thread (the headless
-			// engine we want to connect to owns audio); a thread here would
-			// race the teardown below on abort.
+			// Local headless mirror: clocked but output-less (Null) driver
+			// (ADR 0031) — it rolls the mirror's own transport for a smooth
+			// playhead while the headless engine we connect to owns audio.
+			// No MIDI, no OSC.
 			//
 			// The mirror GUI only owns the GUI rows of the shared config; the
 			// authoritative headless engine owns the core rows (ADR 0022/0023).

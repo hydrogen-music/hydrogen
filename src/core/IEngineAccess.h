@@ -98,8 +98,8 @@ public:
 	virtual std::shared_ptr<Instrument> getSelectedInstrument() const = 0;
 	virtual int getSelectedInstrumentNumber() const = 0;
 	virtual int getSelectedPatternNumber() const = 0;
-	virtual bool hasJackDriver() const = 0;
-	virtual bool hasJackTransport() const = 0;
+	virtual bool coreUsesJackDriver() const = 0;
+	virtual bool coreUsesJackTransport() const = 0;
 	virtual bool isPatternEditorLocked() const = 0;
 	virtual bool isUnderSessionManagement() const = 0;
 	virtual QString getSessionFolderPath() const = 0;

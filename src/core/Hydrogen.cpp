@@ -1516,12 +1516,6 @@ void Hydrogen::killInstruments() {
 
 bool Hydrogen::hasJackDriver() const
 {
-	// In editor mode the mirror has no real audio driver; consult the
-	// IPC-cached AudioDriverInfo instead (ADR 0029).
-	if ( m_ProcessMode == ProcessMode::Editor ) {
-		return m_cachedAudioDriverInfo.kind == Preferences::AudioDriver::Jack;
-	}
-
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 		if ( std::dynamic_pointer_cast<JackDriver>(
@@ -1538,12 +1532,6 @@ bool Hydrogen::hasJackDriver() const
 
 bool Hydrogen::hasJackTransport() const
 {
-	// In editor mode the mirror has no real audio driver; consult the
-	// IPC-cached AudioDriverInfo instead (ADR 0029).
-	if ( m_ProcessMode == ProcessMode::Editor ) {
-		return m_cachedAudioDriverInfo.jackTransportEnabled;
-	}
-
 #ifdef H2CORE_HAVE_JACK
 	if ( m_pAudioEngine->getAudioDriver() != nullptr ) {
 		if ( std::dynamic_pointer_cast<JackDriver>(
@@ -1558,6 +1546,27 @@ bool Hydrogen::hasJackTransport() const
 #else
 	return false;
 #endif
+}
+
+bool Hydrogen::coreUsesJackDriver() const
+{
+	// The GUI-facing question "does the authoritative engine use JACK?" — in
+	// editor mode the answer crosses IPC via the cached AudioDriverInfo
+	// (ADR 0029). The engine core itself must not consume the cache: it
+	// branches on its own live driver via hasJack*() only.
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_cachedAudioDriverInfo.kind == Preferences::AudioDriver::Jack;
+	}
+	return hasJackDriver();
+}
+
+bool Hydrogen::coreUsesJackTransport() const
+{
+	// See coreUsesJackDriver().
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_cachedAudioDriverInfo.jackTransportEnabled;
+	}
+	return hasJackTransport();
 }
 
 JackDriver::Timebase Hydrogen::getJackTimebaseState() const

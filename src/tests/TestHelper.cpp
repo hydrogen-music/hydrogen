@@ -373,8 +373,9 @@ H2Core::Hydrogen* TestHelper::makeEngineWithLoopBackMidi() {
 
 H2Core::Hydrogen* TestHelper::makeMirror() {
 	auto pPref = H2Core::Preferences::create_instance();
-	// Same headless-mirror configuration main()'s editor branch uses (passive
-	// Null audio driver — no processing thread, no MIDI, no OSC).
+	// Same headless-mirror configuration main()'s editor branch uses: the
+	// clocked but output-less Null driver (ADR 0031) rolls the mirror's
+	// transport locally; no MIDI, no OSC.
 	H2Core::EditorSession::configureMirrorPreferences( pPref );
 	auto pHydrogen = new H2Core::Hydrogen(
 		pPref, H2Core::ProcessMode::Editor, -1

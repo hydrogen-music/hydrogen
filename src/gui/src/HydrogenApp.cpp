@@ -477,8 +477,8 @@ void HydrogenApp::syncViaIpc() {
 	}
 
 	// 9. Audio driver info — cache the engine's driver state so the mirror's
-	// hasJackDriver() / hasJackTransport() / getJackTimebaseState() work in
-	// editor mode (ADR 0029).
+	// coreUsesJackDriver() / coreUsesJackTransport() / getJackTimebaseState()
+	// work in editor mode (ADR 0029).
 	refreshCachedAudioDriverInfo();
 
 	// 10. MIDI driver info — cache the engine's driver state (ADR 0029).

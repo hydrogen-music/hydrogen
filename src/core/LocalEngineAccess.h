@@ -73,10 +73,10 @@ public:
 		return m_pHydrogen->getSelectedInstrumentNumber(); }
 	int getSelectedPatternNumber() const override {
 		return m_pHydrogen->getSelectedPatternNumber(); }
-	bool hasJackDriver() const override {
-		return m_pHydrogen->hasJackDriver(); }
-	bool hasJackTransport() const override {
-		return m_pHydrogen->hasJackTransport(); }
+	bool coreUsesJackDriver() const override {
+		return m_pHydrogen->coreUsesJackDriver(); }
+	bool coreUsesJackTransport() const override {
+		return m_pHydrogen->coreUsesJackTransport(); }
 	bool isPatternEditorLocked() const override {
 		return m_pHydrogen->isPatternEditorLocked(); }
 	bool isUnderSessionManagement() const override {

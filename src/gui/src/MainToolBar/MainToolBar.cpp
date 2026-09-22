@@ -888,7 +888,7 @@ void MainToolBar::beatCounterEvent()
 
 void MainToolBar::jackTransportBtnClicked()
 {
-	if ( !HydrogenApp::pEngine()->hasJackDriver() ) {
+	if ( !HydrogenApp::pEngine()->coreUsesJackDriver() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			tr( "JACK-transport will work only with JACK driver." )
@@ -911,7 +911,7 @@ void MainToolBar::jackTransportBtnClicked()
 void MainToolBar::jackTimebaseBtnClicked()
 {
 #ifdef H2CORE_HAVE_JACK
-	if ( !HydrogenApp::pEngine()->hasJackTransport() ) {
+	if ( !HydrogenApp::pEngine()->coreUsesJackTransport() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			tr( "JACK transport will work only with JACK driver." )
@@ -1043,14 +1043,14 @@ void MainToolBar::updateIpcConnectionState() {
 void MainToolBar::updateJackTransport()
 {
 	auto pHydrogen = HydrogenApp::pHydrogen();
-	const bool bVisible = pHydrogen->hasJackDriver();
+	const bool bVisible = pHydrogen->coreUsesJackDriver();
 	m_pJackTimebaseAction->setVisible(
 		bVisible && HydrogenApp::pPreferences()->m_bJackTimebaseEnabled
 	);
 	m_pJackTransportAction->setVisible( bVisible );
 	m_pJackSeparator->setVisible( bVisible );
 
-	if ( pHydrogen->hasJackTransport() ) {
+	if ( pHydrogen->coreUsesJackTransport() ) {
 		m_pJackTransportAction->setChecked( true );
 	}
 	else {
@@ -1063,7 +1063,7 @@ void MainToolBar::updateJackTimebase()
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const bool bVisible = pHydrogen->hasJackDriver();
+	const bool bVisible = pHydrogen->coreUsesJackDriver();
 	m_pJackTimebaseAction->setVisible(
 		bVisible && HydrogenApp::pPreferences()->m_bJackTimebaseEnabled
 	);
@@ -1075,7 +1075,7 @@ void MainToolBar::updateJackTimebase()
 	}
 
 	m_pJackTimebaseButton->setStyleSheet( "" );
-	if ( pHydrogen->hasJackTransport() ) {
+	if ( pHydrogen->coreUsesJackTransport() ) {
 		switch ( pHydrogen->getJackTimebaseState() ) {
 			case JackDriver::Timebase::Controller:
 				m_pJackTimebaseButton->setChecked( true );
