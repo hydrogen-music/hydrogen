@@ -55,6 +55,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testSongFormatIntegrity);
 	CPPUNIT_TEST(testSongLegacy);
 	CPPUNIT_TEST(testSongLoadFromInfo);
+	CPPUNIT_TEST(testProject);
 	CPPUNIT_TEST(testPreferencesFormatIntegrity);
 	CPPUNIT_TEST(testShippedPreferences);
 	CPPUNIT_TEST(testShippedThemes);
@@ -114,10 +115,17 @@ class XmlTest : public CppUnit::TestCase {
 		/** When loading an entire song from a #SongInfo - as done for property
 		 * editing or duplication in the sound library - the current song must
 		 * not be marked modified. */
-		void testSongLoadFromInfo();
+	void testSongLoadFromInfo();
 
-		/** Checks whether the format of our preferences file `hydrogen.conf`
-		 * did change. */
+	/** Loads the checked-in minimal `.h2project` fixture — a self-contained
+	 * bundle of a song, its manifest, and two embedded samples — through
+	 * the project loader. This guards the on-disk bundle format against
+	 * regressions the runtime round-trip tests cannot catch (there writer
+	 * and reader drift together). */
+	void testProject();
+
+	/** Checks whether the format of our preferences file `hydrogen.conf`
+	 * did change. */
 		void testPreferencesFormatIntegrity();
 		// Check whether the shipped default/fallback config file is up-to-date.
 		void testShippedPreferences();

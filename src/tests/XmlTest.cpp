@@ -37,6 +37,7 @@
 #include <core/Basics/Sample.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/H2Project.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Xml.h>
 #include <core/Preferences/Preferences.h>
@@ -1030,6 +1031,42 @@ void XmlTest::testSongLoadFromInfo() {
 	auto pAnotherSong = Song::from( pInfo, pTestHydrogen() );
 
 	CPPUNIT_ASSERT( ! pCurrentSong->getIsModified() );
+	___INFOLOG( "passed" );
+}
+
+void XmlTest::testProject() {
+	___INFOLOG( "" );
+
+	const QString sPath = H2TEST_FILE( "projects/minimal.h2project" );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileExists( sPath, true ) );
+
+	auto pSong = H2Project::load( sPath, pTestHydrogen(), true );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	CPPUNIT_ASSERT_EQUAL( std::string( "Project-Fixture" ),
+						  pSong->getName().toStdString() );
+	CPPUNIT_ASSERT( pSong->getDrumkit() != nullptr );
+	CPPUNIT_ASSERT_EQUAL( 2, pSong->getDrumkit()->getInstruments()->size() );
+	CPPUNIT_ASSERT( ! pSong->getDrumkit()->hasMissingSamples() );
+
+	// Both samples are decoded from the bundle and live in its per-origin
+	// extraction folder below the cache dir - not in the test data folder
+	// they were bundled from.
+	for ( int ii = 0; ii < 2; ++ii ) {
+		const auto pInstrument =
+			pSong->getDrumkit()->getInstruments()->get( ii );
+		CPPUNIT_ASSERT( pInstrument != nullptr );
+		CPPUNIT_ASSERT_EQUAL(
+			QString( "fixture-instr-%1" ).arg( ii ).toStdString(),
+			pInstrument->getName().toStdString() );
+		const auto pLayer = pInstrument->getComponent( 0 )->getLayer( 0 );
+		CPPUNIT_ASSERT( pLayer != nullptr );
+		CPPUNIT_ASSERT( pLayer->getSample() != nullptr );
+		CPPUNIT_ASSERT( pLayer->getSample()->isLoaded() );
+		CPPUNIT_ASSERT( pLayer->getSample()->getFrames() > 0 );
+		CPPUNIT_ASSERT( pLayer->getSample()->getFilePath().startsWith(
+			H2Core::Filesystem::cacheDir() ) );
+	}
+
 	___INFOLOG( "passed" );
 }
 
