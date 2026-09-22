@@ -3185,7 +3185,8 @@ bool CoreActionController::replacePlaybackTrackInstrument(
 	// Instead of letting all notes associated with this instrument ring till
 	// the end, we discard those for which playback did not started yet and make
 	// the remaining ones enter ADSR release phase.
-	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+	if ( m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor &&
+		 pOldInstrument != nullptr ) {
 		pAudioEngine->getSampler()->releasePlayingNotes(
 			pOldInstrument->getUuid() );
 	}

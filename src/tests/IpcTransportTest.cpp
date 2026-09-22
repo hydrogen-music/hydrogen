@@ -432,6 +432,38 @@ void IpcTransportTest::testProxyObjectPayloadCommands() {
 						  cmd.getArgs()[0].toInt() );
 	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
 
+	// --- replaceInstrument, playback track discard: a null new instrument
+	// encodes as an empty payload; the PlaybackTrackId arg tags the
+	// playback path, whose old instrument the engine derives from its own
+	// song (the editor's copy is never marshaled) ---
+	auto pTrack = std::make_shared<Instrument>(
+		Instrument::PlaybackTrackId, "PlaybackTrack" );
+	pEngine->getSong()->setPlaybackTrackInstrument(
+		std::make_shared<Instrument>( pTrack ) );
+	proxy.replaceInstrument( nullptr, pTrack );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::ReplaceInstrument );
+	CPPUNIT_ASSERT( cmd.getPayload().isEmpty() );
+	CPPUNIT_ASSERT_EQUAL( static_cast<int>( Instrument::PlaybackTrackId ),
+						  cmd.getArgs()[0].toInt() );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getPlaybackTrackInstrument() == nullptr );
+
+	// --- replaceInstrument, playback track restore: a null old instrument
+	// (the undo of the discard) — the new track rides as payload ---
+	proxy.replaceInstrument( pTrack, nullptr );
+	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::ReplaceInstrument );
+	CPPUNIT_ASSERT( ! cmd.getPayload().isEmpty() );
+	CPPUNIT_ASSERT_EQUAL( static_cast<int>( Instrument::PlaybackTrackId ),
+						  cmd.getArgs()[0].toInt() );
+	CPPUNIT_ASSERT( IpcEngineBridge::dispatchCommand( cmd, pEngine ) );
+	CPPUNIT_ASSERT(
+		pEngine->getSong()->getPlaybackTrackInstrument() != nullptr );
+	CPPUNIT_ASSERT( pEngine->getSong()->getPlaybackTrackInstrument()->getId()
+					== Instrument::PlaybackTrackId );
+
 	// --- saveSong: engine-only file op (no mirror write) ---
 	proxy.saveSongAs( "/tmp/ipc-save-test.h2song", true );
 	CPPUNIT_ASSERT( conn->receive( cmd ) );

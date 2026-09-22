@@ -1867,13 +1867,58 @@ split-safe (suite `OK (445 tests)` ×3 consecutive).**
    UpdatePreferences event.
  * Guard: `PATTERN_SET_QUANTIZATION_SETTINGS` (the three preference
    setters) added to `tools/check_write_surface`.
- * RED/GREEN: two-stage — build failure (missing commands), then a
-   runtime RED with all plumbing but the bridge cases (447 tests,
-   exactly the two new tests failing), then green. Baseline lesson:
-   the test engine's preferences load from
-   `src/tests/data/preferences/current.conf` (grid resolution 16), not
-   the in-class defaults — baseline asserts must cite the file, and
-   the first GREEN run caught my own wrong assumption there.
+  * RED/GREEN: two-stage — build failure (missing commands), then a
+    runtime RED with all plumbing but the bridge cases (447 tests,
+    exactly the two new tests failing), then green. Baseline lesson:
+    the test engine's preferences load from
+    `src/tests/data/preferences/current.conf` (grid resolution 16), not
+    the in-class defaults — baseline asserts must cite the file, and
+    the first GREEN run caught my own wrong assumption there.
+
+ **Batch 2ad — playback track replacement crossing: split-safe (suite
+  `OK (448 tests)` ×3 consecutive).**
+  * Bug (`IpcCoreActionController`): `replaceInstrument` only sent the
+    `ReplaceInstrument` command when BOTH instruments were non-null.
+    But `SongEditorPanel`'s delete-playback-track button pushes
+    `SE_replaceInstrumentAction(nullptr, currentTrack,
+    DeletePlaybackTrack)` — redo `(nullptr, track)`, undo
+    `(track, nullptr)` — so discarding the playback track (and undoing
+    it) never reached the authoritative engine; only the mirror
+    applied. (`loadPlaybackTrack`, the add path, already crossed via
+    its own opcode and bypasses `replaceInstrument` entirely —
+    unaffected.)
+  * Fix, three parts:
+    1. Gate + encoding: the send now covers the playback-track combos
+       (either side null with the other being the playback track;
+       both-non-null drumkit replacements unchanged; combos the base
+       rejects — `(nullptr, nullptr)`, or a null side without a
+       playback track — stay local as before). Playback-path messages
+       tag `arg[0] = PlaybackTrackId`; a null new instrument (the
+       discard) crosses as an empty payload; the old playback track is
+       not marshaled at all — it is engine state.
+    2. Bridge: `arg == PlaybackTrackId` routes to the playback path —
+       new instrument from the payload (or null), old one derived from
+       the authoritative song's `getPlaybackTrackInstrument()` (the
+       engine's own object, correct for death-row/sample release).
+       Mixed combos (a playback-track new instrument with a drumkit old
+       id, or vice versa) are rejected with an ERRORLOG. The drumkit
+       path is unchanged (payload + id lookup) plus its own
+       mixed-combo rejection.
+    3. Base guard: `replacePlaybackTrackInstrument` skips
+       `releasePlayingNotes(pOldInstrument->getUuid())` when the old
+       instrument is null — the restore crossing delivers
+       `(track, nullptr)` to the engine, whose non-Editor mode would
+       have dereferenced null (the editor process never hit this:
+       Editor mode skips the release branch).
+  * Tests: `EngineSessionTest::testReplaceInstrumentCrossesSplit`
+    (drumkit leg as a regression guard for the bridge restructure, then
+    discard/restore legs with the `loadPlaybackTrack` crossing as
+    setup) + two transport-level legs in
+    `IpcTransportTest::testProxyObjectPayloadCommands` (empty-payload
+    message shape, then a full dispatch round trip of both null
+    combos). RED: exactly the two tests failing (448 run, 446 pass);
+    GREEN ×3. No new write surface — `check_write_surface` OK.
+
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

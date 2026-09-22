@@ -216,9 +216,12 @@ SongEditorPanel::SongEditorPanel( QWidget *pParent ) : QWidget( pParent ) {
 		if ( pSong == nullptr ) {
 			return;
 		}
-		HydrogenApp::get_instance()->pushUndoCommand( new SE_replaceInstrumentAction(
-                                                          nullptr, pSong->getPlaybackTrackInstrument(), SE_replaceInstrumentAction::Type::DeletePlaybackTrack, ""
-		) );
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_replaceInstrumentAction(
+				nullptr, pSong->getPlaybackTrackInstrument(),
+				SE_replaceInstrumentAction::Type::DeletePlaybackTrack, ""
+			)
+		);
 	} );
 
 	m_pPlaybackTrackToolBar->addSeparator();

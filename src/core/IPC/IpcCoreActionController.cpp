@@ -974,14 +974,32 @@ bool IpcCoreActionController::setPattern(
 bool IpcCoreActionController::replaceInstrument(
 	std::shared_ptr<Instrument> pNewInstrument,
 	std::shared_ptr<Instrument> pOldInstrument, Event::Trigger trigger ) {
-	if ( m_pChannel != nullptr && pNewInstrument != nullptr &&
-		 pOldInstrument != nullptr ) {
-		// The new instrument rides as payload; the old one is identified by id so
-		// the engine can locate its own copy in the authoritative drumkit.
+	// The drumkit replacement needs both instruments. The playback track
+	// combos the SongEditorPanel undo stack produces — discarding the
+	// current track (nullptr new) and restoring one (nullptr old) — must
+	// cross as well; combos the base rejects ((nullptr, nullptr) or a null
+	// side without a playback track) stay local, exactly as before.
+	if ( m_pChannel != nullptr &&
+		 ( ( pNewInstrument != nullptr && pOldInstrument != nullptr ) ||
+		   ( pNewInstrument != nullptr &&
+			 pNewInstrument->getId() == Instrument::PlaybackTrackId ) ||
+		   ( pOldInstrument != nullptr &&
+			 pOldInstrument->getId() == Instrument::PlaybackTrackId ) ) ) {
+		// The new instrument rides as payload; the old one is identified by id
+		// so the engine can locate its own copy in the authoritative drumkit.
+		// In the playback track case the old instrument is engine state
+		// instead: the PlaybackTrackId arg tags the playback path (a null old
+		// instrument — the undo of a discard — sends the tag too, since the
+		// engine derives the old track from its own song), and a null new
+		// instrument (the discard itself) crosses as an empty payload.
 		IpcMessage msg( IpcOpcode::ReplaceInstrument );
-		msg.arg( static_cast<int>( pOldInstrument->getId() ) );
-		msg.setPayload( pNewInstrument->toXmlBuffer(
-			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
+		msg.arg( static_cast<int>(
+			pOldInstrument != nullptr ? pOldInstrument->getId()
+									  : Instrument::PlaybackTrackId ) );
+		if ( pNewInstrument != nullptr ) {
+			msg.setPayload( pNewInstrument->toXmlBuffer(
+				Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
+		}
 		m_pChannel->send( msg );
 	}
 	return CoreActionController::replaceInstrument(

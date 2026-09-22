@@ -26,6 +26,7 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/Event.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
@@ -1265,6 +1266,95 @@ void EngineSessionTest::testSetPatternEditorGridCrossesSplit() {
 	CPPUNIT_ASSERT( pMirror->getPreferences()
 					->getPatternEditorGridResolution() ==
 		4 * H2Core::nTicksPerQuarter );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2ad — replaceInstrument() crosses for the playback track
+// combos the SongEditorPanel undo stack produces: discarding the current
+// track (nullptr new instrument, the delete button's redo) and restoring
+// one (nullptr old instrument, its undo). The old playback track is engine
+// state — the bridge derives it from the authoritative song instead of
+// marshaling the editor's copy. Regular drumkit replacements (both
+// instruments non-null) keep crossing by id.
+void EngineSessionTest::testReplaceInstrumentCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// --- Drumkit replacement (both instruments non-null) keeps crossing
+	// by id: the engine swaps its own copy for the deserialized new one.
+	auto pOldMirror =
+		pMirror->getSong()->getDrumkit()->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pOldMirror != nullptr );
+	auto pNewMirror =
+		std::make_shared<Instrument>( pOldMirror ); // copy (same id)
+	pNewMirror->setName( "IPC-REPLACED" );
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->replaceInstrument(
+		pNewMirror, pOldMirror ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		const auto pReplaced = pEngine->getSong()->getDrumkit()
+			->getInstruments()
+			->find( pOldMirror->getId() );
+		return pReplaced != nullptr && pReplaced->getName() == "IPC-REPLACED";
+	} ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getDrumkit()->getInstruments()
+		->find( pOldMirror->getId() )
+		->getName() == "IPC-REPLACED" );
+
+	// --- A playback track to discard: loadPlaybackTrack() crosses via its
+	// own opcode and installs the engine-side track.
+	const QString sTrackFile = H2TEST_FILE( "song/res/playbackTrack.flac" );
+	pAccess->loadPlaybackTrack( sTrackFile );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getPlaybackTrackInstrument() != nullptr;
+	} ) );
+
+	// The editor-side old instrument, as the delete handler holds it: the
+	// mirror's copy of the track. Only its identity — not its samples —
+	// crosses.
+	auto pTrackMirror = Instrument::from( Sample::load( sTrackFile ), pMirror );
+	CPPUNIT_ASSERT( pTrackMirror != nullptr );
+	pTrackMirror->setId( Instrument::PlaybackTrackId );
+	pTrackMirror->setName( "PlaybackTrack" );
+	pMirror->getSong()->setPlaybackTrackInstrument( pTrackMirror );
+
+	// --- Discard (nullptr new): the delete button's redo() — used to stop
+	// at the editor because of the null instrument.
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->replaceInstrument(
+		nullptr, pTrackMirror ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getPlaybackTrackInstrument() == nullptr;
+	} ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getPlaybackTrackInstrument() == nullptr );
+
+	// --- Restore (nullptr old): the delete's undo() re-installs the track.
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->replaceInstrument(
+		pTrackMirror, nullptr ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		const auto pTrack = pEngine->getSong()->getPlaybackTrackInstrument();
+		return pTrack != nullptr &&
+			pTrack->getId() == Instrument::PlaybackTrackId;
+	} ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getPlaybackTrackInstrument() != nullptr );
 
 	pEditor.reset();
 	pServer->stop();

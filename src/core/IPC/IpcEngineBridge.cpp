@@ -852,6 +852,38 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 			ERRORLOG( "Invalid current song" );
 			return false;
 		}
+		const auto nOldId = static_cast<Instrument::Id>( args[0].toInt() );
+
+		if ( nOldId == Instrument::PlaybackTrackId ) {
+			// Playback track replacement: the new instrument is either
+			// absent (discard the current track) or the playback track
+			// itself; the old one is engine state — derived from the
+			// authoritative song instead of being marshaled.
+			std::shared_ptr<Instrument> pNewInstrument = nullptr;
+			if ( ! msg.getPayload().isEmpty() ) {
+				pNewInstrument = Instrument::fromXmlBuffer(
+					msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
+				if ( pNewInstrument == nullptr ) {
+					ERRORLOG( QString( "Unable to serialize new instrument from [%1]" )
+								  .arg( msg.toQString() ) );
+					return false;
+				}
+				if ( pNewInstrument->getId() !=
+					 Instrument::PlaybackTrackId ) {
+					ERRORLOG( QString( "Mixed replacement: new instrument [%1] is not the playback track" )
+								  .arg( static_cast<int>(
+									  pNewInstrument->getId() ) ) );
+					return false;
+				}
+			}
+			return pController->replaceInstrument(
+				pNewInstrument,
+				pHydrogen->getSong()->getPlaybackTrackInstrument(),
+				Event::Trigger::Suppress );
+		}
+
+		// Drumkit replacement: the new instrument rides as payload, the old
+		// one is located by id in the authoritative drumkit.
 		auto pNewInstrument = Instrument::fromXmlBuffer(
 			msg.getPayload(), Xml::Flag::SongKit, true, pHydrogen );
 		if ( pNewInstrument == nullptr ) {
@@ -859,9 +891,14 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 						  .arg( msg.toQString() ) );
 			return false;
 		}
+		if ( pNewInstrument->getId() == Instrument::PlaybackTrackId ) {
+			ERRORLOG( QString( "Mixed replacement: new playback track instrument with old id [%1]" )
+						  .arg( msg.toQString() ) );
+			return false;
+		}
 		auto pOldInstrument =
 			pHydrogen->getSong()->getDrumkit()->getInstruments()->find(
-				static_cast<Instrument::Id>( args[0].toInt() ) );
+				nOldId );
 		if ( pOldInstrument == nullptr ) {
 			ERRORLOG( QString( "Unable to serialize old instrument from [%1]" )
 						  .arg( msg.toQString() ) );

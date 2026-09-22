@@ -252,6 +252,10 @@ public:
 	// payload and dual-apply; addInstrument is request/response when the caller
 	// needs the engine's event id. The save* commands are engine-only (no mirror
 	// write to the shared file).
+	// Batch 2ad — replaceInstrument also crosses for the playback track
+	// combos (null new = discard, null old = restore): the PlaybackTrackId
+	// arg tags the playback path, a null new instrument crosses as an empty
+	// payload, and the old playback track is derived engine-side.
 	bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit,
 		Event::Trigger trigger = Event::Trigger::Default ) override;
 	bool setPattern( std::shared_ptr<Pattern> pPattern, int nPatternNumber,
