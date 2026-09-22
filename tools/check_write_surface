@@ -119,6 +119,14 @@ PATTERN_AUTOMATION_PATH_DIRECT_WRITES='(m_pPath|pPath|getAutomationPath[[:space:
 # patterns, or playback keeps using the stale set.
 PATTERN_VIRTUAL_DIRECT_WRITES='(virtualPatternsAdd|virtualPatternsDel|virtualPatternsClear|updateVirtualPatterns)[[:space:]]*\('
 
+# ADR 0030 batch 2ac — the pattern editor panel's realtime note
+# quantization settings (the quantize flag and the grid
+# resolution×triplets pair) have to cross the split via the
+# CoreActionController commands; a direct write on the mirror's
+# preferences leaves the authoritative engine's addRealtimeNote()
+# quantizing incoming keyboard/MIDI notes on the stale grid.
+PATTERN_SET_QUANTIZATION_SETTINGS='(pPref|pPreferences[[:space:]]*\([[:space:]]*\)|pPrefs|getPreferences[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*(setQuantizeEvents|setPatternEditorGridResolution|setPatternEditorUsingTriplets)[[:space:]]*\('
+
 
 # Normalize a source line: strip leading/trailing whitespace, collapse internal
 # whitespace runs to single spaces.
@@ -210,7 +218,7 @@ while IFS= read -r line; do
 	fi
 	echo "  $file:$lineno: $norm"
 	violations=$((violations + 1))
-done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)|($PATTERN_SET_DEFAULT_MIDI_OUT_NOTES)|($PATTERN_MIDI_ACTION_MANAGER)|($PATTERN_RECALCULATE_RUBBERBAND)|($PATTERN_SET_RUBBERBAND_BATCH_MODE)|($PATTERN_SET_PUNCH_AREA)|($PATTERN_SET_MIDI_CONTROL_SETTINGS)|($PATTERN_AUTOMATION_PATH_DIRECT_WRITES)|($PATTERN_VIRTUAL_DIRECT_WRITES)" "$GUI_DIR" 2>/dev/null )
+done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)|($PATTERN_SET_DEFAULT_MIDI_OUT_NOTES)|($PATTERN_MIDI_ACTION_MANAGER)|($PATTERN_RECALCULATE_RUBBERBAND)|($PATTERN_SET_RUBBERBAND_BATCH_MODE)|($PATTERN_SET_PUNCH_AREA)|($PATTERN_SET_MIDI_CONTROL_SETTINGS)|($PATTERN_AUTOMATION_PATH_DIRECT_WRITES)|($PATTERN_VIRTUAL_DIRECT_WRITES)|($PATTERN_SET_QUANTIZATION_SETTINGS)" "$GUI_DIR" 2>/dev/null )
 
 if [ "$violations" -gt 0 ]; then
 	echo

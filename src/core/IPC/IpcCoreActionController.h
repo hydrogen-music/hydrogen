@@ -340,6 +340,14 @@ public:
 		int nPatternNumber, const QStringList& virtualPatternNames,
 		Event::Trigger trigger = Event::Trigger::Default ) override;
 
+	// ADR 0030 batch 2ac — realtime note quantization settings. The
+	// flag and the resolution×triplets pair cross as scalars (the pair
+	// as one command — the engine's addRealtimeNote() computes the
+	// quantization grid from both); the base calls install the very
+	// values on the mirror.
+	bool setQuantizeEvents( bool bQuantizeEvents ) override;
+	bool setPatternEditorGrid( int nResolution, bool bUsingTriplets ) override;
+
 	// ADR 0030 batch 2l — song export. The render pipeline only runs
 	// in the authoritative engine (the mirror's process loop skips
 	// rendering by design), so the whole plan crosses as one

@@ -1143,3 +1143,133 @@ void EngineSessionTest::testSetVirtualPatternsCrossesSplit() {
 
 	___INFOLOG( "passed" );
 }
+
+// ADR 0030 batch 2ac — the pattern editor panel's quantize toggle and
+// grid resolution combo wrote the editor's mirror preferences only.
+// The authoritative engine's addRealtimeNote() reads all three live
+// (the quantize flag and the resolution×triplets pair forming the
+// quantization grid), so incoming keyboard/MIDI notes kept being
+// quantized on the stale grid.
+void EngineSessionTest::testSetQuantizeEventsCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// Baseline (src/tests/data/preferences/current.conf, loaded by
+	// create_instance()): incoming events are quantized.
+	CPPUNIT_ASSERT( pEngine->getPreferences()->getQuantizeEvents() );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getQuantizeEvents() );
+
+	// The flag crosses as one command: the engine's copy lands under
+	// the bridge thread (pumped), the mirror's synchronously in the
+	// dual-apply.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setQuantizeEvents( false ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return ! pEngine->getPreferences()->getQuantizeEvents(); } ) );
+	CPPUNIT_ASSERT( ! pMirror->getPreferences()->getQuantizeEvents() );
+
+	// A second round proves repeated crossing — back to the default.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->setQuantizeEvents( true ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getQuantizeEvents(); } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()->getQuantizeEvents() );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// ADR 0030 batch 2ac — the resolution×triplets pair crosses as one
+// command (the setPunchArea precedent): addRealtimeNote() computes the
+// quantization grid from both, so the engine must never see a
+// half-updated pair. The "off" resolution (a full quarter of ticks)
+// crosses like any other value.
+void EngineSessionTest::testSetPatternEditorGridCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// Baseline (src/tests/data/preferences/current.conf, loaded by
+	// create_instance()): 1/16 grid, no triplets.
+	CPPUNIT_ASSERT(
+		pEngine->getPreferences()->getPatternEditorGridResolution() == 16 );
+	CPPUNIT_ASSERT(
+		! pEngine->getPreferences()->isPatternEditorUsingTriplets() );
+	CPPUNIT_ASSERT(
+		pMirror->getPreferences()->getPatternEditorGridResolution() == 16 );
+	CPPUNIT_ASSERT(
+		! pMirror->getPreferences()->isPatternEditorUsingTriplets() );
+
+	// 1/16T — the pair lands atomically on both sides.
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()
+					->setPatternEditorGrid( 32, true ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()
+				->getPatternEditorGridResolution() == 32 &&
+			pEngine->getPreferences()->isPatternEditorUsingTriplets(); } ) );
+	CPPUNIT_ASSERT(
+		pMirror->getPreferences()->getPatternEditorGridResolution() == 32 );
+	CPPUNIT_ASSERT(
+		pMirror->getPreferences()->isPatternEditorUsingTriplets() );
+
+	// 1/64 — a second round proves repeated crossing.
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()
+					->setPatternEditorGrid( 64, false ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()
+				->getPatternEditorGridResolution() == 64 &&
+			! pEngine->getPreferences()->isPatternEditorUsingTriplets(); } ) );
+	CPPUNIT_ASSERT(
+		pMirror->getPreferences()->getPatternEditorGridResolution() == 64 );
+	CPPUNIT_ASSERT(
+		! pMirror->getPreferences()->isPatternEditorUsingTriplets() );
+
+	// "off" — the combo's free-hand mode parks the cursor on a full
+	// quarter of ticks; that resolution crosses like any other.
+	CPPUNIT_ASSERT( pAccess->getCoreActionController()->setPatternEditorGrid(
+		4 * H2Core::nTicksPerQuarter, false ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getPreferences()->getPatternEditorGridResolution() ==
+			4 * H2Core::nTicksPerQuarter; } ) );
+	CPPUNIT_ASSERT( pMirror->getPreferences()
+					->getPatternEditorGridResolution() ==
+		4 * H2Core::nTicksPerQuarter );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

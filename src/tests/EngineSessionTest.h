@@ -46,6 +46,8 @@ class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testAddRemoveAutomationPointCrossesSplit );
 	CPPUNIT_TEST( testMoveAutomationPointCrossesSplit );
 	CPPUNIT_TEST( testSetVirtualPatternsCrossesSplit );
+	CPPUNIT_TEST( testSetQuantizeEventsCrossesSplit );
+	CPPUNIT_TEST( testSetPatternEditorGridCrossesSplit );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -65,6 +67,8 @@ public:
 	void testAddRemoveAutomationPointCrossesSplit();
 	void testMoveAutomationPointCrossesSplit();
 	void testSetVirtualPatternsCrossesSplit();
+	void testSetQuantizeEventsCrossesSplit();
+	void testSetPatternEditorGridCrossesSplit();
 };
 
 #endif

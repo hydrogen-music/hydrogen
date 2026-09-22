@@ -400,6 +400,12 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetVirtualPatterns:
 		sOpcode = "SET_VIRTUAL_PATTERNS";
 		break;
+	case IpcOpcode::SetQuantizeEvents:
+		sOpcode = "SET_QUANTIZE_EVENTS";
+		break;
+	case IpcOpcode::SetPatternEditorGrid:
+		sOpcode = "SET_PATTERN_EDITOR_GRID";
+		break;
 	case IpcOpcode::PreviewInstrument:
 		sOpcode = "PREVIEW_INSTRUMENT";
 		break;

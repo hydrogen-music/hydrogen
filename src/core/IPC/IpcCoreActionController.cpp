@@ -880,6 +880,27 @@ bool IpcCoreActionController::setVirtualPatterns(
 		nPatternNumber, virtualPatternNames, trigger );
 }
 
+bool IpcCoreActionController::setQuantizeEvents( bool bQuantizeEvents ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetQuantizeEvents )
+							  .arg( bQuantizeEvents ) );
+	}
+	return CoreActionController::setQuantizeEvents( bQuantizeEvents );
+}
+
+bool IpcCoreActionController::setPatternEditorGrid(
+	int nResolution, bool bUsingTriplets ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternEditorGrid )
+							  .arg( nResolution )
+							  .arg( bUsingTriplets ) );
+	}
+	// Dual-apply: the pair lands on the mirror as one command too —
+	// its own quantization preview must not see a half-updated grid.
+	return CoreActionController::setPatternEditorGrid(
+		nResolution, bUsingTriplets );
+}
+
 bool IpcCoreActionController::setSongProperties(
 	const int nNewVersion, const QString& sNewName,
 	const QString& sNewAuthor, const QString& sNewNotes,

@@ -532,6 +532,26 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * preferences (ADR 0030). */
 	virtual bool setPunchArea( int nPunchInPos, int nPunchOutPos );
 	/**
+	 * Sets whether incoming keyboard/MIDI events are quantized to the
+	 * pattern editor grid in the current #H2Core::Preferences.
+	 *
+	 * Granular install — no driver restarts, no UpdatePreferences
+	 * event: the engine's addRealtimeNote() reads the flag live when
+	 * recording incoming notes. In the editor split the pattern editor
+	 * panel's toggle must cross it to the authoritative engine
+	 * (ADR 0030). */
+	virtual bool setQuantizeEvents( bool bQuantizeEvents );
+	/**
+	 * Sets the pattern editor grid — the resolution and whether it is
+	 * based on triplets — in the current #H2Core::Preferences.
+	 *
+	 * The pair is installed as one command so the engine never sees a
+	 * half-updated grid: addRealtimeNote() computes the quantization
+	 * step from resolution×triplets base when recording incoming
+	 * notes. In the editor split the pattern editor panel's resolution
+	 * combo must cross it to the authoritative engine (ADR 0030). */
+	virtual bool setPatternEditorGrid( int nResolution, bool bUsingTriplets );
+	/**
 	 * Sets the last MIDI event registered by the engine's MIDI input
 	 * — the learning channel the MIDI sense widget polls to bind
 	 * incoming events.

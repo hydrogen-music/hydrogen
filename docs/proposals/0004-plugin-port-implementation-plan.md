@@ -1838,12 +1838,42 @@ split-safe (suite `OK (445 tests)` ×3 consecutive).**
   user-level path instead of the read-only system path.
 * Guard: `PATTERN_VIRTUAL_DIRECT_WRITES` (virtualPatternsAdd/Del/Clear
   + updateVirtualPatterns) added to `tools/check_write_surface`.
-* RED/GREEN: two-stage — build failure (missing command), then a
-  runtime RED with all plumbing but the bridge case (445 tests, exactly
-  `testSetVirtualPatternsCrossesSplit` failing at the engine-settled
-  pump), then green. The new test pumps on the full settled post-state
-  (direct set + flattened set + song dirty) per the flakiness-part-2
-  lesson.
+ * RED/GREEN: two-stage — build failure (missing command), then a
+   runtime RED with all plumbing but the bridge case (445 tests, exactly
+   `testSetVirtualPatternsCrossesSplit` failing at the engine-settled
+   pump), then green. The new test pumps on the full settled post-state
+   (direct set + flattened set + song dirty) per the flakiness-part-2
+   lesson.
+
+ **Batch 2ac — realtime note quantization settings: split-safe (suite
+ `OK (447 tests)` ×3 consecutive).**
+ * Bug (`PatternEditorPanel`): the quantize toggle
+   (`quantizeEventsBtnClick`) and the grid resolution combo
+   (`gridResolutionChanged`) wrote the mirror's preferences only —
+   three engine-facing values: the quantize flag, the grid resolution,
+   and the triplets base. The authoritative engine's
+   `addRealtimeNote()` reads all three live (the quantization step is
+   computed from resolution×triplets), so incoming keyboard/MIDI notes
+   kept being quantized on the stale grid. (`hearNotesBtnClick` in the
+   same panel is GUI-only — `getHearNewNotes` has no engine reader —
+   and stays a plain mirror write.)
+ * Fix: two granular-installs in the `setPunchArea`/`setMidiControlSettings`
+   family — `CoreActionController::setQuantizeEvents(bool)` and
+   `setPatternEditorGrid(resolution, triplets)` (the pair as one
+   command, so the engine never quantizes on a half-updated grid).
+   Cross as `SetQuantizeEvents` [bool] and `SetPatternEditorGrid`
+   [int, bool]; dual-applied on the mirror. The panel's two slots now
+   route through the controller; no driver restarts, no
+   UpdatePreferences event.
+ * Guard: `PATTERN_SET_QUANTIZATION_SETTINGS` (the three preference
+   setters) added to `tools/check_write_surface`.
+ * RED/GREEN: two-stage — build failure (missing commands), then a
+   runtime RED with all plumbing but the bridge cases (447 tests,
+   exactly the two new tests failing), then green. Baseline lesson:
+   the test engine's preferences load from
+   `src/tests/data/preferences/current.conf` (grid resolution 16), not
+   the in-class defaults — baseline asserts must cite the file, and
+   the first GREEN run caught my own wrong assumption there.
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

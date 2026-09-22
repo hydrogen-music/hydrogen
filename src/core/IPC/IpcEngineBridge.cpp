@@ -639,6 +639,22 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				Event::Trigger::Suppress );
 		}
 		break;
+	// ADR 0030 batch 2ac — args: the quantize flag as bool; the grid
+	// as an int resolution + bool triplets pair (one command so the
+	// engine's addRealtimeNote() never quantizes on a half-updated
+	// grid). Granular install on the engine's preferences; the editor
+	// already applied them on its mirror.
+	case IpcOpcode::SetQuantizeEvents:
+		if ( args.size() >= 1 ) {
+			return pController->setQuantizeEvents( args[0].toBool() );
+		}
+		break;
+	case IpcOpcode::SetPatternEditorGrid:
+		if ( args.size() >= 2 ) {
+			return pController->setPatternEditorGrid(
+				args[0].toInt(), args[1].toBool() );
+		}
+		break;
 	case IpcOpcode::PreviewInstrument:
 		if ( args.size() >= 2 ) {
 			return pController->previewInstrument( args[0].toInt(), args[1].toBool() );

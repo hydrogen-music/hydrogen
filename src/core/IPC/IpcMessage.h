@@ -143,6 +143,10 @@ enum class IpcOpcode : quint16 {
 	// ── ADR 0030 batch 2ab: virtual pattern editing ──
 	SetVirtualPatterns,       ///< args: [int pattern number, stringlist names]
 
+	// ── ADR 0030 batch 2ac: realtime note quantization settings ──
+	SetQuantizeEvents,        ///< args: [bool quantize events]
+	SetPatternEditorGrid,     ///< args: [int resolution, bool using triplets]
+
 	// ── ADR 0030 batch 2b: simple transport/pattern/instrument/jack/midi commands ──
 	PreviewInstrument,
 	ActivateTimeline,

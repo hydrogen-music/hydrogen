@@ -1024,9 +1024,12 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 			return;
 	}
 
-	auto pPref = HydrogenApp::pPreferences();
-	pPref->setPatternEditorGridResolution( m_nResolution );
-	pPref->setPatternEditorUsingTriplets( m_bIsUsingTriplets );
+	// The grid feeds the engine's realtime note quantization
+	// (addRealtimeNote): the pair crosses as one command so the
+	// authoritative engine never quantizes on a half-updated grid. The
+	// dual-apply installs it on the mirror's preferences too.
+	HydrogenApp::pEngine()->getCoreActionController()->setPatternEditorGrid(
+		m_nResolution, m_bIsUsingTriplets );
 
 	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) * 4 *
 						 H2Core::nTicksPerQuarter / ( m_nResolution * 3 );
@@ -1063,9 +1066,12 @@ void PatternEditorPanel::hearNotesBtnClick()
 
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
-	HydrogenApp::pPreferences()->setQuantizeEvents(
-		m_pQuantizeButton->isChecked()
-	);
+	// The flag feeds the engine's realtime note quantization
+	// (addRealtimeNote): the command crosses it to the authoritative
+	// engine and the dual-apply installs it on the mirror's
+	// preferences.
+	HydrogenApp::pEngine()->getCoreActionController()->setQuantizeEvents(
+		m_pQuantizeButton->isChecked() );
 
 	updateQuantization( nullptr );
 

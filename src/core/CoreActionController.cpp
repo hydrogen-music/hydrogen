@@ -1866,6 +1866,31 @@ bool CoreActionController::setPunchArea( int nPunchInPos, int nPunchOutPos )
 	return true;
 }
 
+bool CoreActionController::setQuantizeEvents( bool bQuantizeEvents )
+{
+	// Granular install: the engine's addRealtimeNote() reads the flag
+	// live when recording incoming keyboard/MIDI notes, so — unlike
+	// setPreferences() — no driver restarts and no UpdatePreferences
+	// event are needed (ADR 0030).
+	m_pHydrogen->getPreferences()->setQuantizeEvents( bQuantizeEvents );
+
+	return true;
+}
+
+bool CoreActionController::setPatternEditorGrid(
+	int nResolution, bool bUsingTriplets )
+{
+	// Granular install of the quantization grid: addRealtimeNote()
+	// computes the step from resolution×triplets base, so the pair is
+	// set as one command — the engine must never see a half-updated
+	// grid. No driver restarts, no UpdatePreferences event (ADR 0030).
+	auto pPref = m_pHydrogen->getPreferences();
+	pPref->setPatternEditorGridResolution( nResolution );
+	pPref->setPatternEditorUsingTriplets( bUsingTriplets );
+
+	return true;
+}
+
 bool CoreActionController::setLastMidiEvent( const MidiEvent::Type& type,
 											 Midi::Parameter parameter )
 {
