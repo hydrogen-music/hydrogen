@@ -28,6 +28,8 @@
 #include <core/Globals.h>
 #include <core/Preferences/Theme.h>
 
+#include <algorithm>
+
 LCDDisplay::LCDDisplay( QWidget * pParent, const QSize& size, bool bFixedFont,
 						bool bIsActive )
  : QLineEdit( pParent )
@@ -36,6 +38,9 @@ LCDDisplay::LCDDisplay( QWidget * pParent, const QSize& size, bool bFixedFont,
  , m_bFixedFont( bFixedFont )
  , m_bUseRedFont( false )
  , m_bIsActive( bIsActive )
+ , m_bTabularDigits( false )
+ , m_nDigitCellWidth( 0 )
+ , m_nTabularPixelSize( -1 )
 {
 	setReadOnly( ! bIsActive );
 	setEnabled( bIsActive );
@@ -102,8 +107,46 @@ void LCDDisplay::setIsActive( bool bIsActive ) {
 	update();
 }
 
+void LCDDisplay::setTabularDigits( bool bTabular ) {
+	if ( bTabular == m_bTabularDigits ) {
+		return;
+	}
+	m_bTabularDigits = bTabular;
+
+	// The mode takes ownership of the size set on the widget, so later
+	// font updates can not let a foreign size trickle in.
+	m_nTabularPixelSize = font().pixelSize();
+
+	updateFont();
+	updateStyleSheet();
+	update();
+}
+
 void LCDDisplay::updateFont() {
-	
+
+	if ( m_bTabularDigits ) {
+		// The "Item font" selected in the Preferences — the family all
+		// other LCDDisplay widgets use. The font is rebuilt from just
+		// the theme family and the captured size instead of copying
+		// the current font, so neither an inherited nor a
+		// stylesheet-applied font state can smuggle in a stale family
+		// or size.
+		const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
+		QFont newFont;
+		newFont.setFamily( pFontTheme->m_sLevel3FontFamily );
+		if ( m_nTabularPixelSize > 0 ) {
+			newFont.setPixelSize( m_nTabularPixelSize );
+		}
+		else {
+			newFont = font();
+			newFont.setFamily( pFontTheme->m_sLevel3FontFamily );
+		}
+		setFont( newFont );
+
+		measureDigitCellWidth();
+		return;
+	}
+
 	if ( m_bFixedFont ) {
 		return;
 	}
@@ -138,6 +181,14 @@ void LCDDisplay::updateStyleSheet() {
 
 	QColor backgroundColorActive = pColorTheme->m_widgetColor;
 
+	// In tabular mode the text is painted manually in paintEvent();
+	// the base line edit must not render it a second time. Degenerate
+	// metrics (no digit cells) keep the natural rendering.
+	if ( m_bTabularDigits && m_nDigitCellWidth > 0 ) {
+		textColor = QColor( Qt::transparent );
+		textColorActive = QColor( Qt::transparent );
+	}
+
 	QString sStyleSheet = QString( "\
 QLineEdit:enabled { \
     color: %1; \
@@ -147,24 +198,145 @@ QLineEdit:disabled { \
     color: %3; \
     background-color: %4; \
 }" )
-		.arg( textColorActive.name() )
+		.arg( textColorActive.name( QColor::HexArgb ) )
 		.arg( backgroundColorActive.name() )
-		.arg( textColor.name() )
+		.arg( textColor.name( QColor::HexArgb ) )
 		.arg( backgroundColor.name() );
 
 	// For fixed font displays we have to add the current font
-	// parameters as well to avoid any inherited changes.
+	// parameters as well to avoid any inherited changes. The family
+	// has to be quoted — a name containing a space (like the default
+	// "Lucida Grande") would fail the stylesheet parser.
+	//
+	// In tabular mode the family must NOT be baked: a stylesheet
+	// family rule overrides the widget font in every later
+	// updateFont() call, and the display would stop following the
+	// "Item font" selected in the Preferences. The family lives on
+	// the QFont alone; only the size is pinned here.
 	if ( m_bFixedFont && font().pixelSize() > 0 ) {
-		sStyleSheet.append( QString( "\
+		if ( m_bTabularDigits ) {
+			sStyleSheet.append( QString( "\
 QLineEdit { \
     font-size: %1px; \
-    font-family: %2; \
 }" )
-							.arg( font().pixelSize() )
-							.arg( font().family() ) );
+									.arg( font().pixelSize() ) );
+		}
+		else {
+			sStyleSheet.append( QString( "\
+QLineEdit { \
+    font-size: %1px; \
+    font-family: \"%2\"; \
+}" )
+									.arg( font().pixelSize() )
+									.arg( font().family() ) );
+		}
 	}
 
 	setStyleSheet( sStyleSheet );
+}
+
+QSize LCDDisplay::sizeHint() const {
+	const QSize base = QLineEdit::sizeHint();
+	if ( ! m_bTabularDigits || m_nDigitCellWidth <= 0 ) {
+		return base;
+	}
+
+	// The digit cells are wider than the glyphs shown at any given
+	// moment: reserve the cell-based advance of the current text
+	// instead of its natural one, so the text never clips.
+	const QFontMetrics metrics( font() );
+	const QString sText = text();
+	int nCellWidth = 0;
+	for ( int i = 0; i < sText.size(); ++i ) {
+		const QChar ch = sText.at( i );
+		nCellWidth += ch.isDigit() ? m_nDigitCellWidth
+								   : metrics.horizontalAdvance( ch );
+	}
+
+	QSize hint = base;
+	hint.setWidth( std::max( base.width(),
+							base.width() -
+								metrics.horizontalAdvance( sText ) +
+								nCellWidth ) );
+	return hint;
+}
+
+void LCDDisplay::measureDigitCellWidth() {
+	const QFontMetrics metrics( font() );
+	int nMax = 0;
+	for ( char c = '0'; c <= '9'; ++c ) {
+		nMax = std::max( nMax, metrics.horizontalAdvance( QChar( c ) ) );
+	}
+	// A font without usable digits would collapse the cells to zero
+	// and swallow the text; the negative sentinel makes the callers
+	// fall back to the natural rendering instead.
+	m_nDigitCellWidth = nMax > 0 ? nMax : -1;
+}
+
+void LCDDisplay::paintTabularText() {
+	if ( m_nDigitCellWidth <= 0 ) {
+		return;
+	}
+
+	const QString sText = text();
+	if ( sText.isEmpty() ) {
+		return;
+	}
+
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	QColor color;
+	if ( m_bUseRedFont ) {
+		color = pColorTheme->m_buttonRedColor;
+	}
+	else if ( m_bIsActive ) {
+		color = pColorTheme->m_widgetTextColor;
+	}
+	else {
+		color = pColorTheme->m_windowTextColor;
+	}
+
+	const QFontMetrics metrics( font() );
+
+	// The base line edit's own text is hidden in this mode, so the
+	// cells are laid out within the widget rect reduced by the text
+	// margins — a deterministic inset, independent of the style's
+	// frame metrics.
+	const QMargins margins = textMargins();
+	const QRect textRect = rect().adjusted(
+		margins.left(), margins.top(), -margins.right(), -margins.bottom() );
+
+	QPainter painter( this );
+	painter.setFont( font() );
+	painter.setPen( color );
+
+	// Centered like the base line edit (the widget enforces
+	// Qt::AlignCenter in its constructor).
+	int nTotalWidth = 0;
+	for ( int i = 0; i < sText.size(); ++i ) {
+		const QChar ch = sText.at( i );
+		nTotalWidth += ch.isDigit() ? m_nDigitCellWidth
+									: metrics.horizontalAdvance( ch );
+	}
+	int nX = textRect.left() + ( textRect.width() - nTotalWidth ) / 2;
+	const int nBaseline = textRect.top() +
+		( textRect.height() + metrics.ascent() - metrics.descent() ) / 2;
+
+	for ( int i = 0; i < sText.size(); ++i ) {
+		const QChar ch = sText.at( i );
+		if ( ch.isDigit() ) {
+			// Each glyph centered in its cell — the position of every
+			// digit is independent of the digits shown around it.
+			const int nAdvance = metrics.horizontalAdvance( ch );
+			painter.drawText(
+				QPoint( nX + ( m_nDigitCellWidth - nAdvance ) / 2, nBaseline ),
+				QString( ch ) );
+			nX += m_nDigitCellWidth;
+		}
+		else {
+			painter.drawText( QPoint( nX, nBaseline ), QString( ch ) );
+			nX += metrics.horizontalAdvance( ch );
+		}
+	}
 }
 
 void LCDDisplay::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
@@ -180,6 +352,10 @@ void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 
 	QLineEdit::paintEvent( ev );
 	updateFont();
+
+	if ( m_bTabularDigits ) {
+		paintTabularText();
+	}
 
 	// Hovering highlights
 	if ( m_bEntered || hasFocus() ) {

@@ -906,9 +906,11 @@ void MidiControlDialog::updateFont() {
 	setFont( font );
 
 	// In order to affect the fonts of all child widgets in the table as well,
-	// we have to use its stylesheet instead of the setFont() method.
+	// we have to use its stylesheet instead of the setFont() method. The
+	// family has to be quoted — a name containing a space would fail the
+	// stylesheet parser.
 	const auto sTableStyle = QString( "\
-font-family: %1; \
+font-family: \"%1\"; \
 font-size: %2; \
 " )
 		.arg( childFont.family() )

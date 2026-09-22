@@ -65,6 +65,9 @@ class MainToolBar : public QToolBar,
 	static constexpr int nSeparatorHeight = 30;
 	static constexpr int nSeparatorMargin = 3;
 	static constexpr int nSeparatorWidth = 1;
+	/** Minimum width reserved for the time display; it grows with the
+	 *	digit cells of the "Item font" selected in the Preferences. */
+	static constexpr int nTimeDisplayMinWidth = 146;
 	static constexpr int nWidgetHeight =
 		MainToolBar::nHeight - MainToolBar::nMargin * 2;
 

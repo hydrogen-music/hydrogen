@@ -100,17 +100,19 @@ void LCDCombo::updateStyleSheet() {
 	QColor widgetTextInactiveColor =
 		Skin::makeTextColorInactive( widgetTextColor );
 	
+	// The family has to be quoted — a name containing a space (like
+	// the default "Lucida Grande") would fail the stylesheet parser.
 	setStyleSheet( QString( "\
 QComboBox:enabled { \
     color: %1; \
     background-color: %2; \
-    font-family: %3; \
+    font-family: \"%3\"; \
     font-size: %4; \
 } \
 QComboBox:disabled { \
     color: %5; \
     background-color: %6; \
-    font-family: %3; \
+    font-family: \"%3\"; \
     font-size: %4; \
 } \
 QComboBox QAbstractItemView { \

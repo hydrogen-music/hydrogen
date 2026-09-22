@@ -197,15 +197,29 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
+	// The time display ticks at 10 fps. In a proportional font every
+	// digit swap changes the advance width of the string, making the
+	// centered text pump (shift and breathe). The tabular digit mode
+	// renders each digit centered in a fixed-width cell — sized to the
+	// widest digit of the "Item font" selected in the Preferences — so
+	// the rendered block stays rock-steady while keeping the user's
+	// font.
 	m_pTimeDisplay = new LCDDisplay(
-		nullptr, QSize( 146, MainToolBar::nWidgetHeight ), true, false
+		nullptr, QSize( MainToolBar::nTimeDisplayMinWidth,
+						MainToolBar::nWidgetHeight ),
+		true, false
 	);
-	m_pTimeDisplay->setAlignment( Qt::AlignRight );
-	m_pTimeDisplay->setText( "00:00:00:000" );
-	m_pTimeDisplay->setStyleSheet( m_pTimeDisplay->styleSheet().append(
-		QString( " QLineEdit { font-size: %1px; }" )
-			.arg( MainToolBar::nFontSize )
-	) );
+	QFont timeFont = m_pTimeDisplay->font();
+	timeFont.setPixelSize( MainToolBar::nFontSize );
+	m_pTimeDisplay->setFont( timeFont );
+	// The pixel size is set on the QFont itself: the tabular mode takes
+	// ownership of it (and pins it in its own stylesheet), while the
+	// family follows the "Item font" selected in the Preferences.
+	m_pTimeDisplay->setTabularDigits( true );
+	// 3 px margin around the timestamp — the tabular painting honors
+	// the text margins instead of the style's (wider) frame inset.
+	m_pTimeDisplay->setTextMargins( 0, 0, 0, 0 );
+	m_pTimeDisplay->setText( "00:00:00.000" );
 	addWidget( m_pTimeDisplay );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -1156,6 +1170,16 @@ void MainToolBar::onPreferencesChanged(
 	}
 	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
 		updateIcons();
+	}
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		// The tabular time display re-measures its digit cells in the
+		// new "Item font" — re-reserve the width so wider cells do not
+		// clip.
+		m_pTimeDisplay->setFixedSize(
+			std::max( MainToolBar::nTimeDisplayMinWidth,
+					  m_pTimeDisplay->sizeHint().width() ),
+			MainToolBar::nWidgetHeight
+		);
 	}
 }
 
