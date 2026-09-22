@@ -1106,6 +1106,9 @@ void ComponentView::collapse() {
 void ComponentView::deleteComponent() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
 
 	if ( pInstrument->getComponents()->size() <= 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
@@ -1297,6 +1300,9 @@ void ComponentView::setLayers(
 	}
 
 	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
 	QString sLastCleanedFileName;
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
@@ -1500,6 +1506,9 @@ void ComponentView::removeLayerButtonClicked() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 	auto pNewComponent = pNewInstrument->getComponent(
 		pInstrument->index( m_pComponent ) );
