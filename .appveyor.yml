@@ -352,9 +352,10 @@ for:
       git submodule update || exit 1
 
       ls $HOME/Qt/
+      ls $HOME/Qt/6.8/gcc_64/lib/cmake
 
-      export PATH=$HOME/Qt/5.15.2/gcc_64/bin:$PATH
-      export Qt5Widgets_DIR=$HOME/Qt/5.15.2/gcc_64/lib/cmake/Qt5Widgets
+      export PATH=$HOME/Qt/6.8/gcc_64/bin:$PATH
+      export Qt6Widgets_DIR=$HOME/Qt/6.8/gcc_64/lib/cmake/Qt6Widgets
       export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
@@ -362,6 +363,7 @@ for:
       mkdir build || exit 1
       cd build || exit 1
       cmake -DWANT_RUBBERBAND=1 \
+            -DWANT_QT6:BOOL=ON \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
             -DWANT_APPIMAGE=1 \
@@ -369,7 +371,7 @@ for:
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
-            -DCMAKE_PREFIX_PATH=$HOME/Qt/5.15.2/gcc_64 .. || exit 1
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/6.8/gcc_64 .. || exit 1
       make -j $CPUS || exit 1
 
       ccache -s || exit 1
@@ -408,7 +410,7 @@ for:
 
       find /usr -name "*libportmidi*"
       cp /usr/local/lib/libportmidi.so.2 AppDir/usr/lib || exit 1
-      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/5.15.2/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
+      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/6.8/gcc_64/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
         --library AppDir/usr/lib/libsndfile.so.1 \
