@@ -11,6 +11,21 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 project(hydrogen)
 
+# CMake bug #24104 (unfixed through at least 4.4): enable_language() in a
+# subdirectory defines the <LANG> rule variables (CMAKE_OBJCXX_COMPILE_OBJECT
+# & friends) only in that directory's scope - they propagate down into
+# subdirectories, never up. clap-wrapper enables OBJC/OBJCXX in its own
+# scope, but the VST3 wrapper target - created by target_add_vst3_wrapper()
+# from src/plugin, an ancestor of clap-wrapper's scope - compiles macos.mm
+# there, so the generate step dies with "Missing variable is:
+# CMAKE_OBJCXX_COMPILE_OBJECT". Enabling the languages at the top level puts
+# the rules into every scope (the workaround SDL adopted for
+# libsdl-org/SDL#6454; CMake itself only fixes this via CMP0220 in 4.5).
+if(APPLE)
+	enable_language(OBJC)
+	enable_language(OBJCXX)
+endif()
+
 ## Determine proper semantic version
 set(VERSION_MAJOR "2")
 set(VERSION_MINOR "0")
