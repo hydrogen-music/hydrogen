@@ -706,15 +706,26 @@ for:
           git submodule init
           git submodule update
 
+          REM *** Pre-fetch the VST3 SDK (with the submodules clap-wrapper ***
+          REM *** needs: base, public.sdk, pluginterfaces) while sh.exe is ***
+          REM *** still available. The rename below - required by CMake's ***
+          REM *** MinGW Makefiles generator - breaks `git submodule`, which ***
+          REM *** the in-build CPM download of the SDK would otherwise ***
+          REM *** depend on. The VST3_SDK_ROOT passed to cmake below makes ***
+          REM *** clap-wrapper use this copy instead of fetching it itself. ***
+          if %UPLOAD_ARTIFACTS%=="true" (git clone --branch v3.7.6_build_18 https://github.com/steinbergmedia/vst3sdk.git %APPVEYOR_BUILD_FOLDER%\vst3sdk || exit /b 1)
+          if %UPLOAD_ARTIFACTS%=="true" (git -C %APPVEYOR_BUILD_FOLDER%\vst3sdk submodule update --init base public.sdk pluginterfaces || exit /b 1)
+
           REM *** Configure build ***
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
           REM *** Plugins: CLAP + LV2 always (so the plugin CTest suite runs and the
           REM     bundles are packaged by cpack/NSIS); VST3 only on artifact builds
-          REM     (heavy: clap-wrapper fetches the Steinberg VST3 SDK). ***
+          REM     (heavy). VST3_SDK_ROOT points at the SDK pre-fetched above, so
+          REM     no git/submodule work happens inside the build itself. ***
           set VST3_FLAG=
-          if %UPLOAD_ARTIFACTS%=="true" set VST3_FLAG=-DWANT_VST3=1
+          if %UPLOAD_ARTIFACTS%=="true" set VST3_FLAG=-DWANT_VST3=1 -DVST3_SDK_ROOT=%APPVEYOR_BUILD_FOLDER%\vst3sdk
           cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DWANT_CLAP=ON -DWANT_LV2=ON %VST3_FLAG% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
