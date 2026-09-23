@@ -321,11 +321,15 @@ bool Preferences::save( const bool bSilent ) const
 
 	// Cross-process lock around the read-merge-write cycle (ADR 0023).
 	// Bounded retry: a single attempt could silently drop this save, while
-	// an unbounded block could freeze the GUI on a stuck lock holder.
+	// an unbounded block could freeze the GUI on a stuck lock holder. The
+	// ~10 s budget rides out a slow - but live and progressing - holder
+	// (starved CI VMs; the IPC split, where the engine and the editor
+	// process both persist this shared config) while staying well below
+	// the 30 s stale threshold that guards against a truly stuck one.
 	QLockFile lock( sPath + ".lock" );
 	lock.setStaleLockTime( 30000 );
 	bool bLocked = false;
-	for ( int ii = 0; ii < 3 && ! bLocked; ++ii ) {
+	for ( int ii = 0; ii < 10 && ! bLocked; ++ii ) {
 		bLocked = lock.tryLock( 1000 );
 	}
 	if ( ! bLocked ) {
