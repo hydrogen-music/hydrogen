@@ -2765,32 +2765,73 @@ void PreferencesSchema::checkForUnknownElements( const XMLNode& rootNode )
 	static const char* sMidiDriverAllowlist[] = {
 		"fixed_mapping", "discard_note_after_action"
 	};
+	// Elements written by pre-2.0 versions whose features were dropped or
+	// renamed since: the LADSPA FX panel (ADR 0024), LASH session support,
+	// per-preference timeline activation, the online server list
+	// (superseded by onlineRepos), the export dialog template (superseded
+	// by exportDialogMode/exportDialogFormat), the drumkit manager
+	// window, playlist tree expansion, pattern categories, per-preference
+	// max layers, restore-last-document, and JACK BBT sync. They are
+	// expected migration input in old config files, not config drift, and
+	// are no longer consumed. The write-through save (ADR 0023) drops
+	// them from the file.
+	static const char* sLegacyRootAllowlist[] = {
+		"recentlyUsedEffects", "maxLayers", "restoreLastPlaylist",
+		"restoreLastSong", "serverList", "useLash", "useTimeLine",
+		"patternCategories"
+	};
+	static const char* sLegacyGuiAllowlist[] = {
+		"isFXTabVisible", "ladspaFX_properties0", "ladspaFX_properties1",
+		"ladspaFX_properties2", "ladspaFX_properties3",
+		"drumkitManager_properties", "expandPatternItem", "expandSongItem",
+		"exportDialogTemplate"
+	};
+	static const char* sLegacyJackDriverAllowlist[] = { "jack_bbt_sync" };
 
 	// Elements not covered by schema rows at the given parent position.
 	const auto allowlistFor = []( const QString& sParent1,
 								  const QString& sParent2
-							  ) -> std::pair<const char* const*, int> {
+							  ) -> std::vector<QString> {
+		std::vector<QString> allowlist;
 		if ( sParent1.isEmpty() && sParent2.isEmpty() ) {
-			return { sRootAllowlist, 3 };
+			for ( const char* sName : sRootAllowlist ) {
+				allowlist.push_back( sName );
+			}
+			for ( const char* sName : sLegacyRootAllowlist ) {
+				allowlist.push_back( sName );
+			}
 		}
-		if ( sParent1 == PreferencesKeys::AudioEngine &&
-			 sParent2 == PreferencesKeys::MidiDriver ) {
-			return { sMidiDriverAllowlist, 2 };
+		else if ( sParent1 == PreferencesKeys::AudioEngine &&
+				  sParent2 == PreferencesKeys::MidiDriver ) {
+			for ( const char* sName : sMidiDriverAllowlist ) {
+				allowlist.push_back( sName );
+			}
 		}
-		return { nullptr, 0 };
+		else if ( sParent1 == PreferencesKeys::AudioEngine &&
+				  sParent2 == PreferencesKeys::JackDriver ) {
+			for ( const char* sName : sLegacyJackDriverAllowlist ) {
+				allowlist.push_back( sName );
+			}
+		}
+		else if ( sParent1 == PreferencesKeys::Gui &&
+				  sParent2.isEmpty() ) {
+			for ( const char* sName : sLegacyGuiAllowlist ) {
+				allowlist.push_back( sName );
+			}
+		}
+		return allowlist;
 	};
 
 	auto checkLevel = [&]( auto&& self, const XMLNode& node,
 						   const QString& sParent1,
 						   const QString& sParent2 ) -> void {
-		const auto [pAllowlist, nAllowlistSize] =
-			allowlistFor( sParent1, sParent2 );
+		const auto allowlist = allowlistFor( sParent1, sParent2 );
 		std::set<QString> sExact;
 		std::vector<QString> sPrefixes;
 		std::set<QString> sOpaque;
 		std::set<QString> sContainers;
-		for ( int ii = 0; ii < nAllowlistSize; ii++ ) {
-			sExact.insert( pAllowlist[ii] );
+		for ( const auto& sName : allowlist ) {
+			sExact.insert( sName );
 		}
 		for ( int ii = 0; ii < kSchemaRowCount; ii++ ) {
 			const FieldRow& row = kSchemaRows[ii];

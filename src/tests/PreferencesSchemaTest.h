@@ -34,6 +34,8 @@ class PreferencesSchemaTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PreferencesSchemaTest );
 	CPPUNIT_TEST( testSchemaRoundTrip );
 	CPPUNIT_TEST( testUnknownElementsReported );
+	CPPUNIT_TEST( testLegacyElementsTolerated );
+	CPPUNIT_TEST( testLegacyDefaultConfigClean );
 	CPPUNIT_TEST( testOverrideLayerMembership );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -43,6 +45,8 @@ public:
 
 	void testSchemaRoundTrip();
 	void testUnknownElementsReported();
+	void testLegacyElementsTolerated();
+	void testLegacyDefaultConfigClean();
 	void testOverrideLayerMembership();
 
 private:

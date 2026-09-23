@@ -22,6 +22,8 @@
 
 #include "PreferencesSchemaTest.h"
 
+#include "TestHelper.h"
+
 #include <core/Basics/Event.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Logger.h>
@@ -369,6 +371,98 @@ void PreferencesSchemaTest::testUnknownElementsReported()
 
 	CPPUNIT_ASSERT( sLog.contains( "totally_bogus" ) );
 	CPPUNIT_ASSERT( ! sLog.contains( "maxBars" ) );
+
+	Filesystem::rm( sLogPath, false, true );
+
+	___INFOLOG( "passed" );
+}
+
+void PreferencesSchemaTest::testLegacyElementsTolerated()
+{
+	___INFOLOG( "" );
+
+	const QString sLogPath =
+		Filesystem::tmpDir().append( "preferencesSchemaLegacy.log" );
+	auto pLogger =
+		Logger::createInstanceLogger( sLogPath, false, false, false );
+
+	{
+		Logger::Scope scope( pLogger );
+
+		XMLDoc doc;
+		XMLNode root = doc.set_root( "hydrogen_preferences" );
+
+		// Elements written by pre-2.0 versions and dropped with the
+		// LADSPA FX panel (ADR 0024). They are expected migration input
+		// in old config files, not config drift, and must not be
+		// reported.
+		XMLNode recentFXNode = root.createNode( "recentlyUsedEffects" );
+		recentFXNode.createNode( "FX" );
+		XMLNode guiNode = root.createNode( PreferencesKeys::Gui );
+		guiNode.write_bool( "isFXTabVisible", true );
+		for ( int ii = 0; ii < 4; ii++ ) {
+			guiNode.createNode(
+				QString( "ladspaFX_properties%1" ).arg( ii ) );
+		}
+
+		// Control: genuine drift must still be reported.
+		root.write_int( "totally_bogus", 1 );
+
+		PreferencesSchema::checkForUnknownElements( root );
+	}
+	// Destroying the logger joins its worker thread, flushing + closing
+	// the file deterministically before it is read.
+	delete pLogger;
+
+	QFile file( sLogPath );
+	CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+	const QString sLog = QTextStream( &file ).readAll();
+	file.close();
+
+	CPPUNIT_ASSERT( ! sLog.contains( "recentlyUsedEffects" ) );
+	CPPUNIT_ASSERT( ! sLog.contains( "isFXTabVisible" ) );
+	CPPUNIT_ASSERT( ! sLog.contains( "ladspaFX_properties" ) );
+	CPPUNIT_ASSERT( sLog.contains( "totally_bogus" ) );
+
+	Filesystem::rm( sLogPath, false, true );
+
+	___INFOLOG( "passed" );
+}
+
+void PreferencesSchemaTest::testLegacyDefaultConfigClean()
+{
+	___INFOLOG( "" );
+
+	const QString sLogPath =
+		Filesystem::tmpDir().append( "preferencesSchemaLegacyFile.log" );
+	auto pLogger =
+		Logger::createInstanceLogger( sLogPath, false, false, false );
+
+	{
+		Logger::Scope scope( pLogger );
+
+		XMLDoc doc;
+		CPPUNIT_ASSERT( doc.read(
+			H2TEST_FILE( "preferences/legacy-1.2.conf" ) ) );
+		XMLNode root = doc.firstChildElement( "hydrogen_preferences" );
+		CPPUNIT_ASSERT( ! root.isNull() );
+
+		// The verbatim 1.2.6 default config — the migration input every
+		// pre-2.0 user config derives from. It must pass the unknown
+		// element check without any report.
+		PreferencesSchema::checkForUnknownElements( root );
+	}
+	// Destroying the logger joins its worker thread, flushing + closing
+	// the file deterministically before it is read.
+	delete pLogger;
+
+	QFile file( sLogPath );
+	CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+	const QString sLog = QTextStream( &file ).readAll();
+	file.close();
+
+	CPPUNIT_ASSERT_MESSAGE(
+		sLog.toStdString(), ! sLog.contains( "Unknown element" ) );
 
 	Filesystem::rm( sLogPath, false, true );
 
