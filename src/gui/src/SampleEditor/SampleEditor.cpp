@@ -1136,6 +1136,55 @@ void SampleEditor::drumkitLoadedEvent()
 	}
 }
 
+void SampleEditor::playbackTrackChangedEvent()
+{
+	// Most likely the user has undone an "apply to sample" action. Pick our
+	// sample from the new playback track instrument and register it (which
+	// should have the same ID as the former one).
+	const auto pSong = HydrogenApp::pEngine()->getSong();
+	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
+		return;
+	}
+
+	const auto pNewInstrument = pSong->getPlaybackTrackInstrument();
+	if ( pNewInstrument == nullptr ) {
+		ERRORLOG( "Unable to find new instrument" );
+		return;
+	}
+	const auto pNewComponent =
+		pNewInstrument->getComponent( m_pInstrument->index( m_pComponent ) );
+	if ( pNewComponent == nullptr ) {
+		ERRORLOG( "Unable to find new component" );
+		return;
+	}
+	const auto pNewLayer =
+		pNewComponent->getLayer( m_pComponent->index( m_pLayer ) );
+	if ( pNewLayer == nullptr || pNewLayer->getSample() == nullptr ) {
+		ERRORLOG( "Invalid new layer" );
+		return;
+	}
+	if ( pNewLayer->getSample()->getFilePath() !=
+		 m_pSampleOriginal->getFilePath() ) {
+		// That's not our sample. Could happen when the user switches drumkits
+		// via keyboard shortcut, MIDI, or OSC command while SampleEditor is
+		// still open.
+		return;
+	}
+
+	m_pInstrument = pNewInstrument;
+	m_pComponent = pNewComponent;
+	m_pLayer = pNewLayer;
+
+	if ( m_playback == Playback::None ) {
+		reloadLayer();
+	}
+	else {
+		// If a sample is playing, we delay wave form update to ensure both
+		// audio and peaks are consistent.
+		m_bLayerReloadRequired = true;
+	}
+}
+
 void SampleEditor::closeEvent( QCloseEvent* event )
 {
 	if ( m_bSampleEditorClean ) {

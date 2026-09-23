@@ -124,6 +124,7 @@ class SampleEditor : public QDialog,
 
 	/** EventListener interface */
 	void drumkitLoadedEvent() override;
+	void playbackTrackChangedEvent() override;
 
    private:
 	enum class Playback { None, Target, Original };
