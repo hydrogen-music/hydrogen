@@ -352,7 +352,7 @@ for:
       git submodule update || exit 1
 
       ls $HOME/Qt/
-      ls $HOME/Qt/6.8/gcc_64/lib/cmake
+      tree $HOME/Qt/6.8
 
       export PATH=$HOME/Qt/6.8/gcc_64/bin:$PATH
       export Qt6Widgets_DIR=$HOME/Qt/6.8/gcc_64/lib/cmake/Qt6Widgets
