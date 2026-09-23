@@ -55,6 +55,14 @@ bool isTransportEvent( Event::Type type ) {
 EditorStateMirror::EditorStateMirror( Hydrogen* pMirror, QObject* pParent )
 	: QObject( pParent )
 	, m_pMirror( pMirror ) {
+	// Created up front so applyEvent() can arm the retry regardless of
+	// whether telemetry is attached yet; without a block the retry is just
+	// another (harmless) attach attempt.
+	m_pTransportRetryTimer = new QTimer( this );
+	m_pTransportRetryTimer->setSingleShot( true );
+	m_pTransportRetryTimer->setInterval( EditorStateMirror::nTransportRetryMs );
+	connect( m_pTransportRetryTimer, &QTimer::timeout,
+			 this, &EditorStateMirror::syncTransportFromTelemetry );
 }
 
 EditorStateMirror::~EditorStateMirror() = default;
@@ -146,6 +154,13 @@ bool EditorStateMirror::applyEvent( const IpcMessage& msg ) {
 	// timer. No-op when no telemetry block is attached (events-only fallback).
 	if ( isTransportEvent( type ) ) {
 		syncTransportFromTelemetry();
+		// The engine's serve loop forwards events *before* publishing the
+		// matching telemetry snapshot, so the sync above may have read a
+		// pre-change snapshot and applied no correction. A short one-shot
+		// retry closes that window; restarting an armed retry keeps the
+		// latest event's deadline. The ~5 s resync timer stays the
+		// backstop when even this delay is not enough.
+		m_pTransportRetryTimer->start();
 	}
 	return true;
 }

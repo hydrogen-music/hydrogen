@@ -30,6 +30,7 @@ class ConfigConcurrencyTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSameFieldLastWriterWins );
 	CPPUNIT_TEST( testParallelPersistNoCorruption );
 	CPPUNIT_TEST( testMultiProcessHammerNoCorruption );
+	CPPUNIT_TEST( testSaveWaitsForSlowLockHolder );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -39,6 +40,7 @@ public:
 	void testSameFieldLastWriterWins();
 	void testParallelPersistNoCorruption();
 	void testMultiProcessHammerNoCorruption();
+	void testSaveWaitsForSlowLockHolder();
 };
 
 #endif

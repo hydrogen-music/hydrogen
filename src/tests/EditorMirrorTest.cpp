@@ -23,10 +23,12 @@
 
 #include "TestHelper.h"
 
+#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/IPC/EditorStateMirror.h>
+#include <core/IPC/EngineTelemetryShm.h>
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcChannel.h>
@@ -101,6 +103,53 @@ void EditorMirrorTest::testCommandForwardedOverIpc() {
 
 	delete pMirror;
 	delete client;
+
+	___INFOLOG( "passed" );
+}
+
+void EditorMirrorTest::testTransportEventSurvivesTelemetryRace() {
+	___INFOLOG( "" );
+
+	// The engine's serve loop forwards an event before publishing the
+	// matching telemetry snapshot (receive -> handle -> forward ->
+	// publish). Model that ordering exactly: the TempoChanged echo hits
+	// the mirror while the shm block still holds the pre-change snapshot;
+	// the fresh one lands only afterwards. The mirror must not sit on the
+	// stale tempo until the ~5 s resync timer happens to fire.
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	EngineTelemetryShm engineShm;
+	CPPUNIT_ASSERT( engineShm.create(
+		EngineTelemetryShm::keyForEndpoint( sEndpoint ) ) );
+
+	EngineTelemetrySnapshot stale;
+	stale.bpm = 120.0f;  // the engine's tempo before the change
+	stale.playing = 0;
+	stale.frame = 0;
+	CPPUNIT_ASSERT( engineShm.store( stale ) );
+
+	auto* pMirror = TestHelper::makeMirror();
+	EditorStateMirror mirror( pMirror );
+	mirror.attachTelemetry( sEndpoint );
+
+	// The engine's tempo-change echo arrives - but its telemetry publish
+	// has not happened yet, so the event-triggered sync reads the stale
+	// snapshot and applies no correction.
+	CPPUNIT_ASSERT( mirror.applyEvent(
+		IpcMessage::fromEvent( Event::Type::TempoChanged, 0, -1 ) ) );
+	CPPUNIT_ASSERT( pMirror->getAudioEngine()->getNextBpm() != 121.5f );
+
+	// ... then the serve loop publishes the fresh snapshot.
+	EngineTelemetrySnapshot fresh = stale;
+	fresh.bpm = 121.5f;
+	CPPUNIT_ASSERT( engineShm.store( fresh ) );
+
+	// The retry must pick the fresh tempo up well before the ~5 s resync
+	// timer could mask the race - hence a budget far below it.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [ & ]() {
+		return pMirror->getAudioEngine()->getNextBpm() == 121.5f;
+	}, 1500 ) );
+
+	delete pMirror;
 
 	___INFOLOG( "passed" );
 }

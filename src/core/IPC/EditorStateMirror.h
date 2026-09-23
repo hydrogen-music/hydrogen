@@ -60,8 +60,10 @@ class IpcChannel;
  *   at ~20 Hz so the GUI's existing meters work unchanged, while the transport
  *   half keeps the mirror following the host/headless engine (ADR 0031 hybrid
  *   sync): the mirror's own clock free-runs the playhead for smoothness,
- *   inbound transport events trigger an immediate correction, and a periodic
- *   timer bounds long-run drift.
+ *   inbound transport events trigger an immediate correction (plus a short
+ *   one-shot retry — the event echo can arrive before the engine publishes
+ *   the matching telemetry snapshot), and a periodic timer bounds long-run
+ *   drift.
  *
  * Only inbound (engine → editor) synchronisation lives here; outbound commands
  * (editor → engine) are issued by #IpcEngineAccess. The mirror never
@@ -83,6 +85,14 @@ public:
 	 * 0018). Transport sync deliberately does NOT run at this rate: snapping
 	 * a rolling playhead at 20 Hz would jerk it (ADR 0031). */
 	static constexpr int nMeterSyncTimeoutMs = 50;
+
+	/** Delay of the one-shot transport re-sync armed by every transport
+	 * event. The engine's serve loop forwards events before publishing the
+	 * matching telemetry snapshot, so the event-triggered sync can read a
+	 * pre-change snapshot and apply no correction; this retry closes that
+	 * window. Far below #nResyncTimeoutMs, which stays the backstop when
+	 * even this delay is not enough. */
+	static constexpr int nTransportRetryMs = 200;
 
 	/** \param pMirror the editor-side headless engine to keep in sync; not owned. */
 	explicit EditorStateMirror( Hydrogen* pMirror, QObject* pParent = nullptr );
@@ -157,6 +167,9 @@ private:
 	 * tryAttachTelemetry() once the block is attached; owned via QObject
 	 * parenting. */
 	QTimer* m_pMeterTimer = nullptr;
+	/** One-shot delayed transport re-sync armed by every transport event
+	 * (see #nTransportRetryMs); owned via QObject parenting. */
+	QTimer* m_pTransportRetryTimer = nullptr;
 };
 }
 

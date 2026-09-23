@@ -2007,8 +2007,42 @@ split-safe (suite `OK (445 tests)` ×3 consecutive).**
     value. RED: with the serialization hunks disabled,
     `IpcRoundTripTest::testSongRoundTrip` fails (m_fDefaultBpm lost);
     with the `setSong` recapture unconditional, the repro test fails
-    (mirror Timeline re-captured at 130); GREEN ×3.
-    `check_write_surface` OK.
+     (mirror Timeline re-captured at 130); GREEN ×3.
+     `check_write_surface` OK.
+
+
+  **Batch 2ag — editor BPM lagged remote tempo changes by up to the ~5 s
+   resync cadence (telemetry publish/forward race): split-safe (suite
+   `OK (456 tests)` ×3 consecutive).**
+   * Bug (surfaced by the macOS AppVeyor pipeline,
+     `EngineSessionTest::testMidiActionCrossesSplit`): the engine's serve
+     loop forwards events *before* publishing the matching telemetry
+     snapshot (receive → handle → forward → publish), so the echo-driven
+     `EditorStateMirror::syncTransportFromTelemetry()` could read the
+     previous cycle's snapshot, find no drift, and apply no correction —
+     the mirror (and with it the editor's BPM widget) then sat on the
+     stale tempo until the ~5 s periodic resync happened to fire. A narrow
+     window (the publish usually wins), which is why it only reproduced on
+     a starved CI VM.
+   * Fix (mirror side, deterministic closure): every transport event
+     (`State`/`Relocation`/`TempoChanged`/`BbtChanged`) still triggers the
+     immediate synchronous sync (common-case latency 0) and additionally
+     arms a one-shot ~200 ms retry (`EditorStateMirror::nTransportRetryMs`,
+     timer created in the ctor, armed in `applyEvent()`; restarting an
+     armed retry keeps the latest event's deadline). The ~5 s resync timer
+     stays the backstop if even the retry reads a stale block. An
+     engine-side reorder (publish before forward) was rejected: the audio
+     thread pushes events asynchronously, so one landing between the
+     publish and the forward still meets a stale snapshot — the window
+     narrows but does not close.
+   * Tests: `EditorMirrorTest::testTransportEventSurvivesTelemetryRace` —
+     the test owns the telemetry shm block directly and replays the serve
+     loop's ordering: stale snapshot (120 BPM) → `TempoChanged` echo (the
+     event-triggered sync reads stale; no correction asserted) → fresh
+     snapshot (121.5) → the mirror must adopt it within a 1500 ms budget,
+     far below the 5 s resync, so RED cannot be rescued by the backstop.
+     RED confirmed (pumpUntil timeout), GREEN ×3 after the retry;
+     `check_write_surface` OK.
 
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**

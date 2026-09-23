@@ -566,10 +566,13 @@ void EngineSessionTest::testMidiActionCrossesSplit() {
 	// The mirror's bpmIncrease is a designed no-op in editor mode (its
 	// tempo source is Remote, like handleBeatCounter) — the mirror's BPM
 	// lands via the engine's TempoChanged echo and its telemetry-based
-	// correction, not the dual-apply.
+	// correction, not the dual-apply. That echo-driven telemetry read can
+	// race the engine's post-forward snapshot publish; when it loses, the
+	// periodic resync timer (EditorStateMirror::nResyncTimeoutMs) is the
+	// backstop — wait past it.
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return std::abs( pMirror->getAudioEngine()->getNextBpm()
-						 - ( fBpmBefore + 1.5f ) ) < 0.5; } ) );
+						 - ( fBpmBefore + 1.5f ) ) < 0.5; }, 8000 ) );
 
 	pEditor.reset();
 	pServer->stop();

@@ -29,12 +29,14 @@ class EditorMirrorTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEventSyncsToMirror );
 	CPPUNIT_TEST( testEngineAccessReadsMirror );
 	CPPUNIT_TEST( testCommandForwardedOverIpc );
+	CPPUNIT_TEST( testTransportEventSurvivesTelemetryRace );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 	void testEventSyncsToMirror();
 	void testEngineAccessReadsMirror();
 	void testCommandForwardedOverIpc();
+	void testTransportEventSurvivesTelemetryRace();
 };
 
 #endif

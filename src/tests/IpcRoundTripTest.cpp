@@ -1422,10 +1422,15 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	// Transport object, a captured shared_ptr would read a frozen tick.
 	// The empty song's patterns are one 4/4 bar (192 ticks at 48 TPQ);
 	// the quantize grid is 12 ticks, so +24 is two grid steps.
+	//
+	// The playhead waits below budget for transport below real-time: the
+	// software driver's clock thread paces as sleep + work, so on loaded
+	// CI hardware it crawls (measured at ~20% of nominal on a macOS VM)
+	// and a full pattern wrap takes seconds, not milliseconds.
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getAudioEngine()->getPlayhead()->
 				getPatternTickPosition() > noteAction.nColumn + 24;
-	} ) );
+	}, 30000 ) );
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.8f, false, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
@@ -1442,7 +1447,7 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getAudioEngine()->getPlayhead()->
 				getPatternTickPosition() > noteOnA2.nColumn + 24;
-	} ) );
+	}, 30000 ) );
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		1, 0.8f, false, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
@@ -1473,7 +1478,7 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getAudioEngine()->getPlayhead()->
 				getPatternTickPosition() >= 96;
-	} ) );
+	}, 30000 ) );
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.8f, false, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
@@ -1486,7 +1491,7 @@ void IpcRoundTripTest::testMidiNoteRecordingRoundTrip()
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pEngine->getAudioEngine()->getPlayhead()->
 				getPatternTickPosition() < noteOnD.nColumn;
-	} ) );
+	}, 30000 ) );
 	CPPUNIT_ASSERT( pEngine->addRealtimeNote(
 		0, 0.0f, true, Midi::NoteInvalid ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
