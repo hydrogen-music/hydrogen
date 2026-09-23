@@ -1553,9 +1553,13 @@ void SampleEditor::updateSample()
 	m_pNewLengthDisplay->setText( QString::number( m_pSample->getFrames() ) );
 	checkRubberbandSettings();
 	updateSourceWaveDisplays();
+	// Since we just replace the sample and not the layer itself, setLayer
+	// should be a no-op. But we still keep it for cover changes within the core
+	// when applying the changes as well.
 	m_pTargetSection->setLayer(
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 )
 	);
+	m_pTargetSection->updateBackground();
 }
 
 void SampleEditor::reloadLayer()
@@ -1666,6 +1670,7 @@ void SampleEditor::reloadLayer()
 	checkRubberbandSettings();
 	m_pNewLengthDisplay->setText( QString::number( m_pSample->getFrames() ) );
 	updateSourceWaveDisplays();
+	m_pTargetSection->setLayer( m_pLayer );
 	m_pTargetSection->update();
 }
 
