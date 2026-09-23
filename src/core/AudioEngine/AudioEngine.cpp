@@ -2163,7 +2163,13 @@ void AudioEngine::setSong( std::shared_ptr<Song> pNewSong )
 	// Will also adapt the audio engine to the new song's BPM.
 	locate( 0 );
 
-	if ( pNewSong != nullptr && pNewSong->getTimeline() != nullptr ) {
+	if ( pNewSong != nullptr && pNewSong->getTimeline() != nullptr &&
+		 ! pNewSong->getTimeline()->hasDefaultBpmSet() ) {
+		// Disk-loaded songs carry no runtime capture of the special first
+		// marker's tempo — recover it from the song BPM. Songs crossing the
+		// IPC buffer do carry it (`ipc-defaultBpm`) and must keep it:
+		// re-capturing would stomp the engine's captured tempo with the
+		// (possibly since-changed) song BPM.
 		pNewSong->getTimeline()->activate( m_pHydrogen );
 	}
 

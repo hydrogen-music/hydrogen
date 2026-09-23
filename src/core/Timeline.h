@@ -117,6 +117,9 @@ public:
 	void deactivate();
 
 	float getDefaultBpm() const;
+	/** \return Whether #m_fDefaultBpm holds real state (captured or
+	 *   crossed via IPC) instead of the constructor placeholder. */
+	bool hasDefaultBpmSet() const;
 		/** Has to be called while the #H2Core::AudioEngine is locked. */
 		void setDefaultBpm( float fDefaultBpm );
 
@@ -235,6 +238,25 @@ private:
 	 * the last Song::m_fBpm when activating the Timeline.
 	 */
 	float m_fDefaultBpm;
+
+	/**
+	 * Whether #m_fDefaultBpm holds real state — captured by activate()
+	 * or crossed via the IPC song buffer (`ipc-defaultBpm`) — as opposed
+	 * to the constructor placeholder.
+	 *
+	 * Monotonic within an object's lifetime: once set it stays set.
+	 * deactivate() retains the last captured tempo as real state (it does
+	 * not reset the value either), and re-activation recaptures via
+	 * activate() anyway. Only a freshly constructed Timeline — e.g. from
+	 * a disk load — starts unset.
+	 *
+	 * Transient load-state, not serialized as its own element: it
+	 * round-trips semantically, since the IPC buffer always writes
+	 * `ipc-defaultBpm`, and .h2song never carries it.
+	 * AudioEngine::setSong() only re-captures the tempo for songs
+	 * whose Timeline still holds the placeholder (disk loads).
+	 */
+	bool m_bDefaultBpmSet;
 	
 	struct TempoMarkerComparator
 	{
@@ -254,6 +276,9 @@ private:
 
 inline float Timeline::getDefaultBpm() const {
 	return m_fDefaultBpm;
+}
+inline bool Timeline::hasDefaultBpmSet() const {
+	return m_bDefaultBpmSet;
 }
 inline const std::vector<std::shared_ptr<const Timeline::TempoMarker>>& Timeline::getAllTempoMarkers() const {
 	return m_allTempoMarkers;

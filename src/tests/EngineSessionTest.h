@@ -51,6 +51,7 @@ class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testReplaceInstrumentCrossesSplit );
 	CPPUNIT_TEST( testMirrorTransportFreeRuns );
 	CPPUNIT_TEST( testMirrorTransportFreeRunsUnderJackTransport );
+	CPPUNIT_TEST( testMirrorBpmShowsSpecialTempoMarker );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -75,6 +76,7 @@ public:
 	void testReplaceInstrumentCrossesSplit();
 	void testMirrorTransportFreeRuns();
 	void testMirrorTransportFreeRunsUnderJackTransport();
+	void testMirrorBpmShowsSpecialTempoMarker();
 };
 
 #endif

@@ -297,7 +297,11 @@ std::shared_ptr<Song> makeSong( Hydrogen* pHydrogen ) {
 	pPatternGroupVector->push_back( pSong->getPatternList() );
 	pSong->setPatternGroupVector( pPatternGroupVector );
 
-	// Add a tempo marker and tag to the timeline
+	// Add a tempo marker and tag to the timeline. The special first
+	// marker's tempo (m_fDefaultBpm) is runtime state absent from .h2song —
+	// it must still cross the IPC buffer (the editor's mirror Timeline and
+	// BPM display depend on it).
+	pSong->getTimeline()->setDefaultBpm( 96.5f );
 	pSong->getTimeline()->addTempoMarker( 2, 130.0f );
 	pSong->getTimeline()->addTag( 4, "TestTag" );
 

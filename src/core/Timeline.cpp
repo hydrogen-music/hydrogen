@@ -30,7 +30,8 @@ namespace H2Core
 {
 
 Timeline::Timeline() : Object( )
-					 , m_fDefaultBpm( 120 ) {
+					 , m_fDefaultBpm( 120 )
+					 , m_bDefaultBpmSet( false ) {
 	updateTempoMarkers();
 }
 
@@ -47,6 +48,9 @@ void Timeline::deactivate() {
 }
 
 void Timeline::setDefaultBpm( float fDefaultBpm ) {
+	// Marking outside the value guard: assigning the placeholder value
+	// (120) still counts as "set" — e.g. an IPC buffer crossing 120.
+	m_bDefaultBpmSet = true;
 	if ( m_fDefaultBpm != fDefaultBpm ) {
 		m_fDefaultBpm = fDefaultBpm;
 		updateTempoMarkers();
@@ -308,6 +312,7 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Timeline]\n" ).arg( sPrefix )
 			.append( QString( "%1%2m_fDefaultBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fDefaultBpm ) )
+			.append( QString( "%1%2m_bDefaultBpmSet: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bDefaultBpmSet ) )
 			.append( QString( "%1%2m_tempoMarkers:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {
@@ -331,6 +336,7 @@ QString Timeline::toQString( const QString& sPrefix, bool bShort ) const {
 		
 		sOutput = QString( "%1[Timeline] " ).arg( sPrefix )
 			.append( QString( "m_fDefaultBpm: %1, " ).arg( m_fDefaultBpm ) )
+			.append( QString( "m_bDefaultBpmSet: %1, " ).arg( m_bDefaultBpmSet ) )
 			.append( QString( "m_tempoMarkers: [" ) );
 		for ( const auto& tt : m_tempoMarkers ) {
 			if ( tt != nullptr ) {

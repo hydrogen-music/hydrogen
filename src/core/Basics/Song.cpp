@@ -760,6 +760,16 @@ std::shared_ptr<Song> Song::loadFrom(
 			// timeline associated with the _current_ song.
 			pTimeline->addTempoMarkers( tempoMarkers );
 		}
+
+		if ( flags & Xml::Flag::Ipc ) {
+			// IPC buffer only: the special first marker's tempo (runtime state,
+			// absent from .h2song). Presence-gated so disk songs keep the
+			// constructor placeholder *and* the unset marker — installing them
+			// re-captures the tempo from the song BPM (AudioEngine::setSong).
+			pTimeline->setDefaultBpm( bpmTimeLineNode.read_float(
+				"ipc-defaultBpm", 120.0, false, false, bSilent
+			) );
+		}
 	}
 	else if ( !bSilent ) {
 		WARNINGLOG( "'BPMTimeLine' node not found" );
@@ -1093,6 +1103,13 @@ void Song::saveTo(
 			newBPMNode.write_int( "BAR", tempoMarkerVector[tt]->nColumn );
 			newBPMNode.write_float( "BPM", tempoMarkerVector[tt]->fBpm );
 		}
+	}
+	// The special first marker's tempo is runtime state absent from
+	// .h2song — but the editor's mirror Timeline needs it (BPM display,
+	// timeline editor labels), so it crosses the IPC buffer.
+	if ( flags & Xml::Flag::Ipc ) {
+		bpmTimeLineNode.write_float( "ipc-defaultBpm",
+									 m_pTimeline->getDefaultBpm() );
 	}
 
 	// time line tag

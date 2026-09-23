@@ -751,6 +751,10 @@ void RoundTripAssertions::assertSongEqual( std::shared_ptr<Song> a, std::shared_
 			"Timeline::m_fDefaultBpm", pTimelineA->getDefaultBpm(),
 			pTimelineB->getDefaultBpm()
 		);
+		CPPUNIT_ASSERT_EQUAL_MESSAGE(
+			"Timeline::m_bDefaultBpmSet",
+			pTimelineA->hasDefaultBpmSet(), pTimelineB->hasDefaultBpmSet()
+		);
 	}
 	else {
 		CPPUNIT_ASSERT_EQUAL_MESSAGE(

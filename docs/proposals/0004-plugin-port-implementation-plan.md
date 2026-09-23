@@ -1963,6 +1963,53 @@ split-safe (suite `OK (445 tests)` ×3 consecutive).**
     described the mirror as thread-less (`main.cpp` editor branch,
     `TestHelper::makeMirror`). `check_write_surface` OK.
 
+ **Batch 2af — editor BPM widget shows the song BPM instead of the special
+  first tempo marker's tempo: split-safe (suite `OK (452 tests)` ×3
+  consecutive).**
+  * Bug (`Song` serialization + `AudioEngine::setSong()` + the editor's
+    song pull): the special first marker's tempo
+    (`Timeline::m_fDefaultBpm`, captured from the song BPM when the
+    Timeline is activated) never crossed the IPC song buffer, and the
+    pull's dual-apply `setSong` echo re-installed the song on the engine,
+    where `AudioEngine::setSong()`'s unconditional `Timeline::activate()`
+    re-captured the *current* song BPM — stomping the engine's captured
+    tempo whenever the song BPM had changed since activation (an external
+    MIDI/OSC/BeatCounter/TapTempo change is stored in the song while the
+    Timeline is active but not applied to the transport). The engine's
+    playhead then followed the stomped timeline, telemetry carried it,
+    and the editor's BPM widget (which displays the mirror playhead's
+    BPM) showed the song BPM instead of the special tempo. Standalone was
+    unaffected: no pull echo ever re-installs the song there.
+  * Fix, three parts: (1) `Song::saveTo()`/`loadFrom()` cross
+    `m_fDefaultBpm` as `ipc-defaultBpm` gated on `Xml::Flag::Ipc`
+    (runtime state, absent from .h2song; the read is presence-gated so
+    disk songs keep the constructor placeholder). (2) `Timeline` gained
+    the transient `m_bDefaultBpmSet` marker (set by `setDefaultBpm()`,
+    i.e. by `activate()`'s capture or the buffer read; not serialized as
+    its own element — it round-trips semantically via `ipc-defaultBpm`
+    presence). (3) `AudioEngine::setSong()` only re-captures for songs
+    whose Timeline still holds the placeholder (disk loads); IPC-buffer
+    songs keep the crossed value on both the engine (pull echo) and the
+    mirror (pull install). Checklist coverage: `toQString()` adopted the
+    member, `RoundTripAssertions` asserts it, the `IpcRoundTripTest`
+    song factory sets a non-default `m_fDefaultBpm` (96.5) — shipped and
+    test artifacts are unaffected (disk format unchanged).
+  * Tests: `EngineSessionTest::testMirrorBpmShowsSpecialTempoMarker` —
+    engine song (Song mode, BPM 100, first user marker at column 4),
+    Timeline activated (special = 100), song BPM then changed to 130
+    with the Timeline still active; the editor attaches and replays
+    `HydrogenApp::syncViaIpc()`'s relevant steps faithfully (GetSong
+    pull → `fromXmlBuffer` → dual-apply `setSong`, then step 8's
+    `forceTransportSync()` — the periodic telemetry resync only runs at
+    a 5 s cadence). Asserts the engine's playhead and Timeline keep the
+    special tempo, the mirror's playhead follows it via telemetry (the
+    widget's value), and the mirror's Timeline carries the crossed
+    value. RED: with the serialization hunks disabled,
+    `IpcRoundTripTest::testSongRoundTrip` fails (m_fDefaultBpm lost);
+    with the `setSong` recapture unconditional, the repro test fails
+    (mirror Timeline re-captured at 130); GREEN ×3.
+    `check_write_surface` OK.
+
 
 **T5.3 editor-mode bootstrap — DONE, suite `OK (318 tests)` + ctest 5/5.**
 * New `--plugin-editor <endpoint>` CLI option (`Parser`, hidden from help).

@@ -35,14 +35,18 @@
 #include <core/Basics/Playlist.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/Timeline.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
 #include <core/IPC/EditorSession.h>
+#include <core/IPC/EditorStateMirror.h>
 #include <core/IPC/EngineSession.h>
+#include <core/IPC/IpcChannel.h>
 #include <core/IPC/IpcEngineAccess.h>
+#include <core/IPC/IpcMessage.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
@@ -1500,6 +1504,119 @@ void EngineSessionTest::testMirrorTransportFreeRunsUnderJackTransport() {
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return pMirror->getAudioEngine()->getState() ==
 			AudioEngine::State::Ready; } ) );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// What BpmSpinBox displays is the mirror playhead's BPM. With the Timeline
+// active and the transport in the special first marker's region (before the
+// first user marker), that BPM is the special marker's tempo —
+// Timeline::m_fDefaultBpm, captured from the song BPM at activation. Both
+// processes must agree on it: the engine's Timeline (authoritative
+// playback), the mirror's Timeline (what the timeline editor labels the
+// special marker with), and both playheads (what the BPM widgets display).
+void EngineSessionTest::testMirrorBpmShowsSpecialTempoMarker() {
+	___INFOLOG( "" );
+
+	const float fSpecialBpm = 100.0f;
+	const float fChangedSongBpm = 130.0f;
+	const float fUserMarkerBpm = 140.0f;
+
+	auto* pEngine = TestHelper::makeEngine();
+	auto pSong = Song::getEmptySong( pEngine );
+	pSong->setMode( Song::Mode::Song );
+	pSong->setBpm( fSpecialBpm );
+
+	pEngine->getAudioEngine()->lock( RIGHT_HERE );
+	// First user marker at column 4 — everything before it is the special
+	// first marker's region.
+	pSong->getTimeline()->addTempoMarker( 4, fUserMarkerBpm );
+	pEngine->getAudioEngine()->unlock();
+
+	pEngine->setSong( pSong );
+
+	// The Timeline is already active when the editor attaches — activating
+	// it captured the song's BPM as the special first marker's tempo.
+	pEngine->setIsTimelineActivated( true );
+	CPPUNIT_ASSERT( pEngine->getSong()->getTimeline()->getDefaultBpm()
+					== fSpecialBpm );
+
+	// An external tempo change (MIDI/OSC/BeatCounter/TapTempo) is stored in
+	// the song while the Timeline is active, but the transport keeps
+	// following the Timeline: the special marker retains the captured tempo
+	// and the engine's playhead in the special region keeps showing it.
+	pEngine->getAudioEngine()->lock( RIGHT_HERE );
+	pSong->setBpm( fChangedSongBpm );
+	pEngine->getAudioEngine()->unlock();
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	// The editor pulls the song exactly like HydrogenApp::syncViaIpc() does:
+	// a GetSong request, deserializing the reply, and a dual-apply setSong
+	// (the mirror takes the live object; the engine is re-set from the same
+	// buffer). The connect-time priming only covers selection/record state.
+	IpcMessage songReply;
+	CPPUNIT_ASSERT( pEditor->getChannel()->request(
+		IpcMessage( IpcOpcode::GetSong ), songReply, 3000 ) );
+	CPPUNIT_ASSERT( ! songReply.getPayload().isEmpty() );
+	auto pSyncedSong = Song::fromXmlBuffer(
+		songReply.getPayload(), Xml::Flag::Ipc, true, pMirror );
+	CPPUNIT_ASSERT( pSyncedSong != nullptr );
+	pMirror->getCoreActionController()->setSong( pSyncedSong );
+	CPPUNIT_ASSERT( pMirror->getSong()->getBpm() == fChangedSongBpm );
+
+	// syncViaIpc() step 8: force an immediate transport re-sync from
+	// telemetry — the periodic resync only runs at a 5 s cadence.
+	pEditor->getStateMirror()->forceTransportSync();
+
+	// The engine's playhead in the special region shows the captured tempo,
+	// not the changed song BPM.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::fabs( pEngine->getAudioEngine()->getPlayhead()->getBpm()
+						  - fSpecialBpm ) < 0.01f; } ) );
+
+	// The editor's BPM widget displays the mirror playhead's BPM — it must
+	// follow the engine's (special) tempo via telemetry, not the changed
+	// song BPM.
+	const bool bMirrorFollowed = TestHelper::pumpUntil( [&]() {
+		return std::fabs( pMirror->getAudioEngine()->getPlayhead()->getBpm()
+						  - fSpecialBpm ) < 0.01f; } );
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "mirror playhead bpm: %1, engine playhead bpm: %2, "
+				 "mirror songBpm: %3, mirror defaultBpm: %4, "
+				 "mirror telemetry bpm: %5" )
+			.arg( pMirror->getAudioEngine()->getPlayhead()->getBpm() )
+			.arg( pEngine->getAudioEngine()->getPlayhead()->getBpm() )
+			.arg( pMirror->getSong()->getBpm() )
+			.arg( pMirror->getSong()->getTimeline()->getDefaultBpm() )
+			.arg( pEditor->getStateMirror()->getTelemetry().bpm )
+			.toStdString(),
+		bMirrorFollowed );
+
+	// Crossing fidelity: the mirror's Timeline carries the engine's captured
+	// special tempo, not a value re-derived from the changed song BPM.
+	CPPUNIT_ASSERT( pEngine->getSong()->getTimeline()->getDefaultBpm()
+					== fSpecialBpm );
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "engine defaultBpm: %1, mirror defaultBpm: %2, "
+				 "engine songBpm: %3, mirror songBpm: %4" )
+			.arg( pEngine->getSong()->getTimeline()->getDefaultBpm() )
+			.arg( pMirror->getSong()->getTimeline()->getDefaultBpm() )
+			.arg( pEngine->getSong()->getBpm() )
+			.arg( pMirror->getSong()->getBpm() )
+			.toStdString(),
+		pMirror->getSong()->getTimeline()->getDefaultBpm() == fSpecialBpm );
 
 	pEditor.reset();
 	pServer->stop();
