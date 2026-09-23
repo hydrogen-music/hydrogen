@@ -187,6 +187,21 @@ if(WANT_VST3)
     # VST3 module, so they must be position-independent.
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+    # Pin the C++ standard for every target created from here on: not just
+    # clap-wrapper's add_subdirectory targets, but also the libs its
+    # target_add_vst3_wrapper() / guarantee_vst3sdk() functions create while
+    # running in this scope - variable lookups inside those functions fall back
+    # to the caller (here), not to clap-wrapper's own CMakeLists, where
+    # CMAKE_CXX_STANDARD 17 is set. Unpinned, the wrapper compiles ride the
+    # compiler default, which breaks the VST3 path on CI: AppleClang 14 builds
+    # macos.mm as gnu++98 (constexpr/auto become errors) and MSYS2 GCC 15
+    # builds windows.cpp as gnu++23 (char8_t makes u8string() return
+    # std::u8string). OBJCXX is pinned explicitly as well: CMake reuses
+    # CXX_STANDARD for .mm sources only when that property is set, and the
+    # wrapper lib had neither.
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_OBJCXX_STANDARD 17)
+
     add_subdirectory(
         "${CMAKE_SOURCE_DIR}/extern/clap-wrapper"
         "${CMAKE_BINARY_DIR}/clap-wrapper"
