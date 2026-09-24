@@ -309,7 +309,7 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update
         sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libogg-dev libvorbis-dev autogen || exit 1
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev libicu-dev libtool || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev libtool || exit 1
 
         # Compile and ship a more recent libsndfile version to support MP3
         # export in AppImages.
@@ -355,6 +355,18 @@ for:
 
       export PATH=$HOME/Qt/6.8/bin:$PATH
       export Qt6Widgets_DIR=$HOME/Qt/6.8/lib/cmake/Qt6Widgets
+
+      ## The preinstalled Qt 6.8 binaries are linked against ICU 73 but no
+      ## Ubuntu release ever shipped this version and the image provides a
+      ## different major one. Without it `lrelease` fails to start and
+      ## `linuxdeploy` can not resolve and bundle the ICU dependencies of
+      ## Qt6Core. The Debian build is fetched from the immutable snapshot
+      ## archive and installed alongside the system ICU (different soname,
+      ## no conflicts).
+      wget -O libicu73.deb https://snapshot.debian.org/archive/debian/20230701T000000Z/pool/main/i/icu/libicu73_73.2-1_amd64.deb || exit 1
+      echo "2ae3e9cb9ff6999c856177c1c49473c4b0d45a41672aca62ed07bf52a2fb0c1d  libicu73.deb" | sha256sum -c || exit 1
+      sudo dpkg -i libicu73.deb || exit 1
+
       export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
