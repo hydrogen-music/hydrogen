@@ -283,7 +283,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_beaver # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_qt6 # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -309,7 +309,7 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update
         sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libogg-dev libvorbis-dev autogen || exit 1
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev libicu-dev || exit 1
 
         # Compile and ship a more recent libsndfile version to support MP3
         # export in AppImages.
