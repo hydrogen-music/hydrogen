@@ -97,6 +97,31 @@ function cmake_appimage() {
 		exit 1
 	fi
 
+	## The linuxdeploy Qt plugin determines the Qt version by querying
+	## `qmake`. It searches for `qmake-qt5` and `qmake` before ever
+	## considering `qmake6` and, thus, picks a Qt5 one on systems with
+	## both versions installed. It then fails to recognize any of the
+	## Qt6 modules used by the application and aborts with "Could not
+	## find Qt modules to deploy". Since we build against Qt6, we prefer
+	## an explicit `$QMAKE`, the qmake in `$QTDIR` (if set) and `qmake6`
+	## before whatever `qmake` is found in the PATH.
+	if [ -z "$QMAKE" ]; then
+		if [ "$QTDIR" ] && [ -x "$QTDIR/bin/qmake" ]; then
+			QMAKE="$QTDIR/bin/qmake"
+		elif which qmake6 &> /dev/null; then
+			QMAKE="$(which qmake6)"
+		elif which qmake &> /dev/null; then
+			QMAKE="$(which qmake)"
+		fi
+	fi
+	if [ -z "$QMAKE" ]; then
+		echo -e "\nERROR: no 'qmake' found. The linuxdeploy Qt plugin requires one.\n" && exit 1
+	fi
+	if [[ "$("$QMAKE" -query QT_VERSION 2> /dev/null)" != 6.* ]]; then
+		echo -e "\nERROR: qmake at [$QMAKE] does not report a Qt6 version. Please point the \$QMAKE environment variable to a Qt6 qmake.\n" && exit 1
+	fi
+	export QMAKE
+
 	## Perform a regular cmake build.
 	cmake_make
 
@@ -117,8 +142,8 @@ function cmake_appimage() {
 	## Add custom OpenSSL libraries. They are used as fallback by Qt
     ## and are only dl_opened in case no matching version was found on
     ## system level.
-	LIB_SSL=$(find /usr -name "libssl.so.1.1*" | head -n 1)
-	LIB_CRYPTO=$(find /usr -name "libcrypto.so.1.1*" | head -n 1)
+	LIB_SSL=$(find /usr -name "libssl.so.3*" | head -n 1)
+	LIB_CRYPTO=$(find /usr -name "libcrypto.so.3*" | head -n 1)
 	ISSUE_ERROR=0
 	if [[ "$(echo $LIB_SSL | wc -c)" == "1" || "$(echo $LIB_CRYPTO | wc -c)" == "1" ]]; then
 		ISSUE_ERROR=1
