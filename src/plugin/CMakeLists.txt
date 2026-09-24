@@ -256,9 +256,15 @@ if(WANT_VST3)
     add_library( hydrogen-vst3 MODULE )
     target_link_libraries( hydrogen-vst3 PRIVATE hydrogen-vst3-entry )
 
+    # WINDOWS_FOLDER_VST3: emit the 3.7-spec bundle folder on Windows too.
+    # clap-wrapper's default there is a single-file .vst3, but the install
+    # rule below expects the .vst3 to be a directory on every platform —
+    # against the single file, cpack's install(DIRECTORY) step fails with
+    # "file INSTALL cannot find ...: File exists.".
     target_add_vst3_wrapper(
         TARGET hydrogen-vst3
-        OUTPUT_NAME "Hydrogen" )
+        OUTPUT_NAME "Hydrogen"
+        WINDOWS_FOLDER_VST3 ON )
 
     # Tell clap-wrapper that the CLAP entry is statically linked into this module
     # (our clapfirst model — the CLAP plugin is compiled in via hydrogen-vst3-entry,
