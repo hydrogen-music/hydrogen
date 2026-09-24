@@ -307,6 +307,12 @@ void CoreActionControllerTest::testSessionManagement() {
 	sFilePath = QString( "%1.h2song" ).arg( sFileNameImproper );
 	QFile fileProper( sFilePath );
 	if ( fileProper.open( QIODevice::ReadWrite ) ) {
+		// The file only has to exist for the saves below. Windows can
+		// neither replace nor remove a file that is still held open —
+		// and Song::save() commits via rename (QSaveFile, ADR 0023) —
+		// so release our handle right away instead of holding it for
+		// the whole block.
+		fileProper.close();
 
 		auto pSong = H2Core::Song::getEmptySong( pTestHydrogen() );
 		pSong->setPath( fileProper.fileName() );
