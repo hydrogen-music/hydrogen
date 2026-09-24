@@ -309,7 +309,7 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update
         sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libogg-dev libvorbis-dev autogen || exit 1
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev libtool || exit 1
 
         # Compile and ship a more recent libsndfile version to support MP3
         # export in AppImages.
