@@ -355,6 +355,18 @@ for:
 
       export PATH=$HOME/Qt/6.8/bin:$PATH
       export Qt6Widgets_DIR=$HOME/Qt/6.8/lib/cmake/Qt6Widgets
+
+      ## The preinstalled Qt 6.8 binaries are linked against ICU 73 but no
+      ## Ubuntu release ever shipped this version and the image provides a
+      ## different major one. Without it `lrelease` fails to start and
+      ## `linuxdeploy` can not resolve and bundle the ICU dependencies of
+      ## Qt6Core. The Debian build is fetched from the immutable snapshot
+      ## archive and installed alongside the system ICU (different soname,
+      ## no conflicts).
+      wget -O libicu73.deb https://snapshot.debian.org/archive/debian/20230701T000000Z/pool/main/i/icu/libicu73_73.2-1_amd64.deb || exit 1
+      echo "2ae3e9cb9ff6999c856177c1c49473c4b0d45a41672aca62ed07bf52a2fb0c1d  libicu73.deb" | sha256sum -c || exit 1
+      sudo dpkg -i libicu73.deb || exit 1
+
       export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
