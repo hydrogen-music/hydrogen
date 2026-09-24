@@ -1265,9 +1265,22 @@ void IpcRoundTripTest::testExportSongRoundTrip()
 
 	// A stop while a plan is still running cancels it: no later
 	// render may call play() over the user's stop. Arm a
-	// six-render plan and stop right away — the engine must tear
-	// the session down, leave the transport at rest, and never run
-	// the queued renders.
+	// six-render plan, wait until the first render is provably
+	// underway, and stop — the engine must tear the session down,
+	// leave the transport at rest, and never run the queued
+	// renders.
+	//
+	// The stop is issued on the engine directly, not through
+	// pAccess: the plan renders offline on its own threads at full
+	// speed, while a command's round trip through the channel
+	// depends on the host's event-loop scheduling. On the Windows
+	// CI the latter outlasts the whole six-render plan, silently
+	// degrading this section's premise ("stop during the plan")
+	// into "stop after the plan". The IPC handler runs the very
+	// same Hydrogen::sequencerStop() (IpcEngineBridge), and the
+	// channel crossing itself is covered by the toolbar stop above
+	// — what is under test here is the engine's cancel-on-stop
+	// semantics.
 	std::vector<ExportRender> renders3;
 	for ( int ii = 0; ii < 6; ++ii ) {
 		renders3.push_back( ExportRender{
@@ -1278,7 +1291,18 @@ void IpcRoundTripTest::testExportSongRoundTrip()
 	CPPUNIT_ASSERT( pController->exportSong(
 		48000, 16, 0.0, Interpolation::InterpolateMode::Linear, false,
 		renders3 ) );
-	pAccess->sequencerStop();
+
+	// The first render must be writing before the stop is issued:
+	// this turns "stop during the plan" from a race into a fact —
+	// five renders are still queued when the synchronous stop
+	// lands.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return QFileInfo( QString( "%1/export-cancel-0.wav" )
+							.arg( tmpDir.path() ) ).size() > 0;
+	}, 5000 ) );
+	CPPUNIT_ASSERT( pEngine->getIsExportSessionActive() );
+
+	pEngine->sequencerStop();
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return ! pEngine->getIsExportSessionActive();
 	}, 5000 ) );
