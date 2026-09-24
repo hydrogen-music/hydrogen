@@ -421,6 +421,23 @@ for:
 
       find /usr -name "*libportmidi*"
       cp /usr/local/lib/libportmidi.so.2 AppDir/usr/lib || exit 1
+
+      ## linuxdeploy-plugin-qt determines all Qt deployment paths via
+      ## `qmake -query`. A stale or broken `qt.conf` next to the
+      ## preinstalled qmake can remap the reported installation to a
+      ## no-longer-existing location (e.g. the AppDir of a previous
+      ## build). The plugin would then try to deploy Qt libraries and
+      ## plugins from there and fail. We enforce a configuration
+      ## matching the actual installation layout and verify the query
+      ## before handing control to the plugin.
+      printf '[Paths]\nPrefix = %s\n' "$HOME/Qt/6.8" > $HOME/Qt/6.8/bin/qt.conf || exit 1
+      if [[ "$($HOME/Qt/6.8/bin/qmake -query QT_INSTALL_LIBS)" != "$HOME/Qt/6.8/lib" ]]; then
+          echo "ERROR: qmake does not report the expected Qt installation paths:"
+          env | grep "^QT"
+          $HOME/Qt/6.8/bin/qmake -query
+          exit 1
+      fi
+
       LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/6.8/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
