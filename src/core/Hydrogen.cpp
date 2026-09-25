@@ -254,13 +254,18 @@ Hydrogen::~Hydrogen()
 	m_extractedProjectDirs.clear();
 
 	// In case we created a logger for this very instance, we also have to tear
-	// down its custom Logger instance. We also need to clean up the custom log
-	// file. Since the process id is used in the file name, we would clutter up
-	// disk space otherwise.
+	// down its custom Logger instance. In release builds we also remove the
+	// custom log file - since the process id is used in the file name, we
+	// would clutter up disk space otherwise. Debug builds keep it: a plugin
+	// host neither passes our CLI options nor reliably shows our stdout, so
+	// the per-instance files are the only way to inspect a plugin guest's
+	// logs after the fact.
 	if ( m_bInstanceLoggerSpawned ) {
 		const auto sInstanceLogFile = m_pLogger->getLogFile();
 		delete m_pLogger;
+#ifndef H2CORE_HAVE_DEBUG
 		Filesystem::rm( sInstanceLogFile );
+#endif
 	}
 }
 

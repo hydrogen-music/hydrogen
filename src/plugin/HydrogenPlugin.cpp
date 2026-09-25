@@ -25,12 +25,14 @@
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/H2Project.h>
 #include <core/Hydrogen.h>
 #include <core/IO/PluginAudioDriver.h>
 #include <core/IO/PluginMidiDriver.h>
 #include <core/IPC/EngineSession.h>
 #include <core/IPC/HeadlessEngineLauncher.h>
+#include <core/Logger.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
@@ -64,7 +66,30 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	: m_pHydrogen( nullptr )
 	, m_pAudioDriver( nullptr )
 	, m_pMidiDriver( nullptr )
-	, m_nBuses( nBuses ) {
+	, m_nBuses( nBuses )
+{
+#ifdef H2CORE_HAVE_DEBUG
+	// A plugin host neither passes our CLI options nor reliably shows our
+	// stdout, so without this no log line would ever be emitted: the
+	// process-default level mask is 0 and there is no process-default
+	// logger to route unscoped lines to. Bootstrap one backed by a
+	// per-process file - the logger truncates its file, so the shared
+	// default `hydrogen.log` would be clobbered by concurrent standalone
+	// runs - and keep stdout clean: everything is persisted to disk
+	// instead. Release builds stay silent.
+	if ( ! Logger::isAvailable() ) {
+		const QFileInfo logInfo( Filesystem::logFilePath() );
+		const QString sPluginLogPath = logInfo.absolutePath() + "/" +
+			logInfo.completeBaseName() +
+			QString( "_%1_plugin." )
+				.arg( QCoreApplication::applicationPid() ) +
+			logInfo.suffix();
+		Logger::bootstrap( Logger::Error | Logger::Warning | Logger::Info |
+						  Logger::Debug | Logger::Ipc,
+						  sPluginLogPath, false, true, false );
+	}
+#endif
+
 	m_pHydrogen = new Hydrogen(
 		makePluginPreferences( fSampleRate, nMaxBlockSize ),
 		H2Core::ProcessMode::Headless, -1
