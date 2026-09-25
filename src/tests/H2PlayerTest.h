@@ -74,9 +74,10 @@ class H2PlayerTest : public CppUnit::TestCase {
 	QString m_sTestSongPath;
 
 	/** Start h2player with @a args (plus `-L` pointing at a temp log file and
-	 * `--no-ipc`), wait, kill it, and return the log file content. */
+	 * `--no-ipc`), wait for it to finish (or kill it after @a nTimeoutMs),
+	 * and return the log file content. */
 	QString runPlayerAndReadLog( const QStringList& args,
-								unsigned nTimeoutMs = 2000 );
+								unsigned nTimeoutMs = 5000 );
 	/** Copy the shipped default config to @a sDestPath and replace the
 	 * `<oscServerPort>` element value with @a nNewPort. */
 	QString prepareCustomConfig( const QString& sDestDir, int nNewPort );

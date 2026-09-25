@@ -272,13 +272,15 @@ QString H2PlayerTest::runPlayerAndReadLog( const QStringList& args,
 	pProcess->start( m_sH2PlayerPath, allArgs );
 	CPPUNIT_ASSERT( pProcess->waitForStarted( 5000 ) );
 
-	QThread::msleep( nTimeoutMs );
-
-	if ( pProcess->state() != QProcess::NotRunning ) {
+	// The player logs to stdout as well as to the `-L` file. As nobody
+	// consumes its stdout, the OS pipe (64 KiB) would fill up and stall the
+	// player mid-write - and, thus, stall the log file - if we were just
+	// sleeping here. `waitForFinished()` drains the pipes into the process'
+	// internal buffers instead and returns as soon as the player exits by
+	// itself (which most invocations do, e.g. on the song-load error). Only
+	// players still running at the deadline are killed.
+	if ( !pProcess->waitForFinished( nTimeoutMs ) ) {
 		pProcess->kill();
-		pProcess->waitForFinished( 3000 );
-	}
-	else {
 		pProcess->waitForFinished( 3000 );
 	}
 
