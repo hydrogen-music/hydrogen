@@ -50,6 +50,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView,
 	, m_pScrollView( pScrollView )
 	, m_pSongEditorPanel( pSongEditorPanel )
 	, m_cursor( GridPoint( 0, 0 ) )
+	, m_fTick( 0 )
 {
 	m_instance = Editor::Instance::SongEditor;
 	m_type = Editor::Type::Grid;
