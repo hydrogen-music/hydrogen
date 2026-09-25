@@ -81,6 +81,18 @@ target_link_libraries(hydrogen
 	Qt${QT_VERSION_MAJOR}::Svg
 )
 
+# A static Qt only contains the platform plugins that are explicitly linked
+# into an executable. The headless smoke tests below run this binary with
+# QT_QPA_PLATFORM=offscreen, so the offscreen platform integration has to be
+# linked in alongside the default one (xcb). A shared Qt loads it from its
+# plugin directory at runtime instead.
+if(QT_VERSION_MAJOR VERSION_GREATER_EQUAL 6)
+	get_target_property(_qt_core_type Qt6::Core TYPE)
+	if(_qt_core_type STREQUAL "STATIC_LIBRARY")
+		qt_import_plugins(hydrogen INCLUDE Qt6::QOffscreenIntegrationPlugin)
+	endif()
+endif()
+
 if(Backtrace_FOUND)
 	target_link_libraries(hydrogen
 		${Backtrace_LIBRARIES}
