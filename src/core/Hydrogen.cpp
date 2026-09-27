@@ -155,8 +155,8 @@ Hydrogen::Hydrogen(
 				.arg( nInstanceCounter++ ) +
 			defaultLogInfo.suffix();
 		// No Scope is active during construction, so currentLogger() resolves
-		// to the process-default logger — read its settings to mirror console
-		// verbosity.
+		// to the process-default logger — read its settings to mirror them
+		// (console verbosity, timestamps).
 		const auto pDefaultLogger = Logger::currentLogger();
 		Logger::Options instanceOptions = Logger::Option::Append;
 		if ( pDefaultLogger != nullptr && pDefaultLogger->getUseStdout() ) {
@@ -164,6 +164,9 @@ Hydrogen::Hydrogen(
 		}
 		if ( pDefaultLogger == nullptr || pDefaultLogger->getLogColors() ) {
 			instanceOptions |= Logger::Option::Colors;
+		}
+		if ( pDefaultLogger == nullptr || pDefaultLogger->getLogTimestamps() ) {
+			instanceOptions |= Logger::Option::Timestamps;
 		}
 		m_pLogger = Logger::createInstanceLogger( sInstanceLogPath,
 												 instanceOptions );

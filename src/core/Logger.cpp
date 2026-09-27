@@ -223,7 +223,12 @@ void* loggerThread_func( void* param ) {
 	}
 	if ( bUseLogFile ) {
 		LogWriteLock lock( logFile, pLogger->m_bAppend );
-		logFileStream << "Stop logger";
+		// Farewell marker for a clean shutdown (a crash truncates the file
+		// without it). Formatted inline like a log() line — the drain loop
+		// above has exited, so enqueuing through log() would go nowhere —
+		// keeping every line in the file correlatable (ADR 0015, T1.6).
+		logFileStream << pLogger->timestampPrefix()
+					  << "(I) [Logger::~Logger] Stop logger\n";
 		logFileStream.flush();
 	}
 	logFile.close();
@@ -346,6 +351,14 @@ Logger::~Logger() {
 	pthread_join( m_loggerThread, nullptr );
 }
 
+QString Logger::timestampPrefix() const {
+	if ( ! m_bLogTimestamps ) {
+		return QString();
+	}
+	return QString( "[%1] " )
+		.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
+}
+
 void Logger::log( unsigned level, const QString& sClassName, const char* func_name,
 				  const QString& sMsg, const QString& sColor ) {
 
@@ -381,11 +394,7 @@ void Logger::log( unsigned level, const QString& sClassName, const char* func_na
 		break;
 	}
 
-	QString sTimestampPrefix;
-	if ( m_bLogTimestamps ) {
-		sTimestampPrefix = QString( "[%1] " )
-			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
-	}
+	const QString sTimestampPrefix = timestampPrefix();
 
 	QString sCol = "";
 	if ( m_bLogColors ) {

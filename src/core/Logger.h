@@ -209,6 +209,10 @@ class Logger {
 		/** @} */
 
 		bool getLogColors() const;
+		/** Whether this logger prefixes lines with `[hh:mm:ss.zzz]`
+		 * timestamps. Used so a per-instance logger can mirror the process
+		 * default's settings (ADR 0015, T1.6). */
+		bool getLogTimestamps() const;
 		/** Whether this logger also writes to stdout. Used so a per-instance
 		 * logger can mirror the process default's verbosity (ADR 0015, T1.6). */
 		bool getUseStdout() const { return m_bUseStdout; }
@@ -267,6 +271,11 @@ class Logger {
 		 * thus counted in #__nInstanceLoggers). */
 		bool m_bIsInstanceLogger = false;
 
+		/** The `[hh:mm:ss.zzz] ` line prefix (empty when timestamps are
+		 * disabled). Shared by #log() and the writer thread's shutdown
+		 * marker so both stay in format sync. */
+		QString timestampPrefix() const;
+
 		thread_local static QString *pCrashContext;
 
 		/** constructor */
@@ -285,6 +294,10 @@ class Logger {
 
 inline bool Logger::getLogColors() const {
 	return m_bLogColors;
+}
+
+inline bool Logger::getLogTimestamps() const {
+	return m_bLogTimestamps;
 }
 
 inline const QString& Logger::getLogFile() const {
