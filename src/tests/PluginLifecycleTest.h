@@ -25,6 +25,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <core/config.h>
+
 class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginLifecycleTest );
 	CPPUNIT_TEST( testRepeatedLifecycle );
@@ -35,6 +37,9 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEditorCommandReachesEngine );
 	CPPUNIT_TEST( testEditorReopen );
 	CPPUNIT_TEST( testEditorBinaryDiscovery );
+#ifdef H2CORE_HAVE_DEBUG
+	CPPUNIT_TEST( testProcessDefaultAuditSurface );
+#endif
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -60,6 +65,13 @@ public:
 	/** The editor binary is resolved by precedence: explicit override →
 	 * $HYDROGEN_EDITOR_PATH → bundled-next-to-plugin → `hydrogen` on PATH. */
 	void testEditorBinaryDiscovery();
+	/** The process-default log doubles as the audit surface: while
+	 * per-instance loggers are alive, every line reaching it is marked
+	 * `[unscoped]`. After a full HydrogenPlugin lifecycle (construction,
+	 * activation, state round-trip, processing, teardown) the only marked
+	 * line must be the deliberate "Spawning instance logger" index
+	 * announcement. Debug builds only (same reason as LoggerInstanceTest). */
+	void testProcessDefaultAuditSurface();
 };
 
 #endif

@@ -54,6 +54,10 @@ void* diskWriterDriver_thread( void* param )
 
 	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
+
 	pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 0 );
 
 	auto pAudioEngine = pDriver->getHydrogen()->getAudioEngine();

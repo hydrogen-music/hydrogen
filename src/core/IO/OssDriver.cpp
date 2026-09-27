@@ -45,6 +45,12 @@ unsigned nNextFrames = 0;
 void* ossDriver_processCaller( void* param )
 {
 	Base * __object = ( Base * )param;
+	OssDriver *ossDriver = ( OssDriver* )param;
+
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( ossDriver->getHydrogen()->getLogger() );
+
 	// stolen from amSynth
 	struct sched_param sched;
 	sched.sched_priority = 50;
@@ -54,8 +60,6 @@ void* ossDriver_processCaller( void* param )
 		__WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
 	}
 	__INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
-
-	OssDriver *ossDriver = ( OssDriver* )param;
 
 	sleep( 1 );
 

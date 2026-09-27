@@ -251,9 +251,16 @@ int main(int argc, char *argv[])
 		H2Core::Logger::setCrashContext( &sInitialisingCrashContext );
 
 		// Man your battle stations... this is not a drill.
+		H2Core::Logger::Options logOptions =
+			H2Core::Logger::Option::UseStdout;
+		if ( parser.getLogTimestamps() ) {
+			logOptions |= H2Core::Logger::Option::Timestamps;
+		}
+		if ( parser.getLogColors() ) {
+			logOptions |= H2Core::Logger::Option::Colors;
+		}
 		auto pLogger = H2Core::Logger::bootstrap(
-			parser.getLogLevel(), parser.getLogFile(), true,
-			parser.getLogTimestamps(), parser.getLogColors() );
+			parser.getLogLevel(), parser.getLogFile(), logOptions );
 		H2Core::Base::bootstrap(
 			pLogger, pLogger->should_log( H2Core::Logger::Debug ) );
 

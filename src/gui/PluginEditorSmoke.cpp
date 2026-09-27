@@ -93,7 +93,9 @@ int main( int argc, char** argv ) {
 	// Bring up just enough core to create an engine (same bootstrap order the GUI
 	// and the unit-test runner use), pointed at the shipped data dir.
 	auto* pLogger = H2Core::Logger::bootstrap(
-		H2Core::Logger::Error | H2Core::Logger::Warning, "", true, true );
+		H2Core::Logger::Error | H2Core::Logger::Warning, "",
+		H2Core::Logger::Option::UseStdout | H2Core::Logger::Option::Timestamps |
+			H2Core::Logger::Option::Colors );
 	H2Core::Base::bootstrap( pLogger, false );
 	H2Core::Filesystem::bootstrap( pLogger, sDataDir );
 

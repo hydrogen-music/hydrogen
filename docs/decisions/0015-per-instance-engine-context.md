@@ -200,6 +200,102 @@ single instance per process.
   `Base::__logger` rework (above) plus a process-default fallback logger for
   instance-less contexts.
 
+## Amendment (2026-09-26): instance log routing, append mode, and process-default file content
+
+Implementing the per-instance logger refined the mechanism above in three
+ways:
+
+* **Construction is a scope entry point — in practice the biggest one.** The
+  illustrative entry-point list above is runtime-shaped; the largest misrouted
+  chunk was instance *construction*: the `SoundLibraryDatabase` scan and the
+  audio/MIDI driver startup inside `Hydrogen`'s constructor. The constructor
+  now pushes a scope right after spawning the instance logger (covering the
+  scan, OSC/NSM setup, and driver startup), and `EngineSession::serve()` —
+  the command-dispatch site of the editor split
+  ([ADR 0016](0016-out-of-process-plugin-ui.md)) — pushes one around its
+  serve loop, so IPC dispatch, song/kit loads, and telemetry publishing land
+  in the engine instance's file.
+* **Plugin-mode log files open append-only, with a per-write file lock.** A
+  pid + instance-counter path is unique within a session but not *across*
+  sessions: hosts and the OS reuse PIDs, so a later run can reopen a prior
+  run's path — truncating there would destroy the earlier session's log.
+  Plugin-mode loggers (the per-instance files and the process-default
+  `hydrogen_<pid>_plugin.log` alike) therefore open with
+  `QIODevice::Append`, and each write takes a best-effort whole-file lock
+  (`flock`/`LockFileEx`) so concurrent appenders cannot tear each other's
+  lines. The lock is coupled to append mode: an exclusive (truncating)
+  logger — the standalone app — keeps lock-free writes.
+* **The process-default file carries process-level lines only.** With the
+  construction and serve-loop scopes in place, all instance work lands in
+  instance files; the shared per-process file keeps process-level messages
+  plus the unscoped `Spawning instance logger` announcements, so it stays
+  small and doubles as an index of the session's instance files. Mirroring
+  instance work into the shared file as well was rejected — it would
+  re-create the interleaved, unreadable stream the per-instance split exists
+  to avoid.
+
+## Amendment (2026-09-27): full routing coverage and the `[unscoped]` audit surface
+
+Closing the remaining routing gaps and making future ones visible:
+
+* **Thread bodies and object announcements route through the ambient scope.**
+  The `__LOG_OBJ` family (thread-body macros) and `Object`'s
+  constructor/destructor announcements previously resolved through the static
+  `Base::__logger` — the process default — so work running *inside* an
+  instance scope on a fresh thread bypassed it. They now resolve through
+  `currentLogger()` like every other macro.
+* **Teardown is scoped.** `~Hydrogen` pushes a scope around its whole
+  teardown body (member resets inside it, the logger delete outside), so
+  destructor-time work — including release-build `Filesystem::rm` logging —
+  lands in the instance file instead of leaking to the process default after
+  the constructor's scope popped.
+* **The host entry surface is scoped.** `HydrogenPlugin`'s public methods —
+  the surface the format shims (CLAP, LV2, VST3) forward host calls into —
+  push a scope at entry, so main-thread engine work (state load, transport,
+  MIDI queuing) routes to the instance logger. The test harness
+  (`FakePluginHost`) mirrors the same per-method scopes.
+* **Every per-instance thread is scoped at entry.** Threads serving one
+  instance for their whole life (TimeHelper burn-in, MidiActionManager
+  worker, export plan, all audio/MIDI driver threads, NSM) push a single
+  scope at thread-body entry; externally-dispatched callbacks (OSC handlers,
+  JACK non-process callbacks) push one per invocation. The process-level
+  threads — each logger's own writer, the IpcServer accept loop — stay on
+  the process default by design.
+* **`[unscoped]` audit surface.** While any per-instance logger is alive,
+  `Logger::log()` marks lines reaching the process default `[unscoped] `, so
+  routing gaps stay greppable instead of silently blending into
+  process-level output. Two tripwire tests (harness lifecycle and
+  `HydrogenPlugin` lifecycle) assert the spawning announcement is the *only*
+  marked line of a full lifecycle. During development this surface caught
+  two real gaps (the harness's main-thread driving window; unscoped
+  `HydrogenPlugin` host-entry lines) and one latent `Filesystem` quirk: the
+  suite must read the process default via `Logger::getLogFile()` because
+  `Filesystem::logFilePath()`'s lazy first-call resolution can clobber the
+  bootstrapped custom path.
+
+**Base-capture re-examined and held as a named escalation.** Capturing the
+logger per object at construction (so even unscoped calls route correctly)
+was re-examined under the multi-instance premise. The original rejection's
+"misroute is only cosmetic" assumption no longer holds — with several
+instances in one process a misroute writes *another instance's* log — but
+the cost half stands (a per-object pointer on hot paths like `Note`). It is
+recorded as an escalation with prerequisites, not the default:
+
+* **F4 — construction order:** `Hydrogen` itself, the `EventQueue`, and
+  `Preferences` are born before any scope exists; Base-capture would freeze
+  the process-default pin on them. Escalating requires constructor
+  reordering or setter discipline for those objects.
+* **F5 — teardown:** the owning `delete` of an instance logger would turn
+  late misroutes into use-after-free. Escalating requires a zombie protocol
+  (the logger stays allocated and flag-drains its queue) — *not*
+  `shared_ptr`, whose final release could happen on a real-time thread
+  mid-flight.
+* **Trigger:** a plugin host multiplexing multiple instances on one OS
+  thread via stack-switching fibers, which breaks TLS-based ambient routing.
+  No known host does this (Linux threading is strictly 1:1; Windows fibers
+  are cooperative; CLAP's symbolic audio thread may migrate between OS
+  threads, which the per-call scopes above already handle).
+
 ## More Information
 
 * Call-site sketches and migration steps:

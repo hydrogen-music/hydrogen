@@ -260,8 +260,12 @@ template<typename T> class Object: public Base {
 	public:
 		Object() {
 #ifdef H2CORE_HAVE_DEBUG
-			if ( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Constructor" );
+			// Announce through the ambient context (ADR 0015 / T1.6), like
+			// the log macros below, so objects born inside a per-instance
+			// Scope land in that instance's log.
+			Logger* pLogger = Logger::currentLogger();
+			if ( pLogger && pLogger->should_log( Logger::Constructors ) ) {
+				pLogger->log( Logger::Debug, nullptr, T::_class_name(), "Constructor" );
 			}
 			if ( __count ) {
 				if ( ! counters.constructed ) {
@@ -273,8 +277,9 @@ template<typename T> class Object: public Base {
 		}
 		Object(const Object<T> &other) {
 #ifdef H2CORE_HAVE_DEBUG
-			if( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
+			Logger* pLogger = Logger::currentLogger();
+			if( pLogger && pLogger->should_log( Logger::Constructors ) ) {
+				pLogger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
 			}
 			if ( __count ) {
 				if ( ! counters.constructed ) {
@@ -287,8 +292,9 @@ template<typename T> class Object: public Base {
 	protected:
 		~Object() {
 #ifdef H2CORE_HAVE_DEBUG
-			if( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Destructor" );
+			Logger* pLogger = Logger::currentLogger();
+			if( pLogger && pLogger->should_log( Logger::Constructors ) ) {
+				pLogger->log( Logger::Debug, nullptr, T::_class_name(), "Destructor" );
 			}
 			if ( __count ) {
 				++counters.destructed;
@@ -313,7 +319,7 @@ template<typename T> atomic_obj_cpt_t Object<T>::counters;
 // Logger::get_instance() singleton.
 #define __LOG_METHOD(   lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG_CLASS(    lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_OBJ(      lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
 #define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }
 
@@ -331,7 +337,7 @@ template<typename T> atomic_obj_cpt_t Object<T>::counters;
 #define _WARNINGLOG(x)  __LOG_CLASS( H2Core::Logger::Warning, (x) );
 #define _ERRORLOG(x)    __LOG_CLASS( H2Core::Logger::Error,   (x) );
 
-// logging macros using an Base *__object ( thread :  Base * __object = ( Base * )param; )
+// logging macros for thread bodies ( thread :  Base * __object = ( Base * )param; )
 #define __IPCLOG(x)     __LOG_OBJ( H2Core::Logger::Ipc,        (x) );
 #define __DEBUGLOG(x)   __LOG_OBJ( H2Core::Logger::Debug,      (x) );
 #define __INFOLOG(x)    __LOG_OBJ( H2Core::Logger::Info,       (x) );

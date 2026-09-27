@@ -22,6 +22,8 @@
 
 #include <core/IO/LoopBackMidiDriver.h>
 
+#include <core/Hydrogen.h>
+
 namespace H2Core {
 
 LoopBackMidiDriver::LoopBackMidiDriver( Hydrogen* pHydrogen )
@@ -171,6 +173,10 @@ void LoopBackMidiDriver::messageHandler( void* pInstance ) {
 		ERRORLOG( "Invalid instance provided. Shutting down." );
 		return;
 	}
+
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
 
 	// Signal the instance that we are ready.
 	pDriver->m_bActive = true;

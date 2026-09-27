@@ -28,6 +28,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/PluginAudioDriver.h>
 #include <core/IO/PluginMidiDriver.h>
+#include <core/Logger.h>
 #include <core/Preferences/Preferences.h>
 
 #include <algorithm>
@@ -65,6 +66,12 @@ FakePluginHost::FakePluginHost(unsigned nSampleRate, unsigned nBlockSize,
 		makeHostPreferences( nSampleRate, nBlockSize ),
 		H2Core::ProcessMode::Headless, -1
 	);
+	// A real host drives the engine through HydrogenPlugin's per-method
+	// scopes (ADR 0015, T1.6); mirror that here so this harness's main-thread
+	// driving routes to the instance logger. The "Spawning instance logger"
+	// announcement inside the Hydrogen constructor above deliberately stays on
+	// the process default.
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	// Without a GUI the event queue drops events while in the startup state; a
 	// headless instance keeps them so MIDI/transport tests can observe them.
 	m_pHydrogen->setFullyOperational( true );
@@ -153,6 +160,9 @@ void FakePluginHost::setPlaying(bool bPlaying) {
 	if ( m_pHydrogen == nullptr ) {
 		return;
 	}
+	// Engine calls on the host's thread route to the instance logger, like a
+	// real host's scoped entry points (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	if ( bPlaying ) {
 		m_pHydrogen->sequencerPlay();
 	} else {
@@ -186,6 +196,9 @@ long long FakePluginHost::getFramePosition() const {
 }
 
 int FakePluginHost::process(unsigned nFrames) {
+	// Engine calls on the host's thread route to the instance logger, like a
+	// real host's scoped entry points (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	// A real plugin host hands the engine fresh output buffers every block. We
 	// must never ask the engine to render more frames than our buffers hold.
 	if ( nFrames > m_nBlockSize ) {

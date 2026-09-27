@@ -162,6 +162,11 @@ int OscServer::incomingMessageLogging(const char *	path,
 									  lo_message	data,
 									  void *		user_data) {
 
+	// Dispatched from the liblo server thread; scope per invocation so this
+	// routes to the instance's logger (ADR 0015, T1.6).
+	auto pServer = static_cast<OscServer*>( user_data );
+	Logger::Scope loggerScope( pServer->m_pHydrogen->getLogger() );
+
 	QString sSummary = QString( "Incoming OSC Message for path [%1]" ).arg( path );
 	for ( int ii = 0; ii < argc; ii++) {
 		QString formattedArgument = qPrettyPrint( (lo_type)types[ii], argv[ii] );
@@ -182,6 +187,7 @@ int OscServer::generic_handler(const char *	path,
 							   void *		user_data)
 {
 	auto pServer = static_cast<OscServer*>( user_data );
+	Logger::Scope loggerScope( pServer->m_pHydrogen->getLogger() );
 	auto pHydrogen = pServer->m_pHydrogen;
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 	auto pSong = pHydrogen->getSong();
@@ -447,6 +453,7 @@ void OscServer::addMethod( const char* path, const char* types,
 	m_pServerThread->add_method(
 		path, types,
 		[this, handler]( lo_arg** argv, int argc ) {
+			Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 			( this->*handler )( argv, argc );
 		} );
 }
@@ -1414,6 +1421,7 @@ bool OscServer::init()
 
 	//This handler is responsible for registering clients
 	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg) {
+		Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 		lo_address address = lo_message_get_source(msg);
 
 		bool AddressRegistered = false;
@@ -1445,7 +1453,7 @@ bool OscServer::init()
 		return 1;
 	});
 
-	m_pServerThread->add_method(nullptr, nullptr, incomingMessageLogging, nullptr);
+	m_pServerThread->add_method(nullptr, nullptr, incomingMessageLogging, this);
 
 	addMethod("/Hydrogen/PLAY", "", &OscServer::PLAY_Handler);
 	addMethod("/Hydrogen/PLAY", "f", &OscServer::PLAY_Handler);

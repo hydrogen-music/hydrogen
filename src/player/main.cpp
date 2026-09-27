@@ -354,9 +354,15 @@ int main( int argc, char** argv )
 						 defaultLogFile.suffix();
 	}
 
-	Logger* pLogger = Logger::bootstrap(
-		logLevelOpt, sPlayerLogFile, true, bLogTimestamps, bLogColors
-	);
+	Logger::Options logOptions = Logger::Option::UseStdout;
+	if ( bLogTimestamps ) {
+		logOptions |= Logger::Option::Timestamps;
+	}
+	if ( bLogColors ) {
+		logOptions |= Logger::Option::Colors;
+	}
+	Logger* pLogger = Logger::bootstrap( logLevelOpt, sPlayerLogFile,
+									   logOptions );
 	Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 	H2Core::Filesystem::bootstrap(
 		pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sPlayerLogFile

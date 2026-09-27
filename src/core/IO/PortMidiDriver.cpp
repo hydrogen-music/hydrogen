@@ -49,6 +49,9 @@ void* PortMidiDriver_thread( void* param )
 {
 	Base *__object = (Base *)param;
 	PortMidiDriver *instance = ( PortMidiDriver* )param;
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( instance->getHydrogen()->getLogger() );
 	__INFOLOG( "PortMidiDriver_thread starting" );
 
 	PmError status;

@@ -187,6 +187,10 @@ void SoftwareDriver::processCallback( void* pInstance ) {
 		return;
 	}
 
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
+
 	while ( pDriver->m_bActive ) {
 		// process...
 		auto start = Clock::now();

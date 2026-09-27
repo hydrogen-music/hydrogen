@@ -369,8 +369,13 @@ int main(int argc, char *argv[])
 		}
 
 		// Man your battle stations... this is not a drill.
-		Logger* pLogger =
-			Logger::bootstrap( logLevelOpt, sCliLogFile, true, bLogTimestamps );
+		Logger::Options logOptions =
+			Logger::Option::UseStdout | Logger::Option::Colors;
+		if ( bLogTimestamps ) {
+			logOptions |= Logger::Option::Timestamps;
+		}
+		Logger* pLogger = Logger::bootstrap( logLevelOpt, sCliLogFile,
+											logOptions );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		H2Core::Filesystem::bootstrap(
 			pLogger, sSysDataPath, sUsrDataPath, sConfigFilePath, sCliLogFile

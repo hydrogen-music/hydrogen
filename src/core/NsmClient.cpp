@@ -322,7 +322,26 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 
 				nsm_send_announce( pNsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
 
-				if ( pthread_create( &m_NsmThread, nullptr, NsmClient::ProcessEvent, pNsm ) ) {
+				// The NSM thread serves this instance for its whole life, so a
+				// single scope at entry routes its logging to that instance's
+				// logger (ADR 0015, T1.6). ProcessEvent is a static C-callback
+				// without instance access, so the instance logger is captured
+				// at spawn and threaded through a wrapper.
+				struct NsmThreadArgs {
+					nsm_client_t* pNsm;
+					Logger* pLogger;
+				};
+				auto* pArgs = new NsmThreadArgs{ pNsm, Logger::currentLogger() };
+				if ( pthread_create( &m_NsmThread, nullptr,
+									 []( void* pData ) -> void* {
+										 auto* pArgs = static_cast<NsmThreadArgs*>( pData );
+										 Logger::Scope loggerScope( pArgs->pLogger );
+										 void* pResult = NsmClient::ProcessEvent( pArgs->pNsm );
+										 delete pArgs;
+										 return pResult;
+									 },
+									 pArgs ) ) {
+					delete pArgs;
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
 					return;

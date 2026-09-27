@@ -249,8 +249,10 @@ int main(int argc, char *argv[])
 		}
 
 		// Man your battle stations... this is not a drill.
-		Logger* pLogger = Logger::bootstrap( logLevelOpt,
-											sLogFile, true, true );
+		Logger* pLogger = Logger::bootstrap(
+			logLevelOpt, sLogFile,
+			Logger::Option::UseStdout | Logger::Option::Timestamps |
+				Logger::Option::Colors );
 		Base::bootstrap( pLogger, pLogger->should_log( Logger::Debug ) );
 		Filesystem::bootstrap( pLogger, "", "", sConfigFilePath, sLogFile );
 		auto pPref = Preferences::create_instance();

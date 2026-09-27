@@ -316,6 +316,10 @@ void MidiBaseDriver::midiClockStream( void* pInstance )
 		return;
 	}
 
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pMidiDriver->getHydrogen()->getLogger() );
+
 	auto pHydrogen = pMidiDriver->getHydrogen();
 	ASSERT_NO_EDITOR_MODE( pHydrogen );
 
@@ -459,6 +463,8 @@ void MidiBaseDriver::inputMessageHandler( void* pInstance )
 		return;
 	}
 
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
+
 	ASSERT_NO_EDITOR_MODE( pDriver->getHydrogen() );
 
 
@@ -527,6 +533,7 @@ void MidiBaseDriver::outputMessageHandler( void* pInstance )
 		ERRORLOG( "Invalid instance provided. Shutting down." );
 		return;
 	}
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
 	ASSERT_NO_EDITOR_MODE( pDriver->getHydrogen() );
 
 	// Signal the instance that we are ready.

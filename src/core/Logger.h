@@ -23,11 +23,13 @@
 #ifndef H2C_LOGGER_H
 #define H2C_LOGGER_H
 
+#include <atomic>
 #include <cassert>
 #include <list>
 #include <pthread.h>
 #include <memory>
 #include <QtCore/QString>
+#include <QtCore/QFlags>
 #include <QStringList>
 
 #include <core/config.h>
@@ -55,36 +57,48 @@ class Logger {
 		/** message queue type */
 		typedef std::list<QString> queue_t;
 
-		/**
-		 * create the logger instance if not exists, set the log level and return the instance
-		 * \param msk the logging level bitmask
-		 */
-	static Logger* bootstrap( unsigned msk,
-							  const QString& sLogFilePath = QString(),
-							  bool bUseStdout = true,
-							  bool bLogTimestamps = false,
-							  bool bLogColors = true );
+		/** Or-able construction options for the #Logger factories below,
+		 * replacing four positional bools. */
+		enum class Option {
+			None       = 0x0,
+			UseStdout  = 0x1,
+			Timestamps = 0x2,
+			Colors     = 0x4,
+			Append     = 0x8
+		};
+		Q_DECLARE_FLAGS( Options, Option )
+
+	/**
+	 * create the logger instance if not exists, set the log level and return the instance
+	 * \param msk the logging level bitmask
+	 * \param options construction options; #Option::Append appends to the
+	 * log file instead of truncating it, and each write is then file-locked
+	 * so concurrent appenders cannot interleave inside a line
+	 */
+	static Logger* bootstrap( unsigned msk, const QString& sLogFilePath,
+							  Options options );
 		/**
 		 * If #__instance equals 0, a new H2Core::Logger
 		 * singleton will be created and stored in it.
 		 *
 		 * It is called in Hydrogen::create_instance().
 		 */
-	static Logger* create_instance( const QString& sLogFilePath = QString(),
-									bool bUseStdout = true,
-									bool bLogTimestamps = false,
-									bool bLogColors = true );
+		static Logger* create_instance( const QString& sLogFilePath,
+										Options options );
 
 		/**
 		 * Creates a standalone, per-instance #Logger (ADR 0015, T1.6) owned by
 		 * the caller (e.g. a #Hydrogen instance) — its own queue, worker thread
 		 * and log file. Unlike #create_instance() this does **not** touch the
-		 * process-default #__instance, so multiple instances can coexist. */
+		 * process-default #__instance, so multiple instances can coexist.
+		 *
+		 * \param options construction options; #Option::Append appends to
+		 * the log file instead of truncating it, and each write is then
+		 * file-locked so concurrent appenders cannot interleave inside a
+		 * line
+		 */
 		static Logger* createInstanceLogger(
-			const QString& sLogFilePath,
-			bool bUseStdout = true,
-			bool bLogTimestamps = false,
-			bool bLogColors = true );
+			const QString& sLogFilePath, Options options );
 
 		/**
 		 * Returns a pointer to the current H2Core::Logger
@@ -219,6 +233,11 @@ class Logger {
 		 * get_instance().
 		 */
 		static Logger* __instance;
+		/** Number of per-instance loggers created via #createInstanceLogger
+		 * and not yet destroyed. While > 0, lines reaching the process
+		 * default (#__instance) are marked `[unscoped]` in #log() — the
+		 * audit surface for per-instance routing gaps (ADR 0015, T1.6). */
+		static std::atomic<int> __nInstanceLoggers;
 		/** Thread-local current-context logger for #currentLogger()/#Scope
 		 * (ADR 0015, T1.6). nullptr ⇒ fall back to the process default. */
 		static thread_local Logger* __pCurrent;
@@ -238,14 +257,20 @@ class Logger {
 		QString m_sColorOff;
 
 	bool m_bUseStdout;
-		bool m_bLogTimestamps;
+	bool m_bLogTimestamps;
 		bool m_bLogColors;
+		/** Append to the log file instead of truncating it. Implies the
+		 * per-write file lock in the logger thread: append mode means the
+		 * file may be shared by several writers. */
+		bool m_bAppend;
+		/** Whether this logger was created via #createInstanceLogger (and
+		 * thus counted in #__nInstanceLoggers). */
+		bool m_bIsInstanceLogger = false;
 
 		thread_local static QString *pCrashContext;
 
 		/** constructor */
-	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true,
-			bool bLogTimestamps = false, bool bLogColors = true );
+		Logger( const QString& sLogFilePath, Options options );
 
 #ifndef HAVE_SSCANF
 		/**
@@ -265,6 +290,8 @@ inline bool Logger::getLogColors() const {
 inline const QString& Logger::getLogFile() const {
 	return m_sLogFilePath;
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( Logger::Options )
 
 };
 

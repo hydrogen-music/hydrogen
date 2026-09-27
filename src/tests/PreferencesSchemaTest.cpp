@@ -349,7 +349,7 @@ void PreferencesSchemaTest::testUnknownElementsReported()
 	const QString sLogPath =
 		Filesystem::tmpDir().append( "preferencesSchemaUnknown.log" );
 	auto pLogger =
-		Logger::createInstanceLogger( sLogPath, false, false, false );
+		Logger::createInstanceLogger( sLogPath, Logger::Option::None );
 
 	{
 		Logger::Scope scope( pLogger );
@@ -384,7 +384,7 @@ void PreferencesSchemaTest::testLegacyElementsTolerated()
 	const QString sLogPath =
 		Filesystem::tmpDir().append( "preferencesSchemaLegacy.log" );
 	auto pLogger =
-		Logger::createInstanceLogger( sLogPath, false, false, false );
+		Logger::createInstanceLogger( sLogPath, Logger::Option::None );
 
 	{
 		Logger::Scope scope( pLogger );
@@ -436,7 +436,7 @@ void PreferencesSchemaTest::testLegacyDefaultConfigClean()
 	const QString sLogPath =
 		Filesystem::tmpDir().append( "preferencesSchemaLegacyFile.log" );
 	auto pLogger =
-		Logger::createInstanceLogger( sLogPath, false, false, false );
+		Logger::createInstanceLogger( sLogPath, Logger::Option::None );
 
 	{
 		Logger::Scope scope( pLogger );

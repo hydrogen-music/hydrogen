@@ -153,6 +153,9 @@ float* PulseAudioDriver::getOut_R()
 void* PulseAudioDriver::s_thread_body(void* arg)
 {
 	PulseAudioDriver* self = (PulseAudioDriver*)arg;
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( self->getHydrogen()->getLogger() );
 	int r = self->thread_body();
 	if (r)
 	{

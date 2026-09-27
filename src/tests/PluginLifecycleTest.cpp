@@ -38,6 +38,7 @@
 #include <core/IEngineAccess.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/IpcEngineAccess.h>
+#include <core/Logger.h>
 #include <core/Midi/Midi.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -50,6 +51,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
+#include <QtCore/QTextStream>
 #include <QtCore/QThread>
 
 using namespace H2Core;
@@ -363,3 +365,74 @@ void PluginLifecycleTest::testEditorBinaryDiscovery() {
 
 	___INFOLOG( "passed" );
 }
+
+#ifdef H2CORE_HAVE_DEBUG
+void PluginLifecycleTest::testProcessDefaultAuditSurface() {
+	___INFOLOG( "" );
+
+	// The process default writes asynchronously; drain its queue so the
+	// offset below marks a quiet point and the delta only contains lines
+	// logged during this test's lifecycle.
+	Logger::get_instance()->flush();
+
+	// The process default's actual file. Filesystem::logFilePath() is NOT
+	// reliable here: its lazy first-call resolution can clobber the
+	// bootstrapped custom path (the suite never exercises the pre-bootstrap
+	// Reporter flow that normally initializes it), leaving it pointing at the
+	// XDG default instead of this suite's shared log.
+	QFile processLog( Logger::get_instance()->getLogFile() );
+	CPPUNIT_ASSERT( processLog.open( QIODevice::ReadOnly ) );
+	const qint64 nOffsetBefore = processLog.size();
+	processLog.close();
+
+	{
+		// Full lifecycle: construction, activation, a state round-trip (a
+		// loud path so unscoped lines actually exist), a processing cycle
+		// with a note, and teardown.
+		HydrogenPlugin plugin( 44100, 512, 2 );
+		plugin.activate( 44100, 512 );
+		const auto state = plugin.saveState( /*bEmbedSamples=*/false );
+		CPPUNIT_ASSERT( plugin.loadState( state ) );
+		PluginBuffers buf( 512, 2 );
+		plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
+		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						/*bRolling=*/true, 120.0, 0 );
+		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						/*bRolling=*/true, 120.0, 512 );
+		plugin.deactivate();
+	}
+
+	Logger::get_instance()->flush();
+
+	CPPUNIT_ASSERT( processLog.open( QIODevice::ReadOnly ) );
+	processLog.seek( nOffsetBefore );
+	QTextStream in( &processLog );
+	QStringList sMarkedLines;
+	while ( ! in.atEnd() ) {
+		const QString sLine = in.readLine();
+		if ( sLine.contains( "[unscoped]" ) ) {
+			sMarkedLines << sLine;
+		}
+	}
+	processLog.close();
+
+	// The one deliberate process-level line of an instance lifecycle is the
+	// spawning announcement (the shared log doubles as the index of
+	// per-instance files). Anything else reaching the process default while
+	// instance loggers are alive is a routing gap.
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "Expected exactly the spawning announcement on the process "
+				 "default (offset %1..%2), got %3 marked line(s):\n%4" )
+			.arg( nOffsetBefore )
+			.arg( processLog.size() )
+			.arg( sMarkedLines.size() )
+			.arg( sMarkedLines.join( "\n" ) )
+			.toStdString(),
+		sMarkedLines.size() == 1 );
+	CPPUNIT_ASSERT( sMarkedLines.first().contains( "Spawning instance logger" ) );
+
+	___INFOLOG( "passed" );
+}
+#endif

@@ -139,7 +139,9 @@ Hydrogen::Hydrogen(
 	// process-default logger's stdout/colour settings so console verbosity is
 	// unchanged; the default logger remains the unscoped/static fallback. The
 	// instance entry points (e.g. the audio process callback) wrap work in a
-	// Logger::Scope( getLogger() ) so logging routes here.
+	// Logger::Scope( getLogger() ) so logging routes here. The file is opened
+	// append-only: its pid-based name can recur after pid reuse, and
+	// truncating would destroy the previous session's log.
 	static std::atomic<int> nInstanceCounter { 0 };
 	const QFileInfo defaultLogInfo( Filesystem::logFilePath() );
 	if ( pPref->m_audioDriver == Preferences::AudioDriver::Plugin ) {
@@ -156,12 +158,15 @@ Hydrogen::Hydrogen(
 		// to the process-default logger — read its settings to mirror console
 		// verbosity.
 		const auto pDefaultLogger = Logger::currentLogger();
-		m_pLogger = Logger::createInstanceLogger(
-			sInstanceLogPath,
-			pDefaultLogger != nullptr ? pDefaultLogger->getUseStdout() : false,
-			false,
-			pDefaultLogger != nullptr ? pDefaultLogger->getLogColors() : true
-		);
+		Logger::Options instanceOptions = Logger::Option::Append;
+		if ( pDefaultLogger != nullptr && pDefaultLogger->getUseStdout() ) {
+			instanceOptions |= Logger::Option::UseStdout;
+		}
+		if ( pDefaultLogger == nullptr || pDefaultLogger->getLogColors() ) {
+			instanceOptions |= Logger::Option::Colors;
+		}
+		m_pLogger = Logger::createInstanceLogger( sInstanceLogPath,
+												 instanceOptions );
 		INFOLOG( QString( "Spawning instance logger backed by [%1]" )
 					 .arg( sInstanceLogPath ) );
 		m_bInstanceLoggerSpawned = true;
@@ -169,6 +174,12 @@ Hydrogen::Hydrogen(
 	else {
 		m_pLogger = Logger::currentLogger();
 	}
+
+	// From here on, this instance's work (SoundLibraryDatabase scan, audio
+	// and MIDI driver startup, ...) routes to its own logger (ADR 0015,
+	// T1.6). The "Spawning" announcement above deliberately stays on the
+	// process default so the shared log lists the per-instance files.
+	Logger::Scope loggerScope( m_pLogger );
 
 #ifdef H2CORE_HAVE_OSC
 	// OSC server + NSM client are owned per-instance (ADR 0015). The
@@ -209,49 +220,68 @@ Hydrogen::Hydrogen(
 
 Hydrogen::~Hydrogen()
 {
-	INFOLOG( "[~Hydrogen]" );
+	// All teardown work routes to this instance's logger (ADR 0015, T1.6).
+	// The scope ends before the logger itself is deleted below: nothing
+	// after it may resolve through the ambient context anymore (e.g. the
+	// release-build log-file removal logs through the process default).
+	{
+		Logger::Scope loggerScope( m_pLogger );
 
-	// We reuse this member to indicate shutdown as well.
-	m_bIsFullyOperational = false;
+		INFOLOG( "[~Hydrogen]" );
 
-	// A still-armed export plan owns a thread and parked driver state
-	// — cancel and restore before anything else tears down.
-	stopExportSession();
+		// We reuse this member to indicate shutdown as well.
+		m_bIsFullyOperational = false;
+
+		// A still-armed export plan owns a thread and parked driver state
+		// — cancel and restore before anything else tears down.
+		stopExportSession();
 
 #ifdef H2CORE_HAVE_OSC
-	// This instance owns its OSC server and NSM client (ADR 0015).
-	if ( m_pNsmClient != nullptr ) {
-		m_pNsmClient->shutdown();
-		delete m_pNsmClient;
-		m_pNsmClient = nullptr;
-	}
-	if ( m_pOscServer != nullptr ) {
-		delete m_pOscServer;
-		m_pOscServer = nullptr;
-	}
+		// This instance owns its OSC server and NSM client (ADR 0015).
+		if ( m_pNsmClient != nullptr ) {
+			m_pNsmClient->shutdown();
+			delete m_pNsmClient;
+			m_pNsmClient = nullptr;
+		}
+		if ( m_pOscServer != nullptr ) {
+			delete m_pOscServer;
+			m_pOscServer = nullptr;
+		}
 #endif
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-	m_pAudioEngine->prepare( Event::Trigger::Suppress );
-	m_pAudioEngine->unlock();
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->prepare( Event::Trigger::Suppress );
+		m_pAudioEngine->unlock();
 
-	killInstruments();
+		killInstruments();
 
-	delete m_pAudioEngine;
+		delete m_pAudioEngine;
 
-	// This instance owns its EventQueue; tear it down last (after the engine,
-	// which may still emit events during teardown).
-	delete m_pEventQueue;
-	m_pEventQueue = nullptr;
+		// This instance owns its EventQueue; tear it down last (after the
+		// engine, which may still emit events during teardown).
+		delete m_pEventQueue;
+		m_pEventQueue = nullptr;
 
-	// The extraction folders of `.h2project` bundles loaded by this instance
-	// are only used by it and have to go away with it (ADR 0025). The song is
-	// released first so that nothing references the folders anymore.
-	m_pSong.reset();
-	for ( const auto& ssDir : m_extractedProjectDirs ) {
-		Filesystem::rm( ssDir, true, true );
+		// The extraction folders of `.h2project` bundles loaded by this
+		// instance are only used by it and have to go away with it (ADR
+		// 0025). The song is released first so that nothing references the
+		// folders anymore.
+		m_pSong.reset();
+		for ( const auto& ssDir : m_extractedProjectDirs ) {
+			Filesystem::rm( ssDir, true, true );
+		}
+		m_extractedProjectDirs.clear();
+
+		// The remaining shared_ptr members are released inside the scope —
+		// like m_pSong above — so their destructors run (and log) before
+		// the instance logger dies instead of after the destructor body.
+		m_pPlaylist.reset();
+		m_pSoundLibraryDatabase.reset();
+		m_pCoreActionController.reset();
+		m_pMidiActionManager.reset();
+		m_pTimeHelper.reset();
+		m_pPreferences.reset();
 	}
-	m_extractedProjectDirs.clear();
 
 	// In case we created a logger for this very instance, we also have to tear
 	// down its custom Logger instance. In release builds we also remove the
@@ -289,7 +319,8 @@ Hydrogen* Hydrogen::create_instance(
 	// Standalone factory (ADR 0015): construct a Hydrogen owning the provided
 	// Preferences. The caller owns the returned instance and is responsible for
 	// deleting it. No process-wide singleton is registered.
-	Logger::create_instance();
+	Logger::create_instance(
+		QString(), Logger::Option::UseStdout | Logger::Option::Colors );
 	return new Hydrogen( pPreferences, processMode, nOscPort );
 }
 
@@ -1027,6 +1058,10 @@ bool Hydrogen::isExportWritingFailed() const
 
 void Hydrogen::runExportPlan()
 {
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pLogger );
+
 	while ( true ) {
 		ExportRender render;
 		{

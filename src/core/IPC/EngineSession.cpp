@@ -36,6 +36,7 @@
 #include <core/IPC/IpcServer.h>
 #include <core/IPC/EngineTelemetry.h>
 #include <core/IPC/EngineTelemetryShm.h>
+#include <core/Logger.h>
 
 #include <algorithm>
 #include <chrono>
@@ -94,6 +95,10 @@ void EngineSession::stop() {
 }
 
 void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
+	// All IPC work on this thread (command dispatch, song/kit load,
+	// telemetry) belongs to this engine instance: route its logging to the
+	// instance logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pEngine->getLogger() );
 	// IpcServer + accepted channel are created and used only on this thread - a
 	// QLocalSocket/Server is thread-affine (its QSocketNotifier may only be pumped
 	// on the Qt-managed thread that owns it).

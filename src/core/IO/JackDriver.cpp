@@ -1372,6 +1372,10 @@ int JackDriver::jackDriverBufferSize( jack_nframes_t nframes, void* pInstance )
 		return 1;
 	}
 
+	// Dispatched from a JACK server thread; scope per invocation so this
+	// routes to the instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pJackDriver->m_pHydrogen->getLogger() );
+
 	// This function does _NOT_ have to be realtime safe.
 	___INFOLOG( QString( "new JACK buffer size: [%1]" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
@@ -1393,6 +1397,8 @@ int JackDriver::jackDriverSampleRate( jack_nframes_t nframes, void* pInstance )
 		return 1;
 	}
 
+	Logger::Scope loggerScope( pJackDriver->m_pHydrogen->getLogger() );
+
 	___INFOLOG( QString( "New JACK sample rate: [%1]/sec" )
 				   .arg( QString::number( static_cast<int>( nframes ) ) ) );
 	pJackDriver->m_jackServerSampleRate = nframes;
@@ -1412,6 +1418,8 @@ int JackDriver::jackXRunCallback( void* pInstance )
 		___ERRORLOG( "Provided driver is incompatible" );
 		return 1;
 	}
+
+	Logger::Scope loggerScope( pJackDriver->m_pHydrogen->getLogger() );
 
 	pJackDriver->m_nJackServerXRuns = pJackDriver->m_nJackServerXRuns + 1;
 
@@ -2109,6 +2117,8 @@ void JackDriver::JackTimebaseCallback(
 		return;
 	}
 
+	Logger::Scope loggerScope( pDriver->m_pHydrogen->getLogger() );
+
 	auto pAudioEngine = pDriver->m_pHydrogen->getAudioEngine();
 	std::shared_ptr<Transport> pPos = nullptr;
 
@@ -2196,6 +2206,8 @@ void JackDriver::jackDriverShutdown( void* pInstance )
 		___ERRORLOG( "Provided driver is incompatible" );
 		return;
 	}
+
+	Logger::Scope loggerScope( pJackDriver->m_pHydrogen->getLogger() );
 
 #if JACK_DEBUG
 	___INFOLOG( "" );

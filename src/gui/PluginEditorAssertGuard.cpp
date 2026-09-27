@@ -77,7 +77,9 @@ int main( int argc, char** argv ) {
 	auto* pLogger = H2Core::Logger::bootstrap(
 		H2Core::Logger::Error | H2Core::Logger::Warning | H2Core::Logger::Info |
 			H2Core::Logger::Debug | H2Core::Logger::Ipc,
-		sHeadlessLogFile, true, true
+		sHeadlessLogFile,
+		H2Core::Logger::Option::UseStdout |
+			H2Core::Logger::Option::Timestamps | H2Core::Logger::Option::Colors
 	);
 	H2Core::Base::bootstrap( pLogger, false );
 	H2Core::Filesystem::bootstrap( pLogger, sDataDir );

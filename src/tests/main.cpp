@@ -49,15 +49,18 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 					  const QString& sUserDataFolder, bool bUseLogColor )
 {
 	/* Logger */
+	H2Core::Logger::Options logOptions = H2Core::Logger::Option::Timestamps;
+	if ( bUseLogColor ) {
+		logOptions |= H2Core::Logger::Option::Colors;
+	}
 	H2Core::Logger* pLogger = nullptr;
 	if ( !sLogFilePath.isEmpty() ) {
-		pLogger = H2Core::Logger::bootstrap(
-			log_level, sLogFilePath, false, true, bUseLogColor
-		);
+		pLogger = H2Core::Logger::bootstrap( log_level, sLogFilePath,
+											 logOptions );
 	}
 	else {
-		pLogger =
-			H2Core::Logger::bootstrap( log_level, "", true, true, bUseLogColor );
+		pLogger = H2Core::Logger::bootstrap(
+			log_level, "", logOptions | H2Core::Logger::Option::UseStdout );
 	}
 	/* Test helper */
 	auto pTestHelper = TestHelper::get_instance();
@@ -215,7 +218,7 @@ int main( int argc, char **argv)
 	if ( parser.isSet( hammerOption ) ) {
 		H2Core::Logger::bootstrap( H2Core::Logger::Error |
 									   H2Core::Logger::Warning,
-								   "", true, false, false );
+								   "", H2Core::Logger::Option::UseStdout );
 		return hammerConfig( parser.value( hammerOption ),
 							 parser.value( hammerFieldOption ).toInt() );
 	}

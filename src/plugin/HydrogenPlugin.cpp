@@ -73,10 +73,11 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	// stdout, so without this no log line would ever be emitted: the
 	// process-default level mask is 0 and there is no process-default
 	// logger to route unscoped lines to. Bootstrap one backed by a
-	// per-process file - the logger truncates its file, so the shared
-	// default `hydrogen.log` would be clobbered by concurrent standalone
-	// runs - and keep stdout clean: everything is persisted to disk
-	// instead. Release builds stay silent.
+	// per-process, pid-named file - concurrent host processes never fight
+	// over one file - opened append-only so a pid-reused run never
+	// destroys the previous session's log, and keep stdout clean:
+	// everything is persisted to disk instead. Release builds stay
+	// silent.
 	if ( ! Logger::isAvailable() ) {
 		const QFileInfo logInfo( Filesystem::logFilePath() );
 		const QString sPluginLogPath = logInfo.absolutePath() + "/" +
@@ -86,7 +87,8 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 			logInfo.suffix();
 		Logger::bootstrap( Logger::Error | Logger::Warning | Logger::Info |
 						  Logger::Debug | Logger::Ipc,
-						  sPluginLogPath, false, true, false );
+						  sPluginLogPath,
+						  Logger::Option::Timestamps | Logger::Option::Append );
 	}
 #endif
 
@@ -94,6 +96,11 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 		makePluginPreferences( fSampleRate, nMaxBlockSize ),
 		H2Core::ProcessMode::Headless, -1
 	);
+	// A real host drives the engine through these scoped entry points so
+	// main-thread work routes to the instance logger; the spawning
+	// announcement inside the Hydrogen constructor above deliberately stays
+	// on the process default (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	m_pHydrogen->setFullyOperational( true );
 
 	m_pAudioDriver = std::dynamic_pointer_cast<PluginAudioDriver>(
@@ -115,21 +122,30 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 }
 
 HydrogenPlugin::~HydrogenPlugin() {
-	// Tear down the editor (process + serve loop) before the engine it serves.
-	closeEditor();
-	m_pMidiDriver.reset();
-	m_pAudioDriver.reset();
+	// All teardown work routes to this instance's logger (ADR 0015, T1.6).
+	// The scope ends before the engine is deleted below: nothing after it
+	// may resolve through the ambient context anymore.
+	{
+		Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+		// Tear down the editor (process + serve loop) before the engine it
+		// serves.
+		closeEditor();
+		m_pMidiDriver.reset();
+		m_pAudioDriver.reset();
+	}
 	delete m_pHydrogen;
 	m_pHydrogen = nullptr;
 }
 
 void HydrogenPlugin::activate( double fSampleRate, unsigned /*nMaxBlockSize*/ ) {
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
 	}
 }
 
 void HydrogenPlugin::deactivate() {
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 }
 
 void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR,
@@ -139,6 +155,8 @@ void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR
 	if ( m_pHydrogen == nullptr || m_pAudioDriver == nullptr ) {
 		return;
 	}
+
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 
 	m_pAudioDriver->setHostBuffers( pMasterL, pMasterR, nFrames );
 	m_pAudioDriver->setHostTransport( bRolling, fBpm, nFrame );
@@ -156,6 +174,7 @@ void HydrogenPlugin::noteOn( int nKey, int nVelocity, int nChannel,
 	if ( m_pMidiDriver == nullptr ) {
 		return;
 	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	m_pMidiDriver->enqueueHostEvent(
 		MidiMessage( MidiMessage::Type::NoteOn,
 					 Midi::parameterFromIntClamp( nKey ),
@@ -168,6 +187,7 @@ void HydrogenPlugin::noteOff( int nKey, int nChannel, int nSampleOffset ) {
 	if ( m_pMidiDriver == nullptr ) {
 		return;
 	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	m_pMidiDriver->enqueueHostEvent(
 		MidiMessage( MidiMessage::Type::NoteOff,
 					 Midi::parameterFromIntClamp( nKey ),
@@ -181,6 +201,7 @@ void HydrogenPlugin::controlChange( int nParameter, int nValue, int nChannel,
 	if ( m_pMidiDriver == nullptr ) {
 		return;
 	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	m_pMidiDriver->enqueueHostEvent(
 		MidiMessage( MidiMessage::Type::ControlChange,
 					 Midi::parameterFromIntClamp( nParameter ),
@@ -197,6 +218,7 @@ std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
 	if ( m_pHydrogen == nullptr || m_pHydrogen->getSong() == nullptr ) {
 		return {};
 	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	return H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples, true );
 }
 
@@ -204,6 +226,7 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 	if ( m_pHydrogen == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	auto pSong = H2Project::fromState( data, m_pHydrogen, true );
 	if ( pSong == nullptr ) {
 		return false;
@@ -289,6 +312,8 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 		return false;
 	}
 
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+
 	ensureQtApplication();
 
 	if ( m_sEditorEndpoint.isEmpty() ) {
@@ -325,6 +350,9 @@ void HydrogenPlugin::launchEditorProcess() {
 }
 
 void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
+	// Handler entry: the process-exit callback runs on the host's thread and
+	// may respawn the editor, so route through the instance logger too.
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	if ( m_bEditorClosing || ! m_bEditorOpen ) {
 		return; // deliberate close — not a crash
 	}
@@ -352,6 +380,7 @@ bool HydrogenPlugin::isEditorProcessRunning() const {
 }
 
 void HydrogenPlugin::closeEditor() {
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	m_bEditorClosing = true;
 	if ( m_pEditorProcess != nullptr ) {
 		if ( m_pEditorProcess->state() != QProcess::NotRunning ) {
