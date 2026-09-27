@@ -158,9 +158,11 @@ plugin-install:
         exit 1
     fi
     cmake --install "{{BUILD_DIR}}"
-
+    cp -r dist/lib/lv2/hydrogen.lv2 ${HOME}/.lv2
+    cp -r dist/lib/clap/Hydrogen.clap ${HOME}/.clap
+    cp -r dist/lib/vst3/Hydrogen.vst3 ${HOME}/.vst3
 # plugin-clean + plugin-build + plugin-test + plugin-install in one go.
-plugin-all: plugin-clean plugin-build plugin-test plugin-install
+plugin: plugin-clean plugin-build plugin-test plugin-install
 
 # Fail early on missing prerequisites: the toolchain, a static Qt at
 # QT6_STATIC_DIR and the plugin submodules. Every check names the knob to
