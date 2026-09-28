@@ -108,7 +108,9 @@ QString XMLNode::read_string( const QString& node, const QString& sDefaultValue,
 {
 	QString sText = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if ( sText.isNull() && ! sDefaultValue.isEmpty() ) {
-		if ( ! bSilent ) {
+		// An element that may legitimately be absent (inexistent_ok)
+		// substitutes its default silently.
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( sDefaultValue ).arg( node ) );
 		}
@@ -142,7 +144,9 @@ QColor XMLNode::read_color( const QString& node, const QColor& default_value,
 		return color;
 	}
 
-	if ( ! bSilent ) {
+	// An element that may legitimately be absent (inexistent_ok)
+	// substitutes its default silently.
+	if ( ! bSilent && ! inexistent_ok ) {
 		WARNINGLOG( QString( "Using default value [%1] for node [%2]" )
 					.arg( default_value.name() ).arg( node ) );
 	}
@@ -166,7 +170,7 @@ float XMLNode::read_float( const QString& node, float default_value,
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -182,7 +186,7 @@ float XMLNode::read_float( const QString& node, float default_value,
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -200,7 +204,7 @@ int XMLNode::read_int( const QString& node, int default_value, bool inexistent_o
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -215,7 +219,7 @@ bool XMLNode::read_bool( const QString& node, bool default_value,
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -235,7 +239,7 @@ bool XMLNode::read_bool( const QString& node, bool default_value,
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
 		*pFound = false;
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
