@@ -214,8 +214,16 @@ void* loggerThread_func( void* param ) {
 			}
 			if ( bUseLogFile ) {
 				// The lock keeps concurrent appenders from interleaving
-				// inside a line (see LogWriteLock).
+				// inside a line (see LogWriteLock). Qt's Windows append
+				// mode is not atomic - unlike O_APPEND it writes at the
+				// (stale) per-handle file pointer instead of the file
+				// end - so seek to the current end inside the lock
+				// before writing, or a concurrent appender's lines get
+				// overwritten.
 				LogWriteLock lock( logFile, pLogger->m_bAppend );
+				if ( pLogger->m_bAppend ) {
+					logFile.seek( logFile.size() );
+				}
 				logFileStream << sEntry;
 				logFileStream.flush();
 			}
@@ -223,6 +231,10 @@ void* loggerThread_func( void* param ) {
 	}
 	if ( bUseLogFile ) {
 		LogWriteLock lock( logFile, pLogger->m_bAppend );
+		if ( pLogger->m_bAppend ) {
+			// Same stale-pointer protection as the drain loop above.
+			logFile.seek( logFile.size() );
+		}
 		// Farewell marker for a clean shutdown (a crash truncates the file
 		// without it). Formatted inline like a log() line — the drain loop
 		// above has exited, so enqueuing through log() would go nowhere —
