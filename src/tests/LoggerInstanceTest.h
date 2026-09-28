@@ -64,11 +64,10 @@ public:
 	/** Two append-mode instance loggers writing the same file concurrently
 	 * must not lose or corrupt lines (per-write file lock). */
 	void testConcurrentAppendPreservesLines();
-	/** The thread-body macro family (a `Base* __object` plus __INFOLOG, as
-	 * declared in driver thread bodies) and the Object<T>
-	 * constructor/destructor announcements must resolve through the ambient
-	 * scope (Logger::currentLogger()), not the process-static
-	 * Base::__logger. */
+	/** Free-function logging macros (___INFOLOG, as used in driver thread
+	 * bodies) and the Object<T> constructor/destructor announcements must
+	 * resolve through the ambient scope (Logger::currentLogger()), not the
+	 * process-static Base::__logger. */
 	void testThreadBodyMacrosFollowScope();
 	/** A Plugin-driver instance's construction work (SoundLibraryDatabase
 	 * scan, audio driver startup) routes to its per-instance log file, not

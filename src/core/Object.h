@@ -317,39 +317,28 @@ template<typename T> atomic_obj_cpt_t Object<T>::counters;
 // (Logger::currentLogger()) at log time — the active per-instance Scope, or the
 // process default when none is set — instead of the static Base::__logger /
 // Logger::get_instance() singleton.
-#define __LOG_METHOD(   lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_CLASS(    lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_OBJ(      lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }
+//
+// Two families with distinct backings remain: the in-class one (usable in
+// instance and static methods alike, as _class_name() is static) and the
+// free-function one (thread bodies included). The historical single- and
+// double-underscore families had backings identical to these and were
+// dropped.
+#define __LOG_METHOD( lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_STATIC( lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
 
-// Object instance method logging macros
+// In-class logging macros (instance and static methods)
 #define IPCLOG(x)       __LOG_METHOD( H2Core::Logger::Ipc,     (x) );
 #define DEBUGLOG(x)     __LOG_METHOD( H2Core::Logger::Debug,   (x) );
 #define INFOLOG(x)      __LOG_METHOD( H2Core::Logger::Info,    (x) );
 #define WARNINGLOG(x)   __LOG_METHOD( H2Core::Logger::Warning, (x) );
 #define ERRORLOG(x)     __LOG_METHOD( H2Core::Logger::Error,   (x) );
 
-// Object class method logging macros
-#define _IPCLOG(x)      __LOG_CLASS( H2Core::Logger::Ipc,     (x) );
-#define _DEBUGLOG(x)    __LOG_CLASS( H2Core::Logger::Debug,   (x) );
-#define _INFOLOG(x)     __LOG_CLASS( H2Core::Logger::Info,    (x) );
-#define _WARNINGLOG(x)  __LOG_CLASS( H2Core::Logger::Warning, (x) );
-#define _ERRORLOG(x)    __LOG_CLASS( H2Core::Logger::Error,   (x) );
-
-// logging macros for thread bodies ( thread :  Base * __object = ( Base * )param; )
-#define __IPCLOG(x)     __LOG_OBJ( H2Core::Logger::Ipc,        (x) );
-#define __DEBUGLOG(x)   __LOG_OBJ( H2Core::Logger::Debug,      (x) );
-#define __INFOLOG(x)    __LOG_OBJ( H2Core::Logger::Info,       (x) );
-#define __WARNINGLOG(x) __LOG_OBJ( H2Core::Logger::Warning,    (x) );
-#define __ERRORLOG(x)   __LOG_OBJ( H2Core::Logger::Error,      (x) );
-
-// logging macros using  ( thread :  Base * __object = ( Base * )param; )
+// Free-function logging macros (thread bodies included)
 #define ___IPCLOG(x)     __LOG_STATIC( H2Core::Logger::Ipc,      (x) );
 #define ___DEBUGLOG(x)   __LOG_STATIC( H2Core::Logger::Debug,    (x) );
 #define ___INFOLOG(x)    __LOG_STATIC( H2Core::Logger::Info,     (x) );
-#define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,   (x) );
-#define ___ERRORLOG(x)   __LOG_STATIC( H2Core::Logger::Error,    (x) );
+#define ___WARNINGLOG(x) __LOG_STATIC( H2Core::Logger::Warning,   (x) );
+#define ___ERRORLOG(x)   __LOG_STATIC( H2Core::Logger::Error,     (x) );
 
 // Can be called without or with a single argument
 #define CLOCK(...)      __LOG_METHOD( H2Core::Logger::Debug, base_clock( QString( "%1" ).arg( #__VA_ARGS__ ) ) );

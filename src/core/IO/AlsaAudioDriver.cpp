@@ -70,20 +70,20 @@ void* alsaAudioDriver_processCaller( void* param )
 	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
 	sched_getparam( 0, &sched );
 	if ( res ) {
-		__ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
+		___ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
 	}
-	__INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
+	___INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	sleep( 1 );
 
 	int err;
 	if ( ( err = snd_pcm_prepare( pDriver->m_pPlayback_handle ) ) < 0 ) {
-		__ERRORLOG( QString( "Cannot prepare audio interface for use: %1" )
+		___ERRORLOG( QString( "Cannot prepare audio interface for use: %1" )
 					.arg( snd_strerror ( err ) ) );
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
-	__INFOLOG( QString( "nFrames: %1" ).arg( nFrames ) );
+	___INFOLOG( QString( "nFrames: %1" ).arg( nFrames ) );
 	short pBuffer[ nFrames * 2 ];
 
 	float *pOut_L = pDriver->m_pOut_L;
@@ -137,12 +137,12 @@ void* alsaAudioDriver_processCaller( void* param )
 						pDriver->m_nXRuns++;
 						pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 						if ( ( err = snd_pcm_recover( pDriver->m_pPlayback_handle, err, 0 ) ) < 0 ) {
-							__ERRORLOG( QString( "Can't recover from XRUN: %1" )
+							___ERRORLOG( QString( "Can't recover from XRUN: %1" )
 										.arg( snd_strerror( err ) ) );
 						}
 					}
 				} else {
-					__ERRORLOG( QString( "Can't recover from XRUN: %1" )
+					___ERRORLOG( QString( "Can't recover from XRUN: %1" )
 								.arg( snd_strerror( err ) ) );
 					pDriver->m_nXRuns++;
 					pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );

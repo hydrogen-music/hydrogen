@@ -262,8 +262,9 @@ void LoggerInstanceTest::testThreadBodyMacrosFollowScope() {
 	// when an assertion throws.
 	Logger::set_bit_mask( Logger::bit_mask() | Logger::Constructors );
 
-	// Stands in for the `Base* __object = ( Base* )param;` a driver thread
-	// body declares before logging via the __-family.
+	// Stands in for the objects a driver thread body logs about: the
+	// announcements of their construction and destruction must route
+	// through the ambient scope as well.
 	struct Stub : public H2Core::Object<Stub> {
 		H2_OBJECT( Stub )
 	};
@@ -272,9 +273,7 @@ void LoggerInstanceTest::testThreadBodyMacrosFollowScope() {
 	{
 		Logger::Scope scope( pLogger );
 		Stub stub;
-		Base* __object = &stub;
-		Q_UNUSED( __object );
-		__INFOLOG( sMarker );
+		___INFOLOG( sMarker );
 	}
 	delete pLogger;
 

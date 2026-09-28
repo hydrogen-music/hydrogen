@@ -57,9 +57,9 @@ void* ossDriver_processCaller( void* param )
 	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
 	sched_getparam( 0, &sched );
 	if ( res ) {
-		__WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
+		___WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
 	}
-	__INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
+	___INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	sleep( 1 );
 

@@ -837,7 +837,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetDir,
 	FILE* gzd_file = fopen( gzd_name.toLocal8Bit(), "wb" );
 	gzFile gzip_file = gzopen( sSourcePath.toLocal8Bit(), "rb" );
 	if ( !gzip_file ) {
-		_ERRORLOG( QString( "Error reading drumkit file: %1" )
+		ERRORLOG( QString( "Error reading drumkit file: %1" )
 				   .arg( sSourcePath ) );
 		gzclose( gzip_file );
 		fclose( gzd_file );
@@ -855,7 +855,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetDir,
 	QByteArray tar_path = gzd_name.toLocal8Bit();
 
 	if ( tar_open( &tar_file, tar_path.data(), NULL, O_RDONLY, 0,  TAR_GNU ) == -1 ) {
-		_ERRORLOG( QString( "tar_open(): %1" ).arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
+		ERRORLOG( QString( "tar_open(): %1" ).arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		return false;
 	}
 	bool ret = true;
@@ -870,18 +870,18 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetDir,
 
 	strncpy( dst_dir, dk_dir.toLocal8Bit(), 1024 );
 	if ( tar_extract_all( tar_file, dst_dir ) != 0 ) {
-		_ERRORLOG( QString( "tar_extract_all(): %1" )
+		ERRORLOG( QString( "tar_extract_all(): %1" )
 				   .arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		ret = false;
 	}
 	if ( tar_close( tar_file ) != 0 ) {
-		_ERRORLOG( QString( "tar_close(): %1" )
+		ERRORLOG( QString( "tar_close(): %1" )
 				   .arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		ret = false;
 	}
 	return ret;
 #else // WIN32
-	_ERRORLOG( "WIN32 NOT IMPLEMENTED" );
+	ERRORLOG( "WIN32 NOT IMPLEMENTED" );
 	return false;
 #endif
 #endif

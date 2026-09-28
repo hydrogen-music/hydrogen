@@ -52,7 +52,7 @@ void* PortMidiDriver_thread( void* param )
 	// This thread serves one engine instance for its whole life, so a single
 	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
 	Logger::Scope loggerScope( instance->getHydrogen()->getLogger() );
-	__INFOLOG( "PortMidiDriver_thread starting" );
+	___INFOLOG( "PortMidiDriver_thread starting" );
 
 	PmError status;
 	int length;
@@ -109,7 +109,7 @@ void* PortMidiDriver_thread( void* param )
 				}
 			}
 			else if ( nEventType >= 256 ) {
-				__ERRORLOG( QString( "Unsupported midi message type: [%1]" )
+				___ERRORLOG( QString( "Unsupported midi message type: [%1]" )
 							.arg( nEventType ) );
 			}
 			else {
@@ -130,14 +130,14 @@ void* PortMidiDriver_thread( void* param )
 		}
 		else {
 			// An error occurred, e.g. a buffer overflow.
-			__ERRORLOG( QString( "Error in Pm_Read: [%1]" )
+			___ERRORLOG( QString( "Error in Pm_Read: [%1]" )
 						.arg( PortMidiDriver::translatePmError( static_cast<PmError>(length) ) ) );
 		}
 	}
 
 
 
-	__INFOLOG( "MIDI Thread DESTROY" );
+	___INFOLOG( "MIDI Thread DESTROY" );
 	pthread_exit( nullptr );
 	return nullptr;
 }
