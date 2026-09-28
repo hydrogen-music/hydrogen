@@ -23,11 +23,13 @@
 #include "H2PlayerTest.h"
 
 #include <QCoreApplication>
+#include <QElapsedTimer>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QStandardPaths>
 #include <QTimer>
 
 #include "TestHelper.h"
@@ -95,9 +97,7 @@ void H2PlayerTest::testDefaultIpcMode() {
 	// Give it time to start IPC server and print connection info
 	QThread::msleep( 2000 );
 
-	// Kill the process more forcefully
-	pProcess->kill();
-	CPPUNIT_ASSERT( pProcess->waitForFinished( 3000 ) );
+	stopPlayerGracefully( pProcess );
 
 	QString sOutput = QString::fromUtf8( pProcess->readAllStandardOutput() );
 	QString sError = QString::fromUtf8( pProcess->readAllStandardError() );
@@ -129,9 +129,7 @@ void H2PlayerTest::testNoIpcMode() {
 	// Give it time to start without IPC server
 	QThread::msleep( 2000 );
 
-	// Kill the process
-	pProcess->kill();
-	CPPUNIT_ASSERT( pProcess->waitForFinished( 3000 ) );
+	stopPlayerGracefully( pProcess );
 
 	QString sOutput = QString::fromUtf8( pProcess->readAllStandardOutput() );
 	QString sError = QString::fromUtf8( pProcess->readAllStandardError() );
@@ -166,9 +164,12 @@ void H2PlayerTest::testInteractiveMode() {
 	// Give it time to start in interactive mode
 	QThread::msleep( 2000 );
 
-	// Kill the process
-	pProcess->kill();
-	CPPUNIT_ASSERT( pProcess->waitForFinished( 3000 ) );
+	// Closing our end of the player's stdin reports EOF, which the player
+	// treats as "no further commands can arrive" and answers with a
+	// graceful shutdown.
+	pProcess->closeWriteChannel();
+	CPPUNIT_ASSERT( pProcess->waitForFinished( 5000 ) );
+	CPPUNIT_ASSERT( pProcess->exitStatus() == QProcess::NormalExit );
 
 	QString sOutput = QString::fromUtf8( pProcess->readAllStandardOutput() );
 	QString sError = QString::fromUtf8( pProcess->readAllStandardError() );
@@ -185,6 +186,65 @@ void H2PlayerTest::testInteractiveMode() {
 
 	// IPC server should still be available in interactive mode
 	CPPUNIT_ASSERT( sCombinedOutput.contains( "IPC Server Started" ) );
+
+	delete pProcess;
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testGracefulShutdownCleansIpcResources() {
+	___INFOLOG( "" );
+
+	// Qt derives the SysV key of the telemetry shared memory from a key file
+	// in the temp directory. A player dying without running its shutdown
+	// path (e.g. to a SIGKILL) orphans both the segment and the key file, so
+	// a graceful shutdown must not leave any new key file behind.
+	const QStringList beforeFiles = QDir( QStandardPaths::writableLocation(
+		QStandardPaths::TempLocation ) )
+		.entryList( QStringList() << "qipc_sharedmemory_*",
+					QDir::Files, QDir::Name );
+
+	QStringList args;
+	args << m_sTestSongPath;
+
+	auto pProcess = new QProcess();
+	// A single merged channel keeps the incremental output polling below
+	// simple.
+	pProcess->setProcessChannelMode( QProcess::MergedChannels );
+	pProcess->start( m_sH2PlayerPath, args );
+	CPPUNIT_ASSERT( pProcess->waitForStarted( 5000 ) );
+
+	// The connection info is printed once the IPC session - and with it the
+	// telemetry shared memory - is up. Waiting for it (instead of a fixed
+	// sleep) guarantees the key file exists before the shutdown.
+	QString sOutput;
+	QElapsedTimer elapsedTimer;
+	elapsedTimer.start();
+	while ( ! sOutput.contains( "Endpoint:" ) ) {
+		if ( pProcess->state() != QProcess::Running ||
+			 elapsedTimer.elapsed() > 10000 ) {
+			CPPUNIT_FAIL( QString( "h2player did not report its IPC endpoint "
+								   "within 10 s. Output so far: [%1]" )
+							  .arg( sOutput )
+							  .toStdString() );
+		}
+		pProcess->waitForReadyRead( 100 );
+		sOutput += QString::fromUtf8( pProcess->readAllStandardOutput() );
+	}
+
+	stopPlayerGracefully( pProcess );
+
+	const QStringList afterFiles = QDir( QStandardPaths::writableLocation(
+		QStandardPaths::TempLocation ) )
+		.entryList( QStringList() << "qipc_sharedmemory_*",
+					QDir::Files, QDir::Name );
+
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "A graceful shutdown must not orphan IPC key files. "
+				 "Before: [%1] After: [%2]" )
+			.arg( beforeFiles.join( ", " ) )
+			.arg( afterFiles.join( ", " ) )
+			.toStdString(),
+		beforeFiles == afterFiles );
 
 	delete pProcess;
 	___INFOLOG( "passed" );
@@ -300,6 +360,18 @@ QString H2PlayerTest::runPlayerAndReadLog( const QStringList& args,
 	return sLogContent;
 }
 
+void H2PlayerTest::stopPlayerGracefully( QProcess* pProcess )
+{
+	// SIGTERM routes the player through its regular shutdown path: the IPC
+	// session is torn down and its SysV shared memory segment and key file
+	// are removed. Dying to the default disposition instead would orphan
+	// both (they are only cleaned up by a later attach+detach on the very
+	// same key, which never recurs for per-session endpoints).
+	pProcess->terminate();
+	CPPUNIT_ASSERT( pProcess->waitForFinished( 3000 ) );
+	CPPUNIT_ASSERT( pProcess->exitStatus() == QProcess::NormalExit );
+}
+
 QString H2PlayerTest::prepareCustomConfig( const QString& sDestDir, int nNewPort )
 {
 	// Clean up any leftovers from a previous (possibly failed) run, then
@@ -355,8 +427,7 @@ void H2PlayerTest::testLogFileOption() {
 
 	QThread::msleep( 2000 );
 
-	pProcess->kill();
-	CPPUNIT_ASSERT( pProcess->waitForFinished( 3000 ) );
+	stopPlayerGracefully( pProcess );
 
 	delete pProcess;
 

@@ -27,6 +27,7 @@
 
 #include <getopt.h>
 #include <atomic>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -58,6 +59,22 @@ using namespace H2Core;
 #include <QCoreApplication>
 #include <QThread>
 
+// Set by the SIGINT/SIGTERM/SIGHUP handler below and polled by the run loops
+// so the player leaves through its regular shutdown path (IPC session
+// teardown, SysV shared memory cleanup) instead of dying to the default
+// disposition and orphaning both.
+static volatile std::sig_atomic_t g_nShutdownRequested = 0;
+
+static void handleShutdownSignal( int )
+{
+	g_nShutdownRequested = 1;
+}
+
+static bool shutdownRequested()
+{
+	return g_nShutdownRequested != 0;
+}
+
 void runHeadlessMode( H2Core::Hydrogen* pHydrogen )
 {
 	cout << "Headless mode: running event loop..." << endl;
@@ -65,7 +82,7 @@ void runHeadlessMode( H2Core::Hydrogen* pHydrogen )
 
 	// Run Qt event loop to handle IPC events
 	QCoreApplication* pApp = QCoreApplication::instance();
-	while ( true ) {
+	while ( ! shutdownRequested() ) {
 		pApp->processEvents();
 		QThread::msleep( 50 );
 	}
@@ -83,8 +100,8 @@ void runInteractiveMode( H2Core::Hydrogen* pHydrogen )
 
 	// Read keyboard input in a dedicated worker thread so the main thread
 	// stays free to pump the Qt event loop (needed for IPC).  The worker
-	// blocks on getchar(), which is portable across all platforms, unlike
-	// the POSIX-only fd_set/select approach it replaces.
+	// parks in poll() on stdin plus a wake pipe (POSIX) or polls _kbhit()
+	// (Windows) — see StdinReader.
 	auto* pStdinThread = new QThread;
 	auto* pReader = new StdinReader;
 	pReader->moveToThread( pStdinThread );
@@ -133,21 +150,30 @@ void runInteractiveMode( H2Core::Hydrogen* pHydrogen )
 		}
 	);
 
+	// A closed stdin (Ctrl+D, ended pipe) means no further commands can
+	// arrive: leave the run loop through the regular shutdown path.
+	QObject::connect(
+		pReader, &StdinReader::inputClosed, pApp,
+		[&bRunning]() { bRunning = false; }
+	);
+
 	pStdinThread->start();
 
-	while ( bRunning ) {
+	while ( bRunning && ! shutdownRequested() ) {
 		QCoreApplication::processEvents();
 		QThread::msleep( 50 );
 	}
 
-	// The worker thread is blocked on std::cin.get() and has no event
-	// loop, so quit() would be a no-op.  terminate() requests cancellation
-	// (pthread_cancel on Unix, TerminateThread on Windows).  On glibc the
-	// underlying read() is a cancellation point, so terminate() succeeds
-	// and wait() returns quickly.  If it doesn't on some platform, the
-	// bounded wait() times out and we leak the thread rather than hanging
-	// — the process is about to exit, so the OS reclaims it.
-	pStdinThread->terminate();
+	// Wake the reader's poll() loop so the worker thread leaves run() on
+	// its own. QThread::terminate() cannot be used instead: Qt keeps
+	// pthread cancellation disabled until QThread::run(), so a slot
+	// connected to QThread::started can never be cancelled — the thread
+	// would stay blocked in a read holding std::cin's stream lock and
+	// deadlock exit-time stream destruction. If the wake pipe could not
+	// be created, the bounded wait() times out and leaks the thread; it
+	// then parks in poll() on stdin only, holding no lock, so the process
+	// can still exit.
+	pReader->stop();
 	if ( pStdinThread->wait( 2000 ) ) {
 		delete pReader;
 		delete pStdinThread;
@@ -381,6 +407,17 @@ int main( int argc, char** argv )
 	if ( !sSelectedDriver.isEmpty() ) {
 		pPref->m_audioDriver = Preferences::parseAudioDriver( sSelectedDriver );
 	}
+
+	// Honor SIGINT/SIGTERM (Ctrl+C, `QProcess::terminate()`, service
+	// managers) and SIGHUP (terminal closed) by leaving the run loops below
+	// through the regular shutdown path. Dying to the default disposition
+	// instead would orphan the IPC session's SysV shared memory segment and
+	// its key file.
+	signal( SIGINT, handleShutdownSignal );
+	signal( SIGTERM, handleShutdownSignal );
+#ifndef WIN32
+	signal( SIGHUP, handleShutdownSignal );
+#endif
 
 	auto pHydrogen = Hydrogen::create_instance(
 		nOscPort, pPref, H2Core::ProcessMode::Headless

@@ -26,36 +26,59 @@
 
 #include <QObject>
 
+#ifdef WIN32
+#include <atomic>
+#endif
+
 /**
  * Cross-platform stdin reader that runs in a worker thread.
  *
- * @c std::cin.get() blocks until input is available on all platforms (Unix,
- * Windows, macOS).  By moving this blocking call into a dedicated thread and
- * emitting a signal for every character received, the main thread is free to
- * pump the Qt event loop without resorting to POSIX-only constructs such as
- * @c fd_set / @c select().
+ * The worker parks in poll() on stdin plus a wake pipe (POSIX) or polls
+ * _kbhit() (Windows) and emits a signal for every character received, so
+ * the main thread stays free to pump the Qt event loop.
  *
- * The worker thread has no event loop; it simply loops on @c std::cin.get()
- * until EOF is reached or the thread is terminated.  Because the thread is
- * blocked in @c std::cin.get() during shutdown, the caller is expected to
- * @c QThread::terminate() it.  @c QThread::wait() is called with a bounded
- * timeout so that, if @c terminate() fails to interrupt the blocking read on
- * a particular platform, the caller does not hang indefinitely — the leaked
- * thread is reclaimed when the process exits.
+ * The worker must never block inside std::cin.get(): a thread blocked in a
+ * read cannot be cancelled — QThread::terminate() is a no-op for a slot
+ * connected to QThread::started because Qt keeps pthread cancellation
+ * disabled until QThread::run() — and even a successful cancellation would
+ * risk dying while holding std::cin's stream lock, which deadlocks
+ * exit-time stream destruction. stop() therefore wakes the poll() loop
+ * through the wake pipe so the thread always leaves run() on its own.
  */
 class StdinReader : public QObject {
 	Q_OBJECT
 
    public:
 	explicit StdinReader( QObject* pParent = nullptr );
+	~StdinReader();
+
+	/** Wake the reader loop in run() so the worker thread finishes and
+	 * QThread::wait() succeeds. Safe to call more than once. */
+	void stop();
 
    public slots:
-	/** Blocking loop that reads characters from stdin and emits signals. */
+	/** Loop reading characters from stdin and emitting signals. */
 	void run();
 
    signals:
 	/** Emitted for every character read from stdin. */
 	void characterReceived( char c );
+	/** Emitted when stdin reports EOF (e.g. Ctrl+D or a closed pipe) or
+	 * an unrecoverable read error: no further input will arrive, so the
+	 * caller should shut down. */
+	void inputClosed();
+
+   private:
+#ifdef WIN32
+	/** Checked between _kbhit() polls; set by stop(). */
+	std::atomic<bool> m_bStopRequested = false;
+#else
+	/** Wake pipe: run() polls [ 0 ], stop() writes [ 1 ]. Both -1 if the
+	 * pipe could not be created (run() then polls stdin only and the
+	 * caller's bounded QThread::wait() leaks the thread — it parks in
+	 * poll() holding no lock, so the process can still exit). */
+	int m_anWakePipe[ 2 ] = { -1, -1 };
+#endif
 };
 
 #endif	// STDIN_READER_H

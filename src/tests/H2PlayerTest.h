@@ -27,12 +27,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+class QProcess;
+
 class H2PlayerTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( H2PlayerTest );
 	CPPUNIT_TEST( testHelpOption );
 	CPPUNIT_TEST( testDefaultIpcMode );
 	CPPUNIT_TEST( testNoIpcMode );
 	CPPUNIT_TEST( testInteractiveMode );
+	CPPUNIT_TEST( testGracefulShutdownCleansIpcResources );
 	CPPUNIT_TEST( testMissingSongFile );
 	CPPUNIT_TEST( testInvalidSongFile );
 	CPPUNIT_TEST( testLogFileOption );
@@ -57,6 +60,7 @@ class H2PlayerTest : public CppUnit::TestCase {
 	void testDefaultIpcMode();
 	void testNoIpcMode();
 	void testInteractiveMode();
+	void testGracefulShutdownCleansIpcResources();
 	void testMissingSongFile();
 	void testInvalidSongFile();
 	void testLogFileOption();
@@ -78,6 +82,10 @@ class H2PlayerTest : public CppUnit::TestCase {
 	 * and return the log file content. */
 	QString runPlayerAndReadLog( const QStringList& args,
 								unsigned nTimeoutMs = 5000 );
+	/** Stop a running h2player via SIGTERM and assert it left through its
+	 * regular shutdown path (dying to the signal instead would orphan its
+	 * IPC session's SysV shared memory segment and key file). */
+	void stopPlayerGracefully( QProcess* pProcess );
 	/** Copy the shipped default config to @a sDestPath and replace the
 	 * `<oscServerPort>` element value with @a nNewPort. */
 	QString prepareCustomConfig( const QString& sDestDir, int nNewPort );
