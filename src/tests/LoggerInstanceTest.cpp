@@ -61,6 +61,8 @@ void LoggerInstanceTest::tearDown() {
 }
 
 void LoggerInstanceTest::testPerInstanceFiles() {
+	___INFOLOG( "" );
+
 	const QString sPathA = Filesystem::tmpDir().append( "loggerInstanceA.log" );
 	const QString sPathB = Filesystem::tmpDir().append( "loggerInstanceB.log" );
 
@@ -101,6 +103,8 @@ void LoggerInstanceTest::testPerInstanceFiles() {
 }
 
 void LoggerInstanceTest::testUnscopedHitsDefault() {
+	___INFOLOG( "" );
+
 	const QString sPath = Filesystem::tmpDir().append( "loggerInstanceC.log" );
 	const QString sMarker = "LoggerInstanceTest-MARKER-UNSCOPED";
 
@@ -121,6 +125,8 @@ void LoggerInstanceTest::testUnscopedHitsDefault() {
 }
 
 void LoggerInstanceTest::testTeardownFlushesOwnQueue() {
+	___INFOLOG( "" );
+
 	const QString sPathKept = Filesystem::tmpDir().append( "loggerInstanceKeep.log" );
 	const QString sPathGone = Filesystem::tmpDir().append( "loggerInstanceGone.log" );
 
@@ -159,6 +165,8 @@ void LoggerInstanceTest::testTeardownFlushesOwnQueue() {
 }
 
 void LoggerInstanceTest::testAppendModeAccumulates() {
+	___INFOLOG( "" );
+
 	const QString sPathAppend = Filesystem::tmpDir().append( "loggerAppend.log" );
 	const QString sPathTruncate = Filesystem::tmpDir().append( "loggerTruncate.log" );
 	const QString sMarker1 = "LoggerInstanceTest-MARKER-APPEND-FIRST";
@@ -209,6 +217,8 @@ void LoggerInstanceTest::testAppendModeAccumulates() {
 }
 
 void LoggerInstanceTest::testConcurrentAppendPreservesLines() {
+	___INFOLOG( "" );
+
 	const QString sPath = Filesystem::tmpDir().append( "loggerConcurrentAppend.log" );
 	const int nLines = 200;
 
@@ -254,6 +264,8 @@ void LoggerInstanceTest::testConcurrentAppendPreservesLines() {
 }
 
 void LoggerInstanceTest::testThreadBodyMacrosFollowScope() {
+	___INFOLOG( "" );
+
 	const QString sPath = Filesystem::tmpDir().append( "loggerThreadBody.log" );
 	const QString sMarker = "LoggerInstanceTest-MARKER-THREAD-BODY";
 
@@ -291,6 +303,8 @@ void LoggerInstanceTest::testThreadBodyMacrosFollowScope() {
 
 #ifdef H2CORE_HAVE_DEBUG
 void LoggerInstanceTest::testConstructionRoutesToInstanceLogger() {
+	___INFOLOG( "" );
+
 	const QFileInfo logInfo( Filesystem::logFilePath() );
 	// The instance files live in the tmp dir, named after the process
 	// default's log file (its base name + pid + instance counter).
@@ -332,6 +346,8 @@ void LoggerInstanceTest::testConstructionRoutesToInstanceLogger() {
 }
 
 void LoggerInstanceTest::testDestructionRoutesToInstanceLogger() {
+	___INFOLOG( "" );
+
 	const QFileInfo logInfo( Filesystem::logFilePath() );
 	// The instance files live in the tmp dir, named after the process
 	// default's log file (its base name + pid + instance counter).
@@ -370,6 +386,8 @@ void LoggerInstanceTest::testDestructionRoutesToInstanceLogger() {
 }
 
 void LoggerInstanceTest::testInstanceFilesStayInTmpDir() {
+	___INFOLOG( "" );
+
 	// The instance log files are per-run transient artifacts: they must
 	// live in the tmp dir regardless of where the process default's log
 	// file resides (e.g. the suite's `-o <plain name>` puts it in the CWD;
@@ -410,6 +428,8 @@ void LoggerInstanceTest::testInstanceFilesStayInTmpDir() {
 }
 
 void LoggerInstanceTest::testProcessDefaultAuditSurface() {
+	___INFOLOG( "" );
+
 	// The process default writes asynchronously; drain its queue so the
 	// offset below marks a quiet point and the delta only contains lines
 	// logged during this test's lifecycle.
