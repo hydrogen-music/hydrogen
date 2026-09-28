@@ -34,12 +34,21 @@ EngineTelemetryShm::~EngineTelemetryShm() {
 bool EngineTelemetryShm::create( const QString& sKey ) {
 	detach();
 	m_shm.setKey( sKey );
-	// A stale segment from a crashed run would make create() fail with
-	// AlreadyExists; attaching-then-detaching releases it on Unix.
-	if ( m_shm.attach() ) {
-		m_shm.detach();
+	bool bCreated = m_shm.create( sizeof( EngineTelemetry ) );
+	if ( ! bCreated && m_shm.error() == QSharedMemory::AlreadyExists ) {
+		// The key file exists by now (QSharedMemory::create() made it). A
+		// segment under this key is stale - from a crashed run that used
+		// the very same key, or because this fresh key file's inode was
+		// recycled from a dead segment's key file (Qt derives the SysV
+		// key via ftok of the key file) - and is released by
+		// attaching-detaching. A live segment (nattch > 0) cannot be
+		// released; the retried create then fails for real.
+		if ( m_shm.attach() ) {
+			m_shm.detach();
+		}
+		bCreated = m_shm.create( sizeof( EngineTelemetry ) );
 	}
-	if ( ! m_shm.create( sizeof( EngineTelemetry ) ) ) {
+	if ( ! bCreated ) {
 		___ERRORLOG( QString( "Unable to create telemetry shm [%1]: %2" )
 					 .arg( sKey ).arg( m_shm.errorString() ) );
 		return false;

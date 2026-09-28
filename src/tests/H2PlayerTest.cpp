@@ -27,6 +27,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QLocalServer>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QStandardPaths>
@@ -36,6 +37,7 @@
 
 #include <core/config.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/IPC/EngineTelemetryShm.h>
 
 using namespace H2Core;
 
@@ -279,6 +281,67 @@ void H2PlayerTest::testQuitLeavesNoAliveObjects() {
 			.arg( sError.left( 2000 ) )
 			.toStdString(),
 		! sError.contains( "Objects map" ) );
+
+	delete pProcess;
+	___INFOLOG( "passed" );
+}
+
+void H2PlayerTest::testStaleTelemetryOfKilledPlayerIsReleased() {
+	___INFOLOG( "" );
+
+	QStringList args;
+	args << m_sTestSongPath;
+
+	auto pProcess = new QProcess();
+	// A single merged channel keeps the incremental output polling below
+	// simple.
+	pProcess->setProcessChannelMode( QProcess::MergedChannels );
+	pProcess->start( m_sH2PlayerPath, args );
+	CPPUNIT_ASSERT( pProcess->waitForStarted( 5000 ) );
+
+	// The connection info is printed once the IPC session - and with it the
+	// telemetry shared memory - is up; its endpoint names the key the
+	// player derived the telemetry block from.
+	QString sOutput;
+	QString sEndpoint;
+	QElapsedTimer elapsedTimer;
+	elapsedTimer.start();
+	const QRegularExpression reEndpoint( "Endpoint: (\\S+)" );
+	while ( true ) {
+		sOutput += QString::fromUtf8( pProcess->readAllStandardOutput() );
+		const auto match = reEndpoint.match( sOutput );
+		if ( match.hasMatch() ) {
+			sEndpoint = match.captured( 1 );
+			break;
+		}
+		if ( pProcess->state() != QProcess::Running ||
+			 elapsedTimer.elapsed() > 10000 ) {
+			CPPUNIT_FAIL( QString( "h2player did not report its IPC endpoint "
+								   "within 10 s. Output so far: [%1]" )
+							  .arg( sOutput )
+							  .toStdString() );
+		}
+		pProcess->waitForReadyRead( 100 );
+	}
+
+	// Kill the player without letting it run its shutdown path: the
+	// telemetry segment and its key file are orphaned (stale).
+	pProcess->kill();
+	CPPUNIT_ASSERT( pProcess->waitForFinished( 3000 ) );
+
+	// The killed player's local server socket file lingers as well; remove
+	// it through the same API a listener uses to clear its own name.
+	QLocalServer::removeServer( sEndpoint );
+
+	// A subsequent create() under the very same key must release the stale
+	// segment instead of failing with AlreadyExists.
+	EngineTelemetryShm writer;
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "create() must release the stale telemetry segment left "
+				 "behind by the killed player [%1]" )
+			.arg( sEndpoint )
+			.toStdString(),
+		writer.create( EngineTelemetryShm::keyForEndpoint( sEndpoint ) ) );
 
 	delete pProcess;
 	___INFOLOG( "passed" );
