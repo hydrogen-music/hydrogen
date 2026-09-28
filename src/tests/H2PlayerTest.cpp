@@ -250,6 +250,40 @@ void H2PlayerTest::testGracefulShutdownCleansIpcResources() {
 	___INFOLOG( "passed" );
 }
 
+void H2PlayerTest::testQuitLeavesNoAliveObjects() {
+	___INFOLOG( "" );
+
+	QStringList args;
+	// Debug verbosity also switches on the object counting the assertion
+	// below relies on (Base::bootstrap( pLogger, should_log( Debug ) )).
+	args << "-V" << "Debug" << "-d" << "Fake" << "--interactive"
+		 << m_sTestSongPath;
+
+	auto pProcess = new QProcess();
+	pProcess->start( m_sH2PlayerPath, args );
+	CPPUNIT_ASSERT( pProcess->waitForStarted( 5000 ) );
+
+	// Play, stop, quit: the interactive lifecycle from the keyboard. The
+	// pipe buffers the commands until the player's stdin reader is up.
+	const QByteArray sCommands = "p\ns\nq\n";
+	CPPUNIT_ASSERT( pProcess->write( sCommands ) == sCommands.size() );
+	CPPUNIT_ASSERT( pProcess->waitForFinished( 10000 ) );
+	CPPUNIT_ASSERT( pProcess->exitStatus() == QProcess::NormalExit );
+
+	// The player prints an objects map on exit if - and only if - objects
+	// are still alive at that point.
+	const QString sError =
+		QString::fromUtf8( pProcess->readAllStandardError() );
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "h2player reported alive objects at exit:\n%1" )
+			.arg( sError.left( 2000 ) )
+			.toStdString(),
+		! sError.contains( "Objects map" ) );
+
+	delete pProcess;
+	___INFOLOG( "passed" );
+}
+
 void H2PlayerTest::testMissingSongFile() {
 	___INFOLOG( "" );
 

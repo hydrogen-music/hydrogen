@@ -794,7 +794,9 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Quitting..." );
 		delete pLogger;
 
-		if (H2Core::Base::count_active()) {
+		// objects_count() is the number of alive objects (count_active()
+		// only tells whether counting is enabled at all).
+		if (H2Core::Base::objects_count() > 0) {
 			H2Core::Base::write_objects_map_to_cerr();
 		}
 	}

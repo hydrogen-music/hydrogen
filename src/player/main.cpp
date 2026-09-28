@@ -552,16 +552,31 @@ int main( int argc, char** argv )
 		runHeadlessMode( pHydrogen );
 	}
 
+	// Tear the IPC session down while the engine it serves is still alive:
+	// its serve loop must not dispatch commands into (or publish telemetry
+	// from) a half-destroyed engine. This also releases the SysV shared
+	// memory segment and its key file.
+	pEngineSession.reset();
+
 	pHydrogen->sequencerStop();
 	pPref->save( false );
 
 	// Hydrogen owns its Preferences and EventQueue and frees them in
 	// ~Hydrogen (ADR 0015).
 	delete pHydrogen;
+
+	// Release the locals before the objects dump below so it reports only
+	// actual leaks instead of what main still holds until returning.
+	pSong.reset();
+	pPlaylist.reset();
+	pPref.reset();
+
 	delete pApp;
 	delete H2Core::Logger::get_instance();
 
-	if ( H2Core::Base::count_active() ) {
+	// objects_count() is the number of alive objects (count_active() only
+	// tells whether counting is enabled at all).
+	if ( H2Core::Base::objects_count() > 0 ) {
 		H2Core::Base::write_objects_map_to_cerr();
 	}
 

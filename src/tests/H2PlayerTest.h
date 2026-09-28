@@ -36,6 +36,7 @@ class H2PlayerTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testNoIpcMode );
 	CPPUNIT_TEST( testInteractiveMode );
 	CPPUNIT_TEST( testGracefulShutdownCleansIpcResources );
+	CPPUNIT_TEST( testQuitLeavesNoAliveObjects );
 	CPPUNIT_TEST( testMissingSongFile );
 	CPPUNIT_TEST( testInvalidSongFile );
 	CPPUNIT_TEST( testLogFileOption );
@@ -61,6 +62,7 @@ class H2PlayerTest : public CppUnit::TestCase {
 	void testNoIpcMode();
 	void testInteractiveMode();
 	void testGracefulShutdownCleansIpcResources();
+	void testQuitLeavesNoAliveObjects();
 	void testMissingSongFile();
 	void testInvalidSongFile();
 	void testLogFileOption();
