@@ -257,7 +257,7 @@ void Base::printObjectMapDiff( const object_map_t& mapSnapshot ) {
 
 QString Base::toQString( const QString& sPrefix, bool bShort ) const {
 	return QString( "[%1] instances alive: %2" )
-		.arg( class_name() ).arg( count_active() );
+		.arg( class_name() ).arg( objects_count() );
 }
 
 void Base::Print( bool bShort ) const {
