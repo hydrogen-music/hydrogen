@@ -347,6 +347,41 @@ void H2PlayerTest::testStaleTelemetryOfKilledPlayerIsReleased() {
 	___INFOLOG( "passed" );
 }
 
+void H2PlayerTest::testDefaultLogFileFollowsUserDataFolder() {
+	___INFOLOG( "" );
+
+	const QString sTempDir = Filesystem::tmpDir() + "h2player_logdir_test/";
+	// Clean up any leftovers from a previous (possibly failed) run, then
+	// (re)create the destination folder.
+	Filesystem::rm( sTempDir, true, true );
+	CPPUNIT_ASSERT( Filesystem::mkdir( sTempDir ) );
+
+	QStringList args;
+	args << "--user-data" << sTempDir << "--no-ipc" << m_sTestSongPath;
+
+	auto pProcess = new QProcess();
+	pProcess->start( m_sH2PlayerPath, args );
+	CPPUNIT_ASSERT( pProcess->waitForStarted( 5000 ) );
+	// The player runs until stopped; give it time to boot (and open its log
+	// file), then stop it through its regular shutdown path.
+	QThread::msleep( 2000 );
+	stopPlayerGracefully( pProcess );
+
+	// Without -L the default log file must live in the custom user data
+	// folder instead of leaking into the default one.
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "h2player did not write its default log file into the "
+				 "custom user data folder [%1]" )
+			.arg( sTempDir )
+			.toStdString(),
+		Filesystem::fileExists( sTempDir + "h2player.log" ) );
+
+	Filesystem::rm( sTempDir, true );
+
+	delete pProcess;
+	___INFOLOG( "passed" );
+}
+
 void H2PlayerTest::testMissingSongFile() {
 	___INFOLOG( "" );
 

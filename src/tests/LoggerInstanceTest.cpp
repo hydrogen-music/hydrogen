@@ -293,8 +293,12 @@ void LoggerInstanceTest::testThreadBodyMacrosFollowScope() {
 #ifdef H2CORE_HAVE_DEBUG
 void LoggerInstanceTest::testConstructionRoutesToInstanceLogger() {
 	const QFileInfo logInfo( Filesystem::logFilePath() );
-	const QDir logDir( logInfo.absolutePath() );
-	const QString sPattern = "hydrogen_" +
+	// The instance files live in the tmp dir, named after the process
+	// default's log file (its base name + pid + instance counter).
+	const QDir logDir( Filesystem::tmpDir() );
+	// The instance files derive their names from the process default's log
+	// file (its base name + pid + instance counter).
+	const QString sPattern = logInfo.completeBaseName() + "_" +
 		QString::number( QCoreApplication::applicationPid() ) + "_*.log";
 
 	// Other fixtures spawn Plugin-driver instances too; only files that
@@ -330,8 +334,12 @@ void LoggerInstanceTest::testConstructionRoutesToInstanceLogger() {
 
 void LoggerInstanceTest::testDestructionRoutesToInstanceLogger() {
 	const QFileInfo logInfo( Filesystem::logFilePath() );
-	const QDir logDir( logInfo.absolutePath() );
-	const QString sPattern = "hydrogen_" +
+	// The instance files live in the tmp dir, named after the process
+	// default's log file (its base name + pid + instance counter).
+	const QDir logDir( Filesystem::tmpDir() );
+	// The instance files derive their names from the process default's log
+	// file (its base name + pid + instance counter).
+	const QString sPattern = logInfo.completeBaseName() + "_" +
 		QString::number( QCoreApplication::applicationPid() ) + "_*.log";
 
 	// Other fixtures spawn Plugin-driver instances too; only files that
@@ -362,17 +370,53 @@ void LoggerInstanceTest::testDestructionRoutesToInstanceLogger() {
 	___INFOLOG( "passed" );
 }
 
+void LoggerInstanceTest::testInstanceFilesStayInTmpDir() {
+	// The instance log files are per-run transient artifacts: they must
+	// live in the tmp dir regardless of where the process default's log
+	// file resides (e.g. the suite's `-o <plain name>` puts it in the CWD;
+	// the instance files must not follow it there).
+	const QFileInfo processLogInfo( Logger::get_instance()->getLogFile() );
+	const QDir instanceDir( Filesystem::tmpDir() );
+	const QString sPattern = processLogInfo.completeBaseName() + "_" +
+		QString::number( QCoreApplication::applicationPid() ) + "_*.log";
+
+	// Other fixtures spawn Plugin-driver instances too; only files that
+	// appear while this test runs count as ours.
+	const QStringList sBefore = instanceDir.entryList( { sPattern } );
+
+	{
+		// Destroying the host joins the instance logger's worker thread, so
+		// its file is flushed + closed (and kept, in debug builds) by the
+		// time we read it.
+		FakePluginHost host;
+	}
+
+	QStringList sNewFiles;
+	for ( const QString& sName : instanceDir.entryList( { sPattern } ) ) {
+		if ( ! sBefore.contains( sName ) &&
+			 ! sName.endsWith( "_plugin.log" ) ) {
+			sNewFiles << sName;
+		}
+	}
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "The instance log file must live in the tmp dir [%1] "
+				 "(pattern [%2]). New files: [%3]" )
+			.arg( instanceDir.absolutePath() )
+			.arg( sPattern )
+			.arg( sNewFiles.join( ", " ) )
+			.toStdString(),
+		sNewFiles.size() == 1 );
+
+	___INFOLOG( "passed" );
+}
+
 void LoggerInstanceTest::testProcessDefaultAuditSurface() {
 	// The process default writes asynchronously; drain its queue so the
 	// offset below marks a quiet point and the delta only contains lines
 	// logged during this test's lifecycle.
 	Logger::get_instance()->flush();
 
-	// The process default's actual file. Filesystem::logFilePath() is NOT
-	// reliable here: its lazy first-call resolution can clobber the
-	// bootstrapped custom path (the suite never exercises the pre-bootstrap
-	// Reporter flow that normally initializes it), leaving it pointing at the
-	// XDG default instead of this suite's shared log.
+	// The process default's actual file, straight from the logger itself.
 	QFile processLog( Logger::get_instance()->getLogFile() );
 	CPPUNIT_ASSERT( processLog.open( QIODevice::ReadOnly ) );
 	const qint64 nOffsetBefore = processLog.size();

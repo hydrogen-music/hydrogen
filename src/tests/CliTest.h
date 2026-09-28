@@ -30,6 +30,7 @@
 class CliTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( CliTest );
 	CPPUNIT_TEST( testKitToDrumkitMap );
+	CPPUNIT_TEST( testDefaultLogFileFollowsUserDataFolder );
 #if defined( Q_OS_MACX ) || defined( WIN32 )
 #else
 	CPPUNIT_TEST( testXdgPaths );
@@ -42,6 +43,9 @@ class CliTest : public CppUnit::TestCase {
 	 * when running the unit tests.*/
 	void setUp();
 	void testKitToDrumkitMap();
+	/** Without -L the default log file must live in the folder given via
+	 * --user-data instead of leaking into the default user data folder. */
+	void testDefaultLogFileFollowsUserDataFolder();
 #if defined( Q_OS_MACX ) || defined( WIN32 )
 #else
 	/** Checkes whether the h2cli binary correctly uses an existing

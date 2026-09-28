@@ -39,6 +39,7 @@ class LoggerInstanceTest : public CppUnit::TestCase {
 #ifdef H2CORE_HAVE_DEBUG
 	CPPUNIT_TEST( testConstructionRoutesToInstanceLogger );
 	CPPUNIT_TEST( testDestructionRoutesToInstanceLogger );
+	CPPUNIT_TEST( testInstanceFilesStayInTmpDir );
 	CPPUNIT_TEST( testProcessDefaultAuditSurface );
 #endif
 	CPPUNIT_TEST_SUITE_END();
@@ -78,6 +79,11 @@ public:
 	 * member destruction) routes to its per-instance log file as well.
 	 * Debug builds only (same reason as above). */
 	void testDestructionRoutesToInstanceLogger();
+	/** The per-instance log files live in the tmp dir (transient per-run
+	 * artifacts), not next to the process default's log file: an explicit
+	 * log file location (e.g. the suite's `-o <plain name>`) designates
+	 * just that one file. Debug builds only (same reason as above). */
+	void testInstanceFilesStayInTmpDir();
 	/** The process-default log doubles as the audit surface: while
 	 * per-instance loggers are alive, every line reaching it is marked
 	 * `[unscoped]`. After a full plugin-instance lifecycle (construction,

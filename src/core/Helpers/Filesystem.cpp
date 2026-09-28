@@ -421,6 +421,21 @@ bool Filesystem::bootstrap(
 		// logger.
 		Filesystem::m_sUserLogPath = sLogFile;
 	}
+	else if ( !m_bLogPathInitialized ) {
+		// No explicit log file: a custom user data folder also hosts the
+		// default log file (isolation: no leakage into the default user
+		// data folder); otherwise the default location logFilePath() also
+		// computes prior to this bootstrap.
+		if ( !sUsrDataPath.isEmpty() ) {
+			Filesystem::m_sUserLogPath = m_sUserDataPath + LOG_FILE;
+		}
+		else {
+			Filesystem::m_sUserLogPath = defaultLogFilePath();
+		}
+	}
+	// From here on the bootstrapped path is authoritative: no later
+	// logFilePath() call may re-clobber it with a default.
+	m_bLogPathInitialized = true;
 
 	if ( !dirReadable( m_sSystemDataPath ) ) {
 		m_sSystemDataPath =
@@ -825,28 +840,39 @@ QString Filesystem::clickFilePath()
 {
 	return m_sSystemDataPath + CLICK_SAMPLE;
 }
+QString Filesystem::defaultLogFilePath()
+{
+	// The legacy layout (~/.hydrogen) wins if it exists; XDG paths
+	// otherwise. We do not use QStandardPaths in order to share the same
+	// location amongst all our binaries (bearing different application
+	// names).
+#if defined( Q_OS_MACX ) || defined( WIN32 )
+	// The statically initialized path is already the platform default.
+	return m_sUserLogPath;
+#else
+	if ( QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH ) ) ) {
+		return QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE );
+	}
+	if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
+		return getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+			APPLICATION_NAME + "/" + LOG_FILE;
+	}
+	return QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME
+									"/" LOG_FILE );
+#endif
+}
+
 const QString& Filesystem::logFilePath()
 {
-	// Called within the Reporter prior to the bootstrap of Filesystem itself.
-	// Therefore we need some special treatments.
-#if defined( Q_OS_MACX ) || defined( WIN32 )
-#else
+	// Called within the Reporter and the Logger prior to the bootstrap of
+	// Filesystem itself, so the default location is computed lazily. The
+	// bootstrap marks the path as initialized, so from then on the
+	// bootstrapped path is authoritative and no later call re-clobbers it
+	// with a default.
 	if ( !m_bLogPathInitialized ) {
-		if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH )
-			 ) ) {
-			if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
-				m_sUserLogPath = getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
-								 APPLICATION_NAME + "/" + LOG_FILE;
-			}
-			else {
-				m_sUserLogPath =
-					QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME
-											 "/" LOG_FILE );
-			}
-		}
+		m_sUserLogPath = defaultLogFilePath();
 		m_bLogPathInitialized = true;
 	}
-#endif
 	return m_sUserLogPath;
 }
 

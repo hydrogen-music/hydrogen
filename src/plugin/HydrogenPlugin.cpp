@@ -79,8 +79,12 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	// everything is persisted to disk instead. Release builds stay
 	// silent.
 	if ( ! Logger::isAvailable() ) {
+		// A per-process transient artifact: it lives in the tmp dir - named
+		// after the process default's log file so the two correlate - and
+		// not next to it (an explicit log file location designates just
+		// that one file).
 		const QFileInfo logInfo( Filesystem::logFilePath() );
-		const QString sPluginLogPath = logInfo.absolutePath() + "/" +
+		const QString sPluginLogPath = Filesystem::tmpDir() + "/" +
 			logInfo.completeBaseName() +
 			QString( "_%1_plugin." )
 				.arg( QCoreApplication::applicationPid() ) +

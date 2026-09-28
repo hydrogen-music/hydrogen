@@ -375,11 +375,7 @@ void PluginLifecycleTest::testProcessDefaultAuditSurface() {
 	// logged during this test's lifecycle.
 	Logger::get_instance()->flush();
 
-	// The process default's actual file. Filesystem::logFilePath() is NOT
-	// reliable here: its lazy first-call resolution can clobber the
-	// bootstrapped custom path (the suite never exercises the pre-bootstrap
-	// Reporter flow that normally initializes it), leaving it pointing at the
-	// XDG default instead of this suite's shared log.
+	// The process default's actual file, straight from the logger itself.
 	QFile processLog( Logger::get_instance()->getLogFile() );
 	CPPUNIT_ASSERT( processLog.open( QIODevice::ReadOnly ) );
 	const qint64 nOffsetBefore = processLog.size();

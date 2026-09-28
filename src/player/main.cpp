@@ -375,9 +375,16 @@ int main( int argc, char** argv )
 
 	QString sPlayerLogFile( sLogFile );
 	if ( sLogFile.isEmpty() ) {
-		const QFileInfo defaultLogFile( Filesystem::logFilePath() );
-		sPlayerLogFile = defaultLogFile.absolutePath() + "/" + "h2player." +
-						 defaultLogFile.suffix();
+		if ( ! sUsrDataPath.isEmpty() ) {
+			// A custom user data folder also hosts the default log file
+			// (isolation: no leakage into the default user data folder).
+			sPlayerLogFile = QDir( sUsrDataPath ).filePath( "h2player.log" );
+		}
+		else {
+			const QFileInfo defaultLogFile( Filesystem::logFilePath() );
+			sPlayerLogFile = defaultLogFile.absolutePath() + "/" + "h2player." +
+							 defaultLogFile.suffix();
+		}
 	}
 
 	Logger::Options logOptions = Logger::Option::UseStdout;

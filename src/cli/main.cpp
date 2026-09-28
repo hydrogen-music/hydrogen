@@ -28,6 +28,7 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QCommandLineOption>
+#include <QDir>
 #include <QLibraryInfo>
 #include <QStringList>
 #include <QThread>
@@ -363,9 +364,16 @@ int main(int argc, char *argv[])
 
 		QString sCliLogFile( sLogFile );
 		if ( sLogFile.isEmpty() ) {
-			const QFileInfo defaultLogFile( Filesystem::logFilePath() );
-			sCliLogFile = defaultLogFile.absolutePath() + "/" + "h2cli." +
-						  defaultLogFile.suffix();
+			if ( ! sUsrDataPath.isEmpty() ) {
+				// A custom user data folder also hosts the default log file
+				// (isolation: no leakage into the default user data folder).
+				sCliLogFile = QDir( sUsrDataPath ).filePath( "h2cli.log" );
+			}
+			else {
+				const QFileInfo defaultLogFile( Filesystem::logFilePath() );
+				sCliLogFile = defaultLogFile.absolutePath() + "/" + "h2cli." +
+							  defaultLogFile.suffix();
+			}
 		}
 
 		// Man your battle stations... this is not a drill.

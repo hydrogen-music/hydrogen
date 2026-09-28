@@ -556,6 +556,10 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString m_sUserLogPath;	   ///< the path to the log file
 	static std::vector<AudioFormat> m_supportedAudioFormats;
 	static bool m_bLogPathInitialized;
+	/** The default log file location: the legacy user folder (~/.hydrogen)
+	 * wins if it exists, XDG paths otherwise. Pure computation, no state
+	 * is touched. */
+	static QString defaultLogFilePath();
 };
 
 inline const QString& Filesystem::getPreferencesOverwritePath()

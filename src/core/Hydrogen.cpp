@@ -146,9 +146,15 @@ Hydrogen::Hydrogen(
 	const QFileInfo defaultLogInfo( Filesystem::logFilePath() );
 	if ( pPref->m_audioDriver == Preferences::AudioDriver::Plugin ) {
 		// Only in case Hydrogen was instantiated by a plugin host, we use a
-		// custom log file.
+		// custom log file. It is a per-run transient artifact, so it lives
+		// in the tmp dir - named after the process default's log file so
+		// the two correlate - instead of next to it: an explicit log file
+		// location (e.g. the suite's `-o <plain name>` landing in the CWD)
+		// designates just that one file, not a dumping ground for every
+		// instance's log. The spawning announcement below carries the full
+		// path, so the shared log still doubles as the index.
 		const QString sInstanceLogPath =
-			defaultLogInfo.absolutePath() + "/" +
+			Filesystem::tmpDir() + "/" +
 			defaultLogInfo.completeBaseName() +
 			QString( "_%1_%2." )
 				.arg( QCoreApplication::applicationPid() )
