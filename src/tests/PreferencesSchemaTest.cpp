@@ -469,6 +469,43 @@ void PreferencesSchemaTest::testLegacyDefaultConfigClean()
 	___INFOLOG( "passed" );
 }
 
+void PreferencesSchemaTest::testShippedDefaultConfigLoadsWarningFree()
+{
+	___INFOLOG( "" );
+
+	// The warnings this test is about are only emitted with the Warning
+	// bit set; tearDown() restores the mask saved in setUp().
+	Logger::set_bit_mask( Logger::bit_mask() | Logger::Warning );
+
+	const QString sLogPath =
+		Filesystem::tmpDir().append( "preferencesSchemaDefaultFile.log" );
+	auto pLogger =
+		Logger::createInstanceLogger( sLogPath, Logger::Option::None );
+
+	{
+		Logger::Scope scope( pLogger );
+
+		const auto pPref = Preferences::load(
+			Filesystem::systemConfigPath(), false, nullptr );
+		CPPUNIT_ASSERT( pPref != nullptr );
+	}
+	// Destroying the logger joins its worker thread, flushing + closing
+	// the file deterministically before it is read.
+	delete pLogger;
+
+	QFile file( sLogPath );
+	CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly | QIODevice::Text ) );
+	const QString sLog = QTextStream( &file ).readAll();
+	file.close();
+
+	CPPUNIT_ASSERT_MESSAGE(
+		sLog.toStdString(), ! sLog.contains( "(W)" ) );
+
+	Filesystem::rm( sLogPath, false, true );
+
+	___INFOLOG( "passed" );
+}
+
 void PreferencesSchemaTest::testOverrideLayerMembership()
 {
 	___INFOLOG( "" );

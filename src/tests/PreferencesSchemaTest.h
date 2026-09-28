@@ -36,6 +36,7 @@ class PreferencesSchemaTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testUnknownElementsReported );
 	CPPUNIT_TEST( testLegacyElementsTolerated );
 	CPPUNIT_TEST( testLegacyDefaultConfigClean );
+	CPPUNIT_TEST( testShippedDefaultConfigLoadsWarningFree );
 	CPPUNIT_TEST( testOverrideLayerMembership );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -47,6 +48,11 @@ public:
 	void testUnknownElementsReported();
 	void testLegacyElementsTolerated();
 	void testLegacyDefaultConfigClean();
+	/** The shipped default config is the template for fresh installs: its
+	 * optional elements (bInexistentOk rows, e.g. the GUI's last-used
+	 * directory memory) are legitimately absent, and substituting their
+	 * defaults must not warn. */
+	void testShippedDefaultConfigLoadsWarningFree();
 	void testOverrideLayerMembership();
 
 private:

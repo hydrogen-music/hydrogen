@@ -224,9 +224,22 @@ int main( int argc, char **argv)
 	}
 
 	// Transient user-level data to ensure no data of the system the unit tests
-	// are run on does leak into the test setup.
+	// are run on does leak into the test setup. The tmp scratch dir has to
+	// exist before QTemporaryDir can create the transient dir inside it (it
+	// does not create missing parents): on a cleaned /tmp it would otherwise
+	// silently end up empty and the suite would run against the real user
+	// data folder.
+	if ( ! H2Core::Filesystem::mkdir( H2Core::Filesystem::tmpDir() ) ) {
+		qCritical() << "FATAL: Unable to create the tmp dir ["
+					<< H2Core::Filesystem::tmpDir() << "]";
+		return 1;
+	}
 	QTemporaryDir userDataDir( H2Core::Filesystem::tmpDir() + "-user-data-XXXXX" );
 	userDataDir.setAutoRemove( false );
+	if ( ! userDataDir.isValid() ) {
+		qCritical() << "FATAL: Unable to create the transient user data dir";
+		return 1;
+	}
 
 	qDebug() << "Using transient data dir: [" << userDataDir.path() << "]";
 
