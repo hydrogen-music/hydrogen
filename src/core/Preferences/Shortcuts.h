@@ -289,6 +289,21 @@ public:
 	 */
 	void deleteShortcut( const QKeySequence& keySequence, const Action& action );
 	void insertShortcut( const QKeySequence& keySequence, const Action& action );
+	/** Variants composing the sequence from modifier(s) and a key. The
+	 * composition goes through QKeySequence's int constructor - the one
+	 * route that works warning-free on every Qt from 5.15 to 6.8: Qt 5
+	 * lacks the operator|/QKeyCombination route entirely, while Qt 6
+	 * deletes operator+ between two modifiers and deprecates the
+	 * single-modifier one. */
+	void insertShortcut( Qt::KeyboardModifier modifier, Qt::Key key,
+						 const Action& action );
+	void insertShortcut( Qt::KeyboardModifier modifier1,
+						 Qt::KeyboardModifier modifier2, Qt::Key key,
+						 const Action& action );
+	void insertShortcut( Qt::KeyboardModifier modifier1,
+						 Qt::KeyboardModifier modifier2,
+						 Qt::KeyboardModifier modifier3, Qt::Key key,
+						 const Action& action );
 	ActionInfo getActionInfo( const Action& action ) const;
 
 	/**
