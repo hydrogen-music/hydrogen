@@ -1,0 +1,136 @@
+#! /bin/bash
+#
+# tools/check_qt_namespace — CI guard for the static (QT_NAMESPACE) build.
+#
+# Fails if a Qt type (a class/struct forward declaration named Q*) is not
+# enclosed in QT_BEGIN_NAMESPACE/QT_END_NAMESPACE, or if that enclosure is
+# unbalanced.
+#
+# Why: the plugin artifacts are built against a static Qt configured with
+# QT_NAMESPACE (see the Justfile `plugin` flow). That Qt's headers do
+# `using namespace ::<QT_NAMESPACE>;`, so Qt names resolve unqualified as
+# usual — but a bare `class QFoo;` at any other scope collides with the
+# namespaced real class under that using-directive (ambiguity at global
+# scope, a wrong incomplete type inside a project namespace). The regular
+# (system Qt) build compiles all of it fine, so neither its compilation
+# nor its test run ever sees the breakage — only the static build does.
+# That is exactly how a bare `class QProcess;` in H2PlayerTest.h broke the
+# `just plugin` build while every regular CI job stayed green.
+# QT_BEGIN_NAMESPACE/QT_END_NAMESPACE is a no-op when QT_NAMESPACE is
+# undefined, so the wrap is the one form correct for every build.
+#
+# Scope: every forward declaration (class/struct Q*;) under src/, plus the
+# balance of the QT_BEGIN_NAMESPACE/QT_END_NAMESPACE enclosure (an
+# unclosed QT_BEGIN_NAMESPACE is equally invisible to the regular build).
+# Friend declarations and enum-class forward declarations do not introduce
+# the name into the enclosing scope and are not matched.
+#
+# Legitimate exceptions are listed in ALLOW with a reason. Prefer the
+# QT_BEGIN_NAMESPACE/QT_END_NAMESPACE wrap over adding an entry here.
+#
+# Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+#
+# http://www.hydrogen-music.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see https://www.gnu.org/licenses
+#
+
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT" || exit 2
+
+SRC_DIR="src"
+
+# Normalize a source line: strip leading/trailing whitespace, collapse internal
+# whitespace runs to single spaces.
+normalize() {
+	printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+						   -e 's/[[:space:]]\{1,\}/ /g'
+}
+
+# Allowlist stored as newline-separated "<relpath>|||<normalized line>" keys.
+# A plain string (not an associative array) keeps this compatible with the
+# bash 3.2 shipped on macOS.
+ALLOW=""
+allow() { ALLOW="${ALLOW}$1|||$2
+"; }
+
+# --- No exceptions yet: every Qt forward declaration in the tree is
+#     wrapped (the 2026-09 sweep). ---------------------------------------------
+
+# One awk per file: comment-only lines are skipped, the
+# QT_BEGIN_NAMESPACE/QT_END_NAMESPACE state is tracked across lines (a
+# declaration counts as enclosed if the enclosure was already open at the
+# start of its line or opens on it), and every bare Qt forward declaration
+# is reported as "<file>:<lineno>:<line>". At end-of-file an unclosed
+# enclosure is reported at the line of its QT_BEGIN_NAMESPACE.
+scan_file() {
+	awk -v file="$1" '
+		/^[[:space:]]*\/\// { next }
+		{
+			enclosed = in_qt
+			if ( $0 ~ /QT_BEGIN_NAMESPACE/ ) {
+				if ( in_qt == 0 ) begin_line = FNR
+				in_qt = 1
+				enclosed = 1
+			}
+			if ( $0 ~ /QT_END_NAMESPACE/ ) in_qt = 0
+			if ( enclosed ) next
+			if ( $0 ~ /friend[[:space:]]+(class|struct)[[:space:]]+Q/ ) next
+			if ( $0 ~ /enum[[:space:]]+class/ ) next
+			if ( $0 ~ /(class|struct)[[:space:]]+Q[A-Za-z]+[[:space:]]*;/ )
+				print file ":" FNR ":" $0
+		}
+		END {
+			if ( in_qt != 0 )
+				print file ":" begin_line \
+					": unbalanced QT_BEGIN_NAMESPACE (no matching QT_END_NAMESPACE)"
+		}
+	' "$1"
+}
+
+violations=0
+while IFS= read -r hit; do
+	[ -z "$hit" ] && continue
+	file="${hit%%:*}"
+	rest="${hit#*:}"            # lineno:content
+	lineno="${rest%%:*}"
+	content="${rest#*:}"
+	norm="$(normalize "$content")"
+	if printf '%s' "$ALLOW" | grep -Fxq -- "$file|||$norm"; then
+		continue
+	fi
+	if [ "$violations" -eq 0 ]; then
+		echo "ERROR: Qt forward declaration(s) without QT_BEGIN_NAMESPACE/"
+		echo "       QT_END_NAMESPACE enclosure (or unbalanced enclosure)."
+		echo "       The regular build compiles these fine; only the static"
+		echo "       QT_NAMESPACE build (Justfile: plugin) breaks. Wrap them"
+		echo "       in QT_BEGIN_NAMESPACE/QT_END_NAMESPACE, or add a"
+		echo "       documented exception to tools/check_qt_namespace."
+		echo
+	fi
+	echo "  $file:$lineno: $norm"
+	violations=$((violations + 1))
+done < <( find "$SRC_DIR" \( -name '*.h' -o -name '*.cpp' \) 2>/dev/null \
+			 | sort | while IFS= read -r f; do scan_file "$f"; done )
+
+if [ "$violations" -gt 0 ]; then
+	echo
+	echo "Found $violations Qt declaration(s) without namespace enclosure."
+	exit 1
+fi
+
+echo "check_qt_namespace: OK — every Qt forward declaration is enclosed in QT_BEGIN_NAMESPACE/QT_END_NAMESPACE."
+exit 0

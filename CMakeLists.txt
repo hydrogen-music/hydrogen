@@ -632,6 +632,23 @@ endif()
 # src/gui) can be registered with add_test() and run via `ctest`.
 enable_testing()
 
+# Qt-namespace guard: static source check that every Qt-type forward
+# declaration is enclosed in QT_BEGIN_NAMESPACE/QT_END_NAMESPACE (and that
+# the enclosure is balanced). Bare declarations compile fine against the
+# system Qt but collide with the namespaced classes of the static
+# QT_NAMESPACE Qt the plugin artifacts are built against (Justfile:
+# `plugin`) — only that build breaks, which the regular CI never runs.
+# Pure source scan over all of src/; it is a bash script, so it is only
+# registered on Unix (Linux + macOS); on Windows there is no shell to run
+# it. The always-on Linux CI job runs it.
+if ( UNIX )
+	add_test(
+		NAME QtNamespaceGuard
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/check_qt_namespace
+	)
+	set_tests_properties( QtNamespaceGuard PROPERTIES TIMEOUT 60 )
+endif()
+
 add_subdirectory(src/core)
 # Plugin core (the format-agnostic engine wrapper) is built before the tests so
 # the test binary can link it; the gated CLAP/LV2 targets live here too.
