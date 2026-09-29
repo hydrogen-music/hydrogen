@@ -27,7 +27,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+QT_BEGIN_NAMESPACE
 class QProcess;
+QT_END_NAMESPACE
 
 class H2PlayerTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( H2PlayerTest );
