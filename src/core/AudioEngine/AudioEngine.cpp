@@ -3662,6 +3662,10 @@ QString AudioEngine::getDriverNames() const {
 			  nullptr ) {
 		audioDriver = Preferences::AudioDriver::Disk;
 	}
+	else if ( std::dynamic_pointer_cast<PluginAudioDriver>( m_pAudioDriver ) !=
+			  nullptr ) {
+		audioDriver = Preferences::AudioDriver::Plugin;
+	}
 
 	if ( m_pMidiDriver == nullptr ) {
 		sMidiDriver = "nullptr";
@@ -3693,6 +3697,10 @@ QString AudioEngine::getDriverNames() const {
 	else if ( std::dynamic_pointer_cast<LoopBackMidiDriver>( m_pMidiDriver ) !=
 			  nullptr ) {
 		sMidiDriver = "LoopBack";
+	}
+	else if ( std::dynamic_pointer_cast<PluginMidiDriver>( m_pMidiDriver ) !=
+			  nullptr ) {
+		sMidiDriver = "Plugin";
 	}
 
 	QString sAudioDriver( Preferences::audioDriverToQString( audioDriver ) );
