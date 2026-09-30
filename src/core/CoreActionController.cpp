@@ -903,7 +903,15 @@ bool CoreActionController::previewInstrument( int nInstrument, bool bStop )
 	if ( bStop ) {
 		pNote->setNoteOff( true );
 	}
-	m_pHydrogen->getAudioEngine()->getSampler()->noteOn( pNote );
+	// Sampler::noteOn() takes no lock of its own: on the audio thread it
+	// runs under the engine lock audioEngine_process() already holds. Any
+	// other caller — this one runs on the IPC bridge thread when the
+	// editor previews an instrument — must hold the lock itself, or the
+	// queue push races the process cycle's queue iteration.
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	pAudioEngine->getSampler()->noteOn( pNote );
+	pAudioEngine->unlock();
 
 	return true;
 }
