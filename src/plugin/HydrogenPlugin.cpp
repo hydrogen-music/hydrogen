@@ -115,6 +115,9 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
 	}
+	else {
+		___ERRORLOG( "Invalid audio driver" );
+	}
 
 	// The empty song is set directly by the Hydrogen ctor, which (unlike
 	// setSong()) does not load the kit's samples; load them so notes render.
@@ -122,6 +125,9 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 		 m_pHydrogen->getSong()->getDrumkit() != nullptr ) {
 		m_pHydrogen->getSong()->getDrumkit()->loadSamples(
 			120, m_pHydrogen->getPreferences().get() );
+	}
+	else {
+		___ERRORLOG( "Invalid song" );
 	}
 }
 
@@ -146,6 +152,9 @@ void HydrogenPlugin::activate( double fSampleRate, unsigned /*nMaxBlockSize*/ ) 
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
 	}
+	else {
+		___ERRORLOG( "Invalid audio driver" );
+	}
 }
 
 void HydrogenPlugin::deactivate() {
@@ -157,6 +166,7 @@ void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR
 							  const std::vector<float*>& busOut_R,
 							  bool bRolling, double fBpm, long long nFrame ) {
 	if ( m_pHydrogen == nullptr || m_pAudioDriver == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
 		return;
 	}
 
@@ -169,6 +179,9 @@ void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR
 	if ( m_pMidiDriver != nullptr ) {
 		m_pMidiDriver->dispatchHostEvents();
 	}
+	else {
+		___ERRORLOG( "Invalid MIDI driver" );
+	}
 
 	AudioEngine::audioEngine_process( nFrames, m_pHydrogen );
 }
@@ -176,6 +189,7 @@ void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR
 void HydrogenPlugin::noteOn( int nKey, int nVelocity, int nChannel,
 							 int nSampleOffset ) {
 	if ( m_pMidiDriver == nullptr ) {
+		___ERRORLOG( "Invalid MIDI driver" );
 		return;
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
@@ -189,6 +203,7 @@ void HydrogenPlugin::noteOn( int nKey, int nVelocity, int nChannel,
 
 void HydrogenPlugin::noteOff( int nKey, int nChannel, int nSampleOffset ) {
 	if ( m_pMidiDriver == nullptr ) {
+		___ERRORLOG( "Invalid MIDI driver" );
 		return;
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
@@ -203,6 +218,7 @@ void HydrogenPlugin::noteOff( int nKey, int nChannel, int nSampleOffset ) {
 void HydrogenPlugin::controlChange( int nParameter, int nValue, int nChannel,
 									int nSampleOffset ) {
 	if ( m_pMidiDriver == nullptr ) {
+		___ERRORLOG( "Invalid MIDI driver" );
 		return;
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
@@ -220,6 +236,7 @@ int HydrogenPlugin::getBusCount() const {
 
 std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
 	if ( m_pHydrogen == nullptr || m_pHydrogen->getSong() == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
 		return {};
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
@@ -239,11 +256,13 @@ std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
 
 bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 	if ( m_pHydrogen == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
 		return false;
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	auto pSong = H2Project::fromState( data, m_pHydrogen, true );
 	if ( pSong == nullptr ) {
+		___ERRORLOG( "Unable to load state" );
 		return false;
 	}
 	return m_pHydrogen->getCoreActionController()->setSong( pSong );
@@ -352,6 +371,9 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 }
 
 void HydrogenPlugin::launchEditorProcess() {
+	const auto sEditorBinary = editorBinary();
+	___INFOLOG( QString( "Starting editor [%1]" ).arg( sEditorBinary ) );
+
 	m_pEditorProcess = std::make_unique<QProcess>();
 	QObject::connect(
 		m_pEditorProcess.get(),
@@ -360,7 +382,7 @@ void HydrogenPlugin::launchEditorProcess() {
 			onEditorProcessFinished( status == QProcess::CrashExit );
 		} );
 	m_pEditorProcess->start(
-		editorBinary(),
+		sEditorBinary,
 		QStringList() << QStringLiteral( "--connect-via-ipc" ) << m_sEditorEndpoint );
 }
 
@@ -377,6 +399,9 @@ void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
 		m_bEditorOpen = false;
 		return;
 	}
+
+	___WARNINGLOG( QString( "Editor crashed [%1/%2]. Respawning" )
+				   .arg( m_nEditorRespawns ).arg( knMaxEditorRespawns ) );
 	// The editor crashed. The engine keeps running and the serve loop keeps
 	// accepting (ADR 0016); respawn a bounded number of times so a persistently
 	// crashing editor can't loop forever.
