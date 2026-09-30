@@ -796,6 +796,17 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 }
 
 void Hydrogen::restartAudioDriver() {
+	// A plugin host owns the process cycle: the PluginAudioDriver is a
+	// passive adapter the host drives, and the plugin wrapper holds its
+	// own reference to it. Recreating the driver would swap a fresh
+	// adapter with unset host buffers into the engine while the wrapper
+	// keeps driving the old one — the engine would mix into null
+	// buffers. The host dictates sample rate and block size anyway, so
+	// there is nothing to restart.
+	if ( isUnderPluginHost() ) {
+		return;
+	}
+
 	const bool bWasPlaying =
 		m_pAudioEngine->getState() == AudioEngine::State::Playing;
 
@@ -831,6 +842,13 @@ void Hydrogen::restartAudioDriver() {
 }
 
 void Hydrogen::restartMidiDriver() {
+	// Same host-ownership rule as restartAudioDriver(): the
+	// PluginMidiDriver is a passive adapter the host feeds per block, and
+	// the plugin wrapper holds its own reference to it.
+	if ( isUnderPluginHost() ) {
+		return;
+	}
+
 	bool bCombinedDriver = false;
 #ifdef H2CORE_HAVE_JACK
 	{

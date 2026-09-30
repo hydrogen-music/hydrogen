@@ -84,6 +84,11 @@ public:
 				  bool bRolling, double fBpm, long long nFrame );
 
 	// Host MIDI for the upcoming block (queued, dispatched at process()).
+	// Threading contract (ADR 0013): the queue is plain storage, not
+	// thread-safe — call these on the same thread as process() (or at a
+	// point where process() is not running), per the realtime rules of
+	// CLAP/VST3 hosts. Calling them from another thread while process()
+	// dispatches the queue is a data race.
 	void noteOn( int nKey, int nVelocity, int nChannel, int nSampleOffset = 0 );
 	void noteOff( int nKey, int nChannel, int nSampleOffset = 0 );
 	void controlChange( int nParameter, int nValue, int nChannel,

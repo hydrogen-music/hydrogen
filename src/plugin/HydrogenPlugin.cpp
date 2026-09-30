@@ -223,7 +223,18 @@ std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
 		return {};
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
-	return H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples, true );
+	// The song graph is live engine state: the audio thread mutates note
+	// runtime state and the IPC bridge may swap the song (editor SetSong)
+	// under the engine lock. Serializing without that lock races both, so
+	// take it for a consistent read. The process cycle skips buffers while
+	// the save holds it — a save is rare, and a host expects it to be
+	// able to glitch.
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto state =
+		H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples, true );
+	pAudioEngine->unlock();
+	return state;
 }
 
 bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {

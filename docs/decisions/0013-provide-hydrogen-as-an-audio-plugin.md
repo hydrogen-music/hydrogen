@@ -82,6 +82,39 @@ programming patterns.
 * Features that defer to the host (bounce/export, sessions, effect inserts) are
   intentionally absent from the plugin and must be communicated to users.
 
+## Amendment (2026-09-30): host threading contract, preview locking, and the gated driver restart
+
+A review of the plugin's driver access against the IPC-controlled engine
+surfaced four gaps, now closed:
+
+* **The host threading contract is now explicit.** It follows the realtime
+  rules of CLAP/VST3: `process()` and the MIDI entry points
+  `noteOn()`/`noteOff()`/`controlChange()` — which queue into plain storage
+  dispatched at the start of `process()` — must be called on the host's
+  audio thread (or at points where `process()` is not running).
+  `activate()`/`deactivate()` run outside the processing window per the
+  standard host lifecycle. This decision originally said nothing about
+  threads; the contract is now documented on `HydrogenPlugin` itself.
+* **Driver restart is gated under a plugin host.** A preferences change
+  applied via the editor (`SetPreferences`) used to recreate the
+  `PluginAudioDriver`, swapping a fresh adapter with unset host buffers
+  into the engine while the plugin wrapper kept driving the old one — the
+  engine would mix into null buffers. `Hydrogen::restartAudioDriver()` and
+  `restartMidiDriver()` now refuse to restart under a plugin host: the
+  host owns the process cycle and dictates rate and block size, so there
+  is nothing to restart.
+* **The number-based instrument preview takes the engine lock.** The
+  `PreviewInstrument` command dispatched on the IPC bridge thread reached
+  `Sampler::noteOn()` without the `AudioEngine` lock (only the
+  instrument/sample-based preview overloads held it), racing the process
+  cycle's queue iteration. The controller now holds the lock around the
+  queue push.
+* **`saveState()` reads the song under the engine lock.** The
+  serialization raced the audio thread's note mutations and the bridge
+  thread's `SetSong` swap. It now takes the lock for a consistent read;
+  the process cycle skips buffers while a save holds it, which a host
+  accepts for a rare, user-initiated save.
+
 ## More Information
 
 * Implementation plan and feature matrix:
