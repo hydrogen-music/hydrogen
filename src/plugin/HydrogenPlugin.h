@@ -63,6 +63,13 @@ public:
 	HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize, int nBuses );
 	~HydrogenPlugin();
 
+	/** Resolve the shared system data folder (drumkits, empty song etc.)
+	 * for plugin use: $HYDROGEN_SYS_DATA_PATH if set, else empty — the
+	 * Filesystem platform default, the one shared system location. The
+	 * plugin deliberately never searches relative to its own install
+	 * location: the shared data must only exist in one place. */
+	static QString resolveSystemDataPath();
+
 	/** Update the sample rate / max block size before processing starts. */
 	void activate( double fSampleRate, unsigned nMaxBlockSize );
 	void deactivate();

@@ -32,6 +32,16 @@ cmake -DWANT_CLAP=ON -DWANT_LV2=ON ..
 
 The CLAP and LV2 SDKs live under `extern/` (`extern/clap`, `extern/lv2`).
 
+## Data folder resolution
+
+The plugin bootstraps `Base` and `Filesystem` like the standalone mains do
+(ADR 0013), so shared drumkits and the system config are available without a
+host-provided environment. The shared data folder is the `Filesystem` platform
+default — the one system location the shared data is installed to — optionally
+redirected via `$HYDROGEN_SYS_DATA_PATH`. The plugin deliberately never
+searches relative to its own install location: shared data must only exist in
+one place. The user data folder (`.hydrogen`) keeps its per-user default.
+
 ## Conformance tests
 
 When the plugins are enabled, the validators are wired into CTest:

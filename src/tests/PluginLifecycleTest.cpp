@@ -366,6 +366,30 @@ void PluginLifecycleTest::testEditorBinaryDiscovery() {
 	___INFOLOG( "passed" );
 }
 
+void PluginLifecycleTest::testResolveSystemDataPath() {
+	___INFOLOG( "" );
+
+	// The override must not leak between the cases below (nor in from the
+	// developer's shell).
+	qunsetenv( "HYDROGEN_SYS_DATA_PATH" );
+
+	// No override → the Filesystem platform default: the one shared system
+	// location. The plugin never searches relative to its own install
+	// location.
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "" ),
+		HydrogenPlugin::resolveSystemDataPath().toStdString() );
+
+	// An explicit override wins.
+	qputenv( "HYDROGEN_SYS_DATA_PATH", "/opt/h/data" );
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "/opt/h/data" ),
+		HydrogenPlugin::resolveSystemDataPath().toStdString() );
+	qunsetenv( "HYDROGEN_SYS_DATA_PATH" );
+
+	___INFOLOG( "passed" );
+}
+
 #ifdef H2CORE_HAVE_DEBUG
 void PluginLifecycleTest::testProcessDefaultAuditSurface() {
 	___INFOLOG( "" );

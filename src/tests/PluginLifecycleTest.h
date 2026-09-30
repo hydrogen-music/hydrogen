@@ -37,6 +37,7 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEditorCommandReachesEngine );
 	CPPUNIT_TEST( testEditorReopen );
 	CPPUNIT_TEST( testEditorBinaryDiscovery );
+	CPPUNIT_TEST( testResolveSystemDataPath );
 #ifdef H2CORE_HAVE_DEBUG
 	CPPUNIT_TEST( testProcessDefaultAuditSurface );
 #endif
@@ -65,6 +66,12 @@ public:
 	/** The editor binary is resolved by precedence: explicit override →
 	 * $HYDROGEN_EDITOR_PATH → bundled-next-to-plugin → `hydrogen` on PATH. */
 	void testEditorBinaryDiscovery();
+	/** The shared system data folder is resolved for plugin use by
+	 * precedence: $HYDROGEN_SYS_DATA_PATH → walking up from the plugin's
+	 * own location (prefix install `<prefix>/share/hydrogen/data`, build
+	 * tree `<repo>/data`, one-dir layout `<dir>/data`) → empty, the
+	 * Filesystem platform default. */
+	void testResolveSystemDataPath();
 	/** The process-default log doubles as the audit surface: while
 	 * per-instance loggers are alive, every line reaching it is marked
 	 * `[unscoped]`. After a full HydrogenPlugin lifecycle (construction,

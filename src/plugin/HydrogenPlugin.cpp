@@ -35,6 +35,7 @@
 #include <core/Logger.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
+#include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
 #include <atomic>
@@ -61,6 +62,37 @@ static std::shared_ptr<Preferences> makePluginPreferences( double fSampleRate,
 	return pPref;
 }
 
+namespace {
+// Qt's QProcess / local-socket classes need a QCoreApplication in the process.
+// A standalone build and the unit tests already have one (QApplication /
+// test main); a bare (non-Qt) plugin host does not, so create a minimal one the
+// first time we need it. Left to leak — it is process-global and lives as long
+// as the plugin library is loaded.
+void ensureQtApplication() {
+	if ( QCoreApplication::instance() != nullptr ) {
+		return;
+	}
+	static int s_argc = 1;
+	static char s_arg0[] = "hydrogen-plugin";
+	static char* s_argv[] = { s_arg0, nullptr };
+	new QCoreApplication( s_argc, s_argv );
+}
+} // namespace
+
+QString HydrogenPlugin::resolveSystemDataPath()
+{
+	// A plugin host passes no CLI options, so the shared data folder is
+	// resolved the way the mains take it as an argument: an explicit
+	// override, else the Filesystem platform default — the one shared
+	// system location. No searching relative to the plugin itself: the
+	// shared data must only exist in one place.
+	const QByteArray sEnv = qgetenv( "HYDROGEN_SYS_DATA_PATH" );
+	if ( ! sEnv.isEmpty() ) {
+		return QString::fromLocal8Bit( sEnv );
+	}
+	return QString();
+}
+
 HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 								int nBuses )
 	: m_pHydrogen( nullptr )
@@ -68,7 +100,15 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	, m_pMidiDriver( nullptr )
 	, m_nBuses( nBuses )
 {
-#ifdef H2CORE_HAVE_DEBUG
+	// The mains bootstrap Base and Filesystem before creating Hydrogen; a
+	// plugin host runs no main of ours, so the first instance in the
+	// process does it instead. Without this the engine runs on empty
+	// paths: no shared drumkits, and the preferences load in
+	// makePluginPreferences() below silently falls back to defaults (no
+	// user config, no system config). Every bootstrap below is a no-op in
+	// a process that already did them (the unit tests).
+	ensureQtApplication();
+
 	// A plugin host neither passes our CLI options nor reliably shows our
 	// stdout, so without this no log line would ever be emitted: the
 	// process-default level mask is 0 and there is no process-default
@@ -76,25 +116,41 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	// per-process, pid-named file - concurrent host processes never fight
 	// over one file - opened append-only so a pid-reused run never
 	// destroys the previous session's log, and keep stdout clean:
-	// everything is persisted to disk instead. Release builds stay
-	// silent.
+	// everything is persisted to disk instead. Release builds log the
+	// user-facing levels; debug builds add the development ones. This can
+	// no longer be debug-only: Filesystem::bootstrap() below refuses a
+	// null logger, and the data paths must resolve in release builds too.
+	QString sPluginLogPath;
+	Logger* pProcessLogger = nullptr;
 	if ( ! Logger::isAvailable() ) {
 		// A per-process transient artifact: it lives in the tmp dir - named
 		// after the process default's log file so the two correlate - and
 		// not next to it (an explicit log file location designates just
 		// that one file).
 		const QFileInfo logInfo( Filesystem::logFilePath() );
-		const QString sPluginLogPath = Filesystem::tmpDir() + "/" +
+		sPluginLogPath = Filesystem::tmpDir() + "/" +
 			logInfo.completeBaseName() +
 			QString( "_%1_plugin." )
 				.arg( QCoreApplication::applicationPid() ) +
 			logInfo.suffix();
-		Logger::bootstrap( Logger::Error | Logger::Warning | Logger::Info |
-						  Logger::Debug | Logger::Ipc,
-						  sPluginLogPath,
-						  Logger::Option::Timestamps | Logger::Option::Append );
-	}
+		pProcessLogger = Logger::bootstrap(
+#ifdef H2CORE_HAVE_DEBUG
+			Logger::Error | Logger::Warning | Logger::Info |
+				Logger::Debug | Logger::Ipc,
+#else
+			Logger::Error | Logger::Warning | Logger::Info,
 #endif
+			sPluginLogPath,
+			Logger::Option::Timestamps | Logger::Option::Append );
+	}
+
+	// Object counting rides on debug logging, exactly like the mains.
+	Base::bootstrap( pProcessLogger,
+					 pProcessLogger != nullptr &&
+						 pProcessLogger->should_log( Logger::Debug ) );
+	Filesystem::bootstrap( pProcessLogger,
+						   resolveSystemDataPath(),
+						   QString(), QString(), sPluginLogPath );
 
 	m_pHydrogen = new Hydrogen(
 		makePluginPreferences( fSampleRate, nMaxBlockSize ),
@@ -269,23 +325,6 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 }
 
 // ── Out-of-process editor lifecycle (ADR 0016) ─────────────────────────────
-
-namespace {
-// Qt's QProcess / local-socket classes need a QCoreApplication in the process.
-// A standalone build and the unit tests already have one (QApplication /
-// test main); a bare (non-Qt) plugin host does not, so create a minimal one the
-// first time we need it. Left to leak — it is process-global and lives as long
-// as the plugin library is loaded.
-void ensureQtApplication() {
-	if ( QCoreApplication::instance() != nullptr ) {
-		return;
-	}
-	static int s_argc = 1;
-	static char s_arg0[] = "hydrogen-plugin";
-	static char* s_argv[] = { s_arg0, nullptr };
-	new QCoreApplication( s_argc, s_argv );
-}
-} // namespace
 
 QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
 											 const QString& sSearchDir ) {
