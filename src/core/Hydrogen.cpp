@@ -145,6 +145,14 @@ Hydrogen::Hydrogen(
 	static std::atomic<int> nInstanceCounter { 0 };
 	const QFileInfo defaultLogInfo( Filesystem::logFilePath() );
 	if ( pPref->m_audioDriver == Preferences::AudioDriver::Plugin ) {
+		// With no editor attached, no events will be poped from the EventQueue
+		// and it will start to drop the oldest events quickly. What is a bug
+		// within stand-alone usage is expected for plugins without an editor/UI
+		// opened. We avoid the corresponding error message but still keep the
+		// queuing so an attached editor can access all recent events in
+		// hindsight.
+		m_pEventQueue->setSilent( true );
+
 		// Only in case Hydrogen was instantiated by a plugin host, we use a
 		// custom log file. It is a per-run transient artifact, so it lives
 		// in the tmp dir - named after the process default's log file so
