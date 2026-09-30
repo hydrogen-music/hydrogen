@@ -64,8 +64,8 @@ const clap_plugin_descriptor_t kDescriptor = {
 	"Hydrogen",
 	"Hydrogen",
 	"https://hydrogen-music.org",
-	"",
-	"",
+	"http://hydrogen-music.org/doc",
+	"https://github.com/hydrogen-music/hydrogen/issues",
 	"2.0.0",
 	"Hydrogen drum machine / sampler",
 	kFeatures
@@ -132,15 +132,15 @@ bool CLAP_ABI notePortsGet( const clap_plugin_t*, uint32_t index, bool is_input,
 const clap_plugin_note_ports_t kNotePorts = { notePortsCount, notePortsGet };
 
 // ── params extension (VST3-wrap only) ─────────────────────────────────────
-// Hydrogen exposes no automatable CLAP parameters (ADR 0021 — the host drives
-// the engine over IPC, not via params), so the native CLAP/LV2 plugins do NOT
-// advertise this extension. It is compiled in ONLY for the clap-wrapper VST3
-// build (H2_CLAP_FOR_VST3): clap-wrapper sets up its MIDI-CC → VST3 mapping
-// (IMidiMapping) inside its setupParameters() path, which it skips entirely when
-// the wrapped CLAP plugin has no params extension — leaving
-// getMidiControllerAssignment to return an unregistered ParamID 0 that the
-// Steinberg VST3 validator rejects ("Unknown ParamID [0] returned for MIDI
-// Mapping"). Advertising the (empty) extension is what unlocks that path.
+// Hydrogen exposes no automatable CLAP parameters (ADR 0021 — the user drives
+// the engine via an editor instance over IPC, not via params), so the native
+// CLAP/LV2 plugins do NOT advertise this extension. It is compiled in ONLY for
+// the clap-wrapper VST3 build (H2_CLAP_FOR_VST3): clap-wrapper sets up its
+// MIDI-CC → VST3 mapping (IMidiMapping) inside its setupParameters() path,
+// which it skips entirely when the wrapped CLAP plugin has no params extension
+// — leaving getMidiControllerAssignment to return an unregistered ParamID 0
+// that the Steinberg VST3 validator rejects ("Unknown ParamID [0] returned for
+// MIDI Mapping"). Advertising the (empty) extension is what unlocks that path.
 //
 // We deliberately do NOT expose it for the native CLAP plugin: it is unnecessary
 // there (no params, MIDI handled via the note port) and advertising it makes
@@ -332,17 +332,28 @@ void handleEvent( H2ClapPlugin* p, const clap_event_header_t* hdr ) {
 	switch ( hdr->type ) {
 	case CLAP_EVENT_NOTE_ON: {
 		auto* ev = reinterpret_cast<const clap_event_note_t*>( hdr );
-		p->engine->noteOn( ev->key,
-						   static_cast<int>( std::lround( ev->velocity * 127.0 ) ),
-						   toH2Channel( ev->channel < 0 ? 9 : ev->channel ),
-						   nOffset );
+		p->engine->noteOn(
+			ev->key, static_cast<int>( std::lround( ev->velocity * 127.0 ) ),
+			toH2Channel(
+				ev->channel < 0
+					? static_cast<int>( H2Core::Midi::ChannelDefault ) - 1
+					: ev->channel
+			),
+			nOffset
+		);
 		break;
 	}
 	case CLAP_EVENT_NOTE_OFF: {
 		auto* ev = reinterpret_cast<const clap_event_note_t*>( hdr );
-		p->engine->noteOff( ev->key,
-							toH2Channel( ev->channel < 0 ? 9 : ev->channel ),
-							nOffset );
+		p->engine->noteOff(
+			ev->key,
+			toH2Channel(
+				ev->channel < 0
+					? static_cast<int>( H2Core::Midi::ChannelDefault ) - 1
+					: ev->channel
+			),
+			nOffset
+		);
 		break;
 	}
 	case CLAP_EVENT_MIDI: {
@@ -392,6 +403,7 @@ clap_process_status CLAP_ABI pluginProcess( const clap_plugin_t* plugin,
 			static_cast<double>( t->song_pos_seconds ) / CLAP_SECTIME_FACTOR;
 		nFrame = static_cast<long long>( fSeconds * p->sampleRate );
 	} else if ( process->steady_time >= 0 ) {
+		// free running host
 		nFrame = process->steady_time;
 	}
 
