@@ -28,6 +28,9 @@
 class SoundLibraryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( SoundLibraryTest );
 	CPPUNIT_TEST( testContextValidity );
+	CPPUNIT_TEST( testFindArtifactPatternDoesNotReturnSong );
+	CPPUNIT_TEST( testFindArtifactStackedFindsLaterContext );
+	CPPUNIT_TEST( testFindArtifactStackedSkipsNonMatching );
 	CPPUNIT_TEST( testKitRetrievalCopy );
 	CPPUNIT_TEST( testKitRetrievalDirect );
 	CPPUNIT_TEST_SUITE_END();
@@ -35,6 +38,16 @@ class SoundLibraryTest : public CppUnit::TestFixture {
 public:
 		/** No kit in the sound library must be of Context::Song. */
 		void testContextValidity();
+		/** A Pattern lookup must not fall through into the Song branch
+		 * of findArtifact() and return the path of a song of the same
+		 * name. */
+		void testFindArtifactPatternDoesNotReturnSong();
+		/** A stacked findArtifact() lookup has to find artifacts of a
+		 * later context through the cached first pass. */
+		void testFindArtifactStackedFindsLaterContext();
+		/** In a stacked findArtifact() lookup only artifacts matching by
+		 * name but not by context may be cached for a later pass. */
+		void testFindArtifactStackedSkipsNonMatching();
 		void testKitRetrievalCopy();
 		void testKitRetrievalDirect();
 };

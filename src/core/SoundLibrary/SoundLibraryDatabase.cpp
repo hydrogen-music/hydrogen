@@ -106,13 +106,12 @@ QString SoundLibraryDatabase::findArtifact(
 					}
 					break;
 
-				case Filesystem::Artifact::Pattern:
-					for ( const auto& ppPatternInfo : m_patternInfos ) {
-						if ( ppPatternInfo != nullptr &&
-							 ppPatternInfo->getName() == sName ) {
-							if ( ppPatternInfo->getContext() == ccontext ) {
-								return ppPatternInfo->getPath();
-							}
+			case Filesystem::Artifact::Pattern:
+				for ( const auto& ppPatternInfo : m_patternInfos ) {
+					if ( ppPatternInfo != nullptr &&
+						 ppPatternInfo->getName() == sName ) {
+						if ( ppPatternInfo->getContext() == ccontext ) {
+							return ppPatternInfo->getPath();
 						}
 						else if ( bStacked ) {
 							cachedArtifacts.push_back( std::make_pair(
@@ -121,14 +120,15 @@ QString SoundLibraryDatabase::findArtifact(
 							) );
 						}
 					}
+				}
+				break;
 
-				case Filesystem::Artifact::Song:
-					for ( const auto& ppSongInfo : m_songInfos ) {
-						if ( ppSongInfo != nullptr &&
-							 ppSongInfo->getName() == sName ) {
-							if ( ppSongInfo->getContext() == ccontext ) {
-								return ppSongInfo->getPath();
-							}
+			case Filesystem::Artifact::Song:
+				for ( const auto& ppSongInfo : m_songInfos ) {
+					if ( ppSongInfo != nullptr &&
+						 ppSongInfo->getName() == sName ) {
+						if ( ppSongInfo->getContext() == ccontext ) {
+							return ppSongInfo->getPath();
 						}
 						else if ( bStacked ) {
 							cachedArtifacts.push_back( std::make_pair(
@@ -136,8 +136,10 @@ QString SoundLibraryDatabase::findArtifact(
 							) );
 						}
 					}
+				}
+				break;
 
-				default:
+			default:
 					ERRORLOG( QString( "Unsupported artifact: [%1]" )
 								  .arg( Filesystem::ArtifactToQString( artifact
 								  ) ) );
@@ -311,6 +313,10 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const
 		ERRORLOG( "No song set yet" );
 		return nullptr;
 	}
+	if ( m_drumkitDatabase.empty() ) {
+		ERRORLOG( "No drumkits available" );
+		return nullptr;
+	}
 
 	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
 	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
@@ -335,6 +341,10 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
+		return nullptr;
+	}
+	if ( m_drumkitDatabase.empty() ) {
+		ERRORLOG( "No drumkits available" );
 		return nullptr;
 	}
 

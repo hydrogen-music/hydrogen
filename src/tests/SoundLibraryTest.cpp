@@ -101,3 +101,58 @@ void SoundLibraryTest::testKitRetrievalDirect() {
 
 	___INFOLOG( "passed" );
 }
+
+void SoundLibraryTest::testFindArtifactPatternDoesNotReturnSong() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	// 'GM kit demo #1' is a demo song shipped in the System context.
+	// There is no pattern of the same name and a Pattern lookup must not
+	// fall through into the Song branch and return the song's path
+	// instead.
+	CPPUNIT_ASSERT( pDB->findArtifact(
+		H2Core::Filesystem::Artifact::Pattern,
+		H2Core::Filesystem::Context::System, "GM kit demo #1"
+	).isEmpty() );
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testFindArtifactStackedFindsLaterContext() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	// 'Pop 5' is a pattern shipped in the System context. A stacked
+	// lookup starting at the User context has to find it through the
+	// cached first pass.
+	const QString sExpectedPath = pDB->findArtifact(
+		H2Core::Filesystem::Artifact::Pattern,
+		H2Core::Filesystem::Context::System, "Pop 5"
+	);
+	CPPUNIT_ASSERT( ! sExpectedPath.isEmpty() );
+
+	CPPUNIT_ASSERT( pDB->findArtifact(
+		H2Core::Filesystem::Artifact::Pattern,
+		H2Core::Filesystem::Context::User, "Pop 5", true
+	) == sExpectedPath );
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testFindArtifactStackedSkipsNonMatching() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	// No pattern named 'GM kit demo #1' exists in any context. In a
+	// stacked lookup non-matching artifacts must not be cached for a
+	// later pass and leak into its result.
+	CPPUNIT_ASSERT( pDB->findArtifact(
+		H2Core::Filesystem::Artifact::Pattern,
+		H2Core::Filesystem::Context::User, "GM kit demo #1", true
+	).isEmpty() );
+
+	___INFOLOG( "passed" );
+}
