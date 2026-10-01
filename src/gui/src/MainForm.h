@@ -90,6 +90,9 @@ class MainForm :  public QMainWindow,
 	virtual void quitEvent( int ) override;
 
 		void requestPreferencesSaveEvent() override;
+		/** Reports the progress of the background sound library scan
+		 * (ADR 0034) as a status message in the footer. */
+		void soundLibraryScanProgressEvent( int nValue ) override;
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
 		 *

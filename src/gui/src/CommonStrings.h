@@ -386,6 +386,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	{
 		return m_sSoundLibraryUser;
 	}
+	const QString& getScanningSoundLibrary() const
+	{
+		return m_sScanningSoundLibrary;
+	}
 
 	const QString& getEncodingError() const { return m_sEncodingError; }
 
@@ -1110,6 +1114,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sSoundLibrarySession;
 	QString m_sSoundLibrarySystem;
 	QString m_sSoundLibraryUser;
+	QString m_sScanningSoundLibrary;
 
 	QString m_sNotePropertyVelocity;
 	QString m_sNotePropertyPan;

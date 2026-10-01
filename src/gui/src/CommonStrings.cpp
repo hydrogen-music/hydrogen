@@ -963,6 +963,10 @@ CommonStrings::CommonStrings(){
 	/*: Node in the Sound Library corresponding to artifacts installed on
 	 * user-level. */
 	m_sSoundLibraryUser = tr( "User" );
+	/*: Status bar readout while the background sound library scan is
+	 * running. The percentage is appended (not part of the string) to
+	 * keep the placeholder out of the translation. */
+	m_sScanningSoundLibrary = tr( "Scanning sound library" );
 
 	/*: Name of note property adjustable in NotePropertiesRuler, using
 	 *  humanization in Mixer, or using automation path. */

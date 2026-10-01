@@ -2932,6 +2932,17 @@ void MainForm::updatePreferencesEvent( int nValue ) {
 	}
 }
 
+void MainForm::soundLibraryScanProgressEvent( int nValue ) {
+	// The percentage is appended outside the translated string. The
+	// stable caller tag makes consecutive reports replace each other in
+	// the status message history instead of flooding it; the final 100%
+	// message expires like any other status message.
+	h2app->showStatusBarMessage(
+		h2app->getCommonStrings()->getScanningSoundLibrary() + " ... " +
+		QString::number( nValue ) + "%",
+		"MainForm::soundLibraryScanProgressEvent" );
+}
+
 void MainForm::undoRedoActionEvent( int nEvent ){
 	if( nEvent == 0 ) {
 		h2app->m_pUndoStack->undo();
