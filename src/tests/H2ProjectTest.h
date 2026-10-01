@@ -33,6 +33,7 @@ class H2ProjectTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testProjectCacheLifecycle );
 	CPPUNIT_TEST( testContainerDetection );
 	CPPUNIT_TEST( testUnifiedOpen );
+	CPPUNIT_TEST( testGetEmptySongDefaultKit );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +44,9 @@ public:
 	void testProjectCacheLifecycle();
 	void testContainerDetection();
 	void testUnifiedOpen();
+	/** The default song must supply the shipped GMRockKit no matter
+	 * the state of the SoundLibraryDatabase. */
+	void testGetEmptySongDefaultKit();
 };
 
 #endif

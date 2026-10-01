@@ -132,15 +132,14 @@ class Song : public H2Core::Object<Song>,
 
 	/** Creates the default / fallback song.
 	 *
-	 * @param pHydrogen Owning instance whose SoundLibraryDatabase supplies the
-	 *   default drumkit (ADR 0015).
-	 * @param pDB When creating an empty song during startup the instance's
-	 *   getSoundLibraryDatabase() might not be ready yet; pass the database
-	 *   directly instead. Takes precedence over @a pHydrogen when set. */
-	static std::shared_ptr<Song> getEmptySong(
-		Hydrogen* pHydrogen,
-		std::shared_ptr<SoundLibraryDatabase> pDB = nullptr
-	);
+	 * The default drumkit (the shipped GMRockKit) is loaded directly from
+	 * disk, so the song does not depend on the state of the
+	 * SoundLibraryDatabase and can be created before its first scan has
+	 * completed.
+	 *
+	 * @param pHydrogen Owning instance used when loading the default
+	 *   drumkit (ADR 0015). */
+	static std::shared_ptr<Song> getEmptySong( Hydrogen* pHydrogen );
 
 	static std::shared_ptr<Song> from( std::shared_ptr<SoundLibraryInfo> pInfo,
 		Hydrogen* pHydrogen

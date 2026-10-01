@@ -1147,10 +1147,7 @@ void Song::saveTo(
 	}
 }
 
-std::shared_ptr<Song> Song::getEmptySong(
-	Hydrogen* pHydrogen,
-	std::shared_ptr<SoundLibraryDatabase> pDB
-)
+std::shared_ptr<Song> Song::getEmptySong( Hydrogen* pHydrogen )
 {
 	std::shared_ptr<Song> pSong = std::make_shared<Song>(
 		Song::sDefaultName, Song::sDefaultAuthor, 120, 0.5
@@ -1187,41 +1184,22 @@ std::shared_ptr<Song> Song::getEmptySong(
 
 	pSong->setPath( Filesystem::emptyPath( Filesystem::Artifact::Song ) );
 
-	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
-
-	if ( pDB != nullptr ) {
-		// During startup
-		pSoundLibraryDatabase = pDB;
-	}
-	else {
-		pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
-	}
-
-	// Per default we use the GMRockKit shipped with Hydrogen
-	auto pDrumkit =
-		pSoundLibraryDatabase->getDrumkit( pSoundLibraryDatabase->findArtifact(
-			Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System,
-			"GMRockKit"
-		) );
+	// Per default we use the GMRockKit shipped with Hydrogen. It is loaded
+	// directly from disk — not via the SoundLibraryDatabase — so that an
+	// empty song can be created before the first scan of the sound library
+	// has completed.
+	auto pDrumkit = Drumkit::load(
+		Filesystem::drumkitPathFromDir(
+			Filesystem::systemDrumkitsDir() + "/GMRockKit" ),
+		true,	  // upgrade
+		nullptr,  // do not check for legacy format
+		false,	  // bSilent
+		pHydrogen
+	);
 	if ( pDrumkit == nullptr ) {
-		// In case we failed to load the default kit, we just use the first one
-		// registered in the sound library.
-		for ( const auto& pEntry :
-			  pSoundLibraryDatabase->getDrumkitDatabase() ) {
-			if ( pEntry.second != nullptr ) {
-				pDrumkit = pEntry.second;
-				break;
-			}
-		}
-	}
-
-	if ( pDrumkit == nullptr ) {
-		// Seems there is not a single drumkit in the library, we use an empty
-		// one.
+		// In case of a broken installation — the shipped default kit could
+		// not be loaded — we use an empty one.
 		pDrumkit = Drumkit::getEmptyDrumkit();
-	}
-	else {
-		pDrumkit = std::make_shared<Drumkit>( pDrumkit );
 	}
 
 	pSong->setDrumkit( pDrumkit );

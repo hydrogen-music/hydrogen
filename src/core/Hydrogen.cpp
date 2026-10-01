@@ -217,7 +217,7 @@ Hydrogen::Hydrogen(
 	m_beatCounterDiffs.resize( 16 );
 
 	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>( this );
-	m_pSong = Song::getEmptySong( this, m_pSoundLibraryDatabase );
+	m_pSong = Song::getEmptySong( this );
 
 	m_pAudioEngine = new AudioEngine( this );
 	m_pMidiActionManager = std::make_shared<MidiActionManager>( this );

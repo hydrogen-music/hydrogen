@@ -565,3 +565,24 @@ void H2ProjectTest::testUnifiedOpen() {
 
 	___INFOLOG( "passed" );
 }
+
+void H2ProjectTest::testGetEmptySongDefaultKit() {
+	___INFOLOG( "" );
+
+	// The default song must supply the shipped GMRockKit no matter the
+	// state of the SoundLibraryDatabase: the kit is loaded directly from
+	// disk, not through a database lookup. This is what keeps the default
+	// song working while the first scan of the sound library is still
+	// running.
+	const auto pSong = Song::getEmptySong( pTestHydrogen() );
+
+	const auto pDrumkit = pSong->getDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getName() == "GMRockKit" );
+	// The song owns its kit: Song::setDrumkit() reassigns the context
+	// the kit was loaded with.
+	CPPUNIT_ASSERT( pDrumkit->getContext() == Filesystem::Context::Song );
+	CPPUNIT_ASSERT( pDrumkit->getInstruments()->size() > 0 );
+
+	___INFOLOG( "passed" );
+}
