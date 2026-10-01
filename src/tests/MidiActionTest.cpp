@@ -47,6 +47,7 @@
 #include <core/Hydrogen.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/SoftwareDriver.h>
+#include <core/LocalEngineAccess.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiMessage.h>
@@ -942,6 +943,54 @@ void MidiActionTest::testLoadPrevDrumkitAction()
 	CPPUNIT_ASSERT( pNewDrumkit != pOldDrumkit );
 
 	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setDrumkit( pOldDrumkit ) );
+
+	___INFOLOG( "done" );
+}
+
+void MidiActionTest::testLoadNextDrumkitActionNoSong()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = pTestHydrogen();
+	auto pOldSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pOldSong != nullptr );
+
+	// MidiInput drops all incoming messages as long as no song is set.
+	// The IPC action path used by an attached editor has no such upstream
+	// guard and the action itself has to bail out cleanly.
+	pHydrogen->setSong( nullptr );
+
+	LocalEngineAccess access( pHydrogen );
+	CPPUNIT_ASSERT( ! access.handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::LoadNextDrumkit ) ) );
+
+	CPPUNIT_ASSERT( pHydrogen->getSong() == nullptr );
+
+	pHydrogen->setSong( pOldSong );
+
+	___INFOLOG( "done" );
+}
+
+void MidiActionTest::testLoadPrevDrumkitActionNoSong()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = pTestHydrogen();
+	auto pOldSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pOldSong != nullptr );
+
+	// MidiInput drops all incoming messages as long as no song is set.
+	// The IPC action path used by an attached editor has no such upstream
+	// guard and the action itself has to bail out cleanly.
+	pHydrogen->setSong( nullptr );
+
+	LocalEngineAccess access( pHydrogen );
+	CPPUNIT_ASSERT( ! access.handleMidiAction(
+		std::make_shared<MidiAction>( MidiAction::Type::LoadPrevDrumkit ) ) );
+
+	CPPUNIT_ASSERT( pHydrogen->getSong() == nullptr );
+
+	pHydrogen->setSong( pOldSong );
 
 	___INFOLOG( "done" );
 }

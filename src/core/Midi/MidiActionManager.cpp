@@ -1552,20 +1552,30 @@ bool MidiActionManager::redoAction( std::shared_ptr<MidiAction> ) {
 
 bool MidiActionManager::loadNextDrumkit( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = m_pHydrogen;
+	auto pNextDrumkit =
+		pHydrogen->getSoundLibraryDatabase()->getNextDrumkit();
+	if ( pNextDrumkit == nullptr ) {
+		// Error already logged in SoundLibraryDatabase.
+		return false;
+	}
 	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
 	// shape.
 	return m_pHydrogen->getCoreActionController()->setDrumkit(
-		std::make_shared<Drumkit>(
-			pHydrogen->getSoundLibraryDatabase()->getNextDrumkit() ) );
+		std::make_shared<Drumkit>( pNextDrumkit ) );
 }
 
 bool MidiActionManager::loadPrevDrumkit( std::shared_ptr<MidiAction> ) {
 	auto pHydrogen = m_pHydrogen;
+	auto pPrevDrumkit =
+		pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit();
+	if ( pPrevDrumkit == nullptr ) {
+		// Error already logged in SoundLibraryDatabase.
+		return false;
+	}
 	// Pass copy to allow kit in the SoundLibraryDatabase to stay in a pristine
 	// shape.
 	return m_pHydrogen->getCoreActionController()->setDrumkit(
-		std::make_shared<Drumkit>(
-			pHydrogen->getSoundLibraryDatabase()->getPreviousDrumkit() ) );
+		std::make_shared<Drumkit>( pPrevDrumkit ) );
 }
 
 int MidiActionManager::getParameterNumber( const MidiAction::Type& type ) const {

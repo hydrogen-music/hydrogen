@@ -59,7 +59,9 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testHumanizationVelocityRelativeAction );
 	CPPUNIT_TEST( testInstrumentPitchAction );
 	CPPUNIT_TEST( testLoadNextDrumkitAction );
+	CPPUNIT_TEST( testLoadNextDrumkitActionNoSong );
 	CPPUNIT_TEST( testLoadPrevDrumkitAction );
+	CPPUNIT_TEST( testLoadPrevDrumkitActionNoSong );
 	CPPUNIT_TEST( testMasterVolumeAbsoluteAction );
 	CPPUNIT_TEST( testMasterVolumeRelativeAction );
 	CPPUNIT_TEST( testMuteAction );
@@ -126,7 +128,11 @@ class MidiActionTest : public CppUnit::TestCase {
 	void testHumanizationVelocityRelativeAction();
 	void testInstrumentPitchAction();
 	void testLoadNextDrumkitAction();
+	/** Without a song set the drumkit navigation actions have to bail out
+	 * cleanly instead of constructing a Drumkit from a null kit. */
+	void testLoadNextDrumkitActionNoSong();
 	void testLoadPrevDrumkitAction();
+	void testLoadPrevDrumkitActionNoSong();
 	void testMasterVolumeAbsoluteAction();
 	void testMasterVolumeRelativeAction();
 	void testMuteAction();
