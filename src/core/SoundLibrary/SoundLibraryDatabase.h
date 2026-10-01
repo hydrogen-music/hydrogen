@@ -24,9 +24,12 @@
 #define SOUND_LIBRARY_DATABASE_H
 
 #include <QStringList>
+#include <atomic>
+#include <condition_variable>
 #include <map>
 #include <memory>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 #include <core/Basics/Drumkit.h>
@@ -98,9 +101,37 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfos() const;
 	std::map<QString, std::shared_ptr<Drumkit>> getDrumkitDatabase() const;
 
-	void update();
+	/** Progress reporting for a scan running in the background.
+	 *
+	 * Reports are throttled to 5% steps (plus 0 and 100) so a scan of
+	 * a large sound library does not flood the event queue. The
+	 * throttle state lives in this object — one per scan, owned by
+	 * the scanning thread — so concurrent scans cannot corrupt it. */
+	class ScanProgress
+	{
+	public:
+		explicit ScanProgress( Hydrogen* pHydrogen )
+			: m_pHydrogen( pHydrogen )
+		{
+		}
 
-	void updateDrumkits( Event::Trigger trigger );
+		/** Queue a #Event::Type::SoundLibraryScanProgress event for
+		 * @a nValue (0-100), unless the throttle suppresses it. */
+		void report( int nValue );
+
+	private:
+		Hydrogen* m_pHydrogen;
+		int m_nLastReported = -1;
+	};
+
+	/** Scan the sound library folders and publish the result.
+	 *
+	 * @param pProgress When set, the scan reports its progress through
+	 *   this object (used by the background initial scan). */
+	void update( ScanProgress* pProgress = nullptr );
+
+	void updateDrumkits( Event::Trigger trigger,
+						 ScanProgress* pProgress = nullptr );
 	/**
 	 * Retrieve a drumkit from the database.
 	 *
@@ -152,8 +183,38 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * @return The list of unique types sorted alphabetically.*/
 	std::set<Instrument::Type> getAllTypes() const;
 
-	void updatePatterns( Event::Trigger trigger );
-	void updateSongs( Event::Trigger trigger );
+	void updatePatterns( Event::Trigger trigger,
+						 ScanProgress* pProgress = nullptr );
+	void updateSongs( Event::Trigger trigger,
+					  ScanProgress* pProgress = nullptr );
+
+	/** Start the initial scan of the sound library in a background
+	 * thread.
+	 *
+	 * Called at the end of Hydrogen's constructor in all process
+	 * modes: the scan is pure disk I/O and must not block the caller.
+	 * If the thread cannot be created, the scan falls back to a
+	 * synchronous #update. */
+	void startInitialScan();
+
+	/** Block until the background initial scan finished (completed or
+	 * interrupted). Returns immediately if no scan is running.
+	 *
+	 * Callers that need the database populated — e.g. the next/prev
+	 * drumkit lookups — wait here instead of failing on a not yet
+	 * scanned database. */
+	void waitForInitialScan() const;
+
+	/** Whether the background initial scan is currently running. */
+	bool isInitialScanRunning() const;
+
+	/** Interrupt the background scan and join its thread. Idempotent;
+	 * also called from the destructor.
+	 *
+	 * Must be called before anything the scan uses (the EventQueue,
+	 * Preferences) is torn down — Hydrogen's destructor does so
+	 * first. */
+	void shutdown();
 
 	/** Checks whether an artifact of type @a artifact holding the name @a
 	 * sName exists in context @a context and returns the full path to the
@@ -190,6 +251,25 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	mutable std::mutex m_writerMutex;
 	/** Currently published snapshot. Never null. */
 	std::shared_ptr<const Snapshot> m_pSnapshot;
+
+	/** Set by #shutdown to interrupt a running scan. Checked between
+	 * scan items; never reset — after a shutdown the database must not
+	 * scan again. */
+	std::atomic<bool> m_bStopScan{ false };
+	/** Whether the background initial scan is running. Guarded by
+	 * #m_scanStateMutex. */
+	bool m_bScanRunning = false;
+	/** Guards #m_bScanRunning and the #m_scanStateCondition
+	 * handshake of #waitForInitialScan. */
+	mutable std::mutex m_scanStateMutex;
+	mutable std::condition_variable m_scanStateCondition;
+	/** Thread of the background initial scan. Declared last: it must
+	 * only be started (via #startInitialScan, after construction
+	 * completed) once all members it uses are initialized. */
+	std::thread m_initialScanThread;
+
+	/** Entry point of the background initial scan thread. */
+	void initialScan();
 
 	/** Ensure the label of @a pInfo is unique within the containers
 	 * of @a pSnapshot (the snapshot under construction). */

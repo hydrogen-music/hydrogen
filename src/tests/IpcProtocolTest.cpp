@@ -49,7 +49,8 @@ static std::vector<Event::Type> allEventTypes() {
 		T::PlayingPatternsChanged, T::PlaylistChanged, T::PlaylistLoadSong,
 		T::Quit, T::RecordModeChanged, T::Relocation, T::SelectedInstrumentChanged,
 		T::SelectedPatternChanged, T::SongIsModified, T::SongModeActivation,
-		T::SongSizeChanged, T::SoundLibraryChanged, T::StackedModeActivation,
+		T::SongSizeChanged, T::SoundLibraryChanged,
+		T::SoundLibraryScanProgress, T::StackedModeActivation,
 		T::State, T::TempoChanged, T::TimelineActivation, T::UndoRedo,
 		T::UpdatePreferences, T::UpdateSong, T::UpdateTimeline, T::Xrun
 	};

@@ -116,6 +116,8 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "SongSizeChanged";
 	case Event::Type::SoundLibraryChanged:
 		return "SoundLibraryChanged";
+	case Event::Type::SoundLibraryScanProgress:
+		return "SoundLibraryScanProgress";
 	case Event::Type::StackedModeActivation:
 		return "StackedModeActivation";
 	case Event::Type::State:

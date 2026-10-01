@@ -26,6 +26,7 @@
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Hydrogen.h>
 #include <core/config.h>
 
@@ -93,6 +94,13 @@ void setupEnvironment(unsigned log_level, const QString& sLogFilePath,
 	// Hand the suite's instance to the test fixture so tests reach it via
 	// pTestHydrogen()/… instead of the get_instance() shim (ADR 0015, T1.5).
 	TestHelper::get_instance()->setHydrogen( pHydrogen );
+
+	// The suite instance's initial sound library scan runs in the
+	// background; many tests read its database content right away, so
+	// wait for its completion here once (fresh helper engines of the
+	// IPC tests are not waited for — they rescan synchronously when
+	// needed).
+	pHydrogen->getSoundLibraryDatabase()->waitForInitialScan();
 }
 
 // Child mode of the cross-process config hammer

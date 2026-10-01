@@ -26,6 +26,7 @@
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
@@ -335,6 +336,78 @@ void SoundLibraryTest::testGetDrumkitUpgradeParameter() {
 		___INFOLOG( QString( "bUpgrade=%1 passed" )
 					 .arg( bUpgrade ? "true" : "false" ) );
 	}
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testInitialScanCompletes()
+{
+	___INFOLOG( "" );
+	// A fresh engine: its initial sound library scan runs in the
+	// background (started at the end of Hydrogen's constructor), so the
+	// database content is only complete once waitForInitialScan()
+	// returns.
+	auto pHydrogen = TestHelper::makeEngine();
+
+	pHydrogen->getSoundLibraryDatabase()->waitForInitialScan();
+
+	// The wait is over: no scan is running anymore and the database is
+	// populated with the shipped content.
+	CPPUNIT_ASSERT( ! pHydrogen->getSoundLibraryDatabase()
+					  ->isInitialScanRunning() );
+	CPPUNIT_ASSERT( ! pHydrogen->getSoundLibraryDatabase()->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::System, "GMRockKit" ).isEmpty() );
+	CPPUNIT_ASSERT( pHydrogen->getSoundLibraryDatabase()
+					  ->getPatternInfos().size() > 0 );
+	CPPUNIT_ASSERT( pHydrogen->getSoundLibraryDatabase()
+					  ->getSongInfos().size() > 0 );
+
+	delete pHydrogen;
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testInitialScanProgressEvents()
+{
+	___INFOLOG( "" );
+	// The scan reports its progress as SoundLibraryScanProgress
+	// events (0-100, throttled to 5% steps). The background scan's own
+	// reports race the engine leaving its constructor (events pushed
+	// before setFullyOperational() are dropped by the queue), so the
+	// throttle contract is asserted on a synchronous update() with a
+	// local progress reporter instead.
+	auto pHydrogen = TestHelper::makeEngine();
+
+	pHydrogen->getSoundLibraryDatabase()->waitForInitialScan();
+	while ( pHydrogen->getEventQueue()->popEvent() != nullptr ) {}
+
+	H2Core::SoundLibraryDatabase::ScanProgress progress( pHydrogen );
+	pHydrogen->getSoundLibraryDatabase()->update( &progress );
+
+	std::vector<int> values;
+	while ( auto pEvent = pHydrogen->getEventQueue()->popEvent() ) {
+		if ( pEvent->getType() ==
+			 H2Core::Event::Type::SoundLibraryScanProgress ) {
+			values.push_back( pEvent->getValue() );
+		}
+	}
+
+	// The scan ran to completion: the phase reports up to the final
+	// 100% were queued.
+	CPPUNIT_ASSERT( values.size() >= 2 );
+	for ( const auto& nnValue : values ) {
+		CPPUNIT_ASSERT( nnValue >= 0 && nnValue <= 100 );
+	}
+	// Monotonic: the throttle only reports forward.
+	for ( std::size_t ii = 1; ii < values.size(); ++ii ) {
+		CPPUNIT_ASSERT( values[ ii ] >= values[ ii - 1 ] );
+	}
+	CPPUNIT_ASSERT( values.back() == 100 );
+	// 5% throttle: at most the 21 full percentage steps are reported.
+	CPPUNIT_ASSERT( values.size() <= 21 );
+
+	delete pHydrogen;
 
 	___INFOLOG( "passed" );
 }

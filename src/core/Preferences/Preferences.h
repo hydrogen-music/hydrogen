@@ -656,7 +656,7 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	const QString& getLastPlaylistPath() const;
 	void setLastPlaylistPath( const QString& sPath );
 
-	const QStringList& getCustomSoundLibraryDirs() const;
+	QStringList getCustomSoundLibraryDirs() const;
 	void setCustomSoundLibraryDirs( const QStringList& folders );
 
 	const QStringList& getOnlineRepos() const;
@@ -879,6 +879,13 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	 *  thread while the GUI's write-through timer reads the pending
 	 *  state. */
 	mutable QMutex m_persistedFootprintMutex;
+
+	/** Guards #m_customSoundLibraryDirs (a PreferencesData member): the
+	 *  background sound library scan reads it from its worker thread
+	 *  while the GUI thread may write it (add/remove custom sound
+	 *  library dir). Lives here — not next to the data member —
+	 *  because PreferencesData is copied and a mutex is not. */
+	mutable QMutex m_customSoundLibraryDirsMutex;
 
 	/** Footprint of the ownership-eligible rows at the last persist — end
 	 *  of load(), a successful save(), or setFieldOwnership(). Runtime
@@ -1258,10 +1265,14 @@ inline const QString& Preferences::getLastPlaylistPath() const
 
 inline void Preferences::setCustomSoundLibraryDirs( const QStringList& folders )
 {
+	QMutexLocker locker( &m_customSoundLibraryDirsMutex );
 	m_customSoundLibraryDirs = folders;
 }
-inline const QStringList& Preferences::getCustomSoundLibraryDirs() const
+inline QStringList Preferences::getCustomSoundLibraryDirs() const
 {
+	// Returns a copy: a reference could be read after the lock is
+	// released, outside the mutex's protection.
+	QMutexLocker locker( &m_customSoundLibraryDirsMutex );
 	return m_customSoundLibraryDirs;
 }
 

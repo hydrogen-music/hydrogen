@@ -210,6 +210,10 @@ public:
 			SongIsModified,
 			SongSizeChanged,
 			SoundLibraryChanged,
+			/** Progress of the background sound library scan, 0-100.
+			 * Handled by EventListener::soundLibraryScanProgressEvent().
+			 */
+			SoundLibraryScanProgress,
 			/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected
 				(1) was activated */
 			StackedModeActivation,

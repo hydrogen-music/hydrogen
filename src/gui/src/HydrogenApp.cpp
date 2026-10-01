@@ -1663,6 +1663,11 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->soundLibraryChangedEvent();
 				break;
 
+			case Event::Type::SoundLibraryScanProgress:
+				ppEventListener->soundLibraryScanProgressEvent(
+					pEvent->getValue() );
+				break;
+
 			case Event::Type::TempoChanged:
 				ppEventListener->tempoChangedEvent( pEvent->getValue() );
 				break;

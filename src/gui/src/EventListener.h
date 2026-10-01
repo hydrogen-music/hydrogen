@@ -81,6 +81,9 @@ class EventListener
 		virtual void songIsModifiedEvent() {}
 		virtual void songSizeChangedEvent(){}
 		virtual void soundLibraryChangedEvent(){}
+		/** @param nValue Progress of the background sound library
+		 * scan, 0-100. */
+		virtual void soundLibraryScanProgressEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void stateChangedEvent( const H2Core::AudioEngine::State& state) {}
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }

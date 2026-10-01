@@ -233,6 +233,14 @@ Hydrogen::Hydrogen(
 	if ( pPref->getOscServerEnabled() && ! isUnderPluginHost() ) {
 		toggleOscServer( true );
 	}
+
+	// The initial sound library scan runs in the background in all
+	// process modes: its disk I/O must not block the startup. It is
+	// started as the last statement — everything the scan uses (the
+	// EventQueue, Preferences, this instance's back-pointer chain) is
+	// alive by now, and nothing below depends on a scanned database
+	// (the default song loads its drumkit directly from disk).
+	m_pSoundLibraryDatabase->startInitialScan();
 }
 
 Hydrogen::~Hydrogen()
@@ -248,6 +256,11 @@ Hydrogen::~Hydrogen()
 
 		// We reuse this member to indicate shutdown as well.
 		m_bIsFullyOperational = false;
+
+		// The background sound library scan must be interrupted and
+		// joined before anything it uses (the EventQueue, Preferences,
+		// the logger scope) is torn down.
+		m_pSoundLibraryDatabase->shutdown();
 
 		// A still-armed export plan owns a thread and parked driver state
 		// — cancel and restore before anything else tears down.

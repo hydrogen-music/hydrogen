@@ -35,6 +35,7 @@
 #include <core/IPC/IpcServer.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <QtCore/QCoreApplication>
 
@@ -47,6 +48,12 @@ void EditorMirrorTest::testEventSyncsToMirror() {
 
 	auto* pMirror = TestHelper::makeMirror();
 	EditorStateMirror mirror( pMirror );
+
+	// The mirror's background initial scan pushes progress events onto
+	// the same queue. Wait for its completion and drain the queue so
+	// only the event applied below is examined.
+	pMirror->getSoundLibraryDatabase()->waitForInitialScan();
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
 
 	// An engine-origin event arrives over IPC and is re-posted onto the mirror's
 	// EventQueue, where the GUI would pick it up.

@@ -44,11 +44,122 @@ SoundLibraryDatabase::SoundLibraryDatabase( Hydrogen* pHydrogen )
 	: m_pHydrogen( pHydrogen ),
 	  m_pSnapshot( std::make_shared<Snapshot>() )
 {
-	update();
+	// The initial scan is not run here but started via startInitialScan()
+	// at the end of Hydrogen's constructor: it runs in the background so
+	// constructing an engine is not blocked by the disk I/O of the scan.
 }
 
 SoundLibraryDatabase::~SoundLibraryDatabase()
 {
+	// Safety net: Hydrogen's destructor shuts the scan down first, but
+	// the database may outlive it through shared_ptr holders.
+	shutdown();
+}
+
+void SoundLibraryDatabase::startInitialScan()
+{
+	if ( m_initialScanThread.joinable() ) {
+		// Already started (or running).
+		return;
+	}
+
+	// Mark the scan as running before the thread is created: a waiter
+	// must not sail through waitForInitialScan() in the window between
+	// the thread creation and the thread function setting the flag
+	// itself.
+	{
+		std::lock_guard<std::mutex> lock( m_scanStateMutex );
+		m_bScanRunning = true;
+	}
+
+	try {
+		m_initialScanThread = std::thread(
+			&SoundLibraryDatabase::initialScan, this );
+	}
+	catch ( const std::system_error& e ) {
+		// Thread creation failed (resource exhaustion): fall back to a
+		// synchronous scan so the database is still populated.
+		ERRORLOG( QString( "Unable to start the background scan thread: %1" )
+					  .arg( e.what() ) );
+		{
+			std::lock_guard<std::mutex> lock( m_scanStateMutex );
+			m_bScanRunning = false;
+		}
+		m_scanStateCondition.notify_all();
+		update();
+	}
+}
+
+void SoundLibraryDatabase::initialScan()
+{
+	// The scan thread's logs must route to the owning instance's
+	// logger: the thread-local scope does not inherit from the
+	// spawning thread (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+
+	ScanProgress progress( m_pHydrogen );
+	progress.report( 0 );
+
+	// An exception escaping a thread would terminate the process: a
+	// failed scan leaves the database empty (degraded, but alive).
+	try {
+		update( &progress );
+	}
+	catch ( const std::exception& e ) {
+		ERRORLOG( QString( "Background scan failed: %1" ).arg( e.what() ) );
+	}
+	catch ( ... ) {
+		ERRORLOG( "Background scan failed with an unknown exception" );
+	}
+
+	{
+		std::lock_guard<std::mutex> lock( m_scanStateMutex );
+		m_bScanRunning = false;
+	}
+	// Wakes threads blocked in waitForInitialScan(). The state is set
+	// while holding the mutex, so a waiter cannot miss this wakeup.
+	m_scanStateCondition.notify_all();
+}
+
+void SoundLibraryDatabase::waitForInitialScan() const
+{
+	std::unique_lock<std::mutex> lock( m_scanStateMutex );
+	m_scanStateCondition.wait(
+		lock, [ this ]() { return ! m_bScanRunning; } );
+}
+
+bool SoundLibraryDatabase::isInitialScanRunning() const
+{
+	std::lock_guard<std::mutex> lock( m_scanStateMutex );
+	return m_bScanRunning;
+}
+
+void SoundLibraryDatabase::shutdown()
+{
+	// Terminal: the flag is never reset, so scans started after the
+	// shutdown abort immediately as well.
+	m_bStopScan = true;
+
+	if ( m_initialScanThread.joinable() ) {
+		m_initialScanThread.join();
+	}
+}
+
+void SoundLibraryDatabase::ScanProgress::report( int nValue )
+{
+	// Throttle: only 5% steps (plus the 0% start and the 100%
+	// completion) cross the event queue.
+	if ( nValue != 0 && nValue != 100 &&
+		 nValue < m_nLastReported + 5 ) {
+		return;
+	}
+	if ( nValue == m_nLastReported ) {
+		return;
+	}
+	m_nLastReported = nValue;
+
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::SoundLibraryScanProgress, nValue );
 }
 
 std::shared_ptr<const SoundLibraryDatabase::Snapshot>
@@ -96,6 +207,24 @@ void SoundLibraryDatabase::publish( std::shared_ptr<Snapshot> pNewSnapshot )
 	for ( const auto& ssFolder : m_pSnapshot->customDrumkitFolders ) {
 		if ( ! pNewSnapshot->customDrumkitFolders.contains( ssFolder ) ) {
 			pNewSnapshot->customDrumkitFolders << ssFolder;
+		}
+	}
+
+	// The database entries and infos of the merged registrations must
+	// survive the rebuild as well: without them a registered kit would
+	// vanish from the database until the next rescan re-lists its path.
+	for ( const auto& [ ssPath, pDrumkit ] : m_pSnapshot->drumkitDatabase ) {
+		if ( pDrumkit == nullptr ||
+			 ! pNewSnapshot->customDrumkitPaths.contains( ssPath ) ||
+			 pNewSnapshot->drumkitDatabase.find( ssPath ) !=
+				 pNewSnapshot->drumkitDatabase.end() ) {
+			continue;
+		}
+		pNewSnapshot->drumkitDatabase[ ssPath ] = pDrumkit;
+		auto pInfo = DrumkitInfo::from( pDrumkit );
+		if ( pInfo != nullptr ) {
+			pNewSnapshot->drumkitInfos.push_back( pInfo );
+			registerUniqueLabel( pInfo, pNewSnapshot.get() );
 		}
 	}
 
@@ -208,19 +337,58 @@ QString SoundLibraryDatabase::findArtifact(
 	return "";
 }
 
-void SoundLibraryDatabase::update()
+void SoundLibraryDatabase::update( ScanProgress* pProgress )
 {
-	updatePatterns( Event::Trigger::Suppress );
-	updateSongs( Event::Trigger::Suppress );
-	updateDrumkits( Event::Trigger::Suppress );
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
+
+	// The phases are ordered by cost: the cheap pattern and song
+	// listings complete the database quickly, the drumkit loads
+	// dominate the scan's runtime.
+	updatePatterns( Event::Trigger::Suppress, pProgress );
+	if ( m_bStopScan ) {
+		return;
+	}
+	if ( pProgress != nullptr ) {
+		pProgress->report( 10 );
+	}
+
+	updateSongs( Event::Trigger::Suppress, pProgress );
+	if ( m_bStopScan ) {
+		return;
+	}
+	if ( pProgress != nullptr ) {
+		pProgress->report( 20 );
+	}
+
+	updateDrumkits( Event::Trigger::Suppress, pProgress );
+	if ( m_bStopScan ) {
+		// Interrupted mid-scan: the database keeps its previous
+		// content and no completion event is fired.
+		return;
+	}
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SoundLibraryChanged, 0
 	);
+
+	if ( pProgress != nullptr ) {
+		pProgress->report( 100 );
+	}
 }
 
-void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
+void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger,
+										   ScanProgress* pProgress )
 {
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
+
 	// Build the new content outside the publication lock: the listing
 	// reaches back into the database (custom drumkit folders) and the
 	// drumkit loads are expensive disk I/O which must not block
@@ -283,7 +451,15 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 		}
 	}
 
+	int nnKit = 0;
+	const int nTotalKits = drumkitPaths.size();
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
+		if ( m_bStopScan ) {
+			// Interrupted (shutdown): discard the partial content — the
+			// database keeps its previously published snapshot.
+			return;
+		}
+
 		auto pDrumkit = Drumkit::load( sDrumkitPath, true, nullptr, false,
 									   m_pHydrogen );
 		if ( pDrumkit != nullptr ) {
@@ -312,6 +488,13 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 				QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath )
 			);
 		}
+
+		if ( pProgress != nullptr ) {
+			// The drumkit loads dominate the scan's runtime: they cover
+			// the 20-100% range of the overall progress.
+			pProgress->report( 20 + 80 * ( nnKit + 1 ) / nTotalKits );
+		}
+		++nnKit;
 	}
 
 	publish( std::move( pNewSnapshot ) );
@@ -414,6 +597,12 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const
 		return nullptr;
 	}
 
+	// The next/prev navigation needs the fully scanned database: during
+	// the background initial scan it waits for the scan's completion
+	// instead of failing on a not yet populated one. (Called on the GUI
+	// or the MIDI action thread — never the audio thread.)
+	waitForInitialScan();
+
 	const auto pSnapshot = getSnapshot();
 	const auto& drumkitDatabase = pSnapshot->drumkitDatabase;
 	if ( drumkitDatabase.empty() ) {
@@ -446,6 +635,10 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const
 		ERRORLOG( "No song set yet" );
 		return nullptr;
 	}
+
+	// See getPreviousDrumkit(): wait for the background initial scan
+	// instead of navigating a not yet populated database.
+	waitForInitialScan();
 
 	const auto pSnapshot = getSnapshot();
 	const auto& drumkitDatabase = pSnapshot->drumkitDatabase;
@@ -636,8 +829,15 @@ std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const
 	return allTypes;
 }
 
-void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
+void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger,
+											ScanProgress* pProgress )
 {
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
+
 	// Build the new content outside the publication lock (see
 	// updateDrumkits()).
 	auto pNewSnapshot = std::make_shared<Snapshot>( *getSnapshot() );
@@ -658,6 +858,11 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 	);
 
 	for ( const auto& ssPath : patternPaths ) {
+		if ( m_bStopScan ) {
+			// Interrupted (shutdown): discard the partial content.
+			return;
+		}
+
 		auto pInfo = std::make_shared<PatternInfo>();
 		if ( pInfo->load( ssPath, m_pHydrogen ) ) {
 			INFOLOG( QString( "Pattern [%1] registered from [%2]" )
@@ -682,8 +887,15 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 	}
 }
 
-void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
+void SoundLibraryDatabase::updateSongs( Event::Trigger trigger,
+										 ScanProgress* pProgress )
 {
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
+
 	// Build the new content outside the publication lock (see
 	// updateDrumkits()).
 	auto pNewSnapshot = std::make_shared<Snapshot>( *getSnapshot() );
@@ -704,6 +916,11 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 	);
 
 	for ( const auto& ssPath : songPaths ) {
+		if ( m_bStopScan ) {
+			// Interrupted (shutdown): discard the partial content.
+			return;
+		}
+
 		auto pInfo = std::make_shared<SongInfo>();
 		if ( pInfo->load( ssPath, m_pHydrogen ) ) {
 			INFOLOG( QString( "Song [%1] registered from [%2]" )

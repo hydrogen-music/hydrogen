@@ -38,6 +38,8 @@ class SoundLibraryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testGetDrumkitPublishesSnapshot );
 	CPPUNIT_TEST( testGetDrumkitCanonicalizesPath );
 	CPPUNIT_TEST( testGetDrumkitUpgradeParameter );
+	CPPUNIT_TEST( testInitialScanCompletes );
+	CPPUNIT_TEST( testInitialScanProgressEvents );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
@@ -72,4 +74,12 @@ public:
 	/** getDrumkit() must honor its bUpgrade argument: an opt-out must
 	 * not rewrite a legacy kit on disk. */
 	void testGetDrumkitUpgradeParameter();
+	/** The initial sound library scan of a fresh engine runs in the
+	 * background: after waitForInitialScan() the database is populated
+	 * and no scan is running anymore. */
+	void testInitialScanCompletes();
+	/** The background scan reports its progress as
+	 * SoundLibraryScanProgress events (0-100, monotonic, throttled to
+	 * 5% steps). */
+	void testInitialScanProgressEvents();
 };
