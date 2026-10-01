@@ -36,6 +36,8 @@ class SoundLibraryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSnapshotStableAcrossUpdate );
 	CPPUNIT_TEST( testCustomDrumkitPathSurvivesUpdate );
 	CPPUNIT_TEST( testGetDrumkitPublishesSnapshot );
+	CPPUNIT_TEST( testGetDrumkitCanonicalizesPath );
+	CPPUNIT_TEST( testGetDrumkitUpgradeParameter );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
@@ -63,4 +65,11 @@ public:
 	 * must publish a new snapshot without affecting previously held
 	 * ones. */
 	void testGetDrumkitPublishesSnapshot();
+	/** getDrumkit() must address a kit by a canonical path: folder
+	 * spellings and redundant separators hit the cached kit instead
+	 * of missing it and registering duplicates of it. */
+	void testGetDrumkitCanonicalizesPath();
+	/** getDrumkit() must honor its bUpgrade argument: an opt-out must
+	 * not rewrite a legacy kit on disk. */
+	void testGetDrumkitUpgradeParameter();
 };

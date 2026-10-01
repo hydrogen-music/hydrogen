@@ -20,6 +20,8 @@
  *
  */
 
+#include <QDir>
+
 #include <map>
 #include <set>
 
@@ -321,6 +323,17 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	}
 }
 
+QString SoundLibraryDatabase::canonicalDrumkitPath(
+	const QString& sDrumkitPath )
+{
+	// Callers may address a kit by its folder or with redundant
+	// separators. Canonicalizing keeps the database keyed by a single
+	// form per kit, so such spellings hit the cached kit instead of
+	// registering duplicates of it.
+	return QDir::cleanPath(
+		Filesystem::sanitizeDrumkitPath( sDrumkitPath ) );
+}
+
 std::shared_ptr<Drumkit>
 SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 {
@@ -329,9 +342,16 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 		return nullptr;
 	}
 
+	const QString sCanonicalPath = canonicalDrumkitPath( sDrumkitPath );
+	if ( sCanonicalPath.isEmpty() ) {
+		ERRORLOG( QString( "[%1] is not a valid drumkit path" )
+					  .arg( sDrumkitPath ) );
+		return nullptr;
+	}
+
 	const auto pInitialSnapshot = getSnapshot();
 	const auto foundInitial =
-		pInitialSnapshot->drumkitDatabase.find( sDrumkitPath );
+		pInitialSnapshot->drumkitDatabase.find( sCanonicalPath );
 	if ( foundInitial != pInitialSnapshot->drumkitDatabase.end() ) {
 		return foundInitial->second;
 	}
@@ -358,16 +378,16 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 	// Another writer may have published this kit (or a full rescan)
 	// while we were loading. Re-check under the lock.
 	const auto foundCurrent =
-		m_pSnapshot->drumkitDatabase.find( sDrumkitPath );
+		m_pSnapshot->drumkitDatabase.find( sCanonicalPath );
 	if ( foundCurrent != m_pSnapshot->drumkitDatabase.end() ) {
 		return foundCurrent->second;
 	}
 
 	auto pNewSnapshot = std::make_shared<Snapshot>( *m_pSnapshot );
-	if ( ! pNewSnapshot->customDrumkitPaths.contains( sDrumkitPath ) ) {
-		pNewSnapshot->customDrumkitPaths << sDrumkitPath;
+	if ( ! pNewSnapshot->customDrumkitPaths.contains( sCanonicalPath ) ) {
+		pNewSnapshot->customDrumkitPaths << sCanonicalPath;
 	}
-	pNewSnapshot->drumkitDatabase[sDrumkitPath] = pDrumkit;
+	pNewSnapshot->drumkitDatabase[sCanonicalPath] = pDrumkit;
 	if ( pInfo != nullptr ) {
 		pNewSnapshot->drumkitInfos.push_back( pInfo );
 		registerUniqueLabel( pInfo, pNewSnapshot.get() );
@@ -376,7 +396,7 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 
 	INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
 				 .arg( pDrumkit->getName() )
-				 .arg( sDrumkitPath ) );
+				 .arg( sCanonicalPath ) );
 
 	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SoundLibraryChanged, 0
@@ -568,13 +588,20 @@ void SoundLibraryDatabase::registerCustomDrumkitPath( const QString& sPath )
 		return;
 	}
 
+	const QString sCanonicalPath = canonicalDrumkitPath( sPath );
+	if ( sCanonicalPath.isEmpty() ) {
+		ERRORLOG( QString( "[%1] is not a valid drumkit path" )
+					  .arg( sPath ) );
+		return;
+	}
+
 	std::lock_guard<std::mutex> lock( m_writerMutex );
-	if ( m_pSnapshot->customDrumkitPaths.contains( sPath ) ) {
+	if ( m_pSnapshot->customDrumkitPaths.contains( sCanonicalPath ) ) {
 		return;
 	}
 
 	auto pNewSnapshot = std::make_shared<Snapshot>( *m_pSnapshot );
-	pNewSnapshot->customDrumkitPaths << sPath;
+	pNewSnapshot->customDrumkitPaths << sCanonicalPath;
 	m_pSnapshot = std::move( pNewSnapshot );
 }
 

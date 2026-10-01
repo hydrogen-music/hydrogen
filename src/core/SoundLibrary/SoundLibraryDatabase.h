@@ -107,9 +107,11 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * If the kit is not already present, it will be loaded from disk.
 	 *
 	 * @param sDrumkitPath Absolute path to the drumkit.xml file holding the
-	 *   definition of the drumkit. If empty, it will be read from @a pNode.
+	 *   definition of the drumkit. A folder path is mapped to the drumkit.xml
+	 *   it contains and redundant separators are collapsed, so every
+	 *   spelling of a kit addresses the same cached entry.
 	 * @param bUpgrade In case the drumkit is not part of the DB and needs to be
-	 *   loaded, should it be upgrade while doing so?
+	 *   loaded, should it be upgraded while doing so?
 	 */
 	std::shared_ptr<Drumkit>
 	getDrumkit( const QString& sDrumkitPath, bool bUpgrade = true );
@@ -138,7 +140,10 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 
 	/** Register an individual drumkit path to be scanned on the next
 	 * updateDrumkits(). Unlike #registerDrumkitFolder (which scans a whole
-	 * folder), this points at a single drumkit directory. */
+	 * folder), this points at a single drumkit directory.
+	 *
+	 * The path is canonicalized like in #getDrumkit; paths at which no
+	 * drumkit.xml can be located are rejected. */
 	void registerCustomDrumkitPath( const QString& sPath );
 
 	/** Retrieves all #H2Core::Instrument::Type found in the registered
@@ -192,6 +197,14 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 		std::shared_ptr<SoundLibraryInfo> pInfo,
 		Snapshot* pSnapshot
 	);
+
+	/** Canonical form of @a sDrumkitPath for addressing kits in the
+	 * database: the path of the drumkit.xml file (a folder path is
+	 * mapped to the one it contains) with normalized separators.
+	 *
+	 * Returns an empty string if no drumkit.xml can be located at
+	 * @a sDrumkitPath. */
+	static QString canonicalDrumkitPath( const QString& sDrumkitPath );
 
 	/** Merge the custom drumkit registrations of the currently
 	 * published snapshot into @a pNewSnapshot and publish the

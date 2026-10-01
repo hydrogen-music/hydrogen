@@ -30,6 +30,9 @@
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
+#include <QDir>
+#include <QTemporaryDir>
+
 void SoundLibraryTest::testContextValidity() {
 	___INFOLOG( "" );
 
@@ -168,7 +171,7 @@ void SoundLibraryTest::testCustomDrumkitPathSurvivesUpdate() {
 	// A registered custom drumkit path must survive a full rescan: the
 	// scan rebuilds the database content from disk but must not lose
 	// the registration.
-	const QString sKitPath = H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" );
+	const QString sKitPath = H2TEST_FILE( "drumkits/baseKit/drumkit.xml" );
 	pDB->registerCustomDrumkitPath( sKitPath );
 	CPPUNIT_ASSERT( pDB->getCustomDrumkitPaths().contains( sKitPath ) );
 
@@ -191,7 +194,7 @@ void SoundLibraryTest::testGetDrumkitPublishesSnapshot() {
 	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 
 	// A kit outside the scanned contexts is not part of the database.
-	const QString sKitPath = H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml" );
+	const QString sKitPath = H2TEST_FILE( "drumkits/invAdsrKit/drumkit.xml" );
 	const auto pSnapshotBefore = pDB->getSnapshot();
 	CPPUNIT_ASSERT( pSnapshotBefore->drumkitDatabase.find( sKitPath ) ==
 					pSnapshotBefore->drumkitDatabase.end() );
@@ -265,6 +268,73 @@ void SoundLibraryTest::testFindArtifactStackedSkipsNonMatching() {
 		H2Core::Filesystem::Artifact::Pattern,
 		H2Core::Filesystem::Context::User, "GM kit demo #1", true
 	).isEmpty() );
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testGetDrumkitCanonicalizesPath() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	// 'GMRockKit' is shipped in the System context.
+	const QString sKitPath = pDB->findArtifact(
+		H2Core::Filesystem::Artifact::DrumkitExtracted,
+		H2Core::Filesystem::Context::System, "GMRockKit" );
+	CPPUNIT_ASSERT( ! sKitPath.isEmpty() );
+
+	auto pKit = pDB->getDrumkit( sKitPath );
+	CPPUNIT_ASSERT( pKit != nullptr );
+
+	// A folder spelling and redundant separators address the same
+	// cached kit instead of missing it and lazily registering
+	// duplicates of it.
+	const QString sFolderPath =
+		H2Core::Filesystem::drumkitDirFromPath( sKitPath );
+	CPPUNIT_ASSERT( pDB->getDrumkit( sFolderPath ) == pKit );
+	CPPUNIT_ASSERT(
+		pDB->getDrumkit( sFolderPath + "//drumkit.xml" ) == pKit );
+
+	const QStringList customPaths = pDB->getCustomDrumkitPaths();
+	CPPUNIT_ASSERT( ! customPaths.contains( sFolderPath ) );
+	CPPUNIT_ASSERT( ! customPaths.contains( sFolderPath + "//drumkit.xml" ) );
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testGetDrumkitUpgradeParameter() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	// The legacy kit fixture has no <formatVersion> and thus triggers
+	// the legacy handling of Drumkit::load(). An upgrade rewrites the
+	// drumkit.xml on disk (after backing it up) and must only happen
+	// on explicit request.
+	const QString sLegacyKitPath =
+		H2TEST_FILE( "drumkits/legacy_GMkit/drumkit.xml" );
+
+	for ( const auto& bUpgrade : { true, false } ) {
+		// A writable copy: the fixture itself must not be modified.
+		QTemporaryDir tempDir;
+		CPPUNIT_ASSERT( tempDir.isValid() );
+		const QString sKitPath =
+			QDir( tempDir.path() ).filePath( "drumkit.xml" );
+		CPPUNIT_ASSERT( H2Core::Filesystem::fileCopy(
+			sLegacyKitPath, sKitPath, false, true ) );
+
+		const auto pDrumkit = pDB->getDrumkit( sKitPath, bUpgrade );
+		CPPUNIT_ASSERT( pDrumkit != nullptr );
+
+		// An upgrade leaves a backup next to the re-saved
+		// drumkit.xml; an opt-out leaves no trace.
+		const QStringList backups = QDir( tempDir.path() ).entryList(
+			QStringList() << "drumkit.xml.*.bak" );
+		CPPUNIT_ASSERT( backups.size() == ( bUpgrade ? 1 : 0 ) );
+
+		___INFOLOG( QString( "bUpgrade=%1 passed" )
+					 .arg( bUpgrade ? "true" : "false" ) );
+	}
 
 	___INFOLOG( "passed" );
 }
