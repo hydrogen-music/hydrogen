@@ -304,6 +304,10 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 		return;
 	}
 
+	// Iterate a copy of the infos: a rescan of the database triggered
+	// while resolving must not invalidate the iteration below.
+	const auto infos = *pInfos;
+
 	if ( !sSourceFolder.isEmpty() ) {
 		sRootFolder += sSourceFolder + "/";
 	}
@@ -330,7 +334,7 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 	}
 
 	std::shared_ptr<SoundLibraryInfo> pLocalInfo = nullptr;
-	for ( const auto& pInfo : *pInfos ) {
+	for ( const auto& pInfo : infos ) {
 		if ( pInfo != nullptr &&
 			 pInfo->getContext() == Filesystem::Context::User &&
 			 pInfo->getPath() == sTargetPath ) {
