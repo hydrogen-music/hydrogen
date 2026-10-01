@@ -342,8 +342,8 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 	// add it. The load happens outside the publication lock: it is
 	// expensive disk I/O and must not block readers or other writers.
 	auto pDrumkit = Drumkit::load(
-		sDrumkitPath,
-		true,	  // upgrade
+		sCanonicalPath,
+		bUpgrade,
 		nullptr,  // do not check for legacy format
 		false,	  // bSilent
 		m_pHydrogen
