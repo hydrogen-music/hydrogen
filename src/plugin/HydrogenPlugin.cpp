@@ -382,6 +382,7 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 		return true;
 	}
 	if ( m_pHydrogen == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
 		return false;
 	}
 
@@ -397,6 +398,7 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 	m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
 	if ( m_pEditorSession == nullptr ) {
 		m_sEditorEndpoint.clear();
+		___ERRORLOG( "Invalid editor session" );
 		return false;
 	}
 
