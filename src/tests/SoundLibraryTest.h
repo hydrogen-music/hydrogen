@@ -33,6 +33,9 @@ class SoundLibraryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testFindArtifactStackedSkipsNonMatching );
 	CPPUNIT_TEST( testKitRetrievalCopy );
 	CPPUNIT_TEST( testKitRetrievalDirect );
+	CPPUNIT_TEST( testSnapshotStableAcrossUpdate );
+	CPPUNIT_TEST( testCustomDrumkitPathSurvivesUpdate );
+	CPPUNIT_TEST( testGetDrumkitPublishesSnapshot );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
@@ -48,6 +51,16 @@ public:
 		/** In a stacked findArtifact() lookup only artifacts matching by
 		 * name but not by context may be cached for a later pass. */
 		void testFindArtifactStackedSkipsNonMatching();
-		void testKitRetrievalCopy();
-		void testKitRetrievalDirect();
+	void testKitRetrievalCopy();
+	void testKitRetrievalDirect();
+	/** A snapshot held via getSnapshot() must remain valid and
+	 * unchanged across a full update() of the database. */
+	void testSnapshotStableAcrossUpdate();
+	/** A drumkit path registered via registerCustomDrumkitPath() must
+	 * survive a full update() of the database. */
+	void testCustomDrumkitPathSurvivesUpdate();
+	/** A lazy getDrumkit() load of a kit outside the scanned contexts
+	 * must publish a new snapshot without affecting previously held
+	 * ones. */
+	void testGetDrumkitPublishesSnapshot();
 };

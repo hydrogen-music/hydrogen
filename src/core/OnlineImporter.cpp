@@ -283,30 +283,28 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 	// context.
 	const QString sSourceFolder = deriveSourceFolder( artifact.sourceUrl );
 	QString sRootFolder;
-	const std::vector<std::shared_ptr<SoundLibraryInfo>>* pInfos = nullptr;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> infos;
 	switch ( artifact.type ) {
 	case OnlineArtifact::Type::Pattern:
-		pInfos = &pDB->getPatternInfos();
+		infos = pDB->getPatternInfos();
 		sRootFolder = Filesystem::userPatternsDir();
 		break;
 	case OnlineArtifact::Type::Song:
-		pInfos = &pDB->getSongInfos();
+		infos = pDB->getSongInfos();
 		sRootFolder = Filesystem::userSongsDir();
 		break;
 	case OnlineArtifact::Type::Drumkit:
-		pInfos = &pDB->getDrumkitInfos();
+		infos = pDB->getDrumkitInfos();
 		sRootFolder = Filesystem::userDrumkitsDir();
 		break;
 	}
 
-	if ( pInfos == nullptr ) {
+	if ( infos.empty() ) {
+		// Either an unsupported artifact type or no registered artifacts
+		// of this type.
 		artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
 		return;
 	}
-
-	// Iterate a copy of the infos: a rescan of the database triggered
-	// while resolving must not invalidate the iteration below.
-	const auto infos = *pInfos;
 
 	if ( !sSourceFolder.isEmpty() ) {
 		sRootFolder += sSourceFolder + "/";

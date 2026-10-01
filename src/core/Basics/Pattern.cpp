@@ -614,8 +614,12 @@ void Pattern::applyMissingTypes(
 			// different priority. In each context, we just take the first
 			// match.
 
+			// All swipes run over a single snapshot: the fallback must not
+			// mix content of different publications.
+			const auto pSnapshot = pDB->getSnapshot();
+
 			// Kits explicitly loaded by user via our API have highest priority.
-			for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+			for ( const auto& [_, ppDrumkit] : pSnapshot->drumkitDatabase ) {
 				if ( ppDrumkit != nullptr &&
 					 ( ppDrumkit->getContext() ==
 						   Filesystem::Context::SessionReadOnly ||
@@ -629,7 +633,8 @@ void Pattern::applyMissingTypes(
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in folders manually added by the user have a similar
 				// priority.
-				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] :
+					  pSnapshot->drumkitDatabase ) {
 					if ( ppDrumkit != nullptr &&
 						 ppDrumkit->getContext() == Filesystem::Context::Custom &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
@@ -640,7 +645,8 @@ void Pattern::applyMissingTypes(
 			}
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in the user's drumkit folder are next.
-				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] :
+					  pSnapshot->drumkitDatabase ) {
 					if ( ppDrumkit != nullptr &&
 						 ppDrumkit->getContext() == Filesystem::Context::User &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
@@ -652,7 +658,8 @@ void Pattern::applyMissingTypes(
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in the system's drumkit folder, which were shipped as
 				// part of Hydrogen, have the lower priority.
-				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] :
+					  pSnapshot->drumkitDatabase ) {
 					if ( ppDrumkit != nullptr &&
 						 ppDrumkit->getContext() ==
 							 Filesystem::Context::System &&

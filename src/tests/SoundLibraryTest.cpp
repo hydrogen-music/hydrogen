@@ -102,6 +102,118 @@ void SoundLibraryTest::testKitRetrievalDirect() {
 	___INFOLOG( "passed" );
 }
 
+void SoundLibraryTest::testSnapshotStableAcrossUpdate() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	const auto pSnapshotBefore = pDB->getSnapshot();
+	CPPUNIT_ASSERT( pSnapshotBefore != nullptr );
+	CPPUNIT_ASSERT( ! pSnapshotBefore->drumkitDatabase.empty() );
+
+	// Kits of the System context are shipped and immutable: they must
+	// survive every rescan.
+	QStringList systemKitPaths;
+	for ( const auto& [ sPath, ppDrumkit ]:
+		  pSnapshotBefore->drumkitDatabase ) {
+		if ( ppDrumkit != nullptr &&
+			 ppDrumkit->getContext() ==
+				 H2Core::Filesystem::Context::System ) {
+			systemKitPaths << sPath;
+		}
+	}
+	CPPUNIT_ASSERT( ! systemKitPaths.isEmpty() );
+
+	// All kit paths of the held snapshot, captured before the update.
+	QStringList allKitPaths;
+	for ( const auto& [ sPath, _ ]: pSnapshotBefore->drumkitDatabase ) {
+		allKitPaths << sPath;
+	}
+
+	pDB->update();
+
+	// The held snapshot must be unaffected by the publication: it
+	// still holds exactly the kits it held before. A publication swaps
+	// in a new snapshot instead of mutating held ones.
+	CPPUNIT_ASSERT( pSnapshotBefore->drumkitDatabase.size() ==
+					static_cast<std::size_t>( allKitPaths.size() ) );
+	for ( const auto& sPath : allKitPaths ) {
+		CPPUNIT_ASSERT( pSnapshotBefore->drumkitDatabase.find( sPath ) !=
+						pSnapshotBefore->drumkitDatabase.end() );
+	}
+	for ( const auto& [ _, ppDrumkit ]: pSnapshotBefore->drumkitDatabase ) {
+		CPPUNIT_ASSERT( ppDrumkit != nullptr );
+	}
+
+	// The update published a fresh, usable snapshot.
+	const auto pSnapshotAfter = pDB->getSnapshot();
+	CPPUNIT_ASSERT( pSnapshotAfter != nullptr );
+	CPPUNIT_ASSERT( pSnapshotAfter != pSnapshotBefore );
+	CPPUNIT_ASSERT( ! pSnapshotAfter->drumkitDatabase.empty() );
+	for ( const auto& sPath : systemKitPaths ) {
+		CPPUNIT_ASSERT(
+			pSnapshotAfter->drumkitDatabase.find( sPath ) !=
+			pSnapshotAfter->drumkitDatabase.end()
+		);
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testCustomDrumkitPathSurvivesUpdate() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	// A registered custom drumkit path must survive a full rescan: the
+	// scan rebuilds the database content from disk but must not lose
+	// the registration.
+	const QString sKitPath = H2TEST_FILE( "/drumkits/baseKit/drumkit.xml" );
+	pDB->registerCustomDrumkitPath( sKitPath );
+	CPPUNIT_ASSERT( pDB->getCustomDrumkitPaths().contains( sKitPath ) );
+
+	pDB->update();
+
+	CPPUNIT_ASSERT( pDB->getCustomDrumkitPaths().contains( sKitPath ) );
+
+	// The scan picked the registered path up and loaded the kit.
+	const auto pSnapshot = pDB->getSnapshot();
+	const auto foundKit = pSnapshot->drumkitDatabase.find( sKitPath );
+	CPPUNIT_ASSERT( foundKit != pSnapshot->drumkitDatabase.end() );
+	CPPUNIT_ASSERT( foundKit->second != nullptr );
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testGetDrumkitPublishesSnapshot() {
+	___INFOLOG( "" );
+
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
+
+	// A kit outside the scanned contexts is not part of the database.
+	const QString sKitPath = H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml" );
+	const auto pSnapshotBefore = pDB->getSnapshot();
+	CPPUNIT_ASSERT( pSnapshotBefore->drumkitDatabase.find( sKitPath ) ==
+					pSnapshotBefore->drumkitDatabase.end() );
+
+	// Retrieving it lazily loads the kit and publishes a new snapshot
+	// containing it.
+	auto pDrumkit = pDB->getDrumkit( sKitPath );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+
+	const auto pSnapshotAfter = pDB->getSnapshot();
+	const auto foundKit = pSnapshotAfter->drumkitDatabase.find( sKitPath );
+	CPPUNIT_ASSERT( foundKit != pSnapshotAfter->drumkitDatabase.end() );
+	CPPUNIT_ASSERT( foundKit->second == pDrumkit );
+
+	// The previously held snapshot is unaffected by the publication.
+	CPPUNIT_ASSERT( pSnapshotBefore->drumkitDatabase.find( sKitPath ) ==
+					pSnapshotBefore->drumkitDatabase.end() );
+	CPPUNIT_ASSERT( pSnapshotBefore != pSnapshotAfter );
+
+	___INFOLOG( "passed" );
+}
+
 void SoundLibraryTest::testFindArtifactPatternDoesNotReturnSong() {
 	___INFOLOG( "" );
 

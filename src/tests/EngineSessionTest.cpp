@@ -370,12 +370,12 @@ void EngineSessionTest::testSoundLibraryRescanCrossesSplit() {
 		return pH->getSoundLibraryDatabase()->getDrumkitDatabase().count(
 			Filesystem::drumkitPathFromDir( sKitDir ) ) > 0; };
 	const auto fPatternKnown = [&]( H2Core::Hydrogen* pH ) {
-		const auto& infos = pH->getSoundLibraryDatabase()->getPatternInfos();
+		const auto infos = pH->getSoundLibraryDatabase()->getPatternInfos();
 		return std::any_of( infos.begin(), infos.end(),
 			[&]( const std::shared_ptr<SoundLibraryInfo>& pInfo ) {
 				return pInfo->getPath() == sPatternPath; } ); };
 	const auto fSongKnown = [&]( H2Core::Hydrogen* pH ) {
-		const auto& infos = pH->getSoundLibraryDatabase()->getSongInfos();
+		const auto infos = pH->getSoundLibraryDatabase()->getSongInfos();
 		return std::any_of( infos.begin(), infos.end(),
 			[&]( const std::shared_ptr<SoundLibraryInfo>& pInfo ) {
 				return pInfo->getPath() == sSongPath; } ); };
