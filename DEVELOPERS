@@ -76,7 +76,7 @@ order to make a release has several, easy-to-forget steps.  They are:
      b. Update CHANGELOG.md
 
      c. Check if nothing has changed and update version and date in
-        linux/hydrogen.1
+        linux/hydrogen.1, linux/h2cli.1, and linux/h2player.cli
 
      d. Update the `TARGET_VERSION` variable in [.appveyor.yml](.appveyor.yml)
  
