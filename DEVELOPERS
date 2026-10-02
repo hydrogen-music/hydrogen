@@ -112,7 +112,7 @@ order to make a release has several, easy-to-forget steps.  They are:
      commit changes to the tag.
 
      git tag -a 0.9.4 -m "Tagging 0.9.4"
-     git push --tags origin
+     git push origin 0.9.4
 
   9. In case the release is a new major or minor version, also create
      a dedicated release branch, like `releases/1.2`.
