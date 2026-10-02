@@ -45,6 +45,8 @@
 
 #include <QDir>
 #include <QProcess>
+#include <QFontDatabase>
+#include <QFont>
 //#include <QApplication>
 
 namespace H2Core
@@ -286,6 +288,31 @@ Preferences::~Preferences()
 {
 	INFOLOG( "DESTROY" );
 	__instance = nullptr;
+}
+
+QString Preferences::validateFontFamily( const QString& family ) {
+	if ( family.isEmpty() ) {
+		return QFont().family();
+	}
+	static QFontDatabase s_fontDb;
+	if ( !s_fontDb.families().contains( family ) ) {
+		WARNINGLOG( QString( "Font family '%1' not found, falling back to default" )
+					.arg( family ) );
+		return QFont().family();
+	}
+	return family;
+}
+
+QString Preferences::getApplicationFontFamily() const {
+	return validateFontFamily( getApplicationFontFamilyRaw() );
+}
+
+QString Preferences::getLevel2FontFamily() const {
+	return validateFontFamily( getLevel2FontFamilyRaw() );
+}
+
+QString Preferences::getLevel3FontFamily() const {
+	return validateFontFamily( getLevel3FontFamilyRaw() );
 }
 
 ///
@@ -587,11 +614,11 @@ bool Preferences::loadPreferences( bool bGlobal )
 				}
 
 				// Font fun
-				setApplicationFontFamily( guiNode.read_string( "application_font_family", getApplicationFontFamily(), false, false ) );
+				setApplicationFontFamily( guiNode.read_string( "application_font_family", getApplicationFontFamilyRaw(), false, false ) );
 				// The value defaults to m_sApplicationFontFamily on
 				// purpose to provide backward compatibility.
-				setLevel2FontFamily( guiNode.read_string( "level2_font_family", getLevel2FontFamily(), false, false ) );
-				setLevel3FontFamily( guiNode.read_string( "level3_font_family", getLevel3FontFamily(), false, false ) );
+				setLevel2FontFamily( guiNode.read_string( "level2_font_family", getLevel2FontFamilyRaw(), false, false ) );
+				setLevel3FontFamily( guiNode.read_string( "level3_font_family", getLevel3FontFamilyRaw(), false, false ) );
 				setFontSize( static_cast<FontTheme::FontSize>(
 					guiNode.read_int( "font_size",
 									  static_cast<int>(FontTheme::FontSize::Medium), false, false ) ) );
@@ -1047,9 +1074,9 @@ bool Preferences::savePreferences()
 	XMLNode guiNode = rootNode.createNode( "gui" );
 	{
 		guiNode.write_string( "QTStyle", getQTStyle() );
-		guiNode.write_string( "application_font_family", getApplicationFontFamily() );
-		guiNode.write_string( "level2_font_family", getLevel2FontFamily() );
-		guiNode.write_string( "level3_font_family", getLevel3FontFamily() );
+		guiNode.write_string( "application_font_family", getApplicationFontFamilyRaw() );
+		guiNode.write_string( "level2_font_family", getLevel2FontFamilyRaw() );
+		guiNode.write_string( "level3_font_family", getLevel3FontFamilyRaw() );
 		guiNode.write_int( "font_size", static_cast<int>(getFontSize()) );
 		guiNode.write_float( "mixer_falloff_speed", getMixerFalloffSpeed() );
 		guiNode.write_int( "patternEditorGridResolution", m_nPatternEditorGridResolution );

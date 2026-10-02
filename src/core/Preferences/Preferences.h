@@ -479,11 +479,14 @@ public:
 	const QString&	getQTStyle();
 	void			setQTStyle( const QString& sStyle );
 
-	const QString&	getApplicationFontFamily() const;
+	QString			getApplicationFontFamily() const;
+	const QString&	getApplicationFontFamilyRaw() const;
 	void			setApplicationFontFamily( const QString& family );
-	const QString&	getLevel2FontFamily() const;
+	QString			getLevel2FontFamily() const;
+	const QString&	getLevel2FontFamilyRaw() const;
 	void			setLevel2FontFamily( const QString& family );
-	const QString&	getLevel3FontFamily() const;
+	QString			getLevel3FontFamily() const;
+	const QString&	getLevel3FontFamilyRaw() const;
 	void			setLevel3FontFamily( const QString& family );
 
 	FontTheme::FontSize		getFontSize() const;
@@ -692,6 +695,12 @@ private:
 	 * accessed with get_instance().
 	 */
 	static Preferences *		__instance;
+
+	/**
+	 * Validates a font family name against QFontDatabase.
+	 * Returns the family if available, otherwise the system default.
+	 */
+	static QString			validateFontFamily( const QString& family );
 
 	std::shared_ptr<Theme>		m_pTheme;
 	
@@ -1182,21 +1191,21 @@ inline const QString& Preferences::getQTStyle() {
 inline void Preferences::setQTStyle( const QString& sStyle ) {
 	m_pTheme->getInterfaceTheme()->m_sQTStyle = sStyle;
 }
-inline const QString& Preferences::getApplicationFontFamily() const {
+inline const QString& Preferences::getApplicationFontFamilyRaw() const {
 	return m_pTheme->getFontTheme()->m_sApplicationFontFamily;
 }
 inline void Preferences::setApplicationFontFamily( const QString& family ) {
 	m_pTheme->getFontTheme()->m_sApplicationFontFamily = family;
 }
 
-inline const QString& Preferences::getLevel2FontFamily() const {
+inline const QString& Preferences::getLevel2FontFamilyRaw() const {
 	return m_pTheme->getFontTheme()->m_sLevel2FontFamily;
 }
 inline void Preferences::setLevel2FontFamily( const QString& family ) {
 	m_pTheme->getFontTheme()->m_sLevel2FontFamily = family;
 }
 
-inline const QString& Preferences::getLevel3FontFamily() const {
+inline const QString& Preferences::getLevel3FontFamilyRaw() const {
 	return m_pTheme->getFontTheme()->m_sLevel3FontFamily;
 }
 inline void Preferences::setLevel3FontFamily( const QString& family ) {

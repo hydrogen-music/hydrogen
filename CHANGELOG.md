@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
   - `.h2song`, in which the playback track will be stored as a full-blown
     instrument and the `<tags>` node introduced.
   - drumkits, in the `<tags>` node will be introduced.
+- Swedish translation updated by @yeager.
 
 ### Changed
 
@@ -22,6 +23,10 @@ All notable changes to this project will be documented in this file.
   tempo changes via keyboard shortcuts, MIDI, or OSC commands as well as
   Beat Counter and Tap Tempo are now discarded.
 - Big update of the `hydrogen` man page.
+- Instead of using the raw font family names of the config file, they are
+  validated first and might trigger a fallback to a safer font. This was done to
+  prevent crashes of `libfontconfig` on Linux (#2343).
+- Default font was changed to "Sans Serif" (#2343).
 
 ### Fixed
 
@@ -35,9 +40,12 @@ All notable changes to this project will be documented in this file.
 - Online drumkit download from SourceForge when compiled with Qt6 (none of our
   release artifacts).
 - Segfault on Port-MIDI host error by @rrrapha.
-- Fix linker error on OpenBSD by @rrrapha.
+- Fixed linker error on OpenBSD by @rrrapha.
 - Fixed performance issue when using JACK audio with rubberband.
 - Parameter loss in the MIDI table within the preferences (#2328).
+- Fixed XDG app ID by @City-busz.
+- Rubberband support compiled into Hydrogen is no longer deactivated in case the
+  rubberband CLI is not installed on the system.
 
 ## [1.2.6] - 2025-07-29
 

@@ -187,9 +187,9 @@ InterfaceTheme::InterfaceTheme( const std::shared_ptr<InterfaceTheme> pOther )
 }
 
 FontTheme::FontTheme()
-	: m_sApplicationFontFamily( "Lucida Grande" )
-	, m_sLevel2FontFamily( "Lucida Grande" )
-	, m_sLevel3FontFamily( "Lucida Grande" )
+	: m_sApplicationFontFamily( "Sans Serif" )
+	, m_sLevel2FontFamily( "Sans Serif" )
+	, m_sLevel3FontFamily( "Sans Serif" )
 	, m_fontSize( FontTheme::FontSize::Medium ) {
 }
 
