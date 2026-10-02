@@ -31,8 +31,15 @@
 #include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
+#include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QTemporaryDir>
+
+#include <atomic>
+#include <chrono>
+#include <future>
+#include <thread>
 
 void SoundLibraryTest::testContextValidity() {
 	___INFOLOG( "" );
@@ -406,6 +413,108 @@ void SoundLibraryTest::testInitialScanProgressEvents()
 	CPPUNIT_ASSERT( values.back() == 100 );
 	// 5% throttle: at most the 21 full percentage steps are reported.
 	CPPUNIT_ASSERT( values.size() <= 21 );
+
+	delete pHydrogen;
+
+	___INFOLOG( "passed" );
+}
+
+void SoundLibraryTest::testConcurrentSectionScansSerialize()
+{
+	___INFOLOG( "" );
+	// ADR 0034: section scans serialize. Each updateX() publishes a
+	// copy of the snapshot it took on entry, so a second scan
+	// overlapping a parked first one would drop the first one's
+	// section: the second scan's entry copy predates the first scan's
+	// publish. Here a drumkit scan is parked mid-way (through its
+	// progress hook) while a second kit lands on disk; a second
+	// drumkit scan must hold off until the parked one is done, or the
+	// parked scan's stale publish drops the new kit.
+	auto pHydrogen = TestHelper::makeEngine();
+	pHydrogen->getSoundLibraryDatabase()->waitForInitialScan();
+
+	const QString sTestDataDir = TestHelper::get_instance()->getTestDataDir();
+	const QString sKitDir = QDir::cleanPath(
+		H2Core::Filesystem::userDrumkitsDir() + QString( "/serialize-kit-%1" )
+			.arg( QCoreApplication::applicationPid() ) );
+
+	// Parks the scan between its entry copy and its publish: the
+	// first report fires after the listing, during the first kit
+	// load.
+	std::promise<void> parked;
+	std::promise<void> release;
+	auto fParked = parked.get_future();
+	auto fRelease = release.get_future().share();
+	class ParkingProgress
+		: public H2Core::SoundLibraryDatabase::ScanProgress
+	{
+	public:
+		ParkingProgress( H2Core::Hydrogen* pH2, std::promise<void> parked,
+						 std::shared_future<void> fRelease )
+			: ScanProgress( pH2 )
+			, m_parked( std::move( parked ) )
+			, m_fRelease( std::move( fRelease ) ) {}
+		void report( int ) override {
+			if ( m_bReported.exchange( true ) ) {
+				return;
+			}
+			m_parked.set_value();
+			m_fRelease.get();
+		}
+	private:
+		std::promise<void> m_parked;
+		std::shared_future<void> m_fRelease;
+		std::atomic<bool> m_bReported{ false };
+	};
+	ParkingProgress parking( pHydrogen, std::move( parked ), fRelease );
+
+	auto scanA = std::thread( [ & ]() {
+		pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
+			H2Core::Event::Trigger::Suppress, &parking );
+	} );
+	// The scan thread now sits between its entry copy and its publish.
+	fParked.get();
+
+	// The kit lands behind the back of the parked scan's listing.
+	CPPUNIT_ASSERT( QDir().mkpath( sKitDir ) );
+	for ( const auto& sFile :
+		  QDir( sTestDataDir + "/drumkits/baseKit" ).entryList(
+			  QDir::Files ) ) {
+		CPPUNIT_ASSERT( QFile::copy( sTestDataDir + "/drumkits/baseKit/" +
+									 sFile, sKitDir + "/" + sFile ) );
+	}
+
+	const auto fKitKnown = [ & ]() {
+		return pHydrogen->getSoundLibraryDatabase()->getDrumkitDatabase()
+			.count( H2Core::Filesystem::drumkitPathFromDir( sKitDir ) ) > 0;
+	};
+
+	auto scanB = std::thread( [ & ]() {
+		pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
+			H2Core::Event::Trigger::Suppress, nullptr );
+	} );
+
+	// Observation only — an assert unwinding past the joinable scan
+	// threads would terminate the whole suite.
+	bool bPublishedWhileParked = false;
+	const auto deadline = std::chrono::steady_clock::now() +
+		std::chrono::milliseconds( 1000 );
+	while ( std::chrono::steady_clock::now() < deadline ) {
+		if ( fKitKnown() ) {
+			bPublishedWhileParked = true;
+			break;
+		}
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+	}
+
+	release.set_value();
+	scanA.join();
+	scanB.join();
+
+	// The second scan must not publish while the first one is parked.
+	CPPUNIT_ASSERT( ! bPublishedWhileParked );
+	// Serialized, the second scan published the kit after the first.
+	CPPUNIT_ASSERT( fKitKnown() );
 
 	delete pHydrogen;
 

@@ -349,6 +349,13 @@ void EngineSessionTest::testSoundLibraryRescanCrossesSplit() {
 	auto pAccess = pEditor->createEngineAccess();
 	CPPUNIT_ASSERT( pAccess != nullptr );
 
+	// The background initial scans (ADR 0034) must be done before the
+	// artifacts land: the premise below is that both databases were
+	// built before the kit, pattern, and song appear behind their
+	// back.
+	pEngine->getSoundLibraryDatabase()->waitForInitialScan();
+	pMirror->getSoundLibraryDatabase()->waitForInitialScan();
+
 	// Now the artifacts land — behind the back of both databases, which
 	// were built at construction time above.
 	CPPUNIT_ASSERT( QDir().mkpath( sKitDir ) );

@@ -88,6 +88,17 @@ coordination surface.
   concurrently with a scan keep their entries — for a merged path
   missing in the new snapshot, the entry, its `DrumkitInfo`, and its
   unique label are carried over. Entries win over disk state.
+* **Scan serialization**: the section scans (`updatePatterns()`,
+  `updateSongs()`, `updateDrumkits()`) serialize on a scan mutex.
+  Each section scan publishes a copy of the snapshot it took on
+  entry, so two overlapping scans would silently drop the earlier
+  one's section — the later run's copy predates the earlier publish
+  (biting in production whenever a GUI- or IPC-triggered rescan
+  overlaps the still-running initial scan). One scan at a time keeps
+  every section update; the publication lock (`m_writerMutex`) is
+  taken on top of the scan mutex. `ScanProgress::report()` is
+  virtual so tests can park a scan mid-way and assert the
+  serialization deterministically.
 * **Closed Preferences race**: `getCustomSoundLibraryDirs()` returns a
   copy under a new `QMutex` in the `Preferences` wrapper class (following
   the `m_persistedFootprintMutex` precedent). The mutex deliberately

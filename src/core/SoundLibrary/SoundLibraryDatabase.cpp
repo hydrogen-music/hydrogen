@@ -389,6 +389,11 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger,
 		return;
 	}
 
+	// One scan at a time: a scan overlapping this one would publish a
+	// snapshot copy taken before this scan's changes (see
+	// #m_scanMutex).
+	std::lock_guard<std::mutex> scanLock( m_scanMutex );
+
 	// Build the new content outside the publication lock: the listing
 	// reaches back into the database (custom drumkit folders) and the
 	// drumkit loads are expensive disk I/O which must not block
@@ -830,13 +835,16 @@ std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const
 }
 
 void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger,
-											ScanProgress* pProgress )
+										   ScanProgress* pProgress )
 {
 	if ( m_bStopScan ) {
 		// The scan was interrupted (shutdown): a late update must not
 		// publish anything.
 		return;
 	}
+
+	// One scan at a time (see #m_scanMutex).
+	std::lock_guard<std::mutex> scanLock( m_scanMutex );
 
 	// Build the new content outside the publication lock (see
 	// updateDrumkits()).
@@ -895,6 +903,9 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger,
 		// publish anything.
 		return;
 	}
+
+	// One scan at a time (see #m_scanMutex).
+	std::lock_guard<std::mutex> scanLock( m_scanMutex );
 
 	// Build the new content outside the publication lock (see
 	// updateDrumkits()).

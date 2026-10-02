@@ -40,6 +40,7 @@ class SoundLibraryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testGetDrumkitUpgradeParameter );
 	CPPUNIT_TEST( testInitialScanCompletes );
 	CPPUNIT_TEST( testInitialScanProgressEvents );
+	CPPUNIT_TEST( testConcurrentSectionScansSerialize );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
@@ -82,4 +83,8 @@ public:
 	 * SoundLibraryScanProgress events (0-100, monotonic, throttled to
 	 * 5% steps). */
 	void testInitialScanProgressEvents();
+	/** Section scans serialize: a second scan overlapping a parked
+	 * first one must not publish in between, or the parked scan's
+	 * stale publish drops the second scan's content. */
+	void testConcurrentSectionScansSerialize();
 };

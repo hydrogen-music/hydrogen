@@ -114,10 +114,13 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 			: m_pHydrogen( pHydrogen )
 		{
 		}
+		virtual ~ScanProgress() = default;
 
 		/** Queue a #Event::Type::SoundLibraryScanProgress event for
-		 * @a nValue (0-100), unless the throttle suppresses it. */
-		void report( int nValue );
+		 * @a nValue (0-100), unless the throttle suppresses it.
+		 * Virtual: tests park a scan mid-way through a custom
+		 * reporter. */
+		virtual void report( int nValue );
 
 	private:
 		Hydrogen* m_pHydrogen;
@@ -251,6 +254,15 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	mutable std::mutex m_writerMutex;
 	/** Currently published snapshot. Never null. */
 	std::shared_ptr<const Snapshot> m_pSnapshot;
+
+	/** Serializes the section scans (updatePatterns(),
+	 * updateSongs(), updateDrumkits()): each of them publishes a copy
+	 * of the snapshot it took on entry, so two overlapping scans would
+	 * silently drop the earlier one's section — the later run's copy
+	 * predates the earlier publish. Held across a whole scan; the
+	 * publication then takes #m_writerMutex on top of it (lock
+	 * order: this mutex first). */
+	mutable std::mutex m_scanMutex;
 
 	/** Set by #shutdown to interrupt a running scan. Checked between
 	 * scan items; never reset — after a shutdown the database must not
