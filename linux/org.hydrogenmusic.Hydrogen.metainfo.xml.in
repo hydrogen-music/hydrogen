@@ -54,6 +54,27 @@
   <url type="contact">http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel/</url>
 
   <releases>
+    <release version="1.2.7" date="2026-10-02">
+	<description>
+	  <p>This patch release fixes minor bugs and improves forward compatibility with the upcoming 2.0 release.</p>
+	</description>
+	<url type="details">https://github.com/hydrogen-music/hydrogen/releases/tag/1.2.7</url>
+	<artifacts>
+	  <artifact type="binary" platform="x86_64-linux-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.7/Hydrogen-1.2.7-x86_64.AppImage</location>
+		<checksum type="sha256">4fa9e8e2f506f8380fc0b511a36c4ae72cbe0dc8b0ecd0fc0f7518443750b1bf</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="any-macos-gnu">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.7/Hydrogen-1.2.7.dmg</location>
+		<checksum type="sha256">3c7427fadcb492da15786cb14f7b6b9728ebbc9fad7254eedffc0ffb85faf127</checksum>
+	  </artifact>
+	  <artifact type="binary" platform="x86_64-windows-msvc">
+		<location>https://github.com/hydrogen-music/hydrogen/releases/download/1.2.7/Hydrogen-1.2.7-win64.exe</location>
+		<checksum type="sha256">ae3b9d31b5e65ddf127c7aabb56a6f39cc85cb714729a74ce65acfe97623220c</checksum>
+	  </artifact>
+	</artifacts>
+    </release>
+
     <release version="1.2.6" date="2025-07-29">
 	<description>
 	  <p>This patch release fixes a bug introduced in 1.2.5 and other minor
