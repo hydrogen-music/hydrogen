@@ -35,6 +35,7 @@ AboutDialogContributorList::AboutDialogContributorList() {
 ,"luz paz"
 ,"Hubert Figuière"
 ,"Daniele Medri"
+,"Dennis Braun"
 ,"Raphael Graf"
 ,"psykose"
 ,"ignotus666"
@@ -44,6 +45,8 @@ AboutDialogContributorList::AboutDialogContributorList() {
 ,"Giovana Morais"
 ,"Rosea Grammostola"
 ,"Al Dimond"
+,"Daniel Nylander"
+,"Balló György"
 };
 	m_pContributorList = std::make_shared<std::vector<QString>>(v);
 }
