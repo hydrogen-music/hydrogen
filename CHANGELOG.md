@@ -321,12 +321,20 @@ All notable changes to this project will be documented in this file.
 - User-defined note lengths are no longer automatically changed based on
   pitch during recording or editing (#63).
 
-## [1.2.7] - XXXX-XX-XX
+## [1.2.7] - 2026-10-02
 
 ### Added
 
 - Support for songs and drumkits created with version `0.9.3` (#2193).
 - Linux man pages for the `h2cli` and `h2player` applications have been added.
+- Forward compatibility to version 2.0:
+  - `hydrogen.conf` regarding MIDI input channel values.
+  - `.h2pattern`, in which the `<pitch>` and `<category>` node will be dropped
+    and `<tags>` introduced.
+  - `.h2song`, in which the playback track will be stored as a full-blown
+    instrument and the `<tags>` node introduced.
+  - drumkits, in the `<tags>` node will be introduced.
+- Swedish translation updated by @yeager.
 
 ### Changed
 
@@ -348,8 +356,15 @@ All notable changes to this project will be documented in this file.
 - Using bpm, beat counter, and tap tempo MIDI actions or OSC commands while
   timeline is activate does no longer result in countless popups.
 - Pattern loading and deleting via the Sound Library has been fixed.
+- Online drumkit download from SourceForge when compiled with Qt6 (none of our
+  release artifacts).
+- Segfault on Port-MIDI host error by @rrrapha.
+- Fixed linker error on OpenBSD by @rrrapha.
 - Fixed performance issue when using JACK audio with rubberband.
 - Parameter loss in the MIDI table within the preferences (#2328).
+- Fixed XDG app ID by @City-busz.
+- Rubberband support compiled into Hydrogen is no longer deactivated in case the
+  rubberband CLI is not installed on the system.
 
 ## [1.2.6] - 2025-07-29
 

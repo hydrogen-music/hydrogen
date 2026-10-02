@@ -88,7 +88,8 @@ order to make a release has several, easy-to-forget steps.  They are:
      b. Update [CHAMGELOG.md](CHAMGELOG.md)
 
      c. Check if nothing has changed and update version and date in
-        [linux/hydrogen.1](linux/hydrogen.1)
+        [linux/h2cli.1](linux/h2cli.1), [linux/h2player.1](linux/h2player.1),
+        and [linux/hydrogen.1](linux/hydrogen.1)
 
      d. Update the `TARGET_VERSION` variable in [.appveyor.yml](.appveyor.yml)
  
@@ -125,7 +126,7 @@ order to make a release has several, easy-to-forget steps.  They are:
 
       ```bash
       git tag -a 0.9.4 -m "Tagging 0.9.4"
-      git push --tags origin
+      git push origin 0.9.4
       ```
 
   9. In case the release is a new major or minor version, also create
