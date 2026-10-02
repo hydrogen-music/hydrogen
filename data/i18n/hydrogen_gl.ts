@@ -1933,6 +1933,11 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Shown in the undo history after editing which patterns a virtual * pattern is composed of.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Scanning sound library</source>
+        <extracomment>Status bar readout while the background sound library scan is * running. The percentage is appended (not part of the string) to * keep the placeholder out of the translation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
