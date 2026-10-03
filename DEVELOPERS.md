@@ -147,5 +147,4 @@ order to make a release has several, easy-to-forget steps.  They are:
       - [hydrogen-music.org](https://github.com/hydrogen-music/hydrogen-music)
 
   14. Update third party repos. Make a PR against:
-      - Homebrew: https://github.com/Homebrew/homebrew-cask/blob/master/Casks/hydrogen.rb
       - Flatpak: https://github.com/flathub/org.hydrogenmusic.Hydrogen/
