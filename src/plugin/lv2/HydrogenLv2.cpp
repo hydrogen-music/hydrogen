@@ -196,10 +196,13 @@ const LV2_Descriptor kDescriptor = {
 	run, deactivate, cleanup, extension_data
 };
 
-// ── LV2 UI (ADR 0016: out-of-process editor via ui:showInterface) ──────────
-// Hydrogen's editor is a separate process, so this UI does not embed a widget.
-// It obtains the DSP instance through the instance-access feature and drives
-// HydrogenPlugin's editor lifecycle via the show / hide / idle interfaces.
+// ── LV2 UI (ADR 0016 + ADR 0035: editor via ui:showInterface) ──────────────
+// Hydrogen's editor is a separate process, so this UI does not embed a widget
+// (the embedded basic UI, proposal 0006 UI-5, replaces the no-embed contract
+// with a real child window). It obtains the DSP instance through the
+// instance-access feature. The plugin instance owns the editor lifecycle
+// (ADR 0035): only show() drives it - hide(), cleanup() and idle() leave the
+// editor alone, and it dies with the DSP instance.
 #define H2_LV2_UI_URI H2_LV2_URI "#ui"
 
 struct H2Lv2Ui {
@@ -240,12 +243,9 @@ LV2UI_Handle uiInstantiate( const LV2UI_Descriptor*, const char* /*plugin_uri*/,
 
 void uiCleanup( LV2UI_Handle handle ) {
 	auto* ui = static_cast<H2Lv2Ui*>( handle );
-	if ( ui != nullptr ) {
-		if ( ui->engine != nullptr ) {
-			ui->engine->closeEditor();
-		}
-		delete ui;
-	}
+	// The editor is owned by the plugin instance, not the UI (ADR 0035): it
+	// dies with the DSP instance (the HydrogenPlugin destructor closes it).
+	delete ui;
 }
 
 void uiPortEvent( LV2UI_Handle, uint32_t, uint32_t, uint32_t, const void* ) {}
@@ -258,11 +258,10 @@ int uiShow( LV2UI_Handle handle ) {
 	return ui->engine->openEditor() ? 0 : 1;
 }
 
-int uiHide( LV2UI_Handle handle ) {
-	auto* ui = static_cast<H2Lv2Ui*>( handle );
-	if ( ui != nullptr && ui->engine != nullptr ) {
-		ui->engine->closeEditor();
-	}
+int uiHide( LV2UI_Handle ) {
+	// Interim no-op (ADR 0035): the plugin instance owns the editor, so hiding
+	// the UI must not close it. UI-5 (proposal 0006) turns this into hiding
+	// the embedded basic-UI window.
 	return 0;
 }
 
@@ -271,9 +270,10 @@ int uiIdle( LV2UI_Handle handle ) {
 	if ( ui == nullptr || ui->engine == nullptr ) {
 		return 1;
 	}
-	// Non-zero tells the host the UI has closed (the user closed the editor
-	// window); the host then calls hide() and stops idling.
-	return ui->engine->isEditorProcessRunning() ? 0 : 1;
+	// Interim rule (proposal 0006, TU0.2): idle() returns 0 for the lifetime
+	// of the handle so no host tears the UI down while the plugin instance
+	// lives. UI-5 (TU5.2) replaces this with window-driven semantics.
+	return 0;
 }
 
 const LV2UI_Show_Interface kShowInterface = { uiShow, uiHide };

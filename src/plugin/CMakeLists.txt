@@ -146,11 +146,19 @@ if(WANT_LV2)
         DESTINATION "${H2_LIB_PATH}/lv2/hydrogen.lv2")
 
     # 8c smoke: a tiny in-process LV2 host that drives the built module through
-    # its full lifecycle (stands in for lv2lint where meson/lilv are absent).
+    # its full lifecycle and its UI descriptor through the show/hide/idle
+    # semantics (proposal 0006, phase UI-0) (stands in for lv2lint where
+    # meson/lilv are absent).
     add_executable( hydrogen-lv2-smoke lv2/lv2_smoke.cpp )
     target_include_directories( hydrogen-lv2-smoke PRIVATE
         ${CMAKE_SOURCE_DIR}/extern/lv2/include )
-    target_link_libraries( hydrogen-lv2-smoke PRIVATE ${CMAKE_DL_LIBS} )
+    # Qt: the UI checks observe the editor serve loop through its QLocalServer
+    # endpoint (QLocalSocket) and pin the editor binary to a name that cannot
+    # resolve (qputenv).
+    target_link_libraries( hydrogen-lv2-smoke PRIVATE
+        ${CMAKE_DL_LIBS}
+        Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Network )
     set_target_properties( hydrogen-lv2-smoke PROPERTIES CXX_STANDARD 17 )
     add_test( NAME lv2-smoke
         COMMAND hydrogen-lv2-smoke "$<TARGET_FILE:hydrogen-lv2>" )

@@ -40,7 +40,9 @@
 
 # Out-of-process editor (ADR 0016). The editor is a separate process with its own
 # window, so this UI does not embed: it gets the DSP instance via instance-access
-# and shows/hides the editor through ui:showInterface (driven by ui:idleInterface).
+# and shows the editor through ui:showInterface (driven by ui:idleInterface). The
+# plugin instance owns the editor lifecycle (ADR 0035): hide and cleanup leave
+# the editor running; it dies with the DSP instance.
 <https://hydrogen-music.org/lv2/hydrogen#ui>
     a ui:@H2_LV2_UI_TYPE@ ;
     # instance-access: the UI reaches the in-process engine to launch the editor.

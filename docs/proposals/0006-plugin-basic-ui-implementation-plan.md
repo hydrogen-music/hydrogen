@@ -54,6 +54,9 @@ sink. UI-0 can land immediately.
 
 ## 3. Phase UI-0 — LV2 shim findings: coverage + semantics fixes
 
+**Status: ✅ DONE** (2026-10-05) — TU0.1–TU0.4 landed; lv2-smoke + plugin gate
+(12/12) + unit suite (485) green.
+
 *Objective:* close the LV2 review findings that stand alone, before any
 toolkit exists. The interim behavior stays coherent: `show` spawns the editor
 as today; the editor window is self-managed (the user closes it themselves);
