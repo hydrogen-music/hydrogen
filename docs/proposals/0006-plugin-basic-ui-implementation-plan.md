@@ -94,6 +94,11 @@ false-positive destruction path.
 
 ## 4. Phase UI-1 — Vendoring & build scaffolding
 
+**Status: 🚧 IMPLEMENTATION COMPLETE — pending Windows/macOS CI verification**
+(2026-10-05) — TU1.1–TU1.3 landed; Linux plugin gate 13/13 (incl. the new
+`PluginUiGuard`) + unit suite 485 green; the vendored TUs compile warning-free
+under the strict flags (no relaxations needed).
+
 *Objective:* Dear ImGui + widget add-ons vendored per the house pattern and a
 `hydrogen-plugin-ui` library that builds on every platform and Qt ≥ 5.15.
 

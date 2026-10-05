@@ -16,3 +16,12 @@
 [submodule "extern/clap-wrapper"]
 	path = extern/clap-wrapper
 	url = https://github.com/free-audio/clap-wrapper.git
+[submodule "extern/imgui"]
+	path = extern/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "extern/imgui-knobs"]
+	path = extern/imgui-knobs
+	url = https://github.com/altschuler/imgui-knobs.git
+[submodule "extern/ImGuiFileDialog"]
+	path = extern/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog.git

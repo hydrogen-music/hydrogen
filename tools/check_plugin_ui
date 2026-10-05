@@ -1,0 +1,78 @@
+#! /bin/bash
+#
+# tools/check_plugin_ui — CI guard for ADR 0035 (embedded basic plugin UI).
+#
+# Fails if the plugin UI layer (src/plugin/ui) depends on the Qt-Widgets GUI
+# application. This is the "done-when" gate for proposal 0006 phase UI-1
+# (TU1.3): the basic plugin UI is self-contained Dear ImGui, and a plugin
+# must never claim GUI-application ownership inside a host process.
+#
+# Two hard bans:
+#   1. no Qt application object beyond the QCoreApplication that
+#      HydrogenPlugin::ensureQtApplication() already owns — QApplication
+#      (Qt Widgets) and QGuiApplication (Qt Gui) both take over display
+#      connection / session management that belongs to the host, not us;
+#   2. no includes from the GUI application tree (src/gui) — the full
+#      editor (Qt Widgets, HydrogenApp) must not leak into the plugin UI.
+#
+# No allowlist: every hit is a design violation, not a convenience.
+#
+# Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+#
+# http://www.hydrogen-music.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see https://www.gnu.org/licenses
+
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT" || exit 2
+
+UI_DIR="src/plugin/ui"
+
+if [ ! -d "$UI_DIR" ]; then
+	echo "ERROR: $UI_DIR does not exist — the guard has nothing to guard."
+	exit 2
+fi
+
+# Qt application objects in any form (include, pointer, use). \b keeps
+# QApplication from matching inside unrelated identifiers.
+PATTERN_QT_APP='\bQApplication\b|\bQGuiApplication\b'
+
+# Any include whose path references the GUI application tree: <gui/...>,
+# "gui/...", <src/gui/...>, "../gui/...", etc.
+PATTERN_GUI_INCLUDE='^[[:space:]]*#[[:space:]]*include[[:space:]]*[<"].*gui/'
+
+violations=0
+while IFS= read -r line; do
+	[ -z "$line" ] && continue
+	if [ "$violations" -eq 0 ]; then
+		echo "ERROR: Qt-Widgets GUI application dependency in the plugin UI layer."
+		echo "       The plugin UI is self-contained Dear ImGui (ADR 0035); the"
+		echo "       host owns the GUI application. Fix the dependency — there is"
+		echo "       no allowlist by design."
+		echo
+	fi
+	echo "  $line"
+	violations=$((violations + 1))
+done < <( LC_ALL=C grep -rnE "($PATTERN_QT_APP)|($PATTERN_GUI_INCLUDE)" "$UI_DIR" 2>/dev/null )
+
+if [ "$violations" -gt 0 ]; then
+	echo
+	echo "Found $violations Qt-Widgets GUI dependency(es) in the plugin UI layer."
+	exit 1
+fi
+
+echo "check_plugin_ui: OK — no Qt-Widgets GUI dependencies in the plugin UI layer."
+exit 0

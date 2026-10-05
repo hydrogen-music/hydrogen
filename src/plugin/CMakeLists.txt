@@ -31,6 +31,11 @@ set_target_properties( hydrogen-plugin PROPERTIES
     CXX_STANDARD 17
 )
 
+# Embedded basic plugin UI (ADR 0035, proposal 0006 UI-1): vendored Dear ImGui
+# + add-ons as a static lib every plugin format links. Unconditional — it must
+# build on every platform and Qt >= 5.15 even with all formats off.
+add_subdirectory( ui )
+
 # ── Native CLAP plugin (ADR 0014) ─────────────────────────────────────────
 if(WANT_CLAP)
     add_library( hydrogen-clap MODULE clap/HydrogenClap.cpp )
@@ -40,7 +45,7 @@ if(WANT_CLAP)
     target_compile_definitions( hydrogen-clap PRIVATE
         H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES}
     )
-    target_link_libraries( hydrogen-clap PRIVATE hydrogen-plugin )
+    target_link_libraries( hydrogen-clap PRIVATE hydrogen-plugin hydrogen-plugin-ui )
     # A CLAP plugin is a shared library with the `.clap` extension and no "lib"
     # prefix; the entry symbol is `clap_entry`.
     set_target_properties( hydrogen-clap PROPERTIES
@@ -83,7 +88,7 @@ if(WANT_LV2)
     target_compile_definitions( hydrogen-lv2 PRIVATE
         H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES}
     )
-    target_link_libraries( hydrogen-lv2 PRIVATE hydrogen-plugin )
+    target_link_libraries( hydrogen-lv2 PRIVATE hydrogen-plugin hydrogen-plugin-ui )
     set_target_properties( hydrogen-lv2 PROPERTIES
         PREFIX ""
         OUTPUT_NAME "hydrogen"
@@ -255,7 +260,7 @@ if(WANT_VST3)
     target_compile_definitions( hydrogen-vst3-entry PRIVATE
         H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES}
         H2_CLAP_FOR_VST3=1 )
-    target_link_libraries( hydrogen-vst3-entry PUBLIC hydrogen-plugin )
+    target_link_libraries( hydrogen-vst3-entry PUBLIC hydrogen-plugin hydrogen-plugin-ui )
     set_target_properties( hydrogen-vst3-entry PROPERTIES
         CXX_STANDARD 17 POSITION_INDEPENDENT_CODE ON )
 
