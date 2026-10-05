@@ -1,6 +1,7 @@
 ---
 status: accepted
 date: 2026-06-08
+amended: 2026-10-05
 deciders: pm
 ---
 
@@ -121,3 +122,19 @@ maintain.
 
 * The CLI option `--plugin-editor` was renamed to `--connect-via-ipc`.
 * The unit test `EditorModeTest.cpp` was renamed to `ConnectViaIpcModeTest.cpp`.
+
+## Amendment (2026-10-05): an embedded basic UI in addition to the out-of-process editor
+
+The plugin binary is no longer *only* the engine and a thin controller:
+it additionally hosts a small embedded **basic UI** (Dear ImGui) inside
+the host's UI process — see
+[ADR 0035](0035-embedded-basic-plugin-ui.md). The out-of-process Qt
+editor remains the advanced-editing UI and the standalone GUI; the basic
+UI covers loading a song/pattern/drumkit, MIDI configuration, and
+per-instrument mixing without the editor. Both UIs are driven by the
+same authoritative engine — the basic UI locally, the editor via IPC.
+
+This also supersedes this ADR's "LV2's native UI model is *already*
+out-of-process / separate-binary" decision driver for the LV2 UI
+itself: the LV2 UI is now an in-process, same-binary embedded UI. The
+out-of-process model continues to describe the editor.
