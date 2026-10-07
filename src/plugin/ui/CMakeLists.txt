@@ -90,6 +90,10 @@ add_executable( hydrogen-plugin-ui-smoke PluginUiSmoke.cpp )
 target_link_libraries( hydrogen-plugin-ui-smoke PRIVATE hydrogen-plugin-ui )
 set_target_properties( hydrogen-plugin-ui-smoke PROPERTIES CXX_STANDARD 17 )
 if(APPLE)
+    # The smoke's macOS branch creates its NSWindow parent in Objective-C++:
+    # the shared .cpp compiles as ObjC++ there (a strict superset — the C++
+    # branches of the platform #if are preprocessed out on APPLE).
+    set_source_files_properties( PluginUiSmoke.cpp PROPERTIES LANGUAGE OBJCXX )
     target_link_libraries( hydrogen-plugin-ui-smoke PRIVATE
         ${H2_METAL_FRAMEWORK} ${H2_APPKIT_FRAMEWORK}
         ${H2_QUARTZCORE_FRAMEWORK} )
