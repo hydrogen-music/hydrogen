@@ -229,7 +229,7 @@ for:
       # VST3 bundle was built (artifact builds); on other builds the -R simply
       # finds no such test. It builds the SDK validator on demand and validates
       # the bundle (not uploaded on Linux — clean-compile + conformance only).
-      ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate|QtNamespaceGuard|WriteSurfaceGuard|PluginUiGuard" || exit 1
+      ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate|QtNamespaceGuard|WriteSurfaceGuard|PluginUiGuard|PluginUiSmoke" || exit 1
 
       echo "Validating desktop file."
       desktop-file-validate ../linux/org.hydrogenmusic.Hydrogen.desktop || exit 1
@@ -602,7 +602,7 @@ for:
           # vst3-validate (full Steinberg validator) is registered only when the
           # VST3 bundle was built (artifact builds); it builds the SDK validator
           # on demand and validates the bundle that ships in the .dmg.
-          ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate|QtNamespaceGuard|WriteSurfaceGuard|PluginUiGuard"
+          ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate|QtNamespaceGuard|WriteSurfaceGuard|PluginUiGuard|PluginUiSmoke"
           res=$?
       fi
 
@@ -775,7 +775,7 @@ for:
           IF %ERRORLEVEL% EQU 0 (del testOutput.log)
 
           REM *** Plugin conformance suite (lv2-smoke etc.; needs WANT_CLAP/LV2). ***
-          ctest --output-on-failure -R "clap-validate|lv2-smoke|lv2lint|vst3-smoke"
+          ctest --output-on-failure -R "clap-validate|lv2-smoke|lv2lint|vst3-smoke|PluginUiSmoke"
           if %ERRORLEVEL% NEQ 0 exit /b 1
 
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 1"

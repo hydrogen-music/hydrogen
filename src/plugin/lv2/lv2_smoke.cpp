@@ -45,6 +45,12 @@
 #include <QtCore/QString>
 #include <QtNetwork/QLocalSocket>
 
+// X11 last: Xlib.h #defines Bool/Status/True/False, which poison any Qt
+// header included after it.
+#if defined( H2_LV2_SMOKE_HAVE_X11 )
+#include <X11/Xlib.h>
+#endif
+
 // Cross-platform dynamic-loading shim: POSIX dlopen on Linux/macOS, the Win32
 // loader on Windows (MinGW has no <dlfcn.h>). LV2 is built on all CI platforms,
 // so this host must compile everywhere.
@@ -222,7 +228,7 @@ int main( int argc, char** argv ) {
 	}
 
 	// Headless UI instantiate: instance-access hands the UI the DSP instance
-	// (same binary, same process). No parentWidget feature, so no window is
+	// (same binary, same process). No ui:parent feature, so no window is
 	// created and the widget out-param must come back null (the current
 	// no-embed contract; the basic UI, proposal 0006 UI-5, replaces this with
 	// a real child window).
@@ -297,6 +303,99 @@ int main( int argc, char** argv ) {
 		bUiOk = false;
 		std::fprintf( stderr, "LV2 UI SMOKE: uiCleanup closed the editor\n" );
 	}
+
+	// ── Embedded-widget checks (proposal 0006, UI-2: TU5.1's red pulled
+	// forward for the spike): with a ui:parent feature the UI must return
+	// a real child window id (ADR 0035's on-contract embedding). X11-only:
+	// it needs a display to create the test parent; headless CI compiles
+	// the section out.
+#if defined( H2_LV2_SMOKE_HAVE_X11 )
+	{
+		Display* pDisplay = XOpenDisplay( nullptr );
+		if ( pDisplay == nullptr ) {
+			std::printf( "LV2 UI SMOKE: SKIP embedded section — no DISPLAY\n" );
+		} else {
+			const Window parent = XCreateSimpleWindow(
+				pDisplay, DefaultRootWindow( pDisplay ), 0, 0, 300, 200, 0,
+				BlackPixel( pDisplay, DefaultScreen( pDisplay ) ),
+				WhitePixel( pDisplay, DefaultScreen( pDisplay ) ) );
+			XMapWindow( pDisplay, parent );
+			XFlush( pDisplay );
+
+		LV2_Feature parentFeat{ LV2_UI__parent,
+			reinterpret_cast<void*>( parent ) };
+			const LV2_Feature* embedFeatures[] =
+				{ &mapFeat, &instFeat, &parentFeat, nullptr };
+			LV2UI_Widget embedWidget = nullptr;
+			LV2UI_Handle embedUi = ud->instantiate( ud, d->URI, "/tmp/",
+				nullptr, nullptr, &embedWidget, embedFeatures );
+			bool bEmbedOk = embedUi != nullptr;
+			if ( ! bEmbedOk ) {
+				std::fprintf( stderr,
+					"LV2 UI SMOKE: uiInstantiate returned null with a parent\n" );
+			} else {
+				if ( embedWidget == nullptr ) {
+					bEmbedOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: widget null with a parent (TU5.1)\n" );
+				} else {
+					// The widget must be a mapped child of the test parent.
+					const Window child =
+						reinterpret_cast<Window>( embedWidget );
+					XWindowAttributes attr = {};
+					XGetWindowAttributes( pDisplay, child, &attr );
+					if ( attr.map_state != IsViewable ) {
+						bEmbedOk = false;
+						std::fprintf( stderr,
+							"LV2 UI SMOKE: embedded child not mapped\n" );
+					}
+					Window root = None;
+					Window parentOfChild = None;
+					Window* pChildren = nullptr;
+					unsigned nChildren = 0;
+					XQueryTree( pDisplay, child, &root, &parentOfChild,
+						&pChildren, &nChildren );
+					if ( parentOfChild != parent ) {
+						bEmbedOk = false;
+						std::fprintf( stderr,
+							"LV2 UI SMOKE: embedded child not parented on the host parent\n" );
+					}
+					if ( pChildren != nullptr ) {
+						XFree( pChildren );
+					}
+				}
+				// Idle frames must not crash and must not ask for teardown.
+				for ( int i = 0; i < 5; ++i ) {
+					if ( idleIface->idle( embedUi ) != 0 ) {
+						bEmbedOk = false;
+						std::fprintf( stderr,
+							"LV2 UI SMOKE: idle() != 0 on the embedded UI\n" );
+					}
+				}
+				// Teardown releases the child window with the UI handle.
+				ud->cleanup( embedUi );
+				XSync( pDisplay, false );
+				Window root = None;
+				Window parentOfParent = None;
+				Window* pChildren = nullptr;
+				unsigned nChildren = 0;
+				XQueryTree( pDisplay, parent, &root, &parentOfParent,
+					&pChildren, &nChildren );
+				if ( nChildren != 0 ) {
+					bEmbedOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: child window outlived uiCleanup\n" );
+				}
+				if ( pChildren != nullptr ) {
+					XFree( pChildren );
+				}
+			}
+			bUiOk = bUiOk && bEmbedOk;
+			XDestroyWindow( pDisplay, parent );
+			XCloseDisplay( pDisplay );
+		}
+	}
+#endif
 
 	d->cleanup( inst );
 

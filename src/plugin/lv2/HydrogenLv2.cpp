@@ -35,8 +35,11 @@
 #include <lv2/instance-access/instance-access.h>
 
 #include <plugin/HydrogenPlugin.h>
+#include <plugin/ui/PluginUiWindow.h>
 
+#include <cstdint>
 #include <cstring>
+#include <memory>
 #include <new>
 #include <vector>
 
@@ -197,19 +200,23 @@ const LV2_Descriptor kDescriptor = {
 };
 
 // ── LV2 UI (ADR 0016 + ADR 0035: editor via ui:showInterface) ──────────────
-// Hydrogen's editor is a separate process, so this UI does not embed a widget
-// (the embedded basic UI, proposal 0006 UI-5, replaces the no-embed contract
-// with a real child window). It obtains the DSP instance through the
-// instance-access feature. The plugin instance owns the editor lifecycle
-// (ADR 0035): only show() drives it - hide(), cleanup() and idle() leave the
-// editor alone, and it dies with the DSP instance.
+// Two coexisting contracts until proposal 0006 UI-5 lands: with a
+// ui:parent feature the UI embeds a real child window (ADR 0035's
+// on-contract embedding, the basic UI's window seam) which the host idles;
+// without one the external editor process opens via ui:showInterface (the
+// legacy contract). The UI obtains the DSP instance through the
+// instance-access feature. The plugin instance owns the external editor
+// lifecycle (ADR 0035): only show() drives it - hide(), cleanup() and
+// idle() leave the editor alone, and it dies with the DSP instance.
 #define H2_LV2_UI_URI H2_LV2_URI "#ui"
 
 struct H2Lv2Ui {
 	HydrogenPlugin* engine = nullptr;
+	// The embedded child window (ADR 0035); null in external-editor mode.
+	std::unique_ptr<H2Core::PluginUiWindow> pWindow;
 };
 
-LV2UI_Handle uiInstantiate( const LV2UI_Descriptor*, const char* /*plugin_uri*/,
+	LV2UI_Handle uiInstantiate( const LV2UI_Descriptor*, const char* /*plugin_uri*/,
 							const char* /*bundle_path*/,
 							LV2UI_Write_Function /*write*/,
 							LV2UI_Controller /*controller*/,
@@ -218,12 +225,17 @@ LV2UI_Handle uiInstantiate( const LV2UI_Descriptor*, const char* /*plugin_uri*/,
 	// The editor needs the engine living in the DSP instance; LV2 hands it over
 	// via the instance-access feature (UI and DSP share this process).
 	HydrogenPlugin* engine = nullptr;
+	std::uintptr_t parentHandle = 0;
 	for ( int ii = 0; features != nullptr && features[ ii ] != nullptr; ++ii ) {
 		if ( std::strcmp( features[ ii ]->URI, LV2_INSTANCE_ACCESS_URI ) == 0 ) {
 			auto* p = static_cast<H2Lv2*>( features[ ii ]->data );
 			if ( p != nullptr ) {
 				engine = p->engine;
 			}
+		}
+		else if ( std::strcmp( features[ ii ]->URI, LV2_UI__parent ) == 0 ) {
+			parentHandle = reinterpret_cast<std::uintptr_t>(
+				features[ ii ]->data );
 		}
 	}
 	if ( engine == nullptr ) {
@@ -235,7 +247,21 @@ LV2UI_Handle uiInstantiate( const LV2UI_Descriptor*, const char* /*plugin_uri*/,
 		return nullptr;
 	}
 	ui->engine = engine;
-	if ( widget != nullptr ) {
+	if ( parentHandle != 0 ) {
+		// Embedded mode (proposal 0006 UI-2): a child window on the host
+		// parent, handed back as the widget for the host to idle.
+		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
+			parentHandle, 300, 200 );
+		if ( ! ui->pWindow->isValid() ) {
+			delete ui;
+			return nullptr;
+		}
+		if ( widget != nullptr ) {
+			*widget = reinterpret_cast<LV2UI_Widget>(
+				ui->pWindow->nativeHandle() );
+		}
+	}
+	else if ( widget != nullptr ) {
 		*widget = nullptr; // no embedded widget; shown via ui:showInterface
 	}
 	return static_cast<LV2UI_Handle>( ui );
@@ -255,6 +281,12 @@ int uiShow( LV2UI_Handle handle ) {
 	if ( ui == nullptr || ui->engine == nullptr ) {
 		return 1;
 	}
+	// Embedded mode: the child window is already mapped on the host parent
+	// (ADR 0035's embedding contract); show() has nothing to drive. UI-5
+	// (proposal 0006) retires the external-editor path entirely.
+	if ( ui->pWindow != nullptr ) {
+		return 0;
+	}
 	return ui->engine->openEditor() ? 0 : 1;
 }
 
@@ -270,9 +302,14 @@ int uiIdle( LV2UI_Handle handle ) {
 	if ( ui == nullptr || ui->engine == nullptr ) {
 		return 1;
 	}
-	// Interim rule (proposal 0006, TU0.2): idle() returns 0 for the lifetime
-	// of the handle so no host tears the UI down while the plugin instance
-	// lives. UI-5 (TU5.2) replaces this with window-driven semantics.
+	// Embedded mode: one frame per idle (ADR 0035: the host drives
+	// rendering). Interim rule (proposal 0006, TU0.2): idle() returns 0 for
+	// the lifetime of the handle so no host tears the UI down while the
+	// plugin instance lives. UI-5 (TU5.2) replaces this with window-driven
+	// semantics.
+	if ( ui->pWindow != nullptr ) {
+		ui->pWindow->idle();
+	}
 	return 0;
 }
 

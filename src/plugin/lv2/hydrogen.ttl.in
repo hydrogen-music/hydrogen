@@ -38,18 +38,23 @@
 @H2_LV2_PORTS@
     ] .
 
-# Out-of-process editor (ADR 0016). The editor is a separate process with its own
-# window, so this UI does not embed: it gets the DSP instance via instance-access
-# and shows the editor through ui:showInterface (driven by ui:idleInterface). The
-# plugin instance owns the editor lifecycle (ADR 0035): hide and cleanup leave
-# the editor running; it dies with the DSP instance.
+# Editor UI (ADR 0016 + ADR 0035). Dual contract until proposal 0006 UI-5: with
+# a ui:parent feature the UI embeds a child window on the host parent (ADR
+# 0035's on-contract embedding); without one it falls back to the
+# out-of-process editor shown through ui:showInterface. The plugin instance
+# owns the editor lifecycle (ADR 0035): hide and cleanup leave the editor
+# running; it dies with the DSP instance.
 <https://hydrogen-music.org/lv2/hydrogen#ui>
     a ui:@H2_LV2_UI_TYPE@ ;
-    # instance-access: the UI reaches the in-process engine to launch the editor.
-    # idleInterface: a show-interface UI must be driven by the host's idle loop
-    #   (so it can detect the editor window being closed). Both are intrinsic to
-    #   the out-of-process design (lv2lint warns about instance-access / same
-    #   binary, which are accepted trade-offs here).
+    # instance-access: the UI reaches the in-process engine (embedded UI and
+    #   editor alike). idleInterface: both faces of the UI are idle-driven
+    #   (embedded rendering; editor-close detection in the fallback), so the
+    #   feature is required and provided as extension data (hosts that cannot
+    #   drive idle cannot run this UI). ui:parent stays optional (ADR 0035's
+    #   fallback contract), which lv2lint's UI Widget check cannot express -
+    #   it passes only required features, so it never sends a parent; skip it
+    #   with -t 'UI*Widget' (the widget is covered by lv2-smoke + real hosts).
+    #   (lv2lint warns about instance-access / same binary, accepted here.)
     lv2:requiredFeature <http://lv2plug.in/ns/ext/instance-access> ,
                         ui:idleInterface ;
     lv2:extensionData ui:showInterface , ui:idleInterface ;

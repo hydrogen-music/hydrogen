@@ -27,13 +27,28 @@ set( H2_PLUGIN_UI_VENDORED_SOURCES
 )
 if(APPLE)
     list( APPEND H2_PLUGIN_UI_VENDORED_SOURCES
-        ${H2_IMGUI_DIR}/backends/imgui_impl_osx.mm )
+        ${H2_IMGUI_DIR}/backends/imgui_impl_osx.mm
+        ${H2_IMGUI_DIR}/backends/imgui_impl_metal.mm )
 else()
     list( APPEND H2_PLUGIN_UI_VENDORED_SOURCES
         ${H2_IMGUI_DIR}/backends/imgui_impl_opengl3.cpp )
 endif()
 
-add_library( hydrogen-plugin-ui STATIC ${H2_PLUGIN_UI_VENDORED_SOURCES} )
+# TU2.3: the platform window seam — X11 child window (Linux), Win32 child
+# HWND, NSView + Metal (macOS). Win32 renders through the GL3 backend (WGL
+# via its embedded loader); macOS gains the Metal render backend above.
+set( H2_PLUGIN_UI_WINDOW_SOURCES PluginUiWindow.cpp )
+if(APPLE)
+    list( APPEND H2_PLUGIN_UI_WINDOW_SOURCES PluginUiBackendMacOS.mm )
+elseif(WIN32)
+    list( APPEND H2_PLUGIN_UI_WINDOW_SOURCES PluginUiBackendWin32.cpp )
+else()
+    list( APPEND H2_PLUGIN_UI_WINDOW_SOURCES PluginUiBackendX11.cpp )
+endif()
+
+add_library( hydrogen-plugin-ui STATIC
+    ${H2_PLUGIN_UI_WINDOW_SOURCES}
+    ${H2_PLUGIN_UI_VENDORED_SOURCES} )
 
 target_include_directories( hydrogen-plugin-ui PUBLIC
     ${H2_IMGUI_DIR}
@@ -49,13 +64,39 @@ set_target_properties( hydrogen-plugin-ui PROPERTIES
     CXX_STANDARD 17
 )
 
-# macOS: the osx/Metal backend needs the system frameworks.
+# Platform window/GL libraries (TU2.3). The seam is internal to the library
+# (pimpl), so everything links PRIVATE; a static library still carries the
+# link line to its consumers.
 if(APPLE)
     find_library( H2_METAL_FRAMEWORK Metal )
     find_library( H2_APPKIT_FRAMEWORK AppKit )
-    target_link_libraries( hydrogen-plugin-ui PUBLIC
-        ${H2_METAL_FRAMEWORK} ${H2_APPKIT_FRAMEWORK} )
+    find_library( H2_QUARTZCORE_FRAMEWORK QuartzCore )
+    target_link_libraries( hydrogen-plugin-ui PRIVATE
+        ${H2_METAL_FRAMEWORK} ${H2_APPKIT_FRAMEWORK}
+        ${H2_QUARTZCORE_FRAMEWORK} )
+elseif(WIN32)
+    target_link_libraries( hydrogen-plugin-ui PRIVATE opengl32 gdi32 user32 )
+else()
+    find_package( X11 REQUIRED )
+    find_package( OpenGL REQUIRED )
+    target_link_libraries( hydrogen-plugin-ui PRIVATE X11::X11 OpenGL::GL )
 endif()
+
+# Window smoke (proposal 0006 TU2.1/TU2.2): embed on a test-created native
+# parent, idle frames, destroy. Skips with a message on headless platforms
+# (no DISPLAY / no window server) — CI cannot answer X11-GL-on-host-parent;
+# the manual spike gate (TU2.4) does.
+add_executable( hydrogen-plugin-ui-smoke PluginUiSmoke.cpp )
+target_link_libraries( hydrogen-plugin-ui-smoke PRIVATE hydrogen-plugin-ui )
+set_target_properties( hydrogen-plugin-ui-smoke PROPERTIES CXX_STANDARD 17 )
+if(APPLE)
+    target_link_libraries( hydrogen-plugin-ui-smoke PRIVATE
+        ${H2_METAL_FRAMEWORK} ${H2_APPKIT_FRAMEWORK}
+        ${H2_QUARTZCORE_FRAMEWORK} )
+elseif(NOT WIN32)
+    target_link_libraries( hydrogen-plugin-ui-smoke PRIVATE X11::X11 )
+endif()
+add_test( NAME PluginUiSmoke COMMAND hydrogen-plugin-ui-smoke )
 
 # Plugin-UI dependency guard (ADR 0035, proposal 0006 TU1.3): static source
 # check that the plugin UI layer never depends on the Qt-Widgets GUI

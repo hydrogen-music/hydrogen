@@ -94,10 +94,10 @@ false-positive destruction path.
 
 ## 4. Phase UI-1 — Vendoring & build scaffolding
 
-**Status: 🚧 IMPLEMENTATION COMPLETE — pending Windows/macOS CI verification**
-(2026-10-05) — TU1.1–TU1.3 landed; Linux plugin gate 13/13 (incl. the new
-`PluginUiGuard`) + unit suite 485 green; the vendored TUs compile warning-free
-under the strict flags (no relaxations needed).
+**Status: ✅ DONE** (2026-10-06) — TU1.1–TU1.3 landed; Linux plugin gate 13/13
+(incl. the new `PluginUiGuard`) + unit suite 485 green; the vendored TUs
+compile warning-free under the strict flags (no relaxations needed);
+Windows + macOS CI green.
 
 *Objective:* Dear ImGui + widget add-ons vendored per the house pattern and a
 `hydrogen-plugin-ui` library that builds on every platform and Qt ≥ 5.15.
@@ -131,6 +131,24 @@ warnings from our own TUs.
 ---
 
 ## 5. Phase UI-2 — Window/backend seam + de-risk spike (gate)
+
+**Status: 🚧 IMPLEMENTATION COMPLETE — pending Windows/macOS CI verification +
+the manual TU2.4 spike gate** (2026-10-06) — TU2.1 red→green (window smoke),
+TU2.3 X11 backend + LV2 `ui:parent` slice (lv2-smoke embedded section
+red→green), TU2.2 Win32/macOS equivalents written (CI-gated); Linux plugin gate
+14/14 (incl. the new `PluginUiSmoke`) + unit suite 485 green. First TU2.4 host
+round exposed the shim scanning a non-spec parent feature (`parentWidget` —
+no such URI in the LV2 UI ontology; hosts pass `ui:parent`): fixed red→green
+and the embedded child window verified live in jalv (mapped in the X11 tree,
+panel rendering). `ui:idleInterface` stays in requiredFeature (both UI faces
+are idle-driven; lv2lint enforces the feature/extensionData pairing) — run
+lv2lint with `-t 'UI*Widget'` (its widget check passes only required
+features, so it cannot express ADR 0035's optional-parent fallback; documented
+in the TTL) — the plugin gate's lv2lint ctest whitelists that plus the
+pre-existing Plugin Run/Symbols trade-offs, and replaces LV2_PATH with the
+build bundle parent + system spec dirs so a stale `~/.lv2` install can't
+shadow the build bundle. Host re-verification (Ardour/Qtractor/Carla/REAPER)
+pending.
 
 *Objective:* parent handle → child window → GL/Metal context → per-instance
 ImGui context; the five [ADR 0035](../decisions/0035-embedded-basic-plugin-ui.md)
@@ -267,9 +285,10 @@ song-state round-trip green.
 
 **Tests first**
 
-* **TU5.1** red: `lv2_smoke` (xvfb): `uiInstantiate` with the
-  `parentWidget` feature → `*widget != nullptr` (a real child window id).
-  Today `*widget = nullptr` (`HydrogenLv2.cpp:236`).
+* **TU5.1** red: `lv2_smoke` (xvfb): `uiInstantiate` with the `ui:parent`
+  feature → `*widget != nullptr` (a real child window id). Pulled forward
+  into UI-2 for the spike (done); the first cut scanned a non-spec
+  `parentWidget` URI — the ontology's parent feature is `ui:parent`.
 * **TU5.2** `showInterface` fallback: `show` creates the self-managed
   window, `hide` destroys it; `idle` returns 0 while alive, non-zero only
   after the fallback window closes; `uiCleanup` tears down the GL/ImGui

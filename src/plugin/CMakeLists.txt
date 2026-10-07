@@ -165,18 +165,45 @@ if(WANT_LV2)
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network )
     set_target_properties( hydrogen-lv2-smoke PROPERTIES CXX_STANDARD 17 )
+    # The embedded-widget section (proposal 0006 UI-2) creates an X11 parent
+    # when a display is available; headless CI compiles the section out.
+    if(NOT APPLE AND NOT WIN32)
+        find_package( X11 )
+        if( X11_FOUND )
+            target_link_libraries( hydrogen-lv2-smoke PRIVATE X11::X11 )
+            target_compile_definitions( hydrogen-lv2-smoke PRIVATE
+                H2_LV2_SMOKE_HAVE_X11 )
+        endif()
+    endif()
     add_test( NAME lv2-smoke
         COMMAND hydrogen-lv2-smoke "$<TARGET_FILE:hydrogen-lv2>" )
 
     # If lv2lint is available, run the proper conformance linter on the bundle.
     # `-I` points it at the bundle directory (the one holding manifest.ttl); the
-    # plugin URI is the positional argument.
+    # plugin URI is the positional argument. LV2_PATH replaces lilv's default
+    # search path (which starts at ~/.lv2 and would silently shadow the build
+    # bundle with a possibly stale installed copy) with the build bundle's
+    # parent plus the usual system LV2 directories: lv2lint's 'Plugin
+    # LV2_PATH' check requires the whole LV2 spec (ui.lv2 & friends) to stay
+    # resolvable, and lilv silently skips non-existent path entries, so the
+    # extra candidates are harmless on machines without them.
+    # The `-t` whitelists mark known-accepted findings as [SKIP] so the gate
+    # fails only on NEW violations: 'UI*Widget' cannot express ADR 0035's
+    # optional-parent fallback (lv2lint passes only TTL-required features, so
+    # it never sends a parent); 'Plugin Run' and the '*Symbols' pair are the
+    # accepted non-RT run path + same-binary trade-offs (hydrogen.ttl.in
+    # documents them; a linker version script exporting only the LV2
+    # descriptors would clear the Symbols ones).
     find_program( LV2LINT lv2lint
         PATHS ${CMAKE_SOURCE_DIR}/extern/lv2lint/build )
     if(LV2LINT)
         add_test( NAME lv2lint
             COMMAND ${LV2LINT} -I "${H2_LV2_BUNDLE}"
+                -t "UI*Widget" -t "Plugin Run" -t "Plugin Symbols" -t "UI Symbols"
                 "https://hydrogen-music.org/lv2/hydrogen" )
+        get_filename_component( H2_LV2_BUNDLE_DIR "${H2_LV2_BUNDLE}" DIRECTORY )
+        set_tests_properties( lv2lint PROPERTIES
+            ENVIRONMENT "LV2_PATH=${H2_LV2_BUNDLE_DIR}:/usr/lib/lv2:/usr/lib64/lv2:/usr/local/lib/lv2:/usr/share/lv2:/usr/local/share/lv2" )
         message(STATUS "  + lv2lint conformance test enabled (${LV2LINT})")
     else()
         message(STATUS "  - lv2lint not found; using in-process LV2 smoke only")
