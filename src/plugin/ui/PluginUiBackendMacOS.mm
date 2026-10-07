@@ -88,6 +88,14 @@ public:
 	}
 
 	~PluginUiBackendMacOS() override {
+		// endFrame() releases the frame-scoped objects; this guards
+		// destruction between the frame calls.
+		if ( m_drawable != nil ) {
+			[m_drawable release];
+		}
+		if ( m_renderPassDescriptor != nil ) {
+			[m_renderPassDescriptor release];
+		}
 		if ( m_view != nil ) {
 			[m_view removeFromSuperview];
 			[m_view release];
@@ -149,42 +157,67 @@ public:
 	}
 
 	void beginFrame() override {
-		CAMetalLayer* layer = (CAMetalLayer*)m_view.layer;
-		// drawableSize is in pixels; bounds are in points.
-		const NSSize bounds = [m_view bounds].size;
-		const double scale = scaleFactor();
-		layer.drawableSize = CGSizeMake(
-			bounds.width * scale, bounds.height * scale );
-		ImGui_ImplMetal_NewFrame();
+		@autoreleasepool {
+			CAMetalLayer* layer = (CAMetalLayer*)m_view.layer;
+			// drawableSize is in pixels; bounds are in points.
+			const NSSize bounds = [m_view bounds].size;
+			const double scale = scaleFactor();
+			layer.drawableSize = CGSizeMake(
+				bounds.width * scale, bounds.height * scale );
+
+			// imgui 1.92 moved the render pass descriptor into
+			// ImGui_ImplMetal_NewFrame: the backend reads its attachment
+			// textures there to configure the frame's pipelines, so the
+			// drawable must be acquired before ImGui::NewFrame(), not at
+			// draw-data time. The frame spans the beginFrame()/
+			// renderFrame() virtual calls, so no autorelease pool can
+			// cover it: the drawable and descriptor are retained here
+			// and released in endFrame().
+			m_drawable = [[layer nextDrawable] retain];
+			m_renderPassDescriptor = [[MTLRenderPassDescriptor
+				renderPassDescriptor] retain];
+			if ( m_drawable != nil ) {
+				m_renderPassDescriptor.colorAttachments[ 0 ].texture =
+					[m_drawable texture];
+				m_renderPassDescriptor.colorAttachments[ 0 ].loadAction =
+					MTLLoadActionClear;
+				m_renderPassDescriptor.colorAttachments[ 0 ].storeAction =
+					MTLStoreActionStore;
+				m_renderPassDescriptor.colorAttachments[ 0 ].clearColor =
+					MTLClearColorMake( 0.1, 0.1, 0.12, 1.0 );
+			}
+			ImGui_ImplMetal_NewFrame( m_renderPassDescriptor );
+		}
 	}
 
 	void renderFrame( ImDrawData* data ) override {
 		@autoreleasepool {
-			CAMetalLayer* layer = (CAMetalLayer*)m_view.layer;
-			id<CAMetalDrawable> drawable = [layer nextDrawable];
-			if ( drawable == nil ) {
+			if ( m_drawable == nil ) {
 				return; // no drawable this frame (e.g. occluded) — skip
 			}
-			MTLRenderPassDescriptor* pass =
-				[MTLRenderPassDescriptor renderPassDescriptor];
-			pass.colorAttachments[ 0 ].texture = [drawable texture];
-			pass.colorAttachments[ 0 ].loadAction = MTLLoadActionClear;
-			pass.colorAttachments[ 0 ].storeAction = MTLStoreActionStore;
-			pass.colorAttachments[ 0 ].clearColor =
-				MTLClearColorMake( 0.1, 0.1, 0.12, 1.0 );
 			id<MTLCommandBuffer> commandBuffer = [m_commandQueue commandBuffer];
 			id<MTLRenderCommandEncoder> encoder =
-				[commandBuffer renderCommandEncoderWithDescriptor: pass];
+				[commandBuffer renderCommandEncoderWithDescriptor:
+					m_renderPassDescriptor];
 			ImGui_ImplMetal_RenderDrawData( data, commandBuffer, encoder );
 			[encoder endEncoding];
-			[commandBuffer presentDrawable: drawable];
+			[commandBuffer presentDrawable: m_drawable];
 			[commandBuffer commit];
 		}
 	}
 
 	void endFrame() override {
-		// Metal presented inside renderFrame (the drawable and command
-		// buffer are autoreleased); nothing to release here.
+		// Metal presented inside renderFrame (the command buffer is
+		// autoreleased); the frame-scoped drawable and render pass
+		// descriptor retained in beginFrame() are released here.
+		if ( m_drawable != nil ) {
+			[m_drawable release];
+			m_drawable = nil;
+		}
+		if ( m_renderPassDescriptor != nil ) {
+			[m_renderPassDescriptor release];
+			m_renderPassDescriptor = nil;
+		}
 	}
 
 private:
@@ -192,6 +225,8 @@ private:
 	NSView* m_view = nil;
 	id<MTLDevice> m_device = nil;
 	id<MTLCommandQueue> m_commandQueue = nil;
+	id<CAMetalDrawable> m_drawable = nil;
+	MTLRenderPassDescriptor* m_renderPassDescriptor = nil;
 	mutable int m_width = 0;
 	mutable int m_height = 0;
 	mutable double m_scaleFactor = 0.0;
