@@ -250,15 +250,17 @@ void PluginLifecycleTest::testEditorOpenServesEngine() {
 	auto pAccess = pEditor->createEngineAccess();
 	CPPUNIT_ASSERT( pAccess->getSelectedPatternNumber() == nSelectedPattern );
 
-	// Closing tears down the serve loop: the endpoint is no longer served.
+	// Closing kills the editor process but keeps the always-on session
+	// (ADR 0035 UI-3): the endpoint stays served for a reopen, and an
+	// editor can still attach while "closed".
 	pEditor.reset();
 	plugin.closeEditor();
 	CPPUNIT_ASSERT( ! plugin.isEditorOpen() );
-	CPPUNIT_ASSERT( plugin.getEditorEndpoint().isEmpty() );
+	CPPUNIT_ASSERT( plugin.getEditorEndpoint() == sEndpoint );
 
 	auto* pMirror2 = TestHelper::makeMirror();
 	auto pLate = EditorSession::connect( sEndpoint, pMirror2, 300 );
-	CPPUNIT_ASSERT( pLate == nullptr ); // nothing listening anymore
+	CPPUNIT_ASSERT( pLate != nullptr ); // the always-on session still serves
 
 	delete pMirror2;
 	delete pMirror;
@@ -296,6 +298,27 @@ void PluginLifecycleTest::testEditorCommandReachesEngine() {
 	___INFOLOG( "passed" );
 }
 
+// TU3.4 (ADR 0035 UI-3) — the local command path the embedded basic UI
+// uses: its models call the plugin's own CoreActionController (the engine
+// lives in this very process), so a command mutates the authoritative
+// engine state directly — no editor round-trip.
+void PluginLifecycleTest::testLocalCommandReachesEngine() {
+	___INFOLOG( "" );
+
+	HydrogenPlugin plugin( 44100, 512, 0 );
+	auto pHydrogen = plugin.getHydrogen();
+	CPPUNIT_ASSERT( pHydrogen != nullptr );
+	CPPUNIT_ASSERT( pHydrogen->getSong() != nullptr );
+
+	pHydrogen->getCoreActionController()->setStripVolume( 0, 0.7f, false );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::abs( pHydrogen->getSong()->getDrumkit()->getInstruments()
+				->get( 0 )->getVolume() - 0.7f ) < 0.001f;
+	} ) );
+
+	___INFOLOG( "passed" );
+}
+
 void PluginLifecycleTest::testEditorReopen() {
 	___INFOLOG( "" );
 
@@ -311,7 +334,8 @@ void PluginLifecycleTest::testEditorReopen() {
 	// Double close is harmless.
 	plugin.closeEditor();
 
-	// Re-openable after close (a fresh endpoint + serve loop).
+	// Re-openable after close (the always-on session kept serving the same
+	// endpoint; openEditor just marks it open again).
 	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
 	CPPUNIT_ASSERT( plugin.isEditorOpen() );
 

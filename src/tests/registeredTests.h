@@ -43,6 +43,7 @@
 #include "H2PlayerTest.h"
 #include "EditorMirrorTest.h"
 #include "EngineSessionTest.h"
+#include "EngineEventSinkTest.h"
 #include "H2ProjectTest.h"
 #include "IpcProtocolTest.h"
 #include "IpcRoundTripTest.h"
@@ -97,6 +98,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EditorMirrorTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EngineAccessTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EngineSessionTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EngineEventSinkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );

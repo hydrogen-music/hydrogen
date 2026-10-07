@@ -48,6 +48,15 @@
 
 namespace H2Core {
 
+namespace {
+	QString createEndpoint( Hydrogen* pHydrogen )
+	{
+		return QString( "hydrogen-editor-%1-%2" )
+			.arg( QCoreApplication::applicationPid() )
+			.arg( pHydrogen->getInstanceId() );
+	}
+}  // namespace
+
 static std::shared_ptr<Preferences> makePluginPreferences( double fSampleRate,
 														   unsigned nMaxBlockSize ) {
 	auto pPref = Preferences::create_instance();
@@ -185,6 +194,22 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	else {
 		___ERRORLOG( "Invalid song" );
 	}
+
+	// The serve loop runs for the plugin's whole lifetime, not just while an
+	// editor is attached (ADR 0035 UI-3): its bridge thread is the sole
+	// drainer of the engine's EventQueue in the split, so a host that embeds
+	// the basic UI and never opens the editor would otherwise have no
+	// consumer at all — the queue would overflow and no telemetry would
+	// publish. The endpoint is generated once here and stays stable across
+	// editor open/close cycles.
+	m_sEditorEndpoint = createEndpoint( m_pHydrogen );
+	m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
+	if ( m_pEditorSession == nullptr ) {
+		// Non-fatal: openEditor() retries the bind; until then the plugin
+		// runs without the editor seam.
+		m_sEditorEndpoint.clear();
+		___WARNINGLOG( "Unable to start the engine session" );
+	}
 }
 
 HydrogenPlugin::~HydrogenPlugin() {
@@ -193,9 +218,10 @@ HydrogenPlugin::~HydrogenPlugin() {
 	// may resolve through the ambient context anymore.
 	{
 		Logger::Scope loggerScope( m_pHydrogen->getLogger() );
-		// Tear down the editor (process + serve loop) before the engine it
-		// serves.
+		// Tear down the editor process, then the always-on serve loop
+		// (ADR 0035 UI-3), before the engine they serve.
 		closeEditor();
+		m_pEditorSession.reset();
 		m_pMidiDriver.reset();
 		m_pAudioDriver.reset();
 	}
@@ -377,6 +403,15 @@ QString HydrogenPlugin::editorBinary() const {
 	return resolveEditorBinary( m_sEditorBinary, m_sEditorSearchDir );
 }
 
+void HydrogenPlugin::setEventSink( EngineEventSink* pEventSink ) {
+	m_pEventSink = pEventSink;
+	// Forward to a live session; one started later picks the member up in
+	// openEditor().
+	if ( m_pEditorSession != nullptr ) {
+		m_pEditorSession->setEventSink( pEventSink );
+	}
+}
+
 bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 	if ( m_bEditorOpen ) {
 		return true;
@@ -390,16 +425,20 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 
 	ensureQtApplication();
 
-	if ( m_sEditorEndpoint.isEmpty() ) {
-		m_sEditorEndpoint = QString( "hydrogen-editor-%1-%2" )
-								.arg( QCoreApplication::applicationPid() )
-								.arg( m_pHydrogen->getInstanceId() );
-	}
-	m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
+	// The session normally runs since the constructor (always-on drain,
+	// ADR 0035 UI-3); (re-)bind only when that initial bind failed.
 	if ( m_pEditorSession == nullptr ) {
-		m_sEditorEndpoint.clear();
-		___ERRORLOG( "Invalid editor session" );
-		return false;
+		if ( m_sEditorEndpoint.isEmpty() ) {
+			m_sEditorEndpoint = createEndpoint( m_pHydrogen );
+		}
+		m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
+		if ( m_pEditorSession == nullptr ) {
+			m_sEditorEndpoint.clear();
+			___ERRORLOG( "Invalid editor session" );
+			return false;
+		}
+		// A sink registered before the session existed picks it up now.
+		m_pEditorSession->setEventSink( m_pEventSink );
 	}
 
 	m_bEditorOpen = true;
@@ -473,9 +512,11 @@ void HydrogenPlugin::closeEditor() {
 		}
 		m_pEditorProcess.reset();
 	}
-	// Stops the serve loop and joins the bridge thread.
-	m_pEditorSession.reset();
-	m_sEditorEndpoint.clear();
+	// The engine session stays up: it is the plugin-lifetime drain/fan-out
+	// loop (ADR 0035 UI-3), not part of the editor. Only the process and the
+	// open flag go away; the endpoint stays served for a reopen (or an
+	// editor attaching while "closed"). The session itself is stopped by
+	// the destructor.
 	m_bEditorOpen = false;
 	m_bEditorClosing = false;
 	m_nEditorRespawns = 0;

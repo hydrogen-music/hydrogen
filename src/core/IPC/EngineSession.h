@@ -41,6 +41,8 @@ class Hydrogen;
 class IpcChannel;
 class IpcMessage;
 class EngineTelemetryShm;
+class EngineEventSink;
+class Event;
 struct EngineTelemetrySnapshot;
 
 /**
@@ -53,7 +55,8 @@ struct EngineTelemetrySnapshot;
  *  - answers the `hello` handshake and sends the current song as the initial
  *    state snapshot,
  *  - drains the engine's #EventQueue and forwards engine-origin events to the
- *    editor (#IpcEngineBridge::forwardEvent),
+ *    editor (#IpcEngineBridge::forwardEvent) and to a registered
+ *    #EngineEventSink (ADR 0035 UI-3),
  *  - dispatches inbound commands (#IpcEngineBridge::dispatchCommand) and answers
  *    request/response frames (#IpcEngineBridge::handleRequest).
  *
@@ -85,6 +88,19 @@ public:
 	/** Stop the serve loop and join the bridge thread (idempotent). */
 	void stop();
 
+	/** Register @a pEventSink as an engine-process consumer of the engine's
+	 * event stream and telemetry (ADR 0035 UI-3): it receives exactly the
+	 * engine-origin events and telemetry snapshots the IPC editor receives
+	 * — on this session's bridge thread, so implementations must be cheap
+	 * and non-blocking. Pass nullptr to unregister. The caller owns the
+	 * sink and must keep it alive until it is unregistered and this session
+	 * is stopped (or destroyed). Error events are additionally retained for
+	 * the editor-attach replay (ADR 0026 point 9); the sink sees them live,
+	 * from registration onward. */
+	void setEventSink( EngineEventSink* pEventSink ) {
+		m_pEventSink.store( pEventSink );
+	}
+
 	/** Build a full telemetry snapshot (transport / peaks / process time, ADR
 	 * 0018) from @a pEngine. Static so it is unit-testable without a running
 	 * serve loop. */
@@ -110,16 +126,22 @@ private:
 	 * grow unboundedly. */
 	void discardMidiNotes();
 	/** Drain the EventQueue while no editor is attached, so it does not
-	 * overflow. Error events are retained for replay on the next attach
-	 * (ADR 0026 point 9) instead of being discarded. */
-	void discardEvents();
+	 * overflow: engine-origin events fan out to the registered sink, and
+	 * error events are retained for replay on the next attach (ADR 0026
+	 * point 9) instead of being discarded. */
+	void drainEvents();
+	/** Deliver one drained engine-origin event to the registered sink, if
+	 * any (ADR 0035 UI-3). Editor-internal events are dropped — the sink
+	 * sees exactly the engine-origin stream the wire carries. */
+	void fanOutToSink( const Event* pEvent );
 	/** Replay the errors retained while no editor was attached to a
 	 * freshly accepted editor connection, then clear the buffer.
 	 * Delivery is once per error: a respawned editor does not see the
 	 * first editor's boot errors again — only errors raised during a
 	 * later detached phase replay anew. */
 	void flushPendingErrors( IpcChannel* pConn );
-	/** Publish the engine's current transport into the telemetry block, if any. */
+	/** Publish the engine's current transport into the telemetry block, if
+	 * any, and to the registered sink — the same snapshot, built once. */
 	void publishTelemetry();
 
 	/** Authoritative engine being served; not owned. */
@@ -131,6 +153,9 @@ private:
 	/** Telemetry block written for an attached editor (ADR 0018/0031); created on
 	 * the bridge thread, keyed off the endpoint. Owned. */
 	std::unique_ptr<EngineTelemetryShm> m_pTelemetry;
+	/** Registered engine-process event/meter consumer (ADR 0035 UI-3); not
+	 * owned. Atomic: stored from any thread, loaded on the bridge thread. */
+	std::atomic<EngineEventSink*> m_pEventSink{ nullptr };
 	/** Poll/accept granularity; also bounds stop() latency. */
 	int m_nPollTimeoutMs = 50;
 	/** Upper bound for retained error events; a driver error storm must

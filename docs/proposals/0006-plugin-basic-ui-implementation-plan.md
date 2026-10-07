@@ -132,8 +132,7 @@ warnings from our own TUs.
 
 ## 5. Phase UI-2 — Window/backend seam + de-risk spike (gate)
 
-**Status: 🚧 IMPLEMENTATION COMPLETE — pending Windows/macOS CI verification +
-the manual TU2.4 spike gate** (2026-10-06) — TU2.1 red→green (window smoke),
+**Status: ✅ DONE** (2026-10-07) — TU2.1–TU2.4 landed. TU2.1 red→green (window smoke),
 TU2.3 X11 backend + LV2 `ui:parent` slice (lv2-smoke embedded section
 red→green), TU2.2 Win32/macOS equivalents written (CI-gated); Linux plugin gate
 14/14 (incl. the new `PluginUiSmoke`) + unit suite 485 green. First TU2.4 host
@@ -147,8 +146,11 @@ features, so it cannot express ADR 0035's optional-parent fallback; documented
 in the TTL) — the plugin gate's lv2lint ctest whitelists that plus the
 pre-existing Plugin Run/Symbols trade-offs, and replaces LV2_PATH with the
 build bundle parent + system spec dirs so a stale `~/.lv2` install can't
-shadow the build bundle. Host re-verification (Ardour/Qtractor/Carla/REAPER)
-pending.
+shadow the build bundle. The TU2.4 spike gate passed: the plugin loads and
+embeds in all local hosts and all CI pipelines are green (after the imgui
+1.92 Metal render-pass-descriptor fix, the GL-less-CI environmental skip,
+and the ObjC++ compile of the shared smoke on APPLE). Spike follow-ups
+(DPI/scale, focus/IME) recorded for TU6.2.
 
 *Objective:* parent handle → child window → GL/Metal context → per-instance
 ImGui context; the five [ADR 0035](../decisions/0035-embedded-basic-plugin-ui.md)
@@ -184,6 +186,12 @@ smokes green.
 ---
 
 ## 6. Phase UI-3 — Engine seam: event & meter fan-out (ADR 0035)
+
+**Status: ✅ DONE** (2026-10-07) — TU3.1–TU3.5 landed; unit suite (491) +
+plugin gate (14/14) green. TU3.4's side ticket dropped: the toggle crossing
+already works composed over the `setStripIsMuted`/`setStripIsSoloed`
+overrides; the dedicated-opcode atomicity may still land independently
+(§12).
 
 *Objective:* both UIs observe the same engine state without splitting events
 or halving meters.

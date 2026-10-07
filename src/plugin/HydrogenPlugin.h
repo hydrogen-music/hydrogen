@@ -38,6 +38,7 @@ class Hydrogen;
 class PluginAudioDriver;
 class PluginMidiDriver;
 class EngineSession;
+class EngineEventSink;
 
 /**
  * Format-agnostic plugin engine wrapper (ADR 0013/0014).
@@ -112,22 +113,36 @@ public:
 
 	Hydrogen* getHydrogen() const { return m_pHydrogen; }
 
+	/** Register an engine-process consumer of this plugin's engine event
+	 * stream and telemetry (ADR 0035 UI-3): forwarded to the engine
+	 * session's sink seam (EngineSession::setEventSink). The plugin
+	 * remembers it and (re-)registers it with any session started later.
+	 * Pass nullptr to unregister; the caller owns the sink and must
+	 * unregister it before destroying it. */
+	void setEventSink( EngineEventSink* pEventSink );
+
 	// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────
-	/** Open the editor for this instance: start serving the engine over IPC
-	 * (#EngineSession) and, when @a bLaunchProcess, spawn the editor process
-	 * `hydrogen --connect-via-ipc <endpoint>`. Idempotent; returns false only if the
-	 * serve loop could not bind. @a bLaunchProcess == false starts serving without
-	 * spawning (used by tests, which act as the editor themselves). */
+	/** Open the editor for this instance: mark it open and, when
+	 * @a bLaunchProcess, spawn the editor process
+	 * `hydrogen --connect-via-ipc <endpoint>`. The engine is served by the
+	 * always-on #EngineSession started in the constructor (ADR 0035 UI-3);
+	 * a bind is only (re-)attempted here if that initial bind failed.
+	 * Idempotent; returns false only if the serve loop could not bind.
+	 * @a bLaunchProcess == false opens without spawning (used by tests,
+	 * which act as the editor themselves). */
 	bool openEditor( bool bLaunchProcess = true );
-	/** Close the editor: terminate the process (if any) and stop serving. Called
-	 * automatically on destruction. */
+	/** Close the editor: terminate the process (if any). The engine session
+	 * keeps serving — it is the plugin-lifetime drain/fan-out loop (ADR
+	 * 0035 UI-3) — so the endpoint stays valid for a reopen. The session
+	 * itself is stopped by the destructor. */
 	void closeEditor();
 	bool isEditorOpen() const { return m_bEditorOpen; }
 	/** Whether the editor *process* is currently alive. Polled (no event loop
 	 * needed), so a host idle callback can detect the user closing the window
 	 * (e.g. the LV2 ui:idleInterface). False when no process was launched. */
 	bool isEditorProcessRunning() const;
-	/** The IPC endpoint the editor attaches to (empty while closed). */
+	/** The IPC endpoint the editor attaches to (empty only while the
+	 * session could not bind). */
 	const QString& getEditorEndpoint() const { return m_sEditorEndpoint; }
 	/** Override the editor binary outright (highest precedence). */
 	void setEditorBinary( const QString& sPath ) { m_sEditorBinary = sPath; }
@@ -155,8 +170,13 @@ private:
 	std::shared_ptr<PluginMidiDriver> m_pMidiDriver;
 	int m_nBuses;
 
-	/** Engine-side serve loop for the attached editor; owned. */
+	/** Engine-side serve loop, running for the plugin's whole lifetime
+	 * (always-on drain/fan-out, ADR 0035 UI-3); owned. */
 	std::unique_ptr<EngineSession> m_pEditorSession;
+	/** Registered engine-process event/meter consumer (ADR 0035 UI-3); not
+	 * owned. Remembered so a session started after registration picks it
+	 * up (openEditor). */
+	EngineEventSink* m_pEventSink = nullptr;
 	/** The spawned editor process; owned (null when not launched). */
 	std::unique_ptr<QProcess> m_pEditorProcess;
 	QString m_sEditorEndpoint;

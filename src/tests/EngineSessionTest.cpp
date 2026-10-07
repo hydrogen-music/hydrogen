@@ -1635,3 +1635,54 @@ void EngineSessionTest::testMirrorBpmShowsSpecialTempoMarker() {
 
 	___INFOLOG( "passed" );
 }
+
+// TU3.4 side ticket (ADR 0035 UI-3) — the mixer strip mute/solo toggles
+// (MixerLine's M/S buttons) crossed only as far as the editor's mirror:
+// IpcCoreActionController overrides the set-variants but not the toggles,
+// so the authoritative engine's drumkit never flipped. The toggles cross
+// like their set-variant siblings: the engine flips under the bridge
+// thread (pumped), the mirror synchronously in the dual-apply.
+void EngineSessionTest::testToggleStripMuteSoloCrossesSplit() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	pMirror->setSong( Song::getEmptySong( pMirror ) );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+
+	// The mute toggle crosses: the engine's instrument 0 flips under the
+	// bridge thread (pumped), the mirror's synchronously in the dual-apply.
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->toggleStripIsMuted( 0 ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getDrumkit()->getInstruments()
+			->get( 0 )->isMuted(); } ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getDrumkit()->getInstruments()
+		->get( 0 )->isMuted() );
+
+	// The solo toggle crosses the same way (instrument 1).
+	CPPUNIT_ASSERT(
+		pAccess->getCoreActionController()->toggleStripIsSoloed( 1 ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pEngine->getSong()->getDrumkit()->getInstruments()
+			->get( 1 )->isSoloed(); } ) );
+	CPPUNIT_ASSERT( pMirror->getSong()->getDrumkit()->getInstruments()
+		->get( 1 )->isSoloed() );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}

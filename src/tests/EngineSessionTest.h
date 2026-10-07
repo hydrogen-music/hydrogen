@@ -52,6 +52,7 @@ class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testMirrorTransportFreeRuns );
 	CPPUNIT_TEST( testMirrorTransportFreeRunsUnderJackTransport );
 	CPPUNIT_TEST( testMirrorBpmShowsSpecialTempoMarker );
+	CPPUNIT_TEST( testToggleStripMuteSoloCrossesSplit );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -77,6 +78,11 @@ public:
 	void testMirrorTransportFreeRuns();
 	void testMirrorTransportFreeRunsUnderJackTransport();
 	void testMirrorBpmShowsSpecialTempoMarker();
+	/** TU3.4 side ticket (ADR 0035 UI-3): the mixer strip mute/solo
+	 * *toggles* crossed only as far as the editor's mirror — the
+	 * authoritative engine's drumkit never flipped (the set-variants cross;
+	 * the toggles were never overridden). */
+	void testToggleStripMuteSoloCrossesSplit();
 };
 
 #endif

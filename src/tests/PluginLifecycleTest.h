@@ -35,6 +35,7 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPluginRepeatedLifecycle );
 	CPPUNIT_TEST( testEditorOpenServesEngine );
 	CPPUNIT_TEST( testEditorCommandReachesEngine );
+	CPPUNIT_TEST( testLocalCommandReachesEngine );
 	CPPUNIT_TEST( testEditorReopen );
 	CPPUNIT_TEST( testEditorBinaryDiscovery );
 	CPPUNIT_TEST( testResolveSystemDataPath );
@@ -56,11 +57,16 @@ public:
 	void testPluginRepeatedLifecycle();
 	/** openEditor() serves the instance's engine over IPC; an editor (here an
 	 * EditorSession standing in for the real GUI process) attaches and receives
-	 * the engine's song; closeEditor() tears the serve loop down (ADR 0016). */
+	 * the engine's song; closeEditor() kills the editor process but keeps the
+	 * always-on session serving (ADR 0016/0035 UI-3). */
 	void testEditorOpenServesEngine();
 	/** A command issued on the attached editor reaches and mutates the plugin's
 	 * engine. */
 	void testEditorCommandReachesEngine();
+	/** TU3.4 (ADR 0035 UI-3): the local command path the embedded basic UI
+	 * uses — a command issued on the plugin's own engine controller (no
+	 * editor round-trip) mutates the authoritative engine state directly. */
+	void testLocalCommandReachesEngine();
 	/** openEditor()/closeEditor() are idempotent and re-openable. */
 	void testEditorReopen();
 	/** The editor binary is resolved by precedence: explicit override →

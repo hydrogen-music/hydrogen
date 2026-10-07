@@ -34,6 +34,7 @@
 #include <core/IPC/IpcEngineBridge.h>
 #include <core/IPC/IpcMessage.h>
 #include <core/IPC/IpcServer.h>
+#include <core/IPC/EngineEventSink.h>
 #include <core/IPC/EngineTelemetry.h>
 #include <core/IPC/EngineTelemetryShm.h>
 #include <core/Logger.h>
@@ -124,8 +125,9 @@ void EngineSession::serve( std::shared_ptr<std::promise<bool>> pListenResult ) {
 		if ( pConn == nullptr ) {
 			// No editor attached: keep the EventQueue from overflowing and
 			// the recorded MIDI notes from piling up (nothing else consumes
-			// them in the split).
-			discardEvents();
+			// them in the split). A registered sink still receives the
+			// drained events and telemetry (ADR 0035 UI-3).
+			drainEvents();
 			discardMidiNotes();
 			publishTelemetry();
 			continue;
@@ -195,6 +197,24 @@ void EngineSession::handleMessage( IpcChannel* pConn, const IpcMessage& msg ) {
 	}
 }
 
+void EngineSession::fanOutToSink( const Event* pEvent ) {
+	if ( pEvent == nullptr ) {
+		return;
+	}
+	// The sink sees exactly the engine-origin stream the wire carries:
+	// editor-internal events never reach it.
+	if ( ! isEngineOriginEvent( pEvent->getType() ) ) {
+		return;
+	}
+	// Fresh load per event: an unregister takes effect for every event
+	// popped after it, even mid-burst (setEventSink contract).
+	auto* pSink = m_pEventSink.load();
+	if ( pSink != nullptr ) {
+		pSink->onEvent( pEvent->getType(), pEvent->getValue(),
+						pEvent->getId() );
+	}
+}
+
 void EngineSession::forwardEvents( IpcChannel* pConn ) {
 	if ( m_pEngine == nullptr ) {
 		return;
@@ -205,6 +225,7 @@ void EngineSession::forwardEvents( IpcChannel* pConn ) {
 	}
 	std::unique_ptr<Event> pEvent;
 	while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+		fanOutToSink( pEvent.get() );
 		// forwardEvent() drops editor-internal events itself.
 		IpcEngineBridge::forwardEvent( *pConn, pEvent->getType(),
 									   pEvent->getValue(), pEvent->getId() );
@@ -248,7 +269,7 @@ void EngineSession::discardMidiNotes() {
 	drainMidiNotes( m_pEngine );
 }
 
-void EngineSession::discardEvents() {
+void EngineSession::drainEvents() {
 	if ( m_pEngine == nullptr ) {
 		return;
 	}
@@ -258,6 +279,7 @@ void EngineSession::discardEvents() {
 	}
 	std::unique_ptr<Event> pEvent;
 	while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+		fanOutToSink( pEvent.get() );
 		// Errors must survive the detached phase: the editor attaches
 		// later and the user still needs to see e.g. the OSC port-busy
 		// popup from engine boot (ADR 0026 point 9). Bounded so a
@@ -371,7 +393,8 @@ EngineTelemetrySnapshot EngineSession::buildTelemetrySnapshot( Hydrogen* pEngine
 }
 
 void EngineSession::publishTelemetry() {
-	if ( m_pTelemetry == nullptr ) {
+	auto* pSink = m_pEventSink.load();
+	if ( pSink == nullptr && m_pTelemetry == nullptr ) {
 		return;
 	}
 	// Published from the bridge thread at the serve-loop cadence (~50 ms), not
@@ -379,7 +402,16 @@ void EngineSession::publishTelemetry() {
 	// the editor's meter refresh while keeping the audio thread 100% IPC-free.
 	// The seqlock store keeps the editor's copy tear-free; values the audio
 	// thread races on (playhead, peaks) are advisory and lossy-tolerant.
-	m_pTelemetry->store( buildTelemetrySnapshot( m_pEngine ) );
+	// Built once for both consumers: the sink callback and the SHM store see
+	// the same snapshot, and the peaks are consumed exactly once.
+	const EngineTelemetrySnapshot snapshot =
+		buildTelemetrySnapshot( m_pEngine );
+	if ( pSink != nullptr ) {
+		pSink->onMeterSnapshot( snapshot );
+	}
+	if ( m_pTelemetry != nullptr ) {
+		m_pTelemetry->store( snapshot );
+	}
 }
 
 }
