@@ -23,6 +23,8 @@
 
 #include "utils/FakePluginHost.h"
 
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Hydrogen.h>
 #include <core/IO/PluginAudioDriver.h>
 #include <core/Midi/Midi.h>
@@ -164,6 +166,78 @@ void OutputBusTest::testSurplusInstrumentMasterOnly() {
 
 	// Instrument 5 is beyond the 4 buses -> master only.
 	host.addNoteOn( 0, static_cast<int>( Midi::NoteOffset ) + 5, 100 );
+	const auto s = run( host, 8 );
+
+	for ( unsigned bus = 0; bus < host.getBusCount(); ++bus ) {
+		CPPUNIT_ASSERT( ! s.bus[ bus ] );
+	}
+	CPPUNIT_ASSERT( s.master );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+// An explicit outputBus mapping (ADR 0019 remapping widget) overrides the
+// implicit 1-to-1: instrument 0 pinned to bus 2 leaves buses 0/1 silent, and
+// the master still carries the sum. Resetting to -1 restores the implicit
+// mapping.
+void OutputBusTest::testExplicitOutputBusMapping() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, nBlock, 4 );
+	configureOrderMapping( host );
+	host.setPlaying( true );
+
+	auto pInstruments = host.getHydrogen()->getSong()->getDrumkit()
+		->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->get( 0 ) != nullptr );
+
+	// Explicit custom mapping: instrument 0 -> bus 2.
+	pInstruments->get( 0 )->setOutputBus( 2 );
+
+	host.addNoteOn( 0, static_cast<int>( Midi::NoteOffset ) + 0, 100 );
+	const auto s = run( host, 8 );
+
+	CPPUNIT_ASSERT( ! s.bus[0] );
+	CPPUNIT_ASSERT( ! s.bus[1] );
+	CPPUNIT_ASSERT( s.bus[2] );      // explicit mapping wins over 1-to-1
+	CPPUNIT_ASSERT( ! s.bus[3] );
+	CPPUNIT_ASSERT( s.master );
+
+	// Reset to the implicit default: instrument 0 -> bus 0 again.
+	pInstruments->get( 0 )->setOutputBus( -1 );
+	host.addNoteOn( 0, static_cast<int>( Midi::NoteOffset ) + 0, 100 );
+	const auto s2 = run( host, 8 );
+
+	CPPUNIT_ASSERT( s2.bus[0] );     // implicit 1-to-1 restored
+	CPPUNIT_ASSERT( ! s2.bus[1] );
+	CPPUNIT_ASSERT( ! s2.bus[2] );
+	CPPUNIT_ASSERT( ! s2.bus[3] );
+	CPPUNIT_ASSERT( s2.master );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+// An explicit mapping beyond the host's bus count routes to the master only
+// (the sampler clamps at mix time): no bus carries the instrument.
+void OutputBusTest::testExplicitOutputBusBeyondCountMasterOnly() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, nBlock, 4 );
+	configureOrderMapping( host );
+	host.setPlaying( true );
+
+	auto pInstruments = host.getHydrogen()->getSong()->getDrumkit()
+		->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->get( 0 ) != nullptr );
+
+	// Bus 7 with only 4 buses -> master only.
+	pInstruments->get( 0 )->setOutputBus( 7 );
+
+	host.addNoteOn( 0, static_cast<int>( Midi::NoteOffset ) + 0, 100 );
 	const auto s = run( host, 8 );
 
 	for ( unsigned bus = 0; bus < host.getBusCount(); ++bus ) {

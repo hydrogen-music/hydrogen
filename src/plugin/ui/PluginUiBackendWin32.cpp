@@ -139,7 +139,8 @@ public:
 
 	unsigned inputEventCount() const override {
 		// Input arrives through the host's message pump and our WndProc;
-		// wiring the observation is UI-4 scope.
+		// the translation wiring there is TU6.2 scope (X11 landed with
+		// UI-4).
 		return 0;
 	}
 

@@ -36,11 +36,16 @@
 
 namespace H2Core {
 
+class HydrogenPlugin;
+
 class PluginUiWindow {
 public:
 	// parentNativeHandle is the host-provided native parent (X11 Window on
-	// Linux, HWND on Windows, NSView* on macOS).
-	PluginUiWindow( std::uintptr_t parentNativeHandle, int width, int height );
+	// Linux, HWND on Windows, NSView* on macOS). pPlugin is the plugin
+	// engine the views ride on (UI-4); null keeps the spike panel (the
+	// smoke's plugin-less path).
+	PluginUiWindow( std::uintptr_t parentNativeHandle, int width, int height,
+					HydrogenPlugin* pPlugin = nullptr );
 	~PluginUiWindow();
 
 	PluginUiWindow( const PluginUiWindow& ) = delete;
@@ -57,6 +62,9 @@ public:
 	// Native input events observed since construction — live evidence for
 	// the spike gate's focus/IME routing question (proposal 0006 TU2.4).
 	unsigned inputEventCount() const;
+	// The last translated mouse state (window-local position + held-button
+	// bitmask); (-1, -1, 0) while off-window or untranslated.
+	void mouseState( float& x, float& y, int& nButtons ) const;
 
 	// One frame: pump native events, drive the per-instance ImGui context,
 	// render, present.

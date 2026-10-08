@@ -291,6 +291,17 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		long nEventId,
 		Event::Trigger trigger = Event::Trigger::Default
 	);
+	/** Sets the plugin output bus the instrument feeds (ADR 0019). A
+	 * negative @a nOutputBus resets the instrument to the implicit 1-to-1
+	 * default (bus = position in the kit).
+	 *
+	 * \param nInstrument Index of the instrument within the current
+	 * kit. */
+	virtual bool setInstrumentOutputBus(
+		int nInstrument,
+		int nOutputBus,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	virtual bool setMetronomeIsActive( bool isActive );
 	virtual bool setMetronomeVolume( float fVolume );
 	virtual bool setMasterIsMuted(

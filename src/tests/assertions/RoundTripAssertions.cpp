@@ -383,6 +383,8 @@ void RoundTripAssertions::assertInstrumentEqual( std::shared_ptr<Instrument> a,
 
 	assertIntEqual( "Instrument::m_nMuteGroup",
 					a->getMuteGroup(), b->getMuteGroup() );
+	assertIntEqual( "Instrument::m_nOutputBus",
+					a->getOutputBus(), b->getOutputBus() );
 	assertIntEqual( "Instrument::m_midiOutChannel",
 					static_cast<int>( a->getMidiOutChannel() ),
 					static_cast<int>( b->getMidiOutChannel() ) );

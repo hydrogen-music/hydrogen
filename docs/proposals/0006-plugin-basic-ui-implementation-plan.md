@@ -243,6 +243,41 @@ engine state (mirror assertions).
 
 ## 7. Phase UI-4 — The three views
 
+**Status: ✅ DONE** (2026-10-08) — TU4.0–TU4.4 landed; unit suite (502) +
+plugin gate (14/14) green, the window smoke PASSED with the views rendering
+on a real embed. TU4.0's gate: 36 approved `PluginUiStrings` strings
+(feedback + transport deliberately unexposed — engine-side, settable via
+the editor); the catalog wiring lands at UI-6 (TU6.1). TU4.4 added
+`Instrument::m_nOutputBus` through the full members-changes checklist
+(ADR 0019: explicit-only persistence). The REAPER spike gate found the
+deferred input translation still missing (the X11 backend only counted
+events); the full X11 translation — mouse, wheel, keys, focus — landed
+with it, synthetic-event-checked in the smoke; Win32/macOS input wiring
+moved to TU6.2. A second REAPER spike round found three more UI-4 gaps,
+all fixed red→green: the mixer's bus-indicator drag source asserted on
+its ID-less `Text()` item (imgui requires `SourceAllowNullID` for
+those), every mixer row loop ended in a trailing `SameLine()` so all
+rows collapsed onto one horizontal line (now between-only), and the
+channel widgets showed raw "-1"/"0" where the GUI's spinboxes read
+"all"/"Off" (now dropdowns fed by the model's `channelDisplayName` —
+unit-tested, suite 503). The smoke gained the coverage that reproduced
+the crash headless: a warm-up frame before the held press (imgui
+suppresses hovering for presses submitted before any mouse-position
+event), a y-dense sweep grid, and a mixer layout check. A third REAPER
+spike round found seven more UI-4 gaps, all fixed: the landing view's
+action channel was still a raw `InputInt` (now the same all/Off/1..16
+dropdown — `channelDisplayName` moved from the mapping model to
+`PluginUiStrings`, both views need it, and the invalid -2 of unmapped
+rows now reads "Off" like the GUI's disabled widgets), the first tab
+"Song" renamed "General", the mixer's six-row layout replaced by
+fixed-width strip columns (names elided to the column width, the
+routing béziers at full alpha so the established connections read as
+more than a watermark), the embedded window's 300×200 initial footprint
+grown to 960×600 (the host resizes the child with its FX window
+anyway), and the smoke gained a scrollability check — the overflowing
+strips must stay reachable through imgui's automatic horizontal
+scrollbar, verified headless (suite 503, plugin 14/14).
+
 *Objective:* landing, MIDI mapping, mixer — model-first, each view's logic
 unit-tested headless, renderers thin.
 
@@ -336,7 +371,10 @@ green.
   joins the existing `data/i18n` catalogs (the plugin already links Qt Gui,
   so `Q_DECLARE_TR_FUNCTIONS` applies; not `CommonStrings.h` — that lives in
   `src/gui`, which the plugin must not link).
-* **TU6.2** DPI/scale and focus/IME fixes from the spike findings.
+* **TU6.2** DPI/scale and focus/IME fixes from the spike findings, plus
+  the Win32/macOS input translation wiring (X11 landed with UI-4 after
+  the REAPER spike found the gap — the backend had only counted events;
+  their `pumpEvents` stays a no-op until then).
 * **TU6.3** Third-party notices for the three new submodules.
 * **TU6.4** ADR 0035 status flip to accepted + spike-outcome amendments;
   CHANGELOG entry if not already landed at TU5.7.

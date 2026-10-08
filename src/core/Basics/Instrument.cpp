@@ -71,6 +71,7 @@ Instrument::Instrument(
 	  m_bSoloed( false ),
 	  m_bMuted( false ),
 	  m_nMuteGroup( -1 ),
+	  m_nOutputBus( -1 ),
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( -1 ),
@@ -125,6 +126,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_bSoloed( other->isSoloed() ),
 	  m_bMuted( other->isMuted() ),
 	  m_nMuteGroup( other->getMuteGroup() ),
+	  m_nOutputBus( other->getOutputBus() ),
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( other->getHihatGrp() ),
@@ -607,6 +609,9 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		// Additional members not present in files written to disk but required
 		// for IPC.
 		pInstrument->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		pInstrument->setOutputBus(
+			node.read_int( "ipc-outputBus", -1, true, false, bSilent )
+		);
 		pInstrument->setIsPreviewInstrument( node.read_bool(
 			"ipc-isPreviewInstrument", false, false, false, false
 		) );
@@ -744,6 +749,11 @@ void Instrument::saveTo(
 	// IPC.
 	if ( flags & Xml::Flag::Ipc ) {
 		InstrumentNode.write_uuid( "ipc-uuid", getUuid() );
+		// The implicit 1-to-1 routing (ADR 0019) is the default and must not be
+		// persisted; only an explicit custom mapping round-trips.
+		if ( m_nOutputBus >= 0 ) {
+			InstrumentNode.write_int( "ipc-outputBus", m_nOutputBus );
+		}
 		InstrumentNode.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
 		bool bSamplesLoaded = false;
 		for ( auto& ppComponent : *m_pComponents ) {
@@ -1146,11 +1156,15 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bMuted ) )
-				.append( QString( "%1%2m_nMuteGroup: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_nMuteGroup ) )
-				.append( QString( "%1%2m_nQueued: %3\n" )
+			.append( QString( "%1%2m_nMuteGroup: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nMuteGroup ) )
+			.append( QString( "%1%2m_nOutputBus: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nOutputBus ) )
+			.append( QString( "%1%2m_nQueued: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nQueued ) )
@@ -1238,8 +1252,9 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_bStopNotes: %1" ).arg( m_bStopNotes ) )
 				.append( QString( ", m_bSoloed: %1" ).arg( m_bSoloed ) )
 				.append( QString( ", m_bMuted: %1" ).arg( m_bMuted ) )
-				.append( QString( ", m_nMuteGroup: %1" ).arg( m_nMuteGroup ) )
-				.append( QString( ", m_nQueued: %1" ).arg( m_nQueued ) )
+			.append( QString( ", m_nMuteGroup: %1" ).arg( m_nMuteGroup ) )
+			.append( QString( ", m_nOutputBus: %1" ).arg( m_nOutputBus ) )
+			.append( QString( ", m_nQueued: %1" ).arg( m_nQueued ) )
 				.append( QString( ", m_enqueuedBy: [%1]" )
 							 .arg( m_enqueuedBy.join( " ; " ) ) )
 				.append( QString( ", m_nHihatGrp: %1" ).arg( m_nHihatGrp ) )

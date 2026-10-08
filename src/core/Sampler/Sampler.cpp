@@ -1765,8 +1765,11 @@ bool Sampler::renderNote(
 		auto pPluginDriver =
 			std::dynamic_pointer_cast<PluginAudioDriver>( pAudioDriver );
 		if ( pPluginDriver != nullptr && pSong->getDrumkit() != nullptr ) {
-			const int nBus =
-				pSong->getDrumkit()->getInstruments()->index( pInstrument );
+			// An explicit custom mapping (ADR 0019) overrides the implicit
+			// 1-to-1 routing by kit position.
+			const int nBus = pInstrument->getOutputBus() >= 0
+				? pInstrument->getOutputBus()
+				: pSong->getDrumkit()->getInstruments()->index( pInstrument );
 			if ( nBus >= 0 && nBus < pPluginDriver->getBusCount() ) {
 				pBusOutL = pPluginDriver->getBusBuffer_L( nBus );
 				pBusOutR = pPluginDriver->getBusBuffer_R( nBus );

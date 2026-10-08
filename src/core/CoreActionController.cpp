@@ -751,6 +751,41 @@ bool CoreActionController::setInstrumentMidiOutChannel(
 	return true;
 }
 
+bool CoreActionController::setInstrumentOutputBus(
+	int nInstrument,
+	int nOutputBus,
+	Event::Trigger trigger
+)
+{
+	auto pSong = m_pHydrogen->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "no song set" );
+		return false;
+	}
+	auto pDrumkit = pSong->getDrumkit();
+	if ( pDrumkit == nullptr ) {
+		ERRORLOG( "no drumkit" );
+		return false;
+	}
+	auto pInstrumentList = pDrumkit->getInstruments();
+	auto pInstrument = pInstrumentList->get( nInstrument );
+	if ( pInstrument == nullptr ) {
+		ERRORLOG( QString( "Unable to retrieve instrument (Par. 1) [%1]" )
+					  .arg( nInstrument ) );
+		return false;
+	}
+
+	if ( pInstrument->getOutputBus() != nOutputBus ) {
+		pInstrument->setOutputBus( nOutputBus );
+		m_pHydrogen->getEventQueue()->pushEvent(
+			Event::Type::InstrumentParametersChanged, nInstrument
+		);
+		m_pHydrogen->setDrumkitModified( true, trigger );
+	}
+
+	return true;
+}
+
 bool CoreActionController::setMetronomeIsActive( bool isActive )
 {
 	auto pPref = m_pHydrogen->getPreferences();

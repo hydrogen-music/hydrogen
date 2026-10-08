@@ -26,7 +26,14 @@
 // on, or no usable GL/Metal to embed with (headless or virtualized CI); the
 // manual spike gate (TU2.4) answers the real-host questions CI cannot.
 
+#include "PluginUiLandingView.h"
+#include "PluginUiMappingView.h"
+#include "PluginUiMixerView.h"
 #include "PluginUiWindow.h"
+
+#include <plugin/HydrogenPlugin.h>
+
+#include <imgui.h>
 
 #include <cstdio>
 
@@ -36,6 +43,7 @@
 #import <Cocoa/Cocoa.h>
 #else
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
 #endif
 
 namespace {
@@ -89,6 +97,20 @@ int main() {
 			window.idle();
 		}
 	}
+	// The real views (UI-4): a plugin-backed window must construct the
+	// three views and render frames without crashing — the renderers'
+	// coverage (TU1.3: no logic, so the smoke is their test).
+	{
+		H2Core::HydrogenPlugin plugin( 44100, 512, 2 );
+		plugin.activate( 44100, 512 );
+		H2Core::PluginUiWindow viewWindow(
+			reinterpret_cast<std::uintptr_t>( hParent ), 200, 150,
+			&plugin );
+		check( viewWindow.isValid(), "plugin-backed window invalid (UI-4)" );
+		for ( int i = 0; i < 5; ++i ) {
+			viewWindow.idle();
+		}
+	}
 	DestroyWindow( hParent );
 #elif defined( __APPLE__ )
 	// A window server is required to create the test parent. Without one
@@ -116,6 +138,20 @@ int main() {
 		check( window.nativeHandle() != 0, "null native handle (TU2.2)" );
 		for ( int i = 0; i < 5; ++i ) {
 			window.idle();
+		}
+	}
+	// The real views (UI-4): a plugin-backed window must construct the
+	// three views and render frames without crashing — the renderers'
+	// coverage (TU1.3: no logic, so the smoke is their test).
+	{
+		H2Core::HydrogenPlugin plugin( 44100, 512, 2 );
+		plugin.activate( 44100, 512 );
+		H2Core::PluginUiWindow viewWindow(
+			reinterpret_cast<std::uintptr_t>( pParent.contentView ), 200,
+			150, &plugin );
+		check( viewWindow.isValid(), "plugin-backed window invalid (UI-4)" );
+		for ( int i = 0; i < 5; ++i ) {
+			viewWindow.idle();
 		}
 	}
 	[pParent close];
@@ -158,6 +194,87 @@ int main() {
 		for ( int i = 0; i < 5; ++i ) {
 			window.idle();
 		}
+		// Input translation (UI-4): synthetic events through the real
+		// pump — the translated mouse state must track them. Real-host
+		// pointer/keyboard routing stays with the manual spike gate
+		// (TU2.4/TU6.2).
+		if ( nChild != 0 ) {
+			const Window child = static_cast<Window>( nChild );
+			auto sendEvent = [ pDisplay, child ]( XEvent& ev ) {
+				XSendEvent( pDisplay, child, False, 0, &ev );
+				// The smoke's connection did not create the child, so the
+				// event lands on the backend's connection; sync so it is
+				// queued there before idle() pumps.
+				XSync( pDisplay, False );
+			};
+			XEvent ev = {};
+			ev.xmotion.type = MotionNotify;
+			ev.xmotion.window = child;
+			ev.xmotion.x = 30;
+			ev.xmotion.y = 40;
+			sendEvent( ev );
+			window.idle();
+			float fX = 0.0f;
+			float fY = 0.0f;
+			int nButtons = 0;
+			window.mouseState( fX, fY, nButtons );
+			check( fX == 30.0f && fY == 40.0f && nButtons == 0,
+				   "motion not translated (UI-4)" );
+			ev = {};
+			ev.xbutton.type = ButtonPress;
+			ev.xbutton.window = child;
+			ev.xbutton.x = 30;
+			ev.xbutton.y = 40;
+			ev.xbutton.button = 1;
+			sendEvent( ev );
+			ev = {};
+			ev.xkey.type = KeyPress;
+			ev.xkey.window = child;
+			ev.xkey.keycode = XKeysymToKeycode( pDisplay, XK_a );
+			sendEvent( ev );
+			window.idle();
+			window.mouseState( fX, fY, nButtons );
+			check( fX == 30.0f && fY == 40.0f && ( nButtons & 1 ) != 0,
+				   "button/key press not translated (UI-4)" );
+			ev = {};
+			ev.xbutton.type = ButtonRelease;
+			ev.xbutton.window = child;
+			ev.xbutton.x = 30;
+			ev.xbutton.y = 40;
+			ev.xbutton.button = 1;
+			sendEvent( ev );
+			ev = {};
+			ev.xkey.type = KeyRelease;
+			ev.xkey.window = child;
+			ev.xkey.keycode = XKeysymToKeycode( pDisplay, XK_a );
+			sendEvent( ev );
+			ev = {};
+			ev.xcrossing.type = LeaveNotify;
+			ev.xcrossing.window = child;
+			ev.xcrossing.x = 30;
+			ev.xcrossing.y = 40;
+			ev.xcrossing.mode = NotifyNormal;
+			ev.xcrossing.detail = NotifyAncestor;
+			sendEvent( ev );
+			window.idle();
+			window.mouseState( fX, fY, nButtons );
+			check( fX < 0.0f && fY < 0.0f && nButtons == 0,
+				   "release/leave not translated (UI-4)" );
+		}
+	}
+	// The real views (UI-4): a plugin-backed window must construct the
+	// three views and render frames without crashing — the renderers'
+	// coverage (TU1.3: no logic, so the smoke is their test).
+	{
+		H2Core::HydrogenPlugin plugin( 44100, 512, 2 );
+		plugin.activate( 44100, 512 );
+		H2Core::PluginUiWindow viewWindow(
+			reinterpret_cast<std::uintptr_t>( parent ), 200, 150,
+			&plugin );
+		check( viewWindow.isValid(), "plugin-backed window invalid (UI-4)" );
+		for ( int i = 0; i < 5; ++i ) {
+			viewWindow.idle();
+		}
 	}
 	// Teardown must leave no child window behind.
 	XSync( pDisplay, false );
@@ -177,6 +294,94 @@ int main() {
 	XDestroyWindow( pDisplay, parent );
 	XCloseDisplay( pDisplay );
 #endif
+
+	// Direct view draws (UI-4): the tab bar gates the views inside the
+	// window, so the embedded frames above never leave the default tab —
+	// the REAPER spike crashed drawing the mixer view, unreachable there.
+	// This block draws each view directly in a throwaway ImGui context:
+	// no native window, no GL — draw-time asserts fire long before any
+	// rendering. Each view gets its own full-size window and a
+	// held-button sweep over its whole area: imgui asserts drag sources
+	// on ID-less items only under mouse-down + hover, so the sweep
+	// reproduces the crash condition wherever the widget sits.
+	{
+		H2Core::HydrogenPlugin plugin( 44100, 512, 2 );
+		plugin.activate( 44100, 512 );
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		io.IniFilename = nullptr;
+		io.LogFilename = nullptr;
+		io.DisplaySize = ImVec2( 400.0f, 300.0f );
+		// No render backend here, so the atlas never builds via a
+		// backend NewFrame — build the default bitmap font headless.
+		io.Fonts->AddFontDefault();
+		io.Fonts->Build();
+		H2Core::PluginUiLandingView landingView( &plugin );
+		H2Core::PluginUiMappingView mappingView( &plugin );
+		H2Core::PluginUiMixerView mixerView( &plugin );
+		// The scroll range of the last drawn frame — captured inside
+		// the frame (GetScrollMaxX needs its window current) for the
+		// mixer's scrollability check below.
+		float nFrameScrollMaxX = -1.0f;
+		const auto runFrame = [ &io, &nFrameScrollMaxX ]( auto&& draw ) {
+			ImGui::NewFrame();
+			ImGui::SetNextWindowPos( ImVec2( 0.0f, 0.0f ) );
+			ImGui::SetNextWindowSize( io.DisplaySize );
+			ImGui::Begin( "##directViews", nullptr,
+						  ImGuiWindowFlags_NoTitleBar |
+							  ImGuiWindowFlags_NoResize |
+							  ImGuiWindowFlags_NoMove );
+			draw();
+			nFrameScrollMaxX = ImGui::GetScrollMaxX();
+			ImGui::End();
+			ImGui::Render();
+		};
+		const auto sweep = [ &io, &runFrame ]( auto&& draw ) {
+			// The y range spans the window height — the strip columns
+			// push the bus indicators deeper than the old row layout.
+			for ( int nY = 0; nY <= 24; ++nY ) {
+				for ( int nX = 0; nX <= 10; ++nX ) {
+					io.AddMousePosEvent(
+						20.0f + 36.0f * static_cast<float>( nX ),
+						15.0f + 12.0f * static_cast<float>( nY ) );
+					runFrame( draw );
+				}
+			}
+		};
+		// A warm-up frame before the press: a press ahead of the
+		// first seen mouse position is "owned by the application"
+		// (imgui click ownership) and suppresses hovering for the
+		// whole drag. The window must also exist by then, so the
+		// warm-up parks the mouse on the landing view's first
+		// button — the press activates it and it stays active
+		// across the sweeps, the state imgui asserts drag sources
+		// under.
+		io.AddMousePosEvent( 20.0f, 15.0f );
+		runFrame( [ & ]() { landingView.draw(); } );
+		// Held, never released: no widget fires (imgui triggers on
+		// release), so the sweep only drags — the state it moves belongs
+		// to this throwaway plugin instance. A 2D grid: the strip rows
+		// are as narrow as the kit is small, so a single x would sail
+		// past them, and the y stride stays under the bus indicator
+		// row's height so the sweep cannot jump over it.
+		io.AddMouseButtonEvent( 0, true );
+		sweep( [ & ]() { landingView.draw(); } );
+		sweep( [ & ]() { mappingView.draw(); } );
+		sweep( [ & ]() { mixerView.draw(); } );
+		// The mixer's bus row must stack below the strips, not chain
+		// onto their line: the last item of its draw is the Master
+		// bus slot, and it has to sit inside the window's width. The
+		// height overflow is the vertical scrollbar's domain.
+		check( ImGui::GetItemRectMax().x <= io.DisplaySize.x,
+			   "mixer bus row beyond the window (UI-4)" );
+		// The strips overflow any sane window width — the overflow
+		// must stay reachable: once the mixer drew, the window has to
+		// be horizontally scrollable.
+		check( nFrameScrollMaxX > 0.0f,
+			   "mixer overflow not horizontally scrollable (UI-4)" );
+		ImGui::DestroyContext();
+	}
 
 	std::printf( g_bOk ? "PLUGIN UI SMOKE: PASSED\n"
 					   : "PLUGIN UI SMOKE: FAILED\n" );

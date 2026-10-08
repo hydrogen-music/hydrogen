@@ -34,6 +34,21 @@ else()
         ${H2_IMGUI_DIR}/backends/imgui_impl_opengl3.cpp )
 endif()
 
+# TU4: the view models — pure logic, no imgui types (TU1.3). They form their
+# own library so the unit suite links them headless (no vendored UI sources
+# on its link line); hydrogen-plugin-ui consumes them for its renderers.
+set( H2_PLUGIN_UI_MODEL_SOURCES
+    PluginUiLandingModel.cpp
+    PluginUiMappingModel.cpp
+    PluginUiMixerModel.cpp )
+
+add_library( hydrogen-plugin-ui-models STATIC ${H2_PLUGIN_UI_MODEL_SOURCES} )
+target_link_libraries( hydrogen-plugin-ui-models PUBLIC hydrogen-plugin )
+set_target_properties( hydrogen-plugin-ui-models PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    CXX_STANDARD 17
+)
+
 # TU2.3: the platform window seam — X11 child window (Linux), Win32 child
 # HWND, NSView + Metal (macOS). Win32 renders through the GL3 backend (WGL
 # via its embedded loader); macOS gains the Metal render backend above.
@@ -46,8 +61,17 @@ else()
     list( APPEND H2_PLUGIN_UI_WINDOW_SOURCES PluginUiBackendX11.cpp )
 endif()
 
+# TU4: the renderers — thin imgui draw calls over the view models (TU1.3).
+# No logic grows here, so the unit suite does not link them; the window
+# smoke covers their construction and per-frame drawing.
+set( H2_PLUGIN_UI_VIEW_SOURCES
+    PluginUiLandingView.cpp
+    PluginUiMappingView.cpp
+    PluginUiMixerView.cpp )
+
 add_library( hydrogen-plugin-ui STATIC
     ${H2_PLUGIN_UI_WINDOW_SOURCES}
+    ${H2_PLUGIN_UI_VIEW_SOURCES}
     ${H2_PLUGIN_UI_VENDORED_SOURCES} )
 
 target_include_directories( hydrogen-plugin-ui PUBLIC
@@ -57,7 +81,9 @@ target_include_directories( hydrogen-plugin-ui PUBLIC
     ${H2_IFD_DIR}
 )
 
-target_link_libraries( hydrogen-plugin-ui PUBLIC hydrogen-plugin )
+target_link_libraries( hydrogen-plugin-ui PUBLIC
+    hydrogen-plugin
+    hydrogen-plugin-ui-models )
 
 set_target_properties( hydrogen-plugin-ui PROPERTIES
     POSITION_INDEPENDENT_CODE ON

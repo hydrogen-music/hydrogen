@@ -32,8 +32,10 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xresource.h>
+#include <X11/keysym.h>
 #include <GL/glx.h>
 
+#include <cfloat>
 #include <cstdint>
 #include <cstdlib>
 #include <new>
@@ -42,6 +44,59 @@
 namespace H2Core {
 
 namespace {
+
+// X11 KeySym → ImGuiKey for the subset the basic UI needs: navigation,
+// digits, letters, minus (negative channel entry), modifiers. Everything
+// else maps to ImGuiKey_None and only its composed text (if any) reaches
+// imgui. Modifiers map to the real L/R keys — imgui derives the mod state
+// from them, and its docs prefer them over the ImGuiMod_* aliases.
+ImGuiKey imguiKeyFromKeySym( KeySym keySym ) {
+	switch ( keySym ) {
+	case XK_BackSpace: return ImGuiKey_Backspace;
+	case XK_Tab: return ImGuiKey_Tab;
+	case XK_Return: return ImGuiKey_Enter;
+	case XK_KP_Enter: return ImGuiKey_KeypadEnter;
+	case XK_Escape: return ImGuiKey_Escape;
+	case XK_Delete: return ImGuiKey_Delete;
+	case XK_Home: return ImGuiKey_Home;
+	case XK_End: return ImGuiKey_End;
+	case XK_Page_Up: return ImGuiKey_PageUp;
+	case XK_Page_Down: return ImGuiKey_PageDown;
+	case XK_Left: return ImGuiKey_LeftArrow;
+	case XK_Right: return ImGuiKey_RightArrow;
+	case XK_Up: return ImGuiKey_UpArrow;
+	case XK_Down: return ImGuiKey_DownArrow;
+	case XK_Insert: return ImGuiKey_Insert;
+	case XK_space: return ImGuiKey_Space;
+	case XK_minus: return ImGuiKey_Minus;
+	case XK_equal: return ImGuiKey_Equal;
+	case XK_KP_Subtract: return ImGuiKey_KeypadSubtract;
+	case XK_KP_Equal: return ImGuiKey_KeypadEqual;
+	case XK_Shift_L: return ImGuiKey_LeftShift;
+	case XK_Shift_R: return ImGuiKey_RightShift;
+	case XK_Control_L: return ImGuiKey_LeftCtrl;
+	case XK_Control_R: return ImGuiKey_RightCtrl;
+	case XK_Alt_L: return ImGuiKey_LeftAlt;
+	case XK_Alt_R: return ImGuiKey_RightAlt;
+	case XK_Super_L: return ImGuiKey_LeftSuper;
+	case XK_Super_R: return ImGuiKey_RightSuper;
+	default: break;
+	}
+	if ( keySym >= XK_0 && keySym <= XK_9 ) {
+		return static_cast<ImGuiKey>( ImGuiKey_0 + ( keySym - XK_0 ) );
+	}
+	if ( keySym >= XK_KP_0 && keySym <= XK_KP_9 ) {
+		return static_cast<ImGuiKey>(
+			ImGuiKey_Keypad0 + ( keySym - XK_KP_0 ) );
+	}
+	if ( keySym >= XK_a && keySym <= XK_z ) {
+		return static_cast<ImGuiKey>( ImGuiKey_A + ( keySym - XK_a ) );
+	}
+	if ( keySym >= XK_A && keySym <= XK_Z ) {
+		return static_cast<ImGuiKey>( ImGuiKey_A + ( keySym - XK_A ) );
+	}
+	return ImGuiKey_None;
+}
 
 class PluginUiBackendX11 : public PluginUiBackend {
 public:
@@ -85,7 +140,7 @@ public:
 
 		// Child window on the host parent (Pugl x11.c puglRealize): the
 		// colormap comes from the GL visual; the event mask is the input
-		// surface UI-4 will translate.
+		// surface pumpEvents translates (UI-4).
 		m_colormap = XCreateColormap(
 			m_display, m_parent, visualInfo->visual, AllocNone );
 		XSetWindowAttributes attr = {};
@@ -186,10 +241,16 @@ public:
 		return m_inputEvents;
 	}
 
+	void mouseState( float& x, float& y, int& nButtons ) const override {
+		x = m_fMouseX;
+		y = m_fMouseY;
+		nButtons = m_nMouseButtons;
+	}
+
 	void pumpEvents() override {
-		// Pugl dispatchX11Events: flush, then drain the queue. Only resize
-		// bookkeeping and input observation live here; full input
-		// translation is UI-4 scope.
+		// Pugl dispatchX11Events: flush, then drain the queue. The caller
+		// guarantees the per-instance ImGui context is current, so events
+		// translate straight into its IO (UI-4).
 		XFlush( m_display );
 		while ( XEventsQueued( m_display, QueuedAfterReading ) > 0 ) {
 			XEvent event = {};
@@ -202,13 +263,38 @@ public:
 				m_width = event.xconfigure.width;
 				m_height = event.xconfigure.height;
 				break;
+			case MotionNotify:
+				translateMousePosition( event.xmotion.x, event.xmotion.y );
+				++m_inputEvents;
+				break;
+			case EnterNotify:
+				translateMousePosition( event.xcrossing.x, event.xcrossing.y );
+				++m_inputEvents;
+				break;
+			case LeaveNotify:
+				// imgui's off-window sentinel: -FLT_MAX drops the hover
+				// from hit-testing (its own backends do the same).
+				ImGui::GetIO().AddMousePosEvent( -FLT_MAX, -FLT_MAX );
+				m_fMouseX = -1.0f;
+				m_fMouseY = -1.0f;
+				++m_inputEvents;
+				break;
 			case ButtonPress:
 			case ButtonRelease:
+				translateButton( event.xbutton );
+				++m_inputEvents;
+				break;
 			case KeyPress:
 			case KeyRelease:
-			case MotionNotify:
-			case EnterNotify:
-			case LeaveNotify:
+				translateKey( event.xkey );
+				++m_inputEvents;
+				break;
+			case FocusIn:
+				ImGui::GetIO().AddFocusEvent( true );
+				++m_inputEvents;
+				break;
+			case FocusOut:
+				ImGui::GetIO().AddFocusEvent( false );
 				++m_inputEvents;
 				break;
 			default:
@@ -248,6 +334,86 @@ public:
 	}
 
 private:
+	// Input translation (UI-4): native events → the current ImGui IO.
+	// The caller guarantees the per-instance context is current.
+
+	void translateMousePosition( int x, int y ) {
+		ImGui::GetIO().AddMousePosEvent( static_cast<float>( x ),
+										static_cast<float>( y ) );
+		m_fMouseX = static_cast<float>( x );
+		m_fMouseY = static_cast<float>( y );
+	}
+
+	void translateButton( const XButtonEvent& button ) {
+		ImGuiIO& io = ImGui::GetIO();
+		const bool bPressed = ( button.type == ButtonPress );
+		// Position rides along: hosts may deliver a click without a
+		// preceding motion (pointer warps, synthetic events).
+		translateMousePosition( button.x, button.y );
+		switch ( button.button ) {
+		case 1:
+			io.AddMouseButtonEvent( 0, bPressed );
+			m_nMouseButtons = bPressed ? ( m_nMouseButtons | 1 )
+				: ( m_nMouseButtons & ~1 );
+			break;
+		case 2:
+			io.AddMouseButtonEvent( 1, bPressed );
+			m_nMouseButtons = bPressed ? ( m_nMouseButtons | 2 )
+				: ( m_nMouseButtons & ~2 );
+			break;
+		case 3:
+			io.AddMouseButtonEvent( 2, bPressed );
+			m_nMouseButtons = bPressed ? ( m_nMouseButtons | 4 )
+				: ( m_nMouseButtons & ~4 );
+			break;
+		case 4:
+		case 5:
+			// The wheel reports as a press/release pair; only the press
+			// carries a notch.
+			if ( bPressed ) {
+				io.AddMouseWheelEvent( 0.0f,
+									   button.button == 4 ? 1.0f : -1.0f );
+			}
+			break;
+		case 6:
+		case 7:
+			if ( bPressed ) {
+				io.AddMouseWheelEvent( button.button == 6 ? 1.0f : -1.0f,
+									   0.0f );
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	void translateKey( XKeyEvent& key ) {
+		ImGuiIO& io = ImGui::GetIO();
+		const bool bPressed = ( key.type == KeyPress );
+		KeySym keySym = NoSymbol;
+		char sText[ 32 ] = {};
+		// XLookupString (no XIM yet — IME is TU6.2): keysym and composed
+		// text in one pass.
+		const int nText = XLookupString( &key, sText, sizeof( sText ) - 1,
+										  &keySym, nullptr );
+		const ImGuiKey imguiKey = imguiKeyFromKeySym( keySym );
+		if ( imguiKey != ImGuiKey_None ) {
+			io.AddKeyEvent( imguiKey, bPressed );
+		}
+		if ( bPressed && nText > 0 ) {
+			// The composed bytes are locale-encoded; the basic UI's text
+			// entry is ASCII (digits, minus), where byte == codepoint.
+			// Full UTF-8/IME rides the TU6.2 XIM wiring.
+			for ( int ii = 0; ii < nText; ++ii ) {
+				const unsigned char c =
+					static_cast<unsigned char>( sText[ ii ] );
+				if ( c < 0x80 ) {
+					io.AddInputCharacter( c );
+				}
+			}
+		}
+	}
+
 	Display* m_display = nullptr;
 	Window m_parent = None;
 	Window m_window = None;
@@ -258,6 +424,10 @@ private:
 	int m_width = 0;
 	int m_height = 0;
 	unsigned m_inputEvents = 0;
+	// The translated mouse state (mouseState()).
+	float m_fMouseX = -1.0f;
+	float m_fMouseY = -1.0f;
+	int m_nMouseButtons = 0;
 	mutable double m_scaleFactor = 0.0;
 	bool m_valid = false;
 };

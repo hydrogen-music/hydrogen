@@ -171,6 +171,7 @@ std::shared_ptr<Instrument> makeInstrument( Hydrogen* pHydrogen ) {
 	pInstr->setFilterCutoff( 0.5f );
 	pInstr->setFilterResonance( 0.3f );
 	pInstr->setMuteGroup( 3 );
+	pInstr->setOutputBus( 7 );
 	pInstr->setMidiOutChannel( Midi::channelFromInt( 5 ) );
 	pInstr->setMidiOutNote( Midi::Note( 60 ) );
 	pInstr->setStopNotes( true );

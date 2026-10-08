@@ -30,6 +30,8 @@ class OutputBusTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testInstrumentRoutedToOwnBus );
 	CPPUNIT_TEST( testSecondInstrumentToSecondBus );
 	CPPUNIT_TEST( testSurplusInstrumentMasterOnly );
+	CPPUNIT_TEST( testExplicitOutputBusMapping );
+	CPPUNIT_TEST( testExplicitOutputBusBeyondCountMasterOnly );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -37,6 +39,12 @@ public:
 	void testInstrumentRoutedToOwnBus();
 	void testSecondInstrumentToSecondBus();
 	void testSurplusInstrumentMasterOnly();
+	/** An explicit outputBus mapping (ADR 0019 remapping) overrides the
+	 * implicit 1-to-1; resetting to -1 restores it. */
+	void testExplicitOutputBusMapping();
+	/** An explicit mapping beyond the host's bus count routes to the
+	 * master only. */
+	void testExplicitOutputBusBeyondCountMasterOnly();
 };
 
 #endif

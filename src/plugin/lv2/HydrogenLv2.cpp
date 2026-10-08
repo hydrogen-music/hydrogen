@@ -249,9 +249,12 @@ struct H2Lv2Ui {
 	ui->engine = engine;
 	if ( parentHandle != 0 ) {
 		// Embedded mode (proposal 0006 UI-2): a child window on the host
-		// parent, handed back as the widget for the host to idle.
+		// parent, handed back as the widget for the host to idle. The
+		// initial footprint fits the three tabs' content (the mixer's
+		// strip columns, the mapping tables); the host resizes the
+		// child with its FX window (the backend tracks ConfigureNotify).
 		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-			parentHandle, 300, 200 );
+			parentHandle, 960, 600, engine );
 		if ( ! ui->pWindow->isValid() ) {
 			delete ui;
 			return nullptr;

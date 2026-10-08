@@ -194,6 +194,17 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** get the mute group of the instrument */
 	int getMuteGroup() const;
 
+	/** Sets the plugin output bus the instrument feeds (ADR 0019).
+	 *
+	 * A negative value resets the instrument to the implicit 1-to-1
+	 * default (bus = position in the kit); a value beyond the host's
+	 * bus count routes the instrument to the master only (the sampler
+	 * clamps at mix time). */
+	void setOutputBus( int nBus );
+	/** The plugin output bus the instrument feeds, or -1 for the
+	 * implicit 1-to-1 default (ADR 0019). */
+	int getOutputBus() const;
+
 	/** set the midi out channel of the instrument */
 	void setMidiOutChannel( Midi::Channel channel );
 	/** get the midi out channel of the instrument */
@@ -438,6 +449,11 @@ class Instrument : public H2Core::Object<Instrument> {
 	bool m_bSoloed;			///< is the instrument in solo mode?
 	bool m_bMuted;			///< is the instrument muted?
 	int m_nMuteGroup;		///< mute group of the instrument
+	/** Plugin output bus the instrument feeds (ADR 0019). -1 = the
+	 * implicit 1-to-1 default (bus = position in the kit); >= 0 an
+	 * explicit custom mapping (persisted, may be shared between
+	 * instruments). */
+	int m_nOutputBus;
 	int m_nQueued;			///< count the number of notes queued within
 					///< Sampler::m_playingNotesQueue or std::priority_queue
 					///< m_songNoteQueue
@@ -499,6 +515,16 @@ inline void Instrument::setMuteGroup( int group )
 inline int Instrument::getMuteGroup() const
 {
 	return m_nMuteGroup;
+}
+
+inline void Instrument::setOutputBus( int nBus )
+{
+	m_nOutputBus = ( nBus < -1 ? -1 : nBus );
+}
+
+inline int Instrument::getOutputBus() const
+{
+	return m_nOutputBus;
 }
 
 inline Midi::Channel Instrument::getMidiOutChannel() const

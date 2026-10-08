@@ -48,10 +48,23 @@ public:
 	virtual void getSize( int& width, int& height ) const = 0;
 	// Native input events observed (spike evidence, TU2.4).
 	virtual unsigned inputEventCount() const = 0;
+	// The last translated mouse state: window-local position plus a
+	// bitmask of held buttons (1 left, 2 middle, 4 right). (-1, -1, 0)
+	// while the pointer is off the window or nothing was translated yet.
+	// Spike diagnostics and the smoke's synthetic-input check; backends
+	// without input translation (Win32/macOS until TU6.2) keep the
+	// default.
+	virtual void mouseState( float& x, float& y, int& nButtons ) const {
+		x = -1.0f;
+		y = -1.0f;
+		nButtons = 0;
+	}
 
-	// Pump native events (resize bookkeeping, input observation). A no-op
-	// on platforms where the host's event loop delivers events to us
-	// directly (Win32 WndProc, macOS NSView).
+	// Pump native events: resize bookkeeping and input translation into
+	// the current ImGui context's IO (X11 drains its own queue here). A
+	// no-op on platforms where the host's event loop delivers events to
+	// us directly (Win32 WndProc, macOS NSView) — their translation
+	// wiring lands with TU6.2.
 	virtual void pumpEvents() = 0;
 
 	// Draw-context + render-backend plumbing. The caller guarantees the
