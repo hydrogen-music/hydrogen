@@ -21,7 +21,8 @@
 
 // Window smoke (proposal 0006 TU2.1/TU2.2): a PluginUiWindow embedded on a
 // test-created native parent — the child must be valid, mapped and parented,
-// idle frames must not crash, and teardown must leave no child behind.
+// idle frames must not crash, and teardown must leave no child behind — plus
+// the parentless fallback window (UI-5, TU5.2) with its WM close protocol.
 // Skips with a message when the platform has no display to create a parent
 // on, or no usable GL/Metal to embed with (headless or virtualized CI); the
 // manual spike gate (TU2.4) answers the real-host questions CI cannot.
@@ -35,7 +36,9 @@
 
 #include <imgui.h>
 
+#include <chrono>
 #include <cstdio>
+#include <thread>
 
 #if defined( _WIN32 )
 #include <windows.h>
@@ -261,6 +264,19 @@ int main() {
 			check( fX < 0.0f && fY < 0.0f && nButtons == 0,
 				   "release/leave not translated (UI-4)" );
 		}
+		// getSize/setSize (UI-5, TU5.3): the host sizes the embedded child
+		// (CLAP guiSetSize); the tracked size must follow — the immediate
+		// bookkeeping plus the ConfigureNotify the resize produces.
+		int nWidth = 0;
+		int nHeight = 0;
+		window.getSize( nWidth, nHeight );
+		check( nWidth == 200 && nHeight == 150,
+			   "getSize() != initial size (TU5.3)" );
+		window.setSize( 400, 300 );
+		window.idle(); // pumps the ConfigureNotify the resize produced
+		window.getSize( nWidth, nHeight );
+		check( nWidth == 400 && nHeight == 300,
+			   "getSize() != setSize() (TU5.3)" );
 	}
 	// The real views (UI-4): a plugin-backed window must construct the
 	// three views and render frames without crashing — the renderers'
@@ -290,6 +306,77 @@ int main() {
 		if ( pChildren != nullptr ) {
 			XFree( pChildren );
 		}
+	}
+
+	// The fallback top-level window (UI-5, TU5.2): parentless
+	// construction — the self-managed window for hosts without
+	// ui:parent (showInterface). The WM close button arrives as a
+	// WM_DELETE_WINDOW client message (the backend registers the
+	// protocol) and must surface as shouldClose() so the host's idle
+	// loop learns to tear the UI down.
+	unsigned nRootChildrenBefore = 0;
+	{
+		Window root = None;
+		Window parentOfRoot = None;
+		Window* pChildren = nullptr;
+		XQueryTree( pDisplay, DefaultRootWindow( pDisplay ), &root,
+					&parentOfRoot, &pChildren, &nRootChildrenBefore );
+		if ( pChildren != nullptr ) {
+			XFree( pChildren );
+		}
+	}
+	{
+		H2Core::PluginUiWindow topLevel( 0, 200, 150 );
+		check( topLevel.isValid(), "top-level window invalid (TU5.2)" );
+		const std::uintptr_t nTopLevel = topLevel.nativeHandle();
+		check( nTopLevel != 0, "null top-level native handle (TU5.2)" );
+		for ( int i = 0; i < 5; ++i ) {
+			topLevel.idle();
+		}
+		check( ! topLevel.shouldClose(),
+			   "top-level window close before any close event (TU5.2)" );
+		if ( nTopLevel != 0 ) {
+			XEvent ev = {};
+			ev.xclient.type = ClientMessage;
+			ev.xclient.window = static_cast<Window>( nTopLevel );
+			ev.xclient.message_type =
+				XInternAtom( pDisplay, "WM_PROTOCOLS", False );
+			ev.xclient.format = 32;
+			ev.xclient.data.l[ 0 ] =
+				XInternAtom( pDisplay, "WM_DELETE_WINDOW", False );
+			XSendEvent( pDisplay, static_cast<Window>( nTopLevel ), False, 0,
+						&ev );
+			XSync( pDisplay, False );
+			topLevel.idle();
+			check( topLevel.shouldClose(),
+				   "WM_DELETE_WINDOW not surfaced as shouldClose (TU5.2)" );
+		}
+	}
+	// The top-level window must not outlive its object either. With a
+	// window manager the WM owns the frame around our window, so the
+	// root's child count only returns to the baseline once the WM
+	// processed the destroy — poll briefly instead of asserting a race.
+	{
+		bool bGone = false;
+		for ( int i = 0; i < 50 && ! bGone; ++i ) {
+			XSync( pDisplay, false );
+			unsigned nChildrenNow = 0;
+			Window root = None;
+			Window parentOfRoot = None;
+			Window* pChildren = nullptr;
+			XQueryTree( pDisplay, DefaultRootWindow( pDisplay ), &root,
+						&parentOfRoot, &pChildren, &nChildrenNow );
+			if ( pChildren != nullptr ) {
+				XFree( pChildren );
+			}
+			bGone = nChildrenNow <= nRootChildrenBefore;
+			if ( ! bGone ) {
+				std::this_thread::sleep_for(
+					std::chrono::milliseconds( 20 ) );
+			}
+		}
+		check( bGone,
+			   "top-level window outlived the window object (TU5.2)" );
 	}
 	XDestroyWindow( pDisplay, parent );
 	XCloseDisplay( pDisplay );

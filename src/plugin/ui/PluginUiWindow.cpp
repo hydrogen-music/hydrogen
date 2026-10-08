@@ -194,6 +194,11 @@ std::uintptr_t PluginUiWindow::nativeHandle() const {
 		? m_pImpl->m_pBackend->nativeHandle() : 0;
 }
 
+bool PluginUiWindow::shouldClose() const {
+	return m_pImpl != nullptr && m_pImpl->m_pBackend != nullptr
+		&& m_pImpl->m_pBackend->shouldClose();
+}
+
 double PluginUiWindow::scaleFactor() const {
 	return m_pImpl != nullptr && m_pImpl->m_pBackend != nullptr
 		? m_pImpl->m_pBackend->scaleFactor() : 1.0;
@@ -212,6 +217,22 @@ void PluginUiWindow::mouseState( float& x, float& y, int& nButtons ) const {
 		x = -1.0f;
 		y = -1.0f;
 		nButtons = 0;
+	}
+}
+
+void PluginUiWindow::getSize( int& width, int& height ) const {
+	if ( m_pImpl != nullptr && m_pImpl->m_pBackend != nullptr ) {
+		m_pImpl->m_pBackend->getSize( width, height );
+	}
+	else {
+		width = 0;
+		height = 0;
+	}
+}
+
+void PluginUiWindow::setSize( int width, int height ) {
+	if ( m_pImpl != nullptr && m_pImpl->m_pBackend != nullptr ) {
+		m_pImpl->m_pBackend->setSize( width, height );
 	}
 }
 

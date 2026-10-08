@@ -38,22 +38,23 @@
 @H2_LV2_PORTS@
     ] .
 
-# Editor UI (ADR 0016 + ADR 0035). Dual contract until proposal 0006 UI-5: with
-# a ui:parent feature the UI embeds a child window on the host parent (ADR
-# 0035's on-contract embedding); without one it falls back to the
-# out-of-process editor shown through ui:showInterface. The plugin instance
-# owns the editor lifecycle (ADR 0035): hide and cleanup leave the editor
-# running; it dies with the DSP instance.
+# Basic UI (ADR 0016 + ADR 0035 + proposal 0006 UI-5). Two modes over one
+# window seam: with a ui:parent feature the UI embeds a child window on the
+# host parent (ADR 0035's on-contract embedding); without one showInterface
+# drives the self-managed top-level basic-UI window (UI-5, TU5.2) - show
+# creates it, hide destroys it, idle reports the user's close. Neither mode
+# spawns the editor process (TU5.7): the landing view's Open editor button
+# owns it, and it dies with the DSP instance (ADR 0035).
 <https://hydrogen-music.org/lv2/hydrogen#ui>
     a ui:@H2_LV2_UI_TYPE@ ;
-    # instance-access: the UI reaches the in-process engine (embedded UI and
-    #   editor alike). idleInterface: both faces of the UI are idle-driven
-    #   (embedded rendering; editor-close detection in the fallback), so the
-    #   feature is required and provided as extension data (hosts that cannot
-    #   drive idle cannot run this UI). ui:parent stays optional (ADR 0035's
-    #   fallback contract), which lv2lint's UI Widget check cannot express -
-    #   it passes only required features, so it never sends a parent; skip it
-    #   with -t 'UI*Widget' (the widget is covered by lv2-smoke + real hosts).
+    # instance-access: the UI reaches the in-process engine (both modes).
+    #   idleInterface: both faces of the UI are idle-driven (embedded
+    #   rendering; fallback rendering + close detection), so the feature is
+    #   required and provided as extension data (hosts that cannot drive
+    #   idle cannot run this UI). ui:parent stays optional (the showInterface
+    #   fallback), which lv2lint's UI Widget check cannot express - it passes
+    #   only required features, so it never sends a parent; skip it with -t
+    #   'UI*Widget' (the widget is covered by lv2-smoke + real hosts).
     #   (lv2lint warns about instance-access / same binary, accepted here.)
     lv2:requiredFeature <http://lv2plug.in/ns/ext/instance-access> ,
                         ui:idleInterface ;

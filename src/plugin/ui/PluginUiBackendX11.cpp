@@ -138,11 +138,15 @@ public:
 		}
 		m_visualInfo = visualInfo;
 
-		// Child window on the host parent (Pugl x11.c puglRealize): the
-		// colormap comes from the GL visual; the event mask is the input
-		// surface pumpEvents translates (UI-4).
+		// Child window on the host parent (Pugl x11.c puglRealize); a
+		// zero parent means the self-managed top-level fallback window
+		// (UI-5, TU5.2), parented on the root. The colormap comes from
+		// the GL visual; the event mask is the input surface pumpEvents
+		// translates (UI-4).
+		const Window parentWindow = m_parent != None
+			? m_parent : DefaultRootWindow( m_display );
 		m_colormap = XCreateColormap(
-			m_display, m_parent, visualInfo->visual, AllocNone );
+			m_display, parentWindow, visualInfo->visual, AllocNone );
 		XSetWindowAttributes attr = {};
 		attr.colormap = m_colormap;
 		attr.event_mask = ButtonPressMask | ButtonReleaseMask
@@ -154,11 +158,33 @@ public:
 			| StructureNotifyMask
 			| VisibilityChangeMask;
 		m_window = XCreateWindow(
-			m_display, m_parent, 0, 0, m_width, m_height, 0,
+			m_display, parentWindow, 0, 0, m_width, m_height, 0,
 			visualInfo->depth, InputOutput, visualInfo->visual,
 			CWColormap | CWEventMask, &attr );
 		if ( m_window == None ) {
 			return;
+		}
+
+		// The close protocol atoms, interned up front for pumpEvents.
+		m_wmProtocols = XInternAtom( m_display, "WM_PROTOCOLS", False );
+		m_wmDeleteWindow = XInternAtom( m_display, "WM_DELETE_WINDOW", False );
+		if ( m_parent == None ) {
+			// The fallback window's WM close button must arrive as a
+			// client message we surface as shouldClose(), not as a
+			// destroy that kills the GLX drawable mid-frame — without
+			// the protocol the window is unusable, so a failed
+			// registration invalidates the backend. The class hint and
+			// title identify the window to hosts and users ("Hydrogen"
+			// is the brand name, not a translatable string).
+			if ( XSetWMProtocols( m_display, m_window, &m_wmDeleteWindow,
+								  1 ) == 0 ) {
+				return;
+			}
+			XClassHint classHint = {};
+			classHint.res_name = const_cast<char*>( "hydrogen" );
+			classHint.res_class = const_cast<char*>( "Hydrogen" );
+			XSetClassHint( m_display, m_window, &classHint );
+			XStoreName( m_display, m_window, "Hydrogen" );
 		}
 
 		// Legacy context (Pugl's fallback path): the imgui GL3 backend
@@ -237,6 +263,19 @@ public:
 		height = m_height;
 	}
 
+	void setSize( int width, int height ) override {
+		if ( ! m_valid ) {
+			return;
+		}
+		// The tracked size follows immediately; the ConfigureNotify the
+		// resize produces confirms it on the next pump (or corrects a
+		// WM-modified one).
+		m_width = width;
+		m_height = height;
+		XResizeWindow( m_display, m_window, width, height );
+		XFlush( m_display );
+	}
+
 	unsigned inputEventCount() const override {
 		return m_inputEvents;
 	}
@@ -245,6 +284,10 @@ public:
 		x = m_fMouseX;
 		y = m_fMouseY;
 		nButtons = m_nMouseButtons;
+	}
+
+	bool shouldClose() const override {
+		return m_bShouldClose;
 	}
 
 	void pumpEvents() override {
@@ -296,6 +339,16 @@ public:
 			case FocusOut:
 				ImGui::GetIO().AddFocusEvent( false );
 				++m_inputEvents;
+				break;
+			case ClientMessage:
+				// The WM close button (top-level only): surfaced as
+				// shouldClose() — the owner decides the teardown, the
+				// window stays mapped until then.
+				if ( event.xclient.message_type == m_wmProtocols
+					 && event.xclient.data.l[ 0 ]
+							== static_cast<long>( m_wmDeleteWindow ) ) {
+					m_bShouldClose = true;
+				}
 				break;
 			default:
 				break;
@@ -421,6 +474,8 @@ private:
 	GLXFBConfig m_fbConfig = nullptr;
 	XVisualInfo* m_visualInfo = nullptr;
 	GLXContext m_context = nullptr;
+	Atom m_wmProtocols = None;
+	Atom m_wmDeleteWindow = None;
 	int m_width = 0;
 	int m_height = 0;
 	unsigned m_inputEvents = 0;
@@ -429,6 +484,7 @@ private:
 	float m_fMouseY = -1.0f;
 	int m_nMouseButtons = 0;
 	mutable double m_scaleFactor = 0.0;
+	bool m_bShouldClose = false;
 	bool m_valid = false;
 };
 

@@ -41,9 +41,10 @@ class HydrogenPlugin;
 class PluginUiWindow {
 public:
 	// parentNativeHandle is the host-provided native parent (X11 Window on
-	// Linux, HWND on Windows, NSView* on macOS). pPlugin is the plugin
-	// engine the views ride on (UI-4); null keeps the spike panel (the
-	// smoke's plugin-less path).
+	// Linux, HWND on Windows, NSView* on macOS); 0 creates a self-managed
+	// top-level window instead (the showInterface fallback, UI-5 TU5.2).
+	// pPlugin is the plugin engine the views ride on (UI-4); null keeps
+	// the spike panel (the smoke's plugin-less path).
 	PluginUiWindow( std::uintptr_t parentNativeHandle, int width, int height,
 					HydrogenPlugin* pPlugin = nullptr );
 	~PluginUiWindow();
@@ -57,6 +58,10 @@ public:
 	// The native child to hand back to the host (the LV2 widget / CLAP
 	// window handle). 0 while invalid.
 	std::uintptr_t nativeHandle() const;
+	// True after the user asked a top-level fallback window to close —
+	// the host's idle loop then tears the UI down (LV2 idle returns
+	// non-zero). Never true for embedded child windows.
+	bool shouldClose() const;
 	// Host-DPI scale factor (Xft.dpi / 96 on X11); 1.0 when unknown.
 	double scaleFactor() const;
 	// Native input events observed since construction — live evidence for
@@ -65,6 +70,13 @@ public:
 	// The last translated mouse state (window-local position + held-button
 	// bitmask); (-1, -1, 0) while off-window or untranslated.
 	void mouseState( float& x, float& y, int& nButtons ) const;
+	// The tracked window size (the host resizes the embedded child with its
+	// FX window; the backend follows the ConfigureNotify). The initial
+	// footprint before any host resize.
+	void getSize( int& width, int& height ) const;
+	// Resizes the window (CLAP guiSetSize); the tracked size follows with
+	// the next idle() at the latest (the resize's ConfigureNotify).
+	void setSize( int width, int height );
 
 	// One frame: pump native events, drive the per-instance ImGui context,
 	// render, present.

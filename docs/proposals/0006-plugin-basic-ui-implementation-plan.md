@@ -323,6 +323,22 @@ song-state round-trip green.
 
 ## 8. Phase UI-5 — Format integration: LV2 swap, CLAP embedded, VST3
 
+**Status: ✅ DONE** (2026-10-08) — TU5.2–TU5.7 landed (TU5.1 was pulled into
+UI-2); suite (503) + plugin gate (14/14) green, both smokes PASSED, lv2lint
+and clap-validate (11/0) green. The seam gained `shouldClose()` + the
+parentless top-level mode on all three backends (X11 smoke-checked; Win32
+WM_CLOSE via a class WndProc, macOS `windowShouldClose:` via a delegate —
+CI-gated) and `getSize`/`setSize` (smoke-checked). LV2: `show` creates /
+`hide` destroys the fallback window, `idle` returns non-zero only after the
+user closed it (`bEmbedded` distinguishes the modes); the lv2_smoke
+unguarded section now asserts the always-on-session semantics and a new
+X11 section drives the full fallback contract (root-tree diff + WM_CLASS
+walk + synthetic WM_DELETE_WINDOW). CLAP: both dispositions over the one
+seam — `guiSetParent` embeds, floating `guiShow` self-manages — with the
+frame pump on `clap.timer-support` (16 ms; the gui extension has no idle of
+its own), `guiGetSize`/`guiSetSize` real, and `guiDestroy`/`guiHide` sparing
+the editor.
+
 *Objective:* the shims become the parent-handle + host-idle seam per
 [ADR 0035](../decisions/0035-embedded-basic-plugin-ui.md).
 

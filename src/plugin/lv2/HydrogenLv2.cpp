@@ -199,21 +199,28 @@ const LV2_Descriptor kDescriptor = {
 	run, deactivate, cleanup, extension_data
 };
 
-// ── LV2 UI (ADR 0016 + ADR 0035: editor via ui:showInterface) ──────────────
-// Two coexisting contracts until proposal 0006 UI-5 lands: with a
-// ui:parent feature the UI embeds a real child window (ADR 0035's
-// on-contract embedding, the basic UI's window seam) which the host idles;
-// without one the external editor process opens via ui:showInterface (the
-// legacy contract). The UI obtains the DSP instance through the
-// instance-access feature. The plugin instance owns the external editor
-// lifecycle (ADR 0035): only show() drives it - hide(), cleanup() and
-// idle() leave the editor alone, and it dies with the DSP instance.
+// ── LV2 UI (ADR 0016 + ADR 0035 + proposal 0006 UI-5) ──────────────────────
+// Two modes over one window seam: with a ui:parent feature the UI embeds a
+// child window on the host parent at instantiate() (ADR 0035's on-contract
+// embedding) which the host idles; without one the UI is the showInterface
+// fallback (UI-5, TU5.2) — show() creates the self-managed top-level basic
+// UI window, hide() destroys it, and idle() reports the user's close so
+// the host can tear the UI down. Neither mode ever spawns the editor
+// process (TU5.7): the landing view's Open editor button owns it, and it
+// dies with the DSP instance (ADR 0035). The UI obtains the DSP instance
+// through the instance-access feature.
 #define H2_LV2_UI_URI H2_LV2_URI "#ui"
 
 struct H2Lv2Ui {
 	HydrogenPlugin* engine = nullptr;
-	// The embedded child window (ADR 0035); null in external-editor mode.
+	// The window: the embedded child (instantiated with a parent) or the
+	// self-managed fallback top-level (created by show(), TU5.2); null
+	// before the first show() in fallback mode.
 	std::unique_ptr<H2Core::PluginUiWindow> pWindow;
+	// Embedded mode: the window lives on the host parent from
+	// instantiate() on — show()/hide() have nothing to drive. Fallback
+	// mode: show()/hide()/idle() own the window's lifecycle.
+	bool bEmbedded = false;
 };
 
 	LV2UI_Handle uiInstantiate( const LV2UI_Descriptor*, const char* /*plugin_uri*/,
@@ -253,6 +260,7 @@ struct H2Lv2Ui {
 		// initial footprint fits the three tabs' content (the mixer's
 		// strip columns, the mapping tables); the host resizes the
 		// child with its FX window (the backend tracks ConfigureNotify).
+		ui->bEmbedded = true;
 		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
 			parentHandle, 960, 600, engine );
 		if ( ! ui->pWindow->isValid() ) {
@@ -272,7 +280,8 @@ struct H2Lv2Ui {
 
 void uiCleanup( LV2UI_Handle handle ) {
 	auto* ui = static_cast<H2Lv2Ui*>( handle );
-	// The editor is owned by the plugin instance, not the UI (ADR 0035): it
+	// The window (embedded or fallback) dies with the UI handle here; the
+	// editor is owned by the plugin instance, not the UI (ADR 0035): it
 	// dies with the DSP instance (the HydrogenPlugin destructor closes it).
 	delete ui;
 }
@@ -285,18 +294,37 @@ int uiShow( LV2UI_Handle handle ) {
 		return 1;
 	}
 	// Embedded mode: the child window is already mapped on the host parent
-	// (ADR 0035's embedding contract); show() has nothing to drive. UI-5
-	// (proposal 0006) retires the external-editor path entirely.
-	if ( ui->pWindow != nullptr ) {
+	// (ADR 0035's embedding contract); show() has nothing to drive.
+	if ( ui->bEmbedded ) {
 		return 0;
 	}
-	return ui->engine->openEditor() ? 0 : 1;
+	// Fallback mode (UI-5, TU5.2): show() creates the self-managed
+	// top-level basic-UI window — never the editor process (TU5.7: the
+	// landing view's Open editor button owns that). Idempotent: a second
+	// show() while the window lives is a no-op.
+	if ( ui->pWindow == nullptr ) {
+		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
+			0, 960, 600, ui->engine );
+		if ( ! ui->pWindow->isValid() ) {
+			ui->pWindow.reset();
+			return 1;
+		}
+	}
+	return 0;
 }
 
-int uiHide( LV2UI_Handle ) {
-	// Interim no-op (ADR 0035): the plugin instance owns the editor, so hiding
-	// the UI must not close it. UI-5 (proposal 0006) turns this into hiding
-	// the embedded basic-UI window.
+int uiHide( LV2UI_Handle handle ) {
+	auto* ui = static_cast<H2Lv2Ui*>( handle );
+	if ( ui == nullptr ) {
+		return 1;
+	}
+	// Fallback mode: hide() destroys the self-managed window (TU5.2) —
+	// a later show() recreates it. Embedded mode leaves the host-parented
+	// child alone: the host owns its visibility. Neither touches the
+	// editor (ADR 0035).
+	if ( ! ui->bEmbedded ) {
+		ui->pWindow.reset();
+	}
 	return 0;
 }
 
@@ -305,13 +333,17 @@ int uiIdle( LV2UI_Handle handle ) {
 	if ( ui == nullptr || ui->engine == nullptr ) {
 		return 1;
 	}
-	// Embedded mode: one frame per idle (ADR 0035: the host drives
-	// rendering). Interim rule (proposal 0006, TU0.2): idle() returns 0 for
-	// the lifetime of the handle so no host tears the UI down while the
-	// plugin instance lives. UI-5 (TU5.2) replaces this with window-driven
-	// semantics.
+	// One frame per idle (ADR 0035: the host drives rendering).
 	if ( ui->pWindow != nullptr ) {
 		ui->pWindow->idle();
+		// Fallback mode (TU5.2): the user closed the self-managed window —
+		// tell the host to stop idling and clean up (the LV2 idle
+		// contract). Embedded children never close on their own: the host
+		// owns their lifecycle, idle() stays 0. No window (before the
+		// first show() or after hide()) is not a close either: 0.
+		if ( ! ui->bEmbedded && ui->pWindow->shouldClose() ) {
+			return 1;
+		}
 	}
 	return 0;
 }

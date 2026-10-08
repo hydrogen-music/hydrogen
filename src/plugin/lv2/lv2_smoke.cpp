@@ -33,12 +33,15 @@
 #include <lv2/ui/ui.h>
 #include <lv2/instance-access/instance-access.h>
 
+#include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <map>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <QtCore/QCoreApplication>
@@ -49,6 +52,7 @@
 // header included after it.
 #if defined( H2_LV2_SMOKE_HAVE_X11 )
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #endif
 
 // Cross-platform dynamic-loading shim: POSIX dlopen on Linux/macOS, the Win32
@@ -228,10 +232,9 @@ int main( int argc, char** argv ) {
 	}
 
 	// Headless UI instantiate: instance-access hands the UI the DSP instance
-	// (same binary, same process). No ui:parent feature, so no window is
-	// created and the widget out-param must come back null (the current
-	// no-embed contract; the basic UI, proposal 0006 UI-5, replaces this with
-	// a real child window).
+	// (same binary, same process). No ui:parent feature, so no embedded
+	// widget: the out-param must come back null — without a parent the UI is
+	// the showInterface fallback (UI-5, TU5.2), not an embed.
 	LV2_Feature instFeat{ LV2_INSTANCE_ACCESS_URI, inst };
 	const LV2_Feature* uiFeatures[] = { &mapFeat, &instFeat, nullptr };
 	LV2UI_Widget widget = reinterpret_cast<LV2UI_Widget>( 0x1 );
@@ -255,26 +258,29 @@ int main( int argc, char** argv ) {
 		std::fprintf( stderr, "LV2 UI SMOKE: idle() != 0 before show()\n" );
 	}
 
-	// Editor-session observation: openEditor() binds a QLocalServer named
-	// "hydrogen-editor-<pid>-<instance id>" (HydrogenPlugin.cpp). This process
-	// hosts exactly one engine instance, and the per-instance counter starts
-	// at 0 (Hydrogen.cpp), so the id is 0.
+	// Editor-session observation: the engine session is always-on (UI-3: it
+	// starts with the plugin instance and serves for its whole lifetime),
+	// binding a QLocalServer named "hydrogen-editor-<pid>-<instance id>"
+	// (HydrogenPlugin.cpp). This process hosts exactly one engine instance,
+	// and the per-instance counter starts at 0 (Hydrogen.cpp), so the id is
+	// 0. The editor PROCESS is only ever spawned by the landing view's Open
+	// editor button (UI-5, TU5.7) — show() must not spawn it.
 	const QString sEndpoint = QString( "hydrogen-editor-%1-%2" )
 		.arg( QCoreApplication::applicationPid() ).arg( 0 );
 
-	// TU0.3: hide() must not close the editor - the plugin instance owns the
-	// editor lifecycle (ADR 0035); the editor dies with the DSP instance, not
-	// with the UI.
-	if ( showIface->show( ui ) != 0 ) {
-		bUiOk = false;
-		std::fprintf( stderr, "LV2 UI SMOKE: show() failed\n" );
-	}
+	// The fallback contract (UI-5, TU5.2): show() creates the self-managed
+	// top-level window where a display exists; without one (headless CI)
+	// it fails gracefully and returns non-zero, so its return value is
+	// only asserted where a display exists (the X11 fallback section
+	// below). Display-independent: show/hide/cleanup must not disturb the
+	// always-on engine session, and idle() must keep returning 0 — a
+	// display-less show is a failure, not a close; the host owns the
+	// teardown.
+	showIface->show( ui );
 	if ( ! editorEndpointAlive( sEndpoint ) ) {
 		bUiOk = false;
-		std::fprintf( stderr, "LV2 UI SMOKE: editor session not serving after show()\n" );
+		std::fprintf( stderr, "LV2 UI SMOKE: show() disturbed the engine session\n" );
 	}
-	// The interim rule is stronger than the pre-show case alone: idle()
-	// returns 0 for the lifetime of the handle (superseded at UI-5, TU5.2).
 	if ( idleIface->idle( ui ) != 0 ) {
 		bUiOk = false;
 		std::fprintf( stderr, "LV2 UI SMOKE: idle() != 0 after show()\n" );
@@ -285,23 +291,16 @@ int main( int argc, char** argv ) {
 	}
 	if ( ! editorEndpointAlive( sEndpoint ) ) {
 		bUiOk = false;
-		std::fprintf( stderr, "LV2 UI SMOKE: hide() closed the editor\n" );
+		std::fprintf( stderr, "LV2 UI SMOKE: hide() disturbed the engine session\n" );
 	}
 
-	// TU0.4: cleanup() must not close the editor either. Re-show first so a
-	// broken cleanup() has a live session to destroy.
-	if ( showIface->show( ui ) != 0 ) {
-		bUiOk = false;
-		std::fprintf( stderr, "LV2 UI SMOKE: re-show failed\n" );
-	}
-	if ( ! editorEndpointAlive( sEndpoint ) ) {
-		bUiOk = false;
-		std::fprintf( stderr, "LV2 UI SMOKE: editor session not serving after re-show\n" );
-	}
+	// Re-show so a broken cleanup() has a live fallback window to leak;
+	// cleanup must tear it down without disturbing the engine session.
+	showIface->show( ui );
 	ud->cleanup( ui );
 	if ( ! editorEndpointAlive( sEndpoint ) ) {
 		bUiOk = false;
-		std::fprintf( stderr, "LV2 UI SMOKE: uiCleanup closed the editor\n" );
+		std::fprintf( stderr, "LV2 UI SMOKE: uiCleanup disturbed the engine session\n" );
 	}
 
 	// ── Embedded-widget checks (proposal 0006, UI-2: TU5.1's red pulled
@@ -392,6 +391,161 @@ int main( int argc, char** argv ) {
 			}
 			bUiOk = bUiOk && bEmbedOk;
 			XDestroyWindow( pDisplay, parent );
+			XCloseDisplay( pDisplay );
+		}
+	}
+
+	// ── Fallback-window checks (proposal 0006, UI-5: TU5.2): without a
+	// ui:parent feature show() must create the self-managed top-level
+	// basic-UI window (never the editor process — TU5.7), idle() must
+	// drive it and return non-zero once the user closed it, hide() must
+	// destroy it, and uiCleanup must tear a recreated one down.
+	{
+		Display* pDisplay = XOpenDisplay( nullptr );
+		if ( pDisplay == nullptr ) {
+			std::printf( "LV2 UI SMOKE: SKIP fallback section — no DISPLAY\n" );
+		} else {
+			auto rootChildren = [ pDisplay ]() -> std::vector<Window> {
+				Window root = None;
+				Window parentOfRoot = None;
+				Window* pChildren = nullptr;
+				unsigned nChildren = 0;
+				XQueryTree( pDisplay, DefaultRootWindow( pDisplay ), &root,
+							&parentOfRoot, &pChildren, &nChildren );
+				std::vector<Window> children( pChildren, pChildren + nChildren );
+				if ( pChildren != nullptr ) {
+					XFree( pChildren );
+				}
+				return children;
+			};
+			// Finds our fallback window among the root's new children: a
+			// window manager may wrap it in a frame, so the search covers
+			// the new subtree (depth <= 2) and matches the WM_CLASS
+			// "Hydrogen" the backend sets on the top-level window.
+			auto findFallbackWindow = [ pDisplay, rootChildren ](
+				const std::vector<Window>& before ) -> Window {
+				for ( Window candidate : rootChildren() ) {
+					if ( std::find( before.begin(), before.end(), candidate )
+							!= before.end() ) {
+						continue;
+					}
+					Window root = None;
+					Window parentOfCandidate = None;
+					Window* pChildren = nullptr;
+					unsigned nChildren = 0;
+					XQueryTree( pDisplay, candidate, &root,
+								&parentOfCandidate, &pChildren, &nChildren );
+					std::vector<Window> subtree{ candidate };
+					subtree.insert( subtree.end(), pChildren,
+						pChildren + nChildren );
+					if ( pChildren != nullptr ) {
+						XFree( pChildren );
+					}
+					for ( Window w : subtree ) {
+						XClassHint hint = {};
+						if ( XGetClassHint( pDisplay, w, &hint ) != 0 ) {
+							const bool bOurs = hint.res_class != nullptr
+								&& std::strcmp( hint.res_class, "Hydrogen" ) == 0;
+							XFree( hint.res_name );
+							XFree( hint.res_class );
+							if ( bOurs ) {
+								return w;
+							}
+						}
+					}
+				}
+				return None;
+			};
+			// The WM destroys its frame asynchronously after our window
+			// goes away; poll for the subtree to disappear.
+			auto windowGone = [ pDisplay, &findFallbackWindow ](
+				const std::vector<Window>& before ) {
+				for ( int i = 0; i < 50; ++i ) {
+					XSync( pDisplay, false );
+					if ( findFallbackWindow( before ) == None ) {
+						return true;
+					}
+					std::this_thread::sleep_for(
+						std::chrono::milliseconds( 20 ) );
+				}
+				return false;
+			};
+
+			LV2UI_Widget fallbackWidget = nullptr;
+			LV2UI_Handle fallbackUi = ud->instantiate( ud, d->URI, "/tmp/",
+				nullptr, nullptr, &fallbackWidget, uiFeatures );
+			bool bFallbackOk = fallbackUi != nullptr;
+			if ( ! bFallbackOk ) {
+				std::fprintf( stderr,
+					"LV2 UI SMOKE: fallback uiInstantiate returned null\n" );
+			} else {
+				if ( fallbackWidget != nullptr ) {
+					bFallbackOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: fallback widget not null\n" );
+				}
+				const std::vector<Window> before = rootChildren();
+				if ( showIface->show( fallbackUi ) != 0 ) {
+					bFallbackOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: fallback show() failed (TU5.2)\n" );
+				}
+				XSync( pDisplay, false );
+				const Window fallbackWindow = findFallbackWindow( before );
+				if ( fallbackWindow == None ) {
+					bFallbackOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: show() created no fallback window (TU5.2)\n" );
+				} else {
+					if ( idleIface->idle( fallbackUi ) != 0 ) {
+						bFallbackOk = false;
+						std::fprintf( stderr,
+							"LV2 UI SMOKE: idle() != 0 while the fallback window is alive (TU5.2)\n" );
+					}
+					// The user's close button: WM_DELETE_WINDOW through the
+					// real pump — idle() must tell the host to tear down.
+					XEvent ev = {};
+					ev.xclient.type = ClientMessage;
+					ev.xclient.window = fallbackWindow;
+					ev.xclient.message_type =
+						XInternAtom( pDisplay, "WM_PROTOCOLS", False );
+					ev.xclient.format = 32;
+					ev.xclient.data.l[ 0 ] =
+						XInternAtom( pDisplay, "WM_DELETE_WINDOW", False );
+					XSendEvent( pDisplay, fallbackWindow, False, 0, &ev );
+					XSync( pDisplay, false );
+					if ( idleIface->idle( fallbackUi ) == 0 ) {
+						bFallbackOk = false;
+						std::fprintf( stderr,
+							"LV2 UI SMOKE: idle() == 0 after the fallback window closed (TU5.2)\n" );
+					}
+				}
+				if ( showIface->hide( fallbackUi ) != 0 ) {
+					bFallbackOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: fallback hide() failed (TU5.2)\n" );
+				}
+				if ( ! windowGone( before ) ) {
+					bFallbackOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: fallback window outlived hide() (TU5.2)\n" );
+				}
+				// Re-show, then cleanup must tear the recreated window down.
+				showIface->show( fallbackUi );
+				XSync( pDisplay, false );
+				if ( findFallbackWindow( before ) == None ) {
+					bFallbackOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: re-show created no fallback window (TU5.2)\n" );
+				}
+				ud->cleanup( fallbackUi );
+				if ( ! windowGone( before ) ) {
+					bFallbackOk = false;
+					std::fprintf( stderr,
+						"LV2 UI SMOKE: fallback window outlived uiCleanup (TU5.2)\n" );
+				}
+			}
+			bUiOk = bUiOk && bFallbackOk;
 			XCloseDisplay( pDisplay );
 		}
 	}

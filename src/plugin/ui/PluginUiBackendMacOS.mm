@@ -20,10 +20,12 @@
  */
 
 // macOS backend of PluginUiWindow (proposal 0006 TU2.2/TU2.3): an NSView
-// child on the host-provided parent view plus a CAMetalLayer-backed Metal
-// context, driven frame-by-frame from idle(). CI-gated: no macOS build
-// host locally — the AppVeyor macOS job compiles and runs the smoke
-// against this (skipping when no window server/Metal device exists).
+// child on the host-provided parent view — or, with a zero parent, an
+// NSWindow around our view (the self-managed top-level fallback window,
+// UI-5, TU5.2) — plus a CAMetalLayer-backed Metal context, driven
+// frame-by-frame from idle(). CI-gated: no macOS build host locally — the
+// AppVeyor macOS job compiles and runs the smoke against this (skipping
+// when no window server/Metal device exists).
 // Metal is the recorded de-risk item ("not well tested" upstream, proposal
 // 0006 TU2.4) — the spike gate checks it on real hardware.
 
@@ -43,14 +45,24 @@ namespace H2Core {
 
 namespace {
 
+// The fallback window's close button (top-level only): windowShouldClose:
+// records the request and refuses the close — the owner decides the
+// teardown (hide()/destruction), the window stays until then.
+@interface H2PluginUiWindowDelegate : NSObject <NSWindowDelegate>
+@property (nonatomic, assign) BOOL shouldClose;
+@end
+@implementation H2PluginUiWindowDelegate
+- (BOOL)windowShouldClose: (NSWindow*)sender {
+	_shouldClose = YES;
+	return NO;
+}
+@end
+
 class PluginUiBackendMacOS : public PluginUiBackend {
 public:
 	PluginUiBackendMacOS( std::uintptr_t parentNativeHandle, int width,
 						  int height )
 		: m_parent( reinterpret_cast<NSView*>( parentNativeHandle ) ) {
-		if ( m_parent == nil ) {
-			return;
-		}
 
 		// Headless CI (no window server) yields no device: the backend
 		// reports invalid and the smoke skips with a message.
@@ -77,7 +89,32 @@ public:
 		[layer release];
 		m_view.wantsLayer = YES;
 
-		[m_parent addSubview: m_view];
+		if ( m_parent != nil ) {
+			[m_parent addSubview: m_view];
+		} else {
+			// The self-managed top-level fallback window (UI-5, TU5.2):
+			// decorated, with the close button the delegate surfaces as
+			// shouldClose() ("Hydrogen" is the brand name, not a
+			// translatable string). releasedWhenClosed NO — the owner
+			// releases the window, never the close button.
+			m_window = [[NSWindow alloc]
+				initWithContentRect: NSMakeRect( 0, 0, width, height )
+				styleMask: NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
+					| NSWindowStyleMaskMiniaturizable
+					| NSWindowStyleMaskResizable
+				backing: NSBackingStoreBuffered defer: NO];
+			if ( m_window == nil ) {
+				return;
+			}
+			m_window.releasedWhenClosed = NO;
+			m_window.title = @"Hydrogen";
+			m_delegate = [[H2PluginUiWindowDelegate alloc] init];
+			m_window.delegate = m_delegate;
+			// The window retains the content view; our own reference is
+			// released in the destructor after the window's.
+			m_window.contentView = m_view;
+			[m_window makeKeyAndOrderFront: nil];
+		}
 
 		m_commandQueue = [m_device newCommandQueue];
 		if ( m_commandQueue == nil ) {
@@ -89,12 +126,20 @@ public:
 
 	~PluginUiBackendMacOS() override {
 		// endFrame() releases the frame-scoped objects; this guards
-		// destruction between the frame calls.
+		// destruction between the frame calls. The window goes before
+		// the view — it retains the view as its content view.
 		if ( m_drawable != nil ) {
 			[m_drawable release];
 		}
 		if ( m_renderPassDescriptor != nil ) {
 			[m_renderPassDescriptor release];
+		}
+		if ( m_window != nil ) {
+			m_window.delegate = nil;
+			[m_window release];
+		}
+		if ( m_delegate != nil ) {
+			[m_delegate release];
 		}
 		if ( m_view != nil ) {
 			[m_view removeFromSuperview];
@@ -118,9 +163,13 @@ public:
 
 	double scaleFactor() const override {
 		// The parent view is the one living in a host window; our own view
-		// may not be in one yet at smoke time.
-		if ( m_scaleFactor <= 0.0 && m_parent != nil ) {
-			NSWindow* window = [m_parent window];
+		// may not be in one yet at smoke time. The fallback window is our
+		// own, so the view reaches it either way.
+		if ( m_scaleFactor <= 0.0 ) {
+			NSWindow* window = [m_view window];
+			if ( window == nil && m_parent != nil ) {
+				window = [m_parent window];
+			}
 			if ( window != nil ) {
 				m_scaleFactor = [window backingScaleFactor];
 			}
@@ -138,6 +187,22 @@ public:
 		height = m_height;
 	}
 
+	void setSize( int width, int height ) override {
+		if ( ! m_valid ) {
+			return;
+		}
+		m_width = width;
+		m_height = height;
+		// The fallback window sizes through its content view; an embedded
+		// view is sized directly (the parent resizes it otherwise).
+		if ( m_window != nil ) {
+			[m_window setContentSize: NSMakeSize( width, height )];
+		}
+		else {
+			[m_view setFrameSize: NSMakeSize( width, height )];
+		}
+	}
+
 	unsigned inputEventCount() const override {
 		// Input arrives through the responder chain into the NSView;
 		// the translation wiring there is TU6.2 scope (X11 landed with
@@ -147,6 +212,10 @@ public:
 
 	void pumpEvents() override {
 		// The host's event loop delivers events; nothing to pump here.
+	}
+
+	bool shouldClose() const override {
+		return m_delegate != nil && m_delegate.shouldClose;
 	}
 
 	bool initRenderBackend() override {
@@ -224,6 +293,8 @@ public:
 private:
 	NSView* m_parent = nil;
 	NSView* m_view = nil;
+	NSWindow* m_window = nil;
+	H2PluginUiWindowDelegate* m_delegate = nil;
 	id<MTLDevice> m_device = nil;
 	id<MTLCommandQueue> m_commandQueue = nil;
 	id<CAMetalDrawable> m_drawable = nil;

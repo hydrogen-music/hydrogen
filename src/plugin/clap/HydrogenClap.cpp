@@ -27,12 +27,14 @@
 #include <clap/clap.h>
 
 #include <plugin/HydrogenPlugin.h>
+#include <plugin/ui/PluginUiWindow.h>
 
 #include <core/Midi/Midi.h>
 
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <memory>
 #include <new>
 #include <string>
 #include <vector>
@@ -77,7 +79,19 @@ std::string g_clapPluginDir;
 
 struct H2ClapPlugin {
 	clap_plugin_t plugin;
+	// The host, captured in factoryCreate (this CLAP rev hands it over
+	// there, not in init) — the frame timer is registered on it.
+	const clap_host_t* host = nullptr;
 	HydrogenPlugin* engine = nullptr;
+	// The basic-UI window (proposal 0006 UI-5): the embedded child on the
+	// host window (guiSetParent) or the self-managed floating top-level
+	// (guiShow); null until one of them runs.
+	std::unique_ptr<H2Core::PluginUiWindow> pWindow;
+	// The disposition chosen in guiCreate; set_parent (embedded) or show
+	// (floating) drive the window accordingly.
+	bool bEmbedded = false;
+	// The frame timer (clap.timer-support); 0 while unregistered.
+	clap_id timerId = 0;
 	double sampleRate = 44100.0;
 	uint32_t maxFrames = 4096;
 };
@@ -205,12 +219,15 @@ bool CLAP_ABI stateLoad( const clap_plugin_t* plugin, const clap_istream_t* stre
 }
 const clap_plugin_state_t kState = { stateSave, stateLoad };
 
-// ── gui extension (ADR 0016: out-of-process, floating editor) ──────────────
-// Hydrogen's editor is a separate process with its own QApplication + top-level
-// window, so only the *floating* CLAP gui model applies: the host neither embeds
-// nor sizes our window. create() allocates nothing; show() launches the editor
-// process (served over IPC by this instance's engine), hide()/destroy() tear it
-// down. The embedded-window methods (set_parent/size/resize) report unsupported.
+// ── gui extension (ADR 0035 + proposal 0006 UI-5: the basic UI) ─────────────
+// Both dispositions ride the one window seam: embedded (guiSetParent) puts a
+// child window on the host's native window; floating (guiShow) opens the
+// self-managed top-level basic-UI window (mirroring the LV2 showInterface
+// fallback). CLAP's gui extension has no idle method of its own, so the frame
+// pump is the clap.timer-support timer (~60 Hz, onTimer below) — registered
+// while the UI is shown, unregistered on hide/destroy. Neither disposition
+// ever spawns the editor process (TU5.7): the landing view's Open editor
+// button owns it, and it dies with the plugin instance (ADR 0035).
 const char* preferredWindowApi() {
 #if defined( _WIN32 )
 	return CLAP_WINDOW_API_WIN32;
@@ -221,55 +238,207 @@ const char* preferredWindowApi() {
 #endif
 }
 
+// Registers/unregisters the frame timer; idempotent. Hosts without
+// timer-support cannot drive the window — the UI stays static there.
+void registerFrameTimer( H2ClapPlugin* p ) {
+	if ( p->host == nullptr || p->timerId != 0 ) {
+		return;
+	}
+	auto* timers = static_cast<const clap_host_timer_support_t*>(
+		p->host->get_extension( p->host, CLAP_EXT_TIMER_SUPPORT ) );
+	if ( timers == nullptr ) {
+		return;
+	}
+	timers->register_timer( p->host, 16, &p->timerId );
+}
+void unregisterFrameTimer( H2ClapPlugin* p ) {
+	if ( p->host == nullptr || p->timerId == 0 ) {
+		return;
+	}
+	auto* timers = static_cast<const clap_host_timer_support_t*>(
+		p->host->get_extension( p->host, CLAP_EXT_TIMER_SUPPORT ) );
+	if ( timers != nullptr ) {
+		timers->unregister_timer( p->host, p->timerId );
+	}
+	p->timerId = 0;
+}
+void CLAP_ABI onTimer( const clap_plugin_t* plugin, clap_id timerId ) {
+	auto* p = self( plugin );
+	if ( p->timerId == timerId && p->pWindow != nullptr ) {
+		p->pWindow->idle();
+	}
+}
+const clap_plugin_timer_support_t kTimerSupport = { onTimer };
+
 bool CLAP_ABI guiIsApiSupported( const clap_plugin_t*, const char*,
-								 bool is_floating ) {
-	return is_floating; // floating only — the editor is its own top-level window
+								 bool /*is_floating*/ ) {
+	// Both dispositions (ADR 0035): embedded on the host window, floating
+	// as the self-managed top-level.
+	return true;
 }
 bool CLAP_ABI guiGetPreferredApi( const clap_plugin_t*, const char** api,
 								  bool* is_floating ) {
 	*api = preferredWindowApi();
-	*is_floating = true;
+	// Embedded preferred (ADR 0035's on-contract embedding); floating
+	// stays supported for hosts that cannot embed.
+	*is_floating = false;
 	return true;
 }
-bool CLAP_ABI guiCreate( const clap_plugin_t*, const char*, bool is_floating ) {
-	return is_floating; // nothing to allocate; the window appears on show()
+bool CLAP_ABI guiCreate( const clap_plugin_t* plugin, const char*,
+						 bool is_floating ) {
+	// Nothing to allocate: the window appears on guiSetParent (embedded)
+	// or guiShow (floating); only the disposition is recorded here.
+	auto* p = self( plugin );
+	p->bEmbedded = ! is_floating;
+	return true;
 }
 void CLAP_ABI guiDestroy( const clap_plugin_t* plugin ) {
+	// Tears the UI window and its timer down — and nothing else: the
+	// editor is the landing view's business (TU5.7) and dies with the
+	// plugin instance (ADR 0035).
 	auto* p = self( plugin );
-	if ( p->engine != nullptr ) {
-		p->engine->closeEditor();
+	unregisterFrameTimer( p );
+	p->pWindow.reset();
+	p->bEmbedded = false;
+}
+bool CLAP_ABI guiSetScale( const clap_plugin_t*, double ) {
+	// The backend reads the native DPI at construction; host-driven
+	// rescaling is not wired.
+	return false;
+}
+bool CLAP_ABI guiGetSize( const clap_plugin_t* plugin, uint32_t* width,
+						  uint32_t* height ) {
+	// Real (TU5.3): the live window size (the host resized the child with
+	// its FX window); the initial footprint before the host sized it.
+	auto* p = self( plugin );
+	if ( width == nullptr || height == nullptr ) {
+		return false;
 	}
+	if ( p->pWindow != nullptr && p->pWindow->isValid() ) {
+		int w = 0;
+		int h = 0;
+		p->pWindow->getSize( w, h );
+		*width = static_cast<uint32_t>( w );
+		*height = static_cast<uint32_t>( h );
+	}
+	else {
+		*width = 960;
+		*height = 600;
+	}
+	return true;
 }
-bool CLAP_ABI guiSetScale( const clap_plugin_t*, double ) { return false; }
-bool CLAP_ABI guiGetSize( const clap_plugin_t*, uint32_t*, uint32_t* ) {
-	return false; // a floating window manages its own size
+bool CLAP_ABI guiCanResize( const clap_plugin_t* ) {
+	return true; // the views reflow at any size (UI-4)
 }
-bool CLAP_ABI guiCanResize( const clap_plugin_t* ) { return false; }
 bool CLAP_ABI guiGetResizeHints( const clap_plugin_t*,
-								 clap_gui_resize_hints_t* ) {
-	return false;
+								 clap_gui_resize_hints_t* hints ) {
+	// Free resizing both ways, no aspect constraint; the readable floor
+	// for the three tabs' content lives in guiAdjustSize.
+	if ( hints == nullptr ) {
+		return false;
+	}
+	hints->can_resize_horizontally = true;
+	hints->can_resize_vertically = true;
+	hints->preserve_aspect_ratio = false;
+	hints->aspect_ratio_width = 0;
+	hints->aspect_ratio_height = 0;
+	return true;
 }
-bool CLAP_ABI guiAdjustSize( const clap_plugin_t*, uint32_t*, uint32_t* ) {
-	return false;
+bool CLAP_ABI guiAdjustSize( const clap_plugin_t*, uint32_t* width,
+							 uint32_t* height ) {
+	// Clamp to the readable floor only.
+	if ( width == nullptr || height == nullptr ) {
+		return false;
+	}
+	if ( *width < 640 ) {
+		*width = 640;
+	}
+	if ( *height < 400 ) {
+		*height = 400;
+	}
+	return true;
 }
-bool CLAP_ABI guiSetSize( const clap_plugin_t*, uint32_t, uint32_t ) {
-	return false;
+bool CLAP_ABI guiSetSize( const clap_plugin_t* plugin, uint32_t width,
+						  uint32_t height ) {
+	// Real for the embedded path (TU5.3): the host sizes the child with
+	// its FX window. Without a window there is nothing to size yet.
+	auto* p = self( plugin );
+	if ( p->pWindow == nullptr || ! p->pWindow->isValid() ) {
+		return false;
+	}
+	p->pWindow->setSize( static_cast<int>( width ),
+						 static_cast<int>( height ) );
+	return true;
 }
-bool CLAP_ABI guiSetParent( const clap_plugin_t*, const clap_window_t* ) {
-	return false; // embedded (non-floating) not supported
+bool CLAP_ABI guiSetParent( const clap_plugin_t* plugin,
+							const clap_window_t* window ) {
+	// Embedded (ADR 0035): a child window on the host's native window,
+	// handed the initial footprint; the host resizes it with its FX
+	// window (the backend tracks ConfigureNotify) and the frame timer
+	// drives it.
+	auto* p = self( plugin );
+	if ( p->engine == nullptr || window == nullptr || ! p->bEmbedded ) {
+		return false;
+	}
+	std::uintptr_t parent = 0;
+	if ( std::strcmp( window->api, CLAP_WINDOW_API_WIN32 ) == 0 ) {
+		parent = reinterpret_cast<std::uintptr_t>( window->win32 );
+	}
+	else if ( std::strcmp( window->api, CLAP_WINDOW_API_COCOA ) == 0 ) {
+		parent = reinterpret_cast<std::uintptr_t>( window->cocoa );
+	}
+	else if ( std::strcmp( window->api, CLAP_WINDOW_API_X11 ) == 0 ) {
+		parent = static_cast<std::uintptr_t>( window->x11 );
+	}
+	else {
+		return false;
+	}
+	p->pWindow = std::make_unique<H2Core::PluginUiWindow>(
+		parent, 960, 600, p->engine );
+	if ( ! p->pWindow->isValid() ) {
+		p->pWindow.reset();
+		return false;
+	}
+	registerFrameTimer( p );
+	return true;
 }
 bool CLAP_ABI guiSetTransient( const clap_plugin_t*, const clap_window_t* ) {
-	return false; // a cross-process window can't be made transient here
+	// WinId-level transient hints are not wired for the fallback window.
+	return false;
 }
-void CLAP_ABI guiSuggestTitle( const clap_plugin_t*, const char* ) {}
+void CLAP_ABI guiSuggestTitle( const clap_plugin_t*, const char* ) {
+	// The fallback window's title is the brand name "Hydrogen".
+}
 bool CLAP_ABI guiShow( const clap_plugin_t* plugin ) {
 	auto* p = self( plugin );
-	return p->engine != nullptr && p->engine->openEditor();
+	if ( p->engine == nullptr ) {
+		return false;
+	}
+	// Embedded: the child is mapped on the host window already (ADR
+	// 0035's on-contract embedding) — only the frame timer is (re)armed.
+	// Floating: show() creates the self-managed top-level basic-UI
+	// window (UI-5) — never the editor process (TU5.7: the landing
+	// view's Open editor button owns that).
+	if ( ! p->bEmbedded && p->pWindow == nullptr ) {
+		p->pWindow = std::make_unique<H2Core::PluginUiWindow>(
+			0, 960, 600, p->engine );
+		if ( ! p->pWindow->isValid() ) {
+			p->pWindow.reset();
+			return false;
+		}
+	}
+	registerFrameTimer( p );
+	return true;
 }
 bool CLAP_ABI guiHide( const clap_plugin_t* plugin ) {
+	// Stop painting (the timer goes); floating additionally destroys the
+	// self-managed window (a later show recreates it), embedded leaves
+	// the host-parented child alone. Neither touches the editor (ADR
+	// 0035, TU5.7).
 	auto* p = self( plugin );
-	if ( p->engine != nullptr ) {
-		p->engine->closeEditor();
+	unregisterFrameTimer( p );
+	if ( ! p->bEmbedded ) {
+		p->pWindow.reset();
 	}
 	return true;
 }
@@ -453,6 +622,9 @@ const void* CLAP_ABI pluginGetExtension( const clap_plugin_t*, const char* id ) 
 	if ( std::strcmp( id, CLAP_EXT_GUI ) == 0 ) {
 		return &kGui;
 	}
+	if ( std::strcmp( id, CLAP_EXT_TIMER_SUPPORT ) == 0 ) {
+		return &kTimerSupport;
+	}
 	if ( std::strcmp( id, CLAP_EXT_STATE ) == 0 ) {
 		return &kState;
 	}
@@ -469,7 +641,7 @@ const clap_plugin_descriptor_t* CLAP_ABI factoryGetDescriptor(
 	return index == 0 ? &kDescriptor : nullptr;
 }
 const clap_plugin_t* CLAP_ABI factoryCreate( const clap_plugin_factory_t*,
-											 const clap_host_t* /*host*/,
+											 const clap_host_t* host,
 											 const char* plugin_id ) {
 	if ( plugin_id == nullptr ||
 		 std::strcmp( plugin_id, kDescriptor.id ) != 0 ) {
@@ -479,6 +651,9 @@ const clap_plugin_t* CLAP_ABI factoryCreate( const clap_plugin_factory_t*,
 	if ( p == nullptr ) {
 		return nullptr;
 	}
+	// This CLAP rev hands the host over here (not in init); the frame
+	// timer is registered on it while the UI is shown.
+	p->host = host;
 	p->plugin.desc = &kDescriptor;
 	p->plugin.plugin_data = p;
 	p->plugin.init = pluginInit;

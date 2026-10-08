@@ -46,6 +46,9 @@ public:
 	// Host-DPI scale factor (1.0 when unknown).
 	virtual double scaleFactor() const = 0;
 	virtual void getSize( int& width, int& height ) const = 0;
+	// Resizes the window (CLAP guiSetSize); the tracked size follows with
+	// the next pumpEvents() at the latest (the resize's ConfigureNotify).
+	virtual void setSize( int width, int height ) = 0;
 	// Native input events observed (spike evidence, TU2.4).
 	virtual unsigned inputEventCount() const = 0;
 	// The last translated mouse state: window-local position plus a
@@ -67,6 +70,15 @@ public:
 	// wiring lands with TU6.2.
 	virtual void pumpEvents() = 0;
 
+	// False for embedded child windows: they never close on their own
+	// (the host owns their lifecycle). True for the parentless fallback
+	// window (UI-5, TU5.2) after the user asked the window manager to
+	// close it (WM_DELETE_WINDOW / WM_CLOSE / windowShouldClose) — the
+	// owner's idle loop then tears the UI down.
+	virtual bool shouldClose() const {
+		return false;
+	}
+
 	// Draw-context + render-backend plumbing. The caller guarantees the
 	// per-instance ImGui context is current whenever these run.
 	virtual bool initRenderBackend() = 0;
@@ -78,9 +90,11 @@ public:
 	virtual void endFrame() = 0;
 };
 
-// Creates the platform backend for a child window on parentNativeHandle.
-// The result may be invalid (partial native state is released by its
-// destructor); callers check valid().
+// Creates the platform backend for a child window on parentNativeHandle; a
+// zero parentNativeHandle creates a self-managed top-level window instead
+// (the showInterface fallback, UI-5 TU5.2). The result may be invalid
+// (partial native state is released by its destructor); callers check
+// valid().
 std::unique_ptr<PluginUiBackend> createPluginUiBackend(
 	std::uintptr_t parentNativeHandle, int width, int height );
 

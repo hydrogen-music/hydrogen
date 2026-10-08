@@ -20,9 +20,10 @@
  */
 
 // Win32 backend of PluginUiWindow (proposal 0006 TU2.2/TU2.3): a child HWND
-// on the host-provided parent plus a WGL context, driven frame-by-frame
-// from idle(). CI-gated: no Windows build host locally — the AppVeyor
-// Windows job compiles and runs the smoke against this.
+// on the host-provided parent — or, with a zero parent, the self-managed
+// top-level fallback window (UI-5, TU5.2) — plus a WGL context, driven
+// frame-by-frame from idle(). CI-gated: no Windows build host locally — the
+// AppVeyor Windows job compiles and runs the smoke against this.
 
 #include "PluginUiBackend.h"
 
@@ -45,7 +46,7 @@ public:
 	PluginUiBackendWin32( std::uintptr_t parentNativeHandle, int width,
 						  int height )
 		: m_parent( reinterpret_cast<HWND>( parentNativeHandle ) ) {
-		if ( m_parent == nullptr || ! IsWindow( m_parent ) ) {
+		if ( m_parent != nullptr && ! IsWindow( m_parent ) ) {
 			return;
 		}
 
@@ -56,7 +57,7 @@ public:
 		static const bool classRegistered = [] {
 			WNDCLASSW wc = {};
 			wc.style = CS_HREDRAW | CS_VREDRAW;
-			wc.lpfnWndProc = DefWindowProcW;
+			wc.lpfnWndProc = wndProc;
 			wc.hInstance = GetModuleHandleW( nullptr );
 			wc.lpszClassName = kClassName;
 			return RegisterClassW( &wc ) != 0;
@@ -66,13 +67,29 @@ public:
 		}
 
 		// WS_CHILD | WS_VISIBLE: embedded means mapped on the host parent
-		// right away (the X11 backend's XMapWindow equivalent).
-		m_window = CreateWindowExW( 0, kClassName, L"",
-			WS_CHILD | WS_VISIBLE, 0, 0, width, height, m_parent, nullptr,
-			GetModuleHandleW( nullptr ), nullptr );
+		// right away (the X11 backend's XMapWindow equivalent). A null
+		// parent means the self-managed top-level fallback window (UI-5,
+		// TU5.2): decorated, with the close button the WndProc surfaces
+		// as shouldClose() ("Hydrogen" is the brand name, not a
+		// translatable string).
+		if ( m_parent != nullptr ) {
+			m_window = CreateWindowExW( 0, kClassName, L"Hydrogen",
+				WS_CHILD | WS_VISIBLE, 0, 0, width, height, m_parent,
+				nullptr, GetModuleHandleW( nullptr ), nullptr );
+		} else {
+			m_window = CreateWindowExW( 0, kClassName, L"Hydrogen",
+				WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT,
+				CW_USEDEFAULT, width, height, nullptr, nullptr,
+				GetModuleHandleW( nullptr ), nullptr );
+		}
 		if ( m_window == nullptr ) {
 			return;
 		}
+		// The WndProc reaches this instance through the window's user
+		// data — set after creation (no message can need it during
+		// CreateWindowExW itself).
+		SetWindowLongPtrW( m_window, GWLP_USERDATA,
+						   reinterpret_cast<LONG_PTR>( this ) );
 
 		m_dc = GetDC( m_window );
 		if ( m_dc == nullptr ) {
@@ -137,6 +154,18 @@ public:
 		height = m_height;
 	}
 
+	void setSize( int width, int height ) override {
+		if ( ! m_valid ) {
+			return;
+		}
+		// The tracked size follows immediately; the next getSize() reads
+		// the live client rect anyway.
+		m_width = width;
+		m_height = height;
+		SetWindowPos( m_window, nullptr, 0, 0, width, height,
+					  SWP_NOMOVE | SWP_NOZORDER );
+	}
+
 	unsigned inputEventCount() const override {
 		// Input arrives through the host's message pump and our WndProc;
 		// the translation wiring there is TU6.2 scope (X11 landed with
@@ -146,6 +175,10 @@ public:
 
 	void pumpEvents() override {
 		// The host's message pump delivers events; nothing to pump here.
+	}
+
+	bool shouldClose() const override {
+		return m_bShouldClose;
 	}
 
 	bool initRenderBackend() override {
@@ -179,6 +212,23 @@ public:
 	}
 
 private:
+	// The fallback window's close button (top-level only): surfaced as
+	// shouldClose() — the owner decides the teardown, so WM_CLOSE never
+	// reaches DefWindowProcW (it would destroy the window under a live
+	// WGL context).
+	static LRESULT CALLBACK wndProc( HWND hwnd, UINT msg, WPARAM wParam,
+									  LPARAM lParam ) {
+		if ( msg == WM_CLOSE ) {
+			auto* self = reinterpret_cast<PluginUiBackendWin32*>(
+				GetWindowLongPtrW( hwnd, GWLP_USERDATA ) );
+			if ( self != nullptr ) {
+				self->m_bShouldClose = true;
+				return 0;
+			}
+		}
+		return DefWindowProcW( hwnd, msg, wParam, lParam );
+	}
+
 	HWND m_parent = nullptr;
 	HWND m_window = nullptr;
 	HDC m_dc = nullptr;
@@ -186,6 +236,7 @@ private:
 	mutable int m_width = 0;
 	mutable int m_height = 0;
 	mutable double m_scaleFactor = 0.0;
+	bool m_bShouldClose = false;
 	bool m_valid = false;
 };
 
