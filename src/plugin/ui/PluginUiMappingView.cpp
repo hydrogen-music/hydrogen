@@ -92,8 +92,8 @@ void PluginUiMappingView::draw()
 			static_cast<MidiInstrumentMap::Output>( nOutputMode ) );
 	}
 
-	// The channel dropdowns' entries — all / Off / 1..16, one per
-	// selectable channel: index 0 is "all" (-1), 1 is "Off" (0), 2..17
+	// The channel dropdowns' entries — All / Off / 1..16, one per
+	// selectable channel: index 0 is "All" (-1), 1 is "Off" (0), 2..17
 	// are the channels, the same shift every channel combo below
 	// applies. The QByteArrays must outlive the combo calls, so they
 	// are held next to the pointers into them.

@@ -388,12 +388,12 @@ void PluginUiModelTest::testChannelDisplayName()
 	___INFOLOG( "" );
 
 	// The channel dropdowns' display convention (the GUI's channel
-	// spinboxes show the same): -1 reads "all", 0 reads "Off", 1..16
+	// spinboxes show the same): -1 reads "All", 0 reads "Off", 1..16
 	// read as themselves. The invalid -2 of unmapped rows reads "Off"
 	// too — the GUI disables those widgets instead. Pure static — no
 	// engine needed.
 	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(
-						Midi::ChannelAll ) == "all" );
+						Midi::ChannelAll ) == "All" );
 	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(
 						Midi::ChannelOff ) == "Off" );
 	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(

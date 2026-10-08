@@ -82,9 +82,9 @@ public:
 	static QString optionNever() { return tr( "Never" ); }
 	// Channel dropdown entries (the GUI's channel convention: -1 all
 	// channels, 0 off, 1..16 one channel).
-	static QString optionAll() { return tr( "all" ); }
+	static QString optionAll() { return tr( "All" ); }
 	static QString optionOff() { return tr( "Off" ); }
-	/** The display name of @a channel — "all" for #Midi::ChannelAll,
+	/** The display name of @a channel — "All" for #Midi::ChannelAll,
 	 * "Off" for #Midi::ChannelOff and for the invalid -2 of unmapped
 	 * rows (the GUI disables those widgets instead), the number itself
 	 * for 1..16 — the convention of the channel dropdowns and the

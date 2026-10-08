@@ -69,7 +69,7 @@ public:
 	/** TU4.2: the index-based custom-row insert and the effective input
 	 * mapping read — the mapping view's per-instrument row cells. */
 	void testMappingModelInputMappingRead();
-	/** UI-4: the channel dropdowns' display convention — "all" for
+	/** UI-4: the channel dropdowns' display convention — "All" for
 	 * -1, "Off" for 0 and for the invalid -2 (unmapped rows), the
 	 * number itself for 1..16. */
 	void testChannelDisplayName();
