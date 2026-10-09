@@ -335,9 +335,26 @@ unguarded section now asserts the always-on-session semantics and a new
 X11 section drives the full fallback contract (root-tree diff + WM_CLASS
 walk + synthetic WM_DELETE_WINDOW). CLAP: both dispositions over the one
 seam — `guiSetParent` embeds, floating `guiShow` self-manages — with the
-frame pump on `clap.timer-support` (16 ms; the gui extension has no idle of
-its own), `guiGetSize`/`guiSetSize` real, and `guiDestroy`/`guiHide` sparing
-the editor.
+ frame pump on `clap.timer-support` (16 ms; the gui extension has no idle of
+ its own), `guiGetSize`/`guiSetSize` real, and `guiDestroy`/`guiHide` sparing
+ the editor.
+ 
+ **Host gates (2026-10-08):** REAPER loads all three formats cleanly, but
+ Qtractor (LV2+CLAP inserted, VST3 on insert) and Ardour (VST3 alone, on UI
+ open) SIGSEGV'd. Root cause: symbol interposition — every module exported
+ its whole statically linked interior (core, Qt, ImGui, and the VST3's
+ wrapped `clap_entry`), so with one Hydrogen binary in the host's global
+ symbol scope the VST3 module's references resolved into the other binary's
+ copies (22k+ bindings observed under `LD_DEBUG=bindings`); the host's
+ scanner `dlclose()` then left them dangling. Fixed with Linux version
+ scripts exporting exactly the format entry points
+ (`clap/hydrogen-clap.map`, `lv2/hydrogen-lv2.map`,
+ `vst3/hydrogen-vst3.map` — the VST3 one keeps the SDK's `ModuleEntry`/
+ `ModuleExit` contract); locked in by the `symbol-hygiene-*` nm gates and
+ `vst3-interpose-smoke` (CLAP `RTLD_GLOBAL` load + scanner `dlclose` + full
+ VST3 `ModuleEntry`→`createInstance`→`initialize`→`terminate`→`ModuleExit`
+ drive). Plugin gate 18/18, lv2lint green without the `*Symbols` skips.
+ Manual re-test of Ardour/Qtractor pending.
 
 *Objective:* the shims become the parent-handle + host-idle seam per
 [ADR 0035](../decisions/0035-embedded-basic-plugin-ui.md).

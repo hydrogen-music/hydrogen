@@ -77,6 +77,22 @@ if(WANT_CLAP)
     else()
         message(STATUS "  - clap-validator not found; conformance test skipped")
     endif()
+
+    # Symbol hygiene gate: the module must export exactly the CLAP entry.
+    # Hosts load several plugin binaries into one process; a module that also
+    # exports its statically linked interior (core, Qt, ImGui) lets those
+    # symbols interpose on the other Hydrogen binaries' copies - the
+    # Qtractor/Ardour VST3 crash class (see vst3/interpose_smoke.cpp).
+    # Windows exports explicitly (CLAP_EXPORT); macOS's two-level namespace
+    # does not interpose.
+    if(UNIX AND NOT APPLE)
+        # The version script enforces the export list (clap/hydrogen-clap.map).
+        target_link_options( hydrogen-clap PRIVATE
+            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/clap/hydrogen-clap.map" )
+        add_test( NAME symbol-hygiene-clap
+            COMMAND sh -c
+                "nm -D --defined-only '$<TARGET_FILE:hydrogen-clap>' | awk '$0 !~ / clap_entry(@.*)?$/ {exit 1}'" )
+    endif()
 endif()
 
 # ── Native LV2 plugin (ADR 0014) ──────────────────────────────────────────
@@ -178,6 +194,17 @@ if(WANT_LV2)
     add_test( NAME lv2-smoke
         COMMAND hydrogen-lv2-smoke "$<TARGET_FILE:hydrogen-lv2>" )
 
+    # Symbol hygiene gate: the module must export exactly the two LV2
+    # descriptors (same rationale as symbol-hygiene-clap).
+    if(UNIX AND NOT APPLE)
+        # The version script enforces the export list (lv2/hydrogen-lv2.map).
+        target_link_options( hydrogen-lv2 PRIVATE
+            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/lv2/hydrogen-lv2.map" )
+        add_test( NAME symbol-hygiene-lv2
+            COMMAND sh -c
+                "nm -D --defined-only '$<TARGET_FILE:hydrogen-lv2>' | awk '$0 !~ / (lv2_descriptor|lv2ui_descriptor)(@.*)?$/ {exit 1}'" )
+    endif()
+
     # If lv2lint is available, run the proper conformance linter on the bundle.
     # `-I` points it at the bundle directory (the one holding manifest.ttl); the
     # plugin URI is the positional argument. LV2_PATH replaces lilv's default
@@ -190,16 +217,16 @@ if(WANT_LV2)
     # The `-t` whitelists mark known-accepted findings as [SKIP] so the gate
     # fails only on NEW violations: 'UI*Widget' cannot express ADR 0035's
     # optional-parent fallback (lv2lint passes only TTL-required features, so
-    # it never sends a parent); 'Plugin Run' and the '*Symbols' pair are the
-    # accepted non-RT run path + same-binary trade-offs (hydrogen.ttl.in
-    # documents them; a linker version script exporting only the LV2
-    # descriptors would clear the Symbols ones).
+    # it never sends a parent); 'Plugin Run' is the accepted non-RT run path
+    # (hydrogen.ttl.in documents it). The '*Symbols' pair needs no whitelist
+    # anymore: the lv2/hydrogen-lv2.map version script exports only the two
+    # descriptors, which is exactly what those checks want to see.
     find_program( LV2LINT lv2lint
         PATHS ${CMAKE_SOURCE_DIR}/extern/lv2lint/build )
     if(LV2LINT)
         add_test( NAME lv2lint
             COMMAND ${LV2LINT} -I "${H2_LV2_BUNDLE}"
-                -t "UI*Widget" -t "Plugin Run" -t "Plugin Symbols" -t "UI Symbols"
+                -t "UI*Widget" -t "Plugin Run"
                 "https://hydrogen-music.org/lv2/hydrogen" )
         get_filename_component( H2_LV2_BUNDLE_DIR "${H2_LV2_BUNDLE}" DIRECTORY )
         set_tests_properties( lv2lint PROPERTIES
@@ -356,9 +383,41 @@ if(WANT_VST3)
     # Steinberg validator run is the conformance step below; this catches a broken
     # wrap cheaply in any build.
     if(UNIX AND NOT APPLE)
+        # The version script enforces the export list
+        # (vst3/hydrogen-vst3.map): GetPluginFactory only - in particular the
+        # statically linked clap_entry must stay invisible to other binaries.
+        target_link_options( hydrogen-vst3 PRIVATE
+            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/vst3/hydrogen-vst3.map" )
         add_test( NAME vst3-smoke
             COMMAND sh -c
                 "nm -D '$<TARGET_FILE:hydrogen-vst3>' | grep -q GetPluginFactory" )
+
+        # Symbol hygiene gate: the module must export exactly the VST3 Linux
+        # module contract (same rationale as symbol-hygiene-clap; the wrapper
+        # additionally references its own statically linked clap_entry, which
+        # must NOT be visible to other binaries).
+        add_test( NAME symbol-hygiene-vst3
+            COMMAND sh -c
+                "nm -D --defined-only '$<TARGET_FILE:hydrogen-vst3>' | awk '$0 !~ / (GetPluginFactory|ModuleEntry|ModuleExit)(@.*)?$/ {exit 1}'" )
+
+        # Interposition smoke: reproduces the host crash class (the CLAP
+        # binary in the global scope, the scanner's dlclose, then the VST3
+        # createInstance/initialize path; see the file comment). Needs the
+        # CLAP binary as the polluting load.
+        if(WANT_CLAP)
+            add_executable( hydrogen-vst3-interpose-smoke vst3/interpose_smoke.cpp
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk/pluginterfaces/base/funknown.cpp"
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk/pluginterfaces/base/coreiids.cpp" )
+            target_include_directories( hydrogen-vst3-interpose-smoke PRIVATE
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk" )
+            target_link_libraries( hydrogen-vst3-interpose-smoke PRIVATE
+                ${CMAKE_DL_LIBS} )
+            set_target_properties( hydrogen-vst3-interpose-smoke PROPERTIES
+                CXX_STANDARD 17 )
+            add_test( NAME vst3-interpose-smoke
+                COMMAND hydrogen-vst3-interpose-smoke
+                    "$<TARGET_FILE:hydrogen-clap>" "$<TARGET_FILE:hydrogen-vst3>" )
+        endif()
     endif()
 
     # Full Steinberg VST3 validator as a CTest (UNIX only), alongside
