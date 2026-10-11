@@ -61,7 +61,8 @@ void PluginUiModelTest::testLandingLoadCommands()
 
 	// Song: load + install — a new song object replaces the empty one and
 	// setSong loads the installed kit's samples (ASSERT_SONG; the fixture's
-	// kit resolves its samples via its drumkitPath elements).
+	// broken absolute drumkitPath forces the name-based kit lookup through
+	// the data folders).
 	auto pSongBefore = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSongBefore != nullptr );
 	CPPUNIT_ASSERT( model.loadSong(

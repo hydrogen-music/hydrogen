@@ -267,7 +267,9 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		sInstrumentDrumkitName =
 			node.read_string( "drumkit", "", false, true, bSilent );
 
-		if ( !node.firstChildElement( "drumkitPath" ).isNull() ) {
+		const bool bDrumkitPathNodeFound =
+			! node.firstChildElement( "drumkitPath" ).isNull();
+		if ( bDrumkitPathNodeFound ) {
 			// Current format
 			sInstrumentDrumkitPath =
 				node.read_string( "drumkitPath", "", false, true, bSilent );
@@ -295,10 +297,10 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		// Both empty drumkit path and name indicate that the instrument was
 		// added as a new one to the drumkit instead of importing it from
 		// another kit. It must only hold absolute paths for samples.
-		if ( sInstrumentDrumkitPath.isEmpty() &&
-			 !sInstrumentDrumkitName.isEmpty() && pHydrogen != nullptr &&
+		if ( !bDrumkitPathNodeFound && !sInstrumentDrumkitName.isEmpty() &&
+			 pHydrogen != nullptr &&
 			 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
-
+			// We are in some sort of legacy format.
 			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 			if ( !node.firstChildElement( "drumkitLookup" ).isNull() ) {
 				// Format introduced in #1f2a06b and used in (at least)
@@ -389,6 +391,51 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 
 				if ( pLegacyFormatEncountered != nullptr ) {
 					*pLegacyFormatEncountered = true;
+				}
+			}
+		}
+		else if ( sInstrumentDrumkitPath.isEmpty() && !sInstrumentDrumkitName.isEmpty() &&
+			 pHydrogen != nullptr &&
+			 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
+			// We use the current format but the path sanitization discarded the
+			// string because the corresponding file does not exist on the
+			// current system. Instead, let's search for a drumkit bearing the
+			// same name within the DB.
+			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+			sInstrumentDrumkitPath = pSoundLibraryDatabase->findArtifact(
+				Filesystem::Artifact::DrumkitExtracted,
+				Filesystem::Context::System, sInstrumentDrumkitName,
+				/*stacked*/ true
+			);
+		}
+
+		if ( sInstrumentDrumkitPath.isEmpty() &&
+			 !sInstrumentDrumkitName.isEmpty() ) {
+			// The stored absolute path of the drumkit is broken - e.g. the
+			// song was written on a different machine using a different
+			// install prefix - and the database-based lookup above did not
+			// yield the kit either (it is populated by a background scan and
+			// can still be empty). As a deterministic last resort the kit is
+			// looked up by its name in the user-level and system-level data
+			// folder.
+			for ( const auto& ssFolder :
+				  { Filesystem::userDrumkitsDir(),
+					Filesystem::systemDrumkitsDir() } ) {
+				const QString sCandidatePath = Filesystem::sanitizeDrumkitPath(
+					QString( "%1/%2" ).arg( ssFolder )
+						.arg( sInstrumentDrumkitName ) );
+				if ( !sCandidatePath.isEmpty() ) {
+					if ( !bSilent ) {
+						WARNINGLOG( QString( "Drumkit [%1] could neither be "
+										   "found via its stored path nor "
+										   "via the database. Falling back "
+										   "to [%2] found in the data "
+										   "folders" )
+										.arg( sInstrumentDrumkitName )
+										.arg( sCandidatePath ) );
+					}
+					sInstrumentDrumkitPath = sCandidatePath;
+					break;
 				}
 			}
 		}

@@ -54,6 +54,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testSong);
 	CPPUNIT_TEST(testSongFormatIntegrity);
 	CPPUNIT_TEST(testSongLegacy);
+	CPPUNIT_TEST(testSongBrokenDrumkitPathFallback);
 	CPPUNIT_TEST(testSongLoadFromInfo);
 	CPPUNIT_TEST(testProject);
 	CPPUNIT_TEST(testPreferencesFormatIntegrity);
@@ -112,6 +113,11 @@ class XmlTest : public CppUnit::TestCase {
 		 * This test loads song of various versions and checks whether all
 		 * samples could be loaded. */
 		void testSongLegacy();
+		/** A song written on a different machine stores the absolute install
+		 * prefix of its drumkit. When this prefix does not exist on the local
+		 * system, the kit has to be looked up by its name in the user-level
+		 * and system-level data folder instead. */
+		void testSongBrokenDrumkitPathFallback();
 		/** When loading an entire song from a #SongInfo - as done for property
 		 * editing or duplication in the sound library - the current song must
 		 * not be marked modified. */

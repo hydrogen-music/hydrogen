@@ -1015,6 +1015,78 @@ void XmlTest::testSongLegacy() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testSongBrokenDrumkitPathFallback() {
+	___INFOLOG( "" );
+
+	// Songs written on a different machine store the absolute install prefix
+	// of the drumkit used. When loading such a song on a system on which this
+	// prefix does not exist, the kit has to be looked up by its name in the
+	// user-level and system-level data folder instead.
+	//
+	// The engine is passed as nullptr on purpose. The name-based lookup in
+	// Instrument::loadFrom() must not depend on the SoundLibraryDatabase: it
+	// is populated by a background scan and can still be empty when a song is
+	// loaded right after an engine was constructed - e.g. by a plugin hosting
+	// Hydrogen.
+	H2Core::XMLDoc doc;
+	CPPUNIT_ASSERT( doc.read( H2TEST_FILE(
+		"song/legacy/test_song_broken_drumkit_path.h2song" ) ) );
+	const auto songNode = doc.firstChildElement( "song" );
+	CPPUNIT_ASSERT( ! songNode.isNull() );
+
+	// A non-empty license skips the database-based license lookup, which
+	// would dereference the engine.
+	const auto license = H2Core::License( "unittest", "the hydrogen unit tests" );
+
+	auto pInstrumentList = H2Core::InstrumentList::loadFrom(
+		songNode, "", "", "", H2Core::Xml::Flag::SongKit, license, nullptr,
+		true, nullptr );
+	CPPUNIT_ASSERT( pInstrumentList != nullptr );
+	CPPUNIT_ASSERT( pInstrumentList->size() == 1 );
+	auto ppInstrument = pInstrumentList->get( 0 );
+	CPPUNIT_ASSERT( ppInstrument != nullptr );
+
+	// The broken path must have been replaced by the one of the kit installed
+	// in the system data folder (the user-level one is still empty).
+	const auto sSystemKitPath = H2Core::Filesystem::drumkitPathFromDir(
+		H2Core::Filesystem::systemDrumkitsDir() + "/GMRockKit" );
+	CPPUNIT_ASSERT( ppInstrument->getDrumkitPath() == sSystemKitPath );
+	CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+	CPPUNIT_ASSERT( ! ppInstrument->hasMissingSamples() );
+	CPPUNIT_ASSERT( ppInstrument->getComponents()->front()->getLayer( 0 )
+					->getSample() != nullptr );
+
+	// The user-level data folder takes precedence: after installing a copy of
+	// the kit there, the same song must resolve against it.
+	const auto sUserKitDir = QString( "%1/GMRockKit" )
+		.arg( H2Core::Filesystem::userDrumkitsDir() );
+	CPPUNIT_ASSERT( H2Core::Filesystem::mkdir( sUserKitDir ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileCopy(
+		H2Core::Filesystem::systemDrumkitsDir() + "/GMRockKit/drumkit.xml",
+		sUserKitDir + "/drumkit.xml", false, true ) );
+	CPPUNIT_ASSERT( H2Core::Filesystem::fileCopy(
+		H2Core::Filesystem::systemDrumkitsDir()
+			+ "/GMRockKit/Kick-Softest.wav",
+		sUserKitDir + "/Kick-Softest.wav", false, true ) );
+
+	pInstrumentList = H2Core::InstrumentList::loadFrom(
+		songNode, "", "", "", H2Core::Xml::Flag::SongKit, license, nullptr,
+		true, nullptr );
+	CPPUNIT_ASSERT( pInstrumentList != nullptr );
+	CPPUNIT_ASSERT( pInstrumentList->size() == 1 );
+	ppInstrument = pInstrumentList->get( 0 );
+	CPPUNIT_ASSERT( ppInstrument != nullptr );
+	CPPUNIT_ASSERT( ppInstrument->getDrumkitPath()
+					== H2Core::Filesystem::drumkitPathFromDir( sUserKitDir ) );
+	CPPUNIT_ASSERT( ppInstrument->hasSamples() );
+	CPPUNIT_ASSERT( ! ppInstrument->hasMissingSamples() );
+
+	// cleanup
+	CPPUNIT_ASSERT( H2Core::Filesystem::rm( sUserKitDir, true, true ) );
+
+	___INFOLOG( "passed" );
+}
+
 void XmlTest::testSongLoadFromInfo() {
 	___INFOLOG( "" );
 
