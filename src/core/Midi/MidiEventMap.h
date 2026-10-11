@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MIDIMAP_H
-#define MIDIMAP_H
+#ifndef H2C_MIDIMAP_H
+#define H2C_MIDIMAP_H
 
 #include <memory>
 #include <vector>

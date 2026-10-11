@@ -21,8 +21,8 @@
  */
 
 
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef H2C_BUTTON_H
+#define H2C_BUTTON_H
 
 #include <memory>
 

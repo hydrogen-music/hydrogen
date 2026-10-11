@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_TREE_H
-#define SOUND_LIBRARY_TREE_H
+#ifndef H2C_SOUND_LIBRARY_TREE_H
+#define H2C_SOUND_LIBRARY_TREE_H
 
 #include <map>
 #include <memory>

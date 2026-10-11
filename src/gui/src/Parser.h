@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef H2C_PARSER_H
+#define H2C_PARSER_H
 
 #include <QString>
 

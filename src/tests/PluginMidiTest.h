@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef PLUGIN_MIDI_TEST_H
-#define PLUGIN_MIDI_TEST_H
+#ifndef H2C_PLUGIN_MIDI_TEST_H
+#define H2C_PLUGIN_MIDI_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

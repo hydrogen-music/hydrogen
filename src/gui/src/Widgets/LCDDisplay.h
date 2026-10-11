@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef LCDDisplay_H
-#define LCDDisplay_H
+#ifndef H2C_LCDDisplay_H
+#define H2C_LCDDisplay_H
 
 
 #include <QtGui>

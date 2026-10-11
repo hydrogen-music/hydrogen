@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_H
-#define SONG_H
+#ifndef H2C_SONG_H
+#define H2C_SONG_H
 
 #include <QDomNode>
 #include <QString>

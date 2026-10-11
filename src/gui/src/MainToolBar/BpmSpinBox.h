@@ -21,8 +21,8 @@
  */
 
 
-#ifndef BPM_SPIN_BOX_H
-#define BPM_SPIN_BOX_H
+#ifndef H2C_BPM_SPIN_BOX_H
+#define H2C_BPM_SPIN_BOX_H
 
 #include <core/Object.h>
 

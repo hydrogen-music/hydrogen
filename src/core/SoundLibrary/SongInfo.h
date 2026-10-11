@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_INFO_H
-#define SONG_INFO_H
+#ifndef H2C_SONG_INFO_H
+#define H2C_SONG_INFO_H
 
 #include <core/Object.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
@@ -58,4 +58,4 @@ class SongInfo : public SoundLibraryInfo, public H2Core::Object<SongInfo> {
 };
 };	// namespace H2Core
 
-#endif	// SONG_INFO_H
+#endif	// H2C_SONG_INFO_H

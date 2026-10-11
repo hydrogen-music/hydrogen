@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PATTERN_FILL_DIALOG_H
-#define PATTERN_FILL_DIALOG_H
+#ifndef H2C_PATTERN_FILL_DIALOG_H
+#define H2C_PATTERN_FILL_DIALOG_H
 
 
 #include <QtGui>

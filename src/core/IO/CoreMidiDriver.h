@@ -25,8 +25,8 @@
  * Removed some unused code (20060514 Jonathan Dempsey)
  */
 
-#ifndef CORE_MIDI_DRIVER_H
-#define CORE_MIDI_DRIVER_H
+#ifndef H2C_CORE_MIDI_DRIVER_H
+#define H2C_CORE_MIDI_DRIVER_H
 
 #include <core/IO/MidiBaseDriver.h>
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2_JACK_DRIVER_H
-#define H2_JACK_DRIVER_H
+#ifndef H2C_JACK_DRIVER_H
+#define H2C_JACK_DRIVER_H
 
 #include <core/Basics/Instrument.h>
 #include <core/IO/AudioDriver.h>

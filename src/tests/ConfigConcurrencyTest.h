@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef CONFIG_CONCURRENCY_TEST_H
-#define CONFIG_CONCURRENCY_TEST_H
+#ifndef H2C_CONFIG_CONCURRENCY_TEST_H
+#define H2C_CONFIG_CONCURRENCY_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

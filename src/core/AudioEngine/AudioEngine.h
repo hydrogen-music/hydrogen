@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef AUDIO_ENGINE_H
-#define AUDIO_ENGINE_H
+#ifndef H2C_AUDIO_ENGINE_H
+#define H2C_AUDIO_ENGINE_H
 
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/AudioEngine/Transport.h>

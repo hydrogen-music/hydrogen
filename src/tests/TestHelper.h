@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef TEST_HELPER_H
-#define TEST_HELPER_H
+#ifndef H2C_TEST_HELPER_H
+#define H2C_TEST_HELPER_H
 
 #include <QString>
 #include <cassert>

@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef TRANSPORT_H
-#define TRANSPORT_H
+#ifndef H2C_TRANSPORT_H
+#define H2C_TRANSPORT_H
 
 #include <memory>
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef OSS_AUDIO_DRIVER_H
-#define OSS_AUDIO_DRIVER_H
+#ifndef H2C_OSS_AUDIO_DRIVER_H
+#define H2C_OSS_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
 #include <core/IO/StubAudioDriver.h>

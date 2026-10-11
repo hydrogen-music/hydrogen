@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef LOGGER_INSTANCE_TEST_H
-#define LOGGER_INSTANCE_TEST_H
+#ifndef H2C_LOGGER_INSTANCE_TEST_H
+#define H2C_LOGGER_INSTANCE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

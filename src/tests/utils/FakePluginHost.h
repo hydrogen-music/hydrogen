@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef FAKE_PLUGIN_HOST_H
-#define FAKE_PLUGIN_HOST_H
+#ifndef H2C_FAKE_PLUGIN_HOST_H
+#define H2C_FAKE_PLUGIN_HOST_H
 
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>

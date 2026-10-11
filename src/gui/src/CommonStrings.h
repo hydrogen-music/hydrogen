@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef COMMON_STRINGS_H
-#define COMMON_STRINGS_H
+#ifndef H2C_COMMON_STRINGS_H
+#define H2C_COMMON_STRINGS_H
 
 #include <core/Object.h>
 #include <QString>

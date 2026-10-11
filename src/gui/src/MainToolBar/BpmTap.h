@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef BEAT_TAP_H
-#define BEAT_TAP_H
+#ifndef H2C_BEAT_TAP_H
+#define H2C_BEAT_TAP_H
 
 #include <core/Object.h>
 

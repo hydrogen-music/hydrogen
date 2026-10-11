@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SAMPLER_H
-#define SAMPLER_H
+#ifndef H2C_SAMPLER_H
+#define H2C_SAMPLER_H
 
 #include <core/Basics/Note.h>
 #include <core/Globals.h>

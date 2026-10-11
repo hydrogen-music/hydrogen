@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ONLINE_IMPORT_SOURCES_DIALOG_H
-#define ONLINE_IMPORT_SOURCES_DIALOG_H
+#ifndef H2C_ONLINE_IMPORT_SOURCES_DIALOG_H
+#define H2C_ONLINE_IMPORT_SOURCES_DIALOG_H
 
 #include <QDialog>
 #include <QStringList>
@@ -77,4 +77,4 @@ inline QStringList OnlineImportSourcesDialog::getSources() const {
 	return m_sources;
 }
 
-#endif // ONLINE_IMPORT_SOURCES_DIALOG_H
+#endif // H2C_ONLINE_IMPORT_SOURCES_DIALOG_H

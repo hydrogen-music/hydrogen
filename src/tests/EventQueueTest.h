@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef EVENT_QUEUE_TEST_H
-#define EVENT_QUEUE_TEST_H
+#ifndef H2C_EVENT_QUEUE_TEST_H
+#define H2C_EVENT_QUEUE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <core/EventQueue.h>

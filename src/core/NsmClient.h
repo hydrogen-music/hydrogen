@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef NSM_CLIENT_H
-#define NSM_CLIENT_H
+#ifndef H2C_NSM_CLIENT_H
+#define H2C_NSM_CLIENT_H
 
 // Pull in H2CORE_HAVE_OSC before the guard below so the class is defined
 // regardless of include order (the guard relied on the includer defining it).
@@ -293,4 +293,4 @@ inline void H2Core::NsmClient::setClientId( const QString& sId ) {
 }
 #endif /* H2CORE_HAVE_OSC */
 
-#endif // NSM_CLIENT_H
+#endif // H2C_NSM_CLIENT_H

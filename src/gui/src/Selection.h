@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SELECTION_H
-#define SELECTION_H
+#ifndef H2C_SELECTION_H
+#define H2C_SELECTION_H
 
 #include <QtGui>
 #include <QWidget>
@@ -980,4 +980,4 @@ inline int operator<( QPoint a, QPoint b ) {
 	}
 }
 
-#endif // SELECTION_H
+#endif // H2C_SELECTION_H

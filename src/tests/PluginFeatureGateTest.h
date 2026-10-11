@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef PLUGIN_FEATURE_GATE_TEST_H
-#define PLUGIN_FEATURE_GATE_TEST_H
+#ifndef H2C_PLUGIN_FEATURE_GATE_TEST_H
+#define H2C_PLUGIN_FEATURE_GATE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

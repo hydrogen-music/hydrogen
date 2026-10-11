@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIXER_SETTINGS_DIALOG_H
-#define MIXER_SETTINGS_DIALOG_H
+#ifndef H2C_MIXER_SETTINGS_DIALOG_H
+#define H2C_MIXER_SETTINGS_DIALOG_H
 
 
 #include "ui_MixerSettingsDialog_UI.h"

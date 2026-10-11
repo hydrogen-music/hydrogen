@@ -21,8 +21,8 @@
  */
 
 
-#ifndef MIDILEARNABLE_H
-#define MIDILEARNABLE_H
+#ifndef H2C_MIDILEARNABLE_H
+#define H2C_MIDILEARNABLE_H
 
 #include <memory>
 #include <vector>
@@ -97,4 +97,4 @@ inline const QString& MidiLearnable::getBaseToolTip() const {
 	return m_sBaseToolTip;
 }
 
-#endif // MIDILEARNABLE_H
+#endif // H2C_MIDILEARNABLE_H

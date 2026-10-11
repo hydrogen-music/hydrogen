@@ -20,8 +20,12 @@
  *
  */
 
-#ifndef EVENT_H
-#define EVENT_H
+// H2C_EVENT_H, not EVENT_H: the macOS SDK's IOLLEvent.h treats a
+// predefined EVENT_H as "NX event definitions already provided"
+// (dpsclient/event.h interlock) and skips them, breaking every TU
+// that includes both this header and Cocoa.h.
+#ifndef H2C_EVENT_H
+#define H2C_EVENT_H
 
 #include <core/Object.h>
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef TARGET_SECTION
-#define TARGET_SECTION
+#ifndef H2C_TARGET_SECTION
+#define H2C_TARGET_SECTION
 
 #include <QtGui>
 #include <QtWidgets>

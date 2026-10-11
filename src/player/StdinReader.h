@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef STDIN_READER_H
-#define STDIN_READER_H
+#ifndef H2C_STDIN_READER_H
+#define H2C_STDIN_READER_H
 
 #include <QObject>
 
@@ -81,4 +81,4 @@ class StdinReader : public QObject {
 #endif
 };
 
-#endif	// STDIN_READER_H
+#endif	// H2C_STDIN_READER_H

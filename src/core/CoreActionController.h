@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CORE_ACTION_CONTROLLER_H
-#define CORE_ACTION_CONTROLLER_H
+#ifndef H2C_CORE_ACTION_CONTROLLER_H
+#define H2C_CORE_ACTION_CONTROLLER_H
 
 #include <memory>
 #include <QString>

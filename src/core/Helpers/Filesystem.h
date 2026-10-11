@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef FILE_SYSTEM_H
-#define FILE_SYSTEM_H
+#ifndef H2C_FILE_SYSTEM_H
+#define H2C_FILE_SYSTEM_H
 
 #include <QString>
 #include <vector>
@@ -572,6 +572,6 @@ inline void Filesystem::setPreferencesOverwritePath( const QString& sPath )
 }
 
 };		// namespace H2Core
-#endif	// FILE_SYSTEM_H
+#endif	// H2C_FILE_SYSTEM_H
 
 /* vim: set softtabstop=4 noexpandtab: */

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ASSERTIONS_AUDIOFILE_H
-#define ASSERTIONS_AUDIOFILE_H
+#ifndef H2C_ASSERTIONS_AUDIOFILE_H
+#define H2C_ASSERTIONS_AUDIOFILE_H
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <QString>

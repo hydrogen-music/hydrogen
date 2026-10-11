@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef ALSA_AUDIO_DRIVER_H
-#define ALSA_AUDIO_DRIVER_H
+#ifndef H2C_ALSA_AUDIO_DRIVER_H
+#define H2C_ALSA_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
 #include <core/IO/StubAudioDriver.h>

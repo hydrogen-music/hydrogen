@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_CONTROL_DIALOG_H
-#define MIDI_CONTROL_DIALOG_H
+#ifndef H2C_MIDI_CONTROL_DIALOG_H
+#define H2C_MIDI_CONTROL_DIALOG_H
 
 #include <QtGui>
 #include <QtWidgets>

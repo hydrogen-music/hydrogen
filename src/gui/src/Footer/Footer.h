@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef FOOTER_H
-#define FOOTER_H
+#ifndef H2C_FOOTER_H
+#define H2C_FOOTER_H
 
 #include <QtGui>
 #include <QtWidgets>

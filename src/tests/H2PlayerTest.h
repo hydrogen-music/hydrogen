@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2PLAYER_TEST_H
-#define H2PLAYER_TEST_H
+#ifndef H2C_H2PLAYER_TEST_H
+#define H2C_H2PLAYER_TEST_H
 
 #include <QString>
 

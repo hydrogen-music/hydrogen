@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef TIMELINE_H
-#define TIMELINE_H
+#ifndef H2C_TIMELINE_H
+#define H2C_TIMELINE_H
 
 #include <memory>
 
@@ -287,4 +287,4 @@ inline const std::vector<std::shared_ptr<const Timeline::Tag>>& Timeline::getAll
 	return m_tags;
 }
 };
-#endif // TIMELINE_H
+#endif // H2C_TIMELINE_H

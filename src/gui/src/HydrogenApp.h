@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef HYDROGEN_APP_H
-#define HYDROGEN_APP_H
+#ifndef H2C_HYDROGEN_APP_H
+#define H2C_HYDROGEN_APP_H
 
 #include <core/config.h>
 #include <core/Globals.h>

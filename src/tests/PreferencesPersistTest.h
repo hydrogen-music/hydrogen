@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef PREFERENCES_PERSIST_TEST_H
-#define PREFERENCES_PERSIST_TEST_H
+#ifndef H2C_PREFERENCES_PERSIST_TEST_H
+#define H2C_PREFERENCES_PERSIST_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

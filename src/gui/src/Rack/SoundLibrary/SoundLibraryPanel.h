@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_PANEL_H
-#define SOUND_LIBRARY_PANEL_H
+#ifndef H2C_SOUND_LIBRARY_PANEL_H
+#define H2C_SOUND_LIBRARY_PANEL_H
 
 #include <map>
 #include <memory>

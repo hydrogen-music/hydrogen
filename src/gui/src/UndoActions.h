@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef UNDOACTIONS_H
-#define UNDOACTIONS_H
+#ifndef H2C_UNDOACTIONS_H
+#define H2C_UNDOACTIONS_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -2297,4 +2297,4 @@ class SE_setLayerPropertyAction : public QUndoCommand {
 	float m_fNewValue;
 };
 
-#endif	// UNDOACTIONS_H
+#endif	// H2C_UNDOACTIONS_H

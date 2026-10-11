@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef THEME_H
-#define THEME_H
+#ifndef H2C_THEME_H
+#define H2C_THEME_H
 
 #include <vector>
 #include <memory>

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef INSTRUMENT_EDITOR_H
-#define INSTRUMENT_EDITOR_H
+#ifndef H2C_INSTRUMENT_EDITOR_H
+#define H2C_INSTRUMENT_EDITOR_H
 
 #include <QtGui>
 #include <QtWidgets>

@@ -276,7 +276,16 @@ more than a watermark), the embedded window's 300×200 initial footprint
 grown to 960×600 (the host resizes the child with its FX window
 anyway), and the smoke gained a scrollability check — the overflowing
 strips must stay reachable through imgui's automatic horizontal
-scrollbar, verified headless (suite 503, plugin 14/14).
+scrollbar, verified headless (suite 503, plugin 14/14). macOS CI
+follow-up (2026-10-09): the first AppVeyor macOS run of the smoke
+(Xcode 14.2 / MacOSX13.1 SDK) failed inside the SDK — `IOLLEvent.h`
+skips all its `NX_*` definitions when `EVENT_H` is predefined (a
+dpsclient/event.h interlock), and `Basics/Event.h`'s bare `EVENT_H`
+include guard tripped it in the ObjC++ smoke TU. The guard is now
+`H2C_EVENT_H`, locked tree-wide by the header-guard hygiene tests
+(`src/tests/HeaderGuardHygieneTest.cpp` — every include guard must be
+`H2C_`-prefixed and unique, red→green); the macOS pipeline re-run is
+the remaining CI-gated proof.
 
 *Objective:* landing, MIDI mapping, mixer — model-first, each view's logic
 unit-tested headless, renderers thin.

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PATTERN_INFO_H
-#define PATTERN_INFO_H
+#ifndef H2C_PATTERN_INFO_H
+#define H2C_PATTERN_INFO_H
 
 #include <core/Object.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
@@ -58,4 +58,4 @@ class PatternInfo : public SoundLibraryInfo, public H2Core::Object<PatternInfo> 
 };
 };	// namespace H2Core
 
-#endif	// PATTERN_INFO_H
+#endif	// H2C_PATTERN_INFO_H

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_EDITOR_PATTERN_LIST_H
-#define SONG_EDITOR_PATTERN_LIST_H
+#ifndef H2C_SONG_EDITOR_PATTERN_LIST_H
+#define H2C_SONG_EDITOR_PATTERN_LIST_H
 
 #include <memory>
 

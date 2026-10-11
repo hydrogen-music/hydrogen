@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SMF_H
-#define SMF_H
+#ifndef H2C_SMF_H
+#define H2C_SMF_H
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>

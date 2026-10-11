@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef LAYER_WAVE_DISPLAY
-#define LAYER_WAVE_DISPLAY
+#ifndef H2C_LAYER_WAVE_DISPLAY
+#define H2C_LAYER_WAVE_DISPLAY
 
 #include <QtGui>
 #include <QtWidgets>

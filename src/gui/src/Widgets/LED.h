@@ -21,8 +21,8 @@
  */
 
 
-#ifndef LED_H
-#define LED_H
+#ifndef H2C_LED_H
+#define H2C_LED_H
 
 #include <core/Object.h>
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef FILESYSTEMINFOFORM_H
-#define FILESYSTEMINFOFORM_H
+#ifndef H2C_FILESYSTEMINFOFORM_H
+#define H2C_FILESYSTEMINFOFORM_H
 
 #include <QWidget>
 #include "core/Object.h"
@@ -49,4 +49,4 @@ private slots:
 	virtual void showEvent ( QShowEvent* ) override;
 };
 
-#endif // FILESYSTEMINFOFORM_H
+#endif // H2C_FILESYSTEMINFOFORM_H

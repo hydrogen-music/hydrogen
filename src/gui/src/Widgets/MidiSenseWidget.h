@@ -20,8 +20,8 @@
 	 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 	 *
 	 */
-#ifndef MIDISENSE_WIDGET_H
-#define MIDISENSE_WIDGET_H
+#ifndef H2C_MIDISENSE_WIDGET_H
+#define H2C_MIDISENSE_WIDGET_H
 
 #include <QtGui>
 #include <QtWidgets>

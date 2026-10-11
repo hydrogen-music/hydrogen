@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ONLINE_IMPORT_DIALOG_H
-#define ONLINE_IMPORT_DIALOG_H
+#ifndef H2C_ONLINE_IMPORT_DIALOG_H
+#define H2C_ONLINE_IMPORT_DIALOG_H
 
 #include <core/Object.h>
 #include <core/OnlineImporter.h>
@@ -244,4 +244,4 @@ private:
 	bool m_bDownloading;
 };
 
-#endif // ONLINE_IMPORT_DIALOG_H
+#endif // H2C_ONLINE_IMPORT_DIALOG_H

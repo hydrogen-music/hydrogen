@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef INLINE_EDIT_H
-#define INLINE_EDIT_H
+#ifndef H2C_INLINE_EDIT_H
+#define H2C_INLINE_EDIT_H
 
 #include <QLineEdit>
 

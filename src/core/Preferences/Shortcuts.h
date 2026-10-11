@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SHORTCUTS_H
-#define SHORTCUTS_H
+#ifndef H2C_SHORTCUTS_H
+#define H2C_SHORTCUTS_H
 
 #include <QString>
 #include <QKeySequence>

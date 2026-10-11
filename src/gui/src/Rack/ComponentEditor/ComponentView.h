@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef COMPONENT_VIEW_H
-#define COMPONENT_VIEW_H
+#ifndef H2C_COMPONENT_VIEW_H
+#define H2C_COMPONENT_VIEW_H
 
 #include <QtGui>
 #include <QtWidgets>

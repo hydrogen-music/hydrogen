@@ -21,8 +21,8 @@
  */
 
 
-#ifndef RACK_H
-#define RACK_H
+#ifndef H2C_RACK_H
+#define H2C_RACK_H
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>

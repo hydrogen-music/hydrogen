@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MAINFORM_H
-#define MAINFORM_H
+#ifndef H2C_MAINFORM_H
+#define H2C_MAINFORM_H
 
 #include <QtGui>
 #include <QtWidgets>

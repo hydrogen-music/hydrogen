@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef DRUMKIT_INFO_H
-#define DRUMKIT_INFO_H
+#ifndef H2C_DRUMKIT_INFO_H
+#define H2C_DRUMKIT_INFO_H
 
 #include <memory>
 #include <vector>
@@ -83,4 +83,4 @@ DrumkitInfo::getInstrumentInfos() const
 }
 };	// namespace H2Core
 
-#endif	// DRUMKIT_INFO_H
+#endif	// H2C_DRUMKIT_INFO_H

@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef PLUGIN_STATE_TEST_H
-#define PLUGIN_STATE_TEST_H
+#ifndef H2C_PLUGIN_STATE_TEST_H
+#define H2C_PLUGIN_STATE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef WIDGET_WITH_INPUT_H
-#define WIDGET_WITH_INPUT_H
+#ifndef H2C_WIDGET_WITH_INPUT_H
+#define H2C_WIDGET_WITH_INPUT_H
 
 #include <chrono>
 #include <memory>

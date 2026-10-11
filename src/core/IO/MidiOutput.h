@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2_MIDI_OUTPUT_H
-#define H2_MIDI_OUTPUT_H
+#ifndef H2C_MIDI_OUTPUT_H
+#define H2C_MIDI_OUTPUT_H
 
 #include <core/Helpers/Time.h>
 #include <core/Midi/Midi.h>

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef NOTE_PROPERTIES_RULER_H
-#define NOTE_PROPERTIES_RULER_H
+#ifndef H2C_NOTE_PROPERTIES_RULER_H
+#define H2C_NOTE_PROPERTIES_RULER_H
 
 #include <QtGui>
 #include <QtWidgets>

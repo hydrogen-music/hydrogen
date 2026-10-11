@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef OSC_SERVER_H
-#define OSC_SERVER_H
+#ifndef H2C_OSC_SERVER_H
+#define H2C_OSC_SERVER_H
 
 // Pull in H2CORE_HAVE_OSC before the guard below so the class is defined
 // regardless of include order (the guard relied on the includer defining it).
@@ -985,4 +985,4 @@ inline int H2Core::OscServer::getTemporaryPort() const {
 
 #endif /* H2CORE_HAVE_OSC */
 
-#endif // OSC_SERVER_H
+#endif // H2C_OSC_SERVER_H

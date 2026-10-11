@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef EVENT_QUEUE_H
-#define EVENT_QUEUE_H
+#ifndef H2C_EVENT_QUEUE_H
+#define H2C_EVENT_QUEUE_H
 
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>

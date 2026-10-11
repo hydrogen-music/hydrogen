@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef H2_AUDIO_DRIVER_H
-#define H2_AUDIO_DRIVER_H
+#ifndef H2C_AUDIO_DRIVER_H
+#define H2C_AUDIO_DRIVER_H
 
 
 #include <core/config.h>

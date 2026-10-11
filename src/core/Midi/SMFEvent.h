@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SMF_EVENT_H
-#define SMF_EVENT_H
+#ifndef H2C_SMF_EVENT_H
+#define H2C_SMF_EVENT_H
 
 #include <QByteArray>
 #include <QString>

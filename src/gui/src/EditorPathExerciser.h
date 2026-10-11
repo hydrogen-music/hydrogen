@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef EDITOR_PATH_EXERCISER_H
-#define EDITOR_PATH_EXERCISER_H
+#ifndef H2C_EDITOR_PATH_EXERCISER_H
+#define H2C_EDITOR_PATH_EXERCISER_H
 
 #include <QObject>
 #include <QTimer>
@@ -76,4 +76,4 @@ private:
 	std::size_t m_nIndex = 0;
 };
 
-#endif // EDITOR_PATH_EXERCISER_H
+#endif // H2C_EDITOR_PATH_EXERCISER_H

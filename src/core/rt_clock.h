@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2_RTCLOCK_H
-#define H2_RTCLOCK_H
+#ifndef H2C_RTCLOCK_H
+#define H2C_RTCLOCK_H
 
 #include <core/config.h>
 
@@ -55,4 +55,4 @@
 	#define RTCLOCK_MS -1
 #endif
 
-#endif // H2_RTCLOCK_H
+#endif // H2C_RTCLOCK_H

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ASSERTIONS_FILE_H
-#define ASSERTIONS_FILE_H
+#ifndef H2C_ASSERTIONS_FILE_H
+#define H2C_ASSERTIONS_FILE_H
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <QString>

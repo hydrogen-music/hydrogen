@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ONLINE_IMPORTER_H
-#define ONLINE_IMPORTER_H
+#ifndef H2C_ONLINE_IMPORTER_H
+#define H2C_ONLINE_IMPORTER_H
 
 #include <core/Object.h>
 
@@ -306,4 +306,4 @@ private:
 
 } // namespace H2Core
 
-#endif // ONLINE_IMPORTER_H
+#endif // H2C_ONLINE_IMPORTER_H

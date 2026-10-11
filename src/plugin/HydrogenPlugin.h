@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef H2_HYDROGEN_PLUGIN_H
-#define H2_HYDROGEN_PLUGIN_H
+#ifndef H2C_HYDROGEN_PLUGIN_H
+#define H2C_HYDROGEN_PLUGIN_H
 
 #include <cstdint>
 #include <memory>

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ROTARY_H
-#define ROTARY_H
+#ifndef H2C_ROTARY_H
+#define H2C_ROTARY_H
 
 #include <QtGui>
 #include <QtWidgets>

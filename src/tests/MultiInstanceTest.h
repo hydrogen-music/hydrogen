@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MULTI_INSTANCE_TEST_H
-#define MULTI_INSTANCE_TEST_H
+#ifndef H2C_MULTI_INSTANCE_TEST_H
+#define H2C_MULTI_INSTANCE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

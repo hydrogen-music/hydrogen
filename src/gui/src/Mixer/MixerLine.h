@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MIXER_LINE_H
-#define MIXER_LINE_H
+#ifndef H2C_MIXER_LINE_H
+#define H2C_MIXER_LINE_H
 
 #include <QtGui>
 #include <QtWidgets>

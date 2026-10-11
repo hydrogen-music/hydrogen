@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_PROPERTIES_DIALOG_H
-#define SONG_PROPERTIES_DIALOG_H
+#ifndef H2C_SONG_PROPERTIES_DIALOG_H
+#define H2C_SONG_PROPERTIES_DIALOG_H
 
 #include <memory>
 

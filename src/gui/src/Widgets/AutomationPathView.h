@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef AUTOMATION_PATH_VIEW_H
-#define AUTOMATION_PATH_VIEW_H
+#ifndef H2C_AUTOMATION_PATH_VIEW_H
+#define H2C_AUTOMATION_PATH_VIEW_H
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>

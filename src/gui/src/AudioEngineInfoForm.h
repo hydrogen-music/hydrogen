@@ -21,8 +21,8 @@
  */
 
 
-#ifndef AUDIO_ENGINE_INFO_FORM_H
-#define AUDIO_ENGINE_INFO_FORM_H
+#ifndef H2C_AUDIO_ENGINE_INFO_FORM_H
+#define H2C_AUDIO_ENGINE_INFO_FORM_H
 
 #include <core/Object.h>
 #include <core/AudioEngine/AudioEngine.h>

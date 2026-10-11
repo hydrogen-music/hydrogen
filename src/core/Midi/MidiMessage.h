@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_MESSAGE_H
-#define MIDI_MESSAGE_H
+#ifndef H2C_MIDI_MESSAGE_H
+#define H2C_MIDI_MESSAGE_H
 
 #include <core/config.h>
 #include <core/Helpers/Time.h>

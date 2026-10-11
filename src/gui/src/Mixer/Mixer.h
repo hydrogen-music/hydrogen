@@ -21,8 +21,8 @@
  */
 
 
-#ifndef MIXER_H
-#define MIXER_H
+#ifndef H2C_MIXER_H
+#define H2C_MIXER_H
 
 #include <QtGui>
 #include <QtWidgets>

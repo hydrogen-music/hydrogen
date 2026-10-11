@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef IPC_ROUND_TRIP_TEST_H
-#define IPC_ROUND_TRIP_TEST_H
+#ifndef H2C_IPC_ROUND_TRIP_TEST_H
+#define H2C_IPC_ROUND_TRIP_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -69,4 +69,4 @@ public:
 	void testMidiNoteRecordingRoundTrip();
 };
 
-#endif // IPC_ROUND_TRIP_TEST_H
+#endif // H2C_IPC_ROUND_TRIP_TEST_H

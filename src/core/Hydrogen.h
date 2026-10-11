@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef HYDROGEN_H
-#define HYDROGEN_H
+#ifndef H2C_HYDROGEN_H
+#define H2C_HYDROGEN_H
 
 #include <core/Basics/Event.h>
 #include <core/Basics/Note.h>

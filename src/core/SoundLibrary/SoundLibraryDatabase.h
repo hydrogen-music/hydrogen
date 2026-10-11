@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_DATABASE_H
-#define SOUND_LIBRARY_DATABASE_H
+#ifndef H2C_SOUND_LIBRARY_DATABASE_H
+#define H2C_SOUND_LIBRARY_DATABASE_H
 
 #include <QStringList>
 #include <atomic>
@@ -318,4 +318,4 @@ inline QStringList SoundLibraryDatabase::getCustomDrumkitPaths() const
 }
 };	// namespace H2Core
 
-#endif	// SOUND_LIBRARY_DATABASE_H
+#endif	// H2C_SOUND_LIBRARY_DATABASE_H

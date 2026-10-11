@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ROUND_TRIP_ASSERTIONS_H
-#define ROUND_TRIP_ASSERTIONS_H
+#ifndef H2C_ROUND_TRIP_ASSERTIONS_H
+#define H2C_ROUND_TRIP_ASSERTIONS_H
 
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Drumkit.h>
@@ -129,4 +129,4 @@ private:
  static void assertBoolEqual( const QString& sLabel, bool a, bool b );
 };
 
-#endif // ROUND_TRIP_ASSERTIONS_H
+#endif // H2C_ROUND_TRIP_ASSERTIONS_H

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MAIN_TOOL_BAR_H
-#define MAIN_TOOL_BAR_H
+#ifndef H2C_MAIN_TOOL_BAR_H
+#define H2C_MAIN_TOOL_BAR_H
 
 #include <memory>
 #include <QtGui>

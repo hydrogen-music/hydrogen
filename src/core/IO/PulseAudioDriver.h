@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef H2_PULSE_AUDIO_DRIVER_H
-#define H2_PULSE_AUDIO_DRIVER_H
+#ifndef H2C_PULSE_AUDIO_DRIVER_H
+#define H2C_PULSE_AUDIO_DRIVER_H
 
 
 #include <core/IO/AudioDriver.h>
@@ -103,6 +103,6 @@ namespace H2Core {
 #endif //H2CORE_HAVE_PULSEAUDIO
 
 
-#endif //H2_PULSE_AUDIO_DRIVER_H
+#endif //H2C_PULSE_AUDIO_DRIVER_H
 
 

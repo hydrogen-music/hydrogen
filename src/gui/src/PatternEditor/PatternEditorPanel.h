@@ -21,8 +21,8 @@
  */
 
 
-#ifndef PATTERN_EDITOR_PANEL_H
-#define PATTERN_EDITOR_PANEL_H
+#ifndef H2C_PATTERN_EDITOR_PANEL_H
+#define H2C_PATTERN_EDITOR_PANEL_H
 
 #include <memory>
 #include <utility>

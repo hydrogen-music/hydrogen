@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef FAKE_PLUGIN_HOST_TEST_H
-#define FAKE_PLUGIN_HOST_TEST_H
+#ifndef H2C_FAKE_PLUGIN_HOST_TEST_H
+#define H2C_FAKE_PLUGIN_HOST_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

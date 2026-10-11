@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ALSA_MIDI_DRIVER_H
-#define ALSA_MIDI_DRIVER_H
+#ifndef H2C_ALSA_MIDI_DRIVER_H
+#define H2C_ALSA_MIDI_DRIVER_H
 
 #include <core/IO/MidiBaseDriver.h>
 

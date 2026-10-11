@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef H2_SKIN_H
-#define H2_SKIN_H
+#ifndef H2C_SKIN_H
+#define H2C_SKIN_H
 
 #include <QString>
 #include <QtGui>

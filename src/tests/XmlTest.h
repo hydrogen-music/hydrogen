@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef XML_TEST_H
-#define XML_TEST_H
+#ifndef H2C_XML_TEST_H
+#define H2C_XML_TEST_H
 
 #include <QString>
 

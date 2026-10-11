@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef INFOBAR_H
-#define INFOBAR_H
+#ifndef H2C_INFOBAR_H
+#define H2C_INFOBAR_H
 
 #include <QWidget>
 #include <vector>

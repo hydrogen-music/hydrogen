@@ -21,8 +21,8 @@
  */
 
 
-#ifndef STATUS_LED_H
-#define STATUS_LED_H
+#ifndef H2C_STATUS_LED_H
+#define H2C_STATUS_LED_H
 
 #include <chrono>
 

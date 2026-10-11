@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef PREFERENCES_SCHEMA_TEST_H
-#define PREFERENCES_SCHEMA_TEST_H
+#ifndef H2C_PREFERENCES_SCHEMA_TEST_H
+#define H2C_PREFERENCES_SCHEMA_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

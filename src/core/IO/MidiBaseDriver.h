@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_BASE_DRIVER_H
-#define MIDI_BASE_DRIVER_H
+#ifndef H2C_MIDI_BASE_DRIVER_H
+#define H2C_MIDI_BASE_DRIVER_H
 
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>

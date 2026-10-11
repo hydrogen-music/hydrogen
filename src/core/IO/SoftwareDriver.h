@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2_SOFTWARE_DRIVER_H
-#define H2_SOFTWARE_DRIVER_H
+#ifndef H2C_SOFTWARE_DRIVER_H
+#define H2C_SOFTWARE_DRIVER_H
 
 #include <core/Helpers/Time.h>
 #include <core/IO/AudioDriver.h>

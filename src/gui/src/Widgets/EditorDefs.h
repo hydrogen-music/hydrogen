@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef EDITOR_DEFS_H
-#define EDITOR_DEFS_H
+#ifndef H2C_EDITOR_DEFS_H
+#define H2C_EDITOR_DEFS_H
 
 #include <QString>
 
@@ -242,4 +242,4 @@ namespace Editor {
 	static constexpr int nDefaultCursorMargin = 10;
 }
 
-#endif // EDITOR_DEFS_H
+#endif // H2C_EDITOR_DEFS_H

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_INSTRUMENT_MAP_H
-#define MIDI_INSTRUMENT_MAP_H
+#ifndef H2C_MIDI_INSTRUMENT_MAP_H
+#define H2C_MIDI_INSTRUMENT_MAP_H
 
 #include <QByteArray>
 #include <QString>

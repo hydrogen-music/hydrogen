@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PLUGIN_UI_MAPPING_MODEL_H
-#define PLUGIN_UI_MAPPING_MODEL_H
+#ifndef H2C_PLUGIN_UI_MAPPING_MODEL_H
+#define H2C_PLUGIN_UI_MAPPING_MODEL_H
 
 #include <memory>
 

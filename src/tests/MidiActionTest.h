@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef MIDI_ACTION_TEST_H
-#define MIDI_ACTION_TEST_H
+#ifndef H2C_MIDI_ACTION_TEST_H
+#define H2C_MIDI_ACTION_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

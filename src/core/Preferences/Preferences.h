@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PREFERENCES_H
-#define PREFERENCES_H
+#ifndef H2C_PREFERENCES_H
+#define H2C_PREFERENCES_H
 
 #include <memory>
 #include <vector>

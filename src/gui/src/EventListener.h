@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef EVENT_LISTENER
-#define EVENT_LISTENER
+#ifndef H2C_EVENT_LISTENER
+#define H2C_EVENT_LISTENER
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Globals.h>

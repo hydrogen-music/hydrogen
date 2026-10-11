@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MIDI_ACTION_MANAGER_H
-#define MIDI_ACTION_MANAGER_H
+#ifndef H2C_MIDI_ACTION_MANAGER_H
+#define H2C_MIDI_ACTION_MANAGER_H
 
 #include <core/Helpers/Time.h>
 #include <core/Midi/MidiAction.h>

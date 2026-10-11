@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef OUTPUT_BUS_TEST_H
-#define OUTPUT_BUS_TEST_H
+#ifndef H2C_OUTPUT_BUS_TEST_H
+#define H2C_OUTPUT_BUS_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

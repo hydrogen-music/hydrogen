@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MASTER_LINE_H
-#define MASTER_LINE_H
+#ifndef H2C_MASTER_LINE_H
+#define H2C_MASTER_LINE_H
 
 #include <QtGui>
 #include <QtWidgets>

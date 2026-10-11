@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef AUDIO_EXPORT_TEST_H
-#define AUDIO_EXPORT_TEST_H
+#ifndef H2C_AUDIO_EXPORT_TEST_H
+#define H2C_AUDIO_EXPORT_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

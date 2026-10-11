@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef IPC_TRANSPORT_TEST_H
-#define IPC_TRANSPORT_TEST_H
+#ifndef H2C_IPC_TRANSPORT_TEST_H
+#define H2C_IPC_TRANSPORT_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
