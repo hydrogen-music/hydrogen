@@ -39,7 +39,7 @@
 #include "PatternFillDialog.h"
 #include "SongEditorPanel.h"
 #include "VirtualPatternDialog.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Compatibility/DropEvent.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
@@ -136,7 +136,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget* parent )
 	);
 	m_pPatternPopup->addSeparator();
 	m_pPatternPopup->addAction(
-		tr( "Replace" ), this, SLOT( patternPopup_replace() )
+		pCommonStrings->getReplaceLabel(), this, SLOT( patternPopup_replace() )
 	);
 	m_pPatternPopup->addAction(
 		pCommonStrings->getMenuActionDelete(), this,

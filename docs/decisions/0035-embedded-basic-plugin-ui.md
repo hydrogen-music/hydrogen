@@ -187,12 +187,11 @@ from the start.
 * The X11 child-window backend is ours to own (adapted, not upstream)
 * Immediate mode is a new paradigm for a Qt-background codebase
 * The basic UI's user-facing strings need a translation story
-  independent of `src/gui` (`CommonStrings.h` lives in the Qt Widgets
-  application, which the plugin must not link). The Qt translation
-  stack itself remains available — the plugin links Qt Gui, so
-  `Q_DECLARE_TR_FUNCTIONS` and the existing `data/i18n` catalogs could
-  serve a plugin-side string table; whether they do is an open
-  implementation question.
+  independent of `src/gui` (the plugin must not link the Qt Widgets
+  application). Resolved at UI-6: `CommonStrings` moved to `src/core`
+  (namespace `H2Core`, catalog context unchanged) and absorbed the
+  plugin's string table — GUI and plugin share one translation source
+  and the existing `data/i18n` catalogs.
 
 ## Pros and Cons of the Options
 

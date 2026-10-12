@@ -25,7 +25,7 @@
 
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "SongEditorPanelBpmWidget.h"
 #include "../Widgets/Button.h"
 

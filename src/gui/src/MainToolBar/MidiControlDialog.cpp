@@ -26,7 +26,7 @@ https://www.gnu.org/licenses
 
 #include "MainToolBar.h"
 #include "MidiActionTable.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/LCDSpinBox.h"
@@ -187,11 +187,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 
 	m_pInputIgnoreNoteOffCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
-	/*: The character after the '&' symbol can be used as a shortcut via the Alt
-	 *  modifier. It should not coincide with any other shortcut in the Settings
-	 *  tab of the MidiControlDialog. If in question, you can just drop the
-	 *  '&'. */
-	m_pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
+	m_pInputIgnoreNoteOffCheckBox->setText( pCommonStrings->getIgnoreNoteOffLabel() );
 	pInputCheckboxLayout->addWidget( m_pInputIgnoreNoteOffCheckBox );
 	connect( m_pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
 		persistMidiSettings();
@@ -335,7 +331,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		[=]() { persistMidiSettings(); }
 	);
 
-	auto pOutputSendNoteOffLabel = new QLabel( tr( "Send Note-Off messages" ) );
+	auto pOutputSendNoteOffLabel = new QLabel( pCommonStrings->getSendNoteOffLabel() );
 	pOutputLabelledLayout->addWidget( pOutputSendNoteOffLabel, 1, 0 );
 	m_pOutputSendNoteOffComboBox = new QComboBox( pOutputLabelledWidget );
 	m_pOutputSendNoteOffComboBox->setFixedSize( QSize(
@@ -345,7 +341,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	pOutputLabelledLayout->addWidget( m_pOutputSendNoteOffComboBox, 1, 1 );
 	m_pOutputSendNoteOffComboBox->insertItems(
 		0, QStringList() << pCommonStrings->getOptionAlways()
-						 << tr( "On custom note lengths" )
+						 << pCommonStrings->getOptionOnCustomNoteLengths()
 						 << pCommonStrings->getOptionNever()
 	);
 	m_pOutputSendNoteOffComboBox->setCurrentIndex(
@@ -395,9 +391,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 
 	auto pMappingTab = new QWidget( m_pTabWidget );
-	/*: Tab of the MIDI control dialog dedicated to mapping MIDI notes to
-	 *  instruments of the current drumkit. */
-	m_pTabWidget->addTab( pMappingTab, tr( "Instrument Mapping" ) );
+	m_pTabWidget->addTab( pMappingTab, pCommonStrings->getMappingTab() );
 
 	auto pMappingWrapperLayout = new QVBoxLayout();
 	pMappingWrapperLayout->setSpacing( 5 );
@@ -473,12 +467,11 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
 							  Qt::AlignCenter );
 
-	/*: Label of an option in the mapping tab of the MIDI control dialog
-	 *  specifying how incoming and outgoing MIDI notes and the instruments of
-	 *  the current drumkit should relate to eachother. */
-	auto pNoteMappingLabel = new QLabel( tr( "Note Mapping" ), pMappingTab );
+	auto pNoteMappingLabel =
+		new QLabel( pCommonStrings->getNoteMappingHeader(), pMappingTab );
 	pNoteMappingLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nSettingTextSize ) );
+font-size: %1px;" )
+										  .arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( pNoteMappingLabel, 1, 3, Qt::AlignCenter );
 
 	m_pOutputNoteMappingComboBox = new QComboBox( pMappingTab );
@@ -568,12 +561,11 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( m_pGlobalInputChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
 
-	/*: Label of an option in the mapping tab of the MIDI control dialog
-	 *  specifying whether (and which) all instruments of the current drumkit
-	 *  should feature the same incoming and outgoing MIDI channel. */
-	auto pGlobalChannelLabel = new QLabel( tr( "Global Channel" ), pMappingTab );
+	auto pGlobalChannelLabel =
+		new QLabel( pCommonStrings->getGlobalChannelLabel(), pMappingTab );
 	pGlobalChannelLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nSettingTextSize ) );
+font-size: %1px;" )
+											.arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( pGlobalChannelLabel, 3, 3, Qt::AlignCenter );
 
 	// -1 does not turn this channel "off". Instead, the combo box above it can

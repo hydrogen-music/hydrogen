@@ -36,7 +36,8 @@
 
 #include <QString>
 
-#include "PluginUiStrings.h"
+#include <core/CommonStrings.h>
+#include <plugin/HydrogenPlugin.h>
 
 namespace {
 
@@ -78,7 +79,7 @@ QString elided( const QString& sName, float nMaxWidth ) {
 namespace H2Core {
 
 PluginUiMixerView::PluginUiMixerView( HydrogenPlugin* pPlugin )
-	: m_model( pPlugin )
+	: m_model( pPlugin ), m_pCommonStrings( pPlugin->commonStrings() )
 {
 }
 
@@ -121,8 +122,8 @@ void PluginUiMixerView::draw()
 	const int nBusCount = m_model.busCount();
 
 	// Shared button width so the strips' control columns align.
-	const auto sMute = PluginUiStrings::muteButton().toUtf8();
-	const auto sSolo = PluginUiStrings::soloButton().toUtf8();
+	const auto sMute = m_pCommonStrings->getBigMuteButton().toUtf8();
+	const auto sSolo = m_pCommonStrings->getBigSoloButton().toUtf8();
 	const float nButtonWidth =
 		std::max( ImGui::CalcTextSize( sMute.constData() ).x,
 				  ImGui::CalcTextSize( sSolo.constData() ).x ) +
@@ -141,10 +142,10 @@ void PluginUiMixerView::draw()
 							   ImGui::GetColorU32(
 								   ImGuiCol_ButtonActive ) );
 	};
-	const auto sMasterOnly = PluginUiStrings::masterOnlyLabel().toUtf8();
-	const auto sReset = PluginUiStrings::resetButton().toUtf8();
+	const auto sMasterOnly = m_pCommonStrings->getMasterOnlyLabel().toUtf8();
+	const auto sReset = m_pCommonStrings->getResetButton().toUtf8();
 	ImGui::BeginGroup();
-	ImGui::TextUnformatted( PluginUiStrings::masterLabel().toUtf8()
+	ImGui::TextUnformatted( m_pCommonStrings->getMasterLabel().toUtf8()
 								.constData() );
 	float fMasterVolume = m_model.masterVolume();
 	if ( drawFaderWithMeter( "##masterVolume", fMasterVolume,
@@ -183,7 +184,7 @@ void PluginUiMixerView::draw()
 			m_model.setStripVolume( n, fVolume );
 		}
 		float fPan = m_model.stripPan( n );
-		if ( ImGuiKnobs::Knob( PluginUiStrings::panLabel().toUtf8()
+		if ( ImGuiKnobs::Knob( m_pCommonStrings->getNotePropertyPan().toUtf8()
 								   .constData(),
 							   &fPan, -1.0f, 1.0f, 0, "%.2f",
 							   ImGuiKnobVariant_Tick, s_nKnobSize ) ) {
@@ -214,7 +215,7 @@ void PluginUiMixerView::draw()
 		// explicit opt-in for them to act as drag sources.
 		const int nBus = m_model.effectiveOutputBus( n, nBusCount );
 		const auto sBus = nBus >= 0
-			? ( PluginUiStrings::busLabel() + " " +
+			? ( m_pCommonStrings->getBusLabel() + " " +
 				QString::number( nBus + 1 ) ).toUtf8()
 			: QByteArray( sMasterOnly );
 		ImGui::TextUnformatted( sBus.constData(),
@@ -249,7 +250,7 @@ void PluginUiMixerView::draw()
 	// feed.
 	std::vector<ImVec2> busOrigins;
 	for ( int nBus = 0; nBus < nBusCount; ++nBus ) {
-		const auto sBus = ( PluginUiStrings::busLabel() + " " +
+		const auto sBus = ( m_pCommonStrings->getBusLabel() + " " +
 							QString::number( nBus + 1 ) ).toUtf8();
 		ImGui::Button( sBus.constData() );
 		if ( ImGui::BeginDragDropTarget() ) {
@@ -264,7 +265,7 @@ void PluginUiMixerView::draw()
 		busOrigins.push_back( ImGui::GetItemRectMin() );
 		ImGui::SameLine();
 	}
-	ImGui::Button( PluginUiStrings::masterLabel().toUtf8().constData() );
+	ImGui::Button( m_pCommonStrings->getMasterLabel().toUtf8().constData() );
 	if ( ImGui::BeginDragDropTarget() ) {
 		if ( const ImGuiPayload* pPayload =
 				 ImGui::AcceptDragDropPayload( s_sStripBusPayload ) ) {

@@ -26,10 +26,13 @@
 #ifndef H2C_PLUGIN_UI_MIXER_VIEW_H
 #define H2C_PLUGIN_UI_MIXER_VIEW_H
 
+#include <memory>
+
 #include "PluginUiMixerModel.h"
 
 namespace H2Core {
 
+class CommonStrings;
 class HydrogenPlugin;
 
 class PluginUiMixerView
@@ -47,6 +50,7 @@ private:
 							 float fPeakR );
 
 	PluginUiMixerModel m_model;
+	std::shared_ptr<CommonStrings> m_pCommonStrings;
 };
 
 } // namespace H2Core

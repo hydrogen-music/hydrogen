@@ -27,13 +27,16 @@
 #include <vector>
 
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QProcess;
+class QTranslator;
 QT_END_NAMESPACE
 
 namespace H2Core {
 
+class CommonStrings;
 class Hydrogen;
 class PluginAudioDriver;
 class PluginMidiDriver;
@@ -70,6 +73,20 @@ public:
 	 * plugin deliberately never searches relative to its own install
 	 * location: the shared data must only exist in one place. */
 	static QString resolveSystemDataPath();
+
+	/** Load the hydrogen translation catalog for @a languages — the
+	 * preferred language first, then the system locale's UI languages,
+	 * like the GUI main — from the shared system data folder's i18n
+	 * directory and install it on the process's QCoreApplication: the
+	 * host's if it runs one, else the minimal one the plugin ensures.
+	 * The catalog only carries hydrogen's own translation contexts, so
+	 * the host's strings are unaffected. Idempotent; returns false only
+	 * when no catalog matches @a languages (e.g. English, the source
+	 * language). */
+	static bool installTranslator( const QStringList& languages );
+	/** The process-wide hydrogen translator #installTranslator loaded —
+	 * null until then. Exposed for tests and diagnostics. */
+	static QTranslator* translator();
 
 	/** Update the sample rate / max block size before processing starts. */
 	void activate( double fSampleRate, unsigned nMaxBlockSize );
@@ -112,6 +129,14 @@ public:
 	bool loadState( const std::vector<unsigned char>& data );
 
 	Hydrogen* getHydrogen() const { return m_pHydrogen; }
+
+	/** The plugin UI's translatable strings (proposal 0006 TU4.0).
+	 *  Constructed after #installTranslator so its members resolve
+	 *  through the installed catalog; the UI views read it once per
+	 *  construction, not per frame. */
+	std::shared_ptr<H2Core::CommonStrings> commonStrings() const {
+		return m_pCommonStrings;
+	}
 
 	/** Register an engine-process consumer of this plugin's engine event
 	 * stream and telemetry (ADR 0035 UI-3): forwarded to the engine
@@ -166,6 +191,7 @@ private:
 	void onEditorProcessFinished( bool bCrashed );
 
 	Hydrogen* m_pHydrogen;
+	std::shared_ptr<H2Core::CommonStrings> m_pCommonStrings;
 	std::shared_ptr<PluginAudioDriver> m_pAudioDriver;
 	std::shared_ptr<PluginMidiDriver> m_pMidiDriver;
 	int m_nBuses;

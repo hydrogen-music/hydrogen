@@ -35,7 +35,7 @@
 #include <core/Preferences/Theme.h>
 
 #include "../HydrogenApp.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/Fader.h"

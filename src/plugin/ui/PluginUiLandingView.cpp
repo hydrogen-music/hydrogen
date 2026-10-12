@@ -31,12 +31,13 @@
 
 #include <algorithm>
 
-#include "PluginUiStrings.h"
+#include <core/CommonStrings.h>
+#include <plugin/HydrogenPlugin.h>
 
 namespace H2Core {
 
 PluginUiLandingView::PluginUiLandingView( HydrogenPlugin* pPlugin )
-	: m_model( pPlugin )
+	: m_model( pPlugin ), m_pCommonStrings( pPlugin->commonStrings() )
 {
 	refreshMidiConfigWidgets();
 }
@@ -52,36 +53,36 @@ void PluginUiLandingView::draw()
 {
 	// Load row: each button opens its keyed browser; the drumkit
 	// browser lists directories only (a drumkit is a folder).
-	if ( ImGui::Button( PluginUiStrings::loadSongButton().toUtf8()
+	if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
 		config.path = ".";
 		m_fileDialog.OpenDialog(
-			"song", PluginUiStrings::songFileDialogTitle().toStdString(),
+			"song", m_pCommonStrings->getSongFileDialogTitle().toStdString(),
 			Filesystem::sSongSuffix.toUtf8(), config );
 	}
 	ImGui::SameLine();
-	if ( ImGui::Button( PluginUiStrings::loadPatternButton().toUtf8()
+	if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
 		config.path = ".";
 		m_fileDialog.OpenDialog(
 			"pattern",
-			PluginUiStrings::patternFileDialogTitle().toStdString(),
+			m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
 			Filesystem::sPatternSuffix.toUtf8(), config );
 	}
 	ImGui::SameLine();
-	if ( ImGui::Button( PluginUiStrings::loadDrumkitButton().toUtf8()
+	if ( ImGui::Button( m_pCommonStrings->getActionLoadDrumkit().toUtf8()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
 		config.path = ".";
 		m_fileDialog.OpenDialog(
 			"drumkit",
-			PluginUiStrings::drumkitFileDialogTitle().toStdString(),
+			m_pCommonStrings->getDrumkitFileDialogTitle().toStdString(),
 			nullptr, config );
 	}
 	ImGui::SameLine();
-	if ( ImGui::Button( PluginUiStrings::openEditorButton().toUtf8()
+	if ( ImGui::Button( m_pCommonStrings->getOpenEditorButton().toUtf8()
 							.constData() ) ) {
 		m_model.openEditor();
 	}
@@ -90,21 +91,21 @@ void PluginUiLandingView::draw()
 	// (0-based, like the GUI's pattern spinbox) and whether it replaces
 	// the slot's current pattern.
 	ImGui::SetNextItemWidth( 72.0f );
-	ImGui::InputInt( PluginUiStrings::patternNumberLabel().toUtf8()
+	ImGui::InputInt( m_pCommonStrings->getInputCapturePattern().toUtf8()
 						.constData(),
 					 &m_nPatternNumber, 0, 0 );
 	m_nPatternNumber = std::max( 0, m_nPatternNumber );
 	ImGui::SameLine();
-	ImGui::Checkbox( PluginUiStrings::replaceLabel().toUtf8().constData(),
+	ImGui::Checkbox( m_pCommonStrings->getReplaceLabel().toUtf8().constData(),
 					 &m_bReplacePattern );
 
 	// The exposed MIDI configuration.
 	if ( ImGui::CollapsingHeader(
-			 PluginUiStrings::midiConfigurationHeader().toUtf8()
+			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
 					.constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
 		ImGui::Checkbox(
-			PluginUiStrings::ignoreNoteOffLabel().toUtf8().constData(),
+			m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8().constData(),
 			&m_bNoteOffIgnore );
 
 		// The action channel dropdown — the GUI spinbox's range and
@@ -115,14 +116,14 @@ void PluginUiLandingView::draw()
 		QByteArray sChannelEntries[ 18 ];
 		const char* sChannelEntryPtrs[ 18 ];
 		for ( int n = 0; n < 18; ++n ) {
-			sChannelEntries[ n ] = PluginUiStrings::channelDisplayName(
+			sChannelEntries[ n ] = m_pCommonStrings->getChannelDisplayName(
 				Midi::channelFromInt( n - 1 ) ).toUtf8();
 			sChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
 		}
 		int nActionChannel = m_nActionChannel + 1;
 		ImGui::SetNextItemWidth( 72.0f );
 		if ( ImGui::Combo(
-				 PluginUiStrings::actionChannelLabel().toUtf8()
+				 m_pCommonStrings->getActionChannelLabel().toUtf8()
 					 .constData(),
 				 &nActionChannel, sChannelEntryPtrs, 18 ) ) {
 			m_nActionChannel = nActionChannel - 1;
@@ -130,19 +131,19 @@ void PluginUiLandingView::draw()
 
 		// The combo entries must outlive the Combo call — held locals,
 		// not chained temporaries.
-		const auto sAlways = PluginUiStrings::optionAlways().toUtf8();
+		const auto sAlways = m_pCommonStrings->getOptionAlways().toUtf8();
 		const auto sOnCustomNoteLengths =
-			PluginUiStrings::optionOnCustomNoteLengths().toUtf8();
-		const auto sNever = PluginUiStrings::optionNever().toUtf8();
+			m_pCommonStrings->getOptionOnCustomNoteLengths().toUtf8();
+		const auto sNever = m_pCommonStrings->getOptionNever().toUtf8();
 		const char* sSendNoteOffEntries[ 3 ] = {
 			sAlways.constData(), sOnCustomNoteLengths.constData(),
 			sNever.constData()
 		};
-		ImGui::Combo( PluginUiStrings::sendNoteOffLabel().toUtf8()
+		ImGui::Combo( m_pCommonStrings->getSendNoteOffLabel().toUtf8()
 							.constData(),
 					 &m_nSendNoteOff, sSendNoteOffEntries, 3 );
 
-		if ( ImGui::Button( PluginUiStrings::applyButton().toUtf8()
+		if ( ImGui::Button( m_pCommonStrings->getApplyButton().toUtf8()
 								.constData() ) ) {
 			if ( m_model.applyExposedMidiControlSettings(
 					 m_bNoteOffIgnore,

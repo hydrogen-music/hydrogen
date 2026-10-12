@@ -36,9 +36,11 @@ class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testMappingModelInstrumentReads );
 	CPPUNIT_TEST( testMappingModelInputMappingRead );
 	CPPUNIT_TEST( testChannelDisplayName );
+	CPPUNIT_TEST( testCreatePitchLabel );
 	CPPUNIT_TEST( testMixerModelStripsAndMeters );
 	CPPUNIT_TEST( testMixerModelStripReads );
 	CPPUNIT_TEST( testMixerModelBusCommands );
+	CPPUNIT_TEST( testTranslatorInstallation );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -73,6 +75,12 @@ public:
 	 * -1, "Off" for 0 and for the invalid -2 (unmapped rows), the
 	 * number itself for 1..16. */
 	void testChannelDisplayName();
+	/** CommonStrings' note labels — the single source the pattern
+	 * editor's ruler sidebar, the LCD spinbox and the piano roll share:
+	 * the bare form maps every #H2Core::Note::Key to its note class
+	 * name, the octave form appends the (deliberately unclamped)
+	 * octave number. */
+	void testCreatePitchLabel();
 	/** TU4.c: the mixer model's strip/master commands land on the
 	 * instrument/song, and its meter reads serve the latest telemetry
 	 * snapshot accepted through the engine-event-sink seam. */
@@ -85,6 +93,11 @@ public:
 	 * the engine's instrument and round-trips in the embedded song state
 	 * (ADR 0019); -1 resets to the implicit 1-to-1 default. */
 	void testMixerModelBusCommands();
+	/** TU6.1: the plugin process installs the hydrogen catalog translator
+	 * for the user's languages on the process's QCoreApplication, so the
+	 * embedded UI's CommonStrings resolve through the shared data/i18n
+	 * catalogs exactly like the GUI does. */
+	void testTranslatorInstallation();
 };
 
 #endif

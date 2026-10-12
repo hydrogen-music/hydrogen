@@ -24,9 +24,11 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
+#include <core/CommonStrings.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/H2Project.h>
+#include <core/Helpers/Translations.h>
 #include <core/Hydrogen.h>
 #include <core/IO/PluginAudioDriver.h>
 #include <core/IO/PluginMidiDriver.h>
@@ -86,6 +88,28 @@ void ensureQtApplication() {
 	static char* s_argv[] = { s_arg0, nullptr };
 	new QCoreApplication( s_argc, s_argv );
 }
+
+// The process-wide hydrogen catalog translator. Leaked on purpose, like
+// the QCoreApplication in ensureQtApplication(): it must outlive the
+// (host-owned) application instance it is installed on —
+// QCoreApplication does not take ownership — and unloading the plugin
+// library while a host still runs must not leave the application's
+// translator list dangling.
+QTranslator* s_pHydrogenTranslator = nullptr;
+
+// The languages to load a hydrogen catalog for, mirroring the GUI main:
+// the preferred language from the (per-engine-owned, ADR 0015) shared
+// config first (if set), then the system locale's UI languages.
+QStringList preferredLanguages( const std::shared_ptr<Preferences>& pPreferences )
+{
+	QStringList languages;
+	if ( pPreferences != nullptr &&
+		 ! pPreferences->getPreferredLanguage().isNull() ) {
+		languages << pPreferences->getPreferredLanguage();
+	}
+	languages << QLocale::system().uiLanguages();
+	return languages;
+}
 } // namespace
 
 QString HydrogenPlugin::resolveSystemDataPath()
@@ -100,6 +124,42 @@ QString HydrogenPlugin::resolveSystemDataPath()
 		return QString::fromLocal8Bit( sEnv );
 	}
 	return QString();
+}
+
+bool HydrogenPlugin::installTranslator( const QStringList& languages )
+{
+	ensureQtApplication();
+	QCoreApplication* pApp = QCoreApplication::instance();
+
+	if ( s_pHydrogenTranslator == nullptr ) {
+		// First call for this process: load the catalog. A miss is not an
+		// error — e.g. English, the source language, ships no catalog —
+		// and a later call may still load for different languages.
+		QTranslator* pTranslator = new QTranslator();
+		if ( ! Translations::loadTranslation(
+				 languages, *pTranslator, "hydrogen",
+				 Filesystem::systemInternationalizationDir() ) ) {
+			// Never installed, so destroying it is safe (unlike after
+			// installation — see the storage comment above).
+			delete pTranslator;
+			return false;
+		}
+		s_pHydrogenTranslator = pTranslator;
+	}
+
+	// QCoreApplication offers no "is installed" query; removeTranslator's
+	// bool return is the only probe. Removing first keeps the call
+	// idempotent (no duplicate list entries) and self-healing — a
+	// translator removed by a test or a replaced host application gets
+	// reinstalled below.
+	pApp->removeTranslator( s_pHydrogenTranslator );
+	pApp->installTranslator( s_pHydrogenTranslator );
+	return true;
+}
+
+QTranslator* HydrogenPlugin::translator()
+{
+	return s_pHydrogenTranslator;
 }
 
 HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
@@ -171,6 +231,18 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	// on the process default (ADR 0015, T1.6).
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	m_pHydrogen->setFullyOperational( true );
+
+	// The embedded UI's strings resolve through the shared data/i18n
+	// catalogs (TU6.1): install the hydrogen translator for the user's
+	// languages on the process's QCoreApplication — the host's if it runs
+	// one, else the minimal one ensured above. The catalog only carries
+	// hydrogen's own contexts, so the host's strings are unaffected.
+	installTranslator( preferredLanguages( m_pHydrogen->getPreferences() ) );
+
+	// After the translator: the instance's constructor resolves every
+	// member through the just-installed catalog (single source of
+	// translatable strings with the GUI, proposal 0006 TU4.0).
+	m_pCommonStrings = std::make_shared<H2Core::CommonStrings>();
 
 	m_pAudioDriver = std::dynamic_pointer_cast<PluginAudioDriver>(
 		m_pHydrogen->getAudioDriver() );

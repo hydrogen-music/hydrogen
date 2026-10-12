@@ -28,10 +28,13 @@
 
 #include <ImGuiFileDialog.h>
 
+#include <memory>
+
 #include "PluginUiLandingModel.h"
 
 namespace H2Core {
 
+class CommonStrings;
 class HydrogenPlugin;
 
 class PluginUiLandingView
@@ -49,6 +52,7 @@ private:
 	void refreshMidiConfigWidgets();
 
 	PluginUiLandingModel m_model;
+	std::shared_ptr<CommonStrings> m_pCommonStrings;
 	IGFD::FileDialog m_fileDialog;
 	// Pattern-load target state (the pattern row's widgets).
 	int m_nPatternNumber = 0;

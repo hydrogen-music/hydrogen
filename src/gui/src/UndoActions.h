@@ -47,7 +47,7 @@
 #include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "HydrogenApp.h"
 #include "Rack/ComponentEditor/ComponentEditor.h"
 #include "MainForm.h"

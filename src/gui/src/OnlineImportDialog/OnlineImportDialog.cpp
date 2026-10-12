@@ -23,7 +23,7 @@
 #include "OnlineImportDialog.h"
 #include "OnlineImportSourcesDialog.h"
 #include "HydrogenApp.h"
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "Skin.h"
 
 #include <core/Basics/Event.h>

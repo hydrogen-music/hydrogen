@@ -41,7 +41,7 @@
 #include "PatternEditorRuler.h"
 #include "PianoRollEditor.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../MainToolBar/MainToolBar.h"

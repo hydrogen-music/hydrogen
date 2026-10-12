@@ -23,7 +23,7 @@
 
 #include "LCDSpinBox.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -266,7 +266,7 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 		}
 		const auto nKey = fValue - KEYS_PER_OCTAVE * nOctave;
 		result = QString( "%1 (%3)" )
-					 .arg( CommonStrings::createPitchLabel( H2Core::Note::keyFromIntClamp( nKey ), nOctave ) )
+					 .arg( H2Core::CommonStrings::createPitchLabel( H2Core::Note::keyFromIntClamp( nKey ), nOctave ) )
 					 .arg( fValue, 0, 'f', 0 );
 	}
 	else {

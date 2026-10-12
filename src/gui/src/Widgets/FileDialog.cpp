@@ -21,7 +21,7 @@
  */
 
 #include "FileDialog.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 
 #include <core/Helpers/Filesystem.h>

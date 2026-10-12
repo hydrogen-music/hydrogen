@@ -33,7 +33,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include "Rack.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../UndoActions.h"
 #include "../Widgets/ClickableLabel.h"

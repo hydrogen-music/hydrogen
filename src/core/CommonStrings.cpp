@@ -20,57 +20,99 @@
  *
  */
 
-#include "CommonStrings.h"
-#include "HydrogenApp.h"
+#include <core/CommonStrings.h>
 
-using namespace H2Core;
+namespace H2Core {
 
-QString CommonStrings::createPitchLabel( Note::Key key, int nOctave )
+QString CommonStrings::createPitchLabel( Note::Key key )
 {
-    const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-    QString result;
+	// The single source of the note labels: the ruler sidebar's bare
+	// names and the octave form below both resolve here, so the catalog
+	// carries each pitch text exactly once.
+	QString result;
 	switch ( key ) {
-		case Note::Key::B:
-			result = pCommonStrings->getNotePitchB();
-			break;
-		case Note::Key::Bf:
-			result = pCommonStrings->getNotePitchASharp();
-			break;
-		case Note::Key::A:
-			result = pCommonStrings->getNotePitchA();
-			break;
-		case Note::Key::Af:
-			result = pCommonStrings->getNotePitchGSharp();
-			break;
-		case Note::Key::G:
-			result = pCommonStrings->getNotePitchG();
-			break;
-		case Note::Key::Fs:
-			result = pCommonStrings->getNotePitchFSharp();
-			break;
-		case Note::Key::F:
-			result = pCommonStrings->getNotePitchF();
-			break;
-		case Note::Key::E:
-			result = pCommonStrings->getNotePitchE();
-			break;
-		case Note::Key::Ef:
-			result = pCommonStrings->getNotePitchDSharp();
-			break;
-		case Note::Key::D:
-			result = pCommonStrings->getNotePitchD();
-			break;
-		case Note::Key::Cs:
-			result = pCommonStrings->getNotePitchCSharp();
-			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note C. It is designed to hold a single
+		 *  character. */
 		case Note::Key::C:
-			result = pCommonStrings->getNotePitchC();
+			result = tr( "C" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note C#. It is designed to hold two
+		 *  characters. */
+		case Note::Key::Cs:
+			result = tr( "C#" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note D. It is designed to hold a single
+		 *  character. */
+		case Note::Key::D:
+			result = tr( "D" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note D#. It is designed to hold two
+		 *  characters. */
+		case Note::Key::Ef:
+			result = tr( "D#" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note E. It is designed to hold a single
+		 *  character. */
+		case Note::Key::E:
+			result = tr( "E" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note F. It is designed to hold a single
+		 *  character. */
+		case Note::Key::F:
+			result = tr( "F" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note F#. It is designed to hold two
+		 *  characters. */
+		case Note::Key::Fs:
+			result = tr( "F#" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note G. It is designed to hold a single
+		 *  character. */
+		case Note::Key::G:
+			result = tr( "G" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note G#. It is designed to hold two
+		 *  characters. */
+		case Note::Key::Af:
+			result = tr( "G#" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note A. It is designed to hold a single
+		 *  character. */
+		case Note::Key::A:
+			result = tr( "A" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note A#. It is designed to hold two
+		 *  characters. */
+		case Note::Key::Bf:
+			result = tr( "A#" );
+			break;
+		/*: Label used in the sidebar of the pattern editor for a pitch
+		 *  corresponding to note B. It is designed to hold a single
+		 *  character. */
+		case Note::Key::B:
+			result = tr( "B" );
 			break;
 		default:
 			result = QString::number( static_cast<int>( key ) );
 	}
 
-	return result.append( QString::number( nOctave ) );
+	return result;
+}
+
+QString CommonStrings::createPitchLabel( Note::Key key, int nOctave )
+{
+	return createPitchLabel( key ).append( QString::number( nOctave ) );
 }
 
 CommonStrings::CommonStrings(){
@@ -538,28 +580,28 @@ CommonStrings::CommonStrings(){
 	m_sInputCaptureVolume = tr( "Volume" );
 	/*: Label shown in the input capture dialog for querying a
 	  column number of the song editor grid value. */
-	m_sInputCaptureColumn = tr( "Column Number" );
+	m_sInputCaptureColumn = tr( "Column number" );
 	/*: Label shown in the input capture dialog for querying a
 	  pattern number. */
-	m_sInputCapturePattern = tr( "Pattern Number" );
+	m_sInputCapturePattern = tr( "Pattern number" );
 	/*: Label shown in the input capture dialog for querying a
 	  song number of the current playlist. */
-	m_sInputCaptureSong = tr( "Song Number" );
+	m_sInputCaptureSong = tr( "Song number" );
 	/*: Label shown in the input capture dialog for querying an
 	  instrument number of the current drumkit. */
-	m_sInputCaptureInstrument = tr( "Instrument Number" );
+	m_sInputCaptureInstrument = tr( "Instrument number" );
 	/*: Label shown in the input capture dialog for querying a
 	  component number of the specified instrument. */
-	m_sInputCaptureComponent = tr( "Component Number" );
+	m_sInputCaptureComponent = tr( "Component number" );
 	/*: Label shown in the input capture dialog for querying a
 	  layer number of the specified instrument component. */
-	m_sInputCaptureLayer = tr( "Layer Number" );
+	m_sInputCaptureLayer = tr( "Layer number" );
 	/*: Label shown in the input capture dialog for querying a
 	  new filter cutoff value for a specified instrument. */
-	m_sInputCaptureFilterCutoff = tr( "Filter Cutoff" );
+	m_sInputCaptureFilterCutoff = tr( "Filter cutoff" );
 	/*: Label shown in the input capture dialog for querying
 	  text content for a new tag. */
-	m_sInputCaptureTag = tr( "Tag Text" );
+	m_sInputCaptureTag = tr( "Tag text" );
 	
 	/*: Used as file type filter for .h2project files. */
 	m_sHydrogenProject = tr( "Hydrogen Project" );
@@ -984,43 +1026,6 @@ CommonStrings::CommonStrings(){
 	 *  DrumPatternEditor and PianoRollEditor. */
 	m_sNotePropertyLength = tr( "Length" );
 
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note C. It is designed to hold a single character. */
-	m_sNotePitchC = tr( "C" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note C#. It is designed to hold two characters. */
-	m_sNotePitchCSharp = tr( "C#" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note D. It is designed to hold a single character. */
-	m_sNotePitchD = tr( "D" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note D#. It is designed to hold two characters. */
-	m_sNotePitchDSharp = tr( "D#" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note E. It is designed to hold a single character. */
-	m_sNotePitchE = tr( "E" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note F. It is designed to hold a single character. */
-	m_sNotePitchF = tr( "F" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note F#. It is designed to hold two characters. */
-	m_sNotePitchFSharp = tr( "F#" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note G. It is designed to hold a single character. */
-	m_sNotePitchG = tr( "G" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note G#. It is designed to hold two characters. */
-	m_sNotePitchGSharp = tr( "G#" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note A. It is designed to hold a single character. */
-	m_sNotePitchA = tr( "A" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note A#. It is designed to hold two characters. */
-	m_sNotePitchASharp = tr( "A#" );
-	/*: Label used in the sidebar of the pattern editor for a pitch
-	 *  corresponding to note B. It is designed to hold a single character. */
-	m_sNotePitchB = tr( "B" );
-
 	/*: Displayed in a warning message in case the user tries to read
 	 * or write data to a file/path Hydrogen can not handle in the
 	 * current encoding.*/
@@ -1107,6 +1112,89 @@ CommonStrings::CommonStrings(){
 	 *  with the 'Notes' label for text annotations in property
 	 *  dialogs. */
 	m_sNoteCountLabel = tr( "Notes" );
+
+	// Embedded plugin UI (proposal 0006). Texts the GUI vocabulary
+	// already covers — the tabs' "General", the "Always"/"Never"/"All"/
+	// "Off" options, the mapping table's "Instrument"/"Channel"/"Note"
+	// columns and the mixer's "Master"/"Mute"/"Solo"/"Volume"/"Pan"
+	// labels — reuse their members above instead of new ones.
+	/*: Tab of the embedded plugin UI listing song, pattern and drumkit
+	 *  loading as well as the MIDI configuration. */
+	m_sMappingTab = tr( "Mapping" );
+	/*: Tab of the embedded plugin UI showing per-instrument mixer
+	 *  strips. */
+	m_sMixerTab = tr( "Mixer" );
+	m_sLoadSongButton = tr( "Load song" );
+	m_sLoadPatternButton = tr( "Load pattern" );
+	/*: Button in the embedded plugin UI opening the full graphical
+	 *  editor. */
+	m_sOpenEditorButton = tr( "Open editor" );
+	/*: Title of the file browser for songs in the embedded plugin
+	 *  UI. */
+	m_sSongFileDialogTitle = tr( "Choose a song file" );
+	/*: Title of the file browser for patterns in the embedded plugin
+	 *  UI. */
+	m_sPatternFileDialogTitle = tr( "Choose a pattern file" );
+	/*: Title of the directory browser for drumkits in the embedded
+	 *  plugin UI. */
+	m_sDrumkitFileDialogTitle = tr( "Choose a drumkit folder" );
+	/*: Section header above the MIDI settings in the embedded plugin
+	 *  UI. */
+	m_sMidiConfigurationHeader = tr( "MIDI configuration" );
+	/*: Checkbox in the embedded plugin UI; when checked, hydrogen
+	 *  swallows incoming note-off events. */
+	m_sIgnoreNoteOffLabel = tr( "Ignore note-off" );
+	/*: Label of the MIDI channel carrying action messages in the
+	 *  embedded plugin UI. */
+	m_sActionChannelLabel = tr( "Action channel" );
+	/*: Combo label in the embedded plugin UI controlling whether
+	 *  note-off events are forwarded to the output. */
+	m_sSendNoteOffLabel = tr( "Send note-off messages" );
+	/*: Button applying the MIDI configuration in the embedded plugin
+	 *  UI. */
+	m_sApplyButton = tr( "Apply" );
+	/*: Checkbox deciding whether a loaded pattern replaces the
+	 *  pattern's notes or adds to them in the embedded plugin UI. */
+	m_sReplaceLabel = tr( "Replace" );
+	/*: Option of the note-off combo in the embedded plugin UI;
+	 *  note-off events are only sent for notes with a custom note
+	 *  length. */
+	m_sOptionOnCustomNoteLengths = tr( "On custom note lengths" );
+	/*: Section header of the note mapping table in the embedded
+	 *  plugin UI. */
+	m_sNoteMappingHeader = tr( "Note mapping" );
+	/*: Label of the MIDI channel all input notes respond to in the
+	 *  embedded plugin UI. */
+	m_sGlobalChannelLabel = tr( "Global channel" );
+	/*: Checkbox making an instrument follow the global input channel
+	 *  in the embedded plugin UI. */
+	m_sUseGlobalChannelLabel = tr( "Use global channel" );
+	/*: Column header of the note mapping table's event source side in
+	 *  the embedded plugin UI. */
+	m_sInputHeader = tr( "Input" );
+	/*: Column header of the note mapping table's event target side in
+	 *  the embedded plugin UI. */
+	m_sOutputHeader = tr( "Output" );
+	/*: Label of the output bus selector in the embedded plugin UI. */
+	m_sBusLabel = tr( "Bus" );
+	/*: Button resetting a mixer strip in the embedded plugin UI. */
+	m_sResetButton = tr( "Reset" );
+	/*: Checkbox limiting the mixer tab of the embedded plugin UI to
+	 *  the master strip. */
+	m_sMasterOnlyLabel = tr( "Master only" );
+}
+
+QString CommonStrings::getChannelDisplayName( Midi::Channel channel ) const
+{
+	if ( channel == Midi::ChannelAll ) {
+		return m_sAllLabel;
+	}
+	if ( channel == Midi::ChannelOff || channel == Midi::ChannelInvalid ) {
+		return m_sStatusOff;
+	}
+	return QString::number( static_cast<int>( channel ) );
 }
 
 CommonStrings::~CommonStrings(){}
+
+} // namespace H2Core

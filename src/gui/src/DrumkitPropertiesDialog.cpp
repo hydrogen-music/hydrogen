@@ -24,7 +24,7 @@
 
 #include "DrumkitPropertiesDialog.h"
 
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "PatternEditor/PatternEditor.h"

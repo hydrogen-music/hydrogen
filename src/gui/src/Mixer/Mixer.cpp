@@ -25,7 +25,7 @@
 #include "MixerLine.h"
 #include "MasterLine.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../MainToolBar/MainToolBar.h"
 #include "../Widgets/Button.h"
@@ -50,10 +50,11 @@ using namespace H2Core;
 Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
 {
-	setWindowTitle( tr( "Mixer" ) );
+	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
+
+	setWindowTitle( pCommonStrings->getMixerTab() );
 
 	auto pPref = HydrogenApp::pPreferences();
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	const int nFixedHeight = MasterLine::nHeight;
 

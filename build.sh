@@ -310,10 +310,13 @@ function update_translations() {
 		H_CORE=`find src/core | grep "\.h$"`
 		FILES="$UI_GUI $CPP_GUI $CPP_CORE $H_GUI $H_CORE"
 
+		# The include path is required to resolve angle includes, e.g.
+		# <core/CommonStrings.h>, and to associate the tr() calls within
+		# the corresponding classes.
 		if [[ -z "$SILENT" ]]; then
-			CMD_LUPDATE="$LUPDATE -noobsolete ${FILES} -ts"
+			CMD_LUPDATE="$LUPDATE -noobsolete -I src ${FILES} -ts"
 		else
-			CMD_LUPDATE="$LUPDATE -noobsolete ${FILES} -ts -silent"
+			CMD_LUPDATE="$LUPDATE -noobsolete -I src ${FILES} -ts -silent"
 		fi
 
 		echo -e " * update translation files'\n"

@@ -33,7 +33,7 @@
 #include <memory>
 #include <vector>
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"

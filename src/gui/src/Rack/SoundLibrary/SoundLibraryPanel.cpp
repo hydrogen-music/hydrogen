@@ -29,7 +29,7 @@
 #include "InfoView.h"
 #include "SoundLibraryTree.h"
 #include "../Rack.h"
-#include "../../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../../HydrogenApp.h"
 #include "core/SoundLibrary/SoundLibraryInfo.h"
 

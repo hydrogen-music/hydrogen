@@ -53,7 +53,7 @@
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "Director.h"
 #include "DrumkitPropertiesDialog.h"
 #include "ExportMidiDialog.h"

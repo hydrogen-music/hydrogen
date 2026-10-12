@@ -27,6 +27,9 @@
 #include <QString>
 
 #include <core/Basics/Note.h>
+#include <core/Midi/Midi.h>
+
+namespace H2Core {
 
 /** A container class to collect all translatable strings at one place
 	in order to allow for the reusage. This will (some day) make
@@ -46,6 +49,10 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	/** This function does not use #H2Core::Note::Octave since it is supposed to
 	 * work outside of its valid range. */
 	static QString createPitchLabel( H2Core::Note::Key key, int nOctave );
+	/** The bare note class name of @a key ("C", "C#", … "B") — the
+	 *  single source of the note labels; the octave form above
+	 *  appends to it. */
+	static QString createPitchLabel( H2Core::Note::Key key );
 
 	CommonStrings();
 	~CommonStrings();
@@ -738,18 +745,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		return m_sNotePropertyLength;
 	}
 
-	const QString& getNotePitchC() const { return m_sNotePitchC; }
-	const QString& getNotePitchCSharp() const { return m_sNotePitchCSharp; }
-	const QString& getNotePitchD() const { return m_sNotePitchD; }
-	const QString& getNotePitchDSharp() const { return m_sNotePitchDSharp; }
-	const QString& getNotePitchE() const { return m_sNotePitchE; }
-	const QString& getNotePitchF() const { return m_sNotePitchF; }
-	const QString& getNotePitchFSharp() const { return m_sNotePitchFSharp; }
-	const QString& getNotePitchG() const { return m_sNotePitchG; }
-	const QString& getNotePitchGSharp() const { return m_sNotePitchGSharp; }
-	const QString& getNotePitchA() const { return m_sNotePitchA; }
-	const QString& getNotePitchASharp() const { return m_sNotePitchASharp; }
-	const QString& getNotePitchB() const { return m_sNotePitchB; }
 
 	const QString& getErrorNotFound() const { return m_sErrorNotFound; }
 	const QString& getErrorNotFoundShort() const
@@ -794,7 +789,68 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getDescriptionLabel() const { return m_sDescriptionLabel; }
 	const QString& getNoteCountLabel() const { return m_sNoteCountLabel; }
 
-   private:
+	// Strings of the embedded plugin UI (proposal 0006). They live here
+	// so that GUI and plugin share one translation context and the
+	// existing catalogs apply to both. Texts already present in the GUI
+	// vocabulary are reused instead of duplicated.
+	const QString& getMappingTab() const { return m_sMappingTab; }
+	const QString& getMixerTab() const { return m_sMixerTab; }
+	const QString& getLoadSongButton() const { return m_sLoadSongButton; }
+	const QString& getLoadPatternButton() const {
+		return m_sLoadPatternButton;
+	}
+	const QString& getOpenEditorButton() const {
+		return m_sOpenEditorButton;
+	}
+	const QString& getSongFileDialogTitle() const {
+		return m_sSongFileDialogTitle;
+	}
+	const QString& getPatternFileDialogTitle() const {
+		return m_sPatternFileDialogTitle;
+	}
+	const QString& getDrumkitFileDialogTitle() const {
+		return m_sDrumkitFileDialogTitle;
+	}
+	const QString& getMidiConfigurationHeader() const {
+		return m_sMidiConfigurationHeader;
+	}
+	const QString& getIgnoreNoteOffLabel() const {
+		return m_sIgnoreNoteOffLabel;
+	}
+	const QString& getActionChannelLabel() const {
+		return m_sActionChannelLabel;
+	}
+	const QString& getSendNoteOffLabel() const {
+		return m_sSendNoteOffLabel;
+	}
+	const QString& getApplyButton() const { return m_sApplyButton; }
+	const QString& getReplaceLabel() const { return m_sReplaceLabel; }
+	const QString& getOptionOnCustomNoteLengths() const {
+		return m_sOptionOnCustomNoteLengths;
+	}
+	const QString& getNoteMappingHeader() const {
+		return m_sNoteMappingHeader;
+	}
+	const QString& getGlobalChannelLabel() const {
+		return m_sGlobalChannelLabel;
+	}
+	const QString& getUseGlobalChannelLabel() const {
+		return m_sUseGlobalChannelLabel;
+	}
+	const QString& getInputHeader() const { return m_sInputHeader; }
+	const QString& getOutputHeader() const { return m_sOutputHeader; }
+	const QString& getBusLabel() const { return m_sBusLabel; }
+	const QString& getResetButton() const { return m_sResetButton; }
+	const QString& getMasterOnlyLabel() const { return m_sMasterOnlyLabel; }
+	/** The display name of @a channel — getAllLabel() for
+	 * #Midi::ChannelAll, getStatusOff() for #Midi::ChannelOff and for
+	 * the invalid -2 of unmapped rows (the GUI disables those widgets
+	 * instead), the number itself for 1..16 — the convention of the
+	 * channel dropdowns and the read-only mapping rows (the GUI's
+	 * channel spinboxes show the same). */
+	QString getChannelDisplayName( Midi::Channel channel ) const;
+
+    private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
 	QString m_sBigMuteButton;
@@ -1123,19 +1179,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sNotePropertyProbability;
 	QString m_sNotePropertyLength;
 
-	QString m_sNotePitchC;
-	QString m_sNotePitchCSharp;
-	QString m_sNotePitchD;
-	QString m_sNotePitchDSharp;
-	QString m_sNotePitchE;
-	QString m_sNotePitchF;
-	QString m_sNotePitchFSharp;
-	QString m_sNotePitchG;
-	QString m_sNotePitchGSharp;
-	QString m_sNotePitchA;
-	QString m_sNotePitchASharp;
-	QString m_sNotePitchB;
-
 	QString m_sEncodingError;
 
 	QString m_sSettings;
@@ -1167,5 +1210,30 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sSamplesLabel;
 	QString m_sDescriptionLabel;
 	QString m_sNoteCountLabel;
+	QString m_sMappingTab;
+	QString m_sMixerTab;
+	QString m_sLoadSongButton;
+	QString m_sLoadPatternButton;
+	QString m_sOpenEditorButton;
+	QString m_sSongFileDialogTitle;
+	QString m_sPatternFileDialogTitle;
+	QString m_sDrumkitFileDialogTitle;
+	QString m_sMidiConfigurationHeader;
+	QString m_sIgnoreNoteOffLabel;
+	QString m_sActionChannelLabel;
+	QString m_sSendNoteOffLabel;
+	QString m_sApplyButton;
+	QString m_sReplaceLabel;
+	QString m_sOptionOnCustomNoteLengths;
+	QString m_sNoteMappingHeader;
+	QString m_sGlobalChannelLabel;
+	QString m_sUseGlobalChannelLabel;
+	QString m_sInputHeader;
+	QString m_sOutputHeader;
+	QString m_sBusLabel;
+	QString m_sResetButton;
+	QString m_sMasterOnlyLabel;
 };
+
+} // namespace H2Core
 #endif

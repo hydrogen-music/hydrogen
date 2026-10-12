@@ -23,7 +23,7 @@
 
 #include "PatternFillDialog.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDSpinBox.h"

@@ -49,7 +49,7 @@
 #include <core/Version.h>
 
 #include "AudioEngineInfoForm.h"
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "Director.h"
 #include "Footer/Footer.h"
 #include "FilesystemInfoForm.h"
@@ -834,7 +834,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	setWindowProperties( m_pMixer, mixerProp );
 
 	if( layout == InterfaceTheme::Layout::Tabbed ){
-		m_pTab->addTab(m_pMixer,tr("Mixer"));
+		m_pTab->addTab( m_pMixer, m_pCommonStrings->getMixerTab() );
 	}
 
 	m_pMixer->updateMixer();

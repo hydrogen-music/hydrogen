@@ -247,7 +247,9 @@ engine state (mirror assertions).
 plugin gate (14/14) green, the window smoke PASSED with the views rendering
 on a real embed. TU4.0's gate: 36 approved `PluginUiStrings` strings
 (feedback + transport deliberately unexposed — engine-side, settable via
-the editor); the catalog wiring lands at UI-6 (TU6.1). TU4.4 added
+the editor; the class was later absorbed into
+`src/core/CommonStrings.h` at UI-6, see TU6.1); the catalog wiring
+lands at UI-6 (TU6.1). TU4.4 added
 `Instrument::m_nOutputBus` through the full members-changes checklist
 (ADR 0019: explicit-only persistence). The REAPER spike gate found the
 deferred input translation still missing (the X11 backend only counted
@@ -409,10 +411,20 @@ green.
 
 **Tasks**
 
-* **TU6.1** i18n wiring per the TU4.0 decision: the plugin-side string class
-  joins the existing `data/i18n` catalogs (the plugin already links Qt Gui,
-  so `Q_DECLARE_TR_FUNCTIONS` applies; not `CommonStrings.h` — that lives in
-  `src/gui`, which the plugin must not link).
+* **TU6.1** i18n wiring — **landed (2026-10-12)**:
+  `HydrogenPlugin::installTranslator()` loads the hydrogen catalog for
+  the user's preferred languages onto the process's QCoreApplication
+  (the host's if it runs one, else the ensured minimal one), with a
+  remove-probe making it idempotent and self-healing;
+  `testTranslatorInstallation` covers it (suite 507). Same-day
+  follow-up superseding the TU4.0 default: `CommonStrings` moved from
+  `src/gui/src/` to `src/core/` (namespace `H2Core`; Qt keys catalogs
+  on the stringified class name, so all 327×21 existing translations
+  survive byte-identical) and absorbed the plugin's string class — 13
+  texts reuse existing GUI entries, 25 new getters plus
+  `getChannelDisplayName()`; `PluginUiStrings` is deleted and its
+  catalog context never enters git. GUI and plugin share one
+  translation source now.
 * **TU6.2** DPI/scale and focus/IME fixes from the spike findings, plus
   the Win32/macOS input translation wiring (X11 landed with UI-4 after
   the REAPER spike found the gap — the backend had only counted events;

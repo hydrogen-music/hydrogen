@@ -25,7 +25,7 @@
 #include "SongEditor.h"
 
 #include "../AudioFileBrowser/AudioFileBrowser.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
 #include "../MainToolBar/MainToolBar.h"

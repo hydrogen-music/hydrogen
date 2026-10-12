@@ -163,7 +163,6 @@ NotePropertiesRuler::NotePropertiesRuler(
 	m_instance = Editor::Instance::NotePropertiesRuler;
 	m_nGridHeight = NotePropertiesRuler::nKeyLineHeight;
 
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_property = property;
 
 	m_fGridWidth = ( HydrogenApp::pPreferences() )->getPatternEditorGridWidth();
@@ -209,20 +208,14 @@ NotePropertiesRuler::NotePropertiesRuler(
 			) );
 		}
 
-		// Annotate with note class names
-		static QStringList noteNames = QStringList()
-									   << pCommonStrings->getNotePitchB()
-									   << pCommonStrings->getNotePitchASharp()
-									   << pCommonStrings->getNotePitchA()
-									   << pCommonStrings->getNotePitchGSharp()
-									   << pCommonStrings->getNotePitchG()
-									   << pCommonStrings->getNotePitchFSharp()
-									   << pCommonStrings->getNotePitchF()
-									   << pCommonStrings->getNotePitchE()
-									   << pCommonStrings->getNotePitchDSharp()
-									   << pCommonStrings->getNotePitchD()
-									   << pCommonStrings->getNotePitchCSharp()
-									   << pCommonStrings->getNotePitchC();
+		// Annotate with note class names — the rows run top-down from
+		// the octave's highest pitch, so the keys count DOWN from B
+		// (Note::Key counts up from C).
+		static QStringList noteNames;
+		for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
+			noteNames << CommonStrings::createPitchLabel(
+				static_cast<Note::Key>( KEYS_PER_OCTAVE - 1 - nnKey ) );
+		}
 
 		for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
 			const int nY = NotePropertiesRuler::nOctaveHeight -

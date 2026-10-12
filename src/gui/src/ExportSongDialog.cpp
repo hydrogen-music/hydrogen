@@ -25,7 +25,7 @@
 
 #include "ExportSongDialog.h"
 
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
 #include "Widgets/FileDialog.h"

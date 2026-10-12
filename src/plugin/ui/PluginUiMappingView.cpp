@@ -29,12 +29,13 @@
 
 #include <imgui.h>
 
-#include "PluginUiStrings.h"
+#include <core/CommonStrings.h>
+#include <plugin/HydrogenPlugin.h>
 
 namespace H2Core {
 
 PluginUiMappingView::PluginUiMappingView( HydrogenPlugin* pPlugin )
-	: m_model( pPlugin )
+	: m_model( pPlugin ), m_pCommonStrings( pPlugin->commonStrings() )
 {
 }
 
@@ -46,7 +47,7 @@ void PluginUiMappingView::draw()
 		return;
 	}
 
-	ImGui::TextUnformatted( PluginUiStrings::noteMappingHeader().toUtf8()
+	ImGui::TextUnformatted( m_pCommonStrings->getNoteMappingHeader().toUtf8()
 								.constData() );
 
 	// Map-wide settings, applied on change. The combo entries must
@@ -67,7 +68,7 @@ void PluginUiMappingView::draw()
 		sInputOrder.constData()
 	};
 	int nInputMode = static_cast<int>( pMap->getInput() );
-	if ( ImGui::Combo( PluginUiStrings::inputHeader().toUtf8()
+	if ( ImGui::Combo( m_pCommonStrings->getInputHeader().toUtf8()
 						   .constData(),
 					   &nInputMode, sInputModes, 5 ) ) {
 		m_model.setInputMode(
@@ -85,7 +86,7 @@ void PluginUiMappingView::draw()
 		sOutputConstant.constData()
 	};
 	int nOutputMode = static_cast<int>( pMap->getOutput() );
-	if ( ImGui::Combo( PluginUiStrings::outputHeader().toUtf8()
+	if ( ImGui::Combo( m_pCommonStrings->getOutputHeader().toUtf8()
 						   .constData(),
 					   &nOutputMode, sOutputModes, 3 ) ) {
 		m_model.setOutputMode(
@@ -100,7 +101,7 @@ void PluginUiMappingView::draw()
 	QByteArray sChannelEntries[ 18 ];
 	const char* sChannelEntryPtrs[ 18 ];
 	for ( int n = 0; n < 18; ++n ) {
-		sChannelEntries[ n ] = PluginUiStrings::channelDisplayName(
+		sChannelEntries[ n ] = m_pCommonStrings->getChannelDisplayName(
 			Midi::channelFromInt( n - 1 ) ).toUtf8();
 		sChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
 	}
@@ -108,8 +109,8 @@ void PluginUiMappingView::draw()
 	// Global channels — dropdowns with the GUI's spinbox texts (all
 	// channels, Off, 1..16). The "##" suffixes keep the twice-used
 	// labels' imgui IDs apart.
-	const auto sUseGlobalInput = ( PluginUiStrings::
-									   useGlobalChannelLabel() +
+	const auto sUseGlobalInput = ( m_pCommonStrings->
+									   getUseGlobalChannelLabel() +
 								   "##input" ).toUtf8();
 	bool bUseGlobalInput = pMap->getUseGlobalInputChannel();
 	if ( ImGui::Checkbox( sUseGlobalInput.constData(),
@@ -117,8 +118,8 @@ void PluginUiMappingView::draw()
 		m_model.setUseGlobalInputChannel( bUseGlobalInput );
 	}
 	ImGui::SameLine();
-	const auto sGlobalInputChannel = ( PluginUiStrings::
-											globalChannelLabel() +
+	const auto sGlobalInputChannel = ( m_pCommonStrings->
+											getGlobalChannelLabel() +
 										"##input" ).toUtf8();
 	int nGlobalInputChannel =
 		static_cast<int>( pMap->getGlobalInputChannel() ) + 1;
@@ -129,8 +130,8 @@ void PluginUiMappingView::draw()
 			Midi::channelFromInt( nGlobalInputChannel - 1 ) );
 	}
 
-	const auto sUseGlobalOutput = ( PluginUiStrings::
-										useGlobalChannelLabel() +
+	const auto sUseGlobalOutput = ( m_pCommonStrings->
+										getUseGlobalChannelLabel() +
 									"##output" ).toUtf8();
 	bool bUseGlobalOutput = pMap->getUseGlobalOutputChannel();
 	if ( ImGui::Checkbox( sUseGlobalOutput.constData(),
@@ -138,8 +139,8 @@ void PluginUiMappingView::draw()
 		m_model.setUseGlobalOutputChannel( bUseGlobalOutput );
 	}
 	ImGui::SameLine();
-	const auto sGlobalOutputChannel = ( PluginUiStrings::
-											globalChannelLabel() +
+	const auto sGlobalOutputChannel = ( m_pCommonStrings->
+											getGlobalChannelLabel() +
 										"##output" ).toUtf8();
 	int nGlobalOutputChannel =
 		static_cast<int>( pMap->getGlobalOutputChannel() ) + 1;
@@ -155,17 +156,17 @@ void PluginUiMappingView::draw()
 	// The per-instrument input rows: the effective incoming
 	// note/channel, editable only in Custom mode (the only mode with
 	// per-instrument rows).
-	ImGui::TextUnformatted( PluginUiStrings::inputHeader().toUtf8()
+	ImGui::TextUnformatted( m_pCommonStrings->getInputHeader().toUtf8()
 								.constData() );
 	ImGui::PushID( "input" );
 	if ( ImGui::BeginTable( "##table", 3,
 							ImGuiTableFlags_Borders |
 								ImGuiTableFlags_RowBg ) ) {
-		ImGui::TableSetupColumn( PluginUiStrings::instrumentColumn()
+		ImGui::TableSetupColumn( m_pCommonStrings->getInstrumentButton()
 									.toUtf8().constData() );
-		ImGui::TableSetupColumn( PluginUiStrings::noteColumn()
+		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutNoteLabel()
 									.toUtf8().constData() );
-		ImGui::TableSetupColumn( PluginUiStrings::channelColumn()
+		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutChannelLabel()
 									.toUtf8().constData() );
 		ImGui::TableHeadersRow();
 
@@ -196,7 +197,7 @@ void PluginUiMappingView::draw()
 			// Unmapped in this mode (e.g. Selected Instrument): the
 			// GUI disables the widgets — the read-only row reads
 			// "Off" for both fields.
-			const auto sOff = PluginUiStrings::optionOff().toUtf8();
+			const auto sOff = m_pCommonStrings->getStatusOff().toUtf8();
 			ImGui::TextUnformatted( sOff.constData(),
 									sOff.constData() + sOff.size() );
 		}
@@ -215,7 +216,7 @@ void PluginUiMappingView::draw()
 			}
 		}
 		else {
-			const auto sChannel = PluginUiStrings::channelDisplayName(
+			const auto sChannel = m_pCommonStrings->getChannelDisplayName(
 				mapping.channel ).toUtf8();
 			ImGui::TextUnformatted( sChannel.constData(),
 									sChannel.constData() +
@@ -229,17 +230,17 @@ void PluginUiMappingView::draw()
 
 	// The per-instrument output rows: the instrument's outgoing
 	// note/channel.
-	ImGui::TextUnformatted( PluginUiStrings::outputHeader().toUtf8()
+	ImGui::TextUnformatted( m_pCommonStrings->getOutputHeader().toUtf8()
 								.constData() );
 	ImGui::PushID( "output" );
 	if ( ImGui::BeginTable( "##table", 3,
 							ImGuiTableFlags_Borders |
 								ImGuiTableFlags_RowBg ) ) {
-		ImGui::TableSetupColumn( PluginUiStrings::instrumentColumn()
+		ImGui::TableSetupColumn( m_pCommonStrings->getInstrumentButton()
 									.toUtf8().constData() );
-		ImGui::TableSetupColumn( PluginUiStrings::noteColumn()
+		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutNoteLabel()
 									.toUtf8().constData() );
-		ImGui::TableSetupColumn( PluginUiStrings::channelColumn()
+		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutChannelLabel()
 									.toUtf8().constData() );
 		ImGui::TableHeadersRow();
 

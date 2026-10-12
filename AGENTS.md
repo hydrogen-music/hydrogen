@@ -38,9 +38,9 @@ codebase.
 - All user-fronting string have to be translatable.
 - You always have to ask before adding or changing a translatable string.
 - All new translatable strings have to be added to
-  `src/gui/src/CommonStrings.h`.
+  `src/core/CommonStrings.h`.
 - Try to reuse the existing translatable strings in
-  `src/gui/src/CommonStrings.h` as much as possible.
+  `src/core/CommonStrings.h` as much as possible.
 - If the translatable string should contain a formatting placeholder, try to put
   it at the end and concatenate it instead of including it into `tr()`.
 

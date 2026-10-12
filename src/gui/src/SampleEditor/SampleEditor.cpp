@@ -22,7 +22,7 @@
 
 #include "SampleEditor.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"

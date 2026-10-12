@@ -26,10 +26,13 @@
 #ifndef H2C_PLUGIN_UI_MAPPING_VIEW_H
 #define H2C_PLUGIN_UI_MAPPING_VIEW_H
 
+#include <memory>
+
 #include "PluginUiMappingModel.h"
 
 namespace H2Core {
 
+class CommonStrings;
 class HydrogenPlugin;
 
 class PluginUiMappingView
@@ -42,6 +45,7 @@ public:
 
 private:
 	PluginUiMappingModel m_model;
+	std::shared_ptr<CommonStrings> m_pCommonStrings;
 };
 
 } // namespace H2Core

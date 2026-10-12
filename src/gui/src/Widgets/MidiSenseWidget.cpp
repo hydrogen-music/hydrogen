@@ -22,7 +22,7 @@
 
 #include "MidiSenseWidget.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../MainToolBar/MainToolBar.h"
 #include "../MainToolBar/MidiActionTable.h"

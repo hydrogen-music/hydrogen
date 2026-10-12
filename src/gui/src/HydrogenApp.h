@@ -60,6 +60,7 @@ constexpr int nSongModifiedResyncCapMs = 1000;
 
 namespace H2Core
 {
+	class CommonStrings;
 	class EditorSession;
 	class EventQueue;
 	class Hydrogen;
@@ -72,7 +73,6 @@ namespace H2Core
 }
 
 class AudioEngineInfoForm;
-class CommonStrings;
 class ComponentEditor;
 class Director;
 class FilesystemInfoForm;
@@ -246,7 +246,7 @@ class HydrogenApp : public QObject,
 	void setHideKeyboardCursor( bool bHidden );
 
 	AudioEngineInfoForm* getAudioEngineInfoForm() const;
-	std::shared_ptr<CommonStrings> getCommonStrings() const;
+	std::shared_ptr<H2Core::CommonStrings> getCommonStrings() const;
 	ComponentEditor* getComponentEditor() const;
 	Director* getDirector() const;
 	Footer* getFooter() const;
@@ -479,7 +479,7 @@ class HydrogenApp : public QObject,
 	std::vector<EventListener*> m_eventListeners;
 	std::set<EventListener*> m_eventListenersToAdd;
 	std::set<EventListener*> m_eventListenersToRemove;
-	std::shared_ptr<CommonStrings> m_pCommonStrings;
+	std::shared_ptr<H2Core::CommonStrings> m_pCommonStrings;
 
 	bool m_bHideKeyboardCursor;
 	QTimer* m_pPreferencesUpdateTimer;
@@ -578,7 +578,7 @@ inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm() const
 {
 	return m_pAudioEngineInfoForm;
 }
-inline std::shared_ptr<CommonStrings> HydrogenApp::getCommonStrings() const
+inline std::shared_ptr<H2Core::CommonStrings> HydrogenApp::getCommonStrings() const
 {
 	return m_pCommonStrings;
 }

@@ -27,7 +27,7 @@ https://www.gnu.org/licenses
 #include "BpmTap.h"
 #include "MidiControlButton.h"
 #include "MidiControlDialog.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Director.h"
 #include "../HydrogenApp.h"
 #include "../Rack/Rack.h"

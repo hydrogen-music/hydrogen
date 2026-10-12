@@ -28,7 +28,8 @@
 #include "PluginUiLandingView.h"
 #include "PluginUiMappingView.h"
 #include "PluginUiMixerView.h"
-#include "PluginUiStrings.h"
+#include <core/CommonStrings.h>
+#include <plugin/HydrogenPlugin.h>
 
 #include <imgui.h>
 
@@ -79,6 +80,7 @@ public:
 		// The real views (UI-4) ride on a plugin engine; without one the
 		// spike panel stays (the smoke's plugin-less path).
 		if ( pPlugin != nullptr ) {
+			m_pCommonStrings = pPlugin->commonStrings();
 			m_pLandingView = std::make_unique<PluginUiLandingView>( pPlugin );
 			m_pMappingView = std::make_unique<PluginUiMappingView>( pPlugin );
 			m_pMixerView = std::make_unique<PluginUiMixerView>( pPlugin );
@@ -124,17 +126,17 @@ public:
 		if ( m_pLandingView != nullptr ) {
 			// The real views (UI-4): the three tabs over their models.
 			if ( ImGui::BeginTabBar( "##tabs" ) ) {
-			if ( ImGui::BeginTabItem( PluginUiStrings::generalTab()
+			if ( ImGui::BeginTabItem( m_pCommonStrings->getTabGeneralDialog()
 							  .toUtf8().constData() ) ) {
 					m_pLandingView->draw();
 					ImGui::EndTabItem();
 				}
-				if ( ImGui::BeginTabItem( PluginUiStrings::mappingTab()
+				if ( ImGui::BeginTabItem( m_pCommonStrings->getMappingTab()
 											  .toUtf8().constData() ) ) {
 					m_pMappingView->draw();
 					ImGui::EndTabItem();
 				}
-				if ( ImGui::BeginTabItem( PluginUiStrings::mixerTab()
+				if ( ImGui::BeginTabItem( m_pCommonStrings->getMixerTab()
 											  .toUtf8().constData() ) ) {
 					m_pMixerView->draw();
 					ImGui::EndTabItem();
@@ -172,6 +174,9 @@ public:
 	std::unique_ptr<PluginUiLandingView> m_pLandingView;
 	std::unique_ptr<PluginUiMappingView> m_pMappingView;
 	std::unique_ptr<PluginUiMixerView> m_pMixerView;
+	// The views' shared string source; null on the spike path, and the
+	// tab labels below only draw under the landing-view guard.
+	std::shared_ptr<CommonStrings> m_pCommonStrings;
 	unsigned m_nFrames = 0;
 };
 

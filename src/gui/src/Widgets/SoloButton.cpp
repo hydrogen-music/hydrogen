@@ -22,7 +22,7 @@
 
 #include "SoloButton.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 
 #include <core/Preferences/Preferences.h>

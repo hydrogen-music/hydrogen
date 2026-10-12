@@ -36,7 +36,7 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "PianoRollEditor.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Compatibility/DropEvent.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../DrumkitPropertiesDialog.h"

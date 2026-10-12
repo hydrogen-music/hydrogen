@@ -33,9 +33,11 @@
 #include <plugin/ui/PluginUiLandingModel.h>
 #include <plugin/ui/PluginUiMappingModel.h>
 #include <plugin/ui/PluginUiMixerModel.h>
-#include <plugin/ui/PluginUiStrings.h>
+#include <core/CommonStrings.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
+#include <QTranslator>
 
 #include "TestHelper.h"
 
@@ -391,18 +393,51 @@ void PluginUiModelTest::testChannelDisplayName()
 	// The channel dropdowns' display convention (the GUI's channel
 	// spinboxes show the same): -1 reads "All", 0 reads "Off", 1..16
 	// read as themselves. The invalid -2 of unmapped rows reads "Off"
-	// too — the GUI disables those widgets instead. Pure static — no
-	// engine needed.
-	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(
+	// too — the GUI disables those widgets instead. A bare instance —
+	// no engine needed.
+	const CommonStrings strings;
+	CPPUNIT_ASSERT( strings.getChannelDisplayName(
 						Midi::ChannelAll ) == "All" );
-	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(
+	CPPUNIT_ASSERT( strings.getChannelDisplayName(
 						Midi::ChannelOff ) == "Off" );
-	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(
+	CPPUNIT_ASSERT( strings.getChannelDisplayName(
 						Midi::ChannelInvalid ) == "Off" );
-	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(
+	CPPUNIT_ASSERT( strings.getChannelDisplayName(
 						Midi::Channel( 1 ) ) == "1" );
-	CPPUNIT_ASSERT( PluginUiStrings::channelDisplayName(
+	CPPUNIT_ASSERT( strings.getChannelDisplayName(
 						Midi::Channel( 16 ) ) == "16" );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testCreatePitchLabel()
+{
+	___INFOLOG( "" );
+
+	// English is deterministic here: the suite installs no translator
+	// (testTranslatorInstallation deliberately leaves it removed).
+	const auto keyLabel = []( Note::Key key ) {
+		return CommonStrings::createPitchLabel( key );
+	};
+	CPPUNIT_ASSERT( keyLabel( Note::Key::C ) == "C" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::Cs ) == "C#" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::D ) == "D" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::Ef ) == "D#" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::E ) == "E" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::F ) == "F" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::Fs ) == "F#" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::G ) == "G" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::Af ) == "G#" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::A ) == "A" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::Bf ) == "A#" );
+	CPPUNIT_ASSERT( keyLabel( Note::Key::B ) == "B" );
+
+	// The octave form appends the number, deliberately unclamped (the
+	// header's doc: works outside Note::Octave's valid range).
+	CPPUNIT_ASSERT( CommonStrings::createPitchLabel( Note::Key::C, 4 )
+					== "C4" );
+	CPPUNIT_ASSERT( CommonStrings::createPitchLabel( Note::Key::Bf, -1 )
+					== "A#-1" );
 
 	___INFOLOG( "passed" );
 }
@@ -556,6 +591,43 @@ void PluginUiModelTest::testMixerModelBusCommands()
 	CPPUNIT_ASSERT( model.setInstrumentOutputBus( 0, -1 ) );
 	CPPUNIT_ASSERT( pInstrument->getOutputBus() == -1 );
 	CPPUNIT_ASSERT( model.effectiveOutputBus( 0, 4 ) == 0 );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testTranslatorInstallation()
+{
+	___INFOLOG( "" );
+
+	// A language with a shipped catalog is forced — the suite's system
+	// data folder is redirected to the repo's data/, so hydrogen_cs.qm is
+	// there — keeping the test independent of the host machine's locale
+	// (the CI drumkit-path lesson: no environment-dependent greens).
+	const QStringList languages = QStringList() << "cs";
+
+	CPPUNIT_ASSERT( HydrogenPlugin::installTranslator( languages ) );
+	// Idempotent: a second call neither reports failure nor disturbs the
+	// installed state.
+	CPPUNIT_ASSERT( HydrogenPlugin::installTranslator( languages ) );
+
+	QTranslator* pTranslator = HydrogenPlugin::translator();
+	CPPUNIT_ASSERT( pTranslator != nullptr );
+	// A loaded catalog is non-empty.
+	CPPUNIT_ASSERT( ! pTranslator->isEmpty() );
+
+	// QCoreApplication offers no "is installed" query; removeTranslator's
+	// bool return is the only probe — true proves the wiring actually
+	// installed this exact translator on the application instance.
+	QCoreApplication* pApp = QCoreApplication::instance();
+	CPPUNIT_ASSERT( pApp != nullptr );
+	CPPUNIT_ASSERT( pApp->removeTranslator( pTranslator ) );
+
+	// Deliberately left removed: the catalogs carry CommonStrings
+	// translations (the plugin UI reads the same strings), so an
+	// installed Czech catalog would translate them for every test
+	// running later and make their assertions order-dependent. The
+	// wiring reinstalls the translator on its next call (the
+	// remove-probe above is self-healing).
 
 	___INFOLOG( "passed" );
 }

@@ -31,7 +31,7 @@
 #include "ComponentView.h"
 #include "../Rack.h"
 #include "../../AudioFileBrowser/AudioFileBrowser.h"
-#include "../../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
 #include "../../UndoActions.h"

@@ -24,7 +24,7 @@ https://www.gnu.org/licenses
 #include "Footer.h"
 
 #include "StatusMessageDisplay.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 
 #include <core/Hydrogen.h>

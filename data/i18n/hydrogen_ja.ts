@@ -733,49 +733,9 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Column Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a column number of the song editor grid value.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a pattern number.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Song Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a song number of the current playlist.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Instrument Number</source>
-        <extracomment>Label shown in the input capture dialog for querying an instrument number of the current drumkit.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Component Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a component number of the specified instrument.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Layer Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Pan</source>
         <extracomment>Name of note property adjustable in NotePropertiesRuler and via input * capture actions.</extracomment>
         <translation>パン</translation>
-    </message>
-    <message>
-        <source>Filter Cutoff</source>
-        <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation>カットオフフィルター</translation>
-    </message>
-    <message>
-        <source>Tag Text</source>
-        <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to export song</source>
@@ -1155,62 +1115,62 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>C</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C. It is designed to hold a single * character.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>C#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C#. It is designed to hold two * characters.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>D</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D. It is designed to hold a single * character.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>D#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D#. It is designed to hold two * characters.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>E</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note E. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note E. It is designed to hold a single * character.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F. It is designed to hold a single * character.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>F#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F#. It is designed to hold two * characters.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>G</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G. It is designed to hold a single * character.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>G#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G#. It is designed to hold two * characters.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A. It is designed to hold a single * character.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A#. It is designed to hold two * characters.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>B</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note B. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note B. It is designed to hold a single * character.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1939,6 +1899,159 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Status bar readout while the background sound library scan is * running. The percentage is appended (not part of the string) to * keep the placeholder out of the translation.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Column number</source>
+        <extracomment>Label shown in the input capture dialog for querying a column number of the song editor grid value.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern number</source>
+        <extracomment>Label shown in the input capture dialog for querying a pattern number.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song number</source>
+        <extracomment>Label shown in the input capture dialog for querying a song number of the current playlist.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Instrument number</source>
+        <extracomment>Label shown in the input capture dialog for querying an instrument number of the current drumkit.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component number</source>
+        <extracomment>Label shown in the input capture dialog for querying a component number of the specified instrument.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Layer number</source>
+        <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter cutoff</source>
+        <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
+        <translation>カットオフフィルター</translation>
+    </message>
+    <message>
+        <source>Tag text</source>
+        <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <extracomment>Tab of the embedded plugin UI listing song, pattern and drumkit * loading as well as the MIDI configuration.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <extracomment>Tab of the embedded plugin UI showing per-instrument mixer * strips.</extracomment>
+        <translation>ミキサー</translation>
+    </message>
+    <message>
+        <source>Load song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open editor</source>
+        <extracomment>Button in the embedded plugin UI opening the full graphical * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a song file</source>
+        <extracomment>Title of the file browser for songs in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a pattern file</source>
+        <extracomment>Title of the file browser for patterns in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a drumkit folder</source>
+        <extracomment>Title of the directory browser for drumkits in the embedded * plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI configuration</source>
+        <extracomment>Section header above the MIDI settings in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore note-off</source>
+        <extracomment>Checkbox in the embedded plugin UI; when checked, hydrogen * swallows incoming note-off events.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Action channel</source>
+        <extracomment>Label of the MIDI channel carrying action messages in the * embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send note-off messages</source>
+        <extracomment>Combo label in the embedded plugin UI controlling whether * note-off events are forwarded to the output.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <extracomment>Button applying the MIDI configuration in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <extracomment>Checkbox deciding whether a loaded pattern replaces the * pattern&apos;s notes or adds to them in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On custom note lengths</source>
+        <extracomment>Option of the note-off combo in the embedded plugin UI; * note-off events are only sent for notes with a custom note * length.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note mapping</source>
+        <extracomment>Section header of the note mapping table in the embedded * plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global channel</source>
+        <extracomment>Label of the MIDI channel all input notes respond to in the * embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use global channel</source>
+        <extracomment>Checkbox making an instrument follow the global input channel * in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <extracomment>Column header of the note mapping table&apos;s event source side in * the embedded plugin UI.</extracomment>
+        <translation>入力</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <extracomment>Column header of the note mapping table&apos;s event target side in * the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bus</source>
+        <extracomment>Label of the output bus selector in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <extracomment>Button resetting a mixer strip in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Master only</source>
+        <extracomment>Checkbox limiting the mixer tab of the embedded plugin UI to * the master strip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2393,10 +2506,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Instrument + Pattern</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <translation>ミキサー</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -3189,11 +3298,6 @@ It should work like a charm provided that you use the GMRockKit, and that you do
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Ignore note-off</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Enable MIDI feedback</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation type="unfinished"></translation>
@@ -3222,34 +3326,11 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Note Mapping</source>
-        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying how incoming and outgoing MIDI notes and the instruments of * the current drumkit should relate to eachother.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Global Channel</source>
-        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying whether (and which) all instruments of the current drumkit * should feature the same incoming and outgoing MIDI channel.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Instrument Mapping</source>
-        <extracomment>Tab of the MIDI control dialog dedicated to mapping MIDI notes to * instruments of the current drumkit.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Channel for MIDI actions and clock</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Channel for MIDI feedback and clock</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>On custom note lengths</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Send Note-Off messages</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3304,10 +3385,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
     <message>
         <source>Show instrument peaks = Off</source>
         <translation>インストルメントのピークの表示 = Off</translation>
-    </message>
-    <message>
-        <source>Mixer</source>
-        <translation>ミキサー</translation>
     </message>
     <message>
         <source>Mixer Settings</source>
@@ -5764,10 +5841,6 @@ Are you sure?</source>
     </message>
     <message>
         <source>Fill/remove range of pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

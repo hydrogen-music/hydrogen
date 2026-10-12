@@ -42,7 +42,7 @@
 #include <core/OscServer.h>
 #include <core/Sampler/Sampler.h>
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../MainToolBar/MainToolBar.h"

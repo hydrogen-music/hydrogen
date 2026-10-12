@@ -24,7 +24,7 @@
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION

@@ -22,7 +22,7 @@
 
 #include "OnlineImportSourcesDialog.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/StatusLED.h"

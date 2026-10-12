@@ -23,7 +23,7 @@
 
 #include "../Compatibility/MouseEvent.h"
 #include "../Compatibility/WheelEvent.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "MidiSenseWidget.h"
