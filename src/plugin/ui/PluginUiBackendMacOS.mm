@@ -41,13 +41,12 @@
 #include <new>
 #include <memory>
 
-namespace H2Core {
-
-namespace {
-
 // The fallback window's close button (top-level only): windowShouldClose:
 // records the request and refuses the close — the owner decides the
 // teardown (hide()/destruction), the window stays until then.
+// Objective-C class declarations are only legal at global scope (the
+// ObjC runtime keeps classes in a flat global namespace), so this block
+// must stay outside namespace H2Core.
 @interface H2PluginUiWindowDelegate : NSObject <NSWindowDelegate>
 @property (nonatomic, assign) BOOL shouldClose;
 @end
@@ -57,6 +56,10 @@ namespace {
 	return NO;
 }
 @end
+
+namespace H2Core {
+
+namespace {
 
 class PluginUiBackendMacOS : public PluginUiBackend {
 public:

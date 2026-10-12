@@ -77,7 +77,7 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
-	virtual QStringList getDevices();
+	virtual QStringList getDevices() override;
 
 	virtual int getLatency() override;
 
