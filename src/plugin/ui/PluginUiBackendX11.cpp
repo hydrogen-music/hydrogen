@@ -40,6 +40,7 @@
 #include <cstdlib>
 #include <new>
 #include <memory>
+#include <string>
 
 namespace H2Core {
 
@@ -187,6 +188,26 @@ public:
 			XStoreName( m_display, m_window, "Hydrogen" );
 		}
 
+		// XIM (TU6.2): UTF-8 composition and IME input. Preedit/status
+		// "nothing": the basic UI has no preedit surface to draw
+		// composition text into, so the input method floats its own —
+		// on-the-spot preedit would need a draw callback and spot
+		// negotiation, out of scope for the basic UI's ASCII entry. A
+		// missing input method (headless Xvfb, bare hosts) is not an
+		// error: translateKey() falls back to XLookupString.
+		m_inputMethod = XOpenIM( m_display, nullptr, nullptr, nullptr );
+		if ( m_inputMethod != nullptr ) {
+			m_inputContext = XCreateIC( m_inputMethod,
+				XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+				XNClientWindow, m_window,
+				XNFocusWindow, m_window,
+				nullptr );
+			if ( m_inputContext == nullptr ) {
+				XCloseIM( m_inputMethod );
+				m_inputMethod = nullptr;
+			}
+		}
+
 		// Legacy context (Pugl's fallback path): the imgui GL3 backend
 		// targets compatibility-profile shaders, so CreateContextAttribsARB
 		// buys nothing here.
@@ -204,8 +225,15 @@ public:
 	}
 
 	~PluginUiBackendX11() override {
-		// Pugl teardown order: GL context, window, colormap, display.
+		// Pugl teardown order: input context/method, GL context, window,
+		// colormap, display.
 		if ( m_display != nullptr ) {
+			if ( m_inputContext != nullptr ) {
+				XDestroyIC( m_inputContext );
+			}
+			if ( m_inputMethod != nullptr ) {
+				XCloseIM( m_inputMethod );
+			}
 			if ( m_context != nullptr ) {
 				glXDestroyContext( m_display, m_context );
 			}
@@ -298,6 +326,11 @@ public:
 		while ( XEventsQueued( m_display, QueuedAfterReading ) > 0 ) {
 			XEvent event = {};
 			XNextEvent( m_display, &event );
+			// The input method consumes composition events (TU6.2); the
+			// composed result arrives later as a KeyPress.
+			if ( XFilterEvent( &event, None ) ) {
+				continue;
+			}
 			if ( event.xany.window != m_window ) {
 				continue;
 			}
@@ -332,14 +365,20 @@ public:
 				translateKey( event.xkey );
 				++m_inputEvents;
 				break;
-			case FocusIn:
-				ImGui::GetIO().AddFocusEvent( true );
-				++m_inputEvents;
-				break;
-			case FocusOut:
-				ImGui::GetIO().AddFocusEvent( false );
-				++m_inputEvents;
-				break;
+		case FocusIn:
+			if ( m_inputContext != nullptr ) {
+				XSetICFocus( m_inputContext );
+			}
+			ImGui::GetIO().AddFocusEvent( true );
+			++m_inputEvents;
+			break;
+		case FocusOut:
+			if ( m_inputContext != nullptr ) {
+				XUnsetICFocus( m_inputContext );
+			}
+			ImGui::GetIO().AddFocusEvent( false );
+			++m_inputEvents;
+			break;
 			case ClientMessage:
 				// The WM close button (top-level only): surfaced as
 				// shouldClose() — the owner decides the teardown, the
@@ -409,15 +448,19 @@ private:
 			m_nMouseButtons = bPressed ? ( m_nMouseButtons | 1 )
 				: ( m_nMouseButtons & ~1 );
 			break;
+		// X11 numbers buttons 1 left, 2 middle, 3 right; imgui orders
+		// them 0 left, 1 right, 2 middle (imgui.h:
+		// ImGuiMouseButton_*) — middle and right swap on the way in,
+		// or right-click would land on the middle button.
 		case 2:
-			io.AddMouseButtonEvent( 1, bPressed );
-			m_nMouseButtons = bPressed ? ( m_nMouseButtons | 2 )
-				: ( m_nMouseButtons & ~2 );
-			break;
-		case 3:
 			io.AddMouseButtonEvent( 2, bPressed );
 			m_nMouseButtons = bPressed ? ( m_nMouseButtons | 4 )
 				: ( m_nMouseButtons & ~4 );
+			break;
+		case 3:
+			io.AddMouseButtonEvent( 1, bPressed );
+			m_nMouseButtons = bPressed ? ( m_nMouseButtons | 2 )
+				: ( m_nMouseButtons & ~2 );
 			break;
 		case 4:
 		case 5:
@@ -444,32 +487,66 @@ private:
 		ImGuiIO& io = ImGui::GetIO();
 		const bool bPressed = ( key.type == KeyPress );
 		KeySym keySym = NoSymbol;
-		char sText[ 32 ] = {};
-		// XLookupString (no XIM yet — IME is TU6.2): keysym and composed
-		// text in one pass.
-		const int nText = XLookupString( &key, sText, sizeof( sText ) - 1,
-										  &keySym, nullptr );
+		if ( m_inputContext != nullptr ) {
+			// XIM (TU6.2): UTF-8 composition — IME input and non-ASCII
+			// locales. The IM's filtered events never reach here; the
+			// composed result arrives as a KeyPress (keycode 0).
+			std::string sText;
+			lookupUtf8( key, keySym, sText );
+			if ( bPressed && ! sText.empty() ) {
+				io.AddInputCharactersUTF8( sText.c_str() );
+			}
+		}
+		else {
+			// No input method (headless Xvfb, bare hosts): keysym and
+			// locale-encoded text in one pass. The basic UI's entry is
+			// ASCII (digits, minus), where byte == codepoint.
+			char sRaw[ 32 ] = {};
+			const int nText = XLookupString( &key, sRaw,
+											 sizeof( sRaw ) - 1, &keySym,
+											 nullptr );
+			if ( bPressed && nText > 0 ) {
+				for ( int ii = 0; ii < nText; ++ii ) {
+					const unsigned char c =
+						static_cast<unsigned char>( sRaw[ ii ] );
+					if ( c < 0x80 ) {
+						io.AddInputCharacter( c );
+					}
+				}
+			}
+		}
 		const ImGuiKey imguiKey = imguiKeyFromKeySym( keySym );
 		if ( imguiKey != ImGuiKey_None ) {
 			io.AddKeyEvent( imguiKey, bPressed );
 		}
-		if ( bPressed && nText > 0 ) {
-			// The composed bytes are locale-encoded; the basic UI's text
-			// entry is ASCII (digits, minus), where byte == codepoint.
-			// Full UTF-8/IME rides the TU6.2 XIM wiring.
-			for ( int ii = 0; ii < nText; ++ii ) {
-				const unsigned char c =
-					static_cast<unsigned char>( sText[ ii ] );
-				if ( c < 0x80 ) {
-					io.AddInputCharacter( c );
-				}
-			}
+	}
+
+	// Compositions wider than the stack buffer report XBufferOverflow
+	// with the needed size; the retry reads into a resized string.
+	void lookupUtf8( XKeyEvent& key, KeySym& keySym, std::string& sText ) {
+		char sStack[ 32 ] = {};
+		Status status = 0;
+		int nText = Xutf8LookupString( m_inputContext, &key, sStack,
+									   sizeof( sStack ) - 1, &keySym,
+									   &status );
+		if ( status == XBufferOverflow ) {
+			sText.resize( nText + 1 );
+			nText = Xutf8LookupString( m_inputContext, &key, sText.data(),
+									   static_cast<int>( sText.size() ) - 1,
+									   &keySym, &status );
+			sText.resize( nText > 0 ? static_cast<size_t>( nText ) : 0 );
+		}
+		else {
+			sText.assign( sStack, nText > 0 ? static_cast<size_t>( nText )
+											: 0 );
 		}
 	}
 
 	Display* m_display = nullptr;
 	Window m_parent = None;
 	Window m_window = None;
+	XIM m_inputMethod = nullptr;
+	XIC m_inputContext = nullptr;
 	Colormap m_colormap = None;
 	GLXFBConfig m_fbConfig = nullptr;
 	XVisualInfo* m_visualInfo = nullptr;

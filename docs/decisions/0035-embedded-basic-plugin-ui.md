@@ -1,6 +1,7 @@
 ---
-status: proposed
+status: accepted
 date: 2026-10-05
+amended: 2026-10-12
 deciders: phil (theGreatWhiteShark)
 ---
 
@@ -157,12 +158,30 @@ remains supported and shows the basic UI in a self-managed window
 
 ### De-risk before implementation
 
-* X11 child-window GL context creation on arbitrary host parents
-* Keyboard focus and IME routing per host and OS
-* macOS Metal backend is self-described "not well tested" upstream
-* DPI/scale handling across hosts
+*Outcomes recorded 2026-10-12, when the ADR was accepted; the evidence
+details live in [proposal
+0006](../proposals/0006-plugin-basic-ui-implementation-plan.md).*
+
+* X11 child-window GL context creation on arbitrary host parents —
+  passed: the TU2.4 spike gate (Ardour, Qtractor, Carla, REAPER)
+  created GL contexts on every host parent tried.
+* Keyboard focus and IME routing per host and OS — the spike found the
+  gap (the backend only counted events); X11 translation landed with
+  UI-4, and UI-6 (TU6.2) finished the story: XIM on X11, a
+  recording-queue WndProc on Win32, an NSTextInputClient NSView
+  responder on macOS.
+* macOS Metal backend is self-described "not well tested" upstream —
+  still open on real hardware: CI compiles and runs the smoke
+  (skipping headless); the manual spike gate owns the real-device
+  pass.
+* DPI/scale handling across hosts — landed: X11 reads Xft.dpi from the
+  resource database, Win32 resolves per-window DPI via
+  GetDpiForWindow (TU6.2), macOS uses the window's
+  backingScaleFactor.
 * clap-wrapper's translation of the CLAP embedded gui (`set_parent`)
-  into VST3 `IPlugView` attach, including resize/DPI behavior
+  into VST3 `IPlugView` attach, including resize/DPI behavior —
+  bundle-level covered (interpose smoke + Steinberg validator in CI);
+  real-host resize/DPI behavior stays with the manual spike gate.
 
 The LV2 UI shim currently has zero test coverage (`lv2_smoke.cpp`
 never resolves `lv2ui_descriptor`); the new seam gets smoke coverage

@@ -409,6 +409,11 @@ green.
 
 ## 9. Phase UI-6 — Hardening, i18n, packaging
 
+**Status: ✅ DONE** (2026-10-12) — TU6.1–TU6.4 landed; unit suite (508)
++ plugin gate 18/18 green. The Win32/macOS input wiring is
+compile-gated (AppVeyor); real-host behavior stays under the manual
+spike gate.
+
 **Tasks**
 
 * **TU6.1** i18n wiring — **landed (2026-10-12)**:
@@ -428,10 +433,28 @@ green.
 * **TU6.2** DPI/scale and focus/IME fixes from the spike findings, plus
   the Win32/macOS input translation wiring (X11 landed with UI-4 after
   the REAPER spike found the gap — the backend had only counted events;
-  their `pumpEvents` stays a no-op until then).
-* **TU6.3** Third-party notices for the three new submodules.
+  their `pumpEvents` stays a no-op until then) — **landed (2026-10-12)**:
+  X11 gained XIM (`XOpenIM`/`XCreateIC`, `XFilterEvent`,
+  `Xutf8LookupString` with a no-IM `XLookupString` fallback); Win32
+  records native events in the WndProc into a queue that `pumpEvents()`
+  drains under the per-instance context (per-window DPI via
+  `GetDpiForWindow`, WM_CHAR UTF-16, IME composition through
+  `DefWindowProcW`); macOS does the same from an NSView responder
+  subclass implementing NSTextInputClient (composed text via
+  `insertText:`, app-active notifications clear keys stuck across app
+  switches). One cross-platform fix surfaced by the wiring: imgui
+  orders mouse buttons 0 left / 1 right / 2 middle — X11 and Win32 had
+  middle and right swapped.
+* **TU6.3** Third-party notices for the three new submodules — **landed
+  (2026-10-12)**: `src/plugin/THIRD-PARTY-NOTICES` carries the verbatim
+  MIT texts; cmake ships it inside the LV2 bundle, in the VST3 bundle's
+  `Contents/Resources/`, and next to the installed CLAP binary
+  (`hydrogen.third-party-notices`).
 * **TU6.4** ADR 0035 status flip to accepted + spike-outcome amendments;
-  CHANGELOG entry if not already landed at TU5.7.
+  CHANGELOG entry if not already landed at TU5.7 — **landed
+  (2026-10-12)**: ADR 0035 accepted and amended with the de-risk
+  outcomes; the CHANGELOG gained the embedded-basic-UI entry (TU5.7
+  had not landed one).
 
 **Done when:** the Definition of Done below holds.
 

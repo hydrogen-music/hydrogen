@@ -65,6 +65,14 @@ if(WANT_CLAP)
         LIBRARY DESTINATION "${H2_LIB_PATH}/clap"
         RUNTIME DESTINATION "${H2_LIB_PATH}/clap")
 
+    # A .clap is a single file with no bundle directory to carry
+    # resources; the third-party notices travel next to the installed
+    # binary, prefixed with the plugin name to stay collision-free in
+    # the shared clap directory (TU6.3).
+    install(FILES THIRD-PARTY-NOTICES
+        DESTINATION "${H2_LIB_PATH}/clap"
+        RENAME hydrogen.third-party-notices )
+
     # 8c smoke: run clap-validator on the built .clap if it is available (built
     # from extern/clap-validator or installed on PATH). This is the CI
     # conformance step from the implementation plan.
@@ -157,6 +165,9 @@ if(WANT_LV2)
         COMMAND ${CMAKE_COMMAND} -E make_directory "${H2_LV2_BUNDLE}"
         COMMAND ${CMAKE_COMMAND} -E copy
             "$<TARGET_FILE:hydrogen-lv2>" "${H2_LV2_BUNDLE}/"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES"
+            "${H2_LV2_BUNDLE}/THIRD-PARTY-NOTICES"
         COMMENT "Assembling hydrogen.lv2 bundle" )
 
     message(STATUS "Building LV2 plugin (buses=${H2_PLUGIN_OUTPUT_BUSES})")
@@ -332,6 +343,19 @@ if(WANT_VST3)
         TARGET hydrogen-vst3
         OUTPUT_NAME "Hydrogen"
         WINDOWS_FOLDER_VST3 ON )
+
+    # Ship the third-party notices inside the bundle's Resources dir
+    # (TU6.3). The wrapper's own post-build steps assemble the bundle;
+    # same-target POST_BUILD commands run in add order, so this copy
+    # lands after the assembly (a failure here fails the build loudly
+    # rather than shipping a bundle without notices).
+    add_custom_command( TARGET hydrogen-vst3 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES"
+            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources/THIRD-PARTY-NOTICES"
+        COMMENT "Copying third-party notices into Hydrogen.vst3" )
 
     # Tell clap-wrapper that the CLAP entry is statically linked into this module
     # (our clapfirst model — the CLAP plugin is compiled in via hydrogen-vst3-entry,
