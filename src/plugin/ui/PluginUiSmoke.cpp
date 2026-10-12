@@ -34,6 +34,15 @@
 
 #include <plugin/HydrogenPlugin.h>
 
+#include <core/config.h>
+#include <core/Object.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Logger.h>
+
+#include <QCoreApplication>
+#include <QFileInfo>
+#include <QTemporaryDir>
+
 #include <imgui.h>
 
 #include <chrono>
@@ -62,7 +71,60 @@ void check( bool bCondition, const char* sMessage ) {
 
 } // namespace
 
-int main() {
+int main( int argc, char** argv ) {
+	// Deterministic data roots, the unit suite's setupEnvironment
+	// pattern: the HydrogenPlugin instances below bootstrap
+	// Base/Filesystem on first construction, resolving the system data
+	// folder from the baked install prefix — green only where hydrogen
+	// happens to be installed (a developer box's dist/), and an empty
+	// fallback kit on fresh checkouts, which left the mixer without
+	// the strip overflow the UI-4 check requires. Bootstrapping first
+	// wins: the plugin's bootstrap is a no-op in a process that
+	// already did them. System data = the source data/ (GMRockKit
+	// ships there); user data = a transient dir, so no host machine
+	// state (drumkits, preferences) leaks into the render.
+	QCoreApplication app( argc, argv );
+	// The tmp dir must exist before the transient dir and the log file
+	// below are placed in/next to it — the suite's lesson.
+	if ( ! H2Core::Filesystem::mkdir( H2Core::Filesystem::tmpDir() ) ) {
+		std::fprintf( stderr, "PLUGIN UI SMOKE: FAILED — no tmp dir\n" );
+		return 1;
+	}
+	QTemporaryDir userDataDir(
+		H2Core::Filesystem::tmpDir() + "-smoke-user-XXXXX" );
+	userDataDir.setAutoRemove( false );
+	if ( ! userDataDir.isValid() ) {
+		std::fprintf( stderr,
+					  "PLUGIN UI SMOKE: FAILED — no transient user dir\n" );
+		return 1;
+	}
+	// A per-process log file in the plugin's own naming scheme — the
+	// smoke is a plugin process; the plugin instances below find a
+	// logger available and reuse it.
+	const QFileInfo logInfo( H2Core::Filesystem::logFilePath() );
+	const QString sLogPath = H2Core::Filesystem::tmpDir() + "/" +
+		logInfo.completeBaseName() +
+		QString( "_%1_plugin_ui_smoke." )
+			.arg( QCoreApplication::applicationPid() ) +
+		logInfo.suffix();
+	H2Core::Logger* pLogger = H2Core::Logger::bootstrap(
+		H2Core::Logger::Error | H2Core::Logger::Warning |
+			H2Core::Logger::Info,
+		sLogPath,
+		H2Core::Logger::Option::Timestamps |
+			H2Core::Logger::Option::Append );
+	if ( pLogger == nullptr ) {
+		std::fprintf( stderr, "PLUGIN UI SMOKE: FAILED — no logger\n" );
+		return 1;
+	}
+	H2Core::Base::bootstrap( pLogger, false );
+	if ( ! H2Core::Filesystem::bootstrap(
+			 pLogger, CMAKE_SOURCE_DIR "/data", userDataDir.path(),
+			 userDataDir.path() + "/hydrogen.conf", sLogPath ) ) {
+		std::fprintf( stderr,
+					  "PLUGIN UI SMOKE: FAILED — Filesystem bootstrap\n" );
+		return 1;
+	}
 #if defined( _WIN32 )
 	// A desktop session is required to create the test parent. Creation
 	// failure is indistinguishable from a headless session here, so it
