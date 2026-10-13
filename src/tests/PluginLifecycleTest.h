@@ -1,0 +1,90 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef H2C_PLUGIN_LIFECYCLE_TEST_H
+#define H2C_PLUGIN_LIFECYCLE_TEST_H
+
+#include <cppunit/extensions/HelperMacros.h>
+
+#include <core/config.h>
+
+class PluginLifecycleTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( PluginLifecycleTest );
+	CPPUNIT_TEST( testRepeatedLifecycle );
+	CPPUNIT_TEST( testPluginProcess );
+	CPPUNIT_TEST( testPluginStateRoundTrip );
+	CPPUNIT_TEST( testPluginRepeatedLifecycle );
+	CPPUNIT_TEST( testEditorOpenServesEngine );
+	CPPUNIT_TEST( testEditorCommandReachesEngine );
+	CPPUNIT_TEST( testLocalCommandReachesEngine );
+	CPPUNIT_TEST( testEditorReopen );
+	CPPUNIT_TEST( testEditorBinaryDiscovery );
+	CPPUNIT_TEST( testResolveSystemDataPath );
+#ifdef H2CORE_HAVE_DEBUG
+	CPPUNIT_TEST( testProcessDefaultAuditSurface );
+#endif
+	CPPUNIT_TEST_SUITE_END();
+
+public:
+	void testRepeatedLifecycle();
+	/** The format-agnostic HydrogenPlugin core (which the CLAP/LV2 entries wrap)
+	 * activates, processes silence and notes into host master + bus buffers
+	 * without NaNs, then deactivates (ADR 0014). */
+	void testPluginProcess();
+	/** HydrogenPlugin state save → load round-trips through the `.h2project`
+	 * codec. */
+	void testPluginStateRoundTrip();
+	/** Repeated construct/destroy of HydrogenPlugin leaves no residual objects. */
+	void testPluginRepeatedLifecycle();
+	/** openEditor() serves the instance's engine over IPC; an editor (here an
+	 * EditorSession standing in for the real GUI process) attaches and receives
+	 * the engine's song; closeEditor() kills the editor process but keeps the
+	 * always-on session serving (ADR 0016/0035 UI-3). */
+	void testEditorOpenServesEngine();
+	/** A command issued on the attached editor reaches and mutates the plugin's
+	 * engine. */
+	void testEditorCommandReachesEngine();
+	/** TU3.4 (ADR 0035 UI-3): the local command path the embedded basic UI
+	 * uses — a command issued on the plugin's own engine controller (no
+	 * editor round-trip) mutates the authoritative engine state directly. */
+	void testLocalCommandReachesEngine();
+	/** openEditor()/closeEditor() are idempotent and re-openable. */
+	void testEditorReopen();
+	/** The editor binary is resolved by precedence: explicit override →
+	 * $HYDROGEN_EDITOR_PATH → bundled-next-to-plugin → `hydrogen` on PATH. */
+	void testEditorBinaryDiscovery();
+	/** The shared system data folder is resolved for plugin use by
+	 * precedence: $HYDROGEN_SYS_DATA_PATH → walking up from the plugin's
+	 * own location (prefix install `<prefix>/share/hydrogen/data`, build
+	 * tree `<repo>/data`, one-dir layout `<dir>/data`) → empty, the
+	 * Filesystem platform default. */
+	void testResolveSystemDataPath();
+	/** The process-default log doubles as the audit surface: while
+	 * per-instance loggers are alive, every line reaching it is marked
+	 * `[unscoped]`. After a full HydrogenPlugin lifecycle (construction,
+	 * activation, state round-trip, processing, teardown) the only marked
+	 * line must be the deliberate "Spawning instance logger" index
+	 * announcement. Debug builds only (same reason as LoggerInstanceTest). */
+	void testProcessDefaultAuditSurface();
+};
+
+#endif

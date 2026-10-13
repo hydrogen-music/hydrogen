@@ -40,22 +40,106 @@
 
 #ifdef WIN32
 #include <windows.h>
+#include <io.h>    // _get_osfhandle() for the append-mode write lock
+#else
+#include <sys/file.h>    // flock() for the append-mode write lock
 #endif
 
 namespace H2Core {
 
 unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=nullptr;
-const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Constructors", "Locks" };
+std::atomic<int> Logger::__nInstanceLoggers( 0 );
+thread_local Logger* Logger::__pCurrent = nullptr;
+const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug", "Ipc", "Constructors", "Locks" };
 thread_local QString *Logger::pCrashContext = nullptr;
 
-pthread_t loggerThread;
+// Defined out-of-line (rather than inline in Logger.h) so the only references
+// to the __pCurrent thread_local live inside the core DLL. MinGW's
+// --export-all-symbols does not export TLS data symbols, so inlining these into
+// a DLL consumer (h2cli, tests, gui) leaves __pCurrent undefined at link time.
+Logger* Logger::currentLogger() {
+	return __pCurrent != nullptr ? __pCurrent : __instance;
+}
 
-void* loggerThread_func( void* param ) {
-	if ( param == nullptr ) {
-		return nullptr;
-	}
-	Logger* pLogger = ( Logger* )param;
+Logger::Scope::Scope( Logger* pLogger )
+	: m_pPrevious( Logger::__pCurrent ) {
+	Logger::__pCurrent = pLogger;
+}
+
+Logger::Scope::~Scope() {
+	Logger::__pCurrent = m_pPrevious;
+}
+
+namespace {
+
+/** Exclusive advisory lock held around each append-mode write+flush pair so
+ * concurrent writers can never interleave inside a line. flock() locks per
+ * open file description, so it also serializes two Logger objects within the
+ * same process - which POSIX record locks (fcntl) would not do. Best
+ * effort: if locking fails the write still happens (a possibly interleaved
+ * line beats a lost one).
+ *
+ * Deliberately not QLockFile (Preferences uses it for its long-held config
+ * lock, where its semantics fit): QLockFile locks through a sidecar .lock
+ * file created and removed per acquisition - per-line filesystem churn plus
+ * one more orphanable file per log file - and its stale-lock stealing
+ * (holder-PID-alive check) misfires exactly under this lock's threat model:
+ * append mode exists because PIDs are reused across sessions, so a reused
+ * PID makes a dead holder look alive (permanent lockout) while a steal can
+ * race a live holder mid-write. The kernel drops flock()/LockFileEx() when
+ * the fd or process dies - no heuristics - and the failure bias matches the
+ * logger's: never block, never drop a line. */
+class LogWriteLock {
+	public:
+		LogWriteLock( QFile& logFile, bool bLock )
+			: m_logFile( logFile )
+			, m_bLock( bLock ) {
+			if ( m_bLock ) {
+				lock();
+			}
+		}
+		~LogWriteLock() {
+			if ( m_bLock ) {
+				unlock();
+			}
+		}
+		LogWriteLock( const LogWriteLock& ) = delete;
+		LogWriteLock& operator=( const LogWriteLock& ) = delete;
+	private:
+		void lock() {
+#ifdef WIN32
+			HANDLE hFile = reinterpret_cast<HANDLE>(
+				_get_osfhandle( m_logFile.handle() ) );
+			if ( hFile != INVALID_HANDLE_VALUE ) {
+				OVERLAPPED overlapped = { 0 };
+				LockFileEx( hFile, LOCKFILE_EXCLUSIVE_LOCK, 0,
+							MAXDWORD, MAXDWORD, &overlapped );
+			}
+#else
+			::flock( m_logFile.handle(), LOCK_EX );
+#endif
+		}
+		void unlock() {
+#ifdef WIN32
+			HANDLE hFile = reinterpret_cast<HANDLE>(
+				_get_osfhandle( m_logFile.handle() ) );
+			if ( hFile != INVALID_HANDLE_VALUE ) {
+				OVERLAPPED overlapped = { 0 };
+				UnlockFileEx( hFile, 0, MAXDWORD, MAXDWORD,
+							  &overlapped );
+			}
+#else
+			::flock( m_logFile.handle(), LOCK_UN );
+#endif
+		}
+		QFile& m_logFile;
+		bool m_bLock;
+};
+
+}
+
+void loggerThread_func( Logger* pLogger ) {
 #ifdef WIN32
 #  ifdef H2CORE_HAVE_DEBUG
 	::AllocConsole();
@@ -78,7 +162,13 @@ void* loggerThread_func( void* param ) {
 	bool bUseLogFile = true;
 	QFile logFile( pLogger->m_sLogFilePath );
 	QTextStream logFileStream = QTextStream();
-	if ( logFile.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
+	QIODevice::OpenMode openMode = QIODevice::WriteOnly | QIODevice::Text;
+	if ( pLogger->m_bAppend ) {
+		// Append keeps any previous content (a pid-named plugin log can
+		// recur after pid reuse) instead of truncating it away.
+		openMode |= QIODevice::Append;
+	}
+	if ( logFile.open( openMode ) ) {
 		logFileStream.setDevice( &logFile );
 #ifdef H2CORE_HAVE_QT6
 		logFileStream.setEncoding( QStringConverter::Utf8 );
@@ -94,33 +184,59 @@ void* loggerThread_func( void* param ) {
 		bUseLogFile = false;
 	}
 	Logger::queue_t* queue = &pLogger->__msg_queue;
-	Logger::queue_t::iterator it, last;
+	// Drain loop. Uses a predicate around the condition variable wait to
+	// avoid lost wakeups, and — crucially for short-lived per-instance
+	// loggers (ADR 0015, T1.6) — always performs a final drain once
+	// __running is cleared, so messages queued just before destruction are
+	// flushed before the file is closed (the dtor joins this thread).
+	bool bDraining = true;
+	while ( bDraining ) {
+		std::unique_lock<std::mutex> lock( pLogger->__mutex );
+		pLogger->__messages_available.wait(
+			lock, [&] { return ! pLogger->__running || ! queue->empty(); } );
+		// Stop once shutdown has been requested and nothing is left to write.
+		bDraining = pLogger->__running || ! queue->empty();
+		// Detach the pending messages under the lock, then write them out
+		// without holding it.
+		Logger::queue_t pending;
+		pending.swap( *queue );
+		lock.unlock();
 
-	while ( pLogger->__running ) {
-		pthread_mutex_lock( &pLogger->__mutex );
-		pthread_cond_wait( &pLogger->__messages_available, &pLogger->__mutex );
-		pthread_mutex_unlock( &pLogger->__mutex );
-		if ( !queue->empty() ) {
-			for ( it = last = queue->begin() ; it != queue->end() ; ++it ) {
-				last = it;
-				if ( pLogger->m_bUseStdout ) {
-					stdoutStream << *it;
-					stdoutStream.flush();
-				}
-				if ( bUseLogFile ) {
-					logFileStream << *it;
-					logFileStream.flush();
-				}
+		for ( const auto& sEntry : pending ) {
+			if ( pLogger->m_bUseStdout ) {
+				stdoutStream << sEntry;
+				stdoutStream.flush();
 			}
-			// remove all in front of last
-			pthread_mutex_lock( &pLogger->__mutex );
-			queue->erase( queue->begin(), last );
-			queue->pop_front();
-			pthread_mutex_unlock( &pLogger->__mutex );
+			if ( bUseLogFile ) {
+				// The lock keeps concurrent appenders from interleaving
+				// inside a line (see LogWriteLock). Qt's Windows append
+				// mode is not atomic - unlike O_APPEND it writes at the
+				// (stale) per-handle file pointer instead of the file
+				// end - so seek to the current end inside the lock
+				// before writing, or a concurrent appender's lines get
+				// overwritten.
+				LogWriteLock lock( logFile, pLogger->m_bAppend );
+				if ( pLogger->m_bAppend ) {
+					logFile.seek( logFile.size() );
+				}
+				logFileStream << sEntry;
+				logFileStream.flush();
+			}
 		}
 	}
 	if ( bUseLogFile ) {
-		logFileStream << "Stop logger";
+		LogWriteLock lock( logFile, pLogger->m_bAppend );
+		if ( pLogger->m_bAppend ) {
+			// Same stale-pointer protection as the drain loop above.
+			logFile.seek( logFile.size() );
+		}
+		// Farewell marker for a clean shutdown (a crash truncates the file
+		// without it). Formatted inline like a log() line — the drain loop
+		// above has exited, so enqueuing through log() would go nowhere —
+		// keeping every line in the file correlatable (ADR 0015, T1.6).
+		logFileStream << pLogger->timestampPrefix()
+					  << "(I) [Logger::~Logger] Stop logger\n";
+		logFileStream.flush();
 	}
 	logFile.close();
 #ifdef WIN32
@@ -129,13 +245,10 @@ void* loggerThread_func( void* param ) {
 
 	stderrStream.flush();
 	stdoutStream.flush();
-	pthread_exit( nullptr );
-	return nullptr;
 }
 
 Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
-						   bool bUseStdout, bool bLogTimestamps,
-						   bool bLogColors ) {
+						   Options options ) {
 	Logger::set_bit_mask( msk );
 
 	// When starting Hydrogen after a fresh install with no user-level .hydrogen
@@ -154,37 +267,57 @@ Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
 		Filesystem::mkdir( dir.absolutePath() );
 	}
 
-	return Logger::create_instance( sLogFilePath, bUseStdout, bLogTimestamps,
-									bLogColors );
+	return Logger::create_instance( sLogFilePath, options );
 }
 
-Logger* Logger::create_instance( const QString& sLogFilePath, bool bUseStdout,
-								 bool bLogTimestamps, bool bLogColors ) {
+Logger* Logger::create_instance( const QString& sLogFilePath,
+								 Options options ) {
 	if ( __instance == nullptr ) {
-		__instance = new Logger(
-		sLogFilePath, bUseStdout, bLogTimestamps, bLogColors );
+		__instance = new Logger( sLogFilePath, options );
 	}
 	return __instance;
 }
 
-Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
-				bool bLogTimestamps, bool bLogColors )
+Logger* Logger::createInstanceLogger( const QString& sLogFilePath,
+									  Options options ) {
+	// Standalone, owner-managed logger (own queue/thread/file). Deliberately
+	// does NOT touch __instance — the process default stays as the unscoped
+	// fallback (ADR 0015, T1.6).
+	auto pLogger = new Logger( sLogFilePath, options );
+	pLogger->m_bIsInstanceLogger = true;
+	__nInstanceLoggers.fetch_add( 1, std::memory_order_relaxed );
+	return pLogger;
+}
+
+Logger::Logger( const QString& sLogFilePath, Options options )
 	: __running( true )
 	, m_sLogFilePath( sLogFilePath )
-	, m_bUseStdout( bUseStdout )
-	, m_bLogTimestamps( bLogTimestamps )
-	, m_bLogColors( bLogColors ) {
-	__instance = this;
+	, m_bUseStdout( options.testFlag( Option::UseStdout ) )
+	, m_bLogTimestamps( options.testFlag( Option::Timestamps ) )
+	, m_bLogColors( options.testFlag( Option::Colors ) )
+	, m_bAppend( options.testFlag( Option::Append ) ) {
+	m_prefixList << ""
+				 << "(E) "
+				 << "(W) "
+				 << "(I) "
+				 << "(D) "
+				 << "(IPC) "
+				 << "(C) "
+				 << "(L) ";
 
-	m_prefixList << "" << "(E) " << "(W) " << "(I) " << "(D) " << "(C)" << "(L) ";
-
-	if ( ! m_bLogColors ) {
-		m_colorList << "" << "" << "" << "" << "" << "" << "";
+	if ( !m_bLogColors ) {
+		m_colorList << "" << "" << "" << "" << "" << "" << "" << "";
 		m_sColorOff = "";
 	}
 	else {
-		m_colorList << "" << "\033[31m" << "\033[36m" << "\033[32m" << "\033[35m"
-					<< "\033[35;1m" << "\033[35;1m";
+		m_colorList << ""
+					<< "\033[31m"
+					<< "\033[36m"
+					<< "\033[32m"
+					<< "\033[35m"
+					<< "\033[33m"
+					<< "\033[35;1m"
+					<< "\033[35;1m";
 		m_sColorOff = "\033[0m";
 	}
 
@@ -200,11 +333,7 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 		m_sLogFilePath = Filesystem::logFilePath();
 	}
 
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_mutex_init( &__mutex, nullptr );
-	pthread_cond_init( &__messages_available, nullptr );
-	pthread_create( &loggerThread, &attr, loggerThread_func, this );
+	m_loggerThread = std::thread( loggerThread_func, this );
 
 	if ( should_log( Info ) ) {
 		log( Info, "Logger", "Logger", QString( "Starting Hydrogen version [%1]" )
@@ -215,9 +344,20 @@ Logger::Logger( const QString& sLogFilePath, bool bUseStdout,
 }
 
 Logger::~Logger() {
+	if ( m_bIsInstanceLogger ) {
+		__nInstanceLoggers.fetch_sub( 1, std::memory_order_relaxed );
+	}
 	__running = false;
-	pthread_cond_broadcast ( &__messages_available );
-	pthread_join( loggerThread, nullptr );
+	__messages_available.notify_all();
+	m_loggerThread.join();
+}
+
+QString Logger::timestampPrefix() const {
+	if ( ! m_bLogTimestamps ) {
+		return QString();
+	}
+	return QString( "[%1] " )
+		.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
 }
 
 void Logger::log( unsigned level, const QString& sClassName, const char* func_name,
@@ -241,36 +381,46 @@ void Logger::log( unsigned level, const QString& sClassName, const char* func_na
 	case Debug:
 		i = 4;
 		break;
-	case Constructors:
+	case Ipc:
 		i = 5;
 		break;
-	case Locks:
+	case Constructors:
 		i = 6;
+		break;
+	case Locks:
+		i = 7;
 		break;
 	default:
 		i = 0;
 		break;
 	}
 
-	QString sTimestampPrefix;
-	if ( m_bLogTimestamps ) {
-		sTimestampPrefix = QString( "[%1] " )
-			.arg( QDateTime::currentDateTime().toString( "hh:mm:ss.zzz" ) );
-	}
+	const QString sTimestampPrefix = timestampPrefix();
 
 	QString sCol = "";
 	if ( m_bLogColors ) {
 		sCol = sColor.isEmpty() ? m_colorList[ i ] : sColor;
 	}
 
+	// Audit surface (ADR 0015, T1.6): while per-instance loggers are alive, a
+	// line reaching the process default did not resolve through an instance
+	// scope — mark it so routing gaps stay greppable instead of silently
+	// blending into process-level output.
+	QString sMsgFull = sMsg;
+	if ( this == __instance &&
+		 __nInstanceLoggers.load( std::memory_order_relaxed ) > 0 ) {
+		sMsgFull.prepend( "[unscoped] " );
+	}
+
 	const QString tmp = QString( "%1%2%3[%4::%5] %6%7\n" )
 		.arg( sCol ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
-		.arg( sClassName ).arg( func_name ).arg( sMsg ).arg( m_sColorOff );
+		.arg( sClassName ).arg( func_name ).arg( sMsgFull ).arg( m_sColorOff );
 
-	pthread_mutex_lock( &__mutex );
-	__msg_queue.push_back( tmp );
-	pthread_mutex_unlock( &__mutex );
-	pthread_cond_broadcast( &__messages_available );
+	{
+		std::lock_guard<std::mutex> lock( __mutex );
+		__msg_queue.push_back( tmp );
+	}
+	__messages_available.notify_all();
 }
 
 void Logger::flush() const {
@@ -288,21 +438,35 @@ void Logger::flush() const {
 
 unsigned Logger::parse_log_level( const char* level ) {
 	unsigned log_level = Logger::None;
-	if( 0 == strncasecmp( level, __levels[0], strlen( __levels[0] ) ) ) {
+	if ( 0 == strncasecmp( level, __levels[0], strlen( __levels[0] ) ) ) {
 		log_level = Logger::None;
-	} else if ( 0 == strncasecmp( level, __levels[1], strlen( __levels[1] ) ) ) {
+	}
+	else if ( 0 == strncasecmp( level, __levels[1], strlen( __levels[1] ) ) ) {
 		log_level = Logger::Error;
-	} else if ( 0 == strncasecmp( level, __levels[2], strlen( __levels[2] ) ) ) {
+	}
+	else if ( 0 == strncasecmp( level, __levels[2], strlen( __levels[2] ) ) ) {
 		log_level = Logger::Error | Logger::Warning;
-	} else if ( 0 == strncasecmp( level, __levels[3], strlen( __levels[3] ) ) ) {
+	}
+	else if ( 0 == strncasecmp( level, __levels[3], strlen( __levels[3] ) ) ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info;
-	} else if ( 0 == strncasecmp( level, __levels[4], strlen( __levels[4] ) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
-	} else if ( 0 == strncasecmp( level, __levels[5], strlen( __levels[5] ) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug | Logger::Constructors;
-	} else if ( 0 == strncasecmp( level, __levels[6], strlen( __levels[6] ) ) ) {
-		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug | Logger::Locks;
-	} else {
+	}
+	else if ( 0 == strncasecmp( level, __levels[4], strlen( __levels[4] ) ) ) {
+		log_level =
+			Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
+	}
+	else if ( 0 == strncasecmp( level, __levels[5], strlen( __levels[5] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info |
+					Logger::Debug | Logger::Ipc;
+	}
+	else if ( 0 == strncasecmp( level, __levels[6], strlen( __levels[6] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info |
+					Logger::Debug | Logger::Ipc | Logger::Constructors;
+	}
+	else if ( 0 == strncasecmp( level, __levels[7], strlen( __levels[7] ) ) ) {
+		log_level = Logger::Error | Logger::Warning | Logger::Info |
+					Logger::Debug | Logger::Ipc | Logger::Locks;
+	}
+	else {
 #ifdef HAVE_SSCANF
 		int val = sscanf( level,"%x",&log_level );
 		if( val != 1 ) {

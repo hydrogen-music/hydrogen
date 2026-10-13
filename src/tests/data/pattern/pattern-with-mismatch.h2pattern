@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <drumkit_pattern xmlns="http://www.hydrogen-music.org/drumkit_pattern" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
- <drumkit_name>GMRockKit</drumkit_name>
+ <drumkit_name>H2_test_DK</drumkit_name>
  <pattern>
   <formatVersion>2</formatVersion>
   <userVersion>0</userVersion>

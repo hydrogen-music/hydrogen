@@ -39,6 +39,7 @@ class Drumkit;
 class XMLNode;
 class InstrumentList;
 class PatternList;
+class SoundLibraryDatabase;
 class SoundLibraryInfo;
 
 /**
@@ -70,7 +71,8 @@ class Pattern : public H2Core::Object<Pattern> {
 	~Pattern();
 
 	static std::shared_ptr<Pattern> from(
-		std::shared_ptr<SoundLibraryInfo> pInfo
+		std::shared_ptr<SoundLibraryInfo> pInfo,
+		std::shared_ptr<SoundLibraryDatabase> pDB
 	);
 
 	/**
@@ -80,7 +82,8 @@ class Pattern : public H2Core::Object<Pattern> {
 	 *   be logged.
 	 */
 	static std::shared_ptr<Pattern>
-	load( const QString& sPatternPath, bool bSilent = false );
+	load( const QString& sPatternPath, bool bSilent,
+		  std::shared_ptr<SoundLibraryDatabase> pDB );
 	/**
 	 * load a pattern from an XMLNode
 	 * \param node the XMLDode to read from
@@ -89,6 +92,7 @@ class Pattern : public H2Core::Object<Pattern> {
 	 * \param pDrumkit In case the PatternList is loaded as part of a song,
 	 *   the current drumkit used to retrieve the types of all contained
 	 *   notes.
+	 * @param flags OR-ed combination of #Xml::Flag options.
 	 * \param bSilent Whether infos, warnings, and errors should
 	 *   be logged.
 	 * \return a new Pattern instance
@@ -96,16 +100,40 @@ class Pattern : public H2Core::Object<Pattern> {
 	static std::shared_ptr<Pattern> loadFrom(
 		const XMLNode& node,
 		const QString& sDrumkitName,
-		std::shared_ptr<Drumkit> pDrumkit = nullptr,
-		bool bSilent = false
+		std::shared_ptr<Drumkit> pDrumkit,
+		Xml::Flag flags,
+		bool bSilent,
+		std::shared_ptr<SoundLibraryDatabase> pDB
 	);
 	/**
 	 * save a pattern into an xml file
 	 * \param sPatternPath the path to save the pattern into
+	 * \param pDrumkit In case the #m_sDrumkitName should be overwritten, the
+	 *   corresponding drumkit has to be passed in here.
 	 * \param bSilent whever to log info and debug messages.
 	 * \return true on success
 	 */
-	bool save( const QString& sPatternPath, bool bSilent = false ) const;
+	bool save(
+		const QString& sPatternPath,
+		std::shared_ptr<Drumkit> pDrumkit = nullptr,
+		bool bSilent = false
+	) const;
+
+	/** Serialize the pattern to an in-memory XML buffer (the `.h2pattern`
+	 * structure, no file). Mirrors save(); used to carry a pattern across the
+	 * editor↔engine IPC split (ADR 0030). */
+	QByteArray toXmlBuffer(
+		std::shared_ptr<Drumkit> pDrumkit = nullptr,
+		bool bSilent = false
+	) const;
+	/** Reconstruct a pattern from a buffer produced by toXmlBuffer(). @a pDrumkit
+	 * / @a pDB provide the drumkit context to resolve instrument ids/types. */
+	static std::shared_ptr<Pattern> fromXmlBuffer(
+		const QByteArray& buffer,
+		std::shared_ptr<Drumkit> pDrumkit,
+		bool bSilent,
+		std::shared_ptr<SoundLibraryDatabase> pDB
+	);
 
 	/** Stores a serialized version of the instance to the XML note @a
 	 * pNote.
@@ -117,12 +145,14 @@ class Pattern : public H2Core::Object<Pattern> {
 	 *   serialized notess by requiring a matching type.
 	 * @param nPitch If a valid one is provided, only those notes matching
 	 *   this particular pitch will be stored.
+	 * @param flags OR-ed combination of #Xml::Flag options.
 	 * @param bSilent whever to log info and debug messages. */
 	void saveTo(
 		XMLNode& node,
 		Instrument::Id id = Instrument::EmptyId,
 		const Instrument::Type& sType = "",
 		Note::Pitch pitch = Note::Pitch::Invalid,
+		Xml::Flag flags = Xml::Flag::None,
 		bool bSilent = false
 	) const;
 
@@ -209,6 +239,7 @@ class Pattern : public H2Core::Object<Pattern> {
 		Note::Key key,
 		Note::Octave octave
 	) const;
+	std::shared_ptr<Note> findNote( Uuid noteUuid ) const;
 	/**
 	 * removes a given note from m_notes, it's not deleted
 	 * \param pNote the note to be removed
@@ -221,16 +252,13 @@ class Pattern : public H2Core::Object<Pattern> {
 	 */
 	bool references( std::shared_ptr<Instrument> pInstr ) const;
 	/**
-	 * delete the notes referencing the given instrument
+	 * delete the notes referencing the given @a pInstr
 	 * The function is thread safe (it locks the audio data while deleting
-	 * notes) \param pInstr the instrument
+	 * notes)
 	 */
-	void purgeInstrument(
-		std::shared_ptr<Instrument> pInstr,
-		bool bRequiredLock = true
-	);
+	void purgeInstrument( std::shared_ptr<Instrument> pInstr );
 	/** Erase all notes. */
-	void clear( bool bRequiredLock = true );
+	void clear();
 
 	///< return true if m_virtualPatterns is empty
 	bool virtualPatternsEmpty() const;
@@ -281,6 +309,7 @@ class Pattern : public H2Core::Object<Pattern> {
 	bool isVirtual() const;
 
 	void applyMissingTypes(
+		std::shared_ptr<SoundLibraryDatabase> pDB,
 		std::shared_ptr<Drumkit> pDrumkit = nullptr,
 		bool bSilent = false
 	);
@@ -564,9 +593,15 @@ inline void Pattern::virtualPatternsAdd( std::shared_ptr<Pattern> pPattern )
 
 inline void Pattern::virtualPatternsDel( std::shared_ptr<Pattern> pPattern )
 {
-	virtual_patterns_cst_it_t it = m_virtualPatterns.find( pPattern );
-	if ( it != m_virtualPatterns.end() )
-		m_virtualPatterns.erase( it );
+	// The set is ordered by pointer, but identity is decided by #Uuid (ADR
+	// 0028); sameObject() short-circuits on the pointer, so this stays cheap.
+	for ( virtual_patterns_cst_it_t it = m_virtualPatterns.begin();
+		  it != m_virtualPatterns.end(); ++it ) {
+		if ( sameObject( *it, pPattern ) ) {
+			m_virtualPatterns.erase( it );
+			return;
+		}
+	}
 }
 
 inline void Pattern::flattenedVirtualPatternsClear()

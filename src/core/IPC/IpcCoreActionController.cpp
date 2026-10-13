@@ -1,0 +1,1273 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#include <core/IPC/IpcCoreActionController.h>
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Event.h>
+#include <core/Basics/GridPoint.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Playlist.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/IPC/IpcChannel.h>
+#include <core/IPC/IpcMessage.h>
+#include <core/License.h>
+#include <core/Midi/MidiEvent.h>
+#include <core/Midi/MidiEventMap.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Preferences/Preferences.h>
+
+namespace H2Core {
+
+IpcCoreActionController::IpcCoreActionController(
+	Hydrogen* pMirror, IpcChannel* pChannel )
+	: CoreActionController( pMirror )
+	, m_pChannel( pChannel )
+	, m_pMirror( pMirror ) {
+}
+
+// Each override forwards the command to the engine (opcode on the channel) and
+// applies it to the local mirror via the base implementation (snappy UI). The
+// arg order matches IpcEngineBridge::dispatchCommand.
+
+bool IpcCoreActionController::setBpm( float fBpm, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetBpm ).arg( fBpm ) );
+	}
+	return CoreActionController::setBpm( fBpm, trigger );
+}
+
+bool IpcCoreActionController::setMasterVolume( float fVolumeValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetMasterVolume ).arg( fVolumeValue ) );
+	}
+	return CoreActionController::setMasterVolume( fVolumeValue, trigger );
+}
+
+bool IpcCoreActionController::setMasterIsMuted( bool bIsMuted, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetMasterIsMuted ).arg( bIsMuted ) );
+	}
+	return CoreActionController::setMasterIsMuted( bIsMuted, trigger );
+}
+
+bool IpcCoreActionController::setMetronomeIsActive( bool bIsActive ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetMetronomeIsActive ).arg( bIsActive ) );
+	}
+	return CoreActionController::setMetronomeIsActive( bIsActive );
+}
+
+bool IpcCoreActionController::setMetronomeVolume( float fVolume ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetMetronomeVolume ).arg( fVolume ) );
+	}
+	return CoreActionController::setMetronomeVolume( fVolume );
+}
+
+bool IpcCoreActionController::locateToColumn( int nPatternGroup ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::LocateToColumn ).arg( nPatternGroup ) );
+	}
+	return CoreActionController::locateToColumn( nPatternGroup );
+}
+
+bool IpcCoreActionController::locateToTick( long nTick, bool bWithJackBroadcast ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::LocateToTick )
+							  .arg( static_cast<qlonglong>( nTick ) )
+							  .arg( bWithJackBroadcast ) );
+	}
+	return CoreActionController::locateToTick( nTick, bWithJackBroadcast );
+}
+
+bool IpcCoreActionController::selectPattern( int nPatternNumber ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SelectPattern ).arg( nPatternNumber ) );
+	}
+	return CoreActionController::selectPattern( nPatternNumber );
+}
+
+bool IpcCoreActionController::setStripVolume(
+	int nStrip, float fVolumeValue, bool bSelectStrip, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetStripVolume )
+							  .arg( nStrip ).arg( fVolumeValue ).arg( bSelectStrip ) );
+	}
+	return CoreActionController::setStripVolume( nStrip, fVolumeValue, bSelectStrip, trigger );
+}
+
+bool IpcCoreActionController::setStripPan(
+	int nStrip, float fValue, bool bSelectStrip, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetStripPan )
+							  .arg( nStrip ).arg( fValue ).arg( bSelectStrip ) );
+	}
+	return CoreActionController::setStripPan( nStrip, fValue, bSelectStrip, trigger );
+}
+
+bool IpcCoreActionController::activateLoopMode( bool bActivate ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::ActivateLoopMode ).arg( bActivate ) );
+	}
+	return CoreActionController::activateLoopMode( bActivate );
+}
+
+bool IpcCoreActionController::activateSongMode( bool bActivate ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::ActivateSongMode ).arg( bActivate ) );
+	}
+	return CoreActionController::activateSongMode( bActivate );
+}
+
+bool IpcCoreActionController::activateRecordMode( bool bActivate ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::ActivateRecordMode ).arg( bActivate ) );
+	}
+	return CoreActionController::activateRecordMode( bActivate );
+}
+
+bool IpcCoreActionController::addTempoMarker( int nPosition, float fBpm, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddTempoMarker )
+							  .arg( nPosition ).arg( fBpm ) );
+	}
+	return CoreActionController::addTempoMarker( nPosition, fBpm, trigger );
+}
+
+bool IpcCoreActionController::addTag( int nPosition, const QString& sText, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::AddTag ).arg( nPosition ).arg( sText ) );
+	}
+	return CoreActionController::addTag( nPosition, sText, trigger );
+}
+
+bool IpcCoreActionController::addAutomationPoint( float fX, float fY, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddAutomationPoint )
+						  .arg( fX ).arg( fY ) );
+	}
+	return CoreActionController::addAutomationPoint( fX, fY, trigger );
+}
+
+bool IpcCoreActionController::removeAutomationPoint( float fX, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RemoveAutomationPoint )
+						  .arg( fX ) );
+	}
+	return CoreActionController::removeAutomationPoint( fX, trigger );
+}
+
+bool IpcCoreActionController::quit() {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::Quit ) );
+	}
+	return CoreActionController::quit();
+}
+
+bool IpcCoreActionController::panic() {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::Panic ) );
+	}
+	return CoreActionController::panic();
+}
+
+bool IpcCoreActionController::setDefaultMidiOutNotes( Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetDefaultMidiOutNotes ) );
+	}
+	return CoreActionController::setDefaultMidiOutNotes( trigger );
+}
+
+bool IpcCoreActionController::recalculateRubberband() {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RecalculateRubberband ) );
+	}
+	return CoreActionController::recalculateRubberband();
+}
+
+bool IpcCoreActionController::setInstrumentPitch( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentPitch ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentPitch( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentGain( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentGain ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentGain( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentRandomPitch( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentRandomPitch ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentRandomPitch( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentFilterCutoff( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentFilterCutoff ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentFilterCutoff( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentFilterResonance( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentFilterResonance ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentFilterResonance( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentAttack( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentAttack ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentAttack( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentDecay( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentDecay ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentDecay( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentSustain( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentSustain ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentSustain( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentRelease( int nInstrument, float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentRelease ).arg( nInstrument ).arg( fValue ) );
+	}
+	return CoreActionController::setInstrumentRelease( nInstrument, fValue, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentFilterActive( int nInstrument, bool bActive, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentFilterActive ).arg( nInstrument ).arg( bActive ) );
+	}
+	return CoreActionController::setInstrumentFilterActive( nInstrument, bActive, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentMuteGroup( int nInstrument, int nMuteGroup, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMuteGroup ).arg( nInstrument ).arg( nMuteGroup ) );
+	}
+	return CoreActionController::setInstrumentMuteGroup( nInstrument, nMuteGroup, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentStopNotes( int nInstrument, bool bStopNotes, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentStopNotes ).arg( nInstrument ).arg( bStopNotes ) );
+	}
+	return CoreActionController::setInstrumentStopNotes( nInstrument, bStopNotes, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentApplyVelocity( int nInstrument, bool bApplyVelocity, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentApplyVelocity ).arg( nInstrument ).arg( bApplyVelocity ) );
+	}
+	return CoreActionController::setInstrumentApplyVelocity( nInstrument, bApplyVelocity, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentHihatGroup( int nInstrument, int nHihatGroup, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentHihatGroup ).arg( nInstrument ).arg( nHihatGroup ) );
+	}
+	return CoreActionController::setInstrumentHihatGroup( nInstrument, nHihatGroup, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentLowerCc( int nInstrument, int nCc, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentLowerCc ).arg( nInstrument ).arg( nCc ) );
+	}
+	return CoreActionController::setInstrumentLowerCc( nInstrument, nCc, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentHigherCc( int nInstrument, int nCc, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentHigherCc ).arg( nInstrument ).arg( nCc ) );
+	}
+	return CoreActionController::setInstrumentHigherCc( nInstrument, nCc, trigger );
+}
+
+bool IpcCoreActionController::setInstrumentMidiOutNote(
+	int nInstrument,
+	Midi::Note note,
+	long nEventId,
+	Event::Trigger trigger
+)
+{
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMidiOutNote )
+							  .arg( nInstrument )
+							  .arg( static_cast<int>( note ) )
+							  .arg( QVariant::fromValue( nEventId ) ) );
+	}
+	return CoreActionController::setInstrumentMidiOutNote(
+		nInstrument, note, nEventId, trigger
+	);
+}
+
+bool IpcCoreActionController::setInstrumentMidiOutChannel(
+	int nInstrument,
+	Midi::Channel channel,
+	long nEventId,
+	Event::Trigger trigger
+)
+{
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetInstrumentMidiOutChannel )
+							  .arg( nInstrument )
+							  .arg( static_cast<int>( channel ) )
+							  .arg( QVariant::fromValue( nEventId ) ) );
+	}
+	return CoreActionController::setInstrumentMidiOutChannel(
+		nInstrument, channel, nEventId, trigger
+	);
+}
+
+bool IpcCoreActionController::setComponentIsMuted( int nInstrument, int nComponent, bool bIsMuted, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentIsMuted ).arg( nInstrument ).arg( nComponent ).arg( bIsMuted ) );
+	}
+	return CoreActionController::setComponentIsMuted( nInstrument, nComponent, bIsMuted, trigger );
+}
+
+bool IpcCoreActionController::setComponentIsSoloed( int nInstrument, int nComponent, bool bIsSoloed, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentIsSoloed ).arg( nInstrument ).arg( nComponent ).arg( bIsSoloed ) );
+	}
+	return CoreActionController::setComponentIsSoloed( nInstrument, nComponent, bIsSoloed, trigger );
+}
+
+bool IpcCoreActionController::setComponentGain( int nInstrument, int nComponent, float fGain, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentGain ).arg( nInstrument ).arg( nComponent ).arg( fGain ) );
+	}
+	return CoreActionController::setComponentGain( nInstrument, nComponent, fGain, trigger );
+}
+
+bool IpcCoreActionController::setComponentSelection( int nInstrument, int nComponent, int nSelection, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetComponentSelection ).arg( nInstrument ).arg( nComponent ).arg( nSelection ) );
+	}
+	return CoreActionController::setComponentSelection( nInstrument, nComponent, nSelection, trigger );
+}
+
+bool IpcCoreActionController::setLayerIsMuted( int nInstrument, int nComponent, int nLayer, bool bIsMuted, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerIsMuted ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( bIsMuted ) );
+	}
+	return CoreActionController::setLayerIsMuted( nInstrument, nComponent, nLayer, bIsMuted, trigger );
+}
+
+bool IpcCoreActionController::setLayerIsSoloed( int nInstrument, int nComponent, int nLayer, bool bIsSoloed, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerIsSoloed ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( bIsSoloed ) );
+	}
+	return CoreActionController::setLayerIsSoloed( nInstrument, nComponent, nLayer, bIsSoloed, trigger );
+}
+
+bool IpcCoreActionController::setLayerGain( int nInstrument, int nComponent, int nLayer, float fGain, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerGain ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fGain ) );
+	}
+	return CoreActionController::setLayerGain( nInstrument, nComponent, nLayer, fGain, trigger );
+}
+
+bool IpcCoreActionController::setLayerPitchOffset( int nInstrument, int nComponent, int nLayer, float fPitchOffset, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerPitchOffset ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fPitchOffset ) );
+	}
+	return CoreActionController::setLayerPitchOffset( nInstrument, nComponent, nLayer, fPitchOffset, trigger );
+}
+
+bool IpcCoreActionController::setLayerStartVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerStartVelocity ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fVelocity ) );
+	}
+	return CoreActionController::setLayerStartVelocity( nInstrument, nComponent, nLayer, fVelocity, trigger );
+}
+
+bool IpcCoreActionController::setLayerEndVelocity( int nInstrument, int nComponent, int nLayer, float fVelocity, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLayerEndVelocity ).arg( nInstrument ).arg( nComponent ).arg( nLayer ).arg( fVelocity ) );
+	}
+	return CoreActionController::setLayerEndVelocity( nInstrument, nComponent, nLayer, fVelocity, trigger );
+}
+
+bool IpcCoreActionController::setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetStripIsMuted ).arg( nStrip ).arg( isMuted ).arg( bSelectStrip ) );
+	}
+	return CoreActionController::setStripIsMuted( nStrip, isMuted, bSelectStrip, trigger );
+}
+
+bool IpcCoreActionController::setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetStripIsSoloed ).arg( nStrip ).arg( isSoloed ).arg( bSelectStrip ) );
+	}
+	return CoreActionController::setStripIsSoloed( nStrip, isSoloed, bSelectStrip, trigger );
+}
+
+bool IpcCoreActionController::setStripPanSym( int nStrip, float fValue, bool bSelectStrip, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetStripPanSym ).arg( nStrip ).arg( fValue ).arg( bSelectStrip ) );
+	}
+	return CoreActionController::setStripPanSym( nStrip, fValue, bSelectStrip, trigger );
+}
+
+bool IpcCoreActionController::setHumanizeTime( float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetHumanizeTime ).arg( fValue ) );
+	}
+	return CoreActionController::setHumanizeTime( fValue, trigger );
+}
+
+bool IpcCoreActionController::setHumanizeVelocity( float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetHumanizeVelocity ).arg( fValue ) );
+	}
+	return CoreActionController::setHumanizeVelocity( fValue, trigger );
+}
+
+bool IpcCoreActionController::setSwing( float fValue, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetSwing ).arg( fValue ) );
+	}
+	return CoreActionController::setSwing( fValue, trigger );
+}
+
+bool IpcCoreActionController::setPanLaw( int nPanLawType, float fPanLawKNorm, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPanLaw ).arg( nPanLawType ).arg( fPanLawKNorm ) );
+	}
+	return CoreActionController::setPanLaw( nPanLawType, fPanLawKNorm, trigger );
+}
+
+bool IpcCoreActionController::setPlaybackTrackMuted( bool bMuted, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPlaybackTrackMuted ).arg( bMuted ) );
+	}
+	return CoreActionController::setPlaybackTrackMuted( bMuted, trigger );
+}
+
+bool IpcCoreActionController::setPlaybackTrackVolume( float fVolume, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPlaybackTrackVolume ).arg( fVolume ) );
+	}
+	return CoreActionController::setPlaybackTrackVolume( fVolume, trigger );
+}
+
+bool IpcCoreActionController::previewInstrument( int nInstrument, bool bStop ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::PreviewInstrument ).arg( nInstrument ).arg( bStop ) );
+	}
+	return true;
+}
+
+bool IpcCoreActionController::previewInstrument(
+	std::shared_ptr<Instrument> pInstrument, std::shared_ptr<Note> pNote )
+{
+	if ( m_pChannel != nullptr && pInstrument != nullptr &&
+		 pNote != nullptr ) {
+		// The mirror can not render audio; the ad-hoc instrument and its
+		// preview note cross as XML (samples referenced by shared-disk
+		// paths, reloaded by the engine — ADR 0026 point 11).
+		IpcMessage msg( IpcOpcode::PreviewInstrumentSerialized );
+		msg.setPayload( pInstrument->toXmlBuffer() );
+		msg.arg( pNote->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	// No dual-apply: the mirror engine has no real sampler.
+	return true;
+}
+
+bool IpcCoreActionController::noteOn( std::shared_ptr<Note> pNote ) {
+	if ( m_pChannel != nullptr && pNote != nullptr ) {
+		IpcMessage msg( IpcOpcode::NoteOn );
+		msg.setPayload( pNote->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	// No dual-apply: the mirror engine has no real sampler.
+	return true;
+}
+
+bool IpcCoreActionController::releasePlayingNotes( Uuid instrumentUuid ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ReleasePlayingNotes )
+							  .arg( instrumentUuid.toQString() ) );
+	}
+	// No dual-apply: the mirror engine has no real sampler.
+	return true;
+}
+
+bool IpcCoreActionController::activateTimeline( bool bActivate ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ActivateTimeline ).arg( bActivate ) );
+	}
+	return CoreActionController::activateTimeline( bActivate );
+}
+
+bool IpcCoreActionController::toggleTimeline(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ToggleTimeline ) );
+	}
+	return CoreActionController::toggleTimeline(  );
+}
+
+bool IpcCoreActionController::deleteTempoMarker( int nPosition, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::DeleteTempoMarker ).arg( nPosition ) );
+	}
+	return CoreActionController::deleteTempoMarker( nPosition, trigger );
+}
+
+bool IpcCoreActionController::deleteTag( int nPosition, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::DeleteTag ).arg( nPosition ) );
+	}
+	return CoreActionController::deleteTag( nPosition, trigger );
+}
+
+bool IpcCoreActionController::activateJackTransport( bool bActivate ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ActivateJackTransport ).arg( bActivate ) );
+	}
+	return CoreActionController::activateJackTransport( bActivate );
+}
+
+bool IpcCoreActionController::toggleJackTransport(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ToggleJackTransport ) );
+	}
+	return CoreActionController::toggleJackTransport(  );
+}
+
+bool IpcCoreActionController::activateJackTimebaseControl( bool bActivate ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ActivateJackTimebaseControl ).arg( bActivate ) );
+	}
+	return CoreActionController::activateJackTimebaseControl( bActivate );
+}
+
+bool IpcCoreActionController::toggleJackTimebaseControl(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ToggleJackTimebaseControl ) );
+	}
+	return CoreActionController::toggleJackTimebaseControl(  );
+}
+
+bool IpcCoreActionController::toggleSongMode(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ToggleSongMode ) );
+	}
+	return CoreActionController::toggleSongMode(  );
+}
+
+bool IpcCoreActionController::toggleLoopMode(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ToggleLoopMode ) );
+	}
+	return CoreActionController::toggleLoopMode(  );
+}
+
+bool IpcCoreActionController::moveInstrument( int nSourceIndex, int nTargetIndex, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::MoveInstrument ).arg( nSourceIndex ).arg( nTargetIndex ) );
+	}
+	return CoreActionController::moveInstrument( nSourceIndex, nTargetIndex, trigger );
+}
+
+bool IpcCoreActionController::renameComponent( int nInstrumentIdx, int nComponentId, const QString& sNewName, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RenameComponent ).arg( nInstrumentIdx ).arg( nComponentId ).arg( sNewName ) );
+	}
+	return CoreActionController::renameComponent( nInstrumentIdx, nComponentId, sNewName, trigger );
+}
+
+bool IpcCoreActionController::toggleNextPattern( int nPatternNumber ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ToggleNextPattern ).arg( nPatternNumber ) );
+	}
+	return CoreActionController::toggleNextPattern( nPatternNumber );
+}
+
+bool IpcCoreActionController::movePattern( int nSourcePattern, int nTargetPattern, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::MovePattern ).arg( nSourcePattern ).arg( nTargetPattern ) );
+	}
+	return CoreActionController::movePattern( nSourcePattern, nTargetPattern, trigger );
+}
+
+bool IpcCoreActionController::removePattern( int nPatternNumber, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RemovePattern ).arg( nPatternNumber ) );
+	}
+	return CoreActionController::removePattern( nPatternNumber, trigger );
+}
+
+bool IpcCoreActionController::setPatternSize( int nLength, int nDenominator, int nPatternNumber, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternSize ).arg( nLength ).arg( nDenominator ).arg( nPatternNumber ) );
+	}
+	return CoreActionController::setPatternSize( nLength, nDenominator, nPatternNumber, trigger );
+}
+
+bool IpcCoreActionController::startCountIn(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::StartCountIn ) );
+	}
+	return CoreActionController::startCountIn(  );
+}
+
+bool IpcCoreActionController::activatePlaylistSong( int nSongNumber ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ActivatePlaylistSong ).arg( nSongNumber ) );
+	}
+	return CoreActionController::activatePlaylistSong( nSongNumber );
+}
+
+bool IpcCoreActionController::setMidiClockInputHandling( bool bHandle ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetMidiClockInputHandling ).arg( bHandle ) );
+	}
+	return CoreActionController::setMidiClockInputHandling( bHandle );
+}
+
+bool IpcCoreActionController::setMidiClockOutputSend( bool bHandle ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetMidiClockOutputSend ).arg( bHandle ) );
+	}
+	return CoreActionController::setMidiClockOutputSend( bHandle );
+}
+
+bool IpcCoreActionController::clearMidiInputLog(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ClearMidiInputLog ) );
+	}
+	return CoreActionController::clearMidiInputLog(  );
+}
+
+bool IpcCoreActionController::clearMidiOutputLog(  ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ClearMidiOutputLog ) );
+	}
+	return CoreActionController::clearMidiOutputLog(  );
+}
+
+bool IpcCoreActionController::editNoteProperty(
+	NoteProperty property, int nPatternNumber, int nPosition,
+	int nOldInstrumentId, int nNewInstrumentId, const QString& sOldType,
+	const QString& sNewType, float fVelocity, float fPan, float fLeadLag,
+	float fProbability, int nLength, int nNewKey, int nOldKey, int nNewOctave,
+	int nOldOctave, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::EditNoteProperty )
+							  .arg( static_cast<int>( property ) )
+							  .arg( nPatternNumber ).arg( nPosition )
+							  .arg( nOldInstrumentId ).arg( nNewInstrumentId )
+							  .arg( sOldType ).arg( sNewType )
+							  .arg( fVelocity ).arg( fPan ).arg( fLeadLag )
+							  .arg( fProbability ).arg( nLength ).arg( nNewKey )
+							  .arg( nOldKey ).arg( nNewOctave ).arg( nOldOctave ) );
+	}
+	return CoreActionController::editNoteProperty(
+		property, nPatternNumber, nPosition, nOldInstrumentId, nNewInstrumentId,
+		sOldType, sNewType, fVelocity, fPan, fLeadLag, fProbability, nLength,
+		nNewKey, nOldKey, nNewOctave, nOldOctave, trigger );
+}
+
+bool IpcCoreActionController::removeNote( Uuid noteUuid, Uuid patternUuid, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RemoveNote )
+							  .arg( noteUuid.toQString() )
+							  .arg( patternUuid.toQString() ) );
+	}
+	return CoreActionController::removeNote( noteUuid, patternUuid, trigger );
+}
+
+bool IpcCoreActionController::toggleGridCell( const GridPoint& gridPoint, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::ToggleGridCell )
+							  .arg( gridPoint.getColumn() )
+							  .arg( gridPoint.getRow() ) );
+	}
+	return CoreActionController::toggleGridCell( gridPoint, trigger );
+}
+
+// ── ADR 0030 batch 2d — out-param commands ──
+
+bool IpcCoreActionController::addOrRemoveNote(
+	int nPosition, int nInstrumentId, const QString& sType, int nPatternNumber,
+	int nOldLength, float fOldVelocity, float fOldPan, float fOldLeadLag,
+	int nOldKey, int nOldOctave, float fOldProbability, bool bIsDelete,
+	bool bIsNoteOff, bool bIsMappedToDrumkit, Uuid* pNewNoteUUid,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddOrRemoveNote )
+							  .arg( nPosition ).arg( nInstrumentId ).arg( sType )
+							  .arg( nPatternNumber ).arg( nOldLength )
+							  .arg( fOldVelocity ).arg( fOldPan ).arg( fOldLeadLag )
+							  .arg( nOldKey ).arg( nOldOctave ).arg( fOldProbability )
+							  .arg( bIsDelete ).arg( bIsNoteOff )
+							  .arg( bIsMappedToDrumkit ) );
+	}
+	// Dual-apply: the mirror creates its own note and fills pNewNoteUUid with the
+	// mirror-side id the GUI's local undo tracks (ADR 0030; engine identifies the
+	// note by value).
+	return CoreActionController::addOrRemoveNote(
+		nPosition, nInstrumentId, sType, nPatternNumber, nOldLength, fOldVelocity,
+		fOldPan, fOldLeadLag, nOldKey, nOldOctave, fOldProbability, bIsDelete,
+		bIsNoteOff, bIsMappedToDrumkit, pNewNoteUUid, trigger );
+}
+
+bool IpcCoreActionController::handleNote(
+	Midi::Note note, Midi::Channel channel, float fVelocity, bool bNoteOff,
+	QStringList* pMappedInstruments ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::HandleNote )
+							  .arg( static_cast<int>( note ) )
+							  .arg( static_cast<int>( channel ) )
+							  .arg( fVelocity ).arg( bNoteOff ) );
+	}
+	// Dual-apply so the editor's own mapped-instruments list is filled locally;
+	// the audible note is produced engine-side from the opcode.
+	return CoreActionController::handleNote(
+		note, channel, fVelocity, bNoteOff, pMappedInstruments );
+}
+
+// ── ADR 0030 batch 2e — object-payload / value-struct commands ──
+
+bool IpcCoreActionController::setSong( std::shared_ptr<Song> pSong, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr && pSong != nullptr ) {
+		// Whole-song bulk load: the song XML is the payload (ADR 0027/0030 —
+		// reserved for genuine bulk loads). The engine reconstructs it.
+		IpcMessage msg( IpcOpcode::SetSong );
+		msg.setPayload( pSong->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	// Dual-apply: the mirror takes the live object directly (no round-trip).
+	return CoreActionController::setSong( pSong, trigger );
+}
+
+bool IpcCoreActionController::recreateOscServer() {
+	if ( m_pChannel != nullptr ) {
+		// The authoritative engine owns the OSC server; the mirror's local
+		// base call below is a no-op (it holds no server).
+		m_pChannel->send( IpcMessage( IpcOpcode::RecreateOscServer ) );
+	}
+	// No dual apply since the editor will never feature an OSC server.
+	return true;
+}
+
+bool IpcCoreActionController::setPreferences(
+	std::shared_ptr<Preferences> pPreferences )
+{
+	if ( m_pChannel != nullptr && pPreferences != nullptr ) {
+		// In editor mode only the engine-core subset of Preferences is
+		// relevant to the headless engine; GUI-only fields (window
+		// geometry, theme, shortcuts) are not. The engine applies them
+		// via Preferences::applyCorePropsFromXml().
+		IpcMessage msg( IpcOpcode::SetPreferences );
+		msg.setPayload( pPreferences->corePropsToXml() );
+		m_pChannel->send( msg );
+	}
+	// Dual-apply: the mirror gets the full Preferences object.
+	return CoreActionController::setPreferences( pPreferences );
+}
+
+bool IpcCoreActionController::setRubberBandBatchMode( int nMode ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetRubberBandBatchMode ).arg( nMode ) );
+	}
+	return CoreActionController::setRubberBandBatchMode( nMode );
+}
+
+bool IpcCoreActionController::setPunchArea( int nPunchInPos, int nPunchOutPos ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPunchArea )
+							  .arg( nPunchInPos )
+							  .arg( nPunchOutPos ) );
+	}
+	return CoreActionController::setPunchArea( nPunchInPos, nPunchOutPos );
+}
+
+bool IpcCoreActionController::setMidiControlSettings(
+	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
+	bool bTransportInputHandling, bool bTransportOutputSend,
+	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SetMidiControlSettings )
+				.arg( bNoteOffIgnore )
+				.arg( static_cast<int>( actionChannel ) )
+				.arg( bEnableFeedback )
+				.arg( bTransportInputHandling )
+				.arg( bTransportOutputSend )
+				.arg( static_cast<int>( feedbackChannel ) )
+				.arg( static_cast<int>( sendNoteOff ) ) );
+	}
+	return CoreActionController::setMidiControlSettings(
+		bNoteOffIgnore, actionChannel, bEnableFeedback,
+		bTransportInputHandling, bTransportOutputSend,
+		feedbackChannel, sendNoteOff );
+}
+
+bool IpcCoreActionController::moveAutomationPoint(
+	float fOldX, float fOldY, float fNewX, float fNewY,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::MoveAutomationPoint )
+							  .arg( fOldX ).arg( fOldY )
+							  .arg( fNewX ).arg( fNewY ) );
+	}
+	return CoreActionController::moveAutomationPoint(
+		fOldX, fOldY, fNewX, fNewY, trigger );
+}
+
+bool IpcCoreActionController::setVirtualPatterns(
+	int nPatternNumber, const QStringList& virtualPatternNames,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetVirtualPatterns )
+							  .arg( nPatternNumber )
+							  .arg( virtualPatternNames ) );
+	}
+	// Dual-apply: the mirror takes over the new set synchronously,
+	// including the flattened recompute for its own views.
+	return CoreActionController::setVirtualPatterns(
+		nPatternNumber, virtualPatternNames, trigger );
+}
+
+bool IpcCoreActionController::setQuantizeEvents( bool bQuantizeEvents ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetQuantizeEvents )
+							  .arg( bQuantizeEvents ) );
+	}
+	return CoreActionController::setQuantizeEvents( bQuantizeEvents );
+}
+
+bool IpcCoreActionController::setPatternEditorGrid(
+	int nResolution, bool bUsingTriplets ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternEditorGrid )
+							  .arg( nResolution )
+							  .arg( bUsingTriplets ) );
+	}
+	// Dual-apply: the pair lands on the mirror as one command too —
+	// its own quantization preview must not see a half-updated grid.
+	return CoreActionController::setPatternEditorGrid(
+		nResolution, bUsingTriplets );
+}
+
+bool IpcCoreActionController::setSongProperties(
+	const int nNewVersion, const QString& sNewName,
+	const QString& sNewAuthor, const QString& sNewNotes,
+	const H2Core::License& newLicense, const QStringList& newTags,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetSongProperties )
+							  .arg( nNewVersion ).arg( sNewName )
+							  .arg( sNewAuthor ).arg( sNewNotes )
+							  .arg( newLicense.getLicenseString() )
+							  .arg( newLicense.getCopyrightHolder() )
+							  .arg( newTags ) );
+	}
+	return CoreActionController::setSongProperties(
+		nNewVersion, sNewName, sNewAuthor, sNewNotes, newLicense,
+		newTags, trigger );
+}
+
+bool IpcCoreActionController::setPatternProperties(
+	const QString& sNewPatternPath, const int nNewVersion,
+	const QString& sNewPatternName, const QString& sNewAuthor,
+	const QString& sNewPatternInfo, const H2Core::License& newLicense,
+	const QStringList& newTags, int nPatternIndex, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetPatternProperties )
+							  .arg( sNewPatternPath ).arg( nNewVersion )
+							  .arg( sNewPatternName ).arg( sNewAuthor )
+							  .arg( sNewPatternInfo )
+							  .arg( newLicense.getLicenseString() )
+							  .arg( newLicense.getCopyrightHolder() )
+							  .arg( newTags ).arg( nPatternIndex ) );
+	}
+	return CoreActionController::setPatternProperties(
+		sNewPatternPath, nNewVersion, sNewPatternName, sNewAuthor,
+		sNewPatternInfo, newLicense, newTags, nPatternIndex, trigger );
+}
+
+// ── ADR 0030 batch 2f — object-payload (XML buffer) + file-save commands ──
+
+bool IpcCoreActionController::setDrumkit( std::shared_ptr<Drumkit> pDrumkit, Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr && pDrumkit != nullptr ) {
+		// The drumkit XML is the payload; the engine reconstructs it and reloads
+		// samples from their (shared-disk) paths (ADR 0030).
+		IpcMessage msg( IpcOpcode::SetDrumkit );
+		msg.setPayload( pDrumkit->toXmlBuffer(
+			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
+		m_pChannel->send( msg );
+	}
+	// Dual-apply: the mirror takes the live object directly (no round-trip).
+	return CoreActionController::setDrumkit( pDrumkit, trigger );
+}
+
+bool IpcCoreActionController::setPattern(
+	std::shared_ptr<Pattern> pPattern, int nPatternNumber, bool bReplace,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr && pPattern != nullptr ) {
+		// Serialise the pattern against the current drumkit so the engine can
+		// resolve instrument ids/types on the far side.
+		std::shared_ptr<Drumkit> pDrumkit = nullptr;
+		if ( m_pMirror != nullptr && m_pMirror->getSong() != nullptr ) {
+			pDrumkit = m_pMirror->getSong()->getDrumkit();
+		}
+		IpcMessage msg( IpcOpcode::SetPattern );
+		msg.arg( nPatternNumber ).arg( bReplace );
+		msg.setPayload( pPattern->toXmlBuffer( pDrumkit ) );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::setPattern( pPattern, nPatternNumber, bReplace, trigger );
+}
+
+bool IpcCoreActionController::replaceInstrument(
+	std::shared_ptr<Instrument> pNewInstrument,
+	std::shared_ptr<Instrument> pOldInstrument, Event::Trigger trigger ) {
+	// The drumkit replacement needs both instruments. The playback track
+	// combos the SongEditorPanel undo stack produces — discarding the
+	// current track (nullptr new) and restoring one (nullptr old) — must
+	// cross as well; combos the base rejects ((nullptr, nullptr) or a null
+	// side without a playback track) stay local, exactly as before.
+	if ( m_pChannel != nullptr &&
+		 ( ( pNewInstrument != nullptr && pOldInstrument != nullptr ) ||
+		   ( pNewInstrument != nullptr &&
+			 pNewInstrument->getId() == Instrument::PlaybackTrackId ) ||
+		   ( pOldInstrument != nullptr &&
+			 pOldInstrument->getId() == Instrument::PlaybackTrackId ) ) ) {
+		// The new instrument rides as payload; the old one is identified by id
+		// so the engine can locate its own copy in the authoritative drumkit.
+		// In the playback track case the old instrument is engine state
+		// instead: the PlaybackTrackId arg tags the playback path (a null old
+		// instrument — the undo of a discard — sends the tag too, since the
+		// engine derives the old track from its own song), and a null new
+		// instrument (the discard itself) crosses as an empty payload.
+		IpcMessage msg( IpcOpcode::ReplaceInstrument );
+		msg.arg( static_cast<int>(
+			pOldInstrument != nullptr ? pOldInstrument->getId()
+									  : Instrument::PlaybackTrackId ) );
+		if ( pNewInstrument != nullptr ) {
+			msg.setPayload( pNewInstrument->toXmlBuffer(
+				Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
+		}
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::replaceInstrument(
+		pNewInstrument, pOldInstrument, trigger );
+}
+
+bool IpcCoreActionController::addInstrument(
+	std::shared_ptr<Instrument> pInstrument, int nIndex, long nEventId,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
+		IpcMessage msg( IpcOpcode::AddInstrument );
+		msg.arg( nIndex ).arg( QVariant::fromValue( nEventId ) );
+		msg.setPayload( pInstrument->toXmlBuffer(
+			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::addInstrument( pInstrument, nIndex, nEventId, trigger );
+}
+
+bool IpcCoreActionController::removeInstrument(
+	std::shared_ptr<Instrument> pInstrument, long nEventId,
+	Event::Trigger trigger ) {
+	if ( m_pChannel != nullptr && pInstrument != nullptr ) {
+		IpcMessage msg( IpcOpcode::RemoveInstrument );
+		msg.arg( QVariant::fromValue( nEventId ) );
+		msg.setPayload( pInstrument->toXmlBuffer(
+			Xml::Flag::SongKit | Xml::Flag::KeepMissingSamples ) );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::removeInstrument( pInstrument, nEventId, trigger );
+}
+
+bool IpcCoreActionController::saveSong( bool bKeepMissingSamples ) {
+	// Engine-only: the authoritative engine writes the shared file. The editor
+	// mirror must NOT also write it (double-write / race on the same path).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::SaveSong ).arg( bKeepMissingSamples ) );
+
+		// Mirror-side apply of what the engine's Song::save() changes in
+		// memory — the dirty flip — without writing the file.
+		// UpdateSong(1) refreshes the title like the standalone base does;
+		// the engine's own push is Headless-gated (batch 2t).
+		auto pHydrogen = getHydrogen();
+		pHydrogen->setSongModified( false );
+		pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
+		return true;
+	}
+	else {
+		return CoreActionController::saveSong( bKeepMissingSamples );
+	}
+}
+
+bool IpcCoreActionController::saveSongAs(
+	const QString& sNewFileName, bool bKeepMissingSamples,
+	CoreActionController::PathPolicy policy ) {
+	// Engine-only: the authoritative engine writes the shared file. The editor
+	// mirror must NOT also write it (double-write / race on the same path).
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SaveSongAs )
+							  .arg( sNewFileName ).arg( bKeepMissingSamples )
+							  .arg( static_cast<int>( policy ) ) );
+
+		// Mirror-side apply of what the engine's saveSongAs() changes in
+		// memory — the path adoption (or, for Keep, just the dirty flip) —
+		// without writing the file. This lands the dialog-chosen path on
+		// the mirror song directly, instead of re-syncing the whole song
+		// via setSong() afterwards (batch 2t).
+		auto pHydrogen = getHydrogen();
+		auto pSong = pHydrogen->getSong();
+		if ( pSong != nullptr ) {
+			if ( policy == CoreActionController::PathPolicy::Adopt ) {
+				pSong->setPath( sNewFileName );
+				pSong->setBackedByProject( false );
+			}
+			pHydrogen->setSongModified( false );
+
+			insertRecentFile( sNewFileName );
+			if ( !pHydrogen->isUnderSessionManagement() ) {
+				pHydrogen->getPreferences()->setLastSongPath(
+					policy == CoreActionController::PathPolicy::Adopt
+						? sNewFileName
+						: pSong->getPath() );
+			}
+		}
+
+		// Refreshes the title like the standalone base does; the engine's
+		// own push is Headless-gated (batch 2t).
+		pHydrogen->getEventQueue()->pushEvent( Event::Type::UpdateSong, 1 );
+		return true;
+	}
+	else {
+		return CoreActionController::saveSongAs(
+			sNewFileName, bKeepMissingSamples, policy );
+	}
+}
+
+bool IpcCoreActionController::savePlaylist() {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SavePlaylist ) );
+		return true;
+	}
+	return CoreActionController::savePlaylist();
+}
+
+bool IpcCoreActionController::savePlaylistAs( const QString& sPath ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SavePlaylistAs ).arg( sPath ) );
+		return true;
+	}
+	return CoreActionController::savePlaylistAs( sPath );
+}
+
+// ── ADR 0030 batch 2g — playlist commands ──
+
+bool IpcCoreActionController::setPlaylist( std::shared_ptr<Playlist> pPlaylist ) {
+	if ( m_pChannel != nullptr && pPlaylist != nullptr ) {
+		IpcMessage msg( IpcOpcode::SetPlaylist );
+		msg.setPayload( pPlaylist->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::setPlaylist( pPlaylist );
+}
+
+bool IpcCoreActionController::addToPlaylist(
+	std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
+	if ( m_pChannel != nullptr && pEntry != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddToPlaylist )
+							  .arg( pEntry->toMimeText() ).arg( nIndex ) );
+	}
+	return CoreActionController::addToPlaylist( pEntry, nIndex );
+}
+
+bool IpcCoreActionController::removeFromPlaylist(
+	std::shared_ptr<PlaylistEntry> pEntry, int nIndex ) {
+	if ( m_pChannel != nullptr && pEntry != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::RemoveFromPlaylist )
+							  .arg( pEntry->toMimeText() ).arg( nIndex ) );
+	}
+	return CoreActionController::removeFromPlaylist( pEntry, nIndex );
+}
+
+// ── ADR 0030 batch 2h — MIDI action map ──
+
+bool IpcCoreActionController::setMidiEventMap(
+	std::shared_ptr<MidiEventMap> pMidiEventMap ) {
+	if ( m_pChannel != nullptr && pMidiEventMap != nullptr ) {
+		IpcMessage msg( IpcOpcode::SetMidiEventMap );
+		msg.setPayload( pMidiEventMap->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::setMidiEventMap( pMidiEventMap );
+}
+
+// ── ADR 0030 batch 2i — MIDI instrument map ──
+
+bool IpcCoreActionController::setMidiInstrumentMap(
+	std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) {
+	if ( m_pChannel != nullptr && pMidiInstrumentMap != nullptr ) {
+		IpcMessage msg( IpcOpcode::SetMidiInstrumentMap );
+		msg.setPayload( pMidiInstrumentMap->toXmlBuffer() );
+		m_pChannel->send( msg );
+	}
+	return CoreActionController::setMidiInstrumentMap( pMidiInstrumentMap );
+}
+
+// ── ADR 0030 batch 2j — MIDI-learn channel ──
+
+bool IpcCoreActionController::setLastMidiEvent( const MidiEvent::Type& type,
+												Midi::Parameter parameter ) {
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::SetLastMidiEvent )
+							  .arg( static_cast<int>( type ) )
+							  .arg( static_cast<int>( parameter ) ) );
+	}
+	return CoreActionController::setLastMidiEvent( type, parameter );
+}
+
+// ── ADR 0030 batch 2k — custom sound library dirs ──
+
+bool IpcCoreActionController::addCustomSoundLibraryDir(
+	const QString& sDirPath ) {
+	if ( m_pChannel != nullptr && ! sDirPath.isEmpty() ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::AddCustomSoundLibraryDir )
+							  .arg( sDirPath ) );
+	}
+	return CoreActionController::addCustomSoundLibraryDir( sDirPath );
+}
+
+bool IpcCoreActionController::removeCustomSoundLibraryDir(
+	const QString& sDirPath ) {
+	if ( m_pChannel != nullptr && ! sDirPath.isEmpty() ) {
+		m_pChannel->send(
+			IpcMessage( IpcOpcode::RemoveCustomSoundLibraryDir )
+				.arg( sDirPath ) );
+	}
+	return CoreActionController::removeCustomSoundLibraryDir( sDirPath );
+}
+
+// ── ADR 0030 batch 2l — song export ──
+
+bool IpcCoreActionController::exportSong(
+	int nSampleRate, int nSampleDepth, double fCompressionLevel,
+	Interpolation::InterpolateMode interpolateMode,
+	bool bRubberbandBatchMode, const std::vector<ExportRender>& renders ) {
+	// Engine-only: the render pipeline just runs in the authoritative
+	// engine — the mirror's process loop skips rendering by design —
+	// so the plan crosses as one request and there is no base call.
+	// The engine arms the session synchronously before answering, so
+	// a true reply means the session is already active.
+	if ( m_pChannel == nullptr ) {
+		WARNINGLOG( "No engine channel — export not started" );
+		return false;
+	}
+
+	IpcMessage msg( IpcOpcode::ExportSong );
+	msg.arg( nSampleRate )
+		.arg( nSampleDepth )
+		.arg( fCompressionLevel )
+		.arg( static_cast<int>( interpolateMode ) )
+		.arg( bRubberbandBatchMode )
+		.arg( static_cast<int>( renders.size() ) );
+	for ( const auto& render : renders ) {
+		QStringList excluded;
+		for ( const auto& uuid : render.excludedInstruments ) {
+			excluded << uuid.toQString();
+		}
+		msg.arg( render.sFileName ).arg( excluded );
+	}
+
+	IpcMessage reply;
+	if ( ! m_pChannel->request( msg, reply, 3000 ) ) {
+		ERRORLOG( QString( "Export request failed or timed out [%1]" )
+					  .arg( msg.toQString() ) );
+		return false;
+	}
+	if ( reply.getArgs().size() < 1 ) {
+		ERRORLOG( QString( "Malformed export reply [%1]" )
+					  .arg( reply.toQString() ) );
+		return false;
+	}
+	if ( ! reply.getArgs()[0].toBool() ) {
+		return false;
+	}
+
+	// The engine parks its own transport while arming the session
+	// (Hydrogen::startExportSession); park the mirror's too so the
+	// editor's transport stops with it. Otherwise the mirror keeps
+	// rolling through the export and afterwards while the engine is
+	// at rest — the split twin of standalone's "export stops
+	// playback". Unconditional on purpose: the mirror's state may
+	// still be mid-transition (a pending play), and stopping an
+	// already-idle transport is a harmless no-op.
+	m_pMirror->sequencerStop();
+
+	return true;
+}
+
+void IpcCoreActionController::stopExportSession() {
+	// Engine-only fire-and-forget: the engine cancels the remaining
+	// plan and restores its own state; the dialog keeps its
+	// editor-local preferences restore.
+	if ( m_pChannel != nullptr ) {
+		m_pChannel->send( IpcMessage( IpcOpcode::StopExportSession ) );
+	}
+	else {
+		CoreActionController::stopExportSession();
+	}
+}
+
+}

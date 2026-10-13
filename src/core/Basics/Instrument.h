@@ -29,6 +29,7 @@
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Event.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 #include <core/License.h>
 #include <core/Midi/Midi.h>
 #include <core/Object.h>
@@ -36,6 +37,8 @@
 namespace H2Core {
 
 class ADSR;
+class Hydrogen;
+class Preferences;
 class InstrumentLayer;
 class InstrumentComponent;
 class Note;
@@ -80,14 +83,15 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** destructor */
 	~Instrument();
 
-	static std::shared_ptr<Instrument> from( std::shared_ptr<Sample> pSample );
+	static std::shared_ptr<Instrument> from( std::shared_ptr<Sample> pSample,
+											 Hydrogen* pHydrogen );
 
 	/**
 	 * Calls the InstrumentLayer::loadSample() member
 	 * function of all layers of each component of the
 	 * Instrument.
 	 */
-	void loadSamples( float fBpm = 120 );
+	void loadSamples( float fBpm, Preferences* pPreferences );
 	/**
 	 * Calls the InstrumentLayer::unloadSample() member
 	 * function of all layers of each component of the
@@ -99,23 +103,42 @@ class Instrument : public H2Core::Object<Instrument> {
 	 * save the instrument within the given XMLNode
 	 *
 	 * \param node the XMLNode to feed
-	 * \param bSongKit Whether the instrument is part of a
-	 *   stand-alone kit or part of a song. In the latter case all samples
-	 *   located in the corresponding drumkit folder and are referenced by
-	 *   filenames. In the former case, each instrument might be
-	 *   associated with a different kit and the lookup folder for the
-	 *   samples are stored on a per-instrument basis.
-	 * @param bKeepMissingSamples Whether layers containing a missing sample
-	 *   should be kept or discarded.
+	 * \param flags OR-ed combination of #Xml::Flag options.
 	 * \param bSilent if set to true, all log messages except of errors and
 	 *   warnings are suppressed.
+	 * \param pProjectSampleEntries If not null, samples are referenced
+	 *   by their entry names within a `.h2project` bundle instead of
+	 *   local paths (only effective in combination with
+	 *   Xml::Flag::Project).
 	 */
 	void saveTo(
 		XMLNode& node,
-		bool bSongKit,
-		bool bKeepMissingSamples,
-		bool bSilent
-	);
+		Xml::Flag flags,
+		bool bSilent,
+		const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr );
+
+	/** Serialize the instrument to an in-memory XML buffer (samples by path, not
+	 * embedded — ADR 0027/0030). Used to carry an instrument across the
+	 * editor↔engine IPC split (e.g. replaceInstrument).
+	 *
+	 * \param flags OR-ed combination of #Xml::Flag options.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed. */
+	// Non-const: Instrument::saveTo (unlike Song/Drumkit/Pattern) is non-const.
+	QByteArray toXmlBuffer(
+		Xml::Flag flags = Xml::Flag::KeepMissingSamples,
+		bool bSilent = false );
+	/** Reconstruct an instrument from a buffer produced by toXmlBuffer(); the
+	 * engine reloads samples from their (shared-disk) paths.
+	 *
+	 * \param flags OR-ed combination of #Xml::Flag options.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed. */
+	static std::shared_ptr<Instrument> fromXmlBuffer(
+		const QByteArray& buffer,
+		Xml::Flag flags,
+		bool bSilent,
+		Hydrogen* pHydrogen );
 
 	/**
 	 * load an instrument from an XMLNode
@@ -127,32 +150,28 @@ class Instrument : public H2Core::Object<Instrument> {
 	 * @param sSongPath If not empty, absolute path to the .h2song file the
 	 *   instrument is contained in. It is used to resolve sample paths
 	 *   relative to the .h2song file.
+	 * @param flags OR-ed combination of #Xml::Flag options.
 	 * \param license License assigned to all Samples that will be
 	 *   loaded. If empty, the license will be read from @a
 	 *   sDrumkitPath.
-	 * @param bSongKit If true samples are loaded on a
-	 *   per-instrument basis. If the filename of the sample is a plain
-	 *   filename, it will be searched for in the folder associated with the
-	 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
-	 *   (unique identifier locally). If it is an absolute path, it will be
-	 *   loaded directly.
 	 * \param pLegacyFormatEncountered will be set to `true` is any of the
 	 *   XML elements requires legacy format support and left untouched
 	 *   otherwise.
-	 * \param bSilent if set to true, all log messages except of
-	 *   errors and warnings are suppressed.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed.
 	 *
 	 * \return a new Instrument instance
 	 */
 	static std::shared_ptr<Instrument> loadFrom(
 		const XMLNode& pNode,
-		const QString& sDrumkitPath = "",
-		const QString& sDrumkitName = "",
-		const QString& sSongPath = "",
-		const License& license = License(),
-		bool bSongKit = false,
-		bool* pLegacyFormatEncountered = nullptr,
-		bool bSilent = false
+		const QString& sDrumkitPath,
+		const QString& sDrumkitName,
+		const QString& sSongPath,
+		Xml::Flag flags,
+		const License& license,
+		bool* pLegacyFormatEncountered,
+		bool bSilent,
+		Hydrogen* pHydrogen
 	);
 
 	///< set the name of the instrument
@@ -174,6 +193,17 @@ class Instrument : public H2Core::Object<Instrument> {
 	void setMuteGroup( int group );
 	/** get the mute group of the instrument */
 	int getMuteGroup() const;
+
+	/** Sets the plugin output bus the instrument feeds (ADR 0019).
+	 *
+	 * A negative value resets the instrument to the implicit 1-to-1
+	 * default (bus = position in the kit); a value beyond the host's
+	 * bus count routes the instrument to the master only (the sampler
+	 * clamps at mix time). */
+	void setOutputBus( int nBus );
+	/** The plugin output bus the instrument feeds, or -1 for the
+	 * implicit 1-to-1 default (ADR 0019). */
+	int getOutputBus() const;
 
 	/** set the midi out channel of the instrument */
 	void setMidiOutChannel( Midi::Channel channel );
@@ -232,11 +262,10 @@ class Instrument : public H2Core::Object<Instrument> {
 	void setPeak_R( float val );
 	/** get the right peak of the instrument */
 	float getPeak_R() const;
-
-	/** set the fx level of the instrument */
-	void setFxLevel( float level, int index );
-	/** get the fx level of the instrument */
-	float getFxLevel( int index ) const;
+	/** Reads the current peak levels and resets the accumulators (peak-hold
+	 * consume). The meter reads through this and applies its own fall-off; it
+	 * must not poke the peak model itself (ADR 0027 bucket D). */
+	void consumePeaks( float& fPeak_L, float& fPeak_R );
 
 	/** set the random pitch factor of the instrument */
 	void setRandomPitchFactor( float val );
@@ -294,6 +323,8 @@ class Instrument : public H2Core::Object<Instrument> {
 	/** Select a component via its index in the corresponding vector. */
 	std::shared_ptr<InstrumentComponent> getComponent( int nIdx ) const;
 	int index( std::shared_ptr<InstrumentComponent> pComponent ) const;
+	/** Position of the component with the given identity (ADR 0028). */
+	int index( const Uuid& uuid ) const;
 	void addComponent( std::shared_ptr<InstrumentComponent> pComponent );
 	void removeComponent( int nIdx );
 
@@ -311,8 +342,7 @@ class Instrument : public H2Core::Object<Instrument> {
 		std::shared_ptr<InstrumentComponent> pComponent,
 		std::shared_ptr<InstrumentLayer> pLayer,
 		int nIndex,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 	/** Move the layer found in @a nOldIndex to a new position of @a
 	 * nNewIndex. */
 	void moveLayer(
@@ -325,13 +355,11 @@ class Instrument : public H2Core::Object<Instrument> {
 		std::shared_ptr<InstrumentComponent> pComponent,
 		std::shared_ptr<InstrumentLayer> pLayer,
 		int nIndex,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 	void removeLayer(
 		std::shared_ptr<InstrumentComponent> pComponent,
 		int nIndex,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 	/** Whether the instrument contains at least one non-missing
 	 * sample */
 	bool hasSamples() const;
@@ -339,13 +367,16 @@ class Instrument : public H2Core::Object<Instrument> {
 		std::shared_ptr<InstrumentComponent> pComponent,
 		std::shared_ptr<InstrumentLayer> pLayer,
 		std::shared_ptr<Sample> pSample,
-		Event::Trigger trigger
-	);
+		Event::Trigger trigger, Hydrogen* pHydrogen );
 
 	long long getLongestSampleFrames() const;
 
 	Instrument::Type getType() const;
 	void setType( Instrument::Type type );
+
+	float getLastSampleLoadBpm() const;
+
+	void checkForMissingSamples( Event::Trigger trigger, Hydrogen* pHydrogen );
 
 	/** Iteration */
 	std::vector<std::shared_ptr<InstrumentComponent>>::iterator begin();
@@ -363,8 +394,6 @@ class Instrument : public H2Core::Object<Instrument> {
 		const override;
 
    private:
-	void checkForMissingSamples( Event::Trigger trigger );
-
 	/** Identifier of an instrument, which should be unique. It is set by
 	 * setId() and accessed via getId().*/
 	Id m_id;
@@ -420,13 +449,17 @@ class Instrument : public H2Core::Object<Instrument> {
 	bool m_bSoloed;			///< is the instrument in solo mode?
 	bool m_bMuted;			///< is the instrument muted?
 	int m_nMuteGroup;		///< mute group of the instrument
+	/** Plugin output bus the instrument feeds (ADR 0019). -1 = the
+	 * implicit 1-to-1 default (bus = position in the kit); >= 0 an
+	 * explicit custom mapping (persisted, may be shared between
+	 * instruments). */
+	int m_nOutputBus;
 	int m_nQueued;			///< count the number of notes queued within
 					///< Sampler::m_playingNotesQueue or std::priority_queue
 					///< m_songNoteQueue
 	/** List of short string representations of notes for which this
 	 * instrument was enqueued. */
 	QStringList m_enqueuedBy;
-	float m_fxLevel[MAX_FX];	  ///< Ladspa FX level array
 	int m_nHihatGrp;			  ///< the instrument is part of a hihat
 	Midi::Parameter m_lowerCc;
 	Midi::Parameter m_higherCc;
@@ -439,6 +472,12 @@ class Instrument : public H2Core::Object<Instrument> {
 									///< files?
 	std::shared_ptr<std::vector<std::shared_ptr<InstrumentComponent>>>
 		m_pComponents;
+
+	/** Whenever samples are loaded, this is done for a specific BPM. This
+	 * variable keeps track of the used value to allow to recreate the samples
+	 * exactly instead of having slight differences when always working with the
+	 * audio engine's current tempo. */
+	float m_fLastSampleLoadBpm;
 };
 
 inline void Instrument::setName( const QString& name )
@@ -476,6 +515,16 @@ inline void Instrument::setMuteGroup( int group )
 inline int Instrument::getMuteGroup() const
 {
 	return m_nMuteGroup;
+}
+
+inline void Instrument::setOutputBus( int nBus )
+{
+	m_nOutputBus = ( nBus < -1 ? -1 : nBus );
+}
+
+inline int Instrument::getOutputBus() const
+{
+	return m_nOutputBus;
 }
 
 inline Midi::Channel Instrument::getMidiOutChannel() const
@@ -597,14 +646,12 @@ inline float Instrument::getPeak_R() const
 	return m_fPeak_R;
 }
 
-inline void Instrument::setFxLevel( float level, int index )
+inline void Instrument::consumePeaks( float& fPeak_L, float& fPeak_R )
 {
-	m_fxLevel[index] = level;
-}
-
-inline float Instrument::getFxLevel( int index ) const
-{
-	return m_fxLevel[index];
+	fPeak_L = m_fPeak_L;
+	fPeak_R = m_fPeak_R;
+	m_fPeak_L = 0.0f;
+	m_fPeak_R = 0.0f;
 }
 
 inline void Instrument::setRandomPitchFactor( float val )
@@ -740,6 +787,10 @@ inline Instrument::Type Instrument::getType() const
 inline void Instrument::setType( Instrument::Type type )
 {
 	m_type = type;
+}
+
+inline float Instrument::getLastSampleLoadBpm() const {
+	return m_fLastSampleLoadBpm;
 }
 
 };	// namespace H2Core

@@ -32,12 +32,15 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 #include <core/License.h>
 #include <core/Object.h>
 
 namespace H2Core
 {
 
+class Hydrogen;
+class Preferences;
 class XMLDoc;
 class XMLNode;
 
@@ -76,9 +79,10 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
 		static std::shared_ptr<Drumkit> load( const QString& sDrumkitPath,
-											  bool bUpgrade = true,
-											  bool* pLegacyFormatEncountered = nullptr,
-											  bool bSilent = false );
+											  bool bUpgrade,
+											  bool* pLegacyFormatEncountered,
+											  bool bSilent,
+											  Hydrogen* pHydrogen );
 
 		/**
 		 * load a drumkit from an XMLNode
@@ -89,15 +93,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   drumkit is contained in. It is used to resolve sample paths
 		 *   relative to the .h2song file.
-		 * @param bSongKit If true samples are loaded on a
-		 *   per-instrument basis. If the filename of the sample is a plain
-		 *   filename, it will be searched for in the folder associated with the
-		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
-		 *   (unique identifier locally). If it is an absolute path, it will be
-		 *   loaded directly. This mode corresponds to loading the Drumkit as
-		 *   part of a song (which allows composition of a drumkit from various
-		 *   kits and new instruments/samples). If `false`, it corresponds to
-		 *   the kit being loaded as part of the `SoundLibraryDatabase`.
+		 * @param flags OR-ed combination of #Xml::Flag options.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
 		 *   XML elements requires legacy format support and left untouched
 		 *   otherwise.
@@ -107,27 +103,51 @@ class Drumkit : public H2Core::Object<Drumkit>
 		static std::shared_ptr<Drumkit> loadFrom( const XMLNode& pNode,
 												  const QString& sDrumkitPath,
 												  const QString& sSongPath,
-												  bool bSongKit = false,
-												  bool* pLegacyFormatEncountered = nullptr,
-												  bool bSilent = false );
+												  Xml::Flag flags,
+												  bool* pLegacyFormatEncountered,
+												  bool bSilent,
+												  Hydrogen* pHydrogen );
 
 		/*
 		 * save the drumkit within the given XMLNode
 		 *
 		 * \param pNode the XMLNode to feed
-		 * \param bSongKit Whether the instruments are part of a
-		 *   stand-alone kit or part of a song. In the latter case all samples
-		 *   located in the corresponding drumkit folder and are referenced by
-		 *   filenames. In the former case, each instrument might be
-		 *   associated with a different kit and the lookup folder for the
-		 *   samples are stored on a per-instrument basis.
-		 * @param bKeepMissingSamples Whether layers containing a missing sample
-		 *   should be kept or discarded.
+		 * \param flags OR-ed combination of #Xml::Flag options.
+		 * \param pProjectSampleEntries If not null, samples are referenced
+		 *   by their entry names within a `.h2project` bundle instead of
+		 *   local paths (only effective in combination with
+		 *   Xml::Flag::Project).
 		 */
-		void saveTo( XMLNode& pNode,
-					bool bSongKit,
-					bool bKeepMissingSamples,
-					bool bSilent = false ) const;
+		void saveTo(
+			XMLNode& pNode,
+			Xml::Flag flags,
+			bool bSilent = false,
+			const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
+		) const;
+
+		/** Serialize the drumkit to an in-memory XML buffer (samples referenced
+		 * by path, not embedded — ADR 0027/0030 bulk-load). Mirrors the on-disk
+		 * `drumkit.xml`; used to carry a kit across the editor↔engine IPC split.
+		 *
+		 * \param flags OR-ed combination of #Xml::Flag options.
+		 * \param bSilent if set to true, all log messages except of errors and
+		 *   warnings are suppressed. */
+		QByteArray toXmlBuffer(
+			Xml::Flag flags = Xml::Flag::KeepMissingSamples,
+			bool bSilent = false ) const;
+		/** Reconstruct a drumkit from a buffer produced by toXmlBuffer(). The
+		 * engine reloads samples from their (shared-disk) paths. @a sDrumkitPath
+		 * resolves relative sample paths (may be empty).
+		 *
+		 * \param flags OR-ed combination of #Xml::Flag options.
+		 * \param bSilent if set to true, all log messages except of errors and
+		 *   warnings are suppressed. */
+		static std::shared_ptr<Drumkit> fromXmlBuffer(
+			const QByteArray& buffer,
+			const QString& sDrumkitPath,
+			Xml::Flag flags,
+			bool bSilent,
+			Hydrogen* pHydrogen );
 
 
 		/**
@@ -152,7 +172,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		/** Calls the InstrumentList::loadSamples() member
 		 * function of #m_pInstruments.
 		 */
-		void loadSamples( float fBpm = 120 );
+		void loadSamples( float fBpm = 120, Preferences* pPreferences = nullptr );
 		/** Calls the InstrumentList::unloadSamples() member
 		 * function of #m_pInstruments.
 		 */
@@ -222,7 +242,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 
 		/** Add an instrument to the kit.
          *
-         * Be sure to use #CoreActionController::addInstrument() when adding an
+         * Be sure to use #H2Core::Hydrogen::get_instance()->getCoreActionController()->addInstrument() when adding an
          * instrument to the drumkit of the current song. */
 		void addInstrument( std::shared_ptr<Instrument> pInstrument,
 							int nIndex = -1 );
@@ -288,7 +308,7 @@ class Drumkit : public H2Core::Object<Drumkit>
 		* This function requires the calling function to lock the
 		* #AudioEngine first.
 		*/
-		void recalculateRubberband( float fBpm );
+		void recalculateRubberband( float fBpm, Hydrogen* pHydrogen );
 
 		/** Returns all types of the contained instruments. */
 		std::set<Instrument::Type> getAllTypes() const;
@@ -329,10 +349,11 @@ class Drumkit : public H2Core::Object<Drumkit>
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-		friend bool CoreActionController::removeInstrument(
-			std::shared_ptr<Instrument>, long* );
-		friend bool CoreActionController::replaceDrumkitInstrument(
-			std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+	friend bool CoreActionController::removeInstrument(
+		std::shared_ptr<Instrument>, long, Event::Trigger );
+	friend bool CoreActionController::replaceDrumkitInstrument(
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument>,
+		Event::Trigger );
 
 	private:
 		/** Transient property neither written to a drumkit.xml nor to a .h2song

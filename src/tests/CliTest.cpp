@@ -53,12 +53,12 @@ void CliTest::testKitToDrumkitMap() {
 	// We load the kits to ensure they are clean and can be loaded.
 	const auto pDrumkitRef = Drumkit::load(
 		Filesystem::drumkitPathFromDir( sRefFolder ), false, nullptr,
-		true
+		true, pTestHydrogen()
 	);
 	CPPUNIT_ASSERT( pDrumkitRef != nullptr );
 	const auto pDrumkitNoTypes = Drumkit::load(
 		Filesystem::drumkitPathFromDir( sNoTypesFolder ), false,
-		nullptr, true
+		nullptr, true, pTestHydrogen()
 	);
 	CPPUNIT_ASSERT( pDrumkitNoTypes != nullptr );
 
@@ -98,6 +98,41 @@ void CliTest::testKitToDrumkitMap() {
 
 	Filesystem::rm( sTmpNoTypesFile, true );
 
+	___INFOLOG( "passed" );
+}
+
+void CliTest::testDefaultLogFileFollowsUserDataFolder() {
+	___INFOLOG( "" );
+
+	const QString sTempDir = Filesystem::tmpDir() + "h2cli_logdir_test/";
+	// Clean up any leftovers from a previous (possibly failed) run, then
+	// (re)create the destination folder.
+	Filesystem::rm( sTempDir, true, true );
+	CPPUNIT_ASSERT( Filesystem::mkdir( sTempDir ) );
+
+	// Any run bootstraps the logger; a failing command keeps it short.
+	QStringList args;
+	args << "--user-data" << sTempDir
+		<< "--kitToDrumkitMap" << Filesystem::tmpDir() + "nonexistent-kit"
+		<< "-o" << Filesystem::tmpDir() + "h2cli_logdir_test_out.h2map";
+
+	auto pProcess = new QProcess();
+	pProcess->start( m_sCliPath, args );
+	CPPUNIT_ASSERT( pProcess->waitForFinished( 10000 ) );
+
+	// Without -L the default log file must live in the custom user data
+	// folder instead of leaking into the default one.
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "h2cli did not write its default log file into the custom "
+				 "user data folder [%1]" )
+			.arg( sTempDir )
+			.toStdString(),
+		Filesystem::fileExists( sTempDir + "h2cli.log" ) );
+
+	Filesystem::rm( sTempDir, true );
+	Filesystem::rm( Filesystem::tmpDir() + "h2cli_logdir_test_out.h2map" );
+
+	delete pProcess;
 	___INFOLOG( "passed" );
 }
 

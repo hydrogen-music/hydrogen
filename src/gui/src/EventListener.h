@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef EVENT_LISTENER
-#define EVENT_LISTENER
+#ifndef H2C_EVENT_LISTENER
+#define H2C_EVENT_LISTENER
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Globals.h>
@@ -38,7 +38,6 @@ class EventListener
 		virtual void beatCounterEvent() {}
 		virtual void drumkitLoadedEvent(){}
 		virtual void drumkitIsModifiedEvent(){}
-		virtual void effectChangedEvent(){}
 		virtual void errorEvent( int nErrorCode ) { UNUSED( nErrorCode ); }
     	virtual void gridCellToggledEvent(){}
 		virtual void instrumentLayerChangedEvent( int nInstrumentId ) {
@@ -68,18 +67,23 @@ class EventListener
 		virtual void patternEditorLockedEvent(){}
 		virtual void patternIsModifiedEvent() {}
 		virtual void playbackTrackChangedEvent(){}
+		virtual void playbackTrackParameterChangedEvent(){}
 		virtual void playingPatternsChangedEvent() {}
 		virtual void playlistChangedEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void playlistLoadSongEvent(){}
 		virtual void quitEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void recordingModeChangedEvent(){}
 		virtual void relocationEvent(){}
+		virtual void requestPreferencesSaveEvent() {}
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
 		virtual void songModeActivationEvent(){}
 		virtual void songIsModifiedEvent() {}
 		virtual void songSizeChangedEvent(){}
 		virtual void soundLibraryChangedEvent(){}
+		/** @param nValue Progress of the background sound library
+		 * scan, 0-100. */
+		virtual void soundLibraryScanProgressEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void stackedModeActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void stateChangedEvent( const H2Core::AudioEngine::State& state) {}
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
@@ -92,12 +96,7 @@ class EventListener
 
 		virtual ~EventListener() {}
 
-		void blacklistEventId( long nEventId ) {
-			if ( m_blacklistedEventIds.find( nEventId ) ==
-				 m_blacklistedEventIds.end() ) {
-				m_blacklistedEventIds.insert( nEventId );
-			}
-		}
+		void blacklistEventId( long nEventId );
 		bool isEventIdBlacklisted( long nEventId ) const {
 			return m_blacklistedEventIds.find( nEventId ) !=
 				   m_blacklistedEventIds.end();
@@ -110,7 +109,7 @@ class EventListener
 		}
 
 	private:
-		std::set<long> m_blacklistedEventIds;
+		std::multiset<long> m_blacklistedEventIds;
 };
 
 

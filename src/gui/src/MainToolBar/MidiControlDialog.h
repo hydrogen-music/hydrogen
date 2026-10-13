@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_CONTROL_DIALOG_H
-#define MIDI_CONTROL_DIALOG_H
+#ifndef H2C_MIDI_CONTROL_DIALOG_H
+#define H2C_MIDI_CONTROL_DIALOG_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -84,6 +84,22 @@ class MidiControlDialog : public QDialog,
 
 	void updateFont();
 	void updateIcons();
+	/** Crosses the scalar MIDI settings edited in this dialog (transport
+	 * handling, action/feedback channels, note-off behaviour, …) via
+	 * CoreActionController::setMidiControlSettings() — in editor mode this
+	 * installs them on the authoritative engine's preferences, whose MIDI I/O
+	 * reads them live — and writes them to disk right after an edit so they
+	 * behave like every other Preferences option (written on dialog OK)
+	 * instead of living only in memory until shutdown. This keeps recovery
+	 * after a crash consistent: either all of these settings come back or none
+	 * would (ADR 0030 + ADR 0027 bucket C). */
+	void persistMidiSettings();
+	/** Crosses the MIDI instrument map — staged in place on the mirror's
+	 * preferences by the mapping callbacks — via
+	 * CoreActionController::setMidiInstrumentMap() so the authoritative
+	 * engine's MIDI/Sampler dispatch applies it live, and writes it to disk
+	 * like the scalar settings (ADR 0030 + ADR 0027 bucket C). */
+	void persistMidiInstrumentMap();
 
 	void updateInstrumentTable();
 	/** @returns the row number corresponding to the objects just added. */

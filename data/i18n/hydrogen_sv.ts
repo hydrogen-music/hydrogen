@@ -137,14 +137,6 @@
         <translation>Ljudmotorns status</translation>
     </message>
     <message>
-        <source>Playing notes</source>
-        <translation>Spelande noter</translation>
-    </message>
-    <message>
-        <source>Sampler</source>
-        <translation>Sampler</translation>
-    </message>
-    <message>
         <source>Sequencer</source>
         <translation>Sekvenserare</translation>
     </message>
@@ -371,11 +363,6 @@
         <translation>Tidslinje</translation>
     </message>
     <message>
-        <source>FX</source>
-        <extracomment>Text displayed on the button to enable the LADSPA effect strips. Its size is designed to hold two characters.</extracomment>
-        <translation>FX</translation>
-    </message>
-    <message>
         <source>Peak</source>
         <extracomment>Text displayed on the button to show the instrument peaks. Its size is designed to hold four characters.</extracomment>
         <translation>Topp</translation>
@@ -565,11 +552,6 @@ Name of note property adjustable in NotePropertiesRuler, using * humanization in
         <translation>Master</translation>
     </message>
     <message>
-        <source>Return</source>
-        <extracomment>Text displayed below the rotary in the FX Mixerline. Designed to hold six characters but flexible.</extracomment>
-        <translation>Retur</translation>
-    </message>
-    <message>
         <source>Range</source>
         <extracomment>Displayed in the tooltip of input widgets. Indicates the allowed values from minimum to maximum.</extracomment>
         <translation>Intervall</translation>
@@ -751,59 +733,9 @@ Are you sure?</source>
         <translation>Volym</translation>
     </message>
     <message>
-        <source>Column Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a column number of the song editor grid value.</extracomment>
-        <translation>Kolumnnummer</translation>
-    </message>
-    <message>
-        <source>Pattern Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a pattern number.</extracomment>
-        <translation>Mönsternummer</translation>
-    </message>
-    <message>
-        <source>Song Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a song number of the current playlist.</extracomment>
-        <translation>Låtnummer</translation>
-    </message>
-    <message>
-        <source>Instrument Number</source>
-        <extracomment>Label shown in the input capture dialog for querying an instrument number of the current drumkit.</extracomment>
-        <translation>Instrumentnummer</translation>
-    </message>
-    <message>
-        <source>Component Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a component number of the specified instrument.</extracomment>
-        <translation>Komponentnummer</translation>
-    </message>
-    <message>
-        <source>Layer Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
-        <translation>Lagernummer</translation>
-    </message>
-    <message>
-        <source>FX Level</source>
-        <extracomment>Label shown in the input capture dialog for querying a FX level of the specified FX.</extracomment>
-        <translation>FX-nivå</translation>
-    </message>
-    <message>
-        <source>FX Number</source>
-        <extracomment>Label shown in the input capture dialog for querying a FX number of the specified instrument.</extracomment>
-        <translation>FX-nummer</translation>
-    </message>
-    <message>
         <source>Pan</source>
         <extracomment>Name of note property adjustable in NotePropertiesRuler and via input * capture actions.</extracomment>
         <translation>Panorering</translation>
-    </message>
-    <message>
-        <source>Filter Cutoff</source>
-        <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
-        <translation>Filtrets brytfrekvens</translation>
-    </message>
-    <message>
-        <source>Tag Text</source>
-        <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
-        <translation>Taggtext</translation>
     </message>
     <message>
         <source>Unable to export song</source>
@@ -1186,62 +1118,62 @@ Ställ in systemets språkinställning på UTF-8!</translation>
     </message>
     <message>
         <source>C</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C. It is designed to hold a single * character.</extracomment>
         <translation>C</translation>
     </message>
     <message>
         <source>C#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note C#. It is designed to hold two * characters.</extracomment>
         <translation>C#</translation>
     </message>
     <message>
         <source>D</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D. It is designed to hold a single * character.</extracomment>
         <translation>D</translation>
     </message>
     <message>
         <source>D#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note D#. It is designed to hold two * characters.</extracomment>
         <translation>D#</translation>
     </message>
     <message>
         <source>E</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note E. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note E. It is designed to hold a single * character.</extracomment>
         <translation>E</translation>
     </message>
     <message>
         <source>F</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F. It is designed to hold a single * character.</extracomment>
         <translation>F</translation>
     </message>
     <message>
         <source>F#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note F#. It is designed to hold two * characters.</extracomment>
         <translation>F#</translation>
     </message>
     <message>
         <source>G</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G. It is designed to hold a single * character.</extracomment>
         <translation>G</translation>
     </message>
     <message>
         <source>G#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note G#. It is designed to hold two * characters.</extracomment>
         <translation>G#</translation>
     </message>
     <message>
         <source>A</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A. It is designed to hold a single * character.</extracomment>
         <translation>A</translation>
     </message>
     <message>
         <source>A#</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A#. It is designed to hold two characters.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note A#. It is designed to hold two * characters.</extracomment>
         <translation>A#</translation>
     </message>
     <message>
         <source>B</source>
-        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note B. It is designed to hold a single character.</extracomment>
+        <extracomment>Label used in the sidebar of the pattern editor for a pitch * corresponding to note B. It is designed to hold a single * character.</extracomment>
         <translation>H</translation>
     </message>
     <message>
@@ -1730,6 +1662,399 @@ Ställ in systemets språkinställning på UTF-8!</translation>
         <extracomment>Message shown when a source URL is invalid.</extracomment>
         <translation>Den angivna URL:en är inte giltig.</translation>
     </message>
+    <message>
+        <source>Set strip volume</source>
+        <extracomment>Mixer strip volume fader - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set strip pan</source>
+        <extracomment>Mixer strip pan rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle strip mute</source>
+        <extracomment>Mixer strip mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle strip solo</source>
+        <extracomment>Mixer strip solo button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set master volume</source>
+        <extracomment>Master volume fader - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize velocity</source>
+        <extracomment>Master humanize-velocity rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set humanize time</source>
+        <extracomment>Master humanize-time rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set 16th-note swing factor</source>
+        <extracomment>Master swing rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle master mute</source>
+        <extracomment>Master mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument gain</source>
+        <extracomment>Instrument gain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument pitch</source>
+        <extracomment>Instrument pitch rotaries - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set random pitch</source>
+        <extracomment>Instrument random-pitch rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set filter cutoff</source>
+        <extracomment>Instrument filter cutoff rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set filter resonance</source>
+        <extracomment>Instrument filter resonance rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set length of attack phase</source>
+        <extracomment>Instrument ADSR attack rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set length of decay phase</source>
+        <extracomment>Instrument ADSR decay rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set sample volume in sustain phase</source>
+        <extracomment>Instrument ADSR sustain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set length of release phase</source>
+        <extracomment>Instrument ADSR release rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle filter</source>
+        <extracomment>Instrument filter bypass button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set mute group</source>
+        <extracomment>Instrument mute-group spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle stop-notes</source>
+        <extracomment>Instrument auto-stop-note check box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle apply-velocity</source>
+        <extracomment>Instrument apply-velocity check box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set hi-hat group</source>
+        <extracomment>Instrument hi-hat group spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set hi-hat min range</source>
+        <extracomment>Instrument hi-hat min-range spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set hi-hat max range</source>
+        <extracomment>Instrument hi-hat max-range spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle component mute</source>
+        <extracomment>Component mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle component solo</source>
+        <extracomment>Component solo button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set component gain</source>
+        <extracomment>Component gain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set sample selection algorithm</source>
+        <extracomment>Component sample-selection (Velocity/Round Robin/Random) combo box - undo * history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle layer mute</source>
+        <extracomment>Layer mute button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle layer solo</source>
+        <extracomment>Layer solo button - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer gain</source>
+        <extracomment>Layer gain rotary - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer pitch</source>
+        <extracomment>Layer pitch rotaries - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer velocity start</source>
+        <extracomment>Layer velocity-range start drag - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set layer velocity end</source>
+        <extracomment>Layer velocity-range end drag - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set MIDI out channel</source>
+        <extracomment>Instrument MIDI-out channel spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set MIDI out note</source>
+        <extracomment>Instrument MIDI-out note spin box - undo history entry and widget tooltip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set playback track volume</source>
+        <extracomment>Playback track volume fader - undo history entry and widget tooltip.</extracomment>
+        <translation>Volym för uppspelningsspår</translation>
+    </message>
+    <message>
+        <source>Toggle playback track mute</source>
+        <extracomment>Playback track mute button - undo history entry and widget tooltip.</extracomment>
+        <translation>Tysta uppspelningsspår</translation>
+    </message>
+    <message>
+        <source>The connection to the remote headless engine was lost. Click the connection button to reconnect.</source>
+        <extracomment>Warning dialog shown when the IPC connection to the remote headless * engine is lost unexpectedly (not user-initiated).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not connect to the remote headless engine.</source>
+        <extracomment>Error dialog shown when connecting to a remote headless engine fails. * The endpoint is appended via concatenation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen Project</source>
+        <extracomment>Used as file type filter for .h2project files.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Project</source>
+        <extracomment>Menu action to export the current song as a self-contained .h2project * bundle (song + embedded samples).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to export project</source>
+        <extracomment>Shown in a dialog on .h2project export failure.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to save preferences. The configuration file might be in use by another process. Please try again.</source>
+        <extracomment>Warning dialog shown when the Preferences dialog could not persist its changes to the user configuration (e.g. the file is locked by another process).</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modify song properties</source>
+        <extracomment>Label of the song properties entry in the undo history.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modify virtual patterns</source>
+        <extracomment>Shown in the undo history after editing which patterns a virtual * pattern is composed of.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scanning sound library</source>
+        <extracomment>Status bar readout while the background sound library scan is * running. The percentage is appended (not part of the string) to * keep the placeholder out of the translation.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column number</source>
+        <extracomment>Label shown in the input capture dialog for querying a column number of the song editor grid value.</extracomment>
+        <translation>Kolumnnummer</translation>
+    </message>
+    <message>
+        <source>Pattern number</source>
+        <extracomment>Label shown in the input capture dialog for querying a pattern number.</extracomment>
+        <translation>Mönsternummer</translation>
+    </message>
+    <message>
+        <source>Song number</source>
+        <extracomment>Label shown in the input capture dialog for querying a song number of the current playlist.</extracomment>
+        <translation>Låtnummer</translation>
+    </message>
+    <message>
+        <source>Instrument number</source>
+        <extracomment>Label shown in the input capture dialog for querying an instrument number of the current drumkit.</extracomment>
+        <translation>Instrumentnummer</translation>
+    </message>
+    <message>
+        <source>Component number</source>
+        <extracomment>Label shown in the input capture dialog for querying a component number of the specified instrument.</extracomment>
+        <translation>Komponentnummer</translation>
+    </message>
+    <message>
+        <source>Layer number</source>
+        <extracomment>Label shown in the input capture dialog for querying a layer number of the specified instrument component.</extracomment>
+        <translation>Lagernummer</translation>
+    </message>
+    <message>
+        <source>Filter cutoff</source>
+        <extracomment>Label shown in the input capture dialog for querying a new filter cutoff value for a specified instrument.</extracomment>
+        <translation>Filtrets brytfrekvens</translation>
+    </message>
+    <message>
+        <source>Tag text</source>
+        <extracomment>Label shown in the input capture dialog for querying text content for a new tag.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapping</source>
+        <extracomment>Tab of the embedded plugin UI listing song, pattern and drumkit * loading as well as the MIDI configuration.</extracomment>
+        <translation type="unfinished">Taggtext</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <extracomment>Tab of the embedded plugin UI showing per-instrument mixer * strips.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open editor</source>
+        <extracomment>Button in the embedded plugin UI opening the full graphical * editor.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a song file</source>
+        <extracomment>Title of the file browser for songs in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a pattern file</source>
+        <extracomment>Title of the file browser for patterns in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a drumkit folder</source>
+        <extracomment>Title of the directory browser for drumkits in the embedded * plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI configuration</source>
+        <extracomment>Section header above the MIDI settings in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore note-off</source>
+        <extracomment>Checkbox in the embedded plugin UI; when checked, hydrogen * swallows incoming note-off events.</extracomment>
+        <translation>Ignorera Note Off</translation>
+    </message>
+    <message>
+        <source>Action channel</source>
+        <extracomment>Label of the MIDI channel carrying action messages in the * embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send note-off messages</source>
+        <extracomment>Combo label in the embedded plugin UI controlling whether * note-off events are forwarded to the output.</extracomment>
+        <translation>Skicka Note Off-meddelanden</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <extracomment>Button applying the MIDI configuration in the embedded plugin * UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <extracomment>Checkbox deciding whether a loaded pattern replaces the * pattern&apos;s notes or adds to them in the embedded plugin UI.</extracomment>
+        <translation>Ersätt</translation>
+    </message>
+    <message>
+        <source>On custom note lengths</source>
+        <extracomment>Option of the note-off combo in the embedded plugin UI; * note-off events are only sent for notes with a custom note * length.</extracomment>
+        <translation>Vid egna notlängder</translation>
+    </message>
+    <message>
+        <source>Note mapping</source>
+        <extracomment>Section header of the note mapping table in the embedded * plugin UI.</extracomment>
+        <translation>Notmappning</translation>
+    </message>
+    <message>
+        <source>Global channel</source>
+        <extracomment>Label of the MIDI channel all input notes respond to in the * embedded plugin UI.</extracomment>
+        <translation>Global kanal</translation>
+    </message>
+    <message>
+        <source>Use global channel</source>
+        <extracomment>Checkbox making an instrument follow the global input channel * in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <extracomment>Column header of the note mapping table&apos;s event source side in * the embedded plugin UI.</extracomment>
+        <translation>Inmatning</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <extracomment>Column header of the note mapping table&apos;s event target side in * the embedded plugin UI.</extracomment>
+        <translation>Utmatning</translation>
+    </message>
+    <message>
+        <source>Bus</source>
+        <extracomment>Label of the output bus selector in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <extracomment>Button resetting a mixer strip in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Master only</source>
+        <extracomment>Checkbox limiting the mixer tab of the embedded plugin UI to * the master strip.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -1741,26 +2066,6 @@ Ställ in systemets språkinställning på UTF-8!</translation>
 </context>
 <context>
     <name>ComponentView</name>
-    <message>
-        <source>Layer gain</source>
-        <translation>Lagerförstärkning</translation>
-    </message>
-    <message>
-        <source>Component volume</source>
-        <translation>Komponentvolym</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Coarse)</source>
-        <translation>Lagertonhöjd (grov)</translation>
-    </message>
-    <message>
-        <source>Layer pitch (Fine)</source>
-        <translation>Lagertonhöjd (fin)</translation>
-    </message>
-    <message>
-        <source>Select selection algorithm</source>
-        <translation>Välj urvalsalgoritm</translation>
-    </message>
     <message>
         <source>First in Velocity</source>
         <extracomment>Sample selection algorithm available in the instrument editor</extracomment>
@@ -2207,10 +2512,6 @@ Skriva över den befintliga filen?</translation>
         <translation>Instrument + mönster</translation>
     </message>
     <message>
-        <source>Mixer</source>
-        <translation>Mixer</translation>
-    </message>
-    <message>
         <source>Error loading song.</source>
         <translation>Kunde inte ladda sång.</translation>
     </message>
@@ -2274,6 +2575,10 @@ Skriva över den befintliga filen?</translation>
         <extracomment>Object containing unsaved changes.</extracomment>
         <translation>Ny spellista</translation>
     </message>
+    <message>
+        <source>Error loading project.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InputCaptureDialog</name>
@@ -2301,300 +2606,12 @@ Skriva över den befintliga filen?</translation>
 <context>
     <name>InstrumentEditor</name>
     <message>
-        <source>Random pitch factor</source>
-        <translation>Slumpvald pitch faktor</translation>
-    </message>
-    <message>
-        <source>Filter resonance</source>
-        <translation>Filter resonans</translation>
-    </message>
-    <message>
-        <source>Filter Cutoff</source>
-        <translation>Filtrets brytfrekvens</translation>
-    </message>
-    <message>
-        <source>Instrument gain</source>
-        <translation>Instrumentnivå</translation>
-    </message>
-    <message>
-        <source>Midi out channel</source>
-        <translation>MIDI-utkanal</translation>
-    </message>
-    <message>
-        <source>Midi out note</source>
-        <translation>MIDI-utnot</translation>
-    </message>
-    <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
         <translation>Ändra inte lagrens nivå utifrån anslagshastighet</translation>
     </message>
     <message>
-        <source>Pitch offset (Coarse)</source>
-        <translation>Tonhöjdsförskjutning (grov)</translation>
-    </message>
-    <message>
-        <source>Pitch offset (Fine)</source>
-        <translation>Tonhöjdsförskjutning (fin)</translation>
-    </message>
-    <message>
         <source>Stop the current playing instrument-note before trigger the next note sample</source>
         <translation>Stoppa den nuvarande spelande instrumentnoten innan nästa notsampling utlöses</translation>
-    </message>
-    <message>
-        <source>Length of Attack phase</source>
-        <translation>Längd på attackfasen</translation>
-    </message>
-    <message>
-        <source>Length of Decay phase</source>
-        <translation>Längd på avklingningsfasen</translation>
-    </message>
-    <message>
-        <source>Sample volume in Sustain phase</source>
-        <translation>Samplingsvolym i uthållighetsfasen</translation>
-    </message>
-    <message>
-        <source>Length of Release phase</source>
-        <translation>Längd på släppfasen</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXLine</name>
-    <message>
-        <source>FX bypass</source>
-        <translation>FX förbikoppling</translation>
-    </message>
-    <message>
-        <source>Edit FX parameters</source>
-        <translation>Ändra FX parametrar</translation>
-    </message>
-    <message>
-        <source>Ladspa FX name</source>
-        <translation>Ladspa FX namn</translation>
-    </message>
-    <message>
-        <source>Effect return</source>
-        <translation>Effekt retur</translation>
-    </message>
-    <message>
-        <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>LADSPA-effekter är inte tillgängliga i denna version av Hydrogen.</translation>
-    </message>
-    <message>
-        <source>Set volume [%1] of FX</source>
-        <translation>Ange volym [%1] för FX</translation>
-    </message>
-    <message>
-        <source>No plugin</source>
-        <translation>Inget plugin</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXProperties</name>
-    <message>
-        <source>Select FX</source>
-        <translation>Välj FX</translation>
-    </message>
-    <message>
-        <source>Activate</source>
-        <translation>Aktivera</translation>
-    </message>
-    <message>
-        <source>[%1] LADSPA FX Properties</source>
-        <translation>[%1] LADSPA FX Egenskaper</translation>
-    </message>
-    <message>
-        <source>Deactivate</source>
-        <translation>Deaktivera</translation>
-    </message>
-    <message>
-        <source>LADSPA FX %1 Properties</source>
-        <translation>LADSPA FX %1 Egenskaper</translation>
-    </message>
-    <message>
-        <source>No plugin</source>
-        <translation>Inget plugin</translation>
-    </message>
-    <message>
-        <source>Remove FX</source>
-        <translation>Ta bort FX</translation>
-    </message>
-    <message>
-        <source>Input control param. value</source>
-        <translation>Värde för indatakontrollparameter</translation>
-    </message>
-    <message>
-        <source>Output control param. value</source>
-        <translation>Värde för utdatakontrollparameter</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXSelector</name>
-    <message>
-        <source>Select LADSPA FX</source>
-        <translation>Välj LADSPA FX</translation>
-    </message>
-    <message>
-        <source>Groups</source>
-        <translation>Grupper</translation>
-    </message>
-    <message>
-        <source>Stereo</source>
-        <translation>Stereo</translation>
-    </message>
-    <message>
-        <source>Mono</source>
-        <translation>Mono</translation>
-    </message>
-    <message>
-        <source>Not supported</source>
-        <translation>Stöds inte</translation>
-    </message>
-    <message>
-        <source>Recently Used</source>
-        <translation>Nyligen använda</translation>
-    </message>
-    <message>
-        <source>Alphabetic List</source>
-        <translation>Alfabetisk lista</translation>
-    </message>
-    <message>
-        <source>Categorized</source>
-        <translation>Kategoriserade</translation>
-    </message>
-</context>
-<context>
-    <name>LadspaFXSelector_UI</name>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>&amp;Avbryt</translation>
-    </message>
-    <message>
-        <source>### fx type</source>
-        <translation>### fx typ</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Formulär1</translation>
-    </message>
-    <message>
-        <source>Alt+C</source>
-        <translation>Alt+A</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation>&amp;OK</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
-    </message>
-    <message>
-        <source>### fx label</source>
-        <translation>### FX-etikett</translation>
-    </message>
-    <message>
-        <source>### fx ID</source>
-        <translation>### FX-ID</translation>
-    </message>
-    <message>
-        <source>1</source>
-        <translation>1</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Namn:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### fx name
-1</source>
-        <translation>### FX-namn
-1</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Etikett:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Typ:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tillverkare:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### FX maker
-1
-2</source>
-        <translation>### FX-tillverkare
-1
-2</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Upphovsrätt:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>### copyright
-1
-2
-3</source>
-        <translation>### upphovsrätt
-1
-2
-3</translation>
     </message>
 </context>
 <context>
@@ -2643,10 +2660,6 @@ MIDI = %2</translation>
     <message>
         <source>Open song</source>
         <translation>Öppna sång</translation>
-    </message>
-    <message>
-        <source>Unknown audio driver</source>
-        <translation>Okänd ljud drivrutin</translation>
     </message>
     <message>
         <source>Error starting audio driver</source>
@@ -2999,6 +3012,14 @@ Den bör fungera utmärkt om du använder GMRockKit och inte använder trioler.
         <source>&amp;Duplicate</source>
         <translation>&amp;Duplicera</translation>
     </message>
+    <message>
+        <source>Project exported to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The song was loaded from a .h2project bundle. Please either save it to allow for autosaving or disable autosave within the Preferences.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainToolBar</name>
@@ -3162,28 +3183,16 @@ Den bör fungera utmärkt om du använder GMRockKit och inte använder trioler.
         <source>Show Rack</source>
         <translation>Visa rack</translation>
     </message>
+    <message>
+        <source>Connection state to headless engine</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterLine</name>
     <message>
-        <source>Master volume</source>
-        <translation>Mastervolym</translation>
-    </message>
-    <message>
         <source>Peak</source>
         <translation>Topp</translation>
-    </message>
-    <message>
-        <source>Humanize velocity</source>
-        <translation>Förmänskliga hastighet</translation>
-    </message>
-    <message>
-        <source>Humanize time</source>
-        <translation>Förmänskliga tid</translation>
-    </message>
-    <message>
-        <source>16th-note Swing</source>
-        <translation>Svaj för sextondelar</translation>
     </message>
     <message>
         <source>Set master volume [%1]</source>
@@ -3297,11 +3306,6 @@ Den bör fungera utmärkt om du använder GMRockKit och inte använder trioler.
         <translation>MIDI-åtgärder</translation>
     </message>
     <message>
-        <source>&amp;Ignore note-off</source>
-        <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
-        <translation>&amp;Ignorera Note Off</translation>
-    </message>
-    <message>
         <source>&amp;Enable MIDI feedback</source>
         <extracomment>The character after the &apos;&amp;&apos; symbol can be used as a shortcut via the Alt * modifier. It should not coincide with any other shortcut in the Settings * tab of the MidiControlDialog. If in question, you can just drop the * &apos;&amp;&apos;.</extracomment>
         <translation>Aktivera MIDI-återkoppling</translation>
@@ -3331,35 +3335,12 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</source>
 START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</translation>
     </message>
     <message>
-        <source>Note Mapping</source>
-        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying how incoming and outgoing MIDI notes and the instruments of * the current drumkit should relate to eachother.</extracomment>
-        <translation>Notmappning</translation>
-    </message>
-    <message>
-        <source>Global Channel</source>
-        <extracomment>Label of an option in the mapping tab of the MIDI control dialog * specifying whether (and which) all instruments of the current drumkit * should feature the same incoming and outgoing MIDI channel.</extracomment>
-        <translation>Global kanal</translation>
-    </message>
-    <message>
-        <source>Instrument Mapping</source>
-        <extracomment>Tab of the MIDI control dialog dedicated to mapping MIDI notes to * instruments of the current drumkit.</extracomment>
-        <translation>Instrumentmappning</translation>
-    </message>
-    <message>
         <source>Channel for MIDI actions and clock</source>
         <translation>Kanal för MIDI-åtgärder och klocka</translation>
     </message>
     <message>
         <source>Channel for MIDI feedback and clock</source>
         <translation>Kanal för MIDI-återkoppling och klocka</translation>
-    </message>
-    <message>
-        <source>Send Note-Off messages</source>
-        <translation>Skicka Note Off-meddelanden</translation>
-    </message>
-    <message>
-        <source>On custom note lengths</source>
-        <translation>Vid egna notlängder</translation>
     </message>
 </context>
 <context>
@@ -3403,10 +3384,6 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</translation>
 <context>
     <name>Mixer</name>
     <message>
-        <source>Show FX panel</source>
-        <translation>Visa FX panel</translation>
-    </message>
-    <message>
         <source>Show instrument peaks</source>
         <translation>Visa instrumenttoppar</translation>
     </message>
@@ -3419,24 +3396,12 @@ START, STOP, CONTINUE, SONG_POSITION, SONG_SELECT</translation>
         <translation>Visa instrumenttoppar = av</translation>
     </message>
     <message>
-        <source>Mixer</source>
-        <translation>Mixer</translation>
-    </message>
-    <message>
         <source>Mixer Settings</source>
         <translation>Mixerinställningar</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
-    <message>
-        <source>FX %1 send</source>
-        <translation>FX %1-sändning</translation>
-    </message>
-    <message>
-        <source>Volume</source>
-        <translation>Volym</translation>
-    </message>
     <message>
         <source>Peak</source>
         <translation>Topp</translation>
@@ -5341,10 +5306,6 @@ Starta om drivrutinen?</translation>
         <translation>Ange förstärkning för instrumentlager</translation>
     </message>
     <message>
-        <source>Set instrument FX aux level</source>
-        <translation>Ange FX-auxnivå för instrument</translation>
-    </message>
-    <message>
         <source>Create empty song</source>
         <translation>Skapa tom låt</translation>
     </message>
@@ -5732,6 +5693,10 @@ Starta om drivrutinen?</translation>
         <source>Count in and start/stop playback</source>
         <translation>Räkna in och starta/stoppa uppspelning</translation>
     </message>
+    <message>
+        <source>Export song as self-contained .h2project bundle</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SidebarRow</name>
@@ -5809,20 +5774,12 @@ Are you sure?</source>
         <translation>staplat mönsterläge</translation>
     </message>
     <message>
-        <source>Mute playback track</source>
-        <translation>Tysta uppspelningsspår</translation>
-    </message>
-    <message>
         <source>Adjust parameter values in time</source>
         <translation>Justera parametervärden över tid</translation>
     </message>
     <message>
         <source>selected pattern mode</source>
         <translation>valt mönsterläge</translation>
-    </message>
-    <message>
-        <source>Playback track volume</source>
-        <translation>Volym för uppspelningsspår</translation>
     </message>
     <message>
         <source>Playback volume set to</source>
@@ -5897,10 +5854,6 @@ Are you sure?</source>
     <message>
         <source>Fill/remove range of pattern</source>
         <translation>Fyll/töm intervall i mönstret</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>Ersätt</translation>
     </message>
     <message>
         <source>Fill/Clear cells</source>

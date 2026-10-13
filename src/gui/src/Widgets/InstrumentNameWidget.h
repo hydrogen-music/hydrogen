@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef INSTRUMENT_NAME_WIDGET_H
-#define INSTRUMENT_NAME_WIDGET_H
+#ifndef H2C_INSTRUMENT_NAME_WIDGET_H
+#define H2C_INSTRUMENT_NAME_WIDGET_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -41,7 +41,7 @@ class InstrumentNameWidget : public PixmapWidget,
 
 public:
 		static constexpr int nWidth = 17;
-		static constexpr int nHeight = 116;
+		static constexpr int nHeight = 153;
 
 	explicit InstrumentNameWidget(QWidget* parent);
 	~InstrumentNameWidget();

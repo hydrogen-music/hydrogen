@@ -20,22 +20,14 @@
  *
  */
 #include <QtGlobal>
+#include <QtCore/QCoreApplication>
+#include <QtGui/QGuiApplication>
 
 #include <core/Preferences/Shortcuts.h>
 
 #include <core/config.h>
 #include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
-
-// Unfortunately, there seems to be no combination of Qt6 QKeySequence
-// constructor working without compiler warnings but at the same time still
-// being valid Qt 5 code. Therefore, we have to circumvent this issue with some
-// custom code.
-#ifdef H2CORE_HAVE_QT6
-  #define SEPARATOR |
-#else
-  #define SEPARATOR +
-#endif
 
 namespace H2Core {
 Shortcuts::Shortcuts() :
@@ -67,19 +59,24 @@ void Shortcuts::saveTo( XMLNode& node ) const {
 	}
 }
 
-std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilent ) {
+std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, Hydrogen* pHydrogen, bool bSilent ) {
 	auto pShortcuts = std::make_shared<Shortcuts>();
 	pShortcuts->createActionInfoMap();
 	
 	XMLNode shortcutsNode = node.firstChildElement( "shortcuts" );
 	if ( shortcutsNode.isNull() ) {
-		if ( Hydrogen::get_instance() == nullptr ||
-			 Hydrogen::get_instance()->getGUIState() != H2Core::Hydrogen::GUIState::ready ) {
+		// Creating the defaults involves QKeySequence::keyBindings(), which
+		// requires a platform theme and therefore a QGuiApplication. A bare
+		// QCoreApplication (h2cli, unit tests) is not enough - Qt would
+		// segfault. In that case this step is delayed till after the GUI
+		// bootstrap (m_bRequiresDefaults).
+		if ( pHydrogen == nullptr ||
+			 qobject_cast<const QGuiApplication*>(
+				 QCoreApplication::instance() ) == nullptr ||
+			 !pHydrogen->isFullyOperational() ) {
 			// No shortcuts found. We need to create the default ones. But
-			// it is essential that we do not do this right away. If no
-			// QApplication is present, Qt will segfault when attempting
-			// to access standard keys. Instead, this step will be delayed
-			// till after the bootstrap.
+			// it is essential that we do not do this right away (see
+			// above).
 			WARNINGLOG( "shortcut node not found." );
 			pShortcuts->m_bRequiresDefaults = true;
 		}
@@ -143,16 +140,16 @@ void Shortcuts::createDefaultShortcuts() {
 	
 	// Global shortcuts
 	insertShortcut( Qt::Key_F12, Action::Panic );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_S, Action::SaveSong );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_S,
+	insertShortcut( Qt::ControlModifier, Qt::Key_S, Action::SaveSong );
+	insertShortcut( Qt::ControlModifier, Qt::ShiftModifier, Qt::Key_S,
 					Action::SaveAsSong );
 	insertShortcut( QKeySequence::StandardKey::Undo, Action::Undo );
 	insertShortcut( QKeySequence::StandardKey::Redo, Action::Redo );
 	insertShortcut( Qt::Key_Space, Action::PlayPauseToggle );
 #ifndef Q_OS_MACX
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_Space , Action::PlayPauseToggleAtCursor );
+	insertShortcut( Qt::ControlModifier, Qt::Key_Space, Action::PlayPauseToggleAtCursor );
 #else
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_Space, Action::PlayPauseToggleAtCursor );
+	insertShortcut( Qt::AltModifier, Qt::Key_Space, Action::PlayPauseToggleAtCursor );
 #endif
 	insertShortcut( Qt::Key_Comma, Action::BeatCounter );
 	insertShortcut( Qt::Key_Backslash, Action::TapTempo );
@@ -165,29 +162,29 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::Key_F5, Action::PlaylistPrevSong );
 
 	// MainForm actions
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_N, Action::NewSong );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_O, Action::OpenSong );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_D, Action::OpenDemoSong );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_P,
+	insertShortcut( Qt::ControlModifier, Qt::Key_N, Action::NewSong );
+	insertShortcut( Qt::ControlModifier, Qt::Key_O, Action::OpenSong );
+	insertShortcut( Qt::ControlModifier, Qt::Key_D, Action::OpenDemoSong );
+	insertShortcut( Qt::ControlModifier, Qt::ShiftModifier, Qt::Key_P,
 					Action::OpenPattern );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_P, Action::ExportPattern );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_E, Action::ExportSong );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_M, Action::ExportMIDI );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_L, Action::ExportLilyPond );
+	insertShortcut( Qt::ControlModifier, Qt::Key_P, Action::ExportPattern );
+	insertShortcut( Qt::ControlModifier, Qt::Key_E, Action::ExportSong );
+	insertShortcut( Qt::ControlModifier, Qt::Key_M, Action::ExportMIDI );
+	insertShortcut( Qt::ControlModifier, Qt::Key_L, Action::ExportLilyPond );
 #ifndef Q_OS_MACX
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_Q, Action::Quit );
+	insertShortcut( Qt::ControlModifier, Qt::Key_Q, Action::Quit );
 #endif
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_D, Action::ShowDirector );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_M, Action::ShowMixer );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_I, Action::ShowRack );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_A, Action::ShowAutomation );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_F, Action::ShowFullscreen );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::AltModifier SEPARATOR Qt::Key_I,
+	insertShortcut( Qt::AltModifier, Qt::Key_D, Action::ShowDirector );
+	insertShortcut( Qt::AltModifier, Qt::Key_M, Action::ShowMixer );
+	insertShortcut( Qt::AltModifier, Qt::Key_I, Action::ShowRack );
+	insertShortcut( Qt::AltModifier, Qt::Key_A, Action::ShowAutomation );
+	insertShortcut( Qt::AltModifier, Qt::Key_F, Action::ShowFullscreen );
+	insertShortcut( Qt::ControlModifier, Qt::AltModifier, Qt::Key_I,
 					Action::InputInstrument );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::AltModifier SEPARATOR Qt::Key_D,
+	insertShortcut( Qt::ControlModifier, Qt::AltModifier, Qt::Key_D,
 					Action::InputDrumkit );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::Key_P, Action::ShowPreferencesDialog );
-	insertShortcut( Qt::ControlModifier SEPARATOR Qt::Key_Question, Action::OpenManual );
+	insertShortcut( Qt::AltModifier, Qt::Key_P, Action::ShowPreferencesDialog );
+	insertShortcut( Qt::ControlModifier, Qt::Key_Question, Action::OpenManual );
 
 	// Virtual MIDI keyboard
 	switch ( locale ) {
@@ -240,14 +237,14 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::Key_U, Action::VK_59_B3 );
 
 	// Playlist Editor
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_A, Action::PlaylistAddSong );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_A,
+	insertShortcut( Qt::AltModifier, Qt::ControlModifier, Qt::Key_A, Action::PlaylistAddSong );
+	insertShortcut( Qt::AltModifier, Qt::ControlModifier, Qt::ShiftModifier, Qt::Key_A,
 					Action::PlaylistAddCurrentSong );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_D, Action::PlaylistRemoveSong );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_N, Action::NewPlaylist );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_O, Action::OpenPlaylist );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::Key_S, Action::SavePlaylist );
-	insertShortcut( Qt::AltModifier SEPARATOR Qt::ControlModifier SEPARATOR Qt::ShiftModifier SEPARATOR Qt::Key_S,
+	insertShortcut( Qt::AltModifier, Qt::ControlModifier, Qt::Key_D, Action::PlaylistRemoveSong );
+	insertShortcut( Qt::AltModifier, Qt::ControlModifier, Qt::Key_N, Action::NewPlaylist );
+	insertShortcut( Qt::AltModifier, Qt::ControlModifier, Qt::Key_O, Action::OpenPlaylist );
+	insertShortcut( Qt::AltModifier, Qt::ControlModifier, Qt::Key_S, Action::SavePlaylist );
+	insertShortcut( Qt::AltModifier, Qt::ControlModifier, Qt::ShiftModifier, Qt::Key_S,
 					Action::SaveAsPlaylist );
 
 }
@@ -491,10 +488,7 @@ void Shortcuts::createActionInfoMap() {
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument layer pitch" ) );
 	insertActionInfo( Shortcuts::Action::LayerGain, Category::CommandManyArgs,
 					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument layer gain" ) );
-	
-	insertActionInfo( Shortcuts::Action::StripEffectLevel, Category::CommandManyArgs,
-					  QT_TRANSLATE_NOOP( "Shortcuts", "Set instrument FX aux level" ) );
-	
+
 	// MainMenu
 	insertActionInfo( Shortcuts::Action::NewSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
@@ -523,6 +517,9 @@ void Shortcuts::createActionInfoMap() {
 	insertActionInfo( Shortcuts::Action::ExportSong, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export song to audio file" ) );
+	insertActionInfo( Shortcuts::Action::ExportProject, Category::MainMenu,
+					  QT_TRANSLATE_NOOP( "Shortcuts",
+										 "Export song as self-contained .h2project bundle" ) );
 	insertActionInfo( Shortcuts::Action::ExportMIDI, Category::MainMenu,
 					  QT_TRANSLATE_NOOP( "Shortcuts",
 										 "Export song to MIDI file" ) );
@@ -775,6 +772,33 @@ QString Shortcuts::categoryToQString( const Category& category ) {
 
 	return std::move( s );
 };
+
+// The modifier+key variants compose the sequence through QKeySequence's int
+// constructor: the one route that works warning-free on every Qt from 5.15
+// to 6.8. Qt 5 lacks the operator|/QKeyCombination route entirely (it yields
+// QIncompatibleFlag), while Qt 6 deletes operator+ between two modifiers and
+// deprecates the single-modifier one.
+void Shortcuts::insertShortcut( Qt::KeyboardModifier modifier, Qt::Key key,
+								const Action& action ) {
+	insertShortcut( QKeySequence( int( modifier ) | int( key ) ), action );
+}
+
+void Shortcuts::insertShortcut( Qt::KeyboardModifier modifier1,
+								Qt::KeyboardModifier modifier2, Qt::Key key,
+								const Action& action ) {
+	insertShortcut(
+		QKeySequence( int( modifier1 ) | int( modifier2 ) | int( key ) ),
+		action );
+}
+
+void Shortcuts::insertShortcut( Qt::KeyboardModifier modifier1,
+								Qt::KeyboardModifier modifier2,
+								Qt::KeyboardModifier modifier3, Qt::Key key,
+								const Action& action ) {
+	insertShortcut( QKeySequence( int( modifier1 ) | int( modifier2 ) |
+								  int( modifier3 ) | int( key ) ),
+					action );
+}
 
 void Shortcuts::insertShortcut( const QKeySequence& keySequence,
 								const Action& action ) {

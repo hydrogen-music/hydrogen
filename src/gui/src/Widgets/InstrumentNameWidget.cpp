@@ -44,7 +44,7 @@ InstrumentNameWidget::~InstrumentNameWidget() {
 
 void InstrumentNameWidget::paintEvent( QPaintEvent* ev ) {
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	PixmapWidget::paintEvent( ev );
 

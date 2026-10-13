@@ -45,10 +45,15 @@ PatternList::PatternList( std::shared_ptr<PatternList> pOther ) {
 PatternList::~PatternList() {
 }
 
-std::shared_ptr<PatternList> PatternList::loadFrom( const XMLNode& node,
-													const QString& sDrumkitName,
-													std::shared_ptr<Drumkit> pDrumkit,
-													bool bSilent ) {
+std::shared_ptr<PatternList> PatternList::loadFrom(
+	const XMLNode& node,
+	const QString& sDrumkitName,
+	std::shared_ptr<Drumkit> pDrumkit,
+	Xml::Flag flags,
+	bool bSilent,
+	std::shared_ptr<SoundLibraryDatabase> pDB
+)
+{
 	XMLNode patternsNode = node.firstChildElement( "patternList" );
 	if ( patternsNode.isNull() ) {
 		ERRORLOG( "'patternList' node not found. Unable to load pattern list." );
@@ -62,7 +67,7 @@ std::shared_ptr<PatternList> PatternList::loadFrom( const XMLNode& node,
 	while ( !patternNode.isNull()  ) {
 		nPatternCount++;
 		auto pPattern = Pattern::loadFrom(
-			patternNode, sDrumkitName, pDrumkit, bSilent );
+			patternNode, sDrumkitName, pDrumkit, flags, bSilent, pDB );
 		if ( pPattern != nullptr ) {
 			pPatternList->add( pPattern );
 		}
@@ -76,6 +81,10 @@ std::shared_ptr<PatternList> PatternList::loadFrom( const XMLNode& node,
 		WARNINGLOG( "0 patterns?" );
 	}
 
+	if ( flags & Xml::Flag::Ipc ) {
+		pPatternList->setUuid( patternsNode.read_uuid( "ipc-uuid", false, false, false ) );
+	}
+
 	return pPatternList;
 }
 
@@ -83,15 +92,20 @@ void PatternList::saveTo(
 	XMLNode& node,
 	Instrument::Id id,
 	const QString& sType,
-	Note::Pitch pitch
+	Note::Pitch pitch,
+	Xml::Flag flags
 ) const
 {
 	XMLNode patternListNode = node.createNode( "patternList" );
 
 	for ( const auto& pPattern : m_pPatterns ) {
 		if ( pPattern != nullptr ) {
-			pPattern->saveTo( patternListNode, id, sType, pitch );
+			pPattern->saveTo( patternListNode, id, sType, pitch, flags );
 		}
+	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		patternListNode.write_uuid( "ipc-uuid", getUuid() );
 	}
 }
 
@@ -153,8 +167,13 @@ std::shared_ptr<Pattern> PatternList::get( int idx ) const
 
 int PatternList::index( const std::shared_ptr<Pattern> pattern ) const
 {
+	return pattern == nullptr ? -1 : index( pattern->getUuid() );
+}
+
+int PatternList::index( const Uuid& uuid ) const
+{
 	for( int i=0; i<m_pPatterns.size(); i++ ) {
-		if ( m_pPatterns[i]==pattern ) {
+		if ( m_pPatterns[i] != nullptr && m_pPatterns[i]->getUuid() == uuid ) {
 			return i;
 		}
 	}
@@ -175,8 +194,14 @@ std::shared_ptr<Pattern> PatternList::del( int idx )
 std::shared_ptr<Pattern> PatternList::del( std::shared_ptr<Pattern> pPattern )
 {
 	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
+	return pPattern == nullptr ? nullptr : del( pPattern->getUuid() );
+}
+
+std::shared_ptr<Pattern> PatternList::del( const Uuid& uuid )
+{
+	ASSERT_AUDIO_ENGINE_LOCKED( toQString() );
 	for ( int i = 0; i < m_pPatterns.size(); i++ ) {
-		if ( m_pPatterns[ i ] == pPattern ) {
+		if ( m_pPatterns[ i ] != nullptr && m_pPatterns[ i ]->getUuid() == uuid ) {
 			return del( i );
 		}
 	}
@@ -350,14 +375,17 @@ QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
-		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
+		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) );
 		for ( const auto& pp : m_pPatterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s, bShort ) ) );
 			}
 		}
 	} else {
-		sOutput = QString( "[PatternList] " );
+		sOutput = QString( "[PatternList] " )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) );
 		for ( const auto& pp : m_pPatterns ) {
 			if ( pp != nullptr ) {
 				sOutput.append( QString( "[%1] " ).arg( pp->getName() ) );

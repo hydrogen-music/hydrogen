@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_INFO_H
-#define SOUND_LIBRARY_INFO_H
+#ifndef H2C_SOUND_LIBRARY_INFO_H
+#define H2C_SOUND_LIBRARY_INFO_H
 
 #include <vector>
 
@@ -118,4 +118,4 @@ class SoundLibraryInfo : public H2Core::Object<SoundLibraryInfo> {
 };
 };	// namespace H2Core
 
-#endif	// SOUND_LIBRARY_INFO_H
+#endif	// H2C_SOUND_LIBRARY_INFO_H

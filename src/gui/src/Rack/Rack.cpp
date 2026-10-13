@@ -56,10 +56,10 @@ Rack::Rack( QWidget* pParent )
 
 	updateIcons();
 
-	setCurrentIndex( Preferences::get_instance()->getRackLastTab() );
+	setCurrentIndex( HydrogenApp::pPreferences()->getRackLastTab() );
 	connect(
 		this, &QTabWidget::currentChanged, this, [&] {
-			Preferences::get_instance()->setRackLastTab( currentIndex() );
+			HydrogenApp::pPreferences()->setRackLastTab( currentIndex() );
 		}
 	);
 
@@ -85,24 +85,24 @@ void Rack::onPreferencesChanged(
 void Rack::showInstrument()
 {
 	setTabEnabled( 0, true );
-	Preferences::get_instance()->setRackLastTab( 0 );
+	HydrogenApp::pPreferences()->setRackLastTab( 0 );
 }
 
 void Rack::showComponents()
 {
 	setTabEnabled( 1, true );
-	Preferences::get_instance()->setRackLastTab( 1 );
+	HydrogenApp::pPreferences()->setRackLastTab( 1 );
 }
 
 void Rack::showSoundLibrary()
 {
 	setTabEnabled( 2, true );
-	Preferences::get_instance()->setRackLastTab( 2 );
+	HydrogenApp::pPreferences()->setRackLastTab( 2 );
 }
 
 void Rack::updateStyleSheet()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorWidget = pColorTheme->m_windowColor;
 
 	setStyleSheet( QString( "\
@@ -122,7 +122,7 @@ void Rack::updateIcons()
 	}
 
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}

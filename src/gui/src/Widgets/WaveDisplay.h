@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef WAVE_DISPLAY
-#define WAVE_DISPLAY
+#ifndef H2C_WAVE_DISPLAY
+#define H2C_WAVE_DISPLAY
 
 #include <QtGui>
 #include <QtWidgets>

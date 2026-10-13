@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef FILE_SYSTEM_H
-#define FILE_SYSTEM_H
+#ifndef H2C_FILE_SYSTEM_H
+#define H2C_FILE_SYSTEM_H
 
 #include <QString>
 #include <vector>
@@ -29,6 +29,8 @@
 #include <core/Object.h>
 
 namespace H2Core {
+
+class Hydrogen;
 
 /**
  * Filesystem is a thin layer over QDir, QFile and QFileInfo
@@ -75,7 +77,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		Custom = 5,
 	};
 	static QString ContextToQString( const Context& context );
-	static Context DetermineContext( const QString& sPath );
+	static Context DetermineContext( const QString& sPath,
+									 Hydrogen* pHydrogen );
 
 	/** Indicates what type of file - .h2song, .h2playlist, .h2pattern,
 	 * drumkit.xml, .h2drumkit - a function as to handle. This covers files
@@ -92,7 +95,9 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		/** A .h2playlist file. */
 		Playlist,
 		/** A .h2song file. */
-		Song
+		Song,
+		/** A .h2project file. */
+		Project
 	};
 	static QString ArtifactToQString( const Artifact& actifact );
 
@@ -129,6 +134,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static const QString sPlaylistSuffix;
 	static const QString sScriptSuffix;
 	static const QString sSongSuffix;
+	static const QString sProjectSuffix;
 	static const QString sThemeSuffix;
 
 	static const QString sDrumkitFilter;
@@ -136,6 +142,7 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static const QString sPlaylistFilter;
 	static const QString sScriptFilter;
 	static const QString sSongFilter;
+	static const QString sProjectFilter;
 	static const QString sThemeFilter;
 
 	/**
@@ -162,9 +169,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static const QString& systemDataPath();
 	/** returns user data path */
 	static const QString& userDataPath();
-
-	/** returns user ladspa paths */
-	static const QStringList& ladspaPaths();
 
 	/** returns system config path */
 	static QString systemConfigPath();
@@ -228,8 +232,6 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString userPatternsDir();
 	/** returns system patterns path */
 	static QString systemPatternsDir();
-	/** returns user plugins path */
-	static QString userPluginsDir();
 	/** returns system drumkits path */
 	static QString systemDrumkitsDir();
 	/** returns user drumkits path */
@@ -265,7 +267,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QStringList listContent(
 		Artifact artifact,
 		Context context,
-		const QString& sUserDirOverwrite = ""
+		const QString& sUserDirOverwrite,
+		Hydrogen* pHydrogen
 	);
 
 	/* DRUMKIT */
@@ -326,7 +329,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static bool isPathValid(
 		const Artifact& artifact,
 		const QString& sPath,
-		bool bCheckExistance = false
+		bool bCheckExistance = false,
+		bool bSilent = false
 	);
 
 	/**
@@ -516,7 +520,8 @@ class Filesystem : public H2Core::Object<Filesystem> {
 		const int nFilePermission,
 		bool bSilent
 	);
-	static QStringList targetDirs( Artifact artifact, Context context );
+	static QStringList targetDirs( Artifact artifact, Context context,
+								   Hydrogen* pHydrogen );
 	static QString targetFilter( Artifact artifact );
 
 	static Logger* m_pLogger;  ///< a pointer to the logger
@@ -549,9 +554,12 @@ class Filesystem : public H2Core::Object<Filesystem> {
 	static QString m_sUserConfigPath;  ///< the path to the user config file
 	static QString m_sUserDataPath;	   ///< the path to the user files
 	static QString m_sUserLogPath;	   ///< the path to the log file
-	static QStringList m_ladspaPaths;  ///< paths to laspa plugins
 	static std::vector<AudioFormat> m_supportedAudioFormats;
 	static bool m_bLogPathInitialized;
+	/** The default log file location: the legacy user folder (~/.hydrogen)
+	 * wins if it exists, XDG paths otherwise. Pure computation, no state
+	 * is touched. */
+	static QString defaultLogFilePath();
 };
 
 inline const QString& Filesystem::getPreferencesOverwritePath()
@@ -564,6 +572,6 @@ inline void Filesystem::setPreferencesOverwritePath( const QString& sPath )
 }
 
 };		// namespace H2Core
-#endif	// FILE_SYSTEM_H
+#endif	// H2C_FILE_SYSTEM_H
 
 /* vim: set softtabstop=4 noexpandtab: */

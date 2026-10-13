@@ -27,7 +27,7 @@ https://www.gnu.org/licenses
 #include "BpmTap.h"
 #include "MidiControlButton.h"
 #include "MidiControlDialog.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Director.h"
 #include "../HydrogenApp.h"
 #include "../Rack/Rack.h"
@@ -58,8 +58,8 @@ using namespace H2Core;
 MainToolBar::MainToolBar( QWidget* pParent )
 	: QToolBar( pParent ), m_input( Editor::Input::Select )
 {
-	const auto pPref = Preferences::get_instance();
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pPref = HydrogenApp::pPreferences();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFixedHeight( MainToolBar::nHeight );
@@ -132,6 +132,25 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	};
 	////////////////////////////////////////////////////////////////////////////
 
+	if ( HydrogenApp::isConnectViaIpcMode() ) {
+		m_pIpcConnectionButton =
+			createButton( tr( "Connection state to headless engine" ) );
+		m_pIpcConnectionButton->setObjectName( "IpcConnectionButton" );
+		connect( m_pIpcConnectionButton, &QToolButton::clicked, [&]() {
+			auto pApp = HydrogenApp::get_instance();
+			if ( HydrogenApp::isIpcConnected() ) {
+				pApp->disconnectFromIpcEngine();
+			} else {
+				pApp->connectToIpcEngine( pApp->getIpcEndpoint() );
+			}
+		} );
+		addWidget( m_pIpcConnectionButton );
+
+		addCustomSeparator();
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+
 	auto pInputModeGroup = new QActionGroup( this );
 	pInputModeGroup->setExclusive( true );
 
@@ -178,15 +197,29 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	addCustomSeparator();
 
 	////////////////////////////////////////////////////////////////////////////
+	// The time display ticks at 10 fps. In a proportional font every
+	// digit swap changes the advance width of the string, making the
+	// centered text pump (shift and breathe). The tabular digit mode
+	// renders each digit centered in a fixed-width cell — sized to the
+	// widest digit of the "Item font" selected in the Preferences — so
+	// the rendered block stays rock-steady while keeping the user's
+	// font.
 	m_pTimeDisplay = new LCDDisplay(
-		nullptr, QSize( 146, MainToolBar::nWidgetHeight ), true, false
+		nullptr, QSize( MainToolBar::nTimeDisplayMinWidth,
+						MainToolBar::nWidgetHeight ),
+		true, false
 	);
-	m_pTimeDisplay->setAlignment( Qt::AlignRight );
-	m_pTimeDisplay->setText( "00:00:00:000" );
-	m_pTimeDisplay->setStyleSheet( m_pTimeDisplay->styleSheet().append(
-		QString( " QLineEdit { font-size: %1px; }" )
-			.arg( MainToolBar::nFontSize )
-	) );
+	QFont timeFont = m_pTimeDisplay->font();
+	timeFont.setPixelSize( MainToolBar::nFontSize );
+	m_pTimeDisplay->setFont( timeFont );
+	// The pixel size is set on the QFont itself: the tabular mode takes
+	// ownership of it (and pins it in its own stylesheet), while the
+	// family follows the "Item font" selected in the Preferences.
+	m_pTimeDisplay->setTabularDigits( true );
+	// 3 px margin around the timestamp — the tabular painting honors
+	// the text margins instead of the style's (wider) frame inset.
+	m_pTimeDisplay->setTextMargins( 0, 0, 0, 0 );
+	m_pTimeDisplay->setText( "00:00:00.000" );
 	addWidget( m_pTimeDisplay );
 
 	////////////////////////////////////////////////////////////////////////////
@@ -223,7 +256,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	m_pPlayAction->setCheckable( true );
 	m_pPlayAction->setText( tr( "Play/ Pause" ) );
 	connect( m_pPlayAction, &QAction::triggered, [=]() {
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		if ( pPref->getCountIn() ) {
 			pPref->setCountIn( false );
 		}
@@ -239,7 +272,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	m_pCountInAction->setCheckable( true );
 	m_pCountInAction->setText( tr( "Count in and play/ Pause" ) );
 	connect( m_pCountInAction, &QAction::triggered, [=]() {
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		if ( !pPref->getCountIn() ) {
 			pPref->setCountIn( true );
 		}
@@ -287,7 +320,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 	m_pSongLoopButton->setObjectName( "MainToolBarLoopButton" );
 	connect( m_pSongLoopButton, &QToolButton::clicked, [=]( bool bChecked ) {
 		auto pHydrogenApp = HydrogenApp::get_instance();
-		CoreActionController::activateLoopMode( m_pSongLoopButton->isChecked()
+		HydrogenApp::pEngine()->getCoreActionController()->activateLoopMode( m_pSongLoopButton->isChecked()
 		);
 		if ( m_pSongLoopButton->isChecked() ) {
 			pHydrogenApp->showStatusBarMessage( tr( "Loop song = On" ) );
@@ -305,7 +338,7 @@ MainToolBar::MainToolBar( QWidget* pParent )
 		createLearnableButton( tr( "Switch metronome on/off" ), true );
 	m_pMetronomeButton->setObjectName( "MetronomeButton" );
 	connect( m_pMetronomeButton, &QToolButton::clicked, []( bool bChecked ) {
-		CoreActionController::setMetronomeIsActive( bChecked );
+		HydrogenApp::pEngine()->getCoreActionController()->setMetronomeIsActive( bChecked );
 	} );
 	m_pMetronomeButton->setMidiAction(
 		std::make_shared<MidiAction>( MidiAction::Type::ToggleMetronome )
@@ -474,9 +507,9 @@ void MainToolBar::setPreferencesVisibilityState( bool bChecked )
 
 void MainToolBar::updateActions()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogen = HydrogenApp::pHydrogen();
 	if ( pHydrogenApp == nullptr ) {
 		return;
 	}
@@ -550,7 +583,7 @@ void MainToolBar::jackTimebaseStateChangedEvent( int nState )
 	updateJackTransport();
 	updateJackTimebase();
 
-	if ( !Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+	if ( !HydrogenApp::pPreferences()->m_bJackTimebaseEnabled ) {
 		return;
 	}
 
@@ -561,7 +594,7 @@ void MainToolBar::jackTimebaseStateChangedEvent( int nState )
 	// the event itself.
 	QString sMessage = tr( "JACK Timebase mode" ) + QString( " = " );
 
-	switch ( Hydrogen::get_instance()->getJackTimebaseState() ) {
+	switch ( HydrogenApp::pEngine()->getJackTimebaseState() ) {
 		case JackDriver::Timebase::Controller:
 			sMessage.append( "Controller" );
 			break;
@@ -592,7 +625,7 @@ void MainToolBar::midiClockActivationEvent()
 
 void MainToolBar::metronomeEvent( int nValue )
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	// Value 2 corresponds to the metronome being turned on or off.
 	if ( nValue == 2 ) {
@@ -601,7 +634,7 @@ void MainToolBar::metronomeEvent( int nValue )
 	}
 
 	if ( !pPref->m_bUseMetronome &&
-		 Hydrogen::get_instance()->getAudioEngine()->getState() !=
+		 HydrogenApp::pEngine()->getAudioEngine()->getState() !=
 			 AudioEngine::State::CountIn ) {
 		return;
 	}
@@ -629,7 +662,7 @@ void MainToolBar::metronomeEvent( int nValue )
 	// beat. We make this one tempo-dependent so it works for both small and
 	// high tempi as well.
 	const float fPercentage = 0.5;
-	const auto fBpm = H2Core::Hydrogen::get_instance()
+	const auto fBpm = HydrogenApp::pHydrogen()
 						  ->getAudioEngine()
 						  ->getPlayhead()
 						  ->getBpm();
@@ -662,8 +695,8 @@ void MainToolBar::tempoChangedEvent( int nValue )
 	if ( nValue == -1 ) {
 		// Value was changed via API commands and not by the
 		// AudioEngine.
-		auto pHydrogen = H2Core::Hydrogen::get_instance();
-		if ( pHydrogen->getTempoSource() ==
+		auto pHydrogen = HydrogenApp::pHydrogen();
+		if ( pHydrogen->getTempoSource( true ) ==
 			 H2Core::Hydrogen::Tempo::Timeline ) {
 			QMessageBox::warning(
 				this, "Hydrogen",
@@ -673,7 +706,7 @@ void MainToolBar::tempoChangedEvent( int nValue )
 					"activating it again." )
 			);
 		}
-		else if ( pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Jack ) {
+		else if ( pHydrogen->getTempoSource( true ) == H2Core::Hydrogen::Tempo::Jack ) {
 			QMessageBox::warning(
 				this, "Hydrogen",
 				tr( "A tempo change via MIDI, OSC, BeatCounter, or TapTempo "
@@ -686,7 +719,7 @@ void MainToolBar::tempoChangedEvent( int nValue )
 		// Discard all pending tempo change events in order to not create a
 		// flood of popups. Only after this method returns, the next event will
 		// be handled.
-		EventQueue::get_instance()->dropEvents( Event::Type::TempoChanged );
+		HydrogenApp::pEventQueue()->dropEvents( Event::Type::TempoChanged );
 	}
 }
 
@@ -714,15 +747,15 @@ void MainToolBar::updateSongEvent( int nValue )
 /// Toggle record mode
 void MainToolBar::recBtnClicked()
 {
-	if ( Hydrogen::get_instance()->getAudioEngine()->getState() !=
+	if ( HydrogenApp::pEngine()->getAudioEngine()->getState() !=
 		 H2Core::AudioEngine::State::Playing ) {
 		if ( m_pRecButton->isChecked() ) {
-			CoreActionController::activateRecordMode( true );
+			HydrogenApp::pEngine()->getCoreActionController()->activateRecordMode( true );
 			( HydrogenApp::get_instance() )
 				->showStatusBarMessage( tr( "Record midi events = On" ) );
 		}
 		else {
-			CoreActionController::activateRecordMode( false );
+			HydrogenApp::pEngine()->getCoreActionController()->activateRecordMode( false );
 			( HydrogenApp::get_instance() )
 				->showStatusBarMessage( tr( "Record midi events = Off" ) );
 		}
@@ -734,36 +767,22 @@ void MainToolBar::playBtnClicked()
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
-	const auto pPref = Preferences::get_instance();
-
-	// Hint that something is wrong in case there is no proper audio
-	// driver set.
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
-		QMessageBox::warning(
-			this, "Hydrogen",
-			QString( "%1\n%2" )
-				.arg( pCommonStrings->getAudioDriverNotPresent() )
-				.arg( pCommonStrings->getAudioDriverErrorHint() )
-		);
-		return;
-	}
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	if ( pHydrogen->getAudioEngine()->getState() !=
 		 AudioEngine::State::Playing ) {
 		if ( pPref->getCountIn() ) {
-			CoreActionController::startCountIn();
+			HydrogenApp::pEngine()->getCoreActionController()->startCountIn();
 			pHydrogenApp->showStatusBarMessage( tr( "Counting in" ) );
 		}
 		else {
-			pHydrogen->sequencerPlay();
+			HydrogenApp::pEngine()->sequencerPlay();
 			pHydrogenApp->showStatusBarMessage( tr( "Playing." ) );
 		}
 	}
 	else {
-		pHydrogen->sequencerStop();
+		HydrogenApp::pEngine()->sequencerStop();
 		pHydrogenApp->showStatusBarMessage( tr( "Pause." ) );
 	}
 }
@@ -772,31 +791,16 @@ void MainToolBar::playBtnClicked()
 void MainToolBar::stopBtnClicked()
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
 
-	// Hint that something is wrong in case there is no proper audio
-	// driver set.
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
-		QMessageBox::warning(
-			this, "Hydrogen",
-			QString( "%1\n%2" )
-				.arg( pCommonStrings->getAudioDriverNotPresent() )
-				.arg( pCommonStrings->getAudioDriverErrorHint() )
-		);
-		return;
-	}
-
-	pHydrogen->sequencerStop();
-	CoreActionController::locateToColumn( 0 );
+	HydrogenApp::pEngine()->sequencerStop();
+	HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
 	( HydrogenApp::get_instance() )->showStatusBarMessage( tr( "Stopped." ) );
 }
 
 void MainToolBar::updateTime()
 {
 	const float fSeconds =
-		Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
+		HydrogenApp::pEngine()->getAudioEngine()->getElapsedTime();
 
 	const int nMSec = (int) ( ( fSeconds - (int) fSeconds ) * 1000.0 );
 	const int nSeconds = ( (int) fSeconds ) % 60;
@@ -818,7 +822,7 @@ void MainToolBar::activateSongMode( bool bActivate )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	CoreActionController::activateSongMode( bActivate );
+	HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( bActivate );
 	// Immediate update and prevent buttons from being inchecked when clicked
 	// twice.
 	updateSongMode();
@@ -832,9 +836,9 @@ void MainToolBar::activateSongMode( bool bActivate )
 
 void MainToolBar::bpmChanged( double fNewBpm )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
-	if ( pHydrogen->getTempoSource() == Hydrogen::Tempo::Song &&
+	if ( ( pHydrogen->getTempoSource( true ) == Hydrogen::Tempo::Song ) &&
 		 pSong != nullptr && m_pBpmSpinBox->getIsActive() ) {
 		const float fOldBpm = pSong->getBpm();
 
@@ -851,32 +855,23 @@ void MainToolBar::bpmChanged( double fNewBpm )
 
 void MainToolBar::rubberbandButtonToggle()
 {
-	auto pPref = Preferences::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	if ( m_pRubberBandAction->isChecked() ) {
-		auto pSong = pHydrogen->getSong();
+		HydrogenApp::pEngine()->getCoreActionController()
+			->setRubberBandBatchMode( 1 );
 
-		if ( pSong != nullptr ) {
-			auto pDrumkit = pSong->getDrumkit();
-			if ( pDrumkit != nullptr ) {
-				// Recalculate all samples ones just to be safe since the
-				// recalculation is just triggered if there is a tempo
-				// change in the audio engine.
-				pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-				pDrumkit->recalculateRubberband(
-					pHydrogen->getAudioEngine()->getPlayhead()->getBpm()
-				);
-				pHydrogen->getAudioEngine()->unlock();
-			}
-		}
-		pPref->setRubberBandBatchMode( true );
+		// Recalculate all samples ones just to be safe since the
+		// recalculation is just triggered if there is a tempo change in
+		// the audio engine.
+		HydrogenApp::pEngine()->getCoreActionController()->recalculateRubberband();
+
 		( HydrogenApp::get_instance() )
 			->showStatusBarMessage(
 				tr( "Recalculate all samples using Rubberband ON" )
 			);
 	}
 	else {
-		pPref->setRubberBandBatchMode( false );
+		HydrogenApp::pEngine()->getCoreActionController()
+			->setRubberBandBatchMode( 0 );
 		( HydrogenApp::get_instance() )
 			->showStatusBarMessage(
 				tr( "Recalculate all samples using Rubberband OFF" )
@@ -893,7 +888,7 @@ void MainToolBar::beatCounterEvent()
 
 void MainToolBar::jackTransportBtnClicked()
 {
-	if ( !Hydrogen::get_instance()->hasJackDriver() ) {
+	if ( !HydrogenApp::pEngine()->coreUsesJackDriver() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			tr( "JACK-transport will work only with JACK driver." )
@@ -901,14 +896,14 @@ void MainToolBar::jackTransportBtnClicked()
 		return;
 	}
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	if ( pPref->m_nJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
-		CoreActionController::activateJackTransport( false );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTransport( false );
 		pHydrogenApp->showStatusBarMessage( tr( "JACK transport mode = Off" ) );
 	}
 	else {
-		CoreActionController::activateJackTransport( true );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTransport( true );
 		pHydrogenApp->showStatusBarMessage( tr( "JACK transport mode = On" ) );
 	}
 }
@@ -916,7 +911,7 @@ void MainToolBar::jackTransportBtnClicked()
 void MainToolBar::jackTimebaseBtnClicked()
 {
 #ifdef H2CORE_HAVE_JACK
-	if ( !Hydrogen::get_instance()->hasJackTransport() ) {
+	if ( !HydrogenApp::pEngine()->coreUsesJackTransport() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
 			tr( "JACK transport will work only with JACK driver." )
@@ -924,21 +919,21 @@ void MainToolBar::jackTimebaseBtnClicked()
 		return;
 	}
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	if ( pPref->m_bJackTimebaseMode ==
 		 Preferences::USE_JACK_TIMEBASE_CONTROL ) {
-		CoreActionController::activateJackTimebaseControl( false );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTimebaseControl( false );
 	}
 	else {
-		CoreActionController::activateJackTimebaseControl( true );
+		HydrogenApp::pEngine()->getCoreActionController()->activateJackTimebaseControl( true );
 	}
 #endif
 }
 
 void MainToolBar::fastForwardBtnClicked()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -949,7 +944,7 @@ void MainToolBar::fastForwardBtnClicked()
 			pHydrogen->getAudioEngine()->getPlayhead()->getColumn();
 		if ( nCurrentColumn < pSong->getPatternGroupVector()->size() - 1 ) {
 			// Not within the last column
-			CoreActionController::locateToColumn(
+			HydrogenApp::pEngine()->getCoreActionController()->locateToColumn(
 				std::max( nCurrentColumn, 0 ) + 1
 			);
 		}
@@ -957,7 +952,7 @@ void MainToolBar::fastForwardBtnClicked()
 			// Last one. If looping is enabled, we jump to the first column. If
 			// not, we "reach" the end of the song by stopping.
 			if ( pSong->getLoopMode() == Song::LoopMode::Enabled ) {
-				CoreActionController::locateToColumn( 0 );
+				HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( 0 );
 			}
 			else {
 				stopBtnClicked();
@@ -968,7 +963,7 @@ void MainToolBar::fastForwardBtnClicked()
 
 void MainToolBar::rewindBtnClicked()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
@@ -991,24 +986,24 @@ void MainToolBar::rewindBtnClicked()
 				nNewColumn = 0;
 			}
 		}
-		CoreActionController::locateToColumn( nNewColumn );
+		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( nNewColumn );
 	}
 }
 
 void MainToolBar::updateBpmSpinBox()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	m_pBpmSpinBox->setIsActive(
-		pHydrogen->getTempoSource() == H2Core::Hydrogen::Tempo::Song
+		pHydrogen->getTempoSource( true ) == H2Core::Hydrogen::Tempo::Song
 	);
 	m_pBpmSpinBox->setValue(
 		pHydrogen->getAudioEngine()->getPlayhead()->getBpm(),
 		H2Core::Event::Trigger::Suppress
 	);
 
-	switch ( pHydrogen->getTempoSource() ) {
+	switch ( pHydrogen->getTempoSource( true ) ) {
 		case H2Core::Hydrogen::Tempo::Jack:
 			m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxJackTimebaseToolTip );
 			break;
@@ -1017,25 +1012,45 @@ void MainToolBar::updateBpmSpinBox()
 				pCommonStrings->getTimelineDisabledMidiClock()
 			);
 			break;
-		case H2Core::Hydrogen::Tempo::Timeline:
-			m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
-			break;
 		default:
-			m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxToolTip );
+			if ( pHydrogen->isTimelineEnabled() ) {
+				m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxTimelineToolTip );
+			}
+			else {
+				m_pBpmSpinBox->setToolTip( m_sLCDBPMSpinboxToolTip );
+			}
 	}
+}
+
+void MainToolBar::updateIpcConnectionState() {
+	if ( ! HydrogenApp::isConnectViaIpcMode() ) {
+		return;
+	}
+	const bool bConnected = HydrogenApp::isIpcConnected();
+	m_pIpcConnectionButton->setChecked( bConnected );
+
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	const QColor color =
+		bConnected ? pColorTheme->m_accentColor : pColorTheme->m_buttonRedColor;
+	m_pIpcConnectionButton->setStyleSheet( QString( "\
+#IpcConnectionButton {									 \
+   background-color: %1;								 \
+   border: 1px solid #000;								 \
+}" )
+											   .arg( color.name() ) );
 }
 
 void MainToolBar::updateJackTransport()
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	const bool bVisible = pHydrogen->hasJackDriver();
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	const bool bVisible = pHydrogen->coreUsesJackDriver();
 	m_pJackTimebaseAction->setVisible(
-		bVisible && Preferences::get_instance()->m_bJackTimebaseEnabled
+		bVisible && HydrogenApp::pPreferences()->m_bJackTimebaseEnabled
 	);
 	m_pJackTransportAction->setVisible( bVisible );
 	m_pJackSeparator->setVisible( bVisible );
 
-	if ( pHydrogen->hasJackTransport() ) {
+	if ( pHydrogen->coreUsesJackTransport() ) {
 		m_pJackTransportAction->setChecked( true );
 	}
 	else {
@@ -1045,12 +1060,12 @@ void MainToolBar::updateJackTransport()
 
 void MainToolBar::updateJackTimebase()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-	auto pHydrogen = Hydrogen::get_instance();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const bool bVisible = pHydrogen->hasJackDriver();
+	const bool bVisible = pHydrogen->coreUsesJackDriver();
 	m_pJackTimebaseAction->setVisible(
-		bVisible && Preferences::get_instance()->m_bJackTimebaseEnabled
+		bVisible && HydrogenApp::pPreferences()->m_bJackTimebaseEnabled
 	);
 	m_pJackTransportAction->setVisible( bVisible );
 	m_pJackSeparator->setVisible( bVisible );
@@ -1060,7 +1075,7 @@ void MainToolBar::updateJackTimebase()
 	}
 
 	m_pJackTimebaseButton->setStyleSheet( "" );
-	if ( pHydrogen->hasJackTransport() ) {
+	if ( pHydrogen->coreUsesJackTransport() ) {
 		switch ( pHydrogen->getJackTimebaseState() ) {
 			case JackDriver::Timebase::Controller:
 				m_pJackTimebaseButton->setChecked( true );
@@ -1100,7 +1115,7 @@ void MainToolBar::updateJackTimebase()
 
 void MainToolBar::updateLoopMode()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -1115,13 +1130,13 @@ void MainToolBar::updateLoopMode()
 
 void MainToolBar::updateRecordMode()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	m_pRecButton->setChecked( pHydrogen->getRecordEnabled() );
 }
 
 void MainToolBar::updateSongMode()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	const bool bSongMode = pHydrogen->getMode() == Song::Mode::Song;
 	m_pSongModeAction->setChecked( bSongMode );
@@ -1133,8 +1148,8 @@ void MainToolBar::updateSongMode()
 
 void MainToolBar::updateTransportControl()
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pPref = Preferences::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	auto pPref = HydrogenApp::pPreferences();
 
 	m_pPlayButton->setChecked(
 		pHydrogen->getAudioEngine()->getState() == AudioEngine::State::Playing
@@ -1156,12 +1171,22 @@ void MainToolBar::onPreferencesChanged(
 	if ( changes & H2Core::Preferences::Changes::AppearanceTab ) {
 		updateIcons();
 	}
+	if ( changes & H2Core::Preferences::Changes::Font ) {
+		// The tabular time display re-measures its digit cells in the
+		// new "Item font" — re-reserve the width so wider cells do not
+		// clip.
+		m_pTimeDisplay->setFixedSize(
+			std::max( MainToolBar::nTimeDisplayMinWidth,
+					  m_pTimeDisplay->sizeHint().width() ),
+			MainToolBar::nWidgetHeight
+		);
+	}
 }
 
 void MainToolBar::updateIcons()
 {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -1169,12 +1194,17 @@ void MainToolBar::updateIcons()
 		sIconPath.append( "/icons/black/" );
 	}
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive = Skin::makeBackgroundColorInactive(
 		pColorTheme->m_songEditor_backgroundColor.darker( 110 )
 	);
 
+	if ( HydrogenApp::isConnectViaIpcMode() ) {
+		Skin::setToolButtonIcon(
+			m_pIpcConnectionButton, sIconPath + "remote-connected.svg", colorBackgroundInactive
+		);
+	}
 	Skin::setToolButtonIcon(
 		m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
 	);
@@ -1213,7 +1243,7 @@ void MainToolBar::updateIcons()
 
 void MainToolBar::updateStyleSheet()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	QColor iconColor;
 	if ( pPref->getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
@@ -1241,4 +1271,5 @@ QWidget#MainToolBarSeparator {                    \
 
 	m_pBpmTap->setBackgroundColor( colorBackground );
 	m_pBpmTap->updateStyleSheet();
+	updateIpcConnectionState();
 }

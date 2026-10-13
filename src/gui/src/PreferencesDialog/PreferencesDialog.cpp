@@ -27,8 +27,8 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <QPixmap>
-#include <QFontDatabase>
 #include <QTreeWidgetItemIterator>
+#include <memory>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/EventQueue.h>
@@ -41,7 +41,8 @@
 #include <core/OscServer.h>
 #include <core/Sampler/Sampler.h>
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
+#include "../FontUtils.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../MainToolBar/MainToolBar.h"
@@ -65,27 +66,10 @@ void DeviceComboBox::showPopup()
 {
 	clear();
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	if ( m_driver == Preferences::AudioDriver::PortAudio ) {
-#ifdef H2CORE_HAVE_PORTAUDIO
-		// Get device list for PortAudio based on current value of the API combo box
-		for ( QString s : PortAudioDriver::getDevices( m_sHostAPI ) ) {
-			addItem( s );
-		}
-#endif
-	}
-	else if ( m_driver == Preferences::AudioDriver::CoreAudio ) {
-#ifdef H2CORE_HAVE_COREAUDIO
-		for ( QString s : CoreAudioDriver::getDevices() ) {
-			addItem( s );
-		}
-#endif
-	}
-	else if ( m_driver == Preferences::AudioDriver::Alsa ) {
-#ifdef H2CORE_HAVE_ALSA
-		for ( QString s : AlsaAudioDriver::getDevices() ) {
-			addItem( s );
-		}
-#endif
+	// Device enumeration is resolved engine-side per driver kind (ADR 0029).
+	for ( const QString& sDevice :
+		  HydrogenApp::pEngine()->getAudioDevices( m_driver, m_sHostAPI ) ) {
+		addItem( sDevice );
 	}
 	QApplication::restoreOverrideCursor();
 	LCDCombo::showPopup();
@@ -108,15 +92,13 @@ void HostAPIComboBox::setValue( const QString& sHostAPI ) {
 void HostAPIComboBox::showPopup()
 {
 	clear();
-#ifdef H2CORE_HAVE_PORTAUDIO
+	// Host-API enumeration is resolved engine-side (ADR 0029).
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	addItems( PortAudioDriver::getHostAPIs() );
+	addItems( HydrogenApp::pEngine()->getAudioHostAPIs() );
 	QApplication::restoreOverrideCursor();
-#endif
 
 	LCDCombo::showPopup();
 }
-
 
 IndexedTreeItem::IndexedTreeItem( int nId, QTreeWidgetItem* pParent,
 								  const QString& sLabel )
@@ -152,8 +134,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	, m_changes( H2Core::Preferences::Changes::None )
 	, m_bShortcutsChanged( false )
 	, m_selectedCategory( H2Core::Shortcuts::Category::All )
-	, m_pCurrentTheme( std::make_shared<Theme>(H2Core::Preferences::get_instance()->getTheme()) )
-	, m_pPreviousTheme( std::make_shared<Theme>(H2Core::Preferences::get_instance()->getTheme()) )
+	, m_pCurrentTheme( std::make_shared<Theme>(HydrogenApp::pPreferences()->getTheme()) )
+	, m_pPreviousTheme( std::make_shared<Theme>(HydrogenApp::pPreferences()->getTheme()) )
 	, m_bAudioDriverRestartRequired( false )
 	, m_bMidiDriverRestartRequired( false )
 {
@@ -168,10 +150,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	connect( this, &PreferencesDialog::rejected, this, &PreferencesDialog::onRejected );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	///////
 	// General tab
@@ -342,7 +324,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	maxVoicesTxt->setValue( pPref->m_nMaxNotes );
 
 	resampleComboBox->setSize( audioTabWidgetSizeBottom );
-	resampleComboBox->setCurrentIndex( static_cast<int>(pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode() ) );
+	resampleComboBox->setCurrentIndex( static_cast<int>( pPref->m_interpolateMode ) );
 
 	restartAudioDriverBtn->setText( pCommonStrings->getDriverRestartButton() );
 
@@ -412,7 +394,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
 
 #ifdef H2CORE_HAVE_OSC
-	if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
+	// The authoritative engine owns the OSC server in the editor split; its
+	// fallback port is the one a remote control surface must dial, so query
+	// it across the split (standalone reads the local server).
+	const int nTemporaryOscPort = HydrogenApp::pEngine()->getOscTemporaryPort();
+	if ( nTemporaryOscPort != -1 ) {
 		oscTemporaryPortLabel->show();
 		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
 										.append( m_sColorRed )
@@ -421,8 +407,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 										.append( "</font></i></b>" ) );
 		oscTemporaryPort->show();
 		oscTemporaryPort->setEnabled( false );
-		oscTemporaryPort->setText(
-			QString::number( OscServer::get_instance()->getTemporaryPort() ) );
+		oscTemporaryPort->setText( QString::number( nTemporaryOscPort ) );
 	} else {
 #else
 	{
@@ -700,6 +685,33 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pShortcuts = std::make_shared<H2Core::Shortcuts>( pPref->getShortcuts() );
 	initializeShortcutsTab();
 	updateShortcutsTab();
+
+	// Editor mode (ADR 0016/0022): the audio driver, MIDI driver and OSC server
+	// are owned by the plugin host, not the out-of-process editor. Present that
+	// configuration read-only — the values stay visible so the user can see
+	// what the host provides, but cannot be edited here (editing would not
+	// reach the host-driven engine, and these fields sit in the override
+	// layer of the config schema anyway; see PreferencesSchema::Layer).
+	if ( HydrogenApp::pHydrogen()->isUnderPluginHost() ) {
+		const QList<QWidget*> hostOwnedWidgets = {
+			// Audio driver, device, sample rate / buffer size, and JACK options
+			driverComboBox, portaudioHostAPIComboBox, m_pAudioDeviceTxt,
+			latencyTargetSpinBox, bufferSizeSpinBox, sampleRateComboBox,
+			trackOutsCheckBox, enforceInstrumentNameCheckBox,
+			connectDefaultsCheckBox, enableTimebaseCheckBox, trackOutputComboBox,
+			restartAudioDriverBtn,
+			// MIDI driver and input/output ports
+			m_pMidiDriverComboBox, midiPortComboBox, midiOutportComboBox,
+			restartMidiDriverButton,
+			// OSC server (a host-level network service)
+			enableOscCheckbox, enableOscFeedbackCheckbox, incomingOscPortSpinBox
+		};
+		for ( QWidget* pWidget : hostOwnedWidgets ) {
+			if ( pWidget != nullptr ) {
+				pWidget->setEnabled( false );
+			}
+		}
+	}
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -716,8 +728,10 @@ void PreferencesDialog::on_cancelBtn_clicked() {
 }
 
 void PreferencesDialog::writeAudioDriverPreferences() {
-	auto pPref = Preferences::get_instance();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
+	auto pPref = HydrogenApp::pPreferences();
+	// Resolve the running driver kind once (ADR 0029) instead of casting the
+	// driver pointer; used below to pick the right field when "Auto" is chosen.
+	const auto audioDriverInfo = HydrogenApp::pEngine()->getAudioDriverInfo();
 
 	bool bAudioOptionAltered = false;
 	const auto prevAudioDriver = pPref->m_audioDriver;
@@ -738,8 +752,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	// Driver-specific settings
 	if ( selectedDriver == Preferences::AudioDriver::Alsa ||
 		 ( selectedDriver == Preferences::AudioDriver::Auto &&
-		   std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver ) !=
-			   nullptr ) ) {
+		   audioDriverInfo.kind == Preferences::AudioDriver::Alsa ) ) {
 		if ( pPref->m_sAlsaAudioDevice !=
 			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
@@ -748,8 +761,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::Oss ||
 			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
-					nullptr ) ) {
+				audioDriverInfo.kind == Preferences::AudioDriver::Oss ) ) {
 		if ( pPref->m_sOSSDevice != m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sOSSDevice = m_pAudioDeviceTxt->lineEdit()->text();
 			bAudioOptionAltered = true;
@@ -757,8 +769,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::PortAudio ||
 			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				std::dynamic_pointer_cast<H2Core::PortAudioDriver>( pAudioDriver
-				) != nullptr ) ) {
+				audioDriverInfo.kind == Preferences::AudioDriver::PortAudio ) ) {
 		if ( pPref->m_sPortAudioDevice !=
 			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sPortAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
@@ -777,8 +788,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 	}
 	else if ( selectedDriver == Preferences::AudioDriver::CoreAudio ||
 			  ( selectedDriver == Preferences::AudioDriver::Auto &&
-				std::dynamic_pointer_cast<H2Core::CoreAudioDriver>( pAudioDriver
-				) != nullptr ) ) {
+				audioDriverInfo.kind == Preferences::AudioDriver::CoreAudio ) ) {
 		if ( pPref->m_sCoreAudioDevice !=
 			 m_pAudioDeviceTxt->lineEdit()->text() ) {
 			pPref->m_sCoreAudioDevice = m_pAudioDeviceTxt->lineEdit()->text();
@@ -864,7 +874,7 @@ void PreferencesDialog::writeAudioDriverPreferences() {
 }
 
 void PreferencesDialog::writeMidiDriverPreferences() {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	bool bMidiOptionAltered = false;
 	if ( m_pMidiDriverComboBox->currentText() !=
@@ -905,8 +915,8 @@ void PreferencesDialog::on_okBtn_clicked()
 {
 	auto pH2App = HydrogenApp::get_instance();
 	auto pCommonStrings = pH2App->getCommonStrings();
-	auto pPref = Preferences::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	//////////////////////////////////////////////////////////////////
 	// Audio tab
@@ -916,9 +926,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	writeAudioDriverPreferences();
 
 	// Check whether the current audio driver is valid
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
+	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		if ( QMessageBox::warning(
 				 this, "Hydrogen",
 				 QString( "%1\n" )
@@ -941,26 +949,13 @@ void PreferencesDialog::on_okBtn_clicked()
 		bAudioOptionAltered = true;
 	}
 
-	// Interpolation
-	if ( static_cast<int>( pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode() ) !=
+	// Interpolation — a persistent preference (ADR 0027). The Sampler reads the
+	// effective mode from Preferences; resyncing Preferences before
+	// onPreferencesChanged applies the change live.
+	if ( static_cast<int>( pPref->m_interpolateMode ) !=
 		 resampleComboBox->currentIndex() ) {
-		switch ( resampleComboBox->currentIndex() ){
-		case 0:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
-			break;
-		case 1:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
-			break;
-		case 2:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
-			break;
-		case 3:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
-			break;
-		case 4:
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
-			break;
-		}
+		pPref->m_interpolateMode = static_cast<Interpolation::InterpolateMode>(
+			resampleComboBox->currentIndex() );
 		bAudioOptionAltered = true;
 	}
 
@@ -990,10 +985,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	// OSC tab
 	//////////////////////////////////////////////////////////////////
 	bool bOscOptionAltered = false;
+	bool bOscServerRequiresRestart = false;
 
 	if ( enableOscCheckbox->isChecked() != pPref->getOscServerEnabled() ) {
 		pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
-		pHydrogen->toggleOscServer( enableOscCheckbox->isChecked() );
+		// The restart itself happens after the preferences forward below,
+		// so the engine recreates its server on the new port and not on a
+		// stale copy.
+		bOscServerRequiresRestart = true;
 		bOscOptionAltered = true;
 	}
 	
@@ -1005,7 +1004,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	
 	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
 		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
-		pHydrogen->recreateOscServer();
+		// The restart itself happens after the preferences forward below,
+		// so the engine recreates its server on the new port and not on a
+		// stale copy.
+		bOscServerRequiresRestart = true;
 		bOscOptionAltered = true;
 	}
 
@@ -1040,7 +1042,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		 m_pBeatCounterDriftCompensationSpinBox->value() ) {
 		pPref->m_nBeatCounterDriftCompensation =
 			m_pBeatCounterDriftCompensationSpinBox->value();
-		pHydrogen->updateBeatCounterSettings();
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		bGeneralOptionAltered = true;
 	}
 	
@@ -1048,7 +1050,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		 m_pBeatCounterStartOffsetSpinBox->value() ) {
 		pPref->m_nBeatCounterStartOffset =
 			m_pBeatCounterStartOffsetSpinBox->value();
-		pHydrogen->updateBeatCounterSettings();
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 		bGeneralOptionAltered = true;
 	}
 
@@ -1077,9 +1079,14 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->setTheme( m_pCurrentTheme );
 
-	if ( m_bAudioDriverRestartRequired || m_bMidiDriverRestartRequired ) {
+	if ( ( m_bAudioDriverRestartRequired || m_bMidiDriverRestartRequired ) &&
+		 pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
 		// Restart audio and MIDI drivers now that we updated all
-		// values in Preferences.
+		// values in Preferences. In editor mode the restart is the
+		// authoritative engine's job: it restarts its drivers while
+		// applying the forwarded preferences below (the mirror owns no
+		// drivers — a local restart would be a no-op pushing spurious
+		// driver-changed events).
 		QApplication::setOverrideCursor( Qt::WaitCursor );
 		if ( m_bAudioDriverRestartRequired ) {
 			pHydrogen->restartAudioDriver();
@@ -1098,11 +1105,36 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//////////////////////////////////////////////////////////////////
 	// Write all changes to disk.
-	pPref->save();
+	// A failed save must not pass silently: the user believes the dialog
+	// persisted their changes (ADR 0023 - bounded retry, never block).
+	if ( ! pPref->save( false ) ) {
+		QMessageBox::warning(
+			this, "Hydrogen",
+			HydrogenApp::get_instance()->getCommonStrings()
+				->getPreferencesSaveFailure() );
+	}
 	
 	// Notify other components of Hydrogen about the changes
 	pH2App->changePreferences( m_changes );
-	
+
+	// When in editor mode, inform the authoritative engine about relevant
+	// changes (only a subset of the all options).
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences( pPref
+		);
+	}
+
+	// Restart the OSC server via the controller (single write surface, ADR
+	// 0027). This sits after the forward above so a recreated engine server
+	// binds the new port, not a stale copy. Standalone restarts the local
+	// server; in the editor split the command is forwarded to the
+	// authoritative engine, which restarts its own server (the mirror holds
+	// none).
+	if ( bOscServerRequiresRestart ) {
+		HydrogenApp::pEngine()->getCoreActionController()
+			->recreateOscServer();
+	}
+
 	accept();
 }
 
@@ -1123,9 +1155,9 @@ void PreferencesDialog::portaudioHostAPIComboBoxActivated( int index )
 
 void PreferencesDialog::updateAudioDriverInfo()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
+	const auto audioDriverInfo = HydrogenApp::pEngine()->getAudioDriverInfo();
 
 	// Reset info text
 	updateAudioDriverInfoLabel();
@@ -1152,32 +1184,22 @@ void PreferencesDialog::updateAudioDriverInfo()
 		driverComboBox->currentText() );
 
 	if ( selectedAudioDriver == Preferences::AudioDriver::Auto ) {
-		if ( std::dynamic_pointer_cast<H2Core::JackDriver>( pAudioDriver ) !=
-			 nullptr ) {
+		if ( audioDriverInfo.kind == Preferences::AudioDriver::Jack ) {
 			setAudioDriverInfoJack();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::Alsa ) {
 			setAudioDriverInfoAlsa();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::PortAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::PortAudio ) {
 			setAudioDriverInfoPortAudio();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::CoreAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::CoreAudio ) {
 			setAudioDriverInfoCoreAudio();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::PulseAudioDriver>(
-					  pAudioDriver
-				  ) != nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::PulseAudio ) {
 			setAudioDriverInfoPulseAudio();
 		}
-		else if ( std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
-				  nullptr ) {
+		else if ( audioDriverInfo.kind == Preferences::AudioDriver::Oss ) {
 			setAudioDriverInfoOss();
 		}
 		else {
@@ -1236,7 +1258,7 @@ void PreferencesDialog::updateAudioDriverInfo()
 void PreferencesDialog::updateAudioDriverInfoLabel() {
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
+	const auto audioDriverInfo = HydrogenApp::pEngine()->getAudioDriverInfo();
 	QString sInfo;
 
 	if ( driverComboBox->currentText() ==
@@ -1245,8 +1267,8 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "<br><br>" );
 	}
 
-	if ( std::dynamic_pointer_cast<H2Core::JackDriver>( pAudioDriver ) !=
-		 nullptr ) {
+	// Branch on the running driver kind (ADR 0029), not the driver pointer.
+	if ( audioDriverInfo.kind == Preferences::AudioDriver::Jack ) {
 		sInfo.append( "<b>" )
 			.append( tr( "JACK Audio Connection Kit Driver" ) )
 			.append( "</b><br>" )
@@ -1259,8 +1281,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::Alsa ) {
 		sInfo.append( "<b>" )
 			.append( tr( "ALSA Driver" ) )
 			.append( "</b><br>" );
@@ -1271,25 +1292,14 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( pCommonStrings->getPreferencesNotCompiled() )
 			.append( "</font></b>" );
 #else
-		auto pAlsaDriver =
-			std::dynamic_pointer_cast<H2Core::AlsaAudioDriver>( pAudioDriver );
-		if ( pAlsaDriver != nullptr ) {
-			sInfo.append( "<br>" )
-				.append( tr( "Currently connected to device: " ) )
-				.append( "<b>" )
-				.append( pAlsaDriver->m_sAlsaAudioDevice )
-				.append( "</b>" );
-		}
-		else {
-			ERRORLOG(
-				"ALSA driver selected in PreferencesDialog but no ALSA driver "
-				"running?"
-			);
-		}
+		sInfo.append( "<br>" )
+			.append( tr( "Currently connected to device: " ) )
+			.append( "<b>" )
+			.append( audioDriverInfo.connectedDevice )
+			.append( "</b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::PortAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::PortAudio ) {
 		sInfo.append( "<b>" )
 			.append( tr( "PortAudio Driver" ) )
 			.append( "</b><br>" );
@@ -1301,8 +1311,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::CoreAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::CoreAudio ) {
 		sInfo.append( "<b>" )
 			.append( tr( "CoreAudio Driver" ) )
 			.append( "</b><br>" );
@@ -1314,8 +1323,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::PulseAudioDriver>( pAudioDriver
-			  ) != nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::PulseAudio ) {
 		sInfo.append( "<b>" )
 			.append( tr( "PulseAudio Driver" ) )
 			.append( "</b><br>" );
@@ -1327,8 +1335,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 			.append( "</font></b>" );
 #endif
 	}
-	else if ( std::dynamic_pointer_cast<H2Core::OssDriver>( pAudioDriver ) !=
-			  nullptr ) {
+	else if ( audioDriverInfo.kind == Preferences::AudioDriver::Oss ) {
 		sInfo.append( "<b>" )
 			.append( tr( "Open Sound System" ) )
 			.append( "</b><br>" )
@@ -1352,7 +1359,7 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 		}
 		
 		// Display the selected driver as well.
-		sInfo.append( "NullDriver" )
+		sInfo.append( "Software Driver" )
 			.append( "<br><br><b><font color=" )
 			.append( m_sColorRed ).append( ">")
 			.append( pCommonStrings->getAudioDriverNotPresent() )
@@ -1363,9 +1370,8 @@ void PreferencesDialog::updateAudioDriverInfoLabel() {
 }
 
 void PreferencesDialog::updateMidiDriverInfo() {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
 
 	const auto nMidiIndex = m_pMidiDriverComboBox->findText(
 		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
@@ -1378,63 +1384,39 @@ void PreferencesDialog::updateMidiDriverInfo() {
 				  .arg( Preferences::midiDriverToQString( pPref->m_midiDriver ) ) );
 	}
 
-	// List MIDI input ports
+	// List MIDI input ports (ADR 0029: enumerated via the engine handle).
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		const auto midiOutputPorts = pHydrogen->getMidiDriver()->
-			getExternalPortList( MidiBaseDriver::PortType::Output );
+	const auto midiOutputPorts = HydrogenApp::pEngine()->getMidiPorts(
+		MidiBaseDriver::PortType::Output );
+	midiPortComboBox->setEnabled( midiOutputPorts.size() != 0 );
+	for ( uint i = 0; i < midiOutputPorts.size(); i++) {
+		const QString sPortName = midiOutputPorts[i];
+		midiPortComboBox->addItem( sPortName );
 
-		if ( midiOutputPorts.size() != 0 ) {
-			midiPortComboBox->setEnabled( true );
-
-			for ( uint i = 0; i < midiOutputPorts.size(); i++) {
-				const QString sPortName = midiOutputPorts[i];
-				midiPortComboBox->addItem( sPortName );
-
-				if ( sPortName == pPref->m_sMidiPortName ) {
-					midiPortComboBox->setCurrentIndex( i + 1 );
-				}
-			}
-		}
-		else {
-			midiPortComboBox->setEnabled( false );
+		if ( sPortName == pPref->m_sMidiPortName ) {
+			midiPortComboBox->setCurrentIndex( i + 1 );
 		}
 	}
-	else {
-		midiPortComboBox->setEnabled( false );
-	}
 
-	// List MIDI output ports
+	// List MIDI output ports (ADR 0029: enumerated via the engine handle).
 	midiOutportComboBox->clear();
 	midiOutportComboBox->addItem( pCommonStrings->getPreferencesNone() );
-	if ( pHydrogen->getMidiDriver() != nullptr ) {
-		const auto midiInputPorts = pHydrogen->getMidiDriver()->
-			getExternalPortList( MidiBaseDriver::PortType::Input );
+	const auto midiInputPorts = HydrogenApp::pEngine()->getMidiPorts(
+		MidiBaseDriver::PortType::Input );
+	midiOutportComboBox->setEnabled( midiInputPorts.size() != 0 );
+	for ( uint i = 0; i < midiInputPorts.size(); i++) {
+		const QString sPortName = midiInputPorts[i];
+		midiOutportComboBox->addItem( sPortName );
 
-		if ( midiInputPorts.size() != 0 ) {
-			midiOutportComboBox->setEnabled( true );
-
-			for ( uint i = 0; i < midiInputPorts.size(); i++) {
-				const QString sPortName = midiInputPorts[i];
-				midiOutportComboBox->addItem( sPortName );
-
-				if ( sPortName == pPref->m_sMidiOutputPortName ) {
-					midiOutportComboBox->setCurrentIndex( i + 1 );
-				}
-			}
+		if ( sPortName == pPref->m_sMidiOutputPortName ) {
+			midiOutportComboBox->setCurrentIndex( i + 1 );
 		}
-		else {
-			midiOutportComboBox->setEnabled( false );
-		}
-	}
-	else {
-		midiOutportComboBox->setEnabled( false );
 	}
 }
 
 void PreferencesDialog::setAudioDriverInfoOss() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1460,7 +1442,7 @@ void PreferencesDialog::setAudioDriverInfoOss() {
 }
 
 void PreferencesDialog::setAudioDriverInfoAlsa() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1500,7 +1482,7 @@ void PreferencesDialog::setAudioDriverInfoJack() {
 	enableTimebaseCheckBox->setEnabled( true );
 	trackOutsCheckBox->setEnabled( true );
 	enforceInstrumentNameCheckBox->setEnabled(
-		Preferences::get_instance()->m_bJackTrackOuts );
+		HydrogenApp::pPreferences()->m_bJackTrackOuts );
 	enforceInstrumentNameCheckBox->hide();
 	trackOutputComboBox->show();
 	trackOutputLbl->show();
@@ -1519,7 +1501,7 @@ void PreferencesDialog::setAudioDriverInfoJack() {
 }
 
 void PreferencesDialog::setAudioDriverInfoCoreAudio() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1545,7 +1527,7 @@ void PreferencesDialog::setAudioDriverInfoCoreAudio() {
 }
 
 void PreferencesDialog::setAudioDriverInfoPortAudio() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pAudioDeviceTxt->show();
 	audioDeviceLbl->show();
@@ -1566,15 +1548,12 @@ void PreferencesDialog::setAudioDriverInfoPortAudio() {
 	latencyTargetSpinBox->show();
 	latencyValueLabel->show();
 
-	const auto pAudioDriver = H2Core::Hydrogen::get_instance()->getAudioDriver();
-	int nLatency;
-	if ( pAudioDriver == nullptr ) {
+	const auto pEngine = HydrogenApp::pEngine();
+	if ( ! pEngine->getAudioDriverInfo().isPresent ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;
 	}
-	else {
-		nLatency = pAudioDriver->getLatency();
-	}
+	const int nLatency = pEngine->getAudioLatencyFrames();
 	latencyValueLabel->setText( QString("Current: %1 frames").arg( nLatency ) );
 
 	bufferSizeSpinBox->setToolTip( "" );
@@ -1607,7 +1586,7 @@ void PreferencesDialog::setAudioDriverInfoPulseAudio() {
 }
 
 void PreferencesDialog::onApplicationFontComboBoxActivated( int ) {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const auto font = applicationFontComboBox->currentFont();
 	m_pCurrentTheme->m_pFont->m_sApplicationFontFamily = font.family();
@@ -1621,7 +1600,7 @@ void PreferencesDialog::onApplicationFontComboBoxActivated( int ) {
 }
 
 void PreferencesDialog::onLevel2FontComboBoxActivated( int ) {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const auto font = level2FontComboBox->currentFont();
 	m_pCurrentTheme->m_pFont->m_sLevel2FontFamily = font.family();
@@ -1635,7 +1614,7 @@ void PreferencesDialog::onLevel2FontComboBoxActivated( int ) {
 }
 
 void PreferencesDialog::onLevel3FontComboBoxActivated( int ) {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const auto font = level3FontComboBox->currentFont();
 	m_pCurrentTheme->m_pFont->m_sLevel3FontFamily = font.family();
@@ -1654,11 +1633,11 @@ void PreferencesDialog::onRejected() {
 		return;
 	}
 
-	auto pOldPref = CoreActionController::loadPreferences(
+	auto pOldPref = HydrogenApp::pEngine()->getCoreActionController()->loadPreferences(
 		Filesystem::userConfigPath() );
 	if ( pOldPref == nullptr ) {
 		WARNINGLOG( "Unable to load user-level preferences. Falling back to system one." );
-		pOldPref = CoreActionController::loadPreferences(
+		pOldPref = HydrogenApp::pEngine()->getCoreActionController()->loadPreferences(
 			Filesystem::systemConfigPath() );
 	}
 	if ( pOldPref == nullptr ) {
@@ -1666,8 +1645,8 @@ void PreferencesDialog::onRejected() {
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pCurrentPref = Preferences::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	auto pCurrentPref = HydrogenApp::pPreferences();
 
 	if ( ( m_changes & Preferences::Changes::Font ) ||
 		 ( m_changes & Preferences::Changes::Colors ) ||
@@ -1689,7 +1668,7 @@ void PreferencesDialog::onRejected() {
 		pCurrentPref->setMaxBars( pOldPref->getMaxBars() );
 		pCurrentPref->m_nAutosavesPerHour = pOldPref->m_nAutosavesPerHour;
 		pCurrentPref->setPreferredLanguage( pOldPref->getPreferredLanguage() );
-		pHydrogen->updateBeatCounterSettings();
+		HydrogenApp::pEngine()->updateBeatCounterSettings();
 	}
 
 	if ( m_changes & Preferences::Changes::AudioTab ) {
@@ -1711,21 +1690,33 @@ void PreferencesDialog::onRejected() {
 		pCurrentPref->m_nBufferSize = pOldPref->m_nBufferSize;
 		pCurrentPref->m_nSampleRate = pOldPref->m_nSampleRate;
 
-		pHydrogen->restartAudioDriver();
+		// In the editor split the headless engine owns the drivers; the
+		// mirror must not churn its local (Null/None) stand-ins.
+		if ( pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+			pHydrogen->restartAudioDriver();
+		}
 	}
 
 	if ( m_changes & Preferences::Changes::MidiTab ) {
 		pCurrentPref->m_midiDriver = pOldPref->m_midiDriver;
 		pCurrentPref->m_sMidiPortName = pOldPref->m_sMidiPortName;
 		pCurrentPref->m_sMidiOutputPortName = pOldPref->m_sMidiOutputPortName;
-		pHydrogen->restartMidiDriver();
+		if ( pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+			pHydrogen->restartMidiDriver();
+		}
 	}
 
 	if ( m_changes & Preferences::Changes::OscTab ) {
 		pCurrentPref->setOscServerEnabled( pOldPref->getOscServerEnabled() );
 		pCurrentPref->setOscFeedbackEnabled( pOldPref->getOscFeedbackEnabled() );
 		pCurrentPref->setOscServerPort( pOldPref->getOscServerPort() );
-		pHydrogen->recreateOscServer();
+		// Via the controller (ADR 0027): standalone restarts the local
+		// server; in the editor split the restored values are forwarded to
+		// the engine below, whose server restarts while applying them.
+		if ( pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor ) {
+			HydrogenApp::pEngine()->getCoreActionController()
+				->recreateOscServer();
+		}
 	}
 
 	if ( m_changes & Preferences::Changes::ShortcutTab ) {
@@ -1735,10 +1726,19 @@ void PreferencesDialog::onRejected() {
 
 	// Notify other components of Hydrogen about what has been resetted.
 	HydrogenApp::get_instance()->changePreferences( m_changes );
+
+	// In the editor split the engine applied the canceled values when they
+	// were OK'd; it must learn the restored ones — its drivers and OSC
+	// server restart while applying them (the mirror's local restarts are
+	// skipped above).
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences(
+			pCurrentPref );
+	}
 }
 
 void PreferencesDialog::onFontSizeChanged( int nIndex ) {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	switch ( nIndex ) {
 	case 0:
@@ -1776,7 +1776,7 @@ void PreferencesDialog::onUILayoutChanged( int nIndex ) {
 	}
 	m_pCurrentTheme->m_pInterface->m_layout =
 		static_cast<InterfaceTheme::Layout>(nIndex);
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_layout =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_layout =
 		static_cast<InterfaceTheme::Layout>(nIndex);
 
 	m_changes =
@@ -1797,7 +1797,7 @@ void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex )
 	}
 	m_pCurrentTheme->m_pInterface->m_uiScalingPolicy =
 		static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_uiScalingPolicy =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_uiScalingPolicy =
 		static_cast<InterfaceTheme::ScalingPolicy>(nIndex);
 
 	m_changes =
@@ -1810,7 +1810,7 @@ void PreferencesDialog::uiScalingPolicyComboBoxCurrentIndexChanged( int nIndex )
 void PreferencesDialog::onIconColorChanged( int nIndex ) {
 	m_pCurrentTheme->m_pInterface->m_iconColor =
 		static_cast<InterfaceTheme::IconColor>(nIndex);
-	H2Core::Preferences::get_instance()->getThemeWritable()->m_pInterface->m_iconColor =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_iconColor =
 		static_cast<InterfaceTheme::IconColor>(nIndex);
 
 	m_changes =
@@ -1821,7 +1821,7 @@ void PreferencesDialog::onIconColorChanged( int nIndex ) {
 }
 
 void PreferencesDialog::onColorNumberChanged( int nIndex ) {
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_nVisiblePatternColors =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_nVisiblePatternColors =
 		nIndex;
 	m_pCurrentTheme->m_pInterface->m_nVisiblePatternColors = nIndex;
 	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
@@ -1847,7 +1847,7 @@ void PreferencesDialog::onColorSelectionClicked() {
 		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
 	}
 	m_pCurrentTheme->m_pInterface->m_patternColors = colors;
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_patternColors =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_patternColors =
 		colors;
 
 	m_changes =
@@ -1860,7 +1860,7 @@ void PreferencesDialog::onColorSelectionClicked() {
 void PreferencesDialog::onColoringMethodChanged( int nIndex ) {
 	m_pCurrentTheme->m_pInterface->m_coloringMethod =
 		static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
-	Preferences::get_instance()->getThemeWritable()->m_pInterface->m_coloringMethod =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_coloringMethod =
 		static_cast<H2Core::InterfaceTheme::ColoringMethod>(nIndex);
 
 	if ( nIndex == 0 ) {
@@ -1890,7 +1890,7 @@ void PreferencesDialog::onIndicateNotePlaybackChanged( int ) {
 	const bool bNew = indicateNotePlaybackComboBox->currentIndex() == 0 ?
 		true : false;
 	m_pCurrentTheme->m_pInterface->m_bIndicateNotePlayback = bNew;
-	Preferences::get_instance()->
+	HydrogenApp::pPreferences()->
 		getThemeWritable()->m_pInterface->m_bIndicateNotePlayback = bNew;
 
 	m_changes = static_cast<H2Core::Preferences::Changes>(
@@ -1904,7 +1904,7 @@ void PreferencesDialog::onIndicateEffectiveNoteLengthChanged( int ) {
 	const bool bNew = indicateEffectiveNoteLengthComboBox->currentIndex() == 0 ?
 		true : false;
 	m_pCurrentTheme->m_pInterface->m_bIndicateEffectiveNoteLength = bNew;
-	Preferences::get_instance()->
+	HydrogenApp::pPreferences()->
 		getThemeWritable()->m_pInterface->m_bIndicateEffectiveNoteLength = bNew;
 
 	m_changes = static_cast<H2Core::Preferences::Changes>(
@@ -1915,7 +1915,7 @@ void PreferencesDialog::onIndicateEffectiveNoteLengthChanged( int ) {
 }
 
 void PreferencesDialog::mixerFalloffComboBoxCurrentIndexChanged( int nIndex ) {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	
 	if ( nIndex == 0 ) {
 		m_pCurrentTheme->m_pInterface->m_fMixerFalloffSpeed =
@@ -1949,14 +1949,24 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 	QApplication::setOverrideCursor( Qt::WaitCursor );
 
 	writeAudioDriverPreferences();
-	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->restartAudioDriver();
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		// The restart is meant for the authoritative engine's driver: the
+		// mirror owns none. Applying the just-written preferences restarts
+		// the engine's drivers (CoreActionController::setPreferences); the
+		// channel is FIFO, so the cache refresh below observes the
+		// post-restart state.
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences(
+			pHydrogen->getPreferences() );
+		HydrogenApp::get_instance()->refreshCachedAudioDriverInfo();
+	}
+	else {
+		pHydrogen->restartAudioDriver();
+	}
 
 	QApplication::restoreOverrideCursor();
 
-	if ( pHydrogen->getAudioDriver() == nullptr ||
-		 std::dynamic_pointer_cast<NullDriver>( pHydrogen->getAudioDriver() ) !=
-			 nullptr ) {
+	if ( ! HydrogenApp::pEngine()->getAudioDriverInfo().isRunning ) {
 		QMessageBox::critical(
 			this, "Hydrogen", pCommonStrings->getAudioDriverStartError()
 		);
@@ -1969,10 +1979,18 @@ void PreferencesDialog::on_restartAudioDriverBtn_clicked()
 void PreferencesDialog::on_restartMidiDriverButton_clicked()
 {
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	
+
 	writeMidiDriverPreferences();
-	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->restartMidiDriver();
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) {
+		// Same forwarding as the audio driver restart above.
+		HydrogenApp::pEngine()->getCoreActionController()->setPreferences(
+			pHydrogen->getPreferences() );
+		HydrogenApp::get_instance()->refreshCachedMidiDriverInfo();
+	}
+	else {
+		pHydrogen->restartMidiDriver();
+	}
 
 	QApplication::restoreOverrideCursor();
 
@@ -1989,7 +2007,7 @@ void PreferencesDialog::styleComboBoxActivated( int index )
 
 		// Instant visual feedback.
 		HydrogenApp::get_instance()->getMainForm()->m_pQApp->setStyle( sStyle );
-		Preferences::get_instance()->getThemeWritable()->m_pInterface->m_sQTStyle =
+		HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_sQTStyle =
 			sStyle;
 
 		m_pCurrentTheme->m_pInterface->m_sQTStyle = sStyle;
@@ -2015,7 +2033,7 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 		incomingOscPortSpinBox->show();
 		incomingOscPortLabel->show();
 #ifdef H2CORE_HAVE_OSC
-		if ( OscServer::get_instance()->getTemporaryPort() != -1 ) {
+		if ( HydrogenApp::pEngine()->getOscTemporaryPort() != -1 ) {
 			oscTemporaryPortLabel->show();
 			oscTemporaryPort->show();
 		}
@@ -2375,7 +2393,7 @@ void PreferencesDialog::applyCurrentColor() {
 
 	setColorById( m_nCurrentId, *m_pCurrentColor, m_pCurrentTheme->m_pColor );
 
-	H2Core::Preferences::get_instance()->getThemeWritable()->m_pColor =
+	HydrogenApp::pPreferences()->getThemeWritable()->m_pColor =
 		m_pCurrentTheme->m_pColor;
 
 	m_changes =
@@ -2517,7 +2535,7 @@ void PreferencesDialog::vsliderChanged( int nValue ) {
 }
 
 void PreferencesDialog::importTheme() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	QString sPath = pPref->getLastImportThemeDirectory();
 	if ( ! H2Core::Filesystem::dirReadable( sPath, false ) ){
 		sPath = Filesystem::systemThemesDir();
@@ -2552,6 +2570,9 @@ void PreferencesDialog::importTheme() {
 		QMessageBox::critical( this, "Hydrogen", tr("Theme couldn't be imported") );
 		return;
 	}
+	// The imported file was authored on another machine; its font
+	// families are untrusted input.
+	FontUtils::sanitizeFontTheme( pTheme->m_pFont );
 	m_pCurrentTheme = pTheme;
 	pPref->setTheme( m_pCurrentTheme );
 	if ( m_nCurrentId == 0 ) {
@@ -2572,7 +2593,7 @@ void PreferencesDialog::importTheme() {
 }
 
 void PreferencesDialog::exportTheme() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	QString sPath = pPref->getLastExportThemeDirectory();
 	if ( ! H2Core::Filesystem::dirWritable( sPath, false ) ){
 		sPath = Filesystem::userThemesDir();
@@ -2610,7 +2631,7 @@ void PreferencesDialog::exportTheme() {
 
 void PreferencesDialog::resetTheme() {
 	m_pCurrentTheme = std::make_shared<Theme>(m_pPreviousTheme);
-	H2Core::Preferences::get_instance()->setTheme( m_pCurrentTheme );
+	HydrogenApp::pPreferences()->setTheme( m_pCurrentTheme );
 	updateAppearanceTab( m_pCurrentTheme );
 	
 	auto changes = static_cast<Preferences::Changes>(
@@ -2697,12 +2718,14 @@ void PreferencesDialog::updateAppearanceTab( std::shared_ptr<H2Core::Theme> pThe
 		}
 	}
 
-	// Font families are now validated by Preferences::getApplicationFontFamily() et al.
-	// which fall back to the system default if the stored family is not available.
-	auto pPref = Preferences::get_instance();
-	applicationFontComboBox->setCurrentFont( QFont( pPref->getApplicationFontFamily() ) );
-	level2FontComboBox->setCurrentFont( QFont( pPref->getLevel2FontFamily() ) );
-	level3FontComboBox->setCurrentFont( QFont( pPref->getLevel3FontFamily() ) );
+	// Defense-in-depth: every theme reaching the dialog was already
+	// sanitized at its ingress (startup, import), but the parameter is
+	// sanitized again so the comboboxes can never see an invalid family.
+	FontUtils::sanitizeFontTheme( pTheme->m_pFont );
+
+	applicationFontComboBox->setCurrentFont( QFont( pTheme->m_pFont->m_sApplicationFontFamily ) );
+	level2FontComboBox->setCurrentFont( QFont( pTheme->m_pFont->m_sLevel2FontFamily ) );
+	level3FontComboBox->setCurrentFont( QFont( pTheme->m_pFont->m_sLevel3FontFamily ) );
 
 	switch( pTheme->m_pFont->m_fontSize ) {
 	case FontTheme::FontSize::Small:

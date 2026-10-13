@@ -1,0 +1,1239 @@
+/*
+ * Hydrogen
+ * Copyright (C) 2021 The hydrogen development team <hydrogen-devel@lists.sourceforge.net>
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+#ifndef H2C_COMMON_STRINGS_H
+#define H2C_COMMON_STRINGS_H
+
+#include <core/Object.h>
+#include <QString>
+
+#include <core/Basics/Note.h>
+#include <core/Midi/Midi.h>
+
+namespace H2Core {
+
+/** A container class to collect all translatable strings at one place
+	in order to allow for the reusage. This will (some day) make
+	translation work faster.
+
+	Initially I wanted the whole thing as well as the getter methods
+	to be static. But Qt requires the class to be initialized for the
+	translation engine to take effect.
+
+	\ingroup docGUI
+*/
+class CommonStrings : public H2Core::Object<CommonStrings> {
+	H2_OBJECT( CommonStrings )
+	Q_DECLARE_TR_FUNCTIONS( CommonStrings )
+
+   public:
+	/** This function does not use #H2Core::Note::Octave since it is supposed to
+	 * work outside of its valid range. */
+	static QString createPitchLabel( H2Core::Note::Key key, int nOctave );
+	/** The bare note class name of @a key ("C", "C#", … "B") — the
+	 *  single source of the note labels; the octave form above
+	 *  appends to it. */
+	static QString createPitchLabel( H2Core::Note::Key key );
+
+	CommonStrings();
+	~CommonStrings();
+
+	const QString& getSmallSoloButton() const { return m_sSmallSoloButton; }
+	const QString& getSmallMuteButton() const { return m_sSmallMuteButton; }
+	const QString& getBigMuteButton() const { return m_sBigMuteButton; }
+	const QString& getBigSoloButton() const { return m_sBigSoloButton; }
+	const QString& getBypassButton() const { return m_sBypassButton; }
+	const QString& getEditButton() const { return m_sEditButton; }
+	const QString& getClearButton() const { return m_sClearButton; }
+	const QString& getPlaybackTrackButton() const
+	{
+		return m_sPlaybackTrackButton;
+	}
+	const QString& getTimelineButton() const { return m_sTimelineButton; }
+	const QString& getTimelineBigButton() const { return m_sTimelineBigButton; }
+	const QString& getPeakButton() const { return m_sPeakButton; }
+	const QString& getInstrumentButton() const { return m_sInstrumentButton; }
+	const QString& getSelectModeButton() const { return m_sSelectModeButton; }
+	const QString& getDrawModeButton() const { return m_sDrawModeButton; }
+	const QString& getEditModeButton() const { return m_sEditModeButton; }
+	const QString& getAttackLabel() const { return m_sAttackLabel; }
+	const QString& getDecayLabel() const { return m_sDecayLabel; }
+	const QString& getSustainLabel() const { return m_sSustainLabel; }
+	const QString& getReleaseLabel() const { return m_sReleaseLabel; }
+	const QString& getMidiOutChannelLabel() const
+	{
+		return m_sMidiOutChannelLabel;
+	}
+	const QString& getMidiOutNoteLabel() const { return m_sMidiOutNoteLabel; }
+	const QString& getMidiOutNoteOffsetLabel() const
+	{
+		return m_sMidiOutNoteOffsetLabel;
+	}
+	const QString& getMidiOutLabel() const { return m_sMidiOutLabel; }
+	const QString& getMidiInputLabel() const { return m_sMidiInputLabel; }
+	const QString& getPitchLabel() const { return m_sPitchLabel; }
+	const QString& getPitchCoarseLabel() const { return m_sPitchCoarseLabel; }
+	const QString& getPitchFineLabel() const { return m_sPitchFineLabel; }
+	const QString& getPitchRandomLabel() const { return m_sPitchRandomLabel; }
+	const QString& getGainLabel() const { return m_sGainLabel; }
+	const QString& getMuteGroupLabel() const { return m_sMuteGroupLabel; }
+	const QString& getIsStopNoteLabel() const { return m_sIsStopNoteLabel; }
+	const QString& getApplyVelocityLabel() const
+	{
+		return m_sApplyVelocityLabel;
+	}
+	const QString& getHihatGroupLabel() const { return m_sHihatGroupLabel; }
+	const QString& getHihatMaxRangeLabel() const
+	{
+		return m_sHihatMaxRangeLabel;
+	}
+	const QString& getHihatMinRangeLabel() const
+	{
+		return m_sHihatMinRangeLabel;
+	}
+	const QString& getCutoffLabel() const { return m_sCutoffLabel; }
+	const QString& getResonanceLabel() const { return m_sResonanceLabel; }
+	const QString& getLayerGainLabel() const { return m_sLayerGainLabel; }
+	const QString& getComponentGainLabel() const
+	{
+		return m_sComponentGainLabel;
+	}
+	const QString& getSampleSelectionLabel() const
+	{
+		return m_sSampleSelectionLabel;
+	}
+	const QString& getMidiLabel() const { return m_sMidiLabel; }
+	const QString& getCpuLabel() const { return m_sCpuLabel; }
+	const QString& getBPMLabel() const { return m_sBPMLabel; }
+	const QString& getTimeHoursLabel() const { return m_sTimeHoursLabel; }
+	const QString& getTimeMinutesLabel() const { return m_sTimeMinutesLabel; }
+	const QString& getTimeSecondsLabel() const { return m_sTimeSecondsLabel; }
+	const QString& getTimeMilliSecondsLabel() const
+	{
+		return m_sTimeMilliSecondsLabel;
+	}
+	const QString& getHumanizeLabel() const { return m_sHumanizeLabel; }
+	const QString& getSwingLabel() const { return m_sSwingLabel; }
+	const QString& getTimingLabel() const { return m_sTimingLabel; }
+	const QString& getVelocityLabel() const { return m_sVelocityLabel; }
+	const QString& getMasterLabel() const { return m_sMasterLabel; }
+	const QString& getDriverRestartButton() const
+	{
+		return m_sDriverRestartButton;
+	}
+	const QString& getAllLabel() const { return m_sAllLabel; }
+	const QString& getCurrentlySelectedLabel() const
+	{
+		return m_sCurrentlySelectedLabel;
+	}
+	const QString& getTagsLabel() const { return m_sTagsLabel; }
+	const QString& getDrumkitsLabel() const { return m_sDrumkitsLabel; }
+	const QString& getPatternsLabel() const { return m_sPatternsLabel; }
+	const QString& getSongsLabel() const { return m_sSongsLabel; }
+
+	const QString& getRangeToolTip() const { return m_sRangeToolTip; }
+	const QString& getMidiToolTipHeading() const
+	{
+		return m_sMidiToolTipHeading;
+	}
+	const QString& getMidiToolTipBound() const { return m_sMidiToolTipBound; }
+	const QString& getMidiToolTipUnbound() const
+	{
+		return m_sMidiToolTipUnbound;
+	}
+
+	const QString& getShowDrumkitEditorToolTip() const
+	{
+		return m_sShowDrumkitEditorToolTip;
+	}
+	const QString& getShowPianoRollEditorToolTip() const
+	{
+		return m_sShowPianoRollEditorToolTip;
+	}
+	const QString& getPatternSizeDisabledToolTip() const
+	{
+		return m_sPatternSizeDisabledToolTip;
+	}
+
+	const QString& getAudioDriverStartError() const
+	{
+		return m_sAudioDriverStartError;
+	}
+	const QString& getAudioDriverErrorHint() const
+	{
+		return m_sAudioDriverErrorHint;
+	}
+	const QString& getAudioDriverNotPresent() const
+	{
+		return m_sAudioDriverNotPresent;
+	}
+
+	const QString& getJackTimebaseToolTip() const
+	{
+		return m_sJackTimebaseToolTip;
+	}
+	const QString& getJackTimebaseListenerToolTip() const
+	{
+		return m_sJackTimebaseListenerToolTip;
+	}
+	const QString& getJackTimebaseControllerToolTip() const
+	{
+		return m_sJackTimebaseControllerToolTip;
+	}
+
+	const QString& getTapTempoToolTip() const { return m_sTapTempoToolTip; }
+	const QString& getBeatCounterTapToolTip() const
+	{
+		return m_sBeatCounterTapToolTip;
+	}
+	const QString& getBeatCounterTapAndPlayToolTip() const
+	{
+		return m_sBeatCounterTapAndPlayToolTip;
+	}
+	const QString& getTempoChangeAction() const
+	{
+		return m_sTempoChangeAction;
+	}
+
+	const QString& getMidiControl() const { return m_sMidiControl; }
+	const QString& getMidiSenseWindowTitle() const
+	{
+		return m_sMidiSenseWindowTitle;
+	}
+	const QString& getMidiSenseCurrentBindings() const
+	{
+		return m_sMidiSenseCurrentBindings;
+	}
+	const QString& getMidiSenseInput() const { return m_sMidiSenseInput; }
+	const QString& getMidiSenseUnavailable() const
+	{
+		return m_sMidiSenseUnavailable;
+	}
+
+	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
+	const QString& getInstrumentLoadError() const
+	{
+		return m_sInstrumentLoadError;
+	}
+
+	const QString& getFileDialogMissingWritePermissions() const
+	{
+		return m_sFileDialogMissingWritePermissions;
+	}
+	const QString& getArtifactIsReadOnly() const
+	{
+		return m_sArtifactIsReadOnly;
+	}
+
+	const QString& getStatusOn() const { return m_sStatusOn; }
+	const QString& getStatusOff() const { return m_sStatusOff; }
+	const QString& getStatusEnabled() const { return m_sStatusEnabled; }
+	const QString& getStatusDisabled() const { return m_sStatusDisabled; }
+	const QString& getStatusPatternLoaded() const
+	{
+		return m_sStatusPatternLoaded;
+	}
+
+	const QString& getTimelineEnabled() const { return m_sTimelineEnabled; }
+	const QString& getTimelineDisabledPatternMode() const
+	{
+		return m_sTimelineDisabledPatternMode;
+	}
+	const QString& getTimelineDisabledMidiClock() const
+	{
+		return m_sTimelineDisabledMidiClock;
+	}
+	const QString& getTimelineDisabledTimebaseListener() const
+	{
+		return m_sTimelineDisabledTimebaseListener;
+	}
+	const QString& getPatternEditorLocked() const
+	{
+		return m_sPatternEditorLocked;
+	}
+
+	const QString& getPreferencesNotCompiled() const
+	{
+		return m_sPreferencesNotCompiled;
+	}
+	const QString& getPreferencesNone() const { return m_sPreferencesNone; }
+	const QString& getPreferencesJackToolTip() const
+	{
+		return m_sPreferencesJackToolTip;
+	}
+	const QString& getPreferencesShortcutCapture() const
+	{
+		return m_sPreferencesShortcutCapture;
+	}
+	const QString& getPreferencesSaveFailure() const
+	{
+		return m_sPreferencesSaveFailure;
+	}
+
+	const QString& getButtonOk() const { return m_sButtonOk; }
+	const QString& getButtonApply() const { return m_sButtonApply; }
+	const QString& getButtonSave() const { return m_sButtonSave; }
+	const QString& getButtonCancel() const { return m_sButtonCancel; }
+	const QString& getButtonDiscard() const { return m_sButtonDiscard; }
+	const QString& getButtonKeep() const { return m_sButtonKeep; }
+	const QString& getButtonPlay() const { return m_sButtonPlay; }
+	const QString& getButtonPlayOriginalSample() const
+	{
+		return m_sButtonPlayOriginalSample;
+	}
+	const QString& getButtonFill() const { return m_sButtonFill; }
+	const QString& getButtonClear() const { return m_sButtonClear; }
+	const QString& getButtonBrowse() const { return m_sButtonBrowse; }
+	const QString& getUnsavedChanges() const { return m_sUnsavedChanges; }
+	const QString& getSavingChanges() const { return m_sSavingChanges; }
+
+	const QString& getMutableDialog() const { return m_sMutableDialog; }
+	const QString& getTabGeneralDialog() const { return m_sTabGeneralDialog; }
+	const QString& getTabLicensesDialog() const { return m_sTabLicensesDialog; }
+	const QString& getNameDialog() const { return m_sNameDialog; }
+	const QString& getVersionDialog() const { return m_sVersionDialog; }
+	const QString& getLicenseDialog() const { return m_sLicenseDialog; }
+	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
+	const QString& getNotesDialog() const { return m_sNotesDialog; }
+	const QString& getPathDialog() const { return m_sPathDialog; }
+
+	// const QString& getDialogSongLoadError() const { return
+	// m_sDialogSongLoadError; } const QString& getDialogUnsavedChangesH1()
+	// const { return m_sDialogUnsavedChangedH1; } const QString&
+	// getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
+
+	const QString& getLicenseStringLbl() const { return m_sLicenseStringLbl; }
+	const QString& getLicenseComboToolTip() const
+	{
+		return m_sLicenseComboToolTip;
+	}
+	const QString& getLicenseStringToolTip() const
+	{
+		return m_sLicenseStringToolTip;
+	}
+
+	const QString& getLicenseCopyleftWarning() const
+	{
+		return m_sLicenseCopyleftWarning;
+	}
+	const QString& getLicenseAttributionWarning() const
+	{
+		return m_sLicenseAttributionWarning;
+	}
+	const QString& getLicenseWarningWindowTitle() const
+	{
+		return m_sLicenseWarningWindowTitle;
+	}
+	const QString& getLicenseMismatchingUserInput() const
+	{
+		return m_sLicenseMismatchingUserInput;
+	}
+
+	const QString& getInputCaptureBpm() const { return m_sInputCaptureBpm; }
+	const QString& getInputCaptureVolume() const
+	{
+		return m_sInputCaptureVolume;
+	}
+	const QString& getInputCaptureColumn() const
+	{
+		return m_sInputCaptureColumn;
+	}
+	const QString& getInputCapturePattern() const
+	{
+		return m_sInputCapturePattern;
+	}
+	const QString& getInputCaptureSong() const { return m_sInputCaptureSong; }
+	const QString& getInputCaptureInstrument() const
+	{
+		return m_sInputCaptureInstrument;
+	}
+	const QString& getInputCaptureComponent() const
+	{
+		return m_sInputCaptureComponent;
+	}
+	const QString& getInputCaptureLayer() const { return m_sInputCaptureLayer; }
+	const QString& getInputCaptureFilterCutoff() const
+	{
+		return m_sInputCaptureFilterCutoff;
+	}
+	const QString& getInputCaptureTag() const { return m_sInputCaptureTag; }
+
+	const QString& getSoundLibraryFailedPreDrumkitLoad() const
+	{
+		return m_sSoundLibraryFailedPreDrumkitLoad;
+	}
+	const QString& getSoundLibrarySession() const
+	{
+		return m_sSoundLibrarySession;
+	}
+	const QString& getSoundLibrarySystem() const
+	{
+		return m_sSoundLibrarySystem;
+	}
+	const QString& getSoundLibraryUser() const
+	{
+		return m_sSoundLibraryUser;
+	}
+	const QString& getScanningSoundLibrary() const
+	{
+		return m_sScanningSoundLibrary;
+	}
+
+	const QString& getEncodingError() const { return m_sEncodingError; }
+
+	const QString& getHydrogenProject() const { return m_sHydrogenProject; }
+	const QString& getExportProject() const { return m_sExportProject; }
+	const QString& getExportProjectFailure() const { return m_sExportProjectFailure; }
+	const QString& getExportSongFailure() const { return m_sExportSongFailure; }
+	const QString& getExportDrumkitFailure() const
+	{
+		return m_sExportDrumkitFailure;
+	}
+	const QString& getImportDrumkitSuccess() const
+	{
+		return m_sImportDrumkitSuccess;
+	}
+	const QString& getImportDrumkitFailure() const
+	{
+		return m_sImportDrumkitFailure;
+	}
+	const QString& getImportDrumkitEncodingFailure() const
+	{
+		return m_sImportDrumkitEncodingFailure;
+	}
+	const QString& getPlaylistSaveFailure() const
+	{
+		return m_sPlaylistSaveFailure;
+	}
+	const QString& getIsModified() const { return m_sIsModified; }
+	const QString& getReadOnlyAdvice() const { return m_sReadOnlyAdvice; }
+
+	const QString& getIpcConnectionLost() const { return m_sIpcConnectionLost; }
+	const QString& getIpcConnectionFailed() const { return m_sIpcConnectionFailed; }
+
+	const QString& getInstrumentId() const { return m_sInstrumentId; }
+	const QString& getInstrumentType() const { return m_sInstrumentType; }
+	const QString& getComponent() const { return m_sComponent; }
+	const QString& getSample() const { return m_sSample; }
+	const QString& getLicense() const { return m_sLicense; }
+
+	const QString& getMenuActionNew() const { return m_sMenuActionNew; }
+	const QString& getMenuActionAdd() const { return m_sMenuActionAdd; }
+	const QString& getMenuActionDelete() const { return m_sMenuActionDelete; }
+	const QString& getMenuActionRename() const { return m_sMenuActionRename; }
+	const QString& getMenuActionLoad() const { return m_sMenuActionLoad; }
+	const QString& getMenuActionAddDirToSoundLibrary() const
+	{
+		return m_sMenuActionAddDirToSoundLibrary;
+	}
+	const QString& getMenuActionRemoveDirFromSoundLibrary() const
+	{
+		return m_sMenuActionRemoveDirFromSoundLibrary;
+	}
+	const QString& getMenuActionExport() const { return m_sMenuActionExport; }
+	const QString& getMenuActionProperties() const
+	{
+		return m_sMenuActionProperties;
+	}
+	const QString& getMenuActionDuplicate() const
+	{
+		return m_sMenuActionDuplicate;
+	}
+	const QString& getMenuActionImport() const { return m_sMenuActionImport; }
+	const QString& getMenuActionOnlineImport() const
+	{
+		return m_sMenuActionOnlineImport;
+	}
+	const QString& getMenuActionSave() const { return m_sMenuActionSave; }
+	const QString& getMenuActionSaveAs() const { return m_sMenuActionSaveAs; }
+
+	const QString& getUndoMenuUndo() const { return m_sUndoMenuUndo; }
+	const QString& getUndoMenuRedo() const { return m_sUndoMenuRedo; }
+	const QString& getUndoMenuHistory() const { return m_sUndoMenuHistory; }
+	const QString& getUndoHistoryTitle() const { return m_sUndoHistoryTitle; }
+
+	const QString& getActionEditCurrentDrumkitProperties() const
+	{
+		return m_sActionEditCurrentDrumkitProperties;
+	}
+	const QString& getActionEditDrumkitProperties() const
+	{
+		return m_sActionEditDrumkitProperties;
+	}
+	const QString& getActionIrreversible() const
+	{
+		return m_sActionIrreversible;
+	}
+
+	const QString& getActionAddInstrument() const
+	{
+		return m_sActionAddInstrument;
+	}
+	const QString& getActionDuplicateInstrument() const
+	{
+		return m_sActionDuplicateInstrument;
+	}
+	const QString& getActionDeleteInstrument() const
+	{
+		return m_sActionDeleteInstrument;
+	}
+	const QString& getActionDropInstrument() const
+	{
+		return m_sActionDropInstrument;
+	}
+	const QString& getActionRenameInstrument() const
+	{
+		return m_sActionRenameInstrument;
+	}
+	const QString& getActionMoveInstrument() const
+	{
+		return m_sActionMoveInstrument;
+	}
+	const QString& getActionSwitchDrumkit() const
+	{
+		return m_sActionSwitchDrumkit;
+	}
+	const QString& getActionNewDrumkit() const { return m_sActionNewDrumkit; }
+	const QString& getActionLoadDrumkit() const { return m_sActionLoadDrumkit; }
+	const QString& getActionSaveDrumkit() const { return m_sActionSaveDrumkit; }
+	const QString& getActionSaveSong() const { return m_sActionSaveSong; }
+	const QString& getActionModifySongProperties() const
+	{
+		return m_sActionModifySongProperties;
+	}
+	const QString& getActionSaveCurrentDrumkit() const
+	{
+		return m_sActionSaveCurrentDrumkit;
+	}
+	const QString& getActionAddComponent() const
+	{
+		return m_sActionAddComponent;
+	}
+	const QString& getActionDeleteComponent() const
+	{
+		return m_sActionDeleteComponent;
+	}
+	const QString& getActionDuplicateComponent() const
+	{
+		return m_sActionDuplicateComponent;
+	}
+	const QString& getActionRenameComponent() const
+	{
+		return m_sActionRenameComponent;
+	}
+	const QString& getActionAddInstrumentLayer() const
+	{
+		return m_sActionAddInstrumentLayer;
+	}
+	const QString& getActionReplaceInstrumentLayer() const
+	{
+		return m_sActionReplaceInstrumentLayer;
+	}
+	const QString& getActionDeleteInstrumentLayer() const
+	{
+		return m_sActionDeleteInstrumentLayer;
+	}
+	const QString& getActionDuplicateInstrumentLayer() const
+	{
+		return m_sActionDuplicateInstrumentLayer;
+	}
+	const QString& getActionEditInstrumentLayer() const
+	{
+		return m_sActionEditInstrumentLayer;
+	}
+	const QString& getActionMoveInstrumentLayer() const
+	{
+		return m_sActionMoveInstrumentLayer;
+	}
+
+	const QString& getActionClearAllNotesInRow() const
+	{
+		return m_sActionClearAllNotesInRow;
+	}
+	const QString& getActionClearAllNotes() const
+	{
+		return m_sActionClearAllNotes;
+	}
+	const QString& getActionCutAllNotes() const { return m_sActionCutAllNotes; }
+	const QString& getActionPasteAllNotes() const
+	{
+		return m_sActionPasteAllNotes;
+	}
+	const QString& getActionFillNotes() const { return m_sActionFillNotes; }
+	const QString& getActionFillAllNotes() const
+	{
+		return m_sActionFillAllNotes;
+	}
+	const QString& getActionFillEverySecondNote() const
+	{
+		return m_sActionFillEverySecondNote;
+	}
+	const QString& getActionFillEveryThirdNote() const
+	{
+		return m_sActionFillEveryThirdNote;
+	}
+	const QString& getActionFillEveryFourthNote() const
+	{
+		return m_sActionFillEveryFourthNote;
+	}
+	const QString& getActionFillEverySixthNote() const
+	{
+		return m_sActionFillEverySixthNote;
+	}
+	const QString& getActionFillEveryEighthNote() const
+	{
+		return m_sActionFillEveryEighthNote;
+	}
+	const QString& getActionFillEveryTwelfthNote() const
+	{
+		return m_sActionFillEveryTwelfthNote;
+	}
+	const QString& getActionFillEverySixteenthNote() const
+	{
+		return m_sActionFillEverySixteenthNote;
+	}
+	const QString& getActionDeleteNotes() const { return m_sActionDeleteNotes; }
+	const QString& getActionSelectNotes() const { return m_sActionSelectNotes; }
+	const QString& getActionEditAllPatterns() const
+	{
+		return m_sActionEditAllPatterns;
+	}
+	const QString& getActionCopyNotes() const { return m_sActionCopyNotes; }
+	const QString& getActionEditTypes() const { return m_sActionEditTypes; }
+
+	const QString& getActionInsertPattern() const
+	{
+		return m_sActionInsertPattern;
+	}
+	const QString& getActionReplacePattern() const
+	{
+		return m_sActionReplacePattern;
+	}
+	const QString& getActionSavePatternAs() const
+	{
+		return m_sActionSavePatternAs;
+	}
+	const QString& getActionDuplicatePattern() const
+	{
+		return m_sActionDuplicatePattern;
+	}
+	const QString& getActionRemovePattern() const
+	{
+		return m_sActionRemovePattern;
+	}
+	const QString& getActionModifyVirtualPatterns() const
+	{
+		return m_sActionModifyVirtualPatterns;
+	}
+	const QString& getActionCopyPatternCells() const
+	{
+		return m_sActionCopyPatternCells;
+	}
+	const QString& getActionDeletePatternCells() const
+	{
+		return m_sActionDeletePatternCells;
+	}
+	const QString& getActionMovePatternCells() const
+	{
+		return m_sActionMovePatternCells;
+	}
+	const QString& getActionPastePatternCells() const
+	{
+		return m_sActionPastePatternCells;
+	}
+	const QString& getActionTogglePatternCells() const
+	{
+		return m_sActionTogglePatternCells;
+	}
+	const QString& getActionEditEnvelopePoint() const
+	{
+		return m_sActionEditEnvelopePoint;
+	}
+	const QString& getActionAddPlaybackTrack() const
+	{
+		return m_sActionAddPlaybackTrack;
+	}
+	const QString& getActionDeletePlaybackTrack() const
+	{
+		return m_sActionDeletePlaybackTrack;
+	}
+	const QString& getActionEditPlaybackTrack() const
+	{
+		return m_sActionEditPlaybackTrack;
+	}
+
+	// Mixer/Instrument-Editor control actions: each is used both as the undo
+	// history description and as the tooltip of the corresponding widget.
+	const QString& getActionSetStripVolume() const { return m_sActionSetStripVolume; }
+	const QString& getActionSetStripPan() const { return m_sActionSetStripPan; }
+	const QString& getActionToggleStripMute() const { return m_sActionToggleStripMute; }
+	const QString& getActionToggleStripSolo() const { return m_sActionToggleStripSolo; }
+	const QString& getActionSetMasterVolume() const { return m_sActionSetMasterVolume; }
+	const QString& getActionSetHumanizeVelocity() const { return m_sActionSetHumanizeVelocity; }
+	const QString& getActionSetHumanizeTime() const { return m_sActionSetHumanizeTime; }
+	const QString& getActionSetSwing() const { return m_sActionSetSwing; }
+	const QString& getActionToggleMasterMute() const { return m_sActionToggleMasterMute; }
+	const QString& getActionSetPlaybackTrackVolume() const { return m_sActionSetPlaybackTrackVolume; }
+	const QString& getActionTogglePlaybackTrackMute() const { return m_sActionTogglePlaybackTrackMute; }
+	const QString& getActionSetInstrumentGain() const { return m_sActionSetInstrumentGain; }
+	const QString& getActionSetInstrumentPitch() const { return m_sActionSetInstrumentPitch; }
+	const QString& getActionSetRandomPitch() const { return m_sActionSetRandomPitch; }
+	const QString& getActionSetFilterCutoff() const { return m_sActionSetFilterCutoff; }
+	const QString& getActionSetFilterResonance() const { return m_sActionSetFilterResonance; }
+	const QString& getActionSetAttack() const { return m_sActionSetAttack; }
+	const QString& getActionSetDecay() const { return m_sActionSetDecay; }
+	const QString& getActionSetSustain() const { return m_sActionSetSustain; }
+	const QString& getActionSetRelease() const { return m_sActionSetRelease; }
+	const QString& getActionToggleFilter() const { return m_sActionToggleFilter; }
+	const QString& getActionSetMuteGroup() const { return m_sActionSetMuteGroup; }
+	const QString& getActionToggleStopNotes() const { return m_sActionToggleStopNotes; }
+	const QString& getActionToggleApplyVelocity() const { return m_sActionToggleApplyVelocity; }
+	const QString& getActionSetHihatGroup() const { return m_sActionSetHihatGroup; }
+	const QString& getActionSetHihatMinRange() const { return m_sActionSetHihatMinRange; }
+	const QString& getActionSetHihatMaxRange() const { return m_sActionSetHihatMaxRange; }
+	const QString& getActionToggleComponentMute() const { return m_sActionToggleComponentMute; }
+	const QString& getActionToggleComponentSolo() const { return m_sActionToggleComponentSolo; }
+	const QString& getActionSetComponentGain() const { return m_sActionSetComponentGain; }
+	const QString& getActionSetSampleSelection() const { return m_sActionSetSampleSelection; }
+	const QString& getActionToggleLayerMute() const { return m_sActionToggleLayerMute; }
+	const QString& getActionToggleLayerSolo() const { return m_sActionToggleLayerSolo; }
+	const QString& getActionSetLayerGain() const { return m_sActionSetLayerGain; }
+	const QString& getActionSetLayerPitch() const { return m_sActionSetLayerPitch; }
+	const QString& getActionSetLayerVelocityStart() const { return m_sActionSetLayerVelocityStart; }
+	const QString& getActionSetLayerVelocityEnd() const { return m_sActionSetLayerVelocityEnd; }
+	const QString& getActionSetMidiOutChannel() const { return m_sActionSetMidiOutChannel; }
+	const QString& getActionSetMidiOutNote() const { return m_sActionSetMidiOutNote; }
+
+	const QString& getNotePropertyVelocity() const
+	{
+		return m_sNotePropertyVelocity;
+	}
+	const QString& getNotePropertyPan() const { return m_sNotePropertyPan; }
+	const QString& getNotePropertyLeadLag() const
+	{
+		return m_sNotePropertyLeadLag;
+	}
+	const QString& getNotePropertyKeyOctave() const
+	{
+		return m_sNotePropertyKeyOctave;
+	}
+	const QString& getNotePropertyProbability() const
+	{
+		return m_sNotePropertyProbability;
+	}
+	const QString& getNotePropertyLength() const
+	{
+		return m_sNotePropertyLength;
+	}
+
+
+	const QString& getErrorNotFound() const { return m_sErrorNotFound; }
+	const QString& getErrorNotFoundShort() const
+	{
+		return m_sErrorNotFoundShort;
+	}
+	const QString& getErrorEmptyType() const { return m_sErrorEmptyType; }
+	const QString& getErrorUniqueTypes() const { return m_sErrorUniqueTypes; }
+	const QString& getErrorInvalidPath() const { return m_sErrorInvalidPath; }
+	const QString& getErrorPatternSaved() const { return m_sErrorPatternSaved; }
+	const QString& getErrorDrumkitSaved() const { return m_sErrorDrumkitSaved; }
+	const QString& getErrorEmptyName() const { return m_sErrorEmptyName; }
+
+	const QString& getSettings() const { return m_sSettings; }
+	const QString& getPattern() const { return m_sPattern; }
+
+	const QString& getOptionAlways() const { return m_sOptionAlways; }
+	const QString& getOptionNever() const { return m_sOptionNever; }
+
+	const QString& getSizeLabel() const { return m_sSizeLabel; }
+	const QString& getStatusLabel() const { return m_sStatusLabel; }
+	const QString& getOnlineInstalledStatus() const { return m_sOnlineInstalledStatus; }
+	const QString& getOnlineModifiedStatus() const { return m_sOnlineModifiedStatus; }
+	const QString& getOnlineUpdateStatus() const { return m_sOnlineUpdateStatus; }
+	const QString& getSearchPlaceholder() const { return m_sSearchPlaceholder; }
+	const QString& getSourcesLabel() const { return m_sSourcesLabel; }
+	const QString& getManageSourcesTitle() const { return m_sManageSourcesTitle; }
+	const QString& getCheckSourcesButton() const { return m_sCheckSourcesButton; }
+	const QString& getInvalidUrl() const { return m_sInvalidUrl; }
+	const QString& getInvalidUrlMessage() const { return m_sInvalidUrlMessage; }
+	const QString& getDetailsLabel() const { return m_sDetailsLabel; }
+	const QString& getButtonClose() const { return m_sButtonClose; }
+	const QString& getButtonDownload() const { return m_sButtonDownload; }
+	const QString& getButtonDownloadN() const { return m_sButtonDownloadN; }
+	const QString& getDownloadError() const { return m_sDownloadError; }
+	const QString& getDownloadFailed() const { return m_sDownloadFailed; }
+	const QString& getFormatLabel() const { return m_sFormatLabel; }
+	const QString& getHashLabel() const { return m_sHashLabel; }
+	const QString& getInstrumentsLabel() const { return m_sInstrumentsLabel; }
+	const QString& getComponentsLabel() const { return m_sComponentsLabel; }
+	const QString& getSamplesLabel() const { return m_sSamplesLabel; }
+	const QString& getDescriptionLabel() const { return m_sDescriptionLabel; }
+	const QString& getNoteCountLabel() const { return m_sNoteCountLabel; }
+
+	// Strings of the embedded plugin UI (proposal 0006). They live here
+	// so that GUI and plugin share one translation context and the
+	// existing catalogs apply to both. Texts already present in the GUI
+	// vocabulary are reused instead of duplicated.
+	const QString& getMappingTab() const { return m_sMappingTab; }
+	const QString& getMixerTab() const { return m_sMixerTab; }
+	const QString& getLoadSongButton() const { return m_sLoadSongButton; }
+	const QString& getLoadPatternButton() const {
+		return m_sLoadPatternButton;
+	}
+	const QString& getOpenEditorButton() const {
+		return m_sOpenEditorButton;
+	}
+	const QString& getSongFileDialogTitle() const {
+		return m_sSongFileDialogTitle;
+	}
+	const QString& getPatternFileDialogTitle() const {
+		return m_sPatternFileDialogTitle;
+	}
+	const QString& getDrumkitFileDialogTitle() const {
+		return m_sDrumkitFileDialogTitle;
+	}
+	const QString& getMidiConfigurationHeader() const {
+		return m_sMidiConfigurationHeader;
+	}
+	const QString& getIgnoreNoteOffLabel() const {
+		return m_sIgnoreNoteOffLabel;
+	}
+	const QString& getActionChannelLabel() const {
+		return m_sActionChannelLabel;
+	}
+	const QString& getSendNoteOffLabel() const {
+		return m_sSendNoteOffLabel;
+	}
+	const QString& getApplyButton() const { return m_sApplyButton; }
+	const QString& getReplaceLabel() const { return m_sReplaceLabel; }
+	const QString& getOptionOnCustomNoteLengths() const {
+		return m_sOptionOnCustomNoteLengths;
+	}
+	const QString& getNoteMappingHeader() const {
+		return m_sNoteMappingHeader;
+	}
+	const QString& getGlobalChannelLabel() const {
+		return m_sGlobalChannelLabel;
+	}
+	const QString& getUseGlobalChannelLabel() const {
+		return m_sUseGlobalChannelLabel;
+	}
+	const QString& getInputHeader() const { return m_sInputHeader; }
+	const QString& getOutputHeader() const { return m_sOutputHeader; }
+	const QString& getBusLabel() const { return m_sBusLabel; }
+	const QString& getResetButton() const { return m_sResetButton; }
+	const QString& getMasterOnlyLabel() const { return m_sMasterOnlyLabel; }
+	/** The display name of @a channel — getAllLabel() for
+	 * #Midi::ChannelAll, getStatusOff() for #Midi::ChannelOff and for
+	 * the invalid -2 of unmapped rows (the GUI disables those widgets
+	 * instead), the number itself for 1..16 — the convention of the
+	 * channel dropdowns and the read-only mapping rows (the GUI's
+	 * channel spinboxes show the same). */
+	QString getChannelDisplayName( Midi::Channel channel ) const;
+
+    private:
+	QString m_sSmallSoloButton;
+	QString m_sSmallMuteButton;
+	QString m_sBigMuteButton;
+	QString m_sBigSoloButton;
+	QString m_sBypassButton;
+	QString m_sEditButton;
+	QString m_sClearButton;
+	QString m_sPlaybackTrackButton;
+	QString m_sTimelineButton;
+	QString m_sTimelineBigButton;
+	QString m_sPeakButton;
+	QString m_sInstrumentButton;
+	QString m_sSelectModeButton;
+	QString m_sDrawModeButton;
+	QString m_sEditModeButton;
+	QString m_sAttackLabel;
+	QString m_sDecayLabel;
+	QString m_sSustainLabel;
+	QString m_sReleaseLabel;
+	QString m_sMidiOutChannelLabel;
+	QString m_sMidiOutNoteLabel;
+	QString m_sMidiOutNoteOffsetLabel;
+	QString m_sMidiOutLabel;
+	QString m_sMidiInputLabel;
+	QString m_sPitchLabel;
+	QString m_sPitchCoarseLabel;
+	QString m_sPitchFineLabel;
+	QString m_sPitchRandomLabel;
+	QString m_sGainLabel;
+	QString m_sMuteGroupLabel;
+	QString m_sIsStopNoteLabel;
+	QString m_sApplyVelocityLabel;
+	QString m_sHihatGroupLabel;
+	QString m_sHihatMaxRangeLabel;
+	QString m_sHihatMinRangeLabel;
+	QString m_sCutoffLabel;
+	QString m_sResonanceLabel;
+	QString m_sLayerGainLabel;
+	QString m_sComponentGainLabel;
+	QString m_sSampleSelectionLabel;
+	QString m_sMidiLabel;
+	QString m_sCpuLabel;
+	QString m_sBPMLabel;
+	QString m_sTimeHoursLabel;
+	QString m_sTimeMinutesLabel;
+	QString m_sTimeSecondsLabel;
+	QString m_sTimeMilliSecondsLabel;
+	QString m_sHumanizeLabel;
+	QString m_sSwingLabel;
+	QString m_sTimingLabel;
+	QString m_sVelocityLabel;
+	QString m_sMasterLabel;
+	QString m_sDriverRestartButton;
+	QString m_sAllLabel;
+	QString m_sCurrentlySelectedLabel;
+	QString m_sTagsLabel;
+	QString m_sDrumkitsLabel;
+	QString m_sPatternsLabel;
+	QString m_sSongsLabel;
+
+	QString m_sRangeToolTip;
+	QString m_sMidiToolTipHeading;
+	QString m_sMidiToolTipBound;
+	QString m_sMidiToolTipUnbound;
+	QString m_sPatternSizeDisabledToolTip;
+
+	QString m_sShowDrumkitEditorToolTip;
+	QString m_sShowPianoRollEditorToolTip;
+
+	QString m_sAudioDriverStartError;
+	QString m_sAudioDriverErrorHint;
+	QString m_sAudioDriverNotPresent;
+
+	QString m_sJackTimebaseToolTip;
+	QString m_sJackTimebaseListenerToolTip;
+	QString m_sJackTimebaseControllerToolTip;
+
+	QString m_sTapTempoToolTip;
+	QString m_sBeatCounterTapToolTip;
+	QString m_sBeatCounterTapAndPlayToolTip;
+	QString m_sTempoChangeAction;
+
+	QString m_sMidiControl;
+	QString m_sMidiSenseWindowTitle;
+	QString m_sMidiSenseCurrentBindings;
+	QString m_sMidiSenseInput;
+	QString m_sMidiSenseUnavailable;
+
+	QString m_sPatternLoadError;
+	QString m_sInstrumentLoadError;
+
+	QString m_sFileDialogMissingWritePermissions;
+	QString m_sArtifactIsReadOnly;
+
+	QString m_sStatusOn;
+	QString m_sStatusOff;
+	QString m_sStatusEnabled;
+	QString m_sStatusDisabled;
+	QString m_sStatusPatternLoaded;
+	QString m_sTimelineEnabled;
+	QString m_sTimelineDisabledPatternMode;
+	QString m_sTimelineDisabledMidiClock;
+	QString m_sTimelineDisabledTimebaseListener;
+	QString m_sPatternEditorLocked;
+
+	QString m_sPreferencesNotCompiled;
+	QString m_sPreferencesNone;
+	QString m_sPreferencesJackToolTip;
+	QString m_sPreferencesShortcutCapture;
+	QString m_sPreferencesSaveFailure;
+
+	QString m_sButtonOk;
+	QString m_sButtonApply;
+	QString m_sButtonSave;
+	QString m_sButtonCancel;
+	QString m_sButtonDiscard;
+	QString m_sButtonKeep;
+	QString m_sButtonPlay;
+	QString m_sButtonFill;
+	QString m_sButtonClear;
+	QString m_sButtonBrowse;
+	QString m_sButtonPlayOriginalSample;
+	QString m_sUnsavedChanges;
+	QString m_sSavingChanges;
+
+	QString m_sMutableDialog;
+	QString m_sTabGeneralDialog;
+	QString m_sTabLicensesDialog;
+	QString m_sNameDialog;
+	QString m_sVersionDialog;
+	QString m_sLicenseDialog;
+	QString m_sAuthorDialog;
+	QString m_sNotesDialog;
+	QString m_sPathDialog;
+
+	// Not used yet. A redesign of the GUI startup is required first
+	// since these strings are required _before_ HydrogenApp was
+	// created.
+	// QString m_sDialogSongLoadError;
+	// QString m_sDialogUnsavedChangedH1;
+	// QString m_sDialogUnsavedChangedH2;
+
+	QString m_sLicenseStringLbl;
+	QString m_sLicenseComboToolTip;
+	QString m_sLicenseStringToolTip;
+
+	QString m_sLicenseCopyleftWarning;
+	QString m_sLicenseAttributionWarning;
+	QString m_sLicenseWarningWindowTitle;
+	QString m_sLicenseMismatchingUserInput;
+
+	QString m_sInputCaptureBpm;
+	QString m_sInputCaptureVolume;
+	QString m_sInputCaptureColumn;
+	QString m_sInputCapturePattern;
+	QString m_sInputCaptureSong;
+	QString m_sInputCaptureInstrument;
+	QString m_sInputCaptureComponent;
+	QString m_sInputCaptureLayer;
+	QString m_sInputCaptureFilterCutoff;
+	QString m_sInputCaptureTag;
+
+	QString m_sHydrogenProject;
+	QString m_sExportProject;
+	QString m_sExportProjectFailure;
+	QString m_sExportSongFailure;
+	QString m_sExportDrumkitFailure;
+	QString m_sImportDrumkitSuccess;
+	QString m_sImportDrumkitFailure;
+	QString m_sImportDrumkitEncodingFailure;
+	QString m_sPlaylistSaveFailure;
+	QString m_sIsModified;
+	QString m_sReadOnlyAdvice;
+	QString m_sIpcConnectionLost;
+	QString m_sIpcConnectionFailed;
+
+	QString m_sInstrumentId;
+	QString m_sInstrumentType;
+	QString m_sComponent;
+	QString m_sSample;
+	QString m_sLicense;
+
+	QString m_sMenuActionNew;
+	QString m_sMenuActionAdd;
+	QString m_sMenuActionDelete;
+	QString m_sMenuActionRename;
+	QString m_sMenuActionLoad;
+	QString m_sMenuActionAddDirToSoundLibrary;
+	QString m_sMenuActionRemoveDirFromSoundLibrary;
+	QString m_sMenuActionExport;
+	QString m_sMenuActionProperties;
+	QString m_sMenuActionDuplicate;
+	QString m_sMenuActionImport;
+	QString m_sMenuActionOnlineImport;
+	QString m_sMenuActionSave;
+	QString m_sMenuActionSaveAs;
+
+	QString m_sUndoMenuUndo;
+	QString m_sUndoMenuRedo;
+	QString m_sUndoMenuHistory;
+	QString m_sUndoHistoryTitle;
+
+	QString m_sActionEditCurrentDrumkitProperties;
+	QString m_sActionEditDrumkitProperties;
+	QString m_sActionIrreversible;
+
+	QString m_sActionAddInstrument;
+	QString m_sActionDuplicateInstrument;
+	QString m_sActionDeleteInstrument;
+	QString m_sActionDropInstrument;
+	QString m_sActionRenameInstrument;
+	QString m_sActionMoveInstrument;
+	QString m_sActionSwitchDrumkit;
+	QString m_sActionNewDrumkit;
+	QString m_sActionLoadDrumkit;
+	QString m_sActionSaveDrumkit;
+	QString m_sActionSaveSong;
+	QString m_sActionModifySongProperties;
+	QString m_sActionSaveCurrentDrumkit;
+	QString m_sActionAddComponent;
+	QString m_sActionDeleteComponent;
+	QString m_sActionDuplicateComponent;
+	QString m_sActionRenameComponent;
+	QString m_sActionAddInstrumentLayer;
+	QString m_sActionReplaceInstrumentLayer;
+	QString m_sActionDeleteInstrumentLayer;
+	QString m_sActionDuplicateInstrumentLayer;
+	QString m_sActionEditInstrumentLayer;
+	QString m_sActionMoveInstrumentLayer;
+
+	QString m_sActionClearAllNotesInRow;
+	QString m_sActionClearAllNotes;
+	QString m_sActionCutAllNotes;
+	QString m_sActionPasteAllNotes;
+	QString m_sActionFillNotes;
+	QString m_sActionFillAllNotes;
+	QString m_sActionFillEverySecondNote;
+	QString m_sActionFillEveryThirdNote;
+	QString m_sActionFillEveryFourthNote;
+	QString m_sActionFillEverySixthNote;
+	QString m_sActionFillEveryEighthNote;
+	QString m_sActionFillEveryTwelfthNote;
+	QString m_sActionFillEverySixteenthNote;
+	QString m_sActionDeleteNotes;
+	QString m_sActionSelectNotes;
+	QString m_sActionEditAllPatterns;
+	QString m_sActionCopyNotes;
+	QString m_sActionEditTypes;
+
+	QString m_sActionInsertPattern;
+	QString m_sActionReplacePattern;
+	QString m_sActionSavePatternAs;
+	QString m_sActionDuplicatePattern;
+	QString m_sActionRemovePattern;
+	QString m_sActionModifyVirtualPatterns;
+	QString m_sActionCopyPatternCells;
+	QString m_sActionDeletePatternCells;
+	QString m_sActionMovePatternCells;
+	QString m_sActionPastePatternCells;
+	QString m_sActionTogglePatternCells;
+
+	QString m_sActionSetStripVolume;
+	QString m_sActionSetStripPan;
+	QString m_sActionToggleStripMute;
+	QString m_sActionToggleStripSolo;
+	QString m_sActionSetMasterVolume;
+	QString m_sActionSetHumanizeVelocity;
+	QString m_sActionSetHumanizeTime;
+	QString m_sActionSetSwing;
+	QString m_sActionToggleMasterMute;
+	QString m_sActionSetPlaybackTrackVolume;
+	QString m_sActionTogglePlaybackTrackMute;
+	QString m_sActionSetInstrumentGain;
+	QString m_sActionSetInstrumentPitch;
+	QString m_sActionSetRandomPitch;
+	QString m_sActionSetFilterCutoff;
+	QString m_sActionSetFilterResonance;
+	QString m_sActionSetAttack;
+	QString m_sActionSetDecay;
+	QString m_sActionSetSustain;
+	QString m_sActionSetRelease;
+	QString m_sActionToggleFilter;
+	QString m_sActionSetMuteGroup;
+	QString m_sActionToggleStopNotes;
+	QString m_sActionToggleApplyVelocity;
+	QString m_sActionSetHihatGroup;
+	QString m_sActionSetHihatMinRange;
+	QString m_sActionSetHihatMaxRange;
+	QString m_sActionToggleComponentMute;
+	QString m_sActionToggleComponentSolo;
+	QString m_sActionSetComponentGain;
+	QString m_sActionSetSampleSelection;
+	QString m_sActionToggleLayerMute;
+	QString m_sActionToggleLayerSolo;
+	QString m_sActionSetLayerGain;
+	QString m_sActionSetLayerPitch;
+	QString m_sActionSetLayerVelocityStart;
+	QString m_sActionSetLayerVelocityEnd;
+	QString m_sActionSetMidiOutChannel;
+	QString m_sActionSetMidiOutNote;
+
+	QString m_sActionEditEnvelopePoint;
+	QString m_sActionAddPlaybackTrack;
+	QString m_sActionDeletePlaybackTrack;
+	QString m_sActionEditPlaybackTrack;
+
+	QString m_sErrorNotFound;
+	QString m_sErrorNotFoundShort;
+	QString m_sErrorEmptyType;
+	QString m_sErrorUniqueTypes;
+	QString m_sErrorInvalidPath;
+	QString m_sErrorPatternSaved;
+	QString m_sErrorDrumkitSaved;
+	QString m_sErrorEmptyName;
+
+	QString m_sSoundLibraryFailedPreDrumkitLoad;
+	QString m_sSoundLibrarySession;
+	QString m_sSoundLibrarySystem;
+	QString m_sSoundLibraryUser;
+	QString m_sScanningSoundLibrary;
+
+	QString m_sNotePropertyVelocity;
+	QString m_sNotePropertyPan;
+	QString m_sNotePropertyLeadLag;
+	QString m_sNotePropertyKeyOctave;
+	QString m_sNotePropertyProbability;
+	QString m_sNotePropertyLength;
+
+	QString m_sEncodingError;
+
+	QString m_sSettings;
+	QString m_sPattern;
+
+	QString m_sOptionAlways;
+	QString m_sOptionNever;
+	QString m_sSizeLabel;
+	QString m_sStatusLabel;
+	QString m_sOnlineInstalledStatus;
+	QString m_sOnlineModifiedStatus;
+	QString m_sOnlineUpdateStatus;
+	QString m_sSearchPlaceholder;
+	QString m_sSourcesLabel;
+	QString m_sManageSourcesTitle;
+	QString m_sCheckSourcesButton;
+	QString m_sInvalidUrl;
+	QString m_sInvalidUrlMessage;
+	QString m_sDetailsLabel;
+	QString m_sButtonClose;
+	QString m_sButtonDownload;
+	QString m_sButtonDownloadN;
+	QString m_sDownloadError;
+	QString m_sDownloadFailed;
+	QString m_sFormatLabel;
+	QString m_sHashLabel;
+	QString m_sInstrumentsLabel;
+	QString m_sComponentsLabel;
+	QString m_sSamplesLabel;
+	QString m_sDescriptionLabel;
+	QString m_sNoteCountLabel;
+	QString m_sMappingTab;
+	QString m_sMixerTab;
+	QString m_sLoadSongButton;
+	QString m_sLoadPatternButton;
+	QString m_sOpenEditorButton;
+	QString m_sSongFileDialogTitle;
+	QString m_sPatternFileDialogTitle;
+	QString m_sDrumkitFileDialogTitle;
+	QString m_sMidiConfigurationHeader;
+	QString m_sIgnoreNoteOffLabel;
+	QString m_sActionChannelLabel;
+	QString m_sSendNoteOffLabel;
+	QString m_sApplyButton;
+	QString m_sReplaceLabel;
+	QString m_sOptionOnCustomNoteLengths;
+	QString m_sNoteMappingHeader;
+	QString m_sGlobalChannelLabel;
+	QString m_sUseGlobalChannelLabel;
+	QString m_sInputHeader;
+	QString m_sOutputHeader;
+	QString m_sBusLabel;
+	QString m_sResetButton;
+	QString m_sMasterOnlyLabel;
+};
+
+} // namespace H2Core
+#endif

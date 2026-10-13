@@ -20,8 +20,12 @@
  *
  */
 
-#ifndef EVENT_H
-#define EVENT_H
+// H2C_EVENT_H, not EVENT_H: the macOS SDK's IOLLEvent.h treats a
+// predefined EVENT_H as "NX event definitions already provided"
+// (dpsclient/event.h interlock) and skips them, breaking every TU
+// that includes both this header and Cocoa.h.
+#ifndef H2C_EVENT_H
+#define H2C_EVENT_H
 
 #include <core/Object.h>
 
@@ -73,9 +77,10 @@ public:
 			BbtChanged,
 			BeatCounter,
 			DrumkitIsModified,
-			/** A the current drumkit was replaced by a new one. */
+			/** The current drumkit was replaced by a new one or its
+			 * instruments were altered — e.g. by discarding layers with
+			 * missing samples during a save. */
 			DrumkitLoaded,
-			EffectChanged,
 			Error,
 			GridCellToggled,
 			/** An instrument layer was added, replaced, delete, or edited using
@@ -150,6 +155,7 @@ public:
 			/** Whether the modification state of a pattern changed. */
 			PatternIsModified,
 			PlaybackTrackChanged,
+			PlaybackTrackParameterChanged,
 			/**
 			 * Event triggered whenever part of or the whole current
 			 * #H2Core::Playlist changed.
@@ -191,6 +197,10 @@ public:
 			 * the very end of the song in song mode.
 			 */
 			Relocation,
+			/** Tells the GUI to save the current Preferences to disk. Used when
+			 * the editor needs to persist geometry or other GUI-specific
+			 * settings back to the Preferences file.*/
+			RequestPreferencesSave,
 			/** Another pattern was selected via MIDI or the GUI without
 			 * affecting the audio transport. While the selection in the former
 			 * case already happens in the GUI, this event will be used to tell
@@ -204,6 +214,10 @@ public:
 			SongIsModified,
 			SongSizeChanged,
 			SoundLibraryChanged,
+			/** Progress of the background sound library scan, 0-100.
+			 * Handled by EventListener::soundLibraryScanProgressEvent().
+			 */
+			SoundLibraryScanProgress,
 			/** Song::PatternMode::Stacked (0) or Song::PatternMode::Selected
 				(1) was activated */
 			StackedModeActivation,
@@ -243,13 +257,21 @@ public:
 		};
 		static QString TypeToQString( Event::Type type );
 
-		Event( Event::Type type, int nValue );
+		/** @param nId Unique id, supplied by the owning EventQueue (ADR 0015);
+		 * defaults to #nInvalidId for events created without a queue.
+		 * @param origin The H2Core::ProcessMode indicating where the event
+		 *   originated (Headless, Full, or Editor). */
+		Event( Event::Type type, int nValue, long nId,
+		       H2Core::ProcessMode origin );
 		~Event();
 
 		Event::Type getType() const;
 
 		int getValue() const;
 		long getId() const;
+		/** @return The H2Core::ProcessMode indicating where the event
+		 * originated. */
+		H2Core::ProcessMode getOrigin() const;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -261,7 +283,7 @@ public:
 		 * \return String presentation of current object.*/
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
-private:
+	private:
 
 		/** Specifies the context the event is create in and which function
 			should be triggered to handle it.*/
@@ -273,6 +295,9 @@ private:
 		/** Unique identifier of the Event assigned on creation. */
 		long m_nId;
 
+		/** The H2Core::ProcessMode indicating where the event originated. */
+		H2Core::ProcessMode m_origin;
+
 };
 
 inline Event::Type Event::getType() const {
@@ -283,6 +308,9 @@ inline int Event::getValue() const {
 }
 inline long Event::getId() const {
 	return m_nId;
+}
+inline H2Core::ProcessMode Event::getOrigin() const {
+	return m_origin;
 }
 
 };

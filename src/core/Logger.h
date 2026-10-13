@@ -23,11 +23,15 @@
 #ifndef H2C_LOGGER_H
 #define H2C_LOGGER_H
 
+#include <atomic>
 #include <cassert>
+#include <condition_variable>
 #include <list>
-#include <pthread.h>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <QtCore/QString>
+#include <QtCore/QFlags>
 #include <QStringList>
 
 #include <core/config.h>
@@ -47,32 +51,56 @@ class Logger {
 			Warning         = 0x02,
 			Info            = 0x04,
 			Debug           = 0x08,
-			Constructors    = 0x10,
-			Locks   = 0x20
+			Ipc             = 0x10,
+			Constructors    = 0x20,
+			Locks           = 0x40
 		};
 
 		/** message queue type */
 		typedef std::list<QString> queue_t;
 
-		/**
-		 * create the logger instance if not exists, set the log level and return the instance
-		 * \param msk the logging level bitmask
-		 */
-	static Logger* bootstrap( unsigned msk,
-							  const QString& sLogFilePath = QString(),
-							  bool bUseStdout = true,
-							  bool bLogTimestamps = false,
-							  bool bLogColors = true );
+		/** Or-able construction options for the #Logger factories below,
+		 * replacing four positional bools. */
+		enum class Option {
+			None       = 0x0,
+			UseStdout  = 0x1,
+			Timestamps = 0x2,
+			Colors     = 0x4,
+			Append     = 0x8
+		};
+		Q_DECLARE_FLAGS( Options, Option )
+
+	/**
+	 * create the logger instance if not exists, set the log level and return the instance
+	 * \param msk the logging level bitmask
+	 * \param options construction options; #Option::Append appends to the
+	 * log file instead of truncating it, and each write is then file-locked
+	 * so concurrent appenders cannot interleave inside a line
+	 */
+	static Logger* bootstrap( unsigned msk, const QString& sLogFilePath,
+							  Options options );
 		/**
 		 * If #__instance equals 0, a new H2Core::Logger
 		 * singleton will be created and stored in it.
 		 *
 		 * It is called in Hydrogen::create_instance().
 		 */
-	static Logger* create_instance( const QString& sLogFilePath = QString(),
-									bool bUseStdout = true,
-									bool bLogTimestamps = false,
-									bool bLogColors = true );
+		static Logger* create_instance( const QString& sLogFilePath,
+										Options options );
+
+		/**
+		 * Creates a standalone, per-instance #Logger (ADR 0015, T1.6) owned by
+		 * the caller (e.g. a #Hydrogen instance) — its own queue, worker thread
+		 * and log file. Unlike #create_instance() this does **not** touch the
+		 * process-default #__instance, so multiple instances can coexist.
+		 *
+		 * \param options construction options; #Option::Append appends to
+		 * the log file instead of truncating it, and each write is then
+		 * file-locked so concurrent appenders cannot interleave inside a
+		 * line
+		 */
+		static Logger* createInstanceLogger(
+			const QString& sLogFilePath, Options options );
 
 		/**
 		 * Returns a pointer to the current H2Core::Logger
@@ -88,6 +116,43 @@ class Logger {
 		static bool isAvailable() {
 			return __instance == nullptr ? false : true;
 		}
+
+		/**
+		 * Ambient-context logger resolution (ADR 0015, T1.6).
+		 *
+		 * Returns the #Logger of the innermost active #Scope on the current
+		 * thread, or — when no scope is active (static/early-startup/unscoped
+		 * contexts) — the process-default logger (#__instance, set at
+		 * bootstrap). The log macros resolve through this **at log time**, so a
+		 * wrong or absent context can only misroute a log line to the default,
+		 * never change behaviour.
+		 *
+		 * Defined out-of-line in Logger.cpp on purpose: it reads the
+		 * #__pCurrent `thread_local`, and MinGW's `--export-all-symbols` does
+		 * not export TLS data symbols across the core DLL boundary. Keeping the
+		 * only access inside the DLL lets consumers link against this ordinary
+		 * (exported) function instead of an undefined TLS symbol. */
+		static Logger* currentLogger();
+
+		/**
+		 * RAII guard pushing @a pLogger as the current-thread logger for the
+		 * lifetime of the scope (restoring the previous one on destruction).
+		 * Set at the per-instance entry points (audio process callback, command
+		 * dispatch, song/kit load, per-instance workers).
+		 *
+		 * The constructor/destructor are defined out-of-line in Logger.cpp for
+		 * the same reason as #currentLogger(): they touch the #__pCurrent
+		 * `thread_local`, which cannot be referenced from a DLL consumer on
+		 * MinGW. */
+		class Scope {
+		public:
+			explicit Scope( Logger* pLogger );
+			~Scope();
+			Scope( const Scope& ) = delete;
+			Scope& operator=( const Scope& ) = delete;
+		private:
+			Logger* m_pPrevious;
+		};
 
 		/**
 		 * return true if the level is set in the bitmask
@@ -132,7 +197,7 @@ class Logger {
 		 * needed for being able to access logger internal
 		 * \param param is a pointer to the logger instance
 		 */
-		friend void* loggerThread_func( void* param );
+		friend void loggerThread_func( Logger* pLogger );
 
 		/** @name Crash context management
 		 * Access the crash context string that can be used to report what caused a crash.  The crash-context
@@ -146,6 +211,15 @@ class Logger {
 		/** @} */
 
 		bool getLogColors() const;
+		/** Whether this logger prefixes lines with `[hh:mm:ss.zzz]`
+		 * timestamps. Used so a per-instance logger can mirror the process
+		 * default's settings (ADR 0015, T1.6). */
+		bool getLogTimestamps() const;
+		/** Whether this logger also writes to stdout. Used so a per-instance
+		 * logger can mirror the process default's verbosity (ADR 0015, T1.6). */
+		bool getUseStdout() const { return m_bUseStdout; }
+
+		const QString& getLogFile() const;
 
 		/** Helper class to preserve and restore recursive crash context strings using an RAAI pattern */
 		class CrashContext {
@@ -165,12 +239,23 @@ class Logger {
 		 * get_instance().
 		 */
 		static Logger* __instance;
+		/** Number of per-instance loggers created via #createInstanceLogger
+		 * and not yet destroyed. While > 0, lines reaching the process
+		 * default (#__instance) are marked `[unscoped]` in #log() — the
+		 * audit surface for per-instance routing gaps (ADR 0015, T1.6). */
+		static std::atomic<int> __nInstanceLoggers;
+		/** Thread-local current-context logger for #currentLogger()/#Scope
+		 * (ADR 0015, T1.6). nullptr ⇒ fall back to the process default. */
+		static thread_local Logger* __pCurrent;
 		bool __running;                 ///< set to true when the logger thread is running
-		pthread_mutex_t __mutex;        ///< lock for adding or removing elements only
+		std::mutex __mutex;             ///< lock for adding or removing elements only
 		queue_t __msg_queue;            ///< the message queue
 		static unsigned __bit_msk;      ///< the bitmask of log_level_t
 		static const char* __levels[];  ///< levels strings
-		pthread_cond_t __messages_available;
+		std::condition_variable __messages_available;
+		/** Worker thread servicing this logger's queue. Per-instance (ADR 0015,
+		 * T1.6) so multiple loggers each drain their own queue/file. */
+		std::thread m_loggerThread;
 	QString m_sLogFilePath;
 
 		QStringList m_prefixList;
@@ -178,14 +263,25 @@ class Logger {
 		QString m_sColorOff;
 
 	bool m_bUseStdout;
-		bool m_bLogTimestamps;
+	bool m_bLogTimestamps;
 		bool m_bLogColors;
+		/** Append to the log file instead of truncating it. Implies the
+		 * per-write file lock in the logger thread: append mode means the
+		 * file may be shared by several writers. */
+		bool m_bAppend;
+		/** Whether this logger was created via #createInstanceLogger (and
+		 * thus counted in #__nInstanceLoggers). */
+		bool m_bIsInstanceLogger = false;
+
+		/** The `[hh:mm:ss.zzz] ` line prefix (empty when timestamps are
+		 * disabled). Shared by #log() and the writer thread's shutdown
+		 * marker so both stay in format sync. */
+		QString timestampPrefix() const;
 
 		thread_local static QString *pCrashContext;
 
 		/** constructor */
-	Logger( const QString& sLogFilePath = QString(), bool bUseStdout = true,
-			bool bLogTimestamps = false, bool bLogColors = true );
+		Logger( const QString& sLogFilePath, Options options );
 
 #ifndef HAVE_SSCANF
 		/**
@@ -201,6 +297,16 @@ class Logger {
 inline bool Logger::getLogColors() const {
 	return m_bLogColors;
 }
+
+inline bool Logger::getLogTimestamps() const {
+	return m_bLogTimestamps;
+}
+
+inline const QString& Logger::getLogFile() const {
+	return m_sLogFilePath;
+}
+
+Q_DECLARE_OPERATORS_FOR_FLAGS( Logger::Options )
 
 };
 

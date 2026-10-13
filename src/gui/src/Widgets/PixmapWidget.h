@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PIXMAP_WIDGET_H
-#define PIXMAP_WIDGET_H
+#ifndef H2C_PIXMAP_WIDGET_H
+#define H2C_PIXMAP_WIDGET_H
 
 #include <QtGui>
 #include <QtWidgets>

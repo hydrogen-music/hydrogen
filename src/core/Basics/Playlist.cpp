@@ -21,7 +21,6 @@
  */
 
 #include <core/Preferences/Preferences.h>
-#include <core/Hydrogen.h>
 #include <core/Basics/Playlist.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
@@ -42,7 +41,8 @@ void Playlist::clear()
 	m_entries.clear();
 }
 
-std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
+std::shared_ptr<Playlist> Playlist::load( const QString& sPath,
+										  std::shared_ptr<Preferences> pPreferences )
 {
 	XMLDoc doc;
 	doc.read( sPath );
@@ -68,31 +68,40 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 		}
 
 		WARNINGLOG( QString( "Upgrading playlist [%1]" ).arg( sPath ) );
-		pPlaylist->saveAs( sPath, true );
+		pPlaylist->saveAs( sPath, pPreferences, true );
 		return pPlaylist;
 	}
 
-	QFileInfo fileInfo = QFileInfo( sPath );
+	return load_from( rootNode, sPath, Xml::Flag::None );
+}
+
+std::shared_ptr<Playlist> Playlist::load_from( const XMLNode& root,
+											   const QString& sPath,
+											   Xml::Flag flags )
+{
+	const QFileInfo fileInfo( sPath );
 
 	// Check whether the file was created using a newer version of Hydrogen.
-	auto formatVersionNode = rootNode.firstChildElement( "formatVersion" );
+	auto formatVersionNode = root.firstChildElement( "formatVersion" );
 	if ( !formatVersionNode.isNull() ) {
-		const int nFormatVersion = rootNode.read_int(
+		const int nFormatVersion = root.read_int(
 			"formatVersion", Playlist::nCurrentFormatVersion, true, false, false
 		);
 		if ( nFormatVersion != Playlist::nCurrentFormatVersion ) {
 			WARNINGLOG(
-				QString( "Playlist file [%1] was created with a different "
+				QString( "Playlist [%1] was created with a different "
 						 "version of Hydrogen than the current one!" )
-					.arg( fileInfo.absoluteFilePath() )
+					.arg( sPath )
 			);
 		}
 	}
 
 	auto pPlaylist = std::make_shared<Playlist>();
-	pPlaylist->setPath( fileInfo.absoluteFilePath() );
+	if ( ! sPath.isEmpty() ) {
+		pPlaylist->setPath( fileInfo.absoluteFilePath() );
+	}
 
-	XMLNode songsNode = rootNode.firstChildElement( "songs" );
+	XMLNode songsNode = root.firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
 		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {
@@ -121,6 +130,11 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 											  sScriptPath );
 					pEntry->setScriptPath( scriptPathInfo.absoluteFilePath() );
 				}
+				if ( flags & Xml::Flag::Ipc ) {
+					pEntry->setUuid(
+						nextNode.read_uuid( "ipc-uuid", false, false, false )
+					);
+				}
 				pPlaylist->add( pEntry );
 			}
 
@@ -129,10 +143,23 @@ std::shared_ptr<Playlist> Playlist::load( const QString& sPath )
 	} else {
 		WARNINGLOG( "songs node not found" );
 	}
+
+	// Additional members not present in .h2playlist but required for IPC.
+	if ( flags & Xml::Flag::Ipc ) {
+		pPlaylist->setUuid( root.read_uuid( "ipc-uuid", false, false, false ) );
+		pPlaylist->setPath( root.read_string(
+			"ipc-path", Filesystem::emptyPath( Filesystem::Artifact::Playlist ),
+			false, true, false
+		) );
+		pPlaylist->setIsModified(
+			root.read_bool( "ipc-isModified", false, false, false, false )
+		);
+	}
+
 	return pPlaylist;
 }
 
-bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
+bool Playlist::saveAs( const QString& sTargetPath, std::shared_ptr<Preferences> pPreferences, bool bSilent ) {
 	if ( ! bSilent  ) {
 		INFOLOG( QString( "Saving playlist [%1] as [%2]" )
 				 .arg( m_sPath ).arg( sTargetPath ) );
@@ -140,10 +167,10 @@ bool Playlist::saveAs( const QString& sTargetPath, bool bSilent ) {
 
 	setPath( sTargetPath );
 
-	return save( true );
+	return save( pPreferences, true );
 }
 
-bool Playlist::save( bool bSilent ) const {
+bool Playlist::save( std::shared_ptr<Preferences> pPreferences, bool bSilent ) const {
 	if ( m_sPath.isEmpty() ) {
 		ERRORLOG( "No filepath provided!" );
 		return false;
@@ -158,11 +185,49 @@ bool Playlist::save( bool bSilent ) const {
 
 	root.write_int( "formatVersion", nCurrentFormatVersion );
 
-	saveTo( root );
+	saveTo(
+		root,
+		pPreferences->getUseRelativeFileNamesForPlaylists()
+			? Xml::Flag::UseRelativePaths
+			: Xml::Flag::None
+	);
 	return doc.write( m_sPath );
 }
 
-void Playlist::saveTo( XMLNode& node ) const
+QByteArray Playlist::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "playlist", "playlist" );
+	root.write_int( "formatVersion", nCurrentFormatVersion );
+	// Always absolute paths: the buffer travels across the IPC split (ADR 0030),
+	// where there is no playlist file to resolve relative paths against.
+	saveTo( root, Xml::Flag::Ipc );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Playlist> Playlist::fromXmlBuffer( const QByteArray& buffer,
+												   const QString& sPath )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse playlist XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode root = doc.firstChildElement( "playlist" );
+	if ( root.isNull() ) {
+		ERRORLOG( "Error reading playlist buffer: 'playlist' node not found" );
+		return nullptr;
+	}
+
+	auto pPlaylist = load_from( root, sPath, Xml::Flag::Ipc );
+
+	return pPlaylist;
+}
+
+void Playlist::saveTo( XMLNode& node, Xml::Flag flags )
+	const
 {
 	QFileInfo fileInfo( m_sPath );
 
@@ -171,7 +236,7 @@ void Playlist::saveTo( XMLNode& node ) const
 	for ( const auto& pEntry : m_entries ) {
 		QString sSongPath = pEntry->getSongPath();
 		QString sScriptPath = pEntry->getScriptPath();
-		if ( Preferences::get_instance()->getUseRelativeFileNamesForPlaylists() ) {
+		if ( flags & Xml::Flag::UseRelativePaths ) {
 			if ( ! sSongPath.isEmpty() ) {
 				sSongPath = fileInfo.absoluteDir().relativeFilePath( sSongPath );
 			}
@@ -183,6 +248,16 @@ void Playlist::saveTo( XMLNode& node ) const
 		song_node.write_string( "path", sSongPath );
 		song_node.write_string( "scriptPath", sScriptPath );
 		song_node.write_bool( "scriptEnabled", pEntry->getScriptEnabled() );
+		if ( flags & Xml::Flag::Ipc ) {
+			song_node.write_uuid( "ipc-uuid", getUuid() );
+		}
+	}
+
+	// Additional members not present in .h2playlist but required for IPC.
+	if ( flags & Xml::Flag::Ipc ) {
+		node.write_uuid( "ipc-uuid", getUuid() );
+		node.write_string( "ipc-path", m_sPath );
+		node.write_bool( "ipc-isModified", m_bIsModified );
 	}
 }
 
@@ -342,6 +417,8 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Playlist]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_sPath: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
 			.append( QString( "%1%2entries:\n" ).arg( sPrefix ).arg( s ) );
 		if ( size() > 0 ) {
@@ -354,7 +431,8 @@ QString Playlist::toQString( const QString& sPrefix, bool bShort ) const {
 		.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
 	} else {
 		sOutput = QString( "[Playlist]" )
-			.append( QString( " m_sPath: %1" ).arg( m_sPath ) )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 			.append( ", entries: {" );
 		if ( size() > 0 ) {
 			for ( const auto& pEntry : m_entries ) {

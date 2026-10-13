@@ -35,6 +35,8 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/EditorStateMirror.h>
 #include <core/Preferences/Preferences.h>
 #include <core/Sampler/Sampler.h>
 
@@ -90,8 +92,8 @@ void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 
 void AudioEngineInfoForm::updateInfo()
 {
-	const auto pPref = Preferences::get_instance();
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
+	Hydrogen *pHydrogen = HydrogenApp::pHydrogen();
 	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();;
 	std::shared_ptr<Song> pSong = pHydrogen->getSong();
 
@@ -107,11 +109,30 @@ void AudioEngineInfoForm::updateInfo()
 	char tmp[100];
 
 	// Process time
-	int perc = 0;
-	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
-		perc= (int)( pAudioEngine->getProcessTime() / ( pAudioEngine->getMaxProcessTime() / 100.0 ) );
+	float fProcessTime = 0.0;
+	float fMaxProcessTime = 0.0;
+
+	const auto pSession = HydrogenApp::getEditorSession();
+	if ( HydrogenApp::isConnectViaIpcMode() && pSession != nullptr &&
+		 pSession->getStateMirror() != nullptr ) {
+		// ADR 0018: in editor mode the authoritative process time lives in the
+		// headless engine and arrives via the telemetry snapshot. The mirror's
+		// own AudioEngine members must not be overwritten with it — they size
+		// the mirror's tryLockFor slack budget.
+		const auto& telemetry = pSession->getStateMirror()->getTelemetry();
+		fProcessTime = telemetry.procTimeCur;
+		fMaxProcessTime = telemetry.procTimeMax;
 	}
-	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", pAudioEngine->getProcessTime(), pAudioEngine->getMaxProcessTime(), perc );
+	else {
+		fProcessTime = pAudioEngine->getProcessTime();
+		fMaxProcessTime = pAudioEngine->getMaxProcessTime();
+	}
+
+	int perc = 0;
+	if ( fMaxProcessTime != 0.0 ) {
+		perc = (int)( fProcessTime / ( fMaxProcessTime / 100.0 ) );
+	}
+	sprintf(tmp, "%#.2f / %#.2f  (%d%%)", fProcessTime, fMaxProcessTime, perc );
 	processTimeLbl->setText(tmp);
 
 	// Song state
@@ -133,23 +154,24 @@ void AudioEngineInfoForm::updateInfo()
 
 
 
-	// Audio driver info
-	auto pAudioDriver = pHydrogen->getAudioDriver();
-	if ( pAudioDriver != nullptr ) {
-		QString audioDriverName = pAudioDriver->class_name();
-		driverLbl->setText( audioDriverName );
+	// Audio driver info (ADR 0029: value views, not the driver pointer).
+	const auto pEngine = HydrogenApp::pEngine();
+	const auto audioDriverInfo = pEngine->getAudioDriverInfo();
+	if ( audioDriverInfo.isPresent ) {
+		driverLbl->setText(
+			Preferences::audioDriverToQString( audioDriverInfo.kind ) );
 
-		// Audio pAudioDriver buffer size
-		sprintf( tmp, "%d", pAudioDriver->getBufferSize() );
+		// Audio driver buffer size
+		sprintf( tmp, "%d", pEngine->getAudioBufferSize() );
 		bufferSizeLbl->setText( QString( tmp ) );
 
 		// Audio latency estimate
 		latencyLbl->setText(
-			QString( "%1 frames" ).arg( pAudioDriver->getLatency() )
+			QString( "%1 frames" ).arg( pEngine->getAudioLatencyFrames() )
 		);
 
-		// Audio pAudioDriver sampleRate
-		sprintf( tmp, "%d", pAudioDriver->getSampleRate() );
+		// Audio driver sampleRate
+		sprintf( tmp, "%d", pEngine->getAudioSampleRate() );
 		sampleRateLbl->setText( QString( tmp ) );
 
 		// Number of frames
@@ -175,7 +197,7 @@ void AudioEngineInfoForm::updateInfo()
 		Preferences::midiDriverToQString( pPref->m_midiDriver ) );
 	m_pMidiDeviceName->setText( pPref->m_sMidiPortName );
 
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if (nSelectedPatternNumber == -1) {
 		selectedPatLbl->setText( "N/A");
 	}
@@ -183,7 +205,7 @@ void AudioEngineInfoForm::updateInfo()
 		selectedPatLbl->setText( QString("%1").arg(nSelectedPatternNumber) );
 	}
 
-	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+	int nSelectedInstrumentNumber = pEngine->getSelectedInstrumentNumber();
 	if (nSelectedInstrumentNumber == -1) {
 		m_pSelectedInstrLbl->setText( "N/A" );
 	}
@@ -197,12 +219,6 @@ void AudioEngineInfoForm::updateInfo()
 	} else {
 		currentPatternLbl->setText( "N/A" );
 	}
-
-	// SAMPLER
-	Sampler *pSampler = pAudioEngine->getSampler();
-	sampler_playingNotesLbl->setText( QString( "%1 / %2" )
-									  .arg( pSampler->getPlayingNotesNumber() )
-									  .arg( pPref->m_nMaxNotes ) );
 }
 
 
@@ -216,7 +232,7 @@ void AudioEngineInfoForm::updateInfo()
 void AudioEngineInfoForm::updateAudioEngineState() {
 	engineStateLbl->setText(
 		AudioEngine::StateToQString(
-			H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ) );
+			HydrogenApp::pEngine()->getAudioEngine()->getState() ) );
 }
 
 

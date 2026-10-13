@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef LOOP_BACK_MIDI_DRIVER_H
-#define LOOP_BACK_MIDI_DRIVER_H
+#ifndef H2C_LOOP_BACK_MIDI_DRIVER_H
+#define H2C_LOOP_BACK_MIDI_DRIVER_H
 
 #include <core/IO/MidiBaseDriver.h>
 #include <core/Midi/MidiMessage.h>
@@ -50,7 +50,7 @@ class LoopBackMidiDriver : public Object<LoopBackMidiDriver>
 	static constexpr int nBacklogSize = 1000;
 
 	public:
-		LoopBackMidiDriver();
+		LoopBackMidiDriver( Hydrogen* pHydrogen );
 		virtual ~LoopBackMidiDriver();
 
 		void close() override;

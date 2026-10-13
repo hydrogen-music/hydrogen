@@ -20,12 +20,16 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_DATABASE_H
-#define SOUND_LIBRARY_DATABASE_H
+#ifndef H2C_SOUND_LIBRARY_DATABASE_H
+#define H2C_SOUND_LIBRARY_DATABASE_H
 
 #include <QStringList>
+#include <atomic>
+#include <condition_variable>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <vector>
 
 #include <core/Basics/Drumkit.h>
@@ -47,31 +51,101 @@ namespace H2Core
  *
  */
 
+class Hydrogen;
 class SoundLibraryInfo;
 
 /** \ingroup docGUI*/
 class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	H2_OBJECT( SoundLibraryDatabase )
    public:
-	SoundLibraryDatabase();
+	/** Immutable, coherent view of all sound library content.
+	 *
+	 * A fresh snapshot is published by every content-affecting
+	 * operation (update(), updateDrumkits(), updatePatterns(),
+	 * updateSongs(), a lazy getDrumkit() insert, and the custom
+	 * drumkit registrations). Holding a #std::shared_ptr to a
+	 * snapshot allows lock-free reads for an arbitrary duration:
+	 * later publications do not affect it. */
+	struct Snapshot {
+		/** Loaded drumkits keyed by the absolute path of their
+		 * drumkit.xml file. */
+		std::map<QString, std::shared_ptr<Drumkit>> drumkitDatabase;
+		std::vector<std::shared_ptr<SoundLibraryInfo>> drumkitInfos;
+		std::vector<std::shared_ptr<SoundLibraryInfo>> patternInfos;
+		std::vector<std::shared_ptr<SoundLibraryInfo>> songInfos;
+		/** Exact drumkit paths registered via
+		 * #registerCustomDrumkitPath (e.g. supplied via CLI or OSC
+		 * command or lazily loaded via getDrumkit()). They are not
+		 * part of the scanned folders and would be lost by a plain
+		 * folder rescan. */
+		QStringList customDrumkitPaths;
+		/** Whole folders scanned for drumkits in addition to the
+		 * system and user drumkit folders (e.g. NSM session
+		 * folders, registered via #registerDrumkitFolder). */
+		QStringList customDrumkitFolders;
+	};
+
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which the database reaches its per-instance context (ADR 0015). */
+	SoundLibraryDatabase( Hydrogen* pHydrogen );
 	~SoundLibraryDatabase();
 
-	const std::vector<std::shared_ptr<SoundLibraryInfo>>& getDrumkitInfos() const;
-	const std::vector<std::shared_ptr<SoundLibraryInfo>>& getPatternInfos() const;
-	const std::vector<std::shared_ptr<SoundLibraryInfo>>& getSongInfos() const;
+	/** Currently published snapshot. */
+	std::shared_ptr<const Snapshot> getSnapshot() const;
 
-	void update();
+	/** Copies of the current snapshot's content. For repeated or
+	 * cross-container accesses prefer #getSnapshot() for a coherent
+	 * view. */
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getDrumkitInfos() const;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getPatternInfos() const;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> getSongInfos() const;
+	std::map<QString, std::shared_ptr<Drumkit>> getDrumkitDatabase() const;
 
-	void updateDrumkits( Event::Trigger trigger );
+	/** Progress reporting for a scan running in the background.
+	 *
+	 * Reports are throttled to 5% steps (plus 0 and 100) so a scan of
+	 * a large sound library does not flood the event queue. The
+	 * throttle state lives in this object — one per scan, owned by
+	 * the scanning thread — so concurrent scans cannot corrupt it. */
+	class ScanProgress
+	{
+	public:
+		explicit ScanProgress( Hydrogen* pHydrogen )
+			: m_pHydrogen( pHydrogen )
+		{
+		}
+		virtual ~ScanProgress() = default;
+
+		/** Queue a #Event::Type::SoundLibraryScanProgress event for
+		 * @a nValue (0-100), unless the throttle suppresses it.
+		 * Virtual: tests park a scan mid-way through a custom
+		 * reporter. */
+		virtual void report( int nValue );
+
+	private:
+		Hydrogen* m_pHydrogen;
+		int m_nLastReported = -1;
+	};
+
+	/** Scan the sound library folders and publish the result.
+	 *
+	 * @param pProgress When set, the scan reports its progress through
+	 *   this object (used by the background initial scan). */
+	void update( ScanProgress* pProgress = nullptr );
+
+	void updateDrumkits( Event::Trigger trigger,
+						 ScanProgress* pProgress = nullptr );
 	/**
 	 * Retrieve a drumkit from the database.
 	 *
 	 * If the kit is not already present, it will be loaded from disk.
 	 *
 	 * @param sDrumkitPath Absolute path to the drumkit.xml file holding the
-	 *   definition of the drumkit. If empty, it will be read from @a pNode.
+	 *   definition of the drumkit. A folder path is mapped to the drumkit.xml
+	 *   it contains and redundant separators are collapsed, so every
+	 *   spelling of a kit addresses the same cached entry.
 	 * @param bUpgrade In case the drumkit is not part of the DB and needs to be
-	 *   loaded, should it be upgrade while doing so?
+	 *   loaded, should it be upgraded while doing so?
 	 */
 	std::shared_ptr<Drumkit>
 	getDrumkit( const QString& sDrumkitPath, bool bUpgrade = true );
@@ -85,12 +159,6 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	 * Library widget) */
 	std::shared_ptr<Drumkit> getNextDrumkit() const;
 
-	const std::map<QString, std::shared_ptr<Drumkit>>& getDrumkitDatabase(
-	) const
-	{
-		return m_drumkitDatabase;
-	}
-
 	/** Add a custom folder #SoundLibraryDatabase will look of drumkits in
 	 * during an updateDrumkits()
 	 *
@@ -100,14 +168,56 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 	QStringList getDrumkitFolders() const;
 	QStringList getCustomDrumkitFolders() const;
 
+	/** Returns the list of individual drumkit paths registered via
+	 * #registerCustomDrumkitPath (not folder-scanned — exact kit paths). */
+	QStringList getCustomDrumkitPaths() const;
+
+	/** Register an individual drumkit path to be scanned on the next
+	 * updateDrumkits(). Unlike #registerDrumkitFolder (which scans a whole
+	 * folder), this points at a single drumkit directory.
+	 *
+	 * The path is canonicalized like in #getDrumkit; paths at which no
+	 * drumkit.xml can be located are rejected. */
+	void registerCustomDrumkitPath( const QString& sPath );
+
 	/** Retrieves all #H2Core::Instrument::Type found in the registered
 	 * drumkits.
 	 *
 	 * @return The list of unique types sorted alphabetically.*/
 	std::set<Instrument::Type> getAllTypes() const;
 
-	void updatePatterns( Event::Trigger trigger );
-	void updateSongs( Event::Trigger trigger );
+	void updatePatterns( Event::Trigger trigger,
+						 ScanProgress* pProgress = nullptr );
+	void updateSongs( Event::Trigger trigger,
+					  ScanProgress* pProgress = nullptr );
+
+	/** Start the initial scan of the sound library in a background
+	 * thread.
+	 *
+	 * Called at the end of Hydrogen's constructor in all process
+	 * modes: the scan is pure disk I/O and must not block the caller.
+	 * If the thread cannot be created, the scan falls back to a
+	 * synchronous #update. */
+	void startInitialScan();
+
+	/** Block until the background initial scan finished (completed or
+	 * interrupted). Returns immediately if no scan is running.
+	 *
+	 * Callers that need the database populated — e.g. the next/prev
+	 * drumkit lookups — wait here instead of failing on a not yet
+	 * scanned database. */
+	void waitForInitialScan() const;
+
+	/** Whether the background initial scan is currently running. */
+	bool isInitialScanRunning() const;
+
+	/** Interrupt the background scan and join its thread. Idempotent;
+	 * also called from the destructor.
+	 *
+	 * Must be called before anything the scan uses (the EventQueue,
+	 * Preferences) is torn down — Hydrogen's destructor does so
+	 * first. */
+	void shutdown();
 
 	/** Checks whether an artifact of type @a artifact holding the name @a
 	 * sName exists in context @a context and returns the full path to the
@@ -134,48 +244,78 @@ class SoundLibraryDatabase : public H2Core::Object<SoundLibraryDatabase> {
 		const override;
 
    private:
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
+
+	/** Guards the publication of #m_pSnapshot. Building new content
+	 * happens without the lock; only the merge of the custom drumkit
+	 * registrations and the pointer swap are done while holding
+	 * it. */
+	mutable std::mutex m_writerMutex;
+	/** Currently published snapshot. Never null. */
+	std::shared_ptr<const Snapshot> m_pSnapshot;
+
+	/** Serializes the section scans (updatePatterns(),
+	 * updateSongs(), updateDrumkits()): each of them publishes a copy
+	 * of the snapshot it took on entry, so two overlapping scans would
+	 * silently drop the earlier one's section — the later run's copy
+	 * predates the earlier publish. Held across a whole scan; the
+	 * publication then takes #m_writerMutex on top of it (lock
+	 * order: this mutex first). */
+	mutable std::mutex m_scanMutex;
+
+	/** Set by #shutdown to interrupt a running scan. Checked between
+	 * scan items; never reset — after a shutdown the database must not
+	 * scan again. */
+	std::atomic<bool> m_bStopScan{ false };
+	/** Whether the background initial scan is running. Guarded by
+	 * #m_scanStateMutex. */
+	bool m_bScanRunning = false;
+	/** Guards #m_bScanRunning and the #m_scanStateCondition
+	 * handshake of #waitForInitialScan. */
+	mutable std::mutex m_scanStateMutex;
+	mutable std::condition_variable m_scanStateCondition;
+	/** Thread of the background initial scan. Declared last: it must
+	 * only be started (via #startInitialScan, after construction
+	 * completed) once all members it uses are initialized. */
+	std::thread m_initialScanThread;
+
+	/** Entry point of the background initial scan thread. */
+	void initialScan();
+
+	/** Ensure the label of @a pInfo is unique within the containers
+	 * of @a pSnapshot (the snapshot under construction). */
 	void registerUniqueLabel(
-		std::shared_ptr<SoundLibraryInfo> pInfo
+		std::shared_ptr<SoundLibraryInfo> pInfo,
+		Snapshot* pSnapshot
 	);
 
-	std::map<QString, std::shared_ptr<Drumkit>> m_drumkitDatabase;
+	/** Canonical form of @a sDrumkitPath for addressing kits in the
+	 * database: the path of the drumkit.xml file (a folder path is
+	 * mapped to the one it contains) with normalized separators.
+	 *
+	 * Returns an empty string if no drumkit.xml can be located at
+	 * @a sDrumkitPath. */
+	static QString canonicalDrumkitPath( const QString& sDrumkitPath );
 
-	std::vector<std::shared_ptr<SoundLibraryInfo>> m_drumkitInfos;
-	std::vector<std::shared_ptr<SoundLibraryInfo>> m_patternInfos;
-	std::vector<std::shared_ptr<SoundLibraryInfo>> m_songInfos;
-
-	/**
-	 * List of drumkits the user supplied via CLI or OSC command but
-	 * couldn't be found in either the system's or user's drumkit
-	 * folders. This drumkit might still be present an valid. But it
-	 * would be lost upon updating when just checking the
-	 * aforementioned folders.
-	 */
-	QStringList m_customDrumkitPaths;
-
-	/** Whole folders that will be scanned for drumkits in addition to the
-	 * system and user drumkti folder. */
-	QStringList m_customDrumkitFolders;
+	/** Merge the custom drumkit registrations of the currently
+	 * published snapshot into @a pNewSnapshot and publish the
+	 * latter.
+	 *
+	 * Registrations added while @a pNewSnapshot was being built
+	 * (e.g. a lazy getDrumkit() insert or a
+	 * registerCustomDrumkitPath() call) must not be lost to the
+	 * rebuild. */
+	void publish( std::shared_ptr<Snapshot> pNewSnapshot );
 };
-inline const std::vector<std::shared_ptr<SoundLibraryInfo>>&
-SoundLibraryDatabase::getDrumkitInfos() const
-{
-	return m_drumkitInfos;
-}
-inline const std::vector<std::shared_ptr<SoundLibraryInfo>>&
-SoundLibraryDatabase::getPatternInfos() const
-{
-	return m_patternInfos;
-}
-inline const std::vector<std::shared_ptr<SoundLibraryInfo>>&
-SoundLibraryDatabase::getSongInfos() const
-{
-	return m_songInfos;
-}
 inline QStringList SoundLibraryDatabase::getCustomDrumkitFolders() const
 {
-	return m_customDrumkitFolders;
+	return getSnapshot()->customDrumkitFolders;
+}
+inline QStringList SoundLibraryDatabase::getCustomDrumkitPaths() const
+{
+	return getSnapshot()->customDrumkitPaths;
 }
 };	// namespace H2Core
 
-#endif	// SOUND_LIBRARY_DATABASE_H
+#endif	// H2C_SOUND_LIBRARY_DATABASE_H

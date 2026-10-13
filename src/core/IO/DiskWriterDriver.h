@@ -20,12 +20,14 @@
  *
  */
 
-#ifndef DISK_WRITER_DRIVER_H
-#define DISK_WRITER_DRIVER_H
+#ifndef H2C_DISK_WRITER_DRIVER_H
+#define H2C_DISK_WRITER_DRIVER_H
 
 #include <sndfile.h>
 
+#include <atomic>
 #include <inttypes.h>
+#include <thread>
 
 #include <core/IO/AudioDriver.h>
 #include <core/Object.h>
@@ -33,7 +35,8 @@
 namespace H2Core
 {
 
-	void* diskWriterDriver_thread( void *param );
+	class DiskWriterDriver;
+	void diskWriterDriver_thread( DiskWriterDriver *pDriver );
 ///
 /// Driver for export audio to disk
 ///
@@ -55,7 +58,7 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 		float*					m_pOut_R;
 		bool					 m_bIsRunning;
 
-		DiskWriterDriver( audioProcessCallback processCallback );
+		DiskWriterDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 		~DiskWriterDriver();
 
 		virtual int init( unsigned nBufferSize ) override;
@@ -72,6 +75,14 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 		}
 		bool m_bDoneWriting;
 		bool m_bWritingFailed;
+		// Cooperative cancel: disconnect() raises it before joining;
+		// the render loop checks it every buffer and tears down, so a
+		// mid-render stop joins within one buffer instead of waiting
+		// out the song. Atomic: written under the engine lock on the
+		// teardown path, read on the writer thread. Public like the
+		// sibling flags — the writer thread function is a free
+		// function that accesses the driver's state directly.
+		std::atomic<bool> m_bCancelRequested;
 
 		virtual unsigned getBufferSize() override {
 			return m_nBufferSize;
@@ -97,9 +108,14 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 			m_sFileName = sFileName;
 		}
 
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
-
+		// Writer thread of the most recent write() call. A session
+		// stopped before its first render has no thread to join —
+		// joinable() is false both before the first write() and after
+		// a join. Not synchronised: write() and disconnect() must stay
+		// serialized (same thread, or via the export plan join).
+		std::thread m_writerThread;
 };
 
 };

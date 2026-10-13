@@ -25,7 +25,6 @@
 #define H2CORE_VERSION "@DISPLAY_VERSION@"
 #define H2CORE_IS_DEVEL_BUILD @IS_DEVEL_BUILD@
 
-#define MAX_FX          @MAX_FX@
 #define MAX_BUFFER_SIZE @MAX_BUFFER_SIZE@
 
 #cmakedefine HAVE_SSCANF
@@ -88,12 +87,6 @@
 #endif
 #ifndef H2CORE_HAVE_PULSEAUDIO
 #cmakedefine H2CORE_HAVE_PULSEAUDIO
-#endif
-#ifndef H2CORE_HAVE_LRDF
-#cmakedefine H2CORE_HAVE_LRDF
-#endif
-#ifndef H2CORE_HAVE_LADSPA
-#cmakedefine H2CORE_HAVE_LADSPA
 #endif
 #ifndef H2CORE_HAVE_RUBBERBAND
 #cmakedefine H2CORE_HAVE_RUBBERBAND

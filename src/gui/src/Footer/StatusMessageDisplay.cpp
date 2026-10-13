@@ -72,7 +72,7 @@ void StatusMessageDisplay::onPreferencesChanged( const H2Core::Preferences::Chan
 // integrate into the current GUI design using the active LCDDisplay
 // foreground and background colors.
 void StatusMessageDisplay::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor textColor = pColorTheme->m_windowTextColor;
 	QColor backgroundColor = pColorTheme->m_windowColor.lighter( 134 );
@@ -95,7 +95,7 @@ void StatusMessageDisplay::paintEvent( QPaintEvent *ev ) {
 	if ( m_bEntered || hasFocus() ) {
 		QPainter painter(this);
 
-		QColor colorHighlightActive = H2Core::Preferences::get_instance()
+		QColor colorHighlightActive = HydrogenApp::pPreferences()
 			->getColorTheme()->m_highlightColor;
 
 		// If the mouse is placed on the widget but the user hasn't

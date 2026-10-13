@@ -23,7 +23,7 @@
 
 #include "LCDSpinBox.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -266,7 +266,7 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 		}
 		const auto nKey = fValue - KEYS_PER_OCTAVE * nOctave;
 		result = QString( "%1 (%3)" )
-					 .arg( CommonStrings::createPitchLabel( H2Core::Note::keyFromIntClamp( nKey ), nOctave ) )
+					 .arg( H2Core::CommonStrings::createPitchLabel( H2Core::Note::keyFromIntClamp( nKey ), nOctave ) )
 					 .arg( fValue, 0, 'f', 0 );
 	}
 	else {
@@ -388,7 +388,7 @@ void LCDSpinBox::mouseReleaseEvent( QMouseEvent* ev ) {
 }
 
 void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QDoubleSpinBox::paintEvent( ev );
 
@@ -433,7 +433,7 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 }
 
 void LCDSpinBox::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor spinBoxColor = pColorTheme->m_spinBoxColor;
 	QColor spinBoxTextColor = pColorTheme->m_spinBoxTextColor;

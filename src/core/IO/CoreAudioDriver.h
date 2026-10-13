@@ -26,11 +26,11 @@
  * More cleaning . . . (2005/12/31 Jonathan Dempsey)
  */
 
-#ifndef COREAUDIO_DRIVER_H
-#define COREAUDIO_DRIVER_H
+#ifndef H2C_COREAUDIO_DRIVER_H
+#define H2C_COREAUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 #include <AudioUnit/AudioUnit.h>
@@ -63,7 +63,7 @@ public:
 	float* m_pOut_L;
 	float* m_pOut_R;
 
-	CoreAudioDriver( audioProcessCallback processCallback );
+	CoreAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	virtual ~CoreAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -77,7 +77,7 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
-	static QStringList getDevices();
+	virtual QStringList getDevices() override;
 
 	virtual int getLatency() override;
 
@@ -102,11 +102,11 @@ private:
 #else
 
 /** \ingroup docCore docAudioDriver */
-class CoreAudioDriver : public Object<CoreAudioDriver>, public NullDriver
+class CoreAudioDriver : public Object<CoreAudioDriver>, public StubAudioDriver
 {
 	H2_OBJECT(CoreAudioDriver)
 public:
-	CoreAudioDriver( audioProcessCallback processCallback ) : NullDriver ( processCallback ) {}
+	CoreAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 };
 

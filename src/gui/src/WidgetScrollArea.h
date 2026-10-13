@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef WIDGETSCROLLAREA_H
-#define WIDGETSCROLLAREA_H
+#ifndef H2C_WIDGETSCROLLAREA_H
+#define H2C_WIDGETSCROLLAREA_H
 
 #include <QWidget>
 

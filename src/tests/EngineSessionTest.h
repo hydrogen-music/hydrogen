@@ -1,0 +1,88 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef H2C_ENGINE_SESSION_TEST_H
+#define H2C_ENGINE_SESSION_TEST_H
+
+#include <cppunit/extensions/HelperMacros.h>
+
+#include <core/Object.h>
+
+// End-to-end engine↔editor IPC: a real EngineSession serve loop (engine side, on
+// its own bridge thread) talking to a real EditorSession (editor side).
+class EngineSessionTest : public CppUnit::TestFixture {
+	CPPUNIT_TEST_SUITE( EngineSessionTest );
+	CPPUNIT_TEST( testRejectsInvalidArguments );
+	CPPUNIT_TEST( testCommandDispatchedToEngine );
+	CPPUNIT_TEST( testEventForwardedToEditor );
+	CPPUNIT_TEST( testEngineSurvivesEditorReconnect );
+	CPPUNIT_TEST( testSoundLibraryRescanCrossesSplit );
+	CPPUNIT_TEST( testSetDefaultMidiOutNotesCrossesSplit );
+	CPPUNIT_TEST( testMidiActionCrossesSplit );
+	CPPUNIT_TEST( testRecalculateRubberbandCrossesSplit );
+	CPPUNIT_TEST( testSetRubberBandBatchModeCrossesSplit );
+	CPPUNIT_TEST( testSetPunchAreaCrossesSplit );
+	CPPUNIT_TEST( testSetMidiControlSettingsCrossesSplit );
+	CPPUNIT_TEST( testSetMidiClockInputHandlingCrossesSplit );
+	CPPUNIT_TEST( testSetMidiClockOutputSendCrossesSplit );
+	CPPUNIT_TEST( testAddRemoveAutomationPointCrossesSplit );
+	CPPUNIT_TEST( testMoveAutomationPointCrossesSplit );
+	CPPUNIT_TEST( testSetVirtualPatternsCrossesSplit );
+	CPPUNIT_TEST( testSetQuantizeEventsCrossesSplit );
+	CPPUNIT_TEST( testSetPatternEditorGridCrossesSplit );
+	CPPUNIT_TEST( testReplaceInstrumentCrossesSplit );
+	CPPUNIT_TEST( testMirrorTransportFreeRuns );
+	CPPUNIT_TEST( testMirrorTransportFreeRunsUnderJackTransport );
+	CPPUNIT_TEST( testMirrorBpmShowsSpecialTempoMarker );
+	CPPUNIT_TEST( testToggleStripMuteSoloCrossesSplit );
+	CPPUNIT_TEST_SUITE_END();
+
+public:
+	void testRejectsInvalidArguments();
+	void testCommandDispatchedToEngine();
+	void testEventForwardedToEditor();
+	void testEngineSurvivesEditorReconnect();
+	void testSoundLibraryRescanCrossesSplit();
+	void testSetDefaultMidiOutNotesCrossesSplit();
+	void testMidiActionCrossesSplit();
+	void testRecalculateRubberbandCrossesSplit();
+	void testSetRubberBandBatchModeCrossesSplit();
+	void testSetPunchAreaCrossesSplit();
+	void testSetMidiControlSettingsCrossesSplit();
+	void testSetMidiClockInputHandlingCrossesSplit();
+	void testSetMidiClockOutputSendCrossesSplit();
+	void testAddRemoveAutomationPointCrossesSplit();
+	void testMoveAutomationPointCrossesSplit();
+	void testSetVirtualPatternsCrossesSplit();
+	void testSetQuantizeEventsCrossesSplit();
+	void testSetPatternEditorGridCrossesSplit();
+	void testReplaceInstrumentCrossesSplit();
+	void testMirrorTransportFreeRuns();
+	void testMirrorTransportFreeRunsUnderJackTransport();
+	void testMirrorBpmShowsSpecialTempoMarker();
+	/** TU3.4 side ticket (ADR 0035 UI-3): the mixer strip mute/solo
+	 * *toggles* crossed only as far as the editor's mirror — the
+	 * authoritative engine's drumkit never flipped (the set-variants cross;
+	 * the toggles were never overridden). */
+	void testToggleStripMuteSoloCrossesSplit();
+};
+
+#endif

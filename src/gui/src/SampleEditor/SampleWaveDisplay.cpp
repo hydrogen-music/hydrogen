@@ -147,7 +147,7 @@ void SampleWaveDisplay::paintEvent( QPaintEvent* ev )
 		std::round( m_pSampleEditor->getPlayheadMain() )
 	) );
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	WaveDisplay::paintEvent( ev );
 
@@ -260,7 +260,7 @@ void SampleWaveDisplay::renderSlider(
 	SampleEditor::Slider slider
 )
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QFont font;
 	font.setWeight( QFont::Bold );

@@ -20,12 +20,13 @@
  *
  */
 
-#ifndef PORT_MIDI_DRIVER_H
-#define PORT_MIDI_DRIVER_H
+#ifndef H2C_PORT_MIDI_DRIVER_H
+#define H2C_PORT_MIDI_DRIVER_H
 
 #include <core/IO/MidiBaseDriver.h>
 
 #include <memory>
+#include <thread>
 
 #if defined(H2CORE_HAVE_PORTMIDI) || _DOXYGEN_
 #include <portmidi.h>
@@ -45,7 +46,7 @@ public:
 	PmStream *m_pMidiOut;
 	bool m_bRunning;
 
-	PortMidiDriver();
+	PortMidiDriver( Hydrogen* pHydrogen );
 	virtual ~PortMidiDriver();
 
 	void close() override;
@@ -76,6 +77,9 @@ private:
 
 	int m_nVirtualInputDeviceId;
 	int m_nVirtualOutputDeviceId;
+	// Polls MIDI input while m_bRunning (created in open(), joined in
+	// close()).
+	std::thread m_midiDriverThread;
 };
 
 };

@@ -24,10 +24,12 @@ https://www.gnu.org/licenses
 #include "Footer.h"
 
 #include "StatusMessageDisplay.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 
 #include <core/Hydrogen.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/EditorStateMirror.h>
 
 using namespace H2Core;
 
@@ -35,7 +37,7 @@ Footer::Footer( QWidget* pParent) : QWidget( pParent )
 								  , m_nXRuns( 0 )
 								  , m_bCpuLoadWarning( false )
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFixedHeight( Footer::nHeight );
@@ -124,8 +126,7 @@ void Footer::XRunEvent() {
 
 void Footer::showStatusBarMessage( const QString& sMessage,
 										  const QString& sCaller ) {
-	if ( H2Core::Hydrogen::get_instance()->getGUIState() ==
-		 H2Core::Hydrogen::GUIState::ready ) {
+	if ( HydrogenApp::pEngine()->isFullyOperational() ) {
 		m_pStatusMessageDisplay->showMessage( sMessage, sCaller );
 	}
 }
@@ -142,13 +143,31 @@ void Footer::onPreferencesChanged( const H2Core::Preferences::Changes& changes )
 }
 
 void Footer::updateCpuLoad() {
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
+	float fProcessTime = 0.0;
+	float fMaxProcessTime = 0.0;
+
+	const auto pSession = HydrogenApp::getEditorSession();
+	if ( HydrogenApp::isConnectViaIpcMode() && pSession != nullptr &&
+		 pSession->getStateMirror() != nullptr ) {
+		// ADR 0018: in editor mode the authoritative process time lives in the
+		// headless engine and arrives via the telemetry snapshot. The mirror's
+		// own AudioEngine members must not be overwritten with it — they size
+		// the mirror's tryLockFor slack budget.
+		const auto& telemetry = pSession->getStateMirror()->getTelemetry();
+		fProcessTime = telemetry.procTimeCur;
+		fMaxProcessTime = telemetry.procTimeMax;
+	}
+	else {
+		fProcessTime = pAudioEngine->getProcessTime();
+		fMaxProcessTime = pAudioEngine->getMaxProcessTime();
+	}
+
 	int nPercentage = 0;
-	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
+	if ( fMaxProcessTime != 0.0 ) {
 		nPercentage = std::clamp(
 			static_cast<int>(
-				std::round( pAudioEngine->getProcessTime() /
-							pAudioEngine->getMaxProcessTime() * 100 ) ), 0, 100 );
+				std::round( fProcessTime / fMaxProcessTime * 100 ) ), 0, 100 );
 	}
 
 	if ( nPercentage >= Footer::nCpuLoadWarningThreshold &&
@@ -167,7 +186,7 @@ void Footer::updateCpuLoad() {
 
 void Footer::updateCpuLoadLabelWidth() {
 	const int nMargin = 4 * getPointSize(
-		H2Core::Preferences::get_instance()->getFontTheme()->m_fontSize );
+		HydrogenApp::pPreferences()->getFontTheme()->m_fontSize );
 	const QString sText{ "CPU: 100%" };
 
 	m_pCpuGroup->setFixedWidth(
@@ -175,7 +194,7 @@ void Footer::updateCpuLoadLabelWidth() {
 }
 
 void Footer::updateFont() {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	QFont newFont = font();
 	newFont.setFamily( pFontTheme->m_sLevel3FontFamily );
@@ -184,7 +203,7 @@ void Footer::updateFont() {
 }
 
 void Footer::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorText = pColorTheme->m_windowTextColor;
 	const QColor colorFooter = pColorTheme->m_baseColor;

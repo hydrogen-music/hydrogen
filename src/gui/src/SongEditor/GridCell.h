@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef GRID_CELL_H
-#define GRID_CELL_H
+#ifndef H2C_GRID_CELL_H
+#define H2C_GRID_CELL_H
 
 #include <core/Basics/GridPoint.h>
 #include <core/Object.h>

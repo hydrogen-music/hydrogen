@@ -22,7 +22,7 @@
 
 #include "MidiSenseWidget.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../MainToolBar/MainToolBar.h"
 #include "../MainToolBar/MidiActionTable.h"
@@ -30,6 +30,7 @@
 #include "../Skin.h"
 #include "../UndoActions.h"
 
+#include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiAction.h>
@@ -40,7 +41,7 @@
 MidiSenseWidget::MidiSenseWidget(
 	QWidget* pParent,
 	bool bDirectWrite,
-	std::shared_ptr<MidiAction> pAction
+	std::shared_ptr<H2Core::MidiAction> pAction
 )
 	: QDialog( pParent ),
 	  m_lastMidiEvent( H2Core::MidiEvent::Type::Null ),
@@ -101,7 +102,7 @@ MidiSenseWidget::MidiSenseWidget(
 		updateLabels();
 	} );
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( H2Core::Preferences::get_instance()
+	if ( HydrogenApp::pPreferences()
 			 ->getInterfaceTheme()
 			 ->m_iconColor == H2Core::InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
@@ -117,9 +118,12 @@ MidiSenseWidget::MidiSenseWidget(
 	m_pTextLabel->setAlignment( Qt::AlignCenter );
 	pContainerLayout->addWidget( m_pTextLabel );
 
-	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
-	pHydrogen->setLastMidiEvent( H2Core::MidiEvent::Type::Null );
-	pHydrogen->setLastMidiEventParameter( H2Core::Midi::ParameterInvalid );
+	// Reset the engine's MIDI-learn channel so the poll below only sees
+	// events arriving after the dialog opened. The reset crosses to the
+	// authoritative engine in the editor split — its MIDI input is the
+	// only writer of the channel (ADR 0030).
+	HydrogenApp::pEngine()->getCoreActionController()->setLastMidiEvent(
+		H2Core::MidiEvent::Type::Null, H2Core::Midi::ParameterInvalid );
 
 	m_pUpdateTimer = new QTimer( this );
 
@@ -146,19 +150,21 @@ MidiSenseWidget::~MidiSenseWidget()
 
 void MidiSenseWidget::updateMidi()
 {
-	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
-	if ( pHydrogen->getLastMidiEvent() != H2Core::MidiEvent::Type::Null ) {
-		m_lastMidiEvent = pHydrogen->getLastMidiEvent();
-		m_lastMidiEventParameter = pHydrogen->getLastMidiEventParameter();
+	// Poll the engine's MIDI-learn channel. In the editor split this is
+	// a single blocking query returning the (event, parameter) pair —
+	// the mirror owns no MIDI input (ADR 0030).
+	const auto lastMidiEvent = HydrogenApp::pEngine()->getLastMidiEvent();
+	if ( lastMidiEvent.type != H2Core::MidiEvent::Type::Null ) {
+		m_lastMidiEvent = lastMidiEvent.type;
+		m_lastMidiEventParameter = lastMidiEvent.parameter;
 
 		if ( m_bDirectWrite ) {
-			// write the Midiaction / parameter combination to the midiMap
-			auto pMidiEventMap =
-				H2Core::Preferences::get_instance()->getMidiEventMap();
-
+			// Write the MIDI-action / parameter combination to the map through
+			// the undo command, which routes to MidiActionTable and persists it
+			// (ADR 0027 bucket C).
 			assert( m_pAction );
 
-			auto pAction = std::make_shared<MidiAction>( m_pAction );
+			auto pAction = std::make_shared<H2Core::MidiAction>( m_pAction );
 			HydrogenApp::get_instance()->pushUndoCommand(
 				new SE_addOrRemoveMidiEventsAction(
 					-1, m_lastMidiEvent, m_lastMidiEventParameter, pAction, true
@@ -175,13 +181,13 @@ void MidiSenseWidget::updateLabels()
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	if ( m_pAction != nullptr ) {
 		m_pActionLabel->setVisible( true );
-		m_pActionLabel->setText( MidiAction::typeToQString( m_pAction->getType()
+		m_pActionLabel->setText( H2Core::MidiAction::typeToQString( m_pAction->getType()
 		) );
 
 		// Bindings
 		QStringList bindings;
 		for ( const auto& [eevent, pparam] :
-			  H2Core::Preferences::get_instance()
+			  HydrogenApp::pPreferences()
 				  ->getMidiEventMap()
 				  ->getRegisteredMidiEvents( m_pAction ) ) {
 			if ( eevent == H2Core::MidiEvent::Type::Note ||
@@ -236,7 +242,7 @@ void MidiSenseWidget::updateLabels()
 void MidiSenseWidget::updateStyleSheet()
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const auto backgroundColor = pColorTheme->m_windowColor;
 	const auto textColor = pColorTheme->m_windowTextColor;

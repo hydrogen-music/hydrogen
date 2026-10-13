@@ -20,6 +20,8 @@
  *
  */
 
+#include <QDir>
+
 #include <map>
 #include <set>
 
@@ -38,13 +40,195 @@
 
 namespace H2Core {
 
-SoundLibraryDatabase::SoundLibraryDatabase()
+SoundLibraryDatabase::SoundLibraryDatabase( Hydrogen* pHydrogen )
+	: m_pHydrogen( pHydrogen ),
+	  m_pSnapshot( std::make_shared<Snapshot>() )
 {
-	update();
+	// The initial scan is not run here but started via startInitialScan()
+	// at the end of Hydrogen's constructor: it runs in the background so
+	// constructing an engine is not blocked by the disk I/O of the scan.
 }
 
 SoundLibraryDatabase::~SoundLibraryDatabase()
 {
+	// Safety net: Hydrogen's destructor shuts the scan down first, but
+	// the database may outlive it through shared_ptr holders.
+	shutdown();
+}
+
+void SoundLibraryDatabase::startInitialScan()
+{
+	if ( m_initialScanThread.joinable() ) {
+		// Already started (or running).
+		return;
+	}
+
+	// Mark the scan as running before the thread is created: a waiter
+	// must not sail through waitForInitialScan() in the window between
+	// the thread creation and the thread function setting the flag
+	// itself.
+	{
+		std::lock_guard<std::mutex> lock( m_scanStateMutex );
+		m_bScanRunning = true;
+	}
+
+	try {
+		m_initialScanThread = std::thread(
+			&SoundLibraryDatabase::initialScan, this );
+	}
+	catch ( const std::system_error& e ) {
+		// Thread creation failed (resource exhaustion): fall back to a
+		// synchronous scan so the database is still populated.
+		ERRORLOG( QString( "Unable to start the background scan thread: %1" )
+					  .arg( e.what() ) );
+		{
+			std::lock_guard<std::mutex> lock( m_scanStateMutex );
+			m_bScanRunning = false;
+		}
+		m_scanStateCondition.notify_all();
+		update();
+	}
+}
+
+void SoundLibraryDatabase::initialScan()
+{
+	// The scan thread's logs must route to the owning instance's
+	// logger: the thread-local scope does not inherit from the
+	// spawning thread (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+
+	ScanProgress progress( m_pHydrogen );
+	progress.report( 0 );
+
+	// An exception escaping a thread would terminate the process: a
+	// failed scan leaves the database empty (degraded, but alive).
+	try {
+		update( &progress );
+	}
+	catch ( const std::exception& e ) {
+		ERRORLOG( QString( "Background scan failed: %1" ).arg( e.what() ) );
+	}
+	catch ( ... ) {
+		ERRORLOG( "Background scan failed with an unknown exception" );
+	}
+
+	{
+		std::lock_guard<std::mutex> lock( m_scanStateMutex );
+		m_bScanRunning = false;
+	}
+	// Wakes threads blocked in waitForInitialScan(). The state is set
+	// while holding the mutex, so a waiter cannot miss this wakeup.
+	m_scanStateCondition.notify_all();
+}
+
+void SoundLibraryDatabase::waitForInitialScan() const
+{
+	std::unique_lock<std::mutex> lock( m_scanStateMutex );
+	m_scanStateCondition.wait(
+		lock, [ this ]() { return ! m_bScanRunning; } );
+}
+
+bool SoundLibraryDatabase::isInitialScanRunning() const
+{
+	std::lock_guard<std::mutex> lock( m_scanStateMutex );
+	return m_bScanRunning;
+}
+
+void SoundLibraryDatabase::shutdown()
+{
+	// Terminal: the flag is never reset, so scans started after the
+	// shutdown abort immediately as well.
+	m_bStopScan = true;
+
+	if ( m_initialScanThread.joinable() ) {
+		m_initialScanThread.join();
+	}
+}
+
+void SoundLibraryDatabase::ScanProgress::report( int nValue )
+{
+	// Throttle: only 5% steps (plus the 0% start and the 100%
+	// completion) cross the event queue.
+	if ( nValue != 0 && nValue != 100 &&
+		 nValue < m_nLastReported + 5 ) {
+		return;
+	}
+	if ( nValue == m_nLastReported ) {
+		return;
+	}
+	m_nLastReported = nValue;
+
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::SoundLibraryScanProgress, nValue );
+}
+
+std::shared_ptr<const SoundLibraryDatabase::Snapshot>
+SoundLibraryDatabase::getSnapshot() const
+{
+	std::lock_guard<std::mutex> lock( m_writerMutex );
+	return m_pSnapshot;
+}
+
+std::vector<std::shared_ptr<SoundLibraryInfo>>
+SoundLibraryDatabase::getDrumkitInfos() const
+{
+	return getSnapshot()->drumkitInfos;
+}
+
+std::vector<std::shared_ptr<SoundLibraryInfo>>
+SoundLibraryDatabase::getPatternInfos() const
+{
+	return getSnapshot()->patternInfos;
+}
+
+std::vector<std::shared_ptr<SoundLibraryInfo>>
+SoundLibraryDatabase::getSongInfos() const
+{
+	return getSnapshot()->songInfos;
+}
+
+std::map<QString, std::shared_ptr<Drumkit>>
+SoundLibraryDatabase::getDrumkitDatabase() const
+{
+	return getSnapshot()->drumkitDatabase;
+}
+
+void SoundLibraryDatabase::publish( std::shared_ptr<Snapshot> pNewSnapshot )
+{
+	std::lock_guard<std::mutex> lock( m_writerMutex );
+
+	// Merge the custom drumkit registrations: entries added since the
+	// new snapshot was built must not be lost to the rebuild.
+	for ( const auto& ssPath : m_pSnapshot->customDrumkitPaths ) {
+		if ( ! pNewSnapshot->customDrumkitPaths.contains( ssPath ) ) {
+			pNewSnapshot->customDrumkitPaths << ssPath;
+		}
+	}
+	for ( const auto& ssFolder : m_pSnapshot->customDrumkitFolders ) {
+		if ( ! pNewSnapshot->customDrumkitFolders.contains( ssFolder ) ) {
+			pNewSnapshot->customDrumkitFolders << ssFolder;
+		}
+	}
+
+	// The database entries and infos of the merged registrations must
+	// survive the rebuild as well: without them a registered kit would
+	// vanish from the database until the next rescan re-lists its path.
+	for ( const auto& [ ssPath, pDrumkit ] : m_pSnapshot->drumkitDatabase ) {
+		if ( pDrumkit == nullptr ||
+			 ! pNewSnapshot->customDrumkitPaths.contains( ssPath ) ||
+			 pNewSnapshot->drumkitDatabase.find( ssPath ) !=
+				 pNewSnapshot->drumkitDatabase.end() ) {
+			continue;
+		}
+		pNewSnapshot->drumkitDatabase[ ssPath ] = pDrumkit;
+		auto pInfo = DrumkitInfo::from( pDrumkit );
+		if ( pInfo != nullptr ) {
+			pNewSnapshot->drumkitInfos.push_back( pInfo );
+			registerUniqueLabel( pInfo, pNewSnapshot.get() );
+		}
+	}
+
+	m_pSnapshot = std::move( pNewSnapshot );
 }
 
 QString SoundLibraryDatabase::findArtifact(
@@ -60,6 +244,10 @@ QString SoundLibraryDatabase::findArtifact(
 					  .arg( Filesystem::ArtifactToQString( artifact ) ) );
 		return "";
 	}
+
+	// Hold one snapshot for all passes: the lookup must not mix
+	// content of different publications.
+	const auto pSnapshot = getSnapshot();
 
 	std::vector<Filesystem::Context> contexts;
 	if ( bStacked ) {
@@ -88,8 +276,8 @@ QString SoundLibraryDatabase::findArtifact(
 		else {
 			// First pass
 			switch ( artifact ) {
-				case Filesystem::Artifact::DrumkitExtracted:
-					for ( const auto& [_, ppDrumkit] : m_drumkitDatabase ) {
+			case Filesystem::Artifact::DrumkitExtracted:
+				for ( const auto& [_, ppDrumkit] : pSnapshot->drumkitDatabase ) {
 						if ( ppDrumkit != nullptr &&
 							 ppDrumkit->getName() == sName ) {
 							if ( ppDrumkit->getContext() == ccontext ) {
@@ -105,13 +293,12 @@ QString SoundLibraryDatabase::findArtifact(
 					}
 					break;
 
-				case Filesystem::Artifact::Pattern:
-					for ( const auto& ppPatternInfo : m_patternInfos ) {
-						if ( ppPatternInfo != nullptr &&
-							 ppPatternInfo->getName() == sName ) {
-							if ( ppPatternInfo->getContext() == ccontext ) {
-								return ppPatternInfo->getPath();
-							}
+			case Filesystem::Artifact::Pattern:
+				for ( const auto& ppPatternInfo : pSnapshot->patternInfos ) {
+					if ( ppPatternInfo != nullptr &&
+						 ppPatternInfo->getName() == sName ) {
+						if ( ppPatternInfo->getContext() == ccontext ) {
+							return ppPatternInfo->getPath();
 						}
 						else if ( bStacked ) {
 							cachedArtifacts.push_back( std::make_pair(
@@ -120,14 +307,15 @@ QString SoundLibraryDatabase::findArtifact(
 							) );
 						}
 					}
+				}
+				break;
 
-				case Filesystem::Artifact::Song:
-					for ( const auto& ppSongInfo : m_songInfos ) {
-						if ( ppSongInfo != nullptr &&
-							 ppSongInfo->getName() == sName ) {
-							if ( ppSongInfo->getContext() == ccontext ) {
-								return ppSongInfo->getPath();
-							}
+			case Filesystem::Artifact::Song:
+				for ( const auto& ppSongInfo : pSnapshot->songInfos ) {
+					if ( ppSongInfo != nullptr &&
+						 ppSongInfo->getName() == sName ) {
+						if ( ppSongInfo->getContext() == ccontext ) {
+							return ppSongInfo->getPath();
 						}
 						else if ( bStacked ) {
 							cachedArtifacts.push_back( std::make_pair(
@@ -135,8 +323,10 @@ QString SoundLibraryDatabase::findArtifact(
 							) );
 						}
 					}
+				}
+				break;
 
-				default:
+			default:
 					ERRORLOG( QString( "Unsupported artifact: [%1]" )
 								  .arg( Filesystem::ArtifactToQString( artifact
 								  ) ) );
@@ -147,28 +337,79 @@ QString SoundLibraryDatabase::findArtifact(
 	return "";
 }
 
-void SoundLibraryDatabase::update()
+void SoundLibraryDatabase::update( ScanProgress* pProgress )
 {
-	updatePatterns( Event::Trigger::Suppress );
-	updateSongs( Event::Trigger::Suppress );
-	updateDrumkits( Event::Trigger::Suppress );
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
 
-	EventQueue::get_instance()->pushEvent(
+	// The phases are ordered by cost: the cheap pattern and song
+	// listings complete the database quickly, the drumkit loads
+	// dominate the scan's runtime.
+	updatePatterns( Event::Trigger::Suppress, pProgress );
+	if ( m_bStopScan ) {
+		return;
+	}
+	if ( pProgress != nullptr ) {
+		pProgress->report( 10 );
+	}
+
+	updateSongs( Event::Trigger::Suppress, pProgress );
+	if ( m_bStopScan ) {
+		return;
+	}
+	if ( pProgress != nullptr ) {
+		pProgress->report( 20 );
+	}
+
+	updateDrumkits( Event::Trigger::Suppress, pProgress );
+	if ( m_bStopScan ) {
+		// Interrupted mid-scan: the database keeps its previous
+		// content and no completion event is fired.
+		return;
+	}
+
+	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::SoundLibraryChanged, 0
 	);
+
+	if ( pProgress != nullptr ) {
+		pProgress->report( 100 );
+	}
 }
 
-void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
+void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger,
+										   ScanProgress* pProgress )
 {
-	m_drumkitDatabase.clear();
-    m_drumkitInfos.clear();
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
+
+	// One scan at a time: a scan overlapping this one would publish a
+	// snapshot copy taken before this scan's changes (see
+	// #m_scanMutex).
+	std::lock_guard<std::mutex> scanLock( m_scanMutex );
+
+	// Build the new content outside the publication lock: the listing
+	// reaches back into the database (custom drumkit folders) and the
+	// drumkit loads are expensive disk I/O which must not block
+	// readers.
+	auto pNewSnapshot = std::make_shared<Snapshot>( *getSnapshot() );
+	pNewSnapshot->drumkitDatabase.clear();
+	pNewSnapshot->drumkitInfos.clear();
 
 	QStringList drumkitPaths;
 	drumkitPaths << Filesystem::listContent(
-		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System,
+		"", m_pHydrogen
 	);
 	drumkitPaths << Filesystem::listContent(
-		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User,
+		"", m_pHydrogen
 	);
 
 #ifdef H2CORE_HAVE_APPIMAGE
@@ -188,8 +429,9 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 										   .arg( ssEntry )
 										   .arg( Filesystem::drumkitXml() );
 				if ( Filesystem::fileExists( sFilePath ) &&
-					 !m_customDrumkitPaths.contains( sFilePath ) ) {
-					m_customDrumkitPaths << sFilePath;
+					 ! pNewSnapshot->customDrumkitPaths.contains(
+						 sFilePath ) ) {
+					pNewSnapshot->customDrumkitPaths << sFilePath;
 				}
 			}
 		}
@@ -199,24 +441,35 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 	// Either of the two session contexts does the job.
 	drumkitPaths << Filesystem::listContent(
 		Filesystem::Artifact::DrumkitExtracted,
-		Filesystem::Context::SessionReadOnly
+		Filesystem::Context::SessionReadOnly,
+		"", m_pHydrogen
 	);
 	drumkitPaths << Filesystem::listContent(
-		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::Custom
+		Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::Custom,
+		"", m_pHydrogen
 	);
 
 	// custom drumkits added by the user
-	for ( const auto& sDrumkitPath : m_customDrumkitPaths ) {
-		if ( !drumkitPaths.contains( sDrumkitPath ) ) {
+	for ( const auto& sDrumkitPath : pNewSnapshot->customDrumkitPaths ) {
+		if ( ! drumkitPaths.contains( sDrumkitPath ) ) {
 			drumkitPaths << sDrumkitPath;
 		}
 	}
 
+	int nnKit = 0;
+	const int nTotalKits = drumkitPaths.size();
 	for ( const auto& sDrumkitPath : drumkitPaths ) {
-		auto pDrumkit = Drumkit::load( sDrumkitPath );
+		if ( m_bStopScan ) {
+			// Interrupted (shutdown): discard the partial content — the
+			// database keeps its previously published snapshot.
+			return;
+		}
+
+		auto pDrumkit = Drumkit::load( sDrumkitPath, true, nullptr, false,
+									   m_pHydrogen );
 		if ( pDrumkit != nullptr ) {
-			if ( m_drumkitDatabase.find( sDrumkitPath ) !=
-				 m_drumkitDatabase.end() ) {
+			if ( pNewSnapshot->drumkitDatabase.find( sDrumkitPath ) !=
+				 pNewSnapshot->drumkitDatabase.end() ) {
 				ERRORLOG( QString( "A drumkit was already loaded from [%1]. "
 								   "Something went wrong." )
 							  .arg( sDrumkitPath ) );
@@ -227,12 +480,12 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 						 .arg( pDrumkit->getName() )
 						 .arg( sDrumkitPath ) );
 
-			m_drumkitDatabase[sDrumkitPath] = pDrumkit;
+			pNewSnapshot->drumkitDatabase[sDrumkitPath] = pDrumkit;
 
 			auto pInfo = DrumkitInfo::from( pDrumkit );
 			if ( pInfo != nullptr ) {
-				m_drumkitInfos.push_back( pInfo );
-				registerUniqueLabel( pInfo );
+				pNewSnapshot->drumkitInfos.push_back( pInfo );
+				registerUniqueLabel( pInfo, pNewSnapshot.get() );
 			}
 		}
 		else {
@@ -240,13 +493,33 @@ void SoundLibraryDatabase::updateDrumkits( Event::Trigger trigger )
 				QString( "Unable to load drumkit at [%1]" ).arg( sDrumkitPath )
 			);
 		}
+
+		if ( pProgress != nullptr ) {
+			// The drumkit loads dominate the scan's runtime: they cover
+			// the 20-100% range of the overall progress.
+			pProgress->report( 20 + 80 * ( nnKit + 1 ) / nTotalKits );
+		}
+		++nnKit;
 	}
 
+	publish( std::move( pNewSnapshot ) );
+
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
 	}
+}
+
+QString SoundLibraryDatabase::canonicalDrumkitPath(
+	const QString& sDrumkitPath )
+{
+	// Callers may address a kit by its folder or with redundant
+	// separators. Canonicalizing keeps the database keyed by a single
+	// form per kit, so such spellings hit the cached kit instead of
+	// registering duplicates of it.
+	return QDir::cleanPath(
+		Filesystem::sanitizeDrumkitPath( sDrumkitPath ) );
 }
 
 std::shared_ptr<Drumkit>
@@ -257,66 +530,103 @@ SoundLibraryDatabase::getDrumkit( const QString& sDrumkitPath, bool bUpgrade )
 		return nullptr;
 	}
 
-	if ( m_drumkitDatabase.find( sDrumkitPath ) == m_drumkitDatabase.end() ) {
-		INFOLOG( QString( "Drumkit [%1] not found in DB. Loading from file" )
-					 .arg( sDrumkitPath ) );
-		// Drumkit is not present in database yet. We attempt to load
-		// and add it.
-		auto pDrumkit = Drumkit::load(
-			sDrumkitPath,
-			true,	  // upgrade
-			nullptr,  // do not check for legacy format
-			false	  // bSilent
-		);
-		if ( pDrumkit == nullptr ) {
-			return nullptr;
-		}
-
-		m_customDrumkitPaths << sDrumkitPath;
-
-		m_drumkitDatabase[sDrumkitPath] = pDrumkit;
-
-		auto pInfo = DrumkitInfo::from( pDrumkit );
-		if ( pInfo != nullptr ) {
-			m_drumkitInfos.push_back( pInfo );
-			registerUniqueLabel( pInfo );
-		}
-
-		INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
-					 .arg( pDrumkit->getName() )
-					 .arg( sDrumkitPath ) );
-
-		EventQueue::get_instance()->pushEvent(
-			Event::Type::SoundLibraryChanged, 0
-		);
-
-		return pDrumkit;
+	const QString sCanonicalPath = canonicalDrumkitPath( sDrumkitPath );
+	if ( sCanonicalPath.isEmpty() ) {
+		ERRORLOG( QString( "[%1] is not a valid drumkit path" )
+					  .arg( sDrumkitPath ) );
+		return nullptr;
 	}
 
-	return m_drumkitDatabase.at( sDrumkitPath );
+	const auto pInitialSnapshot = getSnapshot();
+	const auto foundInitial =
+		pInitialSnapshot->drumkitDatabase.find( sCanonicalPath );
+	if ( foundInitial != pInitialSnapshot->drumkitDatabase.end() ) {
+		return foundInitial->second;
+	}
+
+	INFOLOG( QString( "Drumkit [%1] not found in DB. Loading from file" )
+				 .arg( sDrumkitPath ) );
+	// Drumkit is not present in database yet. We attempt to load and
+	// add it. The load happens outside the publication lock: it is
+	// expensive disk I/O and must not block readers or other writers.
+	auto pDrumkit = Drumkit::load(
+		sCanonicalPath,
+		bUpgrade,
+		nullptr,  // do not check for legacy format
+		false,	  // bSilent
+		m_pHydrogen
+	);
+	if ( pDrumkit == nullptr ) {
+		return nullptr;
+	}
+
+	auto pInfo = DrumkitInfo::from( pDrumkit );
+
+	std::lock_guard<std::mutex> lock( m_writerMutex );
+	// Another writer may have published this kit (or a full rescan)
+	// while we were loading. Re-check under the lock.
+	const auto foundCurrent =
+		m_pSnapshot->drumkitDatabase.find( sCanonicalPath );
+	if ( foundCurrent != m_pSnapshot->drumkitDatabase.end() ) {
+		return foundCurrent->second;
+	}
+
+	auto pNewSnapshot = std::make_shared<Snapshot>( *m_pSnapshot );
+	if ( ! pNewSnapshot->customDrumkitPaths.contains( sCanonicalPath ) ) {
+		pNewSnapshot->customDrumkitPaths << sCanonicalPath;
+	}
+	pNewSnapshot->drumkitDatabase[sCanonicalPath] = pDrumkit;
+	if ( pInfo != nullptr ) {
+		pNewSnapshot->drumkitInfos.push_back( pInfo );
+		registerUniqueLabel( pInfo, pNewSnapshot.get() );
+	}
+	m_pSnapshot = std::move( pNewSnapshot );
+
+	INFOLOG( QString( "Session Drumkit [%1] loaded from [%2]" )
+				 .arg( pDrumkit->getName() )
+				 .arg( sCanonicalPath ) );
+
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::SoundLibraryChanged, 0
+	);
+
+	return pDrumkit;
 }
 
 std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return nullptr;
 	}
 
+	// The next/prev navigation needs the fully scanned database: during
+	// the background initial scan it waits for the scan's completion
+	// instead of failing on a not yet populated one. (Called on the GUI
+	// or the MIDI action thread — never the audio thread.)
+	waitForInitialScan();
+
+	const auto pSnapshot = getSnapshot();
+	const auto& drumkitDatabase = pSnapshot->drumkitDatabase;
+	if ( drumkitDatabase.empty() ) {
+		ERRORLOG( "No drumkits available" );
+		return nullptr;
+	}
+
 	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
-	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+	const auto search = drumkitDatabase.find( sLastLoadedDrumkitPath );
 
 	if ( sLastLoadedDrumkitPath.isEmpty() ||
-		 search == m_drumkitDatabase.end() ) {
+		 search == drumkitDatabase.end() ) {
 		// In case we do not find the last loaded kit, we start at the top.
-		return m_drumkitDatabase.begin()->second;
+		return drumkitDatabase.begin()->second;
 	}
-	else if ( search == m_drumkitDatabase.begin() ) {
+	else if ( search == drumkitDatabase.begin() ) {
 		// Periodic boundary conditions. The previous with respect to the first
 		// one is the last.
-		return std::prev( m_drumkitDatabase.end(), 1 )->second;
+		return std::prev( drumkitDatabase.end(), 1 )->second;
 	}
 
 	return std::prev( search, 1 )->second;
@@ -324,33 +634,45 @@ std::shared_ptr<Drumkit> SoundLibraryDatabase::getPreviousDrumkit() const
 
 std::shared_ptr<Drumkit> SoundLibraryDatabase::getNextDrumkit() const
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "No song set yet" );
 		return nullptr;
 	}
 
+	// See getPreviousDrumkit(): wait for the background initial scan
+	// instead of navigating a not yet populated database.
+	waitForInitialScan();
+
+	const auto pSnapshot = getSnapshot();
+	const auto& drumkitDatabase = pSnapshot->drumkitDatabase;
+	if ( drumkitDatabase.empty() ) {
+		ERRORLOG( "No drumkits available" );
+		return nullptr;
+	}
+
 	const auto sLastLoadedDrumkitPath = pSong->getLastLoadedDrumkitPath();
-	const auto search = m_drumkitDatabase.find( sLastLoadedDrumkitPath );
+	const auto search = drumkitDatabase.find( sLastLoadedDrumkitPath );
 
 	if ( sLastLoadedDrumkitPath.isEmpty() ||
-		 search == m_drumkitDatabase.end() ||
-		 std::next( m_drumkitDatabase.find( sLastLoadedDrumkitPath ), 1 ) ==
-			 m_drumkitDatabase.end() ) {
+		 search == drumkitDatabase.end() ||
+		 std::next( drumkitDatabase.find( sLastLoadedDrumkitPath ), 1 ) ==
+			 drumkitDatabase.end() ) {
 		// In case we do not find the last loaded kit or it is located at the
 		// very bottom, we start at the top.
-		return m_drumkitDatabase.begin()->second;
+		return drumkitDatabase.begin()->second;
 	}
 
 	return std::next( search, 1 )->second;
 }
 
 void SoundLibraryDatabase::registerUniqueLabel(
-	std::shared_ptr<SoundLibraryInfo> pInfo
+	std::shared_ptr<SoundLibraryInfo> pInfo,
+	Snapshot* pSnapshot
 )
 {
-    if ( pInfo == nullptr ) {
+    if ( pInfo == nullptr || pSnapshot == nullptr ) {
         return;
     }
 
@@ -376,7 +698,7 @@ void SoundLibraryDatabase::registerUniqueLabel(
 							   Filesystem::Context context ) {
 		switch ( pInfo->getType() ) {
 			case SoundLibraryInfo::Type::Drumkit: {
-				for ( const auto& ppInfo : m_drumkitInfos ) {
+				for ( const auto& ppInfo : pSnapshot->drumkitInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
 						 contextMatch(
@@ -389,7 +711,7 @@ void SoundLibraryDatabase::registerUniqueLabel(
 				return false;
 			}
 			case SoundLibraryInfo::Type::Pattern: {
-				for ( const auto& ppInfo : m_patternInfos ) {
+				for ( const auto& ppInfo : pSnapshot->patternInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
 						 contextMatch(
@@ -402,7 +724,7 @@ void SoundLibraryDatabase::registerUniqueLabel(
 				return false;
 			}
 			case SoundLibraryInfo::Type::Song: {
-				for ( const auto& ppInfo : m_songInfos ) {
+				for ( const auto& ppInfo : pSnapshot->songInfos ) {
 					// Ensure we do not pick up the label for this kit.
 					if ( ppInfo != nullptr && ppInfo->getLabel() == sLabel &&
 						 contextMatch(
@@ -440,20 +762,50 @@ void SoundLibraryDatabase::registerUniqueLabel(
 void SoundLibraryDatabase::registerDrumkitFolder( const QString& sDrumkitFolder
 )
 {
-	if ( !m_customDrumkitFolders.contains( sDrumkitFolder ) ) {
-		// On Windows the provided system dir needs cleaning and looks like this
-		// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is
-		// not necessary. But it does no harm either and might be a live safer
-		// in some edge cases.
-		m_customDrumkitFolders << QString( sDrumkitFolder )
-									  .replace( "\\", "/" )
-									  .replace( "//", "/" );
+	// On Windows the provided system dir needs cleaning and looks like this
+	// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is
+	// not necessary. But it does no harm either and might be a live saver
+	// in some edge cases.
+	const QString sCleanedFolder = QString( sDrumkitFolder )
+										 .replace( "\\", "/" )
+										 .replace( "//", "/" );
+
+	std::lock_guard<std::mutex> lock( m_writerMutex );
+	if ( m_pSnapshot->customDrumkitFolders.contains( sCleanedFolder ) ) {
+		return;
 	}
+
+	auto pNewSnapshot = std::make_shared<Snapshot>( *m_pSnapshot );
+	pNewSnapshot->customDrumkitFolders << sCleanedFolder;
+	m_pSnapshot = std::move( pNewSnapshot );
+}
+
+void SoundLibraryDatabase::registerCustomDrumkitPath( const QString& sPath )
+{
+	if ( sPath.isEmpty() ) {
+		return;
+	}
+
+	const QString sCanonicalPath = canonicalDrumkitPath( sPath );
+	if ( sCanonicalPath.isEmpty() ) {
+		ERRORLOG( QString( "[%1] is not a valid drumkit path" )
+					  .arg( sPath ) );
+		return;
+	}
+
+	std::lock_guard<std::mutex> lock( m_writerMutex );
+	if ( m_pSnapshot->customDrumkitPaths.contains( sCanonicalPath ) ) {
+		return;
+	}
+
+	auto pNewSnapshot = std::make_shared<Snapshot>( *m_pSnapshot );
+	pNewSnapshot->customDrumkitPaths << sCanonicalPath;
+	m_pSnapshot = std::move( pNewSnapshot );
 }
 
 QStringList SoundLibraryDatabase::getDrumkitFolders() const
 {
-	QStringList drumkitFolders( m_customDrumkitFolders );
+	QStringList drumkitFolders( getSnapshot()->customDrumkitFolders );
 
 	// On Windows the provided system dir needs cleaning and looks like this
 	// [C:\\projects\\hydrogen/data/\\drumkits/]. For all other OSs this is not
@@ -472,7 +824,8 @@ QStringList SoundLibraryDatabase::getDrumkitFolders() const
 std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const
 {
 	std::set<Instrument::Type> allTypes;
-	for ( const auto& [_, ppDrumkit] : m_drumkitDatabase ) {
+	const auto pSnapshot = getSnapshot();
+	for ( const auto& [_, ppDrumkit] : pSnapshot->drumkitDatabase ) {
 		if ( ppDrumkit != nullptr ) {
 			allTypes.merge( ppDrumkit->getAllTypes() );
 		}
@@ -481,29 +834,50 @@ std::set<Instrument::Type> SoundLibraryDatabase::getAllTypes() const
 	return allTypes;
 }
 
-void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
+void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger,
+										   ScanProgress* pProgress )
 {
-	m_patternInfos.clear();
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
+
+	// One scan at a time (see #m_scanMutex).
+	std::lock_guard<std::mutex> scanLock( m_scanMutex );
+
+	// Build the new content outside the publication lock (see
+	// updateDrumkits()).
+	auto pNewSnapshot = std::make_shared<Snapshot>( *getSnapshot() );
+	pNewSnapshot->patternInfos.clear();
 
 	QStringList patternPaths;
 	patternPaths << Filesystem::listContent(
-		Filesystem::Artifact::Pattern, Filesystem::Context::System
+		Filesystem::Artifact::Pattern, Filesystem::Context::System,
+		"", m_pHydrogen
 	);
 	patternPaths << Filesystem::listContent(
-		Filesystem::Artifact::Pattern, Filesystem::Context::User
+		Filesystem::Artifact::Pattern, Filesystem::Context::User,
+		"", m_pHydrogen
 	);
 	patternPaths << Filesystem::listContent(
-		Filesystem::Artifact::Pattern, Filesystem::Context::Custom
+		Filesystem::Artifact::Pattern, Filesystem::Context::Custom,
+		"", m_pHydrogen
 	);
 
 	for ( const auto& ssPath : patternPaths ) {
+		if ( m_bStopScan ) {
+			// Interrupted (shutdown): discard the partial content.
+			return;
+		}
+
 		auto pInfo = std::make_shared<PatternInfo>();
-		if ( pInfo->load( ssPath ) ) {
+		if ( pInfo->load( ssPath, m_pHydrogen ) ) {
 			INFOLOG( QString( "Pattern [%1] registered from [%2]" )
 						 .arg( pInfo->getName() )
 						 .arg( ssPath ) );
-			m_patternInfos.push_back( pInfo );
-			registerUniqueLabel( pInfo );
+			pNewSnapshot->patternInfos.push_back( pInfo );
+			registerUniqueLabel( pInfo, pNewSnapshot.get() );
 		}
 		else {
 			WARNINGLOG(
@@ -512,36 +886,59 @@ void SoundLibraryDatabase::updatePatterns( Event::Trigger trigger )
 		}
 	}
 
+	publish( std::move( pNewSnapshot ) );
+
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
 	}
 }
 
-void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
+void SoundLibraryDatabase::updateSongs( Event::Trigger trigger,
+										 ScanProgress* pProgress )
 {
-	m_songInfos.clear();
+	if ( m_bStopScan ) {
+		// The scan was interrupted (shutdown): a late update must not
+		// publish anything.
+		return;
+	}
+
+	// One scan at a time (see #m_scanMutex).
+	std::lock_guard<std::mutex> scanLock( m_scanMutex );
+
+	// Build the new content outside the publication lock (see
+	// updateDrumkits()).
+	auto pNewSnapshot = std::make_shared<Snapshot>( *getSnapshot() );
+	pNewSnapshot->songInfos.clear();
 
 	QStringList songPaths;
 	songPaths << Filesystem::listContent(
-		Filesystem::Artifact::Song, Filesystem::Context::System
+		Filesystem::Artifact::Song, Filesystem::Context::System,
+		"", m_pHydrogen
 	);
 	songPaths << Filesystem::listContent(
-		Filesystem::Artifact::Song, Filesystem::Context::User
+		Filesystem::Artifact::Song, Filesystem::Context::User,
+		"", m_pHydrogen
 	);
 	songPaths << Filesystem::listContent(
-		Filesystem::Artifact::Song, Filesystem::Context::Custom
+		Filesystem::Artifact::Song, Filesystem::Context::Custom,
+		"", m_pHydrogen
 	);
 
 	for ( const auto& ssPath : songPaths ) {
+		if ( m_bStopScan ) {
+			// Interrupted (shutdown): discard the partial content.
+			return;
+		}
+
 		auto pInfo = std::make_shared<SongInfo>();
-		if ( pInfo->load( ssPath ) ) {
+		if ( pInfo->load( ssPath, m_pHydrogen ) ) {
 			INFOLOG( QString( "Song [%1] registered from [%2]" )
 						 .arg( pInfo->getName() )
 						 .arg( ssPath ) );
-			m_songInfos.push_back( pInfo );
-			registerUniqueLabel( pInfo );
+			pNewSnapshot->songInfos.push_back( pInfo );
+			registerUniqueLabel( pInfo, pNewSnapshot.get() );
 		}
 		else {
 			WARNINGLOG(
@@ -550,8 +947,10 @@ void SoundLibraryDatabase::updateSongs( Event::Trigger trigger )
 		}
 	}
 
+	publish( std::move( pNewSnapshot ) );
+
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::SoundLibraryChanged, 0
 		);
 	}
@@ -562,13 +961,16 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 {
 	QString s = Base::sPrintIndention;
 	QString sOutput;
+	// Hold one snapshot so the stringification is a coherent view
+	// instead of a mix of different publications.
+	const auto pSnapshot = getSnapshot();
 	if ( !bShort ) {
 		sOutput = QString( "%1[SoundLibraryDatabase]\n" )
 					  .arg( sPrefix )
 					  .append( QString( "%1%2m_drumkitDatabase:\n" )
 								   .arg( sPrefix )
 								   .arg( s ) );
-		for ( const auto& [ssPath, ddrumkit] : m_drumkitDatabase ) {
+		for ( const auto& [ssPath, ddrumkit] : pSnapshot->drumkitDatabase ) {
 			sOutput.append( QString( "%1%2%2%3: %4\n" )
 								.arg( sPrefix )
 								.arg( s )
@@ -578,7 +980,7 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 		sOutput.append(
 			QString( "%1%2m_patternInfoVector:\n" ).arg( sPrefix ).arg( s )
 		);
-		for ( const auto& ppatternInfo : m_patternInfos ) {
+		for ( const auto& ppatternInfo : pSnapshot->patternInfos ) {
 			sOutput.append( QString( "%3\n" ).arg(
 				ppatternInfo->toQString( sPrefix + s + s, bShort )
 			) );
@@ -586,7 +988,7 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 		sOutput.append(
 			QString( "%1%2m_songInfoVector:\n" ).arg( sPrefix ).arg( s )
 		);
-		for ( const auto& pSongInfo : m_songInfos ) {
+		for ( const auto& pSongInfo : pSnapshot->songInfos ) {
 			sOutput.append( QString( "%3\n" ).arg(
 				pSongInfo->toQString( sPrefix + s + s, bShort )
 			) );
@@ -595,33 +997,33 @@ QString SoundLibraryDatabase::toQString( const QString& sPrefix, bool bShort )
 			.append( QString( "%1%2m_customDrumkitPaths: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_customDrumkitPaths.join( ", " ) ) )
+						 .arg( pSnapshot->customDrumkitPaths.join( ", " ) ) )
 			.append( QString( "%1%2m_customDrumkitFolders: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
-						 .arg( m_customDrumkitFolders.join( ", " ) ) );
+						 .arg( pSnapshot->customDrumkitFolders.join( ", " ) ) );
 	}
 	else {
 		sOutput = QString( "[SoundLibraryDatabase] " )
 					  .append( "m_drumkitDatabase: " );
-		for ( const auto& [ssPath, ppDrumkit] : m_drumkitDatabase ) {
+		for ( const auto& [ssPath, ppDrumkit] : pSnapshot->drumkitDatabase ) {
 			sOutput.append(
 				QString( "[%1: %2] " ).arg( ssPath ).arg( ppDrumkit->getName() )
 			);
 		}
 		sOutput.append( ", m_patternInfos: " );
-		for ( const auto& ppatternInfo : m_patternInfos ) {
+		for ( const auto& ppatternInfo : pSnapshot->patternInfos ) {
 			sOutput.append( QString( "%1, " ).arg( ppatternInfo->getPath() ) );
 		}
 		sOutput.append( ", m_songInfos: " );
-		for ( const auto& pSongInfo : m_songInfos ) {
+		for ( const auto& pSongInfo : pSnapshot->songInfos ) {
 			sOutput.append( QString( "%1, " ).arg( pSongInfo->getPath() ) );
 		}
 		sOutput
 			.append( QString( ", m_customDrumkitPaths: %1" )
-						 .arg( m_customDrumkitPaths.join( ", " ) ) )
+						 .arg( pSnapshot->customDrumkitPaths.join( ", " ) ) )
 			.append( QString( ", m_customDrumkitFolders: %1" )
-						 .arg( m_customDrumkitFolders.join( ", " ) ) );
+						 .arg( pSnapshot->customDrumkitFolders.join( ", " ) ) );
 	}
 
 	return sOutput;

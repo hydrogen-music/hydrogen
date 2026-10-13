@@ -27,7 +27,9 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QLocale>
+#include <QtCore/QSaveFile>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QTextStream>
 
 #ifdef H2CORE_HAVE_QT6
@@ -39,6 +41,30 @@
 
 namespace H2Core
 {
+
+QString Xml::flagToQString( const Flag& flags )
+{
+	QStringList strings;
+	if ( flags & Flag::Ipc ) {
+		strings << "Ipc";
+	}
+	if ( flags & Flag::SongKit ) {
+		strings << "SongKit";
+	}
+	if ( flags & Flag::KeepMissingSamples ) {
+		strings << "KeepMissingSamples";
+	}
+	if ( flags & Flag::UseRelativePaths ) {
+		strings << "UseRelativePaths";
+	}
+	if ( flags & Flag::Project ) {
+		strings << "Project";
+	}
+	if ( strings.isEmpty() ) {
+		return "None";
+	}
+	return strings.join( ", " );
+}
 
 XMLNode::XMLNode() { }
 XMLNode::XMLNode( const QDomNode& node ) : QDomNode( node ) { }
@@ -82,7 +108,9 @@ QString XMLNode::read_string( const QString& node, const QString& sDefaultValue,
 {
 	QString sText = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if ( sText.isNull() && ! sDefaultValue.isEmpty() ) {
-		if ( ! bSilent ) {
+		// An element that may legitimately be absent (inexistent_ok)
+		// substitutes its default silently.
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( sDefaultValue ).arg( node ) );
 		}
@@ -116,11 +144,25 @@ QColor XMLNode::read_color( const QString& node, const QColor& default_value,
 		return color;
 	}
 
-	if ( ! bSilent ) {
+	// An element that may legitimately be absent (inexistent_ok)
+	// substitutes its default silently.
+	if ( ! bSilent && ! inexistent_ok ) {
 		WARNINGLOG( QString( "Using default value [%1] for node [%2]" )
 					.arg( default_value.name() ).arg( node ) );
 	}
 	return default_value;
+}
+Uuid XMLNode::read_uuid(
+	const QString& node,
+	bool inexistent_ok,
+	bool empty_ok,
+	bool bSilent
+) const
+{
+	const QString sText =
+		read_child_node( node, inexistent_ok, empty_ok, bSilent );
+
+	return Uuid::fromQString( sText, bSilent );
 }
 
 float XMLNode::read_float( const QString& node, float default_value,
@@ -128,7 +170,7 @@ float XMLNode::read_float( const QString& node, float default_value,
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -144,7 +186,7 @@ float XMLNode::read_float( const QString& node, float default_value,
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -162,7 +204,7 @@ int XMLNode::read_int( const QString& node, int default_value, bool inexistent_o
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -177,7 +219,7 @@ bool XMLNode::read_bool( const QString& node, bool default_value,
 {
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -197,7 +239,7 @@ bool XMLNode::read_bool( const QString& node, bool default_value,
 	QString ret = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	if( ret.isNull() ) {
 		*pFound = false;
-		if ( ! bSilent ) {
+		if ( ! bSilent && ! inexistent_ok ) {
 			WARNINGLOG( QString( "Using default value %1 for %2" )
 						.arg( default_value ).arg( node ) );
 		}
@@ -273,6 +315,10 @@ void XMLNode::write_color( const QString& node, const QColor& color )
 					  .arg( color.green() )
 					  .arg( color.blue() ) );
 }
+void XMLNode::write_uuid( const QString& node, const Uuid& uuid )
+{
+	write_child_node( node, uuid.toQString() );
+}
 void XMLNode::write_float( const QString& node, const float value )
 {
 	write_child_node( node, QString::number( value ) );
@@ -339,10 +385,13 @@ bool XMLDoc::read( const QString& sFilePath, bool bSilent ) {
 
 bool XMLDoc::write( const QString& sFilePath )
 {
-	QFile file( sFilePath );
-	if ( !file.open(
-			 QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate
-		 ) ) {
+	// Atomic write (ADR 0023): QSaveFile stages the payload in a sibling
+	// temp file and commits via rename, so a concurrent reader — or a crash
+	// mid-write — never sees a torn document.
+	const QByteArray bytes = toString().toUtf8();
+
+	QSaveFile file( sFilePath );
+	if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
 		// Creation failed.
 		const QString sParentDir =
 			QFileInfo( sFilePath ).absoluteDir().absolutePath();
@@ -351,9 +400,7 @@ bool XMLDoc::write( const QString& sFilePath )
 		}
 
 		// Let's try again
-		if ( !file.open(
-				 QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate
-			 ) ) {
+		if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
 			ERRORLOG(
 				QString( "Unable to open %1 for writing" ).arg( sFilePath )
 			);
@@ -366,16 +413,15 @@ bool XMLDoc::write( const QString& sFilePath )
 #else
 	out.setCodec( "UTF-8" );
 #endif
-	out << toString().toUtf8();
+	out << bytes;
 	out.flush();
 
-	bool rv = true;
-	if ( !toString().isEmpty() && file.size() == 0 ) {
-		rv = false;
+	if ( ! bytes.isEmpty() && file.size() == 0 ) {
+		file.cancelWriting();
+		return false;
 	}
 
-	file.close();
-	return rv;
+	return file.commit();
 }
 
 XMLNode XMLDoc::set_root( const QString& node_name, const QString& xmlns )

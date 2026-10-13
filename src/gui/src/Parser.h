@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef H2C_PARSER_H
+#define H2C_PARSER_H
 
 #include <QString>
 
@@ -87,8 +87,27 @@ class Parser {
 		const QString& getShotList() const {
 			return m_sShotList; }
 
+		/** Connect-to-headless-engine endpoint (ADR 0016/0018/0032). When non-empty,
+		 * the GUI connects to a headless engine at this IPC endpoint instead of
+		 * creating its own authoritative engine + audio driver. */
+		const QString& getConnectViaIpcEndpoint() const {
+			return m_sConnectViaIpcEndpoint; }
+
 		bool getNoReporter() const {
 			return m_bNoReporter; }
+
+		/** When set, the GUI quits immediately after it finished starting up
+		 * (used by the startup smoke test to verify construction + teardown do
+		 * not crash; ADR 0015/0016). */
+		bool getQuitAfterStartup() const {
+			return m_bQuitAfterStartup; }
+
+		/** When set, the GUI — after connecting to a headless engine via IPC
+		 * and entering editor mode — exercises all safe shortcut actions to
+		 * check whether any code path reaches an ASSERT_NO_EDITOR_MODE site
+		 * (ADR 0033). */
+		bool getExerciseEditorPaths() const {
+			return m_bExerciseEditorPaths; }
 
 	private:
 		QString  m_sAudioDriver;
@@ -112,7 +131,13 @@ class Parser {
 
 		QString  m_sShotList;
 
+		QString  m_sConnectViaIpcEndpoint;
+
 		bool     m_bNoReporter;
+
+		bool     m_bQuitAfterStartup;
+
+		bool     m_bExerciseEditorPaths;
 };
 
 #endif

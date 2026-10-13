@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef AUDIOFILEBROWSER_H
-#define AUDIOFILEBROWSER_H
+#ifndef H2C_AUDIOFILEBROWSER_H
+#define H2C_AUDIOFILEBROWSER_H
 
 #include "ui_AudioFileBrowser_UI.h"
 

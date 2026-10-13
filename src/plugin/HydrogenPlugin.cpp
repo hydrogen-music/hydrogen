@@ -1,0 +1,597 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#include <plugin/HydrogenPlugin.h>
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Song.h>
+#include <core/CommonStrings.h>
+#include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/H2Project.h>
+#include <core/Helpers/Translations.h>
+#include <core/Hydrogen.h>
+#include <core/IO/PluginAudioDriver.h>
+#include <core/IO/PluginMidiDriver.h>
+#include <core/IPC/EngineSession.h>
+#include <core/IPC/HeadlessEngineLauncher.h>
+#include <core/Logger.h>
+#include <core/Midi/Midi.h>
+#include <core/Midi/MidiMessage.h>
+#include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+
+#include <atomic>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QProcess>
+#include <QtCore/QStringList>
+
+namespace H2Core {
+
+namespace {
+	QString createEndpoint( Hydrogen* pHydrogen )
+	{
+		return QString( "hydrogen-editor-%1-%2" )
+			.arg( QCoreApplication::applicationPid() )
+			.arg( pHydrogen->getInstanceId() );
+	}
+}  // namespace
+
+static std::shared_ptr<Preferences> makePluginPreferences( double fSampleRate,
+														   unsigned nMaxBlockSize ) {
+	auto pPref = Preferences::create_instance();
+	// A plugin guest only owns the base layer of the shared config; the
+	// host owns the override layer (ADR 0022/0023).
+	pPref->setFieldOwnership( Preferences::FieldOwnership::BaseLayer );
+	pPref->m_audioDriver = Preferences::AudioDriver::Plugin;
+	pPref->m_midiDriver = Preferences::MidiDriver::Plugin;
+	pPref->m_nBufferSize = nMaxBlockSize;
+	pPref->m_nSampleRate = static_cast<int>( fSampleRate );
+	pPref->setOscServerEnabled( false );
+	return pPref;
+}
+
+namespace {
+// Qt's QProcess / local-socket classes need a QCoreApplication in the process.
+// A standalone build and the unit tests already have one (QApplication /
+// test main); a bare (non-Qt) plugin host does not, so create a minimal one the
+// first time we need it. Left to leak — it is process-global and lives as long
+// as the plugin library is loaded.
+void ensureQtApplication() {
+	if ( QCoreApplication::instance() != nullptr ) {
+		return;
+	}
+	static int s_argc = 1;
+	static char s_arg0[] = "hydrogen-plugin";
+	static char* s_argv[] = { s_arg0, nullptr };
+	new QCoreApplication( s_argc, s_argv );
+}
+
+// The process-wide hydrogen catalog translator. Leaked on purpose, like
+// the QCoreApplication in ensureQtApplication(): it must outlive the
+// (host-owned) application instance it is installed on —
+// QCoreApplication does not take ownership — and unloading the plugin
+// library while a host still runs must not leave the application's
+// translator list dangling.
+QTranslator* s_pHydrogenTranslator = nullptr;
+
+// The languages to load a hydrogen catalog for, mirroring the GUI main:
+// the preferred language from the (per-engine-owned, ADR 0015) shared
+// config first (if set), then the system locale's UI languages.
+QStringList preferredLanguages( const std::shared_ptr<Preferences>& pPreferences )
+{
+	QStringList languages;
+	if ( pPreferences != nullptr &&
+		 ! pPreferences->getPreferredLanguage().isNull() ) {
+		languages << pPreferences->getPreferredLanguage();
+	}
+	languages << QLocale::system().uiLanguages();
+	return languages;
+}
+} // namespace
+
+QString HydrogenPlugin::resolveSystemDataPath()
+{
+	// A plugin host passes no CLI options, so the shared data folder is
+	// resolved the way the mains take it as an argument: an explicit
+	// override, else the Filesystem platform default — the one shared
+	// system location. No searching relative to the plugin itself: the
+	// shared data must only exist in one place.
+	const QByteArray sEnv = qgetenv( "HYDROGEN_SYS_DATA_PATH" );
+	if ( ! sEnv.isEmpty() ) {
+		return QString::fromLocal8Bit( sEnv );
+	}
+	return QString();
+}
+
+bool HydrogenPlugin::installTranslator( const QStringList& languages )
+{
+	ensureQtApplication();
+	QCoreApplication* pApp = QCoreApplication::instance();
+
+	if ( s_pHydrogenTranslator == nullptr ) {
+		// First call for this process: load the catalog. A miss is not an
+		// error — e.g. English, the source language, ships no catalog —
+		// and a later call may still load for different languages.
+		QTranslator* pTranslator = new QTranslator();
+		if ( ! Translations::loadTranslation(
+				 languages, *pTranslator, "hydrogen",
+				 Filesystem::systemInternationalizationDir() ) ) {
+			// Never installed, so destroying it is safe (unlike after
+			// installation — see the storage comment above).
+			delete pTranslator;
+			return false;
+		}
+		s_pHydrogenTranslator = pTranslator;
+	}
+
+	// QCoreApplication offers no "is installed" query; removeTranslator's
+	// bool return is the only probe. Removing first keeps the call
+	// idempotent (no duplicate list entries) and self-healing — a
+	// translator removed by a test or a replaced host application gets
+	// reinstalled below.
+	pApp->removeTranslator( s_pHydrogenTranslator );
+	pApp->installTranslator( s_pHydrogenTranslator );
+	return true;
+}
+
+QTranslator* HydrogenPlugin::translator()
+{
+	return s_pHydrogenTranslator;
+}
+
+HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
+								int nBuses )
+	: m_pHydrogen( nullptr )
+	, m_pAudioDriver( nullptr )
+	, m_pMidiDriver( nullptr )
+	, m_nBuses( nBuses )
+{
+	// The mains bootstrap Base and Filesystem before creating Hydrogen; a
+	// plugin host runs no main of ours, so the first instance in the
+	// process does it instead. Without this the engine runs on empty
+	// paths: no shared drumkits, and the preferences load in
+	// makePluginPreferences() below silently falls back to defaults (no
+	// user config, no system config). Every bootstrap below is a no-op in
+	// a process that already did them (the unit tests).
+	ensureQtApplication();
+
+	// A plugin host neither passes our CLI options nor reliably shows our
+	// stdout, so without this no log line would ever be emitted: the
+	// process-default level mask is 0 and there is no process-default
+	// logger to route unscoped lines to. Bootstrap one backed by a
+	// per-process, pid-named file - concurrent host processes never fight
+	// over one file - opened append-only so a pid-reused run never
+	// destroys the previous session's log, and keep stdout clean:
+	// everything is persisted to disk instead. Release builds log the
+	// user-facing levels; debug builds add the development ones. This can
+	// no longer be debug-only: Filesystem::bootstrap() below refuses a
+	// null logger, and the data paths must resolve in release builds too.
+	QString sPluginLogPath;
+	Logger* pProcessLogger = nullptr;
+	if ( ! Logger::isAvailable() ) {
+		// A per-process transient artifact: it lives in the tmp dir - named
+		// after the process default's log file so the two correlate - and
+		// not next to it (an explicit log file location designates just
+		// that one file).
+		const QFileInfo logInfo( Filesystem::logFilePath() );
+		sPluginLogPath = Filesystem::tmpDir() + "/" +
+			logInfo.completeBaseName() +
+			QString( "_%1_plugin." )
+				.arg( QCoreApplication::applicationPid() ) +
+			logInfo.suffix();
+		pProcessLogger = Logger::bootstrap(
+#ifdef H2CORE_HAVE_DEBUG
+			Logger::Error | Logger::Warning | Logger::Info |
+				Logger::Debug | Logger::Ipc,
+#else
+			Logger::Error | Logger::Warning | Logger::Info,
+#endif
+			sPluginLogPath,
+			Logger::Option::Timestamps | Logger::Option::Append );
+	}
+
+	// Object counting rides on debug logging, exactly like the mains.
+	Base::bootstrap( pProcessLogger,
+					 pProcessLogger != nullptr &&
+						 pProcessLogger->should_log( Logger::Debug ) );
+	Filesystem::bootstrap( pProcessLogger,
+						   resolveSystemDataPath(),
+						   QString(), QString(), sPluginLogPath );
+
+	m_pHydrogen = new Hydrogen(
+		makePluginPreferences( fSampleRate, nMaxBlockSize ),
+		H2Core::ProcessMode::Headless, -1
+	);
+	// A real host drives the engine through these scoped entry points so
+	// main-thread work routes to the instance logger; the spawning
+	// announcement inside the Hydrogen constructor above deliberately stays
+	// on the process default (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	m_pHydrogen->setFullyOperational( true );
+
+	// The embedded UI's strings resolve through the shared data/i18n
+	// catalogs (TU6.1): install the hydrogen translator for the user's
+	// languages on the process's QCoreApplication — the host's if it runs
+	// one, else the minimal one ensured above. The catalog only carries
+	// hydrogen's own contexts, so the host's strings are unaffected.
+	installTranslator( preferredLanguages( m_pHydrogen->getPreferences() ) );
+
+	// After the translator: the instance's constructor resolves every
+	// member through the just-installed catalog (single source of
+	// translatable strings with the GUI, proposal 0006 TU4.0).
+	m_pCommonStrings = std::make_shared<H2Core::CommonStrings>();
+
+	m_pAudioDriver = std::dynamic_pointer_cast<PluginAudioDriver>(
+		m_pHydrogen->getAudioDriver() );
+	m_pMidiDriver = std::dynamic_pointer_cast<PluginMidiDriver>(
+		m_pHydrogen->getMidiDriver() );
+
+	if ( m_pAudioDriver != nullptr ) {
+		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
+	}
+	else {
+		___ERRORLOG( "Invalid audio driver" );
+	}
+
+	// The empty song is set directly by the Hydrogen ctor, which (unlike
+	// setSong()) does not load the kit's samples; load them so notes render.
+	if ( m_pHydrogen->getSong() != nullptr &&
+		 m_pHydrogen->getSong()->getDrumkit() != nullptr ) {
+		m_pHydrogen->getSong()->getDrumkit()->loadSamples(
+			120, m_pHydrogen->getPreferences().get() );
+	}
+	else {
+		___ERRORLOG( "Invalid song" );
+	}
+
+	// The serve loop runs for the plugin's whole lifetime, not just while an
+	// editor is attached (ADR 0035 UI-3): its bridge thread is the sole
+	// drainer of the engine's EventQueue in the split, so a host that embeds
+	// the basic UI and never opens the editor would otherwise have no
+	// consumer at all — the queue would overflow and no telemetry would
+	// publish. The endpoint is generated once here and stays stable across
+	// editor open/close cycles.
+	m_sEditorEndpoint = createEndpoint( m_pHydrogen );
+	m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
+	if ( m_pEditorSession == nullptr ) {
+		// Non-fatal: openEditor() retries the bind; until then the plugin
+		// runs without the editor seam.
+		m_sEditorEndpoint.clear();
+		___WARNINGLOG( "Unable to start the engine session" );
+	}
+}
+
+HydrogenPlugin::~HydrogenPlugin() {
+	// All teardown work routes to this instance's logger (ADR 0015, T1.6).
+	// The scope ends before the engine is deleted below: nothing after it
+	// may resolve through the ambient context anymore.
+	{
+		Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+		// Tear down the editor process, then the always-on serve loop
+		// (ADR 0035 UI-3), before the engine they serve.
+		closeEditor();
+		m_pEditorSession.reset();
+		m_pMidiDriver.reset();
+		m_pAudioDriver.reset();
+	}
+	delete m_pHydrogen;
+	m_pHydrogen = nullptr;
+}
+
+void HydrogenPlugin::activate( double fSampleRate, unsigned /*nMaxBlockSize*/ ) {
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	if ( m_pAudioDriver != nullptr ) {
+		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
+	}
+	else {
+		___ERRORLOG( "Invalid audio driver" );
+	}
+}
+
+void HydrogenPlugin::deactivate() {
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+}
+
+void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR,
+							  const std::vector<float*>& busOut_L,
+							  const std::vector<float*>& busOut_R,
+							  bool bRolling, double fBpm, long long nFrame ) {
+	if ( m_pHydrogen == nullptr || m_pAudioDriver == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
+		return;
+	}
+
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+
+	m_pAudioDriver->setHostBuffers( pMasterL, pMasterR, nFrames );
+	m_pAudioDriver->setHostTransport( bRolling, fBpm, nFrame );
+	m_pAudioDriver->setBusBuffers( busOut_L, busOut_R );
+
+	if ( m_pMidiDriver != nullptr ) {
+		m_pMidiDriver->dispatchHostEvents();
+	}
+	else {
+		___ERRORLOG( "Invalid MIDI driver" );
+	}
+
+	AudioEngine::audioEngine_process( nFrames, m_pHydrogen );
+}
+
+void HydrogenPlugin::noteOn( int nKey, int nVelocity, int nChannel,
+							 int nSampleOffset ) {
+	if ( m_pMidiDriver == nullptr ) {
+		___ERRORLOG( "Invalid MIDI driver" );
+		return;
+	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	m_pMidiDriver->enqueueHostEvent(
+		MidiMessage( MidiMessage::Type::NoteOn,
+					 Midi::parameterFromIntClamp( nKey ),
+					 Midi::parameterFromIntClamp( nVelocity ),
+					 static_cast<Midi::Channel>( nChannel ) ),
+		nSampleOffset );
+}
+
+void HydrogenPlugin::noteOff( int nKey, int nChannel, int nSampleOffset ) {
+	if ( m_pMidiDriver == nullptr ) {
+		___ERRORLOG( "Invalid MIDI driver" );
+		return;
+	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	m_pMidiDriver->enqueueHostEvent(
+		MidiMessage( MidiMessage::Type::NoteOff,
+					 Midi::parameterFromIntClamp( nKey ),
+					 Midi::ParameterMinimum,
+					 static_cast<Midi::Channel>( nChannel ) ),
+		nSampleOffset );
+}
+
+void HydrogenPlugin::controlChange( int nParameter, int nValue, int nChannel,
+									int nSampleOffset ) {
+	if ( m_pMidiDriver == nullptr ) {
+		___ERRORLOG( "Invalid MIDI driver" );
+		return;
+	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	m_pMidiDriver->enqueueHostEvent(
+		MidiMessage( MidiMessage::Type::ControlChange,
+					 Midi::parameterFromIntClamp( nParameter ),
+					 Midi::parameterFromIntClamp( nValue ),
+					 static_cast<Midi::Channel>( nChannel ) ),
+		nSampleOffset );
+}
+
+int HydrogenPlugin::getBusCount() const {
+	return m_nBuses;
+}
+
+std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
+	if ( m_pHydrogen == nullptr || m_pHydrogen->getSong() == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
+		return {};
+	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	// The song graph is live engine state: the audio thread mutates note
+	// runtime state and the IPC bridge may swap the song (editor SetSong)
+	// under the engine lock. Serializing without that lock races both, so
+	// take it for a consistent read. The process cycle skips buffers while
+	// the save holds it — a save is rare, and a host expects it to be
+	// able to glitch.
+	auto pAudioEngine = m_pHydrogen->getAudioEngine();
+	pAudioEngine->lock( RIGHT_HERE );
+	const auto state =
+		H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples, true );
+	pAudioEngine->unlock();
+	return state;
+}
+
+bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
+	if ( m_pHydrogen == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
+		return false;
+	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	auto pSong = H2Project::fromState( data, m_pHydrogen, true );
+	if ( pSong == nullptr ) {
+		___ERRORLOG( "Unable to load state" );
+		return false;
+	}
+	return m_pHydrogen->getCoreActionController()->setSong( pSong );
+}
+
+// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────────────────
+
+QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
+											 const QString& sSearchDir ) {
+	if ( ! sExplicit.isEmpty() ) {
+		return sExplicit;
+	}
+	const QByteArray sEnv = qgetenv( "HYDROGEN_EDITOR_PATH" );
+	if ( ! sEnv.isEmpty() ) {
+		return QString::fromLocal8Bit( sEnv );
+	}
+
+#if defined( _WIN32 )
+	const QString sExe = QStringLiteral( "hydrogen.exe" );
+#else
+	const QString sExe = QStringLiteral( "hydrogen" );
+#endif
+
+	// Look for the editor relative to the installed plugin. The plugin can sit at
+	// various depths (dev build dir, or e.g. <prefix>/lib/{clap,vst3,lv2}/... while
+	// the editor is at <prefix>/bin), so walk up a few levels and, at each, look
+	// for the editor next to it or under a sibling bin/ (T6.2 install layout).
+	if ( ! sSearchDir.isEmpty() ) {
+		QDir dir( sSearchDir );
+		for ( int nLevel = 0; nLevel < 6; ++nLevel ) {
+			const QStringList candidates = {
+				dir.filePath( sExe ),                       // same dir
+				dir.filePath( QStringLiteral( "bin/" ) + sExe ), // sibling bin/
+#if defined( __APPLE__ )
+				dir.filePath( "Hydrogen.app/Contents/MacOS/Hydrogen" ),
+#endif
+			};
+			for ( const QString& sCandidate : candidates ) {
+				const QFileInfo info( sCandidate );
+				if ( info.isFile() && info.isExecutable() ) {
+					return info.absoluteFilePath();
+				}
+			}
+			if ( ! dir.cdUp() ) {
+				break;
+			}
+		}
+	}
+
+	// Last resort: rely on PATH (or a packaging-set HYDROGEN_EDITOR_PATH /
+	// setEditorBinary()).
+	return sExe;
+}
+
+QString HydrogenPlugin::editorBinary() const {
+	return resolveEditorBinary( m_sEditorBinary, m_sEditorSearchDir );
+}
+
+void HydrogenPlugin::setEventSink( EngineEventSink* pEventSink ) {
+	m_pEventSink = pEventSink;
+	// Forward to a live session; one started later picks the member up in
+	// openEditor().
+	if ( m_pEditorSession != nullptr ) {
+		m_pEditorSession->setEventSink( pEventSink );
+	}
+}
+
+bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
+	if ( m_bEditorOpen ) {
+		return true;
+	}
+	if ( m_pHydrogen == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
+		return false;
+	}
+
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+
+	ensureQtApplication();
+
+	// The session normally runs since the constructor (always-on drain,
+	// ADR 0035 UI-3); (re-)bind only when that initial bind failed.
+	if ( m_pEditorSession == nullptr ) {
+		if ( m_sEditorEndpoint.isEmpty() ) {
+			m_sEditorEndpoint = createEndpoint( m_pHydrogen );
+		}
+		m_pEditorSession = EngineSession::start( m_pHydrogen, m_sEditorEndpoint );
+		if ( m_pEditorSession == nullptr ) {
+			m_sEditorEndpoint.clear();
+			___ERRORLOG( "Invalid editor session" );
+			return false;
+		}
+		// A sink registered before the session existed picks it up now.
+		m_pEditorSession->setEventSink( m_pEventSink );
+	}
+
+	m_bEditorOpen = true;
+	m_bEditorClosing = false;
+	m_nEditorRespawns = 0;
+	if ( bLaunchProcess ) {
+		launchEditorProcess();
+	}
+	return true;
+}
+
+void HydrogenPlugin::launchEditorProcess() {
+	const auto sEditorBinary = editorBinary();
+	___INFOLOG( QString( "Starting editor [%1]" ).arg( sEditorBinary ) );
+
+	m_pEditorProcess = std::make_unique<QProcess>();
+	QObject::connect(
+		m_pEditorProcess.get(),
+		QOverload<int, QProcess::ExitStatus>::of( &QProcess::finished ),
+		[this]( int, QProcess::ExitStatus status ) {
+			onEditorProcessFinished( status == QProcess::CrashExit );
+		} );
+	m_pEditorProcess->start(
+		sEditorBinary,
+		QStringList() << QStringLiteral( "--connect-via-ipc" ) << m_sEditorEndpoint );
+}
+
+void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
+	// Handler entry: the process-exit callback runs on the host's thread and
+	// may respawn the editor, so route through the instance logger too.
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	if ( m_bEditorClosing || ! m_bEditorOpen ) {
+		return; // deliberate close — not a crash
+	}
+	if ( ! bCrashed ) {
+		// The user closed the editor window. Leave the engine running and the
+		// serve loop accepting, so the host can reopen the editor later.
+		m_bEditorOpen = false;
+		return;
+	}
+
+	___WARNINGLOG( QString( "Editor crashed [%1/%2]. Respawning" )
+				   .arg( m_nEditorRespawns ).arg( knMaxEditorRespawns ) );
+	// The editor crashed. The engine keeps running and the serve loop keeps
+	// accepting (ADR 0016); respawn a bounded number of times so a persistently
+	// crashing editor can't loop forever.
+	if ( m_nEditorRespawns < knMaxEditorRespawns ) {
+		++m_nEditorRespawns;
+		launchEditorProcess();
+	}
+	else {
+		m_bEditorOpen = false;
+	}
+}
+
+bool HydrogenPlugin::isEditorProcessRunning() const {
+	return m_pEditorProcess != nullptr &&
+		m_pEditorProcess->state() != QProcess::NotRunning;
+}
+
+void HydrogenPlugin::closeEditor() {
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+	m_bEditorClosing = true;
+	if ( m_pEditorProcess != nullptr ) {
+		if ( m_pEditorProcess->state() != QProcess::NotRunning ) {
+			m_pEditorProcess->terminate();
+			if ( ! m_pEditorProcess->waitForFinished( 2000 ) ) {
+				m_pEditorProcess->kill();
+				m_pEditorProcess->waitForFinished( 2000 );
+			}
+		}
+		m_pEditorProcess.reset();
+	}
+	// The engine session stays up: it is the plugin-lifetime drain/fan-out
+	// loop (ADR 0035 UI-3), not part of the editor. Only the process and the
+	// open flag go away; the endpoint stays served for a reopen (or an
+	// editor attaching while "closed"). The session itself is stopped by
+	// the destructor.
+	m_bEditorOpen = false;
+	m_bEditorClosing = false;
+	m_nEditorRespawns = 0;
+}
+
+};

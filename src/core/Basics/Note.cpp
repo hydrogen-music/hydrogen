@@ -28,8 +28,10 @@
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
 #include <core/Basics/Adsr.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
@@ -131,7 +133,7 @@ Note::Note(
 	  m_bNoteOff( false ),
 	  m_fProbability( PROBABILITY_DEFAULT ),
 	  m_nNoteStart( 0 ),
-	  m_fUsedTickSize( std::nan( "" ) ),
+	  m_fUsedTickSize( -999 ),
 	  m_fPitchHumanization( 0 ),
 	  m_nMidiNoteOnSentFrame( -1 ),
 	  m_nMidiNoteOffOffsetFrame( -1 ),
@@ -255,14 +257,14 @@ bool Note::isPartiallyRendered() const
 	return false;
 }
 
-void Note::computeNoteStart()
+void Note::computeNoteStart( Hydrogen* pHydrogen )
 {
-	auto pHydrogen = Hydrogen::get_instance();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	double fTickMismatch;
 	m_nNoteStart =
-		Transport::computeFrameFromTick( m_nPosition, &fTickMismatch );
+		Transport::computeFrameFromTick( m_nPosition, &fTickMismatch, 0,
+										 pHydrogen );
 
 	m_nNoteStart += std::clamp(
 		m_nHumanizeDelay, -1 * AudioEngine::nMaxTimeHumanize,
@@ -314,7 +316,6 @@ void Note::selectLayers( const std::map<
 		std::vector<std::shared_ptr<InstrumentLayer> > possibleLayersVector;
 		int nLayersEncountered = 0;
 		const bool bLayersSoloed = pComponent->isAnyLayerSoloed();
-		auto pSong = Hydrogen::get_instance()->getSong();
 
 		for ( const auto& ppLayer : pComponent->getLayers() ) {
 			if ( ppLayer == nullptr || ppLayer->getIsMuted() ||
@@ -500,7 +501,7 @@ void Note::selectLayers( const std::map<
 	}
 }
 
-std::shared_ptr<SelectedLayerInfo> Note::getSelecterLayerInfo(
+std::shared_ptr<SelectedLayerInfo> Note::getSelectedLayerInfo(
 	std::shared_ptr<InstrumentComponent> pComponent
 ) const
 {
@@ -540,12 +541,11 @@ void Note::mapToInstrument( std::shared_ptr<Instrument> pInstrument )
 	m_selectedLayerInfoMap.clear();
 }
 
-void Note::humanize()
+void Note::humanize( std::shared_ptr<Song> pSong )
 {
 	// Due to the nature of the Gaussian distribution, the factors
 	// will also scale the standard deviations of the generated random
 	// variables.
-	const auto pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong != nullptr ) {
 		const float fRandomVelocityFactor = pSong->getHumanizeVelocityValue();
 		if ( fRandomVelocityFactor != 0 ) {
@@ -576,9 +576,9 @@ void Note::humanize()
 	}
 }
 
-void Note::swing()
+void Note::swing( Hydrogen* pHydrogen )
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr && pSong->getSwingFactor() > 0 ) {
 		// If the Timeline is activated, the tick size may change at
 		// any point. Therefore, the length in frames of a 16-th note
@@ -588,17 +588,18 @@ void Note::swing()
 		setHumanizeDelay(
 			m_nHumanizeDelay +
 			( Transport::computeFrameFromTick(
-				  m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch
+				  m_nPosition + H2Core::nTicksPerQuarter / 8., &fTickMismatch,
+				  0, pHydrogen
 			  ) -
 			  Transport::computeFrameFromTick(
-				  m_nPosition, &fTickMismatch
+				  m_nPosition, &fTickMismatch, 0, pHydrogen
 			  ) ) *
 				pSong->getSwingFactor()
 		);
 	}
 }
 
-void Note::saveTo( XMLNode& node ) const
+void Note::saveTo( XMLNode& node, Xml::Flag flags ) const
 {
 	node.write_int( "position", m_nPosition );
 	node.write_float( "leadlag", m_fLeadLag );
@@ -614,9 +615,37 @@ void Note::saveTo( XMLNode& node ) const
 	node.write_string( "type", m_sType );
 	node.write_bool( "note_off", m_bNoteOff );
 	node.write_float( "probability", m_fProbability );
+
+	if ( flags & Xml::Flag::Ipc ) {
+		node.write_uuid( "ipc-uuid", getUuid() );
+
+		// Serialize SelectedLayerInfo so the engine-side Sampler renders
+		// the same component/layer the user clicked (ADR 0030). We store
+		// the component index (within the instrument) and layer index
+		// (within the component) as a comma-separated pair per entry.
+		if ( m_pInstrument != nullptr && ! m_selectedLayerInfoMap.empty() ) {
+			XMLNode selNode = node.createNode( "ipc-selectedLayerInfos" );
+			for ( const auto& [pComponent, pSelInfo] :
+				  m_selectedLayerInfoMap ) {
+				if ( pComponent == nullptr || pSelInfo == nullptr ) {
+					continue;
+				}
+				const int nComponentIdx =
+					m_pInstrument->index( pComponent );
+				int nLayerIdx = -1;
+				if ( pSelInfo->pLayer != nullptr ) {
+					nLayerIdx = pComponent->index( pSelInfo->pLayer );
+				}
+				XMLNode entry = selNode.createNode( "entry" );
+				entry.write_int( "component", nComponentIdx );
+				entry.write_int( "layer", nLayerIdx );
+			}
+		}
+	}
 }
 
-std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
+std::shared_ptr<Note>
+Note::loadFrom( const XMLNode& node, Xml::Flag flags, bool bSilent )
 {
 	auto pNote = std::make_shared<Note>();
 
@@ -710,6 +739,89 @@ std::shared_ptr<Note> Note::loadFrom( const XMLNode& node, bool bSilent )
 		"probability", pNote->getProbability(), false, false, bSilent
 	) );
 
+	if ( flags & Xml::Flag::Ipc ) {
+		pNote->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		// SelectedLayerInfo is only required when serializing notes directly
+		// (via from/toXmlBuffer()) and not those which are part of a pattern.
+	}
+
+	return pNote;
+}
+
+QByteArray Note::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "note_buffer" );
+	saveTo( root, Xml::Flag::Ipc );
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Note>
+Note::fromXmlBuffer( const QByteArray& buffer, bool bSilent, Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse note XML buffer" );
+		return nullptr;
+	}
+	XMLNode root = doc.firstChildElement( "note_buffer" );
+	if ( root.isNull() ) {
+		ERRORLOG( "'note_buffer' node not found in buffer" );
+		return nullptr;
+	}
+
+	auto pNote = Note::loadFrom( root, Xml::Flag::Ipc, bSilent );
+	if ( pNote == nullptr ) {
+		return nullptr;
+	}
+
+	// Read SelectedLayerInfo entries (component index + layer index). These are
+	// resolved to actual component/layer pointers in fromXmlBuffer() after the
+	// instrument is attached.
+	std::vector<std::pair<int, int>> m_pendingSelectedLayers;
+	const XMLNode selNode =
+		root.firstChildElement( "ipc-selectedLayerInfos" );
+	if ( ! selNode.isNull() ) {
+		XMLNode entry = selNode.firstChildElement( "entry" );
+		while ( ! entry.isNull() ) {
+			m_pendingSelectedLayers.emplace_back(
+				entry.read_int( "component", -1, false, false, bSilent ),
+				entry.read_int( "layer", -1, false, false, bSilent )
+			);
+			entry = entry.nextSiblingElement( "entry" );
+		}
+	}
+
+	// Resolve the instrument from the engine's drumkit by ID.
+	if ( pHydrogen != nullptr && pHydrogen->getSong() != nullptr &&
+		 pHydrogen->getSong()->getDrumkit() != nullptr ) {
+		auto pInstrs = pHydrogen->getSong()->getDrumkit()->getInstruments();
+		auto pInstr = pInstrs->find( pNote->getInstrumentId() );
+		if ( pInstr != nullptr ) {
+			pNote->mapToInstrument( pInstr );
+
+			// Resolve pending SelectedLayerInfo entries to actual
+			// component/layer pointers.
+			for ( const auto& [nCompIdx, nLayerIdx] :
+				  m_pendingSelectedLayers ) {
+				if ( nCompIdx < 0 ||
+					 nCompIdx >= pInstr->getComponents()->size() ) {
+					continue;
+				}
+				auto pComponent = pInstr->getComponent( nCompIdx );
+				if ( pComponent == nullptr ) {
+					continue;
+				}
+
+				auto pSelInfo = std::make_shared<SelectedLayerInfo>();
+				if ( nLayerIdx >= 0 ) {
+					pSelInfo->pLayer = pComponent->getLayer( nLayerIdx );
+				}
+				pNote->setSelectedLayerInfo( pSelInfo, pComponent );
+			}
+		}
+	}
+
 	return pNote;
 }
 
@@ -737,6 +849,10 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 	if ( !bShort ) {
 		sOutput = QString( "%1[Note]\n" )
 					  .arg( sPrefix )
+					  .append( QString( "%1%2m_uuid: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( getUuid().toQString() ) )
 					  .append( QString( "%1%2m_nInstrumentId: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -872,6 +988,7 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Note]" )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
 				.append( QString( ", m_instrumentId: %1" )
 							 .arg( static_cast<int>( m_instrumentId ) ) )
 				.append( QString( ", m_sType: %1" ).arg( m_sType ) )

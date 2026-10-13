@@ -28,7 +28,7 @@
 #include "PatternEditorSidebar.h"
 #include "PianoRollEditor.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
@@ -68,7 +68,7 @@ PatternEditor::PatternEditor( QWidget *pParent )
 {
 	m_pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin + m_fGridWidth * 4 * 4 *
@@ -137,45 +137,26 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 										   bool bIsMappedToDrumkit,
 										   Editor::ActionModifier modifier )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		ERRORLOG( "No song set yet" );
-		return;
-	}
-
-	auto pPatternList = pSong->getPatternList();
-	if ( nPatternNumber < 0 ||
-		 nPatternNumber >= pPatternList->size() ) {
-		ERRORLOG( QString( "Pattern number [%1] out of bound [0,%2]" )
-				  .arg( nPatternNumber ).arg( pPatternList->size() ) );
-		return;
-	}
-
-	auto pPattern = pPatternList->get( nPatternNumber );
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Pattern found for pattern number [%1] is not valid" )
-				  .arg( nPatternNumber ) );
-		return;
-	}
-
-	if ( id == Instrument::EmptyId && sType.isEmpty() ) {
-		DEBUGLOG( QString( "Empty row" ) );
-		return;
-	}
-
 	auto pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	auto pVisibleEditor = pPatternEditorPanel->getVisibleEditor();
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	auto pPatternList = pSong->getPatternList();
+	std::shared_ptr<Pattern> pPattern;
+	if ( nPatternNumber >= 0 && nPatternNumber < pPatternList->size() ) {
+		pPattern = pPatternList->get( nPatternNumber );
+	}
+	if ( pPattern == nullptr ) {
+		return;
+	}
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );	// lock the audio engine
-
-    std::shared_ptr<Note> pNewNote;
 	if ( action == Editor::Action::Delete ) {
-		// Find and delete an existing (matching) note.
-
-		// In case there are multiple notes at this position, use all provided
-		// properties to find right one.
-		std::vector< std::shared_ptr<Note> > notesFound;
+		// Drop the note(s) the engine is about to remove from the GUI selection
+		// first (selection is GUI-local; this find mirrors the one in
+		// CoreActionController::addOrRemoveNote).
+		std::vector<std::shared_ptr<Note> > notesFound;
 		const auto pNotes = pPattern->getNotes();
 		for ( auto it = pNotes->lower_bound( nPosition );
 			  it != pNotes->end() && it->first <= nPosition; ++it ) {
@@ -187,21 +168,16 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 			}
 		}
 
-		auto removeNote = [&]( std::shared_ptr<Note> pNote ) {
+		auto deselect = [&]( std::shared_ptr<Note> pNote ) {
 			if ( pVisibleEditor->m_selection.isSelected( pNote ) ) {
 				pVisibleEditor->m_selection.removeFromSelection( pNote, false );
 			}
-			pPattern->removeNote( pNote );
 		};
 
 		if ( notesFound.size() == 1 ) {
-			// There is just a single note at this position. Remove it
-			// regardless of its properties.
-			removeNote( notesFound[ 0 ] );
+			deselect( notesFound[0] );
 		}
 		else if ( notesFound.size() > 1 ) {
-			bool bFound = false;
-
 			for ( const auto& ppNote : notesFound ) {
 				if ( ppNote->getLength() == nOldLength &&
 					 ppNote->getVelocity() == fOldVelocity &&
@@ -209,75 +185,53 @@ void PatternEditor::addOrRemoveNoteAction( int nPosition,
 					 ppNote->getLeadLag() == fOldLeadLag &&
 					 ppNote->getProbability() == fOldProbability &&
 					 ppNote->getNoteOff() == bIsNoteOff ) {
-					bFound = true;
-					removeNote( ppNote );
+					deselect( ppNote );
 				}
 			}
-
-			if ( ! bFound ) {
-				QStringList noteStrings;
-				for ( const auto& ppNote : notesFound ) {
-					noteStrings << "\n - " << ppNote->toQString();
-				}
-				ERRORLOG( QString( "length: %1, velocity: %2, pan: %3, lead&lag: %4, probability: %5, noteOff: %6 not found amongst notes:%7" )
-						  .arg( nOldLength ).arg( fOldVelocity ).arg( fOldPan )
-						  .arg( fOldLeadLag ).arg( fOldProbability )
-						  .arg( bIsNoteOff ).arg( noteStrings.join( "" ) ) );
-			}
 		}
-		else {
-			ERRORLOG( "Did not find note to delete" );
-		}
-
 	}
-	else {
-		// create the new note
-		float fVelocity = fOldVelocity;
-		float fPan = fOldPan ;
-		int nLength = nOldLength;
 
-		if ( bIsNoteOff ) {
-			fVelocity = VELOCITY_MIN;
-			fPan = PAN_DEFAULT;
-			nLength = 1;
-		}
+	// The engine add/remove (lock, find/insert/remove, song-modified) is owned
+	// by CoreActionController (ADR 0027).
+	Uuid newNoteUuid;
+	const bool bOk =
+		HydrogenApp::pEngine()->getCoreActionController()->addOrRemoveNote(
+			nPosition, static_cast<int>( id ), sType, nPatternNumber,
+			nOldLength, fOldVelocity, fOldPan, fOldLeadLag,
+			static_cast<int>( oldKey ), static_cast<int>( oldOctave ),
+			fOldProbability, action == Editor::Action::Delete, bIsNoteOff,
+			bIsMappedToDrumkit, &newNoteUuid
+		);
 
-		std::shared_ptr<Instrument> pInstrument = nullptr;
-		if ( id != Instrument::EmptyId && bIsMappedToDrumkit ) {
-			// Can still be nullptr for notes in unmapped rows.
-			pInstrument =
-				pSong->getDrumkit()->getInstruments()->find( id );
-		}
-
-		auto pNewNote = std::make_shared<Note>( pInstrument, nPosition, fVelocity,
-											 fPan, nLength );
-		pNewNote->setInstrumentId( id );
-		pNewNote->setType( sType );
-		pNewNote->setNoteOff( bIsNoteOff );
-		pNewNote->setLeadLag( fOldLeadLag );
-		pNewNote->setProbability( fOldProbability );
-		pNewNote->setKey( oldKey );
-		pNewNote->setOctave( oldOctave );
-		pPattern->insertNote( pNewNote );
-    }
-	pHydrogen->getAudioEngine()->unlock();
-
-	if ( action != Editor::Action::Delete && pNewNote != nullptr ) {
+	if ( bOk && action != Editor::Action::Delete ) {
 		if ( static_cast<char>( modifier ) &
 			 static_cast<char>( Editor::ActionModifier::AddToSelection ) ) {
-			pVisibleEditor->m_selection.addToSelection( pNewNote );
+			// We have to add the actual Note added by the CoreActionController.
+			// Not similar one. Else validateSelection() will discard it since a
+			// standin is not part of the current pattern.
+			for ( const auto& [ _, ppNote ] : *pPattern->getNotes() ) {
+				if ( ppNote != nullptr && ppNote->getUuid() == newNoteUuid ) {
+					pVisibleEditor->m_selection.addToSelection( ppNote );
+					break;
+				}
+			}
 		}
 
 		if ( static_cast<char>( modifier ) &
 			 static_cast<char>( Editor::ActionModifier::MoveCursorTo ) ) {
-			pPatternEditorPanel->setCursorColumn( pNewNote->getPosition() );
-			pPatternEditorPanel->setSelectedRowDB(
-				pPatternEditorPanel->findRowDB( pNewNote )
-			);
+			// Create a note -> move to the corresponding row. We just take care
+			// of the selected DB row. PianoRoll row and column are handled at
+			// another place.
+			for ( const auto& rrow : pPatternEditorPanel->getDB() ) {
+				if ( rrow.id == id && rrow.sType == sType ) {
+					pPatternEditorPanel->setSelectedRowDB(
+						pPatternEditorPanel->getRowIndexDB( rrow )
+					);
+					break;
+				}
+			}
 		}
 	}
-
-	pHydrogen->setPatternModified( true, nPatternNumber );
 
 	pVisibleEditor->updateMouseHoveredElements( nullptr );
 	pVisibleEditor->updateKeyboardHoveredElements();
@@ -289,51 +243,52 @@ void PatternEditor::deselectAndOverwriteNotes(
 	const std::vector< std::shared_ptr<H2Core::Note> >& selected,
 	const std::vector< std::shared_ptr<H2Core::Note> >& overwritten )
 {
-	auto pPattern = m_pPatternEditorPanel->getPattern();
+	const auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		return;
 	}
 
-	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
-	// same position.
-	auto pHydrogen = Hydrogen::get_instance();
-
-	bool bPatternModified = false;
-
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( pPattern->getNotes() );
+	// Drop the selected notes from the GUI selection (selection is GUI-local).
 	for ( auto pSelectedNote : selected ) {
 		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
+	}
+
+	std::vector<std::shared_ptr<Note>> notesToRemove;
+	auto pNotes = const_cast<Pattern::notes_t*>( pPattern->getNotes() );
+	for ( const auto& pSelectedNote : selected ) {
+		if ( pSelectedNote == nullptr ) {
+			continue;
+		}
 		bool bFoundExact = false;
-		int nPosition = pSelectedNote->getPosition();
-		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
+		const int nPosition = pSelectedNote->getPosition();
+		for ( auto it = pNotes->lower_bound( nPosition );
+			  it != pNotes->end() && it->first == nPosition; ) {
 			auto pNote = it->second;
-			if ( !bFoundExact && pSelectedNote->match( pNote ) ) {
-				// Found an exact match. We keep this.
+			if ( ! bFoundExact && pSelectedNote->match( pNote ) ) {
+				// Keep the first note occupying the slot (the selected one).
 				bFoundExact = true;
-				++it;
 			}
-			else if ( pNote->getInstrumentId() == pSelectedNote->getInstrumentId() &&
+			else if ( pNote != nullptr &&
+					  pNote->getInstrumentId() ==
+						  pSelectedNote->getInstrumentId() &&
 					  pNote->getType() == pSelectedNote->getType() &&
 					  pNote->getKey() == pSelectedNote->getKey() &&
-					  pNote->getOctave() == pSelectedNote->getOctave() &&
-					  pNote->getPosition() == pSelectedNote->getPosition() ) {
-				// Something else occupying the same position (which may or may not be an exact duplicate)
-				it = pNotes->erase( it );
-				bPatternModified = true;
+					  pNote->getOctave() == pSelectedNote->getOctave() ) {
+				// Another note occupying the same slot — overwrite it.
+				notesToRemove.push_back( pNote );
 			}
-			else {
-				// Any other note
-				++it;
-			}
+			++it;
 		}
 	}
-	pHydrogen->getAudioEngine()->unlock();
 
-	if ( bPatternModified ) {
-		pHydrogen->setPatternModified(
-			true, m_pPatternEditorPanel->getPatternNumber()
-		);
+	// The engine overwrite (lock + slot erase + song-modified) is owned by
+	// CoreActionController (ADR 0027).
+	auto pCAC = HydrogenApp::pEngine()->getCoreActionController();
+	for ( const auto& ppNote : notesToRemove ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+		pCAC->removeNote( ppNote->getUuid(), pPattern->getUuid() );
 	}
 }
 
@@ -346,15 +301,30 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
-	// Restore previously-overwritten notes, and select notes that were selected before.
+	// Restore previously-overwritten notes through CAC (ADR 0027); selection
+	// stays GUI-local.
 	m_selection.clearSelection( /* bCheck=*/false );
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+
+	auto pCAC = HydrogenApp::pEngine()->getCoreActionController();
 	for ( const auto& ppNote : overwritten ) {
-		auto pNewNote = std::make_shared<Note>( ppNote );
-		pPattern->insertNote( pNewNote );
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+		const auto row = m_pPatternEditorPanel->getRowDB(
+			m_pPatternEditorPanel->findRowDB( ppNote )
+		);
+		pCAC->addOrRemoveNote(
+			ppNote->getPosition(),
+			static_cast<int>( ppNote->getInstrumentId() ), ppNote->getType(),
+			m_pPatternEditorPanel->getPatternNumber(), ppNote->getLength(),
+			ppNote->getVelocity(), ppNote->getPan(), ppNote->getLeadLag(),
+			static_cast<int>( ppNote->getKey() ),
+			static_cast<int>( ppNote->getOctave() ), ppNote->getProbability(),
+			false, ppNote->getNoteOff(), row.bMappedToDrumkit, nullptr
+		);
 	}
-	// Select the previously-selected notes
+
+	// Re-select the previously-selected notes.
 	for ( auto pNote : selected ) {
 		FOREACH_NOTE_CST_IT_BOUND_END( pPattern->getNotes(), it, pNote->getPosition() ) {
 			if ( pNote->match( it->second ) ) {
@@ -363,13 +333,7 @@ void PatternEditor::undoDeselectAndOverwriteNotes(
 			}
 		}
 	}
-	pHydrogen->getAudioEngine()->unlock();
 
-	if ( overwritten.size() > 0 ) {
-		pHydrogen->setPatternModified(
-			true, m_pPatternEditorPanel->getPatternNumber()
-		);
-	}
 	updateVisibleComponents( Editor::Update::Content );
 }
 
@@ -392,143 +356,70 @@ void PatternEditor::editNotePropertiesAction( const Property& property,
 {
 	auto pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return;
-	}
-	auto pPatternList = pSong->getPatternList();
-	std::shared_ptr<H2Core::Pattern> pPattern;
 
-	if ( nPatternNumber != -1 &&
-		 nPatternNumber < pPatternList->size() ) {
-		pPattern = pPatternList->get( nPatternNumber );
-	}
-	if ( pPattern == nullptr ) {
-		return;
-	}
+	// The engine edit (lock, find-by-value, mutate, song-modified) is owned by
+	// CoreActionController (ADR 0027); the GUI call site no longer locks or
+	// touches the note directly.
+	const bool bValueChanged =
+		HydrogenApp::pEngine()->getCoreActionController()->editNoteProperty(
+			static_cast<H2Core::NoteProperty>( property ), nPatternNumber,
+			nPosition, static_cast<int>( oldId ), static_cast<int>( newId ),
+			sOldType, sNewType, fVelocity, fPan, fLeadLag, fProbability, nLength,
+			static_cast<int>( newKey ), static_cast<int>( oldKey ),
+			static_cast<int>( newOctave ), static_cast<int>( oldOctave ) );
 
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
-
-	// Find the note to edit
-	auto pNote =
-		pPattern->findNote( nPosition, oldId, sOldType, oldKey, oldOctave );
-	if ( pNote == nullptr && property == Property::Type ) {
-		// Maybe the type of an unmapped note was set to one already present in
-		// the drumkit. In this case the instrument id of the note is remapped
-		// and might not correspond to the value used to create the undo/redo
-		// action.
-		//
-		bool bOk;
-		const auto kitId =
-			pSong->getDrumkit()->toDrumkitMap()->getId( sOldType, &bOk );
-		if ( bOk ) {
-			pNote = pPattern->findNote(
-				nPosition, kitId, sOldType, oldKey, oldOctave
-			);
-		}
-	}
-	else if ( pNote == nullptr && property == Property::InstrumentId ) {
-		// When adding an instrument to a row on typed but unmapped notes, the
-		// redo part of the instrument ID is done automatically as part of the
-		// mapping to the updated kit. Only the undo part needs to be covered in
-		// here.
-		pHydrogen->getAudioEngine()->unlock();
+	if ( ! bValueChanged ) {
 		return;
 	}
 
-	bool bValueChanged = false;
-
-	if ( pNote != nullptr ){
-		switch ( property ) {
-		case Property::Velocity:
-			if ( pNote->getVelocity() != fVelocity ) {
-				pNote->setVelocity( fVelocity );
-				bValueChanged = true;
+	// GUI-local reactions to the change (view refresh + selection).
+	if ( property == Property::Type ) {
+		// Changing a type effectively moves the note to another row of the
+		// DrumPatternEditor, which can overlap notes at the same position.
+		// Re-find the (now remapped) note and select it so
+		// checkDeselectElements can resolve the overlap.
+		auto pSong = HydrogenApp::pHydrogen()->getSong();
+		if ( pSong != nullptr ) {
+			auto pPatternList = pSong->getPatternList();
+			std::shared_ptr<H2Core::Pattern> pPattern;
+			if ( nPatternNumber != -1 &&
+				 nPatternNumber < pPatternList->size() ) {
+				pPattern = pPatternList->get( nPatternNumber );
 			}
-			break;
-		case Property::Pan:
-			if ( pNote->getPan() != fPan ) {
-				pNote->setPan( fPan );
-				bValueChanged = true;
+			if ( pPattern != nullptr ) {
+				auto pNote = pPattern->findNote(
+					nPosition, newId, sNewType, oldKey, oldOctave );
+				if ( pNote == nullptr ) {
+					// The type of an unmapped note may have been set to one
+					// already present in the drumkit, so its instrument id got
+					// remapped and no longer matches the value the undo/redo
+					// action was created with.
+					bool bOk;
+					const auto kitId =
+						pSong->getDrumkit()->toDrumkitMap()->getId(
+							sOldType, &bOk
+						);
+					if ( bOk ) {
+						pNote = pPattern->findNote(
+							nPosition, kitId, sOldType, oldKey, oldOctave
+						);
+					}
+				}
+				if ( pNote != nullptr ) {
+					pPatternEditorPanel->getVisibleEditor()
+						->m_selection.addToSelection( pNote );
+				}
 			}
-			break;
-		case Property::LeadLag:
-			if ( pNote->getLeadLag() != fLeadLag ) {
-				pNote->setLeadLag( fLeadLag );
-				bValueChanged = true;
-			}
-			break;
-		case Property::KeyOctave:
-			if ( pNote->getKey() != newKey ||
-				 pNote->getOctave() != newOctave ) {
-				pNote->setKey( newKey );
-				pNote->setOctave( newOctave );
-				bValueChanged = true;
-			}
-			break;
-		case Property::Probability:
-			if ( pNote->getProbability() != fProbability ) {
-				pNote->setProbability( fProbability );
-				bValueChanged = true;
-			}
-			break;
-		case Property::Length:
-			if ( pNote->getLength() != nLength ) {
-				pNote->setLength( nLength );
-				bValueChanged = true;
-			}
-			break;
-		case Property::Type:
-			if ( pNote->getType() != sNewType ||
-				 pNote->getInstrumentId() != newId ) {
-				pNote->setInstrumentId( newId );
-				pNote->setType( sNewType );
-
-				auto pInstrument = pSong->getDrumkit()->mapInstrument(
-					sNewType, newId );
-
-				pNote->mapToInstrument( pInstrument );
-
-				// Changing a type is effectively moving the note to another row
-				// of the DrumPatternEditor. This could result in overlapping
-				// notes at the same position. To guard against this, select all
-				// adjusted notes to harness the checkDeselectElements
-				// capabilities.
-				pPatternEditorPanel->getVisibleEditor()->
-					m_selection.addToSelection( pNote );
-
-				bValueChanged = true;
-			}
-			break;
-		case Property::InstrumentId:
-			if ( pNote->getInstrumentId() != newId ) {
-				pNote->setInstrumentId( newId );
-				bValueChanged = true;
-			}
-			break;
-		case Property::None:
-		default:
-			ERRORLOG("No property set. No note property adjusted.");
 		}
-	} else {
-		ERRORLOG("note could not be found");
 	}
 
-	pHydrogen->getAudioEngine()->unlock();
-
-	if ( bValueChanged ) {
-		pHydrogen->setPatternModified( true, nPatternNumber );
-		std::vector< std::shared_ptr<Note > > notes{ pNote };
-
-		if ( property == Property::Type || property == Property::InstrumentId ) {
-			pPatternEditorPanel->updateDB();
-			pPatternEditorPanel->updateEditors( Editor::Update::Content );
-			pPatternEditorPanel->resizeEvent( nullptr );
-		}
-		else {
-			pPatternEditorPanel->updateEditors( Editor::Update::Content );
-		}
+	if ( property == Property::Type || property == Property::InstrumentId ) {
+		pPatternEditorPanel->updateDB();
+		pPatternEditorPanel->updateEditors( Editor::Update::Content );
+		pPatternEditorPanel->resizeEvent( nullptr );
+	}
+	else {
+		pPatternEditorPanel->updateEditors( Editor::Update::Content );
 	}
 }
 
@@ -976,7 +867,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev ) {
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	const qreal pixelRatio = devicePixelRatio();
 	if ( pixelRatio != m_pBackgroundPixmap->devicePixelRatio() ||
@@ -1040,7 +931,7 @@ bool PatternEditor::checkDeselectElements(
 
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
-	//	Hydrogen *pH = Hydrogen::get_instance();
+	//	Hydrogen *pH = HydrogenApp::pHydrogen();
 	std::set< std::shared_ptr<Note> > duplicates;
 	for ( const auto& ppNote : elements ) {
 		if ( duplicates.find( ppNote ) != duplicates.end() ) {
@@ -1058,7 +949,7 @@ bool PatternEditor::checkDeselectElements(
 		}
 	}
 	if ( !duplicates.empty() ) {
-		auto pPref = Preferences::get_instance();
+		auto pPref = HydrogenApp::pPreferences();
 		bool bOk = true;
 
 		if ( pPref->getShowNoteOverwriteWarning() ) {
@@ -1420,12 +1311,19 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 		octave = m_cursorPitch.toOctave();
 		key = m_cursorPitch.toKey();
 	}
+	else if ( m_instance == Editor::Instance::NotePropertiesRuler &&
+			  m_property != Property::KeyOctave ) {
+		auto pPianoRoll = m_pPatternEditorPanel->getPianoRollEditor();
+		octave = pPianoRoll->m_cursorPitch.toOctave();
+		key = pPianoRoll->m_cursorPitch.toKey();
+	}
 
 	const bool bNoteOff = ev->modifiers() & Qt::ShiftModifier;
 
-	float fYValue = std::nan( "" );
+	float fYValue = PatternEditorPanel::fInvalidValue;
 	auto property = m_property;
 	if ( m_instance == Editor::Instance::NotePropertiesRuler &&
+		 m_property == Property::KeyOctave &&
 		 dynamic_cast<QMouseEvent*>( ev ) != nullptr ) {
 		fYValue = static_cast<NotePropertiesRuler*>( this )->eventToYValue(
 			dynamic_cast<QMouseEvent*>( ev )
@@ -1433,15 +1331,7 @@ void PatternEditor::handleElements( QInputEvent* ev, Editor::Action action )
 
 		// Ensure to add distinct notes when clicking the KeyOctave view in the
 		// ruler.
-		if ( m_property == Property::KeyOctave ) {
-			NotePropertiesRuler::yToKeyOctave( fYValue, &key, &octave );
-			if ( key == Note::Key::Invalid ) {
-				key = Note::KeyMinimum;
-			}
-			if ( octave == Note::Octave::Invalid ) {
-				octave = Note::OctaveDefault;
-			}
-		}
+		NotePropertiesRuler::yToKeyOctave( fYValue, &key, &octave );
 	}
 
 	m_pPatternEditorPanel->addOrRemoveNotes(
@@ -1689,7 +1579,7 @@ void PatternEditor::copy() {
 			bWroteNote = true;
 		}
 		XMLNode note_node = noteList.createNode( "note" );
-		ppNote->saveTo( note_node );
+		ppNote->saveTo( note_node, Xml::Flag::None );
 	}
 
 	if ( bWroteNote ) {
@@ -1811,7 +1701,7 @@ void PatternEditor::paste() {
 		pHydrogenApp->beginUndoMacro( tr( "paste notes" ) );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull();
 			  n = n.nextSiblingElement() ) {
-			auto pNote = Note::loadFrom( n );
+			auto pNote = Note::loadFrom( n, Xml::Flag::None, false );
 			if ( pNote == nullptr ) {
 				ERRORLOG( QString( "Unable to load note from XML node [%1]" )
 						  .arg( n.toQString() ) );
@@ -2145,7 +2035,7 @@ void PatternEditor::mouseDrawUpdate( QMouseEvent* ev ) {
 			m_pPatternEditorPanel->addOrRemoveNotes(
 				gridPoint, key, octave,
 				/* bNoteOff */ ev->modifiers() & Qt::ShiftModifier,
-				std::nan( "" ), Property::None,
+				PatternEditorPanel::fInvalidValue, Property::None,
 				Editor::Action::Toggle,
 				Editor::ActionModifier::Playback, sUndoContext );
 			lastGridPoint = gridPoint;
@@ -2331,8 +2221,12 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 
 	const auto gridPoint = pointToGridPoint( pEv->position().toPoint(), true );
 
-	auto pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
+	// Each per-note preview edit routes through CoreActionController (ADR
+	// 0027), which owns the AudioEngine lock and marks the pattern modified.
+	// Notes are addressed by value (position + id/type + key/octave); the drag
+	// never changes those, so the lookup stays valid step to step.
+	auto pController = HydrogenApp::pEngine()->getCoreActionController();
+	const int nPatternNumber = m_pPatternEditorPanel->getPatternNumber();
 
 	int nLen = gridPoint.getColumn() - m_nDragStartColumn;
 
@@ -2341,9 +2235,21 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 	}
 
 	for ( auto& [ppNote, _] : m_draggedNotes ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
+		const int nPos = ppNote->getPosition();
+		const int nId = static_cast<int>( ppNote->getInstrumentId() );
+		const auto& sType = ppNote->getType();
+		const int nKey = static_cast<int>( ppNote->getKey() );
+		const int nOctave = static_cast<int>( ppNote->getOctave() );
+
 		if ( m_pPatternEditorPanel->getDragType() ==
 			 PatternEditorPanel::DragType::Length ) {
-			ppNote->setLength( nLen );
+			pController->editNoteProperty(
+				H2Core::NoteProperty::Length, nPatternNumber, nPos, nId, nId,
+				sType, sType, 0.0f, 0.0f, 0.0f, 0.0f, nLen, nKey, nKey,
+				nOctave, nOctave );
 
 			triggerStatusMessage(
 				m_elementsHoveredOnDragStart, Property::Length
@@ -2376,29 +2282,36 @@ void PatternEditor::mouseEditUpdate( QMouseEvent *ev ) {
 				fValue = 0.0;
 			}
 
+			// Convert the ruler-space [0,1] value to each property's native
+			// range (the same mapping the direct setters used).
+			H2Core::NoteProperty prop = H2Core::NoteProperty::Velocity;
+			float fVel = 0.0f, fPan = 0.0f, fLeadLag = 0.0f, fProb = 0.0f;
 			if ( m_property == Property::Velocity ) {
-				ppNote->setVelocity( fValue );
+				prop = H2Core::NoteProperty::Velocity;
+				fVel = fValue;
 			}
 			else if ( m_property == Property::Pan ) {
-				ppNote->setPanWithRangeFrom0To1( fValue );
+				prop = H2Core::NoteProperty::Pan;
+				fPan = PAN_MIN + ( PAN_MAX - PAN_MIN ) * fValue;
 			}
 			else if ( m_property == Property::LeadLag ) {
-				ppNote->setLeadLag( ( fValue * -2.0 ) + 1.0 );
+				prop = H2Core::NoteProperty::LeadLag;
+				fLeadLag = ( fValue * -2.0 ) + 1.0;
 			}
 			else if ( m_property == Property::Probability ) {
-				ppNote->setProbability( fValue );
+				prop = H2Core::NoteProperty::Probability;
+				fProb = fValue;
 			}
+
+			pController->editNoteProperty(
+				prop, nPatternNumber, nPos, nId, nId, sType, sType,
+				fVel, fPan, fLeadLag, fProb, -1, nKey, nKey, nOctave, nOctave );
 
 			triggerStatusMessage( m_elementsHoveredOnDragStart, m_property );
 		}
 	}
 
 	m_dragUpdate = pEv->position().toPoint();
-
-	pHydrogen->getAudioEngine()->unlock(); // unlock the audio engine
-	pHydrogen->setPatternModified(
-		true, m_pPatternEditorPanel->getPatternNumber()
-	);
 
 	updateVisibleComponents( Editor::Update::Content );
 }
@@ -2612,7 +2525,7 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 }
 
 bool PatternEditor::updateWidth() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
 	int nEditorWidth, nActiveWidth;
@@ -2666,7 +2579,7 @@ bool PatternEditor::updateWidth() {
 /// Align selected (or all) notes to the current grid
 ///
 void PatternEditor::alignToGrid() {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
@@ -2804,7 +2717,7 @@ void PatternEditor::alignToGrid() {
 }
 
 void PatternEditor::randomizeVelocity() {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected. Nothing to be randomized.
@@ -2912,7 +2825,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 								NoteStyle noteStyle ) const
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const auto backgroundPenStyle = Qt::DotLine;
 	const auto backgroundBrushStyle = Qt::Dense4Pattern;
@@ -3057,7 +2970,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	float fRed, fGreen, fBlue;
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor fullColor = pColorTheme->m_patternEditor_noteVelocityFullColor;
@@ -3105,7 +3018,7 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 }
 
 void PatternEditor::drawBorders( QPainter& p ) {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor( pColorTheme->m_patternEditor_lineColor );
@@ -3137,7 +3050,7 @@ void PatternEditor::drawFocus( QPainter& p ) {
 		return;
 	}
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	QColor color = pPref->getColorTheme()->m_highlightColor;
 
@@ -3223,7 +3136,7 @@ void PatternEditor::drawFocus( QPainter& p ) {
 //! Draw lines for note grid.
 void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) const
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const std::vector<QColor> colorsActive = {
 		QColor( pColorTheme->m_patternEditor_line1Color ),
@@ -3608,7 +3521,7 @@ void PatternEditor::drawPattern() {
 	if ( pPattern == nullptr ) {
 		return;
 	}
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 					  getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	const QColor textColor(
@@ -3757,7 +3670,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 	}
 
 	// Check for the closest note off or note of the same mute group.
-	if ( Preferences::get_instance()->
+	if ( HydrogenApp::pPreferences()->
 		 getInterfaceTheme()->m_bIndicateEffectiveNoteLength ) {
 
 		const auto pInstrument = pNote->getInstrument();
@@ -3813,7 +3726,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 		const long long nEffectiveFrames =
 			static_cast<int>( Transport::computeFrame(
 				static_cast<double>( nEffectiveLength ),
-				Hydrogen::get_instance()
+				HydrogenApp::pHydrogen()
 					->getAudioEngine()
 					->getPlayhead()
 					->getTickSize()
@@ -3828,7 +3741,7 @@ int PatternEditor::calculateEffectiveNoteLength(
 }
 
 bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) const {
-	if ( ! Preferences::get_instance()->
+	if ( ! HydrogenApp::pPreferences()->
 		 getInterfaceTheme()->m_bIndicateNotePlayback ) {
 		return true;
 	}
@@ -3837,7 +3750,7 @@ bool PatternEditor::checkNotePlayback( std::shared_ptr<H2Core::Note> pNote ) con
 		return false;
 	}
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	// If the note is part of a mute group, only the bottom most note at the
 	// same position within the group will be rendered.
 	if ( pNote->getInstrument()->getMuteGroup() != -1 &&

@@ -28,28 +28,54 @@
 #include "AudioDriverTest.h"
 #include "AudioEngineTest.h"
 #include "AudioExportTest.h"
-#include "AutomationPathSerializerTest.cpp"
-#include "AutomationPathTest.cpp"
+#include "AutomationPathTest.h"
 #include "CliTest.h"
+#include "ConfigConcurrencyTest.h"
+#include "ConnectViaIpcModeTest.h"
 #include "CoreActionControllerTest.h"
 #include "DrumkitExportTest.h"
+#include "EngineAccessTest.h"
 #include "EventQueueTest.h"
+#include "FakePluginHostTest.h"
 #include "FilesystemTest.h"
+#include "HeadlessEngineLauncherTest.h"
 #include "DrumkitTest.h"
+#include "H2PlayerTest.h"
+#include "EditorMirrorTest.h"
+#include "EngineSessionTest.h"
+#include "EngineEventSinkTest.h"
+#include "H2ProjectTest.h"
+#include "IpcProtocolTest.h"
+#include "IpcRoundTripTest.h"
+#include "IpcTransportTest.h"
 #include "LicenseTest.h"
+#include "LoggerInstanceTest.h"
 #include "MemoryLeakageTest.h"
 #include "MidiActionTest.h"
 #include "MidiDriverTest.h"
 #include "MidiExportTest.h"
 #include "MidiNoteTest.h"
 #include "MimeTest.h"
+#include "MultiInstanceTest.h"
 #include "NetworkTest.h"
 #include "NoteTest.h"
+#include "ObjectUuidTest.h"
 #include "OnlineImporterTest.h"
 #include "OscServerTest.h"
+#include "OutputBusTest.h"
 #include "PatternTest.h"
+#include "PluginFeatureGateTest.h"
+#include "PluginLifecycleTest.h"
+#include "PluginMidiTest.h"
+#include "PluginProcessTest.h"
+#include "PluginStateTest.h"
+#include "PluginUiModelTest.h"
+#include "PreferencesInstanceTest.h"
+#include "PreferencesPersistTest.h"
+#include "PreferencesSchemaTest.h"
 #include "SampleTest.h"
 #include "SoundLibraryTest.h"
+#include "ThemeTest.h"
 #include "TimeTest.h"
 #include "Translations.cpp"
 #include "TransportTest.h"
@@ -61,33 +87,62 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AudioBenchmark );
 //CPPUNIT_TEST_SUITE_REGISTRATION( AudioDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioEngineTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AudioExportTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathSerializerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
 #if not defined(WIN32) and not defined (__APPLE__)
   // For now h2cli is just part of our Linux package.
   CPPUNIT_TEST_SUITE_REGISTRATION( CliTest );
 #endif
+CPPUNIT_TEST_SUITE_REGISTRATION( ConfigConcurrencyTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ConnectViaIpcModeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitExportTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( DrumkitTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EditorMirrorTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EngineAccessTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EngineSessionTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EngineEventSinkTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( EventQueueTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( FakePluginHostTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( FilesystemTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( HeadlessEngineLauncherTest );
+#if not defined(WIN32) and not defined (__APPLE__)
+  // For now h2player is just part of our Linux package.
+  CPPUNIT_TEST_SUITE_REGISTRATION( H2PlayerTest );
+#endif
+CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( IpcRoundTripTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( IpcTransportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( LoggerInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MimeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiActionTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiDriverTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiExportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( MultiInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ObjectUuidTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( OnlineImporterTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( OutputBusTest );
 #ifdef H2CORE_HAVE_OSC
 CPPUNIT_TEST_SUITE_REGISTRATION( OscServerTest );
 #endif
 CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginFeatureGateTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginLifecycleTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginMidiTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginProcessTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginStateTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginUiModelTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesInstanceTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesPersistTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesSchemaTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ThemeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TransportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( UITranslationTest );

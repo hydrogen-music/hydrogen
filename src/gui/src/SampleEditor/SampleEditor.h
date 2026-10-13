@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SAMPLEEDITOR_H
-#define SAMPLEEDITOR_H
+#ifndef H2C_SAMPLEEDITOR_H
+#define H2C_SAMPLEEDITOR_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -124,6 +124,7 @@ class SampleEditor : public QDialog,
 
 	/** EventListener interface */
 	void drumkitLoadedEvent() override;
+	void playbackTrackChangedEvent() override;
 
    private:
 	enum class Playback { None, Target, Original };

@@ -28,6 +28,7 @@
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
+#include <core/Helpers/Archive.h>
 #else
   #ifndef WIN32
 #include <fcntl.h>
@@ -109,7 +110,8 @@ std::shared_ptr<Drumkit> Drumkit::getEmptyDrumkit() {
 std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 										bool bUpgrade,
 										bool* pLegacyFormatEncountered,
-										bool bSilent )
+										bool bSilent,
+										Hydrogen* pHydrogen )
 {
 	// Fail-safe for backward compatibility.
 	const auto sDrumkitPathCleaned =
@@ -131,7 +133,8 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 
 	bool bLegacyFormatEncountered = false;
 	auto pDrumkit = Drumkit::loadFrom(
-		root, sDrumkitPathCleaned, "", false, &bLegacyFormatEncountered, bSilent
+		root, sDrumkitPathCleaned, "", Xml::Flag::None,
+		&bLegacyFormatEncountered, bSilent, pHydrogen
 	);
 
 	if ( pLegacyFormatEncountered != nullptr ) {
@@ -145,7 +148,8 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 		return nullptr;
 	}
 
-	pDrumkit->setContext( Filesystem::DetermineContext( pDrumkit->getPath() ) );
+	pDrumkit->setContext(
+		Filesystem::DetermineContext( pDrumkit->getPath(), pHydrogen ) );
 
 	if ( bLegacyFormatEncountered && bUpgrade ) {
 		pDrumkit->upgrade( bSilent );
@@ -154,12 +158,45 @@ std::shared_ptr<Drumkit> Drumkit::load( const QString& sDrumkitPath,
 	return pDrumkit;
 }
 
+QByteArray Drumkit::toXmlBuffer( Xml::Flag flags, bool bSilent ) const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+	saveTo( root, flags | Xml::Flag::Ipc, bSilent );
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Drumkit> Drumkit::fromXmlBuffer(
+	const QByteArray& buffer,
+	const QString& sDrumkitPath,
+	Xml::Flag flags,
+	bool bSilent,
+	Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse drumkit XML buffer" );
+		return nullptr;
+	}
+	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	if ( root.isNull() ) {
+		ERRORLOG( "'drumkit_info' node not found in buffer" );
+		return nullptr;
+	}
+	bool bLegacyFormatEncountered = false;
+	return loadFrom(
+		root, sDrumkitPath, "", flags | Xml::Flag::Ipc,
+		&bLegacyFormatEncountered, bSilent, pHydrogen
+	);
+}
+
 std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 											const QString& sDrumkitPath,
 											const QString& sSongPath,
-											bool bSongKit,
+											Xml::Flag flags,
 											bool* pLegacyFormatEncountered,
-											bool bSilent )
+											bool bSilent,
+											Hydrogen* pHydrogen )
 {
 	auto pDrumkit = std::make_shared<Drumkit>();
 
@@ -178,7 +215,15 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		*pLegacyFormatEncountered = true;
 	}
 
-	pDrumkit->m_sPath = sDrumkitPath;
+	if ( flags & Xml::Flag::Project ) {
+		// When stored as part of a .h2project, the samples of a song's drumkit
+		// will be included into the tar archive directly and not loaded from an
+		// installed drumkit.
+		pDrumkit->m_sPath = "";
+	}
+	else {
+		pDrumkit->m_sPath = sDrumkitPath;
+	}
 	pDrumkit->m_sName = sDrumkitName;
 	pDrumkit->m_nVersion = node.read_int(
 		"userVersion", pDrumkit->getVersion(), true, false, true );
@@ -216,8 +261,10 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 						  pDrumkit->getAuthor() ) );
 
 	auto pInstrumentList = InstrumentList::loadFrom(
-		node, sDrumkitPath, sDrumkitName, sSongPath, pDrumkit->getLicense(),
-		bSongKit, pLegacyFormatEncountered, false );
+		node, sDrumkitPath, sDrumkitName, sSongPath, flags,
+		pDrumkit->getLicense(), pLegacyFormatEncountered, false,
+		pHydrogen
+	);
 	// Required to assure backward compatibility.
 	if ( pInstrumentList == nullptr ) {
 		WARNINGLOG( "instrument list could not be loaded. Using empty one." );
@@ -237,7 +284,7 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 		
 	pDrumkit->setInstruments( pInstrumentList );
 
-	if ( ! bSongKit ) {
+	if ( ! ( flags & Xml::Flag::SongKit ) && ! ( flags & Xml::Flag::Project ) ) {
 		// Instead of making the *::loadFrom() functions more complex by
 		// passing the license down to each sample, we will make the
 		// drumkit assign its license to each sample in here.
@@ -265,6 +312,22 @@ std::shared_ptr<Drumkit> Drumkit::loadFrom( const XMLNode& node,
 	}
 
 	pDrumkit->fixupTypes( bSilent );
+
+	if ( flags & Xml::Flag::Ipc ) {
+		// Additional members not present in files written to disk but required
+		// for IPC.
+		pDrumkit->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		pDrumkit->setContext( static_cast<Filesystem::Context>( node.read_int(
+			"ipc-context", static_cast<int>( Filesystem::Context::Song ), false,
+			false, false
+		) ) );
+		pDrumkit->setPath(
+			node.read_string( "ipc-path", "", false, false, false )
+		);
+		pDrumkit->setIsModified(
+			node.read_bool( "ipc-isModified", false, false, false, false )
+		);
+	}
 
 	return pDrumkit;
 }
@@ -331,9 +394,9 @@ void Drumkit::upgrade( bool bSilent ) {
 	save( "", bSilent );
 }
 
-void Drumkit::loadSamples( float fBpm ) {
+void Drumkit::loadSamples( float fBpm, Preferences* pPreferences ) {
 	INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( m_sName ) );
-	m_pInstruments->loadSamples( fBpm );
+	m_pInstruments->loadSamples( fBpm, pPreferences );
 }
 
 void Drumkit::unloadSamples() {
@@ -423,15 +486,16 @@ bool Drumkit::save( const QString& sPath, bool bSilent )
 
 	// When saving a Drumkit on its own, we want it to be both self-contained
 	// and portable. Missing samples have to be discarded.
-	saveTo( root, /* bSongKit */ false,
-		   /* bKeepMissingSamples */ false, bSilent );
+	saveTo( root, Xml::Flag::None, bSilent );
 	return doc.write( sDrumkitPath );
 }
 
-void Drumkit::saveTo( XMLNode& node,
-					 bool bSongKit,
-					 bool bKeepMissingSamples,
-					 bool bSilent ) const
+void Drumkit::saveTo(
+	XMLNode& node,
+	Xml::Flag flags,
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
+) const
 {
 	node.write_int( "formatVersion", nCurrentFormatVersion );
 	node.write_string( "name", m_sName );
@@ -448,7 +512,7 @@ void Drumkit::saveTo( XMLNode& node,
 	}
 
 	QString sImage;
-	if ( bSongKit ) {
+	if ( flags & Xml::Flag::SongKit ) {
 		sImage = m_sImage;
 	}
 	else {
@@ -462,14 +526,27 @@ void Drumkit::saveTo( XMLNode& node,
 	node.write_string( "imageLicense", m_imageLicense.getLicenseString() );
 
 	if ( m_pInstruments != nullptr && m_pInstruments->size() > 0 ) {
-		m_pInstruments->saveTo( node, bSongKit, bKeepMissingSamples, bSilent );
+		m_pInstruments->saveTo(
+			node, flags, bSilent, pProjectSampleEntries
+		);
 	}
 	else {
 		WARNINGLOG( "Drumkit has no instruments. Storing an InstrumentList with a single empty Instrument as fallback." );
 		auto pInstrumentList = std::make_shared<InstrumentList>();
 		auto pInstrument = std::make_shared<Instrument>();
 		pInstrumentList->insert( 0, pInstrument );
-		pInstrumentList->saveTo( node, bSongKit, true, bSilent );
+		pInstrumentList->saveTo(
+			node, flags | Xml::Flag::KeepMissingSamples, bSilent
+		);
+	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		// Additional members not present in files written to disk but required
+		// for IPC.
+		node.write_uuid( "ipc-uuid", getUuid() );
+		node.write_int( "ipc-context", static_cast<int>( m_context ) );
+		node.write_string( "ipc-path", m_sPath );
+		node.write_bool( "ipc-isModified", m_bIsModified );
 	}
 }
 
@@ -725,167 +802,31 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetDir,
 	}
 	
 #ifdef H2CORE_HAVE_LIBARCHIVE
-	int nRet;
-
-	bool bUseUtf8Encoding = true;
-	if ( nullptr == setlocale( LC_ALL, "en_US.UTF-8" ) ) {
-		INFOLOG( "No en_US.UTF-8 locale not available on this system" );
-		bUseUtf8Encoding = false;
-	}
-
-	struct archive* a;
-	struct archive_entry* entry;
-
-	if ( ! bSilent ) {
-		INFOLOG( QString( "Importing using `libarchive` version [%1]" )
-				 .arg( ARCHIVE_VERSION_STRING ) );
-	}
-
-	a = archive_read_new();
-	if ( a == nullptr ) {
-		ERRORLOG( "Unable to create new archive" );
-		return false;
-	}
-
-#if ARCHIVE_VERSION_NUMBER < 3000000
-	archive_read_support_compression_all( a );
-#else
-	nRet = archive_read_support_filter_all( a );
-	if ( nRet != ARCHIVE_OK ) {
-		WARNINGLOG( QString("Couldn't add support for all filters: %1" )
-				  .arg( archive_error_string( a ) ) );
-	}
-#endif
-
-	nRet = archive_read_support_format_all( a );
-	if ( nRet != ARCHIVE_OK ) {
-		WARNINGLOG( QString("Couldn't add support for all formats: %1" )
-				  .arg( archive_error_string( a ) ) );
-	}
-
-	// Shutdown version used on error. Therefore, contained commands are not
-	// checked for errors themselves.
-	auto tearDown = [&]() {
-		archive_read_close( a );
-
-#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_read_finish( a );
-#else
-		archive_read_free( a );
-#endif
-	};
-
-#if ARCHIVE_VERSION_NUMBER < 3000000
-	const auto sSourcePathUtf8 = sSourcePath.toUtf8();
-	nRet = archive_read_open_file( a, sSourcePathUtf8.constData(), 10240 );
-#else
-  #ifdef WIN32
-	QString sSourcePathPadded = sSourcePath;
-	sSourcePathPadded.append( '\0' );
-	auto sourcePathW = sSourcePathPadded.toStdWString();
-	nRet = archive_read_open_filename_w( a, sourcePathW.c_str(), 10240 );
-  #else
-	const auto sSourcePathUtf8 = sSourcePath.toUtf8();
-	nRet = archive_read_open_filename( a, sSourcePathUtf8.constData(),
-									   10240 );
-  #endif
-#endif
-	if ( nRet != ARCHIVE_OK ) {
-		ERRORLOG( QString( "Unable to open archive [%1] for reading: %2" )
-				   .arg( sSourcePath )
-				   .arg( archive_error_string( a ) ) );
-		tearDown();
-		return false;
-	}
-
 	QString sDrumkitDir;
 	if ( ! sTargetDir.isEmpty() ) {
-		sDrumkitDir = sTargetDir + "/";
+		sDrumkitDir = sTargetDir;
 	} else {
-		sDrumkitDir = Filesystem::userDrumkitsDir() + "/";
+		sDrumkitDir = Filesystem::userDrumkitsDir();
 	}
 
-	// Keep track of where the artifacts where extracted to
-	QString sExtractedDir = "";
-		
-	while ( ( nRet = archive_read_next_header( a, &entry ) ) != ARCHIVE_EOF ) {
-		if ( nRet != ARCHIVE_OK ) {
-			ERRORLOG( QString( "Unable to read next archive header: %1" )
-					   .arg( archive_error_string( a ) ) );
-			tearDown();
-			return false;
-		}
-		if ( entry == nullptr ) {
-			ERRORLOG( "Couldn't read in next archive entry" );
-			return false;
-		}
-
-		QString sNewPath = QString::fromUtf8( archive_entry_pathname_utf8( entry ) );
-		if ( sNewPath.isEmpty() ) {
-			sNewPath = QString( archive_entry_pathname( entry ) );
-		}
-
-		if ( sNewPath.contains( Filesystem::drumkitXml() ) ) {
-			QFileInfo newPathInfo( sNewPath );
-			sExtractedDir = newPathInfo.absoluteDir().absolutePath();
-		}
-
-		if ( ! bUseUtf8Encoding ) {
-			// In case `libarchive` is not able to support UTF-8 on the system,
-			// we remove (a lot of) characters. Else they will be represented by
-			// wacky ones and the calling routine would have no idea where the
-			// resulting kit did end up.
-			const auto sNewPathTrimmed = Filesystem::removeUtf8Characters( sNewPath );
-			if ( sNewPathTrimmed != sNewPath ) {
-				ERRORLOG( QString( "Encoding error (no UTF-8 available)! File was renamed [%1] -> [%2]" )
-						  .arg( sNewPath ).arg( sNewPathTrimmed ) );
-				if ( pEncodingIssuesDetected != nullptr ) {
-					*pEncodingIssuesDetected = true;
-				}
-				sNewPath = sNewPathTrimmed;
-			}
-		}
-		sNewPath.prepend( sDrumkitDir );
-
-		if ( pInstalledDir != nullptr &&
-			 sNewPath.contains( Filesystem::drumkitXml() ) ) {
-			// This file must be part of every kit and allows us to set this
-			// variable only once.
-			*pInstalledDir = Filesystem::drumkitDirFromPath( sNewPath );
-		}
-		QByteArray newpath = sNewPath.toUtf8();
-
-		archive_entry_set_pathname( entry, newpath.data() );
-		nRet = archive_read_extract( a, entry, 0 );
-		if ( nRet == ARCHIVE_WARN ) {
-			WARNINGLOG( QString( "While extracting content of [%1] from archive: %2" )
-						 .arg( sNewPath )
-						 .arg( archive_error_string( a ) ) );
-		}
-		else if ( nRet != ARCHIVE_OK ) {
-			ERRORLOG( QString( "Unable to extract content of [%1] from archive: %2" )
-					   .arg( sNewPath )
-					   .arg( archive_error_string( a ) ) );
-			tearDown();
-			return false;
-		}
-	}
-	nRet = archive_read_close( a );
-	if ( nRet != ARCHIVE_OK ) {
-		ERRORLOG( QString("Couldn't close archive: %1" )
-				  .arg( archive_error_string( a ) ) );
+	QStringList extractedPaths;
+	if ( ! Archive::extract( sSourcePath, sDrumkitDir, bSilent, &extractedPaths,
+							 pEncodingIssuesDetected ) ) {
 		return false;
 	}
 
-#if ARCHIVE_VERSION_NUMBER < 3000000
-	archive_read_finish( a );
-#else
-	nRet = archive_read_free( a );
-	if ( nRet != ARCHIVE_OK ) {
-		WARNINGLOG( QString("Couldn't free memory associated with archive: %1" )
-				  .arg( archive_error_string( a ) ) );
+	// The drumkit.xml file must be part of every kit and allows us to
+	// identify the folder the kit was installed to. We only check the
+	// entries we just extracted - the target dir might already hold other
+	// drumkits.
+	if ( pInstalledDir != nullptr ) {
+		for ( const auto& ssPath : extractedPaths ) {
+			if ( ssPath.contains( Filesystem::drumkitXml() ) ) {
+				*pInstalledDir = Filesystem::drumkitDirFromPath( ssPath );
+				break;
+			}
+		}
 	}
-#endif
 
 	return true;
 #else // H2CORE_HAVE_LIBARCHIVE
@@ -896,7 +837,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetDir,
 	FILE* gzd_file = fopen( gzd_name.toLocal8Bit(), "wb" );
 	gzFile gzip_file = gzopen( sSourcePath.toLocal8Bit(), "rb" );
 	if ( !gzip_file ) {
-		_ERRORLOG( QString( "Error reading drumkit file: %1" )
+		ERRORLOG( QString( "Error reading drumkit file: %1" )
 				   .arg( sSourcePath ) );
 		gzclose( gzip_file );
 		fclose( gzd_file );
@@ -914,7 +855,7 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetDir,
 	QByteArray tar_path = gzd_name.toLocal8Bit();
 
 	if ( tar_open( &tar_file, tar_path.data(), NULL, O_RDONLY, 0,  TAR_GNU ) == -1 ) {
-		_ERRORLOG( QString( "tar_open(): %1" ).arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
+		ERRORLOG( QString( "tar_open(): %1" ).arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		return false;
 	}
 	bool ret = true;
@@ -929,18 +870,18 @@ bool Drumkit::install( const QString& sSourcePath, const QString& sTargetDir,
 
 	strncpy( dst_dir, dk_dir.toLocal8Bit(), 1024 );
 	if ( tar_extract_all( tar_file, dst_dir ) != 0 ) {
-		_ERRORLOG( QString( "tar_extract_all(): %1" )
+		ERRORLOG( QString( "tar_extract_all(): %1" )
 				   .arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		ret = false;
 	}
 	if ( tar_close( tar_file ) != 0 ) {
-		_ERRORLOG( QString( "tar_close(): %1" )
+		ERRORLOG( QString( "tar_close(): %1" )
 				   .arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		ret = false;
 	}
 	return ret;
 #else // WIN32
-	_ERRORLOG( "WIN32 NOT IMPLEMENTED" );
+	ERRORLOG( "WIN32 NOT IMPLEMENTED" );
 	return false;
 #endif
 #endif
@@ -1246,9 +1187,9 @@ const QString& Drumkit::getPath() const {
 	return m_sPath;
 }
 
-void Drumkit::recalculateRubberband( float fBpm )
+void Drumkit::recalculateRubberband( float fBpm, Hydrogen* pHydrogen )
 {
-	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if ( !pHydrogen->getPreferences()->getRubberBandBatchMode() ) {
 		return;
 	}
 
@@ -1271,13 +1212,12 @@ void Drumkit::recalculateRubberband( float fBpm )
 					continue;
 				}
 				auto pNewSample = std::make_shared<Sample>( ppLayer->getSample() );
-				if ( !pNewSample->load( fBpm ) ) {
+				if ( !pNewSample->load( fBpm, pHydrogen->getPreferences().get() ) ) {
 				  continue;
 				}
 
 				ppInstrument->setSample(
-					ppComponent, ppLayer, pNewSample, Event::Trigger::Suppress
-				);
+					ppComponent, ppLayer, pNewSample, Event::Trigger::Suppress, pHydrogen );
 			}
 		}
 	}
@@ -1430,6 +1370,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2context: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( Filesystem::ContextToQString( m_context ) ) )
 			.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPath ) )
@@ -1451,7 +1393,8 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	} else {
 		
 		sOutput = QString( "[Drumkit]" )
-			.append( QString( " context: %1" )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", context: %1" )
                      .arg( Filesystem::ContextToQString( m_context ) ) )
 			.append( QString( ", path: %1" ).arg( m_sPath ) )
 			.append( QString( ", name: %1" ).arg( m_sName ) )

@@ -27,6 +27,7 @@
 #include <vector>
 
 #include <core/Basics/Instrument.h>
+#include <core/Helpers/Xml.h>
 #include <core/License.h>
 #include <core/Object.h>
 #include <core/Midi/Midi.h>
@@ -34,6 +35,8 @@
 namespace H2Core
 {
 
+class Hydrogen;
+class Preferences;
 class XMLNode;
 
 /**
@@ -121,11 +124,23 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 */
 		std::shared_ptr<Instrument> del( std::shared_ptr<Instrument> instrument );
 		/**
+		 * remove the instrument with the given identity, does not delete it
+		 * \param uuid identity of the instrument to be removed (ADR 0028)
+		 * \return a pointer to the removed instrument, 0 if not found
+		 */
+		std::shared_ptr<Instrument> del( const Uuid& uuid );
+		/**
 		 * get the index of an instrument within the instruments
 		 * \param instrument a pointer to the instrument to find
 		 * \return -1 if not found
 		 */
 		int index( std::shared_ptr<Instrument> instrument ) const;
+		/**
+		 * get the position of the instrument with the given identity (ADR 0028)
+		 * \param uuid identity of the instrument to find
+		 * \return -1 if not found
+		 */
+		int index( const Uuid& uuid ) const;
 		/**
 		 * find an instrument within the instruments
 		 * \param i the id of the instrument to find
@@ -154,7 +169,7 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		/** Calls the Instrument::loadSamples() member
 		 * function of all Instruments in #m_pInstruments.
 		 */
-		void loadSamples( float fBpm = 120 );
+		void loadSamples( float fBpm = 120, Preferences* pPreferences = nullptr );
 		/** Calls the Instrument::unloadSamples() member
 		 * function of all Instruments in #m_pInstruments.
 		 */
@@ -163,19 +178,20 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * save the instrument list within the given XMLNode
 		 *
 		 * \param node the XMLNode to feed
-		 * \param bSongKit Whether the instruments are part of a
-		 *   stand-alone kit or part of a song. In the latter case all samples
-		 *   located in the corresponding drumkit folder and are referenced by
-		 *   filenames. In the former case, each instrument might be
-		 *   associated with a different kit and the lookup folder for the
-		 *   samples are stored on a per-instrument basis.
-		 * @param bKeepMissingSamples Whether layers containing a missing sample
-		 *   should be kept or discarded.
+		 * \param flags OR-ed combination of #Xml::Flag options.
 		 * \param bSilent if set to true, all log messages except of errors and
 		 *   warnings are suppressed.
+		 * \param pProjectSampleEntries If not null, samples are referenced
+		 *   by their entry names within a `.h2project` bundle instead of
+		 *   local paths (only effective in combination with
+		 *   Xml::Flag::Project).
 		 */
-		void saveTo( XMLNode& node, bool bSongKit,
-					bool bKeepMissingSamples, bool bSilent ) const;
+		void saveTo(
+			XMLNode& node,
+			Xml::Flag flags,
+			bool bSilent,
+			const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
+		) const;
 
 		/**
 		 * load an instrument list from an XMLNode
@@ -187,14 +203,9 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * @param sSongPath If not empty, absolute path to the .h2song file the
 		 *   instrument list is contained in. It is used to resolve sample
 		 *   paths relative to the .h2song file.
+		 * @param flags OR-ed combination of #Xml::Flag options.
 		 * \param license License assigned to all Samples that will be
 		 *   loaded. If empty, the license will be read from @a dk_path.
-		 * @param bSongKit If true samples are loaded on a
-		 *   per-instrument basis. If the filename of the sample is a plain
-		 *   filename, it will be searched for in the folder associated with the
-		 *   drumkit named in "drumkit" (name for portability) and "drumkitPath"
-		 *   (unique identifier locally). If it is an absolute path, it will be
-		 *   loaded directly.
 		 * \param pLegacyFormatEncountered will be set to `true` is any of the
 		 *   XML elements requires legacy format support and left untouched
 		 *   otherwise.
@@ -207,11 +218,12 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		const XMLNode& node,
 		const QString& sDrumkitPath,
 		const QString& sDrumkitName,
-		const QString& sSongPath = "",
-		const License& license = License(),
-		bool bSongKit = false,
-		bool* pLegacyFormatEncountered = nullptr,
-		bool bSilent = false );
+		const QString& sSongPath,
+		Xml::Flag flags,
+		const License& license,
+		bool* pLegacyFormatEncountered,
+		bool bSilent,
+		Hydrogen* pHydrogen );
 	/**
 	 * Returns vector of lists containing instrument name, component
 	 * name, file name, the license of all associated samples.
@@ -223,6 +235,10 @@ class InstrumentList : public H2Core::Object<InstrumentList>
 		 * MIDI out note
 		 */
 		bool hasAllMidiNotesSame() const;
+
+		/** The per-slot default MIDI out note: slot index shifted by the
+		 * MIDI note offset, clamped into the valid range. */
+		static Midi::Note defaultMidiOutNote( int ii );
 
 		void setDefaultMidiOutNotes();
 		/** Formatted string version for debugging purposes.

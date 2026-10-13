@@ -24,7 +24,7 @@
 
 #include "DrumkitPropertiesDialog.h"
 
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "PatternEditor/PatternEditor.h"
@@ -44,6 +44,7 @@
 #include <core/NsmClient.h>
 #include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -66,7 +67,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 )
 	: QDialog( pParent ), m_pDrumkit( pDrumkit ), m_action( action )
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setObjectName( "DrumkitPropertiesDialog" );
@@ -373,7 +374,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 	pTagsLabel->setText( pCommonStrings->getTagsLabel() );
 
 	if ( ( m_action & Action::NsmSession ) &&
-		 !Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		 !HydrogenApp::pEngine()->isUnderSessionManagement() ) {
 		ERRORLOG(
 			"NSM session export request while there is no active NSM session. "
 			"Saving to Sound Library instead."
@@ -403,7 +404,7 @@ DrumkitPropertiesDialog::DrumkitPropertiesDialog(
 			// In case the drumkit is not a standalone one but part of a .h2song
 			// file, we show the path to that file instead of Drumkit::m_sPath,
 			// which is still set to the drumkit file loaded into the song.
-			m_pPathEdit->setText( Hydrogen::get_instance()->getSong()->getPath()
+			m_pPathEdit->setText( HydrogenApp::pEngine()->getSong()->getPath()
 			);
 		}
 		else {
@@ -645,8 +646,8 @@ void DrumkitPropertiesDialog::showEvent( QShowEvent* e )
 void DrumkitPropertiesDialog::updateLicensesTable()
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
-	auto pSong = H2Core::Hydrogen::get_instance()->getSong();
+		HydrogenApp::pPreferences()->getColorTheme();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 
 	if ( m_pDrumkit == nullptr ) {
 		return;
@@ -714,8 +715,8 @@ void DrumkitPropertiesDialog::updateLicensesTable()
 
 void DrumkitPropertiesDialog::updateTypesTable( bool bWritable )
 {
-	const auto pPref = Preferences::get_instance();
-	const auto pDatabase = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	const auto pPref = HydrogenApp::pPreferences();
+	const auto pDatabase = HydrogenApp::pEngine()->getSoundLibraryDatabase();
 	m_idToTypeMap.clear();
 
 	if ( m_pDrumkit == nullptr || m_pDrumkit->getInstruments() == nullptr ) {
@@ -858,7 +859,7 @@ void DrumkitPropertiesDialog::imageLicenseComboBoxChanged( int )
 void DrumkitPropertiesDialog::updateImage( const QString& sFilePath )
 {
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	//  Styling used in case we assign text not images.
 	m_pDrumkitImageLabel->setStyleSheet(
@@ -933,7 +934,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
@@ -1253,18 +1254,26 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	// Store the drumkit in the NSM session folder
-#ifdef H2CORE_HAVE_OSC
+	// Only the engine's NsmClient talks to the session manager (ADR
+	// 0016/0026); the editor reads its session folder through the IPC
+	// query (ADR 0032). An empty folder means no NSM session is in
+	// effect and the regular save path applies. The blocking query runs
+	// only when the NsmSession action survived the constructor's
+	// downgrade — a round trip on every save would be wasteful.
 	if ( ( m_action & Action::NsmSession ) &&
 		 m_pDrumkit->getContext() == Filesystem::Context::Song ) {
-		m_pDrumkit->setPath(
-			QDir(
-				NsmClient::get_instance()->getSessionFolderPath() +
-				QDir::separator() + m_pDrumkit->getName()
-			)
-				.absoluteFilePath( Filesystem::drumkitXml() )
-		);
+		const QString sSessionFolderPath =
+			HydrogenApp::pEngine()->getSessionFolderPath();
+		if ( ! sSessionFolderPath.isEmpty() ) {
+			m_pDrumkit->setPath(
+				QDir(
+					sSessionFolderPath + QDir::separator() +
+					m_pDrumkit->getName()
+				)
+					.absoluteFilePath( Filesystem::drumkitXml() )
+			);
+		}
 	}
-#endif
 
 	// Check whether there is already a kit present we would overwrite.
 	if ( ( m_action & Action::SaveAs ) &&
@@ -1335,9 +1344,8 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 		Filesystem::rm( sOldImagePath, false, false );
 	}
 
-	pHydrogen->getSoundLibraryDatabase()->updateDrumkits(
-		Event::Trigger::Default
-	);
+	HydrogenApp::pEngine()->updateSoundLibrary(
+		SoundLibraryInfo::Type::Drumkit );
 
 	QApplication::restoreOverrideCursor();
 
@@ -1346,7 +1354,7 @@ void DrumkitPropertiesDialog::on_saveBtn_clicked()
 
 void DrumkitPropertiesDialog::highlightDuplicates()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	QStringList duplicates;
 
 	const QString sHighlight =

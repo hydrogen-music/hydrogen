@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef AUTOMATION_PATH_VIEW_H
-#define AUTOMATION_PATH_VIEW_H
+#ifndef H2C_AUTOMATION_PATH_VIEW_H
+#define H2C_AUTOMATION_PATH_VIEW_H
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -36,38 +36,29 @@ class AutomationPathView :  public QWidget,  public H2Core::Object<AutomationPat
 	Q_OBJECT
 	H2_OBJECT(AutomationPathView)
 
-	void createBackground();
-
-	H2Core::AutomationPath *_path;
-	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
-	int m_nMarginHeight;/** < Height of top and bottom margins */
-	int m_nMaxPatternSequence;
-
-	bool m_bIsHolding; /** < Whether any points are being dragged */
-	bool m_bPointAdded;/** < Whether a new point was added during mouse move */
-	float m_fOriginX;  /** < Original position of selected point */
-	float m_fOriginY;  /** < Original position of selected point */
-	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
-
-	float m_fTick;
-	QPixmap* m_pBackgroundPixmap;
-
 public:
 	AutomationPathView(QWidget *parent = nullptr);
 	~AutomationPathView();
 
-	H2Core::AutomationPath *getAutomationPath() const noexcept { return _path; }
-	void setAutomationPath(H2Core::AutomationPath *path, bool bUpdate = true);
+	std::shared_ptr<H2Core::AutomationPath> getAutomationPath() const noexcept
+	{
+		return m_pPath;
+	}
+	void setAutomationPath(
+		std::shared_ptr<H2Core::AutomationPath> pPath,
+		bool bUpdate = true
+	);
 
 	int  getGridWidth() const noexcept { return m_nGridWidth; }
 	void setGridWidth(int width);
 
 	void updatePosition( float fTick );
 	void updateAutomationPath();
+	void updateView();
 
-		static constexpr int m_nMinimumHeight = 64;
+	static constexpr int m_nMinimumHeight = 64;
 
-protected:
+   protected:
 	void paintEvent(QPaintEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
@@ -88,9 +79,21 @@ public slots:
 signals:
 	void valueChanged();
 
-	void pointAdded(float x, float y);
-	void pointRemoved(float x, float y);
-	void pointMoved(float ox, float oy, float tx, float ty);
+private:
+	void createBackground();
+
+	std::shared_ptr<H2Core::AutomationPath> m_pPath;
+	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
+	int m_nMarginHeight;/** < Height of top and bottom margins */
+	int m_nMaxPatternSequence;
+
+	bool m_bIsHolding; /** < Whether any points are being dragged */
+	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
+
+	float m_fTick;
+	QPixmap* m_pBackgroundPixmap;
+
+
 };
 
 #endif

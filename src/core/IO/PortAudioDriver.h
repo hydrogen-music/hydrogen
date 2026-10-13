@@ -20,11 +20,11 @@
  *
  */
 
-#ifndef PORT_AUDIO_DRIVER_H
-#define PORT_AUDIO_DRIVER_H
+#ifndef H2C_PORT_AUDIO_DRIVER_H
+#define H2C_PORT_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 #include <unistd.h>
 
@@ -45,7 +45,7 @@ public:
 	float* m_pOut_L;
 	float* m_pOut_R;
 
-	PortAudioDriver( audioProcessCallback processCallback );
+	PortAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	virtual ~PortAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -57,9 +57,9 @@ public:
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
 
-	static QStringList getDevices();
-	static QStringList getDevices( const QString& HostAPI );
-	static QStringList getHostAPIs();
+	QStringList getDevices() override;
+	QStringList getDevices( const QString& HostAPI );
+	QStringList getHostAPIs();
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
@@ -67,8 +67,7 @@ private:
 	unsigned m_nSampleRate;
 	QString m_sDevice;
 
-	static bool m_bInitialised;
-
+	bool m_bInitialised;
 };
 
 };
@@ -78,11 +77,11 @@ private:
 namespace H2Core
 {
 
-class PortAudioDriver : public NullDriver
+class PortAudioDriver : public StubAudioDriver
 {
 	H2_OBJECT(PortAudioDriver)
 public:
-	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	PortAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 };
 
 };

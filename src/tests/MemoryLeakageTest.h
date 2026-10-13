@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef MEMORY_LEAKAGE_TEST_H
-#define MEMORY_LEAKAGE_TEST_H
+#ifndef H2C_MEMORY_LEAKAGE_TEST_H
+#define H2C_MEMORY_LEAKAGE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

@@ -22,7 +22,7 @@
 
 #include "SampleEditor.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
@@ -112,7 +112,7 @@ SampleEditor::SampleEditor(
 	m_pSample = std::make_shared<Sample>( pLayer->getSample() );
 	const auto nFrames = m_pSample->getFrames();
 
-	m_pPreviewInstrument = Instrument::from( m_pSample );
+	m_pPreviewInstrument = Instrument::from( m_pSample, HydrogenApp::pHydrogen() );
 	m_pPreviewInstrument->setId( Instrument::EmptyId );
 	m_pPreviewInstrument->setIsPreviewInstrument( true );
 
@@ -122,7 +122,7 @@ SampleEditor::SampleEditor(
 					  .arg( m_pSample->getFilePath() ) );
 		reject();
 	}
-	m_pPreviewInstrumentOriginal = Instrument::from( m_pSampleOriginal );
+	m_pPreviewInstrumentOriginal = Instrument::from( m_pSampleOriginal, HydrogenApp::pHydrogen() );
 	m_pPreviewInstrumentOriginal->setId( Instrument::EmptyId );
 	m_pPreviewInstrumentOriginal->setIsPreviewInstrument( true );
 
@@ -132,7 +132,7 @@ SampleEditor::SampleEditor(
 	);
 
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto separatorColor =
 		pPref->getColorTheme()->m_windowColor.darker( 135 );
 
@@ -683,7 +683,7 @@ font-weight: bold; "
 
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
-		auto pHydrogen = H2Core::Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		auto pAudioEngine = pHydrogen->getAudioEngine();
 
 		auto pNewSample = std::make_shared<Sample>(
@@ -694,7 +694,7 @@ font-weight: bold; "
 		pNewSample->setVelocityEnvelope( m_velocityEnvelope );
 		pNewSample->setPanEnvelope( m_panEnvelope );
 
-		if ( !pNewSample->load( pAudioEngine->getPlayhead()->getBpm() ) ) {
+		if ( !pNewSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pEngine()->getPreferences().get() ) ) {
 			ERRORLOG( "Unable to load modified sample" );
 			return;
 		}
@@ -711,8 +711,7 @@ font-weight: bold; "
 			return;
 		}
 		pNewInstrument->setSample(
-			pNewComponent, pNewLayer, pNewSample, Event::Trigger::Suppress
-		);
+			pNewComponent, pNewLayer, pNewSample, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 
 		SE_replaceInstrumentAction::Type type;
 		if ( m_pInstrument->getId() == Instrument::PlaybackTrackId ) {
@@ -1092,13 +1091,62 @@ void SampleEditor::drumkitLoadedEvent()
 	// Most likely the user has undone an "apply to sample" action. Pick our
 	// sample from the new drumkit and register the new instrument (which should
 	// have the same ID as the former one).
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
 	const auto pNewInstrument =
 		pSong->getDrumkit()->getInstruments()->find( m_pInstrument->getId() );
+	if ( pNewInstrument == nullptr ) {
+		ERRORLOG( "Unable to find new instrument" );
+		return;
+	}
+	const auto pNewComponent =
+		pNewInstrument->getComponent( m_pInstrument->index( m_pComponent ) );
+	if ( pNewComponent == nullptr ) {
+		ERRORLOG( "Unable to find new component" );
+		return;
+	}
+	const auto pNewLayer =
+		pNewComponent->getLayer( m_pComponent->index( m_pLayer ) );
+	if ( pNewLayer == nullptr || pNewLayer->getSample() == nullptr ) {
+		ERRORLOG( "Invalid new layer" );
+		return;
+	}
+	if ( pNewLayer->getSample()->getFilePath() !=
+		 m_pSampleOriginal->getFilePath() ) {
+		// That's not our sample. Could happen when the user switches drumkits
+		// via keyboard shortcut, MIDI, or OSC command while SampleEditor is
+		// still open.
+		return;
+	}
+
+	m_pInstrument = pNewInstrument;
+	m_pComponent = pNewComponent;
+	m_pLayer = pNewLayer;
+
+	if ( m_playback == Playback::None ) {
+		reloadLayer();
+	}
+	else {
+		// If a sample is playing, we delay wave form update to ensure both
+		// audio and peaks are consistent.
+		m_bLayerReloadRequired = true;
+	}
+}
+
+void SampleEditor::playbackTrackChangedEvent()
+{
+	// Most likely the user has undone an "apply to sample" action. Pick our
+	// sample from the new playback track instrument and register it (which
+	// should have the same ID as the former one).
+	const auto pSong = HydrogenApp::pEngine()->getSong();
+	if ( pSong == nullptr || pSong->getPlaybackTrackInstrument() == nullptr ) {
+		return;
+	}
+
+	const auto pNewInstrument = pSong->getPlaybackTrackInstrument();
 	if ( pNewInstrument == nullptr ) {
 		ERRORLOG( "Unable to find new instrument" );
 		return;
@@ -1255,7 +1303,7 @@ void SampleEditor::startPlayback( Playback playback )
 
 	// Reset playhead and other widgets and perform one UI refresh before
 	// starting the actual rendering.
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	m_playback = playback;
 	m_previousState = pAudioEngine->getState();
 	m_selectedSlider = Slider::None;
@@ -1283,7 +1331,7 @@ void SampleEditor::startPlayback( Playback playback )
 	updateSourceWaveDisplays();
 
 	// Render sample
-	pAudioEngine->getSampler()->previewInstrument(
+	HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
 		pNote->getInstrument(), pNote
 	);
 	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
@@ -1313,9 +1361,14 @@ void SampleEditor::stopPlayback()
 		m_pTargetSection->update();
 	}
 
-	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
-	pSampler->releasePlayingNotes( m_pPreviewInstrument );
-	pSampler->releasePlayingNotes( m_pPreviewInstrumentOriginal );
+	auto pCoreActionController =
+		HydrogenApp::pEngine()->getCoreActionController();
+	pCoreActionController->releasePlayingNotes(
+		m_pPreviewInstrument->getUuid()
+	);
+	pCoreActionController->releasePlayingNotes(
+		m_pPreviewInstrumentOriginal->getUuid()
+	);
 
 	m_playback = Playback::None;
 	lockWidgets( false );
@@ -1339,7 +1392,7 @@ void SampleEditor::updateTransport()
 		stopPlayback();
 		return;
 	}
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
 	if ( m_previousState != pAudioEngine->getState() ) {
 		WARNINGLOG(
@@ -1350,6 +1403,9 @@ void SampleEditor::updateTransport()
 		return;
 	}
 
+	// The realtime frame is a continuously incremented number. As long as the
+	// authoritative engine and the mirror one in the IPC split share the same
+	// sample rate, we should be good with the mirror engine's frames.
 	const auto nRealtimeFrame = pAudioEngine->getRealtimeFrame();
 	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {
 		return;
@@ -1360,7 +1416,7 @@ void SampleEditor::updateTransport()
 	// this within the increment.
 	const float fStep =
 		static_cast<float>( m_pSample->getSampleRate() ) /
-		static_cast<float>( pAudioEngine->getAudioDriver()->getSampleRate() );
+		static_cast<float>( HydrogenApp::pEngine()->getAudioSampleRate() );
 	const float fIncrement =
 		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) * fStep;
 
@@ -1514,7 +1570,7 @@ void SampleEditor::updateSample()
 		return;
 	}
 
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	auto pEditSample = std::make_shared<Sample>(
 		m_pSample->getFilePath(), m_pSample->getLicense()
 	);
@@ -1524,7 +1580,7 @@ void SampleEditor::updateSample()
 	pEditSample->setPanEnvelope( m_panEnvelope );
 
 	QApplication::setOverrideCursor( Qt::WaitCursor );
-	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm() ) ) {
+	if ( !pEditSample->load( pAudioEngine->getPlayhead()->getBpm(), HydrogenApp::pEngine()->getPreferences().get() ) ) {
 		QApplication::restoreOverrideCursor();
 		ERRORLOG( "Unable to load modified sample" );
 		return;
@@ -1538,8 +1594,7 @@ void SampleEditor::updateSample()
 	m_pPreviewInstrument->setSample(
 		m_pPreviewInstrument->getComponents()->front(),
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 ),
-		pEditSample, Event::Trigger::Suppress
-	);
+		pEditSample, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 	m_pSample = pEditSample;
 
 	pAudioEngine->unlock();
@@ -1547,14 +1602,18 @@ void SampleEditor::updateSample()
 	m_pNewLengthDisplay->setText( QString::number( m_pSample->getFrames() ) );
 	checkRubberbandSettings();
 	updateSourceWaveDisplays();
+	// Since we just replace the sample and not the layer itself, setLayer
+	// should be a no-op. But we still keep it for cover changes within the core
+	// when applying the changes as well.
 	m_pTargetSection->setLayer(
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 )
 	);
+	m_pTargetSection->updateBackground();
 }
 
 void SampleEditor::reloadLayer()
 {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
 
 	m_pSample = std::make_shared<Sample>( m_pLayer->getSample() );
@@ -1563,8 +1622,7 @@ void SampleEditor::reloadLayer()
 	m_pPreviewInstrument->setSample(
 		m_pPreviewInstrument->getComponents()->front(),
 		m_pPreviewInstrument->getComponents()->front()->getLayer( 0 ),
-		m_pSample, Event::Trigger::Suppress
-	);
+		m_pSample, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 
 	pAudioEngine->unlock();
 
@@ -1661,15 +1719,14 @@ void SampleEditor::reloadLayer()
 	checkRubberbandSettings();
 	m_pNewLengthDisplay->setText( QString::number( m_pSample->getFrames() ) );
 	updateSourceWaveDisplays();
+	m_pTargetSection->setLayer( m_pLayer );
 	m_pTargetSection->update();
 }
 
 void SampleEditor::checkRubberbandSettings()
 {
-	const double fSampleRate = static_cast<double>( Hydrogen::get_instance()
-														->getAudioEngine()
-														->getAudioDriver()
-														->getSampleRate() );
+	const double fSampleRate =
+		static_cast<double>( HydrogenApp::pEngine()->getAudioSampleRate() );
 	// calculate ratio
 	double fRatio;
 	if ( m_rubberband.bUse ) {
@@ -1721,7 +1778,7 @@ void SampleEditor::checkRubberbandSettings()
 
 void SampleEditor::updateStyleSheet()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorBackground = pColorTheme->m_sampleEditor_backgroundColor;
 	const QColor colorFont = pColorTheme->m_sampleEditor_textColor;
 

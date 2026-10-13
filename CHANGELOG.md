@@ -60,6 +60,10 @@ All notable changes to this project will be documented in this file.
   - `--online-import <url>`: to download all artifacts from an online index.
   - `--online-import-type <type>`:  to filter by `pattern`, `song`, `drumkit`,
 	or `all`.
+  - `-c/--connect-via-ipc <endpoint>`: start GUI instance without drivers and
+    connect to a headless instance (`h2player` or LV2/CLAP/VST3 plugin) instead.
+- The IPC connection button in the MainToolBar to toggle the connection to the
+  remote headless engine.
 - Patterns are now independent of Drumkits and the latter can switched without
   the need to adjust the patterns. Mapping between the two will be done using
   "instrument types".
@@ -79,7 +83,7 @@ All notable changes to this project will be documented in this file.
 - Button in main toolbar indicating both MIDI input and output signals and
   opening a dialog showing the latest MIDI events.
 - Instruments can now be duplicated via popup context menu (#1925).
-- Midi: 
+- Midi:
   - A MIDI control dialog listing all incoming and outgoing messages is now
     accessible via a button in the main toolbar.
   - Hydrogen does now only act on MIDI `START`, `CONTINUE`, and `STOP` messages,
@@ -102,9 +106,40 @@ All notable changes to this project will be documented in this file.
     scrolling beyond `0`) (#459).
 - Changes in the Sample Editor can now be undone.
 - Hydrogen does now ship 267 example patterns (1.9MB).
+- All user interaction in the mixer can now be undone/redone (#1374).
+- `h2player`:
+  - does now automatically starts an IPC server by default, allowing the
+	Hydrogen GUI to connect and control playback remotely using `hydrogen -c
+	<endpoint>`.
+  - supports similar CLI options as `hydrogen` and `h2cli`: `-d/--driver`,
+    `-P/--data`, `--user-data`, `--config`, `-k/--kit`, `-O, --osc-port`,
+    `-V/--verbose`, `-L/--log-file`, `-T/--log-timestamps`, `--log-colors`,
+    `--no-log-colors`, `-h/--help`, `-v/--version`.
+  - new CLI option `-n/--no-ipc` option to disable the IPC server for pure
+  headless mode.
+  - new CLI option `-i/--interactive` flag for keyboard-controlled mode (can be
+  combined with IPC server for simultaneous keyboard and GUI control).
+- A song and all its samples can now be stored and loaded from a self-contained `.h2project` file (#272).
+- The Hydrogen project does now provide LV2, CLAP, and VST3 plugins. It features
+  a minimal UI to render incoming MIDI notes and/or play back loaded patterns or
+  songs from within the plugin host. For more advanced features, it allows to
+  open the regular GUI for remote controlling of the plugin.
 
 ### Changed
 
+- Instead of using the raw font family names of the config file and imported
+  themes, they are validated first and might trigger a fallback to a safer
+  font. This was done to prevent crashes of `libfontconfig` on Linux (#2343).
+- All threading in the core is now based on the C++ standard library
+  (`std::thread`) instead of pthreads, removing the pthread API from all
+  cross-platform code. This drops the hard dependency on the winpthreads
+  emulation for Windows builds and opens the door to building with
+  toolchains without pthread support (e.g. MSVC).
+- Preference changes are now saved to disk automatically during the
+  session (at the configured autosave rate, or once a minute with
+  autosaving disabled) instead of only on dialog confirmation and
+  application close, bounding the window in which a crash could lose
+  them.
 - On Linux user-level files are now stored in XDG paths
   (`$XDG_CONFIG_HOME/hydrogen/hydrogen.conf`, `$XDG_CACHE_HOME/hydrogen/`,
   `$XDG_DATA_HOME/hydrogen/ `) in case no `~/.hydrogen` folder is present.
@@ -277,9 +312,19 @@ All notable changes to this project will be documented in this file.
 - Song, drumkit, and pattern "Save As" is now done via a property dialog with a
   freely edible path field (allowing you to store the artifact wherever you
   like).
+ - `h2player` must be started with `--interactive` for previous keyboard-driver
+   transport control.
+- Minimal `CMake` version was bumped to `3.16`.
 
 ### Fixed
 
+- Concurrently running Hydrogen instances no longer overwrite each other's
+  preferences: saving the shared configuration now merges only the fields an
+  instance actually changed, under a cross-process lock.
+- A corrupted `hydrogen.conf` (e.g. left behind by a crash mid-write) is
+  detected and rewritten from the current state instead of silently
+  persisting the broken document. All configuration writes are atomic, so a
+  crash can no longer tear the file.
 - Components can now carry arbitrary names and name duplication is handled
   properly.
 - Fix sample selection in the presence of multiple components.
@@ -307,6 +352,9 @@ All notable changes to this project will be documented in this file.
 - `Note-On` and `Note-Off` messages send via JACK MIDI should now be (almost)
   frame accurate (#535).
 - Support samples of arbitrary length.
+- Persist interpolation mode in preferences.
+- Hydrogen is can now be run with MIDI-drivers only or neither audio nor MIDI
+  drivers at all (#1505).
 
 ### Removed
 
@@ -362,6 +410,8 @@ All notable changes to this project will be documented in this file.
 - Fixed linker error on OpenBSD by @rrrapha.
 - Fixed performance issue when using JACK audio with rubberband.
 - Parameter loss in the MIDI table within the preferences (#2328).
+- Fix segfault when opening the Preferences dialog due to a missing font or a
+  corrupt font database (#2343).
 - Fixed XDG app ID by @City-busz.
 - Rubberband support compiled into Hydrogen is no longer deactivated in case the
   rubberband CLI is not installed on the system.

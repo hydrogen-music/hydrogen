@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef AUDIO_ENGINE_H
-#define AUDIO_ENGINE_H
+#ifndef H2C_AUDIO_ENGINE_H
+#define H2C_AUDIO_ENGINE_H
 
 #include <core/AudioEngine/AudioEngineTests.h>
 #include <core/AudioEngine/Transport.h>
@@ -32,7 +32,6 @@
 #include <core/Hydrogen.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeAudioDriver.h>
 #include <core/IO/JackDriver.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -163,7 +162,9 @@ public:
 	 */
 	static constexpr int nMaxTimeHumanize = 2000;
 
-	AudioEngine();
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which this engine reaches its per-instance context (ADR 0015). */
+	AudioEngine( Hydrogen* pHydrogen );
 
 	~AudioEngine();
 
@@ -249,6 +250,12 @@ public:
 	 */
 	void			assertLocked( const QString& sClass, const char* sFunction,
 								  const QString& sMsg );
+	/** The AudioEngine (if any) currently locked by the calling thread.
+	 *
+	 * Set by lock()/tryLock()/tryLockFor() and cleared by unlock(). Used by
+	 * AudioEngineLocking::assertAudioEngineLocked() (debug only) so the lock
+	 * assertion no longer depends on the process-wide singleton (ADR 0015). */
+	static AudioEngine*	lockedEngineForThread();
 	void			noteOn( std::shared_ptr<Note> pNote );
 
 	/**
@@ -289,7 +296,7 @@ public:
 	 *
 	 * \param driver Specific audio driver.
 	 * \return Pointer to the freshly created audio driver. If the
-	 * creation resulted in a NullDriver, the corresponding object will be
+	 * creation resulted in a StubAudioDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
 	std::shared_ptr<AudioDriver> createAudioDriver(
@@ -301,9 +308,6 @@ public:
 	void stopMidiDriver( Event::Trigger trigger );
 	std::shared_ptr<MidiBaseDriver> getMidiDriver() const;
 
-	void			setupLadspaFX();
-
-
 	std::shared_ptr<Instrument> getMetronomeInstrument() const;
 		
 	
@@ -312,11 +316,20 @@ public:
 	const State& getState() const;
 	const State& getNextState() const;
 
-	void 			setMasterPeak_L( float value );
 	float 			getMasterPeak_L() const;
-
-	void	 		setMasterPeak_R( float value );
 	float 			getMasterPeak_R() const;
+	/** Reads the current master peak levels and resets the accumulators
+	 * (peak-hold consume). The engine owns the peak lifecycle; the meter only
+	 * reads and applies its own fall-off (ADR 0027 bucket D). */
+	void			consumeMasterPeaks( float& fPeak_L, float& fPeak_R );
+	/** Display-only master-peak setters: the editor mirror's telemetry apply
+	 * (EditorStateMirror::applyMeterSnapshot, ADR 0018) writes the
+	 * authoritative engine's peaks here so the GUI's existing
+	 * #consumeMasterPeaks consumers work unchanged in editor mode. The local
+	 * render path never calls these (in editor mode it is gated off
+	 * entirely). */
+	void			setMasterPeak_L( float val );
+	void			setMasterPeak_R( float val );
 
 	float			getProcessTime() const;
 	float			getMaxProcessTime() const;
@@ -344,7 +357,7 @@ public:
 	 * During the humanization the onset of a Note will be moved
 	 * Note::__lead_lag times the value calculated by this function.
 	 */
-	static long long getLeadLagInFrames( double fTick );
+	static long long getLeadLagInFrames( double fTick, Hydrogen* pHydrogen );
 
 	double getSongSizeInTicks() const;
 
@@ -377,7 +390,7 @@ public:
 	void setNextBpm( float fNextBpm );
 	float getNextBpm() const;
 
-	static float 	getBpmAtColumn( int nColumn );
+	float 	getBpmAtColumn( int nColumn );
 
 	/**
 	 * Function to be called every time the length of the current song
@@ -465,22 +478,27 @@ public:
 	/** Uses handleTimelineChange() */
 	friend void Hydrogen::setIsTimelineActivated( bool );
 	/** Uses handleTimelineChange() */
-	friend bool CoreActionController::addTempoMarker( int, float );
+	friend bool CoreActionController::addTempoMarker( int, float,
+													  Event::Trigger );
 	/** Uses handleTimelineChange() */
-	friend bool CoreActionController::deleteTempoMarker( int );
+	friend bool CoreActionController::deleteTempoMarker( int,
+														 Event::Trigger );
 	friend bool CoreActionController::locateToTick( long nTick, bool );
+	/** Uses the private locateToFrame() for the editor-mirror follow relocate. */
+	friend bool CoreActionController::relocateToFrame( long long );
 	friend bool CoreActionController::activateSongMode( bool );
 	friend bool CoreActionController::activateLoopMode( bool );
-	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit> );
+	friend bool CoreActionController::setDrumkit( std::shared_ptr<Drumkit>,
+												  Event::Trigger );
 	friend bool CoreActionController::removeInstrument(
-		std::shared_ptr<Instrument>, long* );
+		std::shared_ptr<Instrument>, long, Event::Trigger );
 	friend bool CoreActionController::replaceDrumkitInstrument(
-		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument>,
+		Event::Trigger );
 	friend bool CoreActionController::replacePlaybackTrackInstrument(
-		std::shared_ptr<Instrument>, std::shared_ptr<Instrument> );
+		std::shared_ptr<Instrument>, std::shared_ptr<Instrument>,
+		Event::Trigger );
 	friend bool CoreActionController::startCountIn();
-	/** Is allowed to set m_state to State::Ready via setState()*/
-	friend int FakeAudioDriver::connect();
 
 	friend class AudioEngineTests;
 		friend class JackDriver;
@@ -563,6 +581,18 @@ private:
 	 */
 	void locateToFrame( const long long nFrame );
 	void incrementPlayhead( uint32_t nFrames );
+
+	/**
+	 * Follow the plugin host's transport for the current process block (ADR
+	 * 0013, T3.3). Reads the HostTransport published on the PluginAudioDriver
+	 * and relocates the playhead to the host's frame whenever it diverges from
+	 * the engine's own position - i.e. on a host relocate or host loop wrap.
+	 * While the host rolls contiguously, incrementPlayhead() already advances
+	 * by exactly nframes (matching the host's per-block advance), so this is a
+	 * no-op. Tempo is followed separately via getBpmAtColumn(). Must be called
+	 * from the process callback with the audio engine already locked.
+	 */
+	void followHostTransport();
 	void updateTransport(
 		double fTick,
 		long long nFrame,
@@ -630,14 +660,11 @@ private:
 
 	QString getDriverNames() const;
 
-	Sampler* 			m_pSampler;
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen*			m_pHydrogen;
+		Sampler* 			m_pSampler;
 	std::shared_ptr<AudioDriver> m_pAudioDriver;
 	std::shared_ptr<MidiBaseDriver> m_pMidiDriver;
-
-#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
-	float				m_fFXPeak_L[MAX_FX];
-	float				m_fFXPeak_R[MAX_FX];
-	#endif
 
 	//Master peak (left channel)
 	float				m_fMasterPeak_L;
@@ -671,6 +698,10 @@ private:
 	 */
 	std::thread::id 	m_LockingThread;
 
+	/** Per-thread back-reference to the AudioEngine this thread has locked, or
+	 *  nullptr when it holds no lock. Backs lockedEngineForThread(). */
+	static thread_local AudioEngine* tls_pLockedEngine;
+
 	/**
 	 * Contains the current or last context in which the audio engine
 	 * was locked as well as the locking state.
@@ -687,9 +718,6 @@ private:
 	float				m_fProcessTime;
 		/** In milliseconds. */
 	float				m_fMaxProcessTime;
-		/** In milliseconds. */
-	float				m_fLadspaTime;
-
 	std::shared_ptr<Transport> m_pPlayhead;
 	std::shared_ptr<Transport> m_pQueuing;
 
@@ -820,20 +848,27 @@ public:
 	}
 };
 
-inline void	AudioEngine::setMasterPeak_L( float value ) {
-	m_fMasterPeak_L = value;
-}
-
 inline float AudioEngine::getMasterPeak_L() const {
 	return m_fMasterPeak_L;
 }
 
-inline void	AudioEngine::setMasterPeak_R( float value ) {
-	m_fMasterPeak_R = value;
-}
-
 inline float AudioEngine::getMasterPeak_R() const {
 	return m_fMasterPeak_R;
+}
+
+inline void AudioEngine::consumeMasterPeaks( float& fPeak_L, float& fPeak_R ) {
+	fPeak_L = m_fMasterPeak_L;
+	fPeak_R = m_fMasterPeak_R;
+	m_fMasterPeak_L = 0.0f;
+	m_fMasterPeak_R = 0.0f;
+}
+
+inline void AudioEngine::setMasterPeak_L( float val ) {
+	m_fMasterPeak_L = val;
+}
+
+inline void AudioEngine::setMasterPeak_R( float val ) {
+	m_fMasterPeak_R = val;
 }
 
 inline float AudioEngine::getProcessTime() const {

@@ -1,0 +1,474 @@
+# Plugin targets (ADR 0013/0014).
+#
+# `hydrogen-plugin` is the format-agnostic engine wrapper (HydrogenPlugin). It
+# depends only on the core library - no plugin SDK - so it is always built and
+# is exercised by the unit tests (PluginLifecycleTest). The native CLAP and LV2
+# modules are thin C-ABI shims over it, gated behind WANT_CLAP / WANT_LV2.
+#
+# T3.4 (ADR 0013/0026): the standalone-only entry points (DiskWriterDriver, NSM
+# session client, JACK session/transport) are unreachable under a plugin host at
+# runtime (Plugin audio/MIDI drivers + Hydrogen::isUnderPluginHost()), so the
+# core library is reused as-is rather than recompiled with sources excluded.
+
+add_library( hydrogen-plugin STATIC HydrogenPlugin.cpp )
+
+target_include_directories( hydrogen-plugin PUBLIC
+    ${CMAKE_SOURCE_DIR}/src # top level headers
+    ${CMAKE_BINARY_DIR}/src # generated config.h
+    ${QT_INCLUDES}
+)
+
+target_link_libraries( hydrogen-plugin PUBLIC
+    hydrogen-core-${VERSION}
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Xml
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Network
+)
+
+set_target_properties( hydrogen-plugin PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    CXX_STANDARD 17
+)
+
+# Embedded basic plugin UI (ADR 0035, proposal 0006 UI-1): vendored Dear ImGui
+# + add-ons as a static lib every plugin format links. Unconditional — it must
+# build on every platform and Qt >= 5.15 even with all formats off.
+add_subdirectory( ui )
+
+# ── Native CLAP plugin (ADR 0014) ─────────────────────────────────────────
+if(WANT_CLAP)
+    add_library( hydrogen-clap MODULE clap/HydrogenClap.cpp )
+    target_include_directories( hydrogen-clap PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/clap/include
+    )
+    target_compile_definitions( hydrogen-clap PRIVATE
+        H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES}
+    )
+    target_link_libraries( hydrogen-clap PRIVATE hydrogen-plugin hydrogen-plugin-ui )
+    # A CLAP plugin is a shared library with the `.clap` extension and no "lib"
+    # prefix; the entry symbol is `clap_entry`.
+    set_target_properties( hydrogen-clap PROPERTIES
+        PREFIX ""
+        SUFFIX ".clap"
+        OUTPUT_NAME "Hydrogen"
+        CXX_STANDARD 17
+    )
+    message(STATUS "Building CLAP plugin (buses=${H2_PLUGIN_OUTPUT_BUSES})")
+
+    # Install into the conventional CLAP location (<prefix>/lib/clap; T6.2). The
+    # editor binary at <prefix>/bin is found by HydrogenPlugin's relative search.
+    # MODULE library: the .clap is a LIBRARY artifact on Linux/macOS but a RUNTIME
+    # artifact (DLL) on Windows, so both destinations are needed for the bundle to
+    # land in the package on every platform.
+    install(TARGETS hydrogen-clap
+        LIBRARY DESTINATION "${H2_LIB_PATH}/clap"
+        RUNTIME DESTINATION "${H2_LIB_PATH}/clap")
+
+    # A .clap is a single file with no bundle directory to carry
+    # resources; the third-party notices travel next to the installed
+    # binary, prefixed with the plugin name to stay collision-free in
+    # the shared clap directory (TU6.3).
+    install(FILES THIRD-PARTY-NOTICES
+        DESTINATION "${H2_LIB_PATH}/clap"
+        RENAME hydrogen.third-party-notices )
+
+    # 8c smoke: run clap-validator on the built .clap if it is available (built
+    # from extern/clap-validator or installed on PATH). This is the CI
+    # conformance step from the implementation plan.
+    find_program( CLAP_VALIDATOR clap-validator
+        PATHS ${CMAKE_SOURCE_DIR}/extern/clap-validator/target/release )
+    if(CLAP_VALIDATOR)
+        add_test( NAME clap-validate
+            COMMAND ${CLAP_VALIDATOR} validate "$<TARGET_FILE:hydrogen-clap>" )
+        message(STATUS "  + clap-validator smoke test enabled (${CLAP_VALIDATOR})")
+    else()
+        message(STATUS "  - clap-validator not found; conformance test skipped")
+    endif()
+
+    # Symbol hygiene gate: the module must export exactly the CLAP entry.
+    # Hosts load several plugin binaries into one process; a module that also
+    # exports its statically linked interior (core, Qt, ImGui) lets those
+    # symbols interpose on the other Hydrogen binaries' copies - the
+    # Qtractor/Ardour VST3 crash class (see vst3/interpose_smoke.cpp).
+    # Windows exports explicitly (CLAP_EXPORT); macOS's two-level namespace
+    # does not interpose.
+    if(UNIX AND NOT APPLE)
+        # The version script enforces the export list (clap/hydrogen-clap.map).
+        target_link_options( hydrogen-clap PRIVATE
+            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/clap/hydrogen-clap.map" )
+        add_test( NAME symbol-hygiene-clap
+            COMMAND sh -c
+                "nm -D --defined-only '$<TARGET_FILE:hydrogen-clap>' | awk '$0 !~ / clap_entry(@.*)?$/ {exit 1}'" )
+    endif()
+endif()
+
+# ── Native LV2 plugin (ADR 0014) ──────────────────────────────────────────
+if(WANT_LV2)
+    add_library( hydrogen-lv2 MODULE lv2/HydrogenLv2.cpp )
+    target_include_directories( hydrogen-lv2 PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/lv2/include
+    )
+    target_compile_definitions( hydrogen-lv2 PRIVATE
+        H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES}
+    )
+    target_link_libraries( hydrogen-lv2 PRIVATE hydrogen-plugin hydrogen-plugin-ui )
+    set_target_properties( hydrogen-lv2 PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "hydrogen"
+        CXX_STANDARD 17
+    )
+
+    set(H2_LV2_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/hydrogen.lv2")
+
+    # manifest.ttl (no looped content -> configure_file).
+    configure_file( lv2/manifest.ttl.in "${H2_LV2_BUNDLE}/manifest.ttl" @ONLY )
+
+    # hydrogen.ttl: generate the audio output ports for master + N buses with a
+    # foreach (configure_file cannot loop). Port layout matches HydrogenLv2.cpp:
+    #   0 = MIDI in, 1/2 = master L/R, 3.. = bus i L/R.
+    set(H2_LV2_PORTS "")
+    string(APPEND H2_LV2_PORTS
+        "        a lv2:AudioPort , lv2:OutputPort ;\n"
+        "        lv2:index 1 ;\n        lv2:symbol \"master_l\" ;\n        lv2:name \"Master L\"\n    ] , [\n"
+        "        a lv2:AudioPort , lv2:OutputPort ;\n"
+        "        lv2:index 2 ;\n        lv2:symbol \"master_r\" ;\n        lv2:name \"Master R\"\n")
+    math(EXPR H2_LV2_LAST_BUS "${H2_PLUGIN_OUTPUT_BUSES} - 1")
+    foreach(bus RANGE 0 ${H2_LV2_LAST_BUS})
+        math(EXPR idxL "3 + 2 * ${bus}")
+        math(EXPR idxR "${idxL} + 1")
+        math(EXPR busName "${bus} + 1")
+        string(APPEND H2_LV2_PORTS
+            "    ] , [\n"
+            "        a lv2:AudioPort , lv2:OutputPort ;\n"
+            "        lv2:index ${idxL} ;\n        lv2:symbol \"bus_${bus}_l\" ;\n        lv2:name \"Bus ${busName} L\"\n"
+            "    ] , [\n"
+            "        a lv2:AudioPort , lv2:OutputPort ;\n"
+            "        lv2:index ${idxR} ;\n        lv2:symbol \"bus_${bus}_r\" ;\n        lv2:name \"Bus ${busName} R\"\n")
+    endforeach()
+
+    # Platform-native UI type for the out-of-process editor (ADR 0016). The UI is
+    # not embedded (shown via ui:showInterface), but LV2 still requires a concrete
+    # window-toolkit type; pick the one matching the build platform.
+    if(APPLE)
+        set(H2_LV2_UI_TYPE "CocoaUI")
+    elseif(WIN32)
+        set(H2_LV2_UI_TYPE "WindowsUI")
+    else()
+        set(H2_LV2_UI_TYPE "X11UI")
+    endif()
+
+    configure_file( lv2/hydrogen.ttl.in "${H2_LV2_BUNDLE}/hydrogen.ttl" @ONLY )
+
+    # Drop the built module into the bundle next to the manifests.
+    add_custom_command( TARGET hydrogen-lv2 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${H2_LV2_BUNDLE}"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "$<TARGET_FILE:hydrogen-lv2>" "${H2_LV2_BUNDLE}/"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES"
+            "${H2_LV2_BUNDLE}/THIRD-PARTY-NOTICES"
+        COMMENT "Assembling hydrogen.lv2 bundle" )
+
+    message(STATUS "Building LV2 plugin (buses=${H2_PLUGIN_OUTPUT_BUSES})")
+
+    # Install the assembled .lv2 bundle into the conventional LV2 location
+    # (<prefix>/lib/lv2/hydrogen.lv2; T6.2).
+    install(DIRECTORY "${H2_LV2_BUNDLE}/"
+        DESTINATION "${H2_LIB_PATH}/lv2/hydrogen.lv2")
+
+    # 8c smoke: a tiny in-process LV2 host that drives the built module through
+    # its full lifecycle and its UI descriptor through the show/hide/idle
+    # semantics (proposal 0006, phase UI-0) (stands in for lv2lint where
+    # meson/lilv are absent).
+    add_executable( hydrogen-lv2-smoke lv2/lv2_smoke.cpp )
+    target_include_directories( hydrogen-lv2-smoke PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/lv2/include )
+    # Qt: the UI checks observe the editor serve loop through its QLocalServer
+    # endpoint (QLocalSocket) and pin the editor binary to a name that cannot
+    # resolve (qputenv).
+    target_link_libraries( hydrogen-lv2-smoke PRIVATE
+        ${CMAKE_DL_LIBS}
+        Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Network )
+    set_target_properties( hydrogen-lv2-smoke PROPERTIES CXX_STANDARD 17 )
+    # The embedded-widget section (proposal 0006 UI-2) creates an X11 parent
+    # when a display is available; headless CI compiles the section out.
+    if(NOT APPLE AND NOT WIN32)
+        find_package( X11 )
+        if( X11_FOUND )
+            target_link_libraries( hydrogen-lv2-smoke PRIVATE X11::X11 )
+            target_compile_definitions( hydrogen-lv2-smoke PRIVATE
+                H2_LV2_SMOKE_HAVE_X11 )
+        endif()
+    endif()
+    add_test( NAME lv2-smoke
+        COMMAND hydrogen-lv2-smoke "$<TARGET_FILE:hydrogen-lv2>" )
+
+    # Symbol hygiene gate: the module must export exactly the two LV2
+    # descriptors (same rationale as symbol-hygiene-clap).
+    if(UNIX AND NOT APPLE)
+        # The version script enforces the export list (lv2/hydrogen-lv2.map).
+        target_link_options( hydrogen-lv2 PRIVATE
+            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/lv2/hydrogen-lv2.map" )
+        add_test( NAME symbol-hygiene-lv2
+            COMMAND sh -c
+                "nm -D --defined-only '$<TARGET_FILE:hydrogen-lv2>' | awk '$0 !~ / (lv2_descriptor|lv2ui_descriptor)(@.*)?$/ {exit 1}'" )
+    endif()
+
+    # If lv2lint is available, run the proper conformance linter on the bundle.
+    # `-I` points it at the bundle directory (the one holding manifest.ttl); the
+    # plugin URI is the positional argument. LV2_PATH replaces lilv's default
+    # search path (which starts at ~/.lv2 and would silently shadow the build
+    # bundle with a possibly stale installed copy) with the build bundle's
+    # parent plus the usual system LV2 directories: lv2lint's 'Plugin
+    # LV2_PATH' check requires the whole LV2 spec (ui.lv2 & friends) to stay
+    # resolvable, and lilv silently skips non-existent path entries, so the
+    # extra candidates are harmless on machines without them.
+    # The `-t` whitelists mark known-accepted findings as [SKIP] so the gate
+    # fails only on NEW violations: 'UI*Widget' cannot express ADR 0035's
+    # optional-parent fallback (lv2lint passes only TTL-required features, so
+    # it never sends a parent); 'Plugin Run' is the accepted non-RT run path
+    # (hydrogen.ttl.in documents it). The '*Symbols' pair needs no whitelist
+    # anymore: the lv2/hydrogen-lv2.map version script exports only the two
+    # descriptors, which is exactly what those checks want to see.
+    find_program( LV2LINT lv2lint
+        PATHS ${CMAKE_SOURCE_DIR}/extern/lv2lint/build )
+    if(LV2LINT)
+        add_test( NAME lv2lint
+            COMMAND ${LV2LINT} -I "${H2_LV2_BUNDLE}"
+                -t "UI*Widget" -t "Plugin Run"
+                "https://hydrogen-music.org/lv2/hydrogen" )
+        get_filename_component( H2_LV2_BUNDLE_DIR "${H2_LV2_BUNDLE}" DIRECTORY )
+        set_tests_properties( lv2lint PROPERTIES
+            ENVIRONMENT "LV2_PATH=${H2_LV2_BUNDLE_DIR}:/usr/lib/lv2:/usr/lib64/lv2:/usr/local/lib/lv2:/usr/share/lv2:/usr/local/share/lv2" )
+        message(STATUS "  + lv2lint conformance test enabled (${LV2LINT})")
+    else()
+        message(STATUS "  - lv2lint not found; using in-process LV2 smoke only")
+    endif()
+endif()
+
+# ── Native VST3 plugin via clap-wrapper (ADR 0014, T6.1) ───────────────────
+# Wraps the native CLAP (clap/HydrogenClap.cpp → `clap_entry`) as a VST3 with
+# free-audio/clap-wrapper (extern/clap-wrapper submodule, v0.10.1). The VST3 SDK
+# is fetched at configure time via CPM (CLAP_WRAPPER_DOWNLOAD_DEPENDENCIES); the
+# CLAP SDK is reused from our own submodule rather than re-downloaded. Opt-in
+# (WANT_VST3=OFF by default) because pulling + building the Steinberg VST3 SDK is
+# heavy; enable with -DWANT_VST3=1.
+if(WANT_VST3)
+    # Point clap-wrapper at our vendored CLAP SDK; let it fetch the VST3 SDK.
+    set(CLAP_SDK_ROOT "${CMAKE_SOURCE_DIR}/extern/clap" CACHE PATH "" FORCE)
+    set(CLAP_WRAPPER_DOWNLOAD_DEPENDENCIES ON CACHE BOOL "" FORCE)
+    set(CLAP_WRAPPER_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+
+    # clap-wrapper's static libs (VST3 SDK + wrapper) get linked into our shared
+    # VST3 module, so they must be position-independent.
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+    # Pin the C++ standard for every target created from here on: not just
+    # clap-wrapper's add_subdirectory targets, but also the libs its
+    # target_add_vst3_wrapper() / guarantee_vst3sdk() functions create while
+    # running in this scope - variable lookups inside those functions fall back
+    # to the caller (here), not to clap-wrapper's own CMakeLists, where
+    # CMAKE_CXX_STANDARD 17 is set. Unpinned, the wrapper compiles ride the
+    # compiler default, which breaks the VST3 path on CI: AppleClang 14 builds
+    # macos.mm as gnu++98 (constexpr/auto become errors) and MSYS2 GCC 15
+    # builds windows.cpp as gnu++23 (char8_t makes u8string() return
+    # std::u8string). OBJCXX is pinned explicitly as well: CMake reuses
+    # CXX_STANDARD for .mm sources only when that property is set, and the
+    # wrapper lib had neither.
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_OBJCXX_STANDARD 17)
+
+    add_subdirectory(
+        "${CMAKE_SOURCE_DIR}/extern/clap-wrapper"
+        "${CMAKE_BINARY_DIR}/clap-wrapper"
+        EXCLUDE_FROM_ALL )
+
+    # clap-wrapper forces a blanket -Werror on its own targets via the INTERFACE
+    # target clap-wrapper-compile-options (no toggle). That breaks on newer
+    # compilers against its vendored fmt v9 — e.g. GCC 13/14 flag
+    # -Wdangling-reference / -Wtautological-compare inside fmt and -Werror turns
+    # them fatal. A per-target -Wno-error can't fix it: INTERFACE options land
+    # after the target's own flags on the command line, so -Werror wins. Strip the
+    # blanket -Werror from the interface instead — vendored code must not gate our
+    # build (it propagates to every clap-wrapper target).
+    if(TARGET clap-wrapper-compile-options)
+        get_target_property(_cw_opts clap-wrapper-compile-options
+            INTERFACE_COMPILE_OPTIONS)
+        if(_cw_opts)
+            list(REMOVE_ITEM _cw_opts "-Werror")
+            set_target_properties(clap-wrapper-compile-options PROPERTIES
+                INTERFACE_COMPILE_OPTIONS "${_cw_opts}")
+        endif()
+    endif()
+
+    # Compile the CLAP entry (clap_entry) in its own OBJECT lib with OUR flags.
+    # If it were a source of the wrapped module it would inherit clap-wrapper's
+    # strict -Wall/-Werror (PUBLIC on its wrapper lib), which flags unused helpers
+    # in our shared headers — and interface -Werror can't be overridden per-target
+    # since it lands last on the command line.
+    # OBJECT (not STATIC): clap-wrapper's shared-detail lib references `clap_entry`
+    # (with STATICALLY_LINKED_CLAP_ENTRY), and from a STATIC lib that object would
+    # be dropped unless it happened to be link-ordered after the reference. An
+    # OBJECT lib's objects are always linked into the module, so clap_entry is
+    # guaranteed present regardless of order (portable across linkers / CMake
+    # versions, unlike --whole-archive or the 3.24+ LINK_GROUP genex).
+    add_library( hydrogen-vst3-entry OBJECT clap/HydrogenClap.cpp )
+    target_include_directories( hydrogen-vst3-entry PRIVATE
+        ${CMAKE_SOURCE_DIR}/extern/clap/include )
+    # H2_CLAP_FOR_VST3 enables the empty CLAP params extension in HydrogenClap.cpp
+    # — needed only so clap-wrapper sets up its VST3 IMidiMapping (see the comment
+    # there). The native CLAP plugin (hydrogen-clap) is built WITHOUT this define,
+    # so it stays parameterless and clap-validator does not run its param/state
+    # suites against it.
+    target_compile_definitions( hydrogen-vst3-entry PRIVATE
+        H2_PLUGIN_OUTPUT_BUSES=${H2_PLUGIN_OUTPUT_BUSES}
+        H2_CLAP_FOR_VST3=1 )
+    target_link_libraries( hydrogen-vst3-entry PUBLIC hydrogen-plugin hydrogen-plugin-ui )
+    set_target_properties( hydrogen-vst3-entry PROPERTIES
+        CXX_STANDARD 17 POSITION_INDEPENDENT_CODE ON )
+
+    # The VST3 module: clap-wrapper adds its export glue (which references
+    # clap_entry, pulled from the entry lib) -> one CLAP plugin, one VST3.
+    add_library( hydrogen-vst3 MODULE )
+    target_link_libraries( hydrogen-vst3 PRIVATE hydrogen-vst3-entry )
+
+    # WINDOWS_FOLDER_VST3: emit the 3.7-spec bundle folder on Windows too.
+    # clap-wrapper's default there is a single-file .vst3, but the install
+    # rule below expects the .vst3 to be a directory on every platform —
+    # against the single file, cpack's install(DIRECTORY) step fails with
+    # "file INSTALL cannot find ...: File exists.".
+    target_add_vst3_wrapper(
+        TARGET hydrogen-vst3
+        OUTPUT_NAME "Hydrogen"
+        WINDOWS_FOLDER_VST3 ON )
+
+    # Ship the third-party notices inside the bundle's Resources dir
+    # (TU6.3). The wrapper's own post-build steps assemble the bundle;
+    # same-target POST_BUILD commands run in add order, so this copy
+    # lands after the assembly (a failure here fails the build loudly
+    # rather than shipping a bundle without notices).
+    add_custom_command( TARGET hydrogen-vst3 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES"
+            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources/THIRD-PARTY-NOTICES"
+        COMMENT "Copying third-party notices into Hydrogen.vst3" )
+
+    # Tell clap-wrapper that the CLAP entry is statically linked into this module
+    # (our clapfirst model — the CLAP plugin is compiled in via hydrogen-vst3-entry,
+    # not loaded from a separate .clap). Without this, clap-wrapper's Library ctor
+    # (detail/clap/fsutil.cpp) skips `_pluginEntry = &clap_entry` and instead hunts
+    # for an external .clap on disk; finding none, its GetPluginFactory returns
+    # nullptr and the Steinberg validator rejects the bundle ("Invalid Module").
+    # target_add_vst3_wrapper exposes no option for this (only the standalone
+    # wrapper does). The macro guard lives in fsutil.cpp, which is compiled into the
+    # shared-detail lib (NOT the per-target vst3 lib), so the define must land
+    # there; set it on the vst3 lib too for any future call sites.
+    foreach(cw_entry_target clap-wrapper-shared-detail hydrogen-vst3-clap-wrapper-vst3-lib)
+        if(TARGET ${cw_entry_target})
+            target_compile_definitions( ${cw_entry_target}
+                PRIVATE STATICALLY_LINKED_CLAP_ENTRY=1 )
+        endif()
+    endforeach()
+
+    # The vendored Steinberg VST3 SDK + clap-wrapper sources don't compile cleanly
+    # under our strict warning policy. Relaxations for these third-party targets
+    # only (created by target_add_vst3_wrapper above):
+    #   * -Wno-format-security: the SDK builds with -Wno-format, which against our
+    #     global -Wformat -Werror=format-security leaves -Wformat-security "ignored
+    #     without -Wformat". Disabling -Wformat-security removes the diagnostic
+    #     entirely - merely demoting it (-Wno-error=format-security) would leave a
+    #     warning spamming every SDK TU.
+    #   * -Wno-error: relaxes clap-wrapper's own blanket -Werror (GCC) for the
+    #     vendored code.
+    # hydrogen-vst3 needs it too: base-sdk-vst3 exports -Wno-format PUBLICly, so
+    # the wrapper export entry compiled into the module hits the same clash.
+    set(_cw_relax -Wno-error -Wno-format-security)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # GCC 13/14 flag clap-wrapper's vendored fmt v9 (-Wdangling-reference /
+        # -Wtautological-compare). Silence them so third-party code is quiet as
+        # well as non-fatal. Harmless on older GCC, which ignores unknown -Wno-*.
+        list(APPEND _cw_relax -Wno-dangling-reference -Wno-tautological-compare)
+    endif()
+    foreach(cw_target
+            base-sdk-vst3
+            hydrogen-vst3-clap-wrapper-vst3-lib
+            clap-wrapper-shared-detail
+            hydrogen-vst3)
+        if(TARGET ${cw_target})
+            target_compile_options(${cw_target} PRIVATE ${_cw_relax})
+        endif()
+    endforeach()
+
+    # Smoke test: the built VST3 module exports the VST3 entry point. A full
+    # Steinberg validator run is the conformance step below; this catches a broken
+    # wrap cheaply in any build.
+    if(UNIX AND NOT APPLE)
+        # The version script enforces the export list
+        # (vst3/hydrogen-vst3.map): GetPluginFactory only - in particular the
+        # statically linked clap_entry must stay invisible to other binaries.
+        target_link_options( hydrogen-vst3 PRIVATE
+            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/vst3/hydrogen-vst3.map" )
+        add_test( NAME vst3-smoke
+            COMMAND sh -c
+                "nm -D '$<TARGET_FILE:hydrogen-vst3>' | grep -q GetPluginFactory" )
+
+        # Symbol hygiene gate: the module must export exactly the VST3 Linux
+        # module contract (same rationale as symbol-hygiene-clap; the wrapper
+        # additionally references its own statically linked clap_entry, which
+        # must NOT be visible to other binaries).
+        add_test( NAME symbol-hygiene-vst3
+            COMMAND sh -c
+                "nm -D --defined-only '$<TARGET_FILE:hydrogen-vst3>' | awk '$0 !~ / (GetPluginFactory|ModuleEntry|ModuleExit)(@.*)?$/ {exit 1}'" )
+
+        # Interposition smoke: reproduces the host crash class (the CLAP
+        # binary in the global scope, the scanner's dlclose, then the VST3
+        # createInstance/initialize path; see the file comment). Needs the
+        # CLAP binary as the polluting load.
+        if(WANT_CLAP)
+            add_executable( hydrogen-vst3-interpose-smoke vst3/interpose_smoke.cpp
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk/pluginterfaces/base/funknown.cpp"
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk/pluginterfaces/base/coreiids.cpp" )
+            target_include_directories( hydrogen-vst3-interpose-smoke PRIVATE
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk" )
+            target_link_libraries( hydrogen-vst3-interpose-smoke PRIVATE
+                ${CMAKE_DL_LIBS} )
+            set_target_properties( hydrogen-vst3-interpose-smoke PROPERTIES
+                CXX_STANDARD 17 )
+            add_test( NAME vst3-interpose-smoke
+                COMMAND hydrogen-vst3-interpose-smoke
+                    "$<TARGET_FILE:hydrogen-clap>" "$<TARGET_FILE:hydrogen-vst3>" )
+        endif()
+    endif()
+
+    # Full Steinberg VST3 validator as a CTest (UNIX only), alongside
+    # clap-validate / lv2-smoke / vst3-smoke. clap-wrapper does not build the SDK's
+    # validator tool, so tools/run_vst3_validator.sh builds it on demand from the
+    # SDK source clap-wrapper already fetched, then runs it on the built bundle.
+    # The build root is passed (not a per-config path) so the helper finds the
+    # bundle regardless of Debug/Release. Heavy on first run (compiles the
+    # validator), idempotent afterwards.
+    # NB: CTest hides a passing test's stdout under --output-on-failure, so the
+    # "N tests passed" summary surfaces on failure (and always in
+    # <build>/vst3-validator/validator-output.log); build.sh echoes it after the
+    # suite so the counts stay visible on success too.
+    if(UNIX)
+        add_test( NAME vst3-validate
+            COMMAND ${CMAKE_SOURCE_DIR}/tools/run_vst3_validator.sh
+                "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk"
+                "${CMAKE_BINARY_DIR}"
+                "${CMAKE_BINARY_DIR}/vst3-validator" )
+        message(STATUS "  + Steinberg VST3 validator CTest enabled (vst3-validate)")
+    endif()
+
+    # Install the .vst3 bundle (a folder on Linux/Windows, a bundle on macOS)
+    # into the conventional VST3 location (<prefix>/lib/vst3; T6.2). clap-wrapper
+    # emits the bundle under <build>/<Config>/Hydrogen.vst3.
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3"
+        DESTINATION "${H2_LIB_PATH}/vst3")
+
+    message(STATUS "Building VST3 plugin via clap-wrapper (buses=${H2_PLUGIN_OUTPUT_BUSES})")
+endif()

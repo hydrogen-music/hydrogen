@@ -20,87 +20,386 @@
  *
  */
 
-#ifndef CORE_ACTION_CONTROLLER_H
-#define CORE_ACTION_CONTROLLER_H
+#ifndef H2C_CORE_ACTION_CONTROLLER_H
+#define H2C_CORE_ACTION_CONTROLLER_H
 
 #include <memory>
 #include <QString>
 #include <vector>
 
 #include <core/Basics/DrumkitMap.h>
+#include <core/Basics/Event.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Interpolation.h>
 
 namespace H2Core {
 class Drumkit;
+struct ExportRender;
 class GridPoint;
+class Hydrogen;
 class Instrument;
+class InstrumentComponent;
+class InstrumentLayer;
+class MidiEventMap;
+class MidiInstrumentMap;
+class Note;
 class Pattern;
 class Playlist;
 struct PlaylistEntry;
 class Preferences;
 class Song;
 
+/** Identifies which #H2Core::Note property #CoreActionController::editNoteProperty
+ * sets. Values mirror the GUI's PatternEditor::Property so a cast is faithful. */
+enum class NoteProperty {
+	Velocity = 0,
+	Pan = 1,
+	LeadLag = 2,
+	KeyOctave = 3,
+	Probability = 4,
+	Length = 5,
+	Type = 6,
+	InstrumentId = 7
+};
+
 /** \ingroup docCore docAutomation */
 class CoreActionController : public H2Core::Object<CoreActionController> {
 	H2_OBJECT( CoreActionController )
 
    public:
-	static bool setMasterVolume( float masterVolumeValue );
+		/** @param pHydrogen Owning Hydrogen instance (ADR 0015). */
+		CoreActionController( Hydrogen* pHydrogen );
+	/** Virtual so editor mode can substitute #IpcCoreActionController, which
+	 * marshals each command over IPC instead of mutating locally (ADR 0030). */
+	virtual ~CoreActionController() = default;
+	virtual bool setMasterVolume(
+		float masterVolumeValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * \param nStrip Instrument which to set the volume for.
 	 * \param fVolumeValue New volume.
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	static bool
-	setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
+	virtual bool setStripVolume(
+		int nStrip,
+		float fVolumeValue,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * \param nStrip Instrument which to set the pan for.
 	 * \param fValue New pan.
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	static bool setStripPan( int nStrip, float fValue, bool bSelectStrip );
+	virtual bool setStripPan(
+		int nStrip,
+		float fValue,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * \param nStrip Instrument which to set the pan for.
 	 * \param fValue New pan. range in [-1;1] => symmetric respect to 0
 	 * \param bSelectStrip Whether the corresponding instrument
 	 * should be selected.
 	 */
-	static bool setStripPanSym( int nStrip, float fValue, bool bSelectStrip );
-	static bool setInstrumentPitch( int nInstrument, float fValue );
-	static bool setInstrumentMidiOutNote(
+	virtual bool setStripPanSym(
+		int nStrip,
+		float fValue,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/**
+	 * Resets the MIDI out note of every instrument in the current
+	 * drumkit to its list-slot default.
+	 *
+	 * Idempotent: when every instrument already carries its default
+	 * note, neither the modified flag nor parameter events are touched.
+	 */
+	virtual bool setDefaultMidiOutNotes(
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/**
+	 * Recalculates the rubberband preprocessing of all samples in the
+	 * current drumkit for the current tempo (no-op unless rubberband
+	 * batch mode is enabled). Swaps in-memory samples; each side of the
+	 * split applies it on its own copy.
+	 */
+	virtual bool recalculateRubberband();
+	virtual bool setInstrumentPitch(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentGain(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentRandomPitch(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentFilterCutoff(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentFilterResonance(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentAttack(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentDecay(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentSustain(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentRelease(
+		int nInstrument,
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentFilterActive(
+		int nInstrument,
+		bool bActive,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentMuteGroup(
+		int nInstrument,
+		int nMuteGroup,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentStopNotes(
+		int nInstrument,
+		bool bStopNotes,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentApplyVelocity(
+		int nInstrument,
+		bool bApplyVelocity,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentHihatGroup(
+		int nInstrument,
+		int nHihatGroup,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentLowerCc(
+		int nInstrument,
+		int nCc,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentHigherCc(
+		int nInstrument,
+		int nCc,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setComponentIsMuted(
+		int nInstrument,
+		int nComponent,
+		bool bIsMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setComponentIsSoloed(
+		int nInstrument,
+		int nComponent,
+		bool bIsSoloed,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setComponentGain(
+		int nInstrument,
+		int nComponent,
+		float fGain,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** \param nSelection underlying value of #H2Core::InstrumentComponent::Selection. */
+	virtual bool setComponentSelection(
+		int nInstrument,
+		int nComponent,
+		int nSelection,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerIsMuted(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		bool bIsMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerIsSoloed(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		bool bIsSoloed,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerGain(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fGain,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerPitchOffset(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fPitchOffset,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerStartVelocity(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fVelocity,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setLayerEndVelocity(
+		int nInstrument,
+		int nComponent,
+		int nLayer,
+		float fVelocity,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setInstrumentMidiOutNote(
 		int nInstrument,
 		Midi::Note note,
-		long* pEventId
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
-	static bool setInstrumentMidiOutChannel(
+	virtual bool setInstrumentMidiOutChannel(
 		int nInstrument,
 		Midi::Channel channel,
-		long* pEventId
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
-	static bool setMetronomeIsActive( bool isActive );
-	static bool setMasterIsMuted( bool isMuted );
-	static bool setHumanizeTime( float fValue );
-	static bool setHumanizeVelocity( float fValue );
-	static bool setSwing( float fValue );
-
-	static bool setStripIsMuted( int nStrip, bool isMuted, bool bSelectStrip );
-	static bool toggleStripIsMuted( int nStrip );
-
-	static bool
-	setStripIsSoloed( int nStrip, bool isSoloed, bool bSelectStrip );
-	static bool toggleStripIsSoloed( int nStrip );
-
-	static bool setStripEffectLevel(
-		int nLine,
-		int nEffect,
+	/** Sets the plugin output bus the instrument feeds (ADR 0019). A
+	 * negative @a nOutputBus resets the instrument to the implicit 1-to-1
+	 * default (bus = position in the kit).
+	 *
+	 * \param nInstrument Index of the instrument within the current
+	 * kit. */
+	virtual bool setInstrumentOutputBus(
+		int nInstrument,
+		int nOutputBus,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setMetronomeIsActive( bool isActive );
+	virtual bool setMetronomeVolume( float fVolume );
+	virtual bool setMasterIsMuted(
+		bool isMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setHumanizeTime(
 		float fValue,
-		bool bSelectStrip
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setHumanizeVelocity(
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool setSwing(
+		float fValue,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Sets the song-global pan law (MixerSettingsDialog). @a nPanLawType is a
+	 * #H2Core::Sampler pan-law constant. */
+	virtual bool setPanLaw(
+		int nPanLawType,
+		float fPanLawKNorm,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Auditions an instrument through the #H2Core::Sampler (the mixer-strip
+	 * "play sample" / "stop sample" preview buttons). Builds a transient note
+	 * for the instrument at @a nInstrument and triggers it; @a bStop sends a
+	 * note-off (stop) instead of a full-velocity note-on.
+	 *
+	 * @return true on success. */
+	virtual bool previewInstrument( int nInstrument, bool bStop );
+
+	/** Auditions an ad-hoc instrument — one that is not part of the current
+	 * song's kit (file browser, sound library, sample editor) — through the
+	 * #H2Core::Sampler. @a pNote must already be bound to @a pInstrument
+	 * (Sampler::previewInstrument() enforces this). In editor mode this is
+	 * forwarded over IPC to the authoritative engine — the instrument and
+	 * note cross as XML and the engine reloads the samples from their
+	 * (shared-disk) paths; in standalone the local sampler plays it. A
+	 * note's SelectedLayerInfo does not cross for ad-hoc instruments (it
+	 * is resolved only against kit instruments on deserialization).
+	 *
+	 * @return true on success. */
+	virtual bool previewInstrument( std::shared_ptr<Instrument> pInstrument,
+									std::shared_ptr<Note> pNote );
+
+	/** Triggers a note for immediate playback through the #H2Core::Sampler
+	 * (ADR 0030). The note carries its own instrument pointer, velocity,
+	 * key/octave, and optional SelectedLayerInfo (component/layer
+	 * selection). In editor mode this is forwarded over IPC to the
+	 * authoritative engine; in standalone it calls Sampler::noteOn()
+	 * directly.
+	 *
+	 * @return true on success. */
+	virtual bool noteOn( std::shared_ptr<Note> pNote );
+	/** Mutes/unmutes the song's playback-track instrument (and its sole
+	 * component/layer), which is not part of the drumkit instrument list. */
+	virtual bool setPlaybackTrackMuted(
+		bool bMuted,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Sets the volume of the song's playback-track instrument. */
+	virtual bool setPlaybackTrackVolume(
+		float fVolume,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 
-	static bool initExternalControlInterfaces();
+	virtual bool setStripIsMuted(
+		int nStrip,
+		bool isMuted,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool toggleStripIsMuted(
+		int nStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+
+	virtual bool setStripIsSoloed(
+		int nStrip,
+		bool isSoloed,
+		bool bSelectStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool toggleStripIsSoloed(
+		int nStrip,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+
+	virtual bool initExternalControlInterfaces();
+
+	/** Restarts the OSC server of this instance's engine (re-reading the
+	 * OSC configuration from Preferences). Single write surface (ADR 0027):
+	 * in editor mode the IpcCoreActionController override forwards the
+	 * command to the authoritative engine — the mirror holds no server, so
+	 * its local base call is a no-op. */
+	virtual bool recreateOscServer();
 
 	// -----------------------------------------------------------
 	// Actions required for session management.
@@ -121,7 +420,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *    having to do some string magic to retrieve the original name.
 	 * \return nullptr on failure
 	 */
-	static std::shared_ptr<Song>
+	virtual std::shared_ptr<Song>
 	loadSong( const QString& sSongPath, const QString& sRecoverSongPath = "" );
 	/**
 	 * Sets a #H2Core::Song to be used by Hydrogen.
@@ -132,7 +431,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * \param pSong Pointer to the #H2Core::Song to set.
 	 * \return true on success
 	 */
-	static bool setSong( std::shared_ptr<Song> pSong );
+	virtual bool setSong(
+		std::shared_ptr<Song> pSong,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Saves the current #H2Core::Song.
 	 *
@@ -141,7 +443,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \return true on success
 	 */
-	static bool saveSong( bool bKeepMissingSamples );
+	virtual bool saveSong( bool bKeepMissingSamples );
 	/**
 	 * Saves the current #H2Core::Song to the path provided in @a sNewFileName.
 	 *
@@ -157,19 +459,174 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   should be kept or discarded.
 	 * \return true on success
 	 */
-	static bool
-	saveSongAs( const QString& sNewFileName, bool bKeepMissingSamples );
+	/** How #saveSongAs treats the path it saves to. */
+	enum class PathPolicy {
+		/** The saved file becomes the song's backing path (regular
+		 * save-as). */
+		Adopt,
+		/** A copy is written while the current backing path is kept
+		 * (NSM export-from-session). */
+		Keep
+	};
+	virtual bool
+	saveSongAs( const QString& sNewFileName, bool bKeepMissingSamples,
+				PathPolicy policy = PathPolicy::Adopt );
 	/**
 	 * Loads an instance of #H2Core::Preferences from the corresponding XML
 	 * file. */
-	static std::shared_ptr<Preferences> loadPreferences( const QString& sPath );
+	virtual std::shared_ptr<Preferences> loadPreferences( const QString& sPath );
 	/**
 	 * Replaces the current #H2Core::Preferences singleton with the provided
 	 * instance. */
-	static bool setPreferences( std::shared_ptr<Preferences> pPreferences );
+	virtual bool setPreferences( std::shared_ptr<Preferences> pPreferences );
+	/**
+	 * Replaces the MIDI action map held by the current
+	 * #H2Core::Preferences.
+	 *
+	 * The map is GUI-authoritative: the editor's MIDI action table
+	 * funnels every change through this command so the authoritative
+	 * engine applies the same map (ADR 0030). Unlike setPreferences()
+	 * this is a granular install — no driver restarts, no
+	 * UpdatePreferences event; the engine's MIDI dispatch reads the map
+	 * live on every incoming event. */
+	virtual bool setMidiEventMap( std::shared_ptr<MidiEventMap> pMidiEventMap );
+	/**
+	 * Replaces the MIDI instrument map held by the current
+	 * #H2Core::Preferences.
+	 *
+	 * The map is GUI-authoritative: the editor's MIDI control dialog
+	 * funnels every change through this command so the authoritative
+	 * engine applies the same map (ADR 0030). Like setMidiEventMap()
+	 * this is a granular install — no driver restarts, no
+	 * UpdatePreferences event; the engine's MIDI I/O and Sampler read
+	 * the map live. */
+	virtual bool setMidiInstrumentMap(
+		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap );
+	/**
+	 * Sets the scalar MIDI control settings of the current
+	 * #H2Core::Preferences: note-off handling, the action dispatch
+	 * channel, MIDI feedback, transport message handling/sending, the
+	 * feedback channel and note-off sending.
+	 *
+	 * Granular install — no driver restarts, no UpdatePreferences
+	 * event: the engine's MIDI I/O reads all of them live
+	 * (MidiInput/MidiOutput/Sampler/AudioEngine). In the editor split
+	 * the MIDI control dialog funnels every change through this
+	 * command so the authoritative engine applies the same settings
+	 * (ADR 0030). */
+	virtual bool setMidiControlSettings(
+		bool bNoteOffIgnore,
+		Midi::Channel actionChannel,
+		bool bEnableFeedback,
+		bool bTransportInputHandling,
+		bool bTransportOutputSend,
+		Midi::Channel feedbackChannel,
+		Preferences::MidiSendNoteOff sendNoteOff );
+	/**
+	 * Sets whether rubberband batch recalculation is active in the
+	 * current #H2Core::Preferences.
+	 *
+	 * Granular install — no driver restarts, no UpdatePreferences
+	 * event: the engine's transport and drumkit read the flag live
+	 * (rubberband recalculation on tempo changes). In the editor split
+	 * the GUI toggle must cross it to the authoritative engine
+	 * (ADR 0030). */
+	virtual bool setRubberBandBatchMode( int nMode );
+	/**
+	 * Sets the punch-in/out area markers the engine's recording
+	 * decision reads.
+	 *
+	 * The pair is installed as one command so the engine never sees a
+	 * half-updated area; an out position below the in position (the
+	 * ruler's unset uses `(0, -1)`) clears the area — every position
+	 * records. Runtime-only state — not part of the serialized
+	 * preferences (ADR 0030). */
+	virtual bool setPunchArea( int nPunchInPos, int nPunchOutPos );
+	/**
+	 * Sets whether incoming keyboard/MIDI events are quantized to the
+	 * pattern editor grid in the current #H2Core::Preferences.
+	 *
+	 * Granular install — no driver restarts, no UpdatePreferences
+	 * event: the engine's addRealtimeNote() reads the flag live when
+	 * recording incoming notes. In the editor split the pattern editor
+	 * panel's toggle must cross it to the authoritative engine
+	 * (ADR 0030). */
+	virtual bool setQuantizeEvents( bool bQuantizeEvents );
+	/**
+	 * Sets the pattern editor grid — the resolution and whether it is
+	 * based on triplets — in the current #H2Core::Preferences.
+	 *
+	 * The pair is installed as one command so the engine never sees a
+	 * half-updated grid: addRealtimeNote() computes the quantization
+	 * step from resolution×triplets base when recording incoming
+	 * notes. In the editor split the pattern editor panel's resolution
+	 * combo must cross it to the authoritative engine (ADR 0030). */
+	virtual bool setPatternEditorGrid( int nResolution, bool bUsingTriplets );
+	/**
+	 * Sets the last MIDI event registered by the engine's MIDI input
+	 * — the learning channel the MIDI sense widget polls to bind
+	 * incoming events.
+	 *
+	 * The type and parameter form one logical value (the MIDI input
+	 * writes both for every event), so they are set together. The
+	 * editor resets the channel before listening; in the editor split
+	 * the reset must cross to the authoritative engine, whose MIDI
+	 * input is the only writer afterwards (ADR 0030). */
+	virtual bool setLastMidiEvent( const MidiEvent::Type& type,
+								   Midi::Parameter parameter );
+	/**
+	 * Adds @a sDirPath to the list of custom sound library dirs held
+	 * by the current #H2Core::Preferences and rescans the sound
+	 * library database.
+	 *
+	 * The dirs are engine-consumed state: the database scans them on
+	 * every update (Filesystem::listContent in Context::Custom). The
+	 * editor's sound library tree funnels every add through this
+	 * command so the authoritative engine's preferences and database
+	 * see the dir (ADR 0030). Idempotent: an already-registered dir
+	 * is a no-op returning true.
+	 *
+	 * \return true on success */
+	virtual bool addCustomSoundLibraryDir( const QString& sDirPath );
+	/**
+	 * Removes @a sDirPath from the list of custom sound library dirs
+	 * held by the current #H2Core::Preferences and rescans the sound
+	 * library database.
+	 *
+	 * Counterpart to addCustomSoundLibraryDir(): the editor's sound
+	 * library tree funnels every remove through this command (ADR
+	 * 0030). Idempotent: a dir that is not registered is a no-op
+	 * returning true.
+	 *
+	 * \return true on success */
+	virtual bool removeCustomSoundLibraryDir( const QString& sDirPath );
+	/**
+	 * Exports the current song in one shot: opens an export session
+	 * with the given render settings, renders one file per entry in
+	 * @a renders (minus the entry's excluded instruments, ADR 0027),
+	 * and restores the previous drivers, transport state, rubberband
+	 * batch mode flag, and interpolation override afterwards.
+	 *
+	 * The render pipeline only runs in the authoritative engine — the
+	 * editor mirror's process loop skips rendering by design — so in
+	 * the editor split the ExportSongDialog funnels the whole plan
+	 * through this command (ADR 0030). The plan runs on a background
+	 * thread in the engine; this call returns once the plan is armed.
+	 * An empty plan is an acknowledged no-op.
+	 *
+	 * \return true on success */
+	virtual bool exportSong(
+		int nSampleRate, int nSampleDepth, double fCompressionLevel,
+		Interpolation::InterpolateMode interpolateMode,
+		bool bRubberbandBatchMode,
+		const std::vector<ExportRender>& renders );
+	/** Ends a running export session — also safe without one: cancels
+	 * the remaining plan, aborts a running render, and restores the
+	 * previous audio/MIDI drivers and transport state. */
+	virtual void stopExportSession();
 	/**
 	 * Saves the current state of the #H2Core::Preferences. */
-	static bool savePreferences();
+	virtual bool savePreferences();
 	/**
 	 * Triggers the shutdown of Hydrogen.
 	 *
@@ -181,7 +638,17 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \return true on success
 	 */
-	static bool quit();
+	virtual bool quit();
+
+	/** Stops all playback and sends an all-notes-off to the MIDI driver.
+	 *
+	 * This is the "panic" action triggered by the Panic shortcut. It stops
+	 * the sequencer, stops all playing notes in the sampler, and sends an
+	 * all-notes-off message via the MIDI driver (ADR 0027/0030 — routed
+	 * through CAC so editor mode can marshal it over IPC).
+	 *
+	 * \return true on success */
+	virtual bool panic();
 
 	// -----------------------------------------------------------
 	// Further OSC commands
@@ -198,8 +665,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateTimeline( bool bActivate );
-	static bool toggleTimeline();
+	virtual bool activateTimeline( bool bActivate );
+	virtual bool toggleTimeline();
 	/**
 	 * Adds a tempo marker to the Timeline.
 	 *
@@ -208,7 +675,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool addTempoMarker( int nPosition, float fBpm );
+	virtual bool addTempoMarker(
+		int nPosition,
+		float fBpm,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Delete a tempo marker from the Timeline.
 	 *
@@ -219,7 +690,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool deleteTempoMarker( int nPosition );
+	virtual bool deleteTempoMarker(
+		int nPosition,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Adds a tag to the Timeline.
 	 *
@@ -228,7 +702,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool addTag( int nPosition, const QString& sText );
+	virtual bool addTag(
+		int nPosition,
+		const QString& sText,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Delete a tag from the Timeline.
 	 *
@@ -239,7 +717,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool deleteTag( int nPosition );
+	virtual bool deleteTag(
+		int nPosition,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * (De)activates the usage of Jack transport.
 	 *
@@ -251,8 +732,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateJackTransport( bool bActivate );
-	static bool toggleJackTransport();
+	virtual bool activateJackTransport( bool bActivate );
+	virtual bool toggleJackTransport();
 	/**
 	 * (Un)registers Hydrogen as JACK Timebase constroller.
 	 *
@@ -264,8 +745,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateJackTimebaseControl( bool bActivate );
-	static bool toggleJackTimebaseControl();
+	virtual bool activateJackTimebaseControl( bool bActivate );
+	virtual bool toggleJackTimebaseControl();
 
 	/**
 	 * Switches between Song and Pattern mode of playback.
@@ -275,8 +756,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateSongMode( bool bActivate );
-	static bool toggleSongMode();
+	virtual bool activateSongMode( bool bActivate );
+	virtual bool toggleSongMode();
 	/**
 	 * (De)activates loop mode of playback.
 	 *
@@ -284,10 +765,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool activateLoopMode( bool bActivate );
-	static bool toggleLoopMode();
-	static bool activateRecordMode( bool bActivate );
-	static bool toggleRecordMode();
+	virtual bool activateLoopMode( bool bActivate );
+	virtual bool toggleLoopMode();
+	virtual bool activateRecordMode( bool bActivate );
+	virtual bool toggleRecordMode();
 
 	/**
 	 * Sets Drumkit @a pDrumkit as the one used in the current #Song.
@@ -299,7 +780,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \param pDrumkit Full-fledged #H2Core::Drumkit to load.
 	 */
-	static bool setDrumkit( std::shared_ptr<Drumkit> pDrumkit );
+	virtual bool setDrumkit(
+		std::shared_ptr<Drumkit> pDrumkit,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/**
 	 * Upgrades the drumkit found at absolute path @a sDrumkitDirOrXml.
 	 *
@@ -307,7 +791,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * place and a backup file will be created in order to not
 	 * overwrite the existing state.
 	 */
-	static bool upgradeDrumkit(
+	virtual bool upgradeDrumkit(
 		const QString& sDrumkitDirOrXml,
 		const QString& sNewDir = ""
 	);
@@ -323,7 +807,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * @param bCheckLegacyVersions Whether just the current XSD
 	 *   definition or also all previous versions should be checked.
 	 */
-	static bool validateDrumkit(
+	virtual bool validateDrumkit(
 		const QString& sDrumkitDirOrXml,
 		bool bCheckLegacyVersions = false
 	);
@@ -352,7 +836,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   filepath of extracted kit had to be altered in order to not run into
 	 *   UTF-8 issues.
 	 */
-	static bool extractDrumkit(
+	virtual bool extractDrumkit(
 		const QString& sDrumkitBundledPath,
 		const QString& sTargetDir = "",
 		QString* pInstalledDir = nullptr,
@@ -363,31 +847,38 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * In case @a nIndex is `-1` @a pInstrument will be appended to the
 	 * instrument list.*/
-	static bool addInstrument(
+	virtual bool addInstrument(
 		std::shared_ptr<Instrument> pInstrument,
 		int nIndex,
-		long* pEventId
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Removes @a pInstrument from the current drumkit and adds it to the
 	 * instrument death row. This way it is guarantueed that its samples
 	 * stay loaded until the last #H2Core::Note is done rendering it.
 	 * Afterwards, its samples will be unloaded. */
-	static bool
-	removeInstrument( std::shared_ptr<Instrument> pInstrument, long* pEventId );
+	virtual bool removeInstrument(
+		std::shared_ptr<Instrument> pInstrument,
+		long nEventId,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Replaces @a pOldInstrument by @a pNewInstrument in the current
 	 * drumkit without clearing notes, changing the selected instrument
 	 * number, etc. */
-	static bool replaceInstrument(
+	virtual bool replaceInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
-		std::shared_ptr<Instrument> pOldInstrument
+		std::shared_ptr<Instrument> pOldInstrument,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
-	static bool replaceDrumkitInstrument(
+	virtual bool replaceDrumkitInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
-		std::shared_ptr<Instrument> pOldInstrument
+		std::shared_ptr<Instrument> pOldInstrument,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
-	static bool replacePlaybackTrackInstrument(
+	virtual bool replacePlaybackTrackInstrument(
 		std::shared_ptr<Instrument> pNewInstrument,
-		std::shared_ptr<Instrument> pOldInstrument
+		std::shared_ptr<Instrument> pOldInstrument,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Moves instrument @a nSourceIndex of the instrument list of the
 	 * current drumkit to index @a nTargetIndex.
@@ -395,9 +886,18 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Note that both @a nSourceIndex and @a nTargetIndex are the position
 	 * within the instrument list and _not_ the ID of the instrument (which
 	 * stays the same during the move action). */
-	static bool moveInstrument( int nSourceIndex, int nTargetIndex );
+	virtual bool moveInstrument(
+		int nSourceIndex,
+		int nTargetIndex,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
-	static bool renameComponent( int nComponentId, const QString& sNewName );
+	virtual bool renameComponent(
+		int nInstrumentIdx,
+		int nComponentId,
+		const QString& sNewName,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	/** Relocates transport to the beginning of a particular
 	 * column/Pattern group.
@@ -407,7 +907,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool locateToColumn( int nPatternGroup );
+	virtual bool locateToColumn( int nPatternGroup );
 	/** Relocates transport to a particular tick.
 	 *
 	 * @param nTick Destination
@@ -416,7 +916,17 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool locateToTick( long nTick, bool bWithJackBroadcast = true );
+	virtual bool locateToTick( long nTick, bool bWithJackBroadcast = true );
+
+	/** Relocates transport to an absolute frame. Unlike #locateToTick this issues
+	 * no JACK broadcast and no MIDI SongPos feedback: it is the read-only
+	 * "follow" relocation used by the editor mirror to track the host engine's
+	 * playhead (ADR 0026/0031), never a user-initiated seek.
+	 *
+	 * @param nFrame Destination frame.
+	 * @return bool true on success
+	 */
+	virtual bool relocateToFrame( long long nFrame );
 
 	/** Creates an empty pattern and adds it to the pattern list.
 	 *
@@ -424,11 +934,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool newPattern( const QString& sPatternName );
+	virtual bool newPattern( const QString& sPatternName );
 	/**
 	 * Loads an instance of #H2Core::Pattern from the corresponding XML
 	 * file. */
-	static std::shared_ptr<Pattern> loadPattern( const QString& sPath );
+	virtual std::shared_ptr<Pattern> loadPattern( const QString& sPath );
 	/** Opens a pattern to the current pattern list.
 	 *
 	 * @param pPattern pattern to be added.
@@ -439,10 +949,11 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool setPattern(
+	virtual bool setPattern(
 		std::shared_ptr<Pattern> pPattern,
 		int nPatternNumber,
-		bool bReplace
+		bool bReplace,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 	/** Selects a pattern from the current pattern list while taking into
 	 * account whether the pattern editor is currently locked.
@@ -451,14 +962,29 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool selectPattern( int nPatternNumber );
+	virtual bool selectPattern( int nPatternNumber );
+	/** Marks a pattern to be played next once the current one finishes (stacked
+	 * mode). Wraps `Hydrogen::toggleNextPattern`. */
+	virtual bool toggleNextPattern( int nPatternNumber );
+	/** Reorders the pattern list, moving the pattern at @a nSourcePattern to
+	 * @a nTargetPattern (shifting the patterns in between). Owns the
+	 * `AudioEngine` lock; updates the selection and fires `PatternChanged` so the
+	 * editors refresh (ADR 0027). */
+	virtual bool movePattern(
+		int nSourcePattern,
+		int nTargetPattern,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Removes a pattern from the pattern list.
 	 *
 	 * @param nPatternNumber Specifies the position/row of the pattern.
 	 *
 	 * @return bool true on success
 	 */
-	static bool removePattern( int nPatternNumber );
+	virtual bool removePattern(
+		int nPatternNumber,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 	/** Deletes all notes for instrument @a pInstrument in a specified
 	 * pattern.
 	 *
@@ -468,9 +994,9 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   currently selected pattern will be used instead.
 	 *
 	 * @return bool true on success. */
-	static bool
+	virtual bool
 	clearInstrumentInPattern( int nInstrumentNumber, int nPatternNumber = -1 );
-	static bool setPatternProperties(
+	virtual bool setPatternProperties(
 		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& sNewPatternName,
@@ -478,17 +1004,111 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		const QString& sNewPatternInfo,
 		const H2Core::License& newLicense,
 		const QStringList& newTags,
-		int nPatternIndex
+		int nPatternIndex,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Sets the length and denominator of a pattern (real-time-sensitive:
+	 * holds the #H2Core::AudioEngine lock and refreshes the song size).
+	 *
+	 * @param nLength New pattern length in ticks.
+	 * @param nDenominator New pattern denominator.
+	 * @param nPatternNumber Position/row of the target pattern.
+	 * @return true on success */
+	virtual bool setPatternSize(
+		int nLength,
+		int nDenominator,
+		int nPatternNumber,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Replaces the set of virtual patterns of one pattern with the ones
+	 * referenced by @a virtualPatternNames (whole-set replacement, not a
+	 * merge). The flattened virtual patterns are recomputed and the
+	 * playing patterns refreshed. Virtual relationships are song
+	 * structure, so the song — not the pattern files — is marked dirty.
+	 *
+	 * The command is validated atomically: an out-of-range pattern
+	 * number, an unknown name, or a self-reference is refused without
+	 * touching the current set.
+	 *
+	 * @param nPatternNumber Position/row of the target pattern.
+	 * @param virtualPatternNames Names of the new virtual pattern set.
+	 * @return true on success */
+	virtual bool setVirtualPatterns(
+		int nPatternNumber,
+		const QStringList& virtualPatternNames,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Edits a single property of one note, addressed by value identity
+	 * (pattern slot + position + instrument id/type + key/octave) so it is
+	 * split-safe. Real-time-sensitive: owns the #H2Core::AudioEngine lock
+	 * (ADR 0027). Instrument ids, key and octave are passed as their underlying
+	 * integers to keep this header light.
+	 *
+	 * @return true if a value actually changed. */
+	virtual bool editNoteProperty(
+		NoteProperty property,
+		int nPatternNumber,
+		int nPosition,
+		int nOldInstrumentId,
+		int nNewInstrumentId,
+		const QString& sOldType,
+		const QString& sNewType,
+		float fVelocity,
+		float fPan,
+		float fLeadLag,
+		float fProbability,
+		int nLength,
+		int nNewKey,
+		int nOldKey,
+		int nNewOctave,
+		int nOldOctave,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Adds or removes a single note in a pattern (the engine half of the
+	 * PatternEditor add/remove undo action). The note is addressed by value
+	 * (position + instrument id/type + key/octave; on delete further
+	 * disambiguated by length/velocity/pan/lead-lag/probability/note-off when
+	 * several match). Owns the #H2Core::AudioEngine lock (ADR 0027);
+	 * selection/cursor/view stay GUI-side.
+	 *
+	 * @param bIsDelete remove the matching note(s) when true, else insert a new
+	 *   note built from the provided properties.
+	 * @param bIsMappedToDrumkit whether @a nInstrumentId resolves to a kit
+	 *   instrument (else the note stays unmapped/typed).
+	 * @return true on success. */
+	virtual bool addOrRemoveNote(
+		int nPosition,
+		int nInstrumentId,
+		const QString& sType,
+		int nPatternNumber,
+		int nOldLength,
+		float fOldVelocity,
+		float fOldPan,
+		float fOldLeadLag,
+		int nOldKey,
+		int nOldOctave,
+		float fOldProbability,
+		bool bIsDelete,
+		bool bIsNoteOff,
+		bool bIsMappedToDrumkit,
+		Uuid* pNewNoteUUid,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Removes a specific note @a noteUuid within pattern @n patternUuid */
+	virtual bool removeNote(
+		Uuid noteUuid,
+		Uuid patternUuid,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 
-	static bool setSongProperties(
-		const QString& sNewPath,
+	virtual bool setSongProperties(
 		const int nNewVersion,
 		const QString& sNewName,
 		const QString& sNewAuthor,
 		const QString& sNewNotes,
 		const H2Core::License& newLicense,
-		const QStringList& newTags
+		const QStringList& newTags,
+		Event::Trigger trigger = Event::Trigger::Default
 	);
 
 	/** Fills or clears a specific grid cell in the SongEditor.
@@ -497,7 +1117,10 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * @return bool true on success
 	 */
-	static bool toggleGridCell( const GridPoint& gridPoint );
+	virtual bool toggleGridCell(
+		const GridPoint& gridPoint,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	/** Handle an incoming note event, e.g. a MIDI or OSC Note-On or
 	 * Note-Off as well as virtual keyboard stroke.
@@ -513,13 +1136,21 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   instruments the note was mapped to.
 	 *
 	 * @return bool true on success */
-	static bool handleNote(
+	virtual bool handleNote(
 		Midi::Note note,
 		Midi::Channel channel,
 		float fVelocity,
 		bool bNoteOff = false,
 		QStringList* pMappedInstruments = nullptr
 	);
+
+	/** Tells the #H2Core::Sampler to drop all notes of a specific instrument by
+	 * making their #H2Core::Adsr advance into the release state.
+	 *
+	 * @param instrumentUuid since this method will also be used across the IPC
+	 *   engine - editor split, the particular instrument will be indicated by
+	 *   its #H2Core::Uuid. */
+	virtual bool releasePlayingNotes( Uuid instrumentUuid );
 
 	/**
 	 * Loads the drumkit specified in @a sDrumkitDirOrXml.
@@ -545,7 +1176,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *   XML elements requires legacy format support and left untouched
 	 *   otherwise.
 	 */
-	static std::shared_ptr<Drumkit> retrieveDrumkit(
+	virtual std::shared_ptr<Drumkit> retrieveDrumkit(
 		const QString& sDrumkitDirOrXml,
 		bool* bIsCompressed,
 		QString* sDrumkitDir,
@@ -557,12 +1188,15 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * Set's song-level tempo of the #AudioEngine and stores the value
 	 * in the current #Song.
 	 */
-	static bool setBpm( float fBpm );
+	virtual bool setBpm(
+		float fBpm,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
 
 	/** Makes the metronome count for the length of the largest pattern in
 	 * the current row (song mode)/largest active pattern (pattern mode)
 	 * before starting playback. */
-	static bool startCountIn();
+	virtual bool startCountIn();
 
 	/**
 	 * Opens the #H2Core::Playlist specified in @a sPath.
@@ -580,25 +1214,25 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *    having to do some string magic to retrieve the original name.
 	 * \return nullptr on failure
 	 */
-	static std::shared_ptr<Playlist>
+	virtual std::shared_ptr<Playlist>
 	loadPlaylist( const QString& sPath, const QString& sRecoverPath = "" );
 	/** Replaces the current #Playlist with @a Playlist. */
-	static bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
+	virtual bool setPlaylist( std::shared_ptr<Playlist> pPlaylist );
 	/** Saves changes of the current #Playlist to disk. */
-	static bool savePlaylist();
+	virtual bool savePlaylist();
 	/** Saves the current #Playlist to @a sPath.*/
-	static bool savePlaylistAs( const QString& sPath );
+	virtual bool savePlaylistAs( const QString& sPath );
 	/** Adds a new song/ entry to the current playlist.
 	 *
 	 * If @a nIndex is set to a value of -1, @a pEntry will be appended at
 	 * the end of the playlist. */
-	static bool
+	virtual bool
 	addToPlaylist( std::shared_ptr<PlaylistEntry> pEntry, int nIndex = -1 );
 	/** Removes a song from the current playlist.
 	 *
 	 * If @a nIndex is set to a value of -1, the first occurrance of @a
 	 * pEntry will be deleted. */
-	static bool removeFromPlaylist(
+	virtual bool removeFromPlaylist(
 		std::shared_ptr<PlaylistEntry> pEntry,
 		int nIndex = -1
 	);
@@ -607,33 +1241,83 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * Song loading was split off to allow the GUI to show error dialogs in
 	 * case something went wrong. */
-	static bool activatePlaylistSong( int nSongNumber );
+	virtual bool activatePlaylistSong( int nSongNumber );
 
 	/** Enable or disable tempo control using MIDI clock. */
-	static bool setMidiClockInputHandling( bool bHandle );
+	virtual bool setMidiClockInputHandling( bool bHandle );
 
 	/** Enable or disable sending MIDI clock messages. */
-	static bool setMidiClockOutputSend( bool bHandle );
+	virtual bool setMidiClockOutputSend( bool bHandle );
+
+	/** Clear the MIDI driver's handled-input activity log (ADR 0029 — the GUI
+	 * "bin" button routes through here instead of touching the driver). */
+	virtual bool clearMidiInputLog();
+	/** Clear the MIDI driver's handled-output activity log (ADR 0029). */
+	virtual bool clearMidiOutputLog();
+
+	virtual bool addAutomationPoint(
+		float fX,
+		float fY,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	virtual bool removeAutomationPoint(
+		float fX,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+	/** Move the automation point at (fOldX, fOldY) to (fNewX, fNewY).
+	 *
+	 * Refused (returning false) when no point sits at the exact source
+	 * coordinates, when its value differs from fOldY (a stale command),
+	 * or when another point already occupies fNewX — moving would
+	 * otherwise silently drop it (AutomationPath::move() erases before
+	 * inserting and std::map::insert does not overwrite). */
+	virtual bool moveAutomationPoint(
+		float fOldX,
+		float fOldY,
+		float fNewX,
+		float fNewY,
+		Event::Trigger trigger = Event::Trigger::Default
+	);
+
+protected:
+	/** \return The owning Hydrogen instance — in editor mode the local
+	 * mirror the IPC override applies state to (batch 2t). */
+	Hydrogen* getHydrogen() const {
+		return m_pHydrogen;
+	}
 
    private:
-	static bool sendMasterVolumeFeedback();
-	static bool sendStripVolumeFeedback( int nStrip );
-	static bool sendMetronomeIsActiveFeedback();
-	static bool sendMasterIsMutedFeedback();
-	static bool sendStripIsMutedFeedback( int nStrip );
-	static bool sendStripIsSoloedFeedback( int nStrip );
-	static bool sendStripPanFeedback( int nStrip );
-	static bool sendStripPanSymFeedback( int nStrip );
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
 
-	static bool handleOutgoingControlChanges(
+	/** Resolve an instrument by its position in the current drumkit, logging on
+	 * failure. Shared by the per-parameter instrument setters. */
+	std::shared_ptr<Instrument> resolveInstrument( int nInstrument ) const;
+	/** Resolve a component by index within an instrument, logging on failure. */
+	std::shared_ptr<InstrumentComponent> resolveComponent(
+		int nInstrument, int nComponent ) const;
+	/** Resolve a layer by index within a component, logging on failure. */
+	std::shared_ptr<InstrumentLayer> resolveLayer(
+		int nInstrument, int nComponent, int nLayer ) const;
+
+	bool sendMasterVolumeFeedback();
+	bool sendStripVolumeFeedback( int nStrip );
+	bool sendMetronomeIsActiveFeedback();
+	bool sendMasterIsMutedFeedback();
+	bool sendStripIsMutedFeedback( int nStrip );
+	bool sendStripIsSoloedFeedback( int nStrip );
+	bool sendStripPanFeedback( int nStrip );
+	bool sendStripPanSymFeedback( int nStrip );
+
+	bool handleOutgoingControlChanges(
 		const std::vector<Midi::Parameter>& params,
 		Midi::Parameter nValue
 	);
-	static std::shared_ptr<Instrument> getStrip( int nStrip );
 
 	// -----------------------------------------------------------
 	// Actions required for session management.
 
+protected:
 	/**
 	 * Add @a sFileName to the list of recent songs in
 	 * Preferences::m_recentFiles.
@@ -643,7 +1327,7 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 *
 	 * \param sFileName New song to be added on top of the list.
 	 */
-	static void insertRecentFile( const QString& sFileName );
+	void insertRecentFile( const QString& sFileName );
 };
 
 }  // namespace H2Core

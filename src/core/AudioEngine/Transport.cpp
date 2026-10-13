@@ -43,7 +43,8 @@
 
 namespace H2Core {
 
-Transport::Transport( Type type ) : m_type( type )
+Transport::Transport( Type type, Hydrogen* pHydrogen )
+	: m_pHydrogen( pHydrogen ), m_type( type )
 {
 	m_pPlayingPatterns = std::make_shared<PatternList>();
 	m_pPlayingPatterns->setNeedsLock( true );
@@ -54,7 +55,7 @@ Transport::Transport( Type type ) : m_type( type )
 }
 
 Transport::Transport( std::shared_ptr<Transport> pOther )
-	: m_type( pOther->m_type )
+	: m_pHydrogen( pOther->m_pHydrogen ), m_type( pOther->m_type )
 {
 	m_pPlayingPatterns = std::make_shared<PatternList>();
 	m_pPlayingPatterns->setNeedsLock( true );
@@ -143,9 +144,9 @@ void Transport::setBpm( float fNewBpm )
 
 	m_fBpm = fNewBpm;
 
-	if ( Preferences::get_instance()->getRubberBandBatchMode() &&
+	auto pHydrogen = m_pHydrogen;
+	if ( pHydrogen->getPreferences()->getRubberBandBatchMode() &&
 		 m_type == Type::Playhead ) {
-		auto pHydrogen = Hydrogen::get_instance();
 		auto pSong = pHydrogen->getSong();
 		if ( pSong == nullptr ) {
 			return;
@@ -155,7 +156,7 @@ void Transport::setBpm( float fNewBpm )
 			return;
 		}
 
-		pDrumkit->recalculateRubberband( getBpm() );
+		pDrumkit->recalculateRubberband( getBpm(), pHydrogen );
 	}
 }
 
@@ -290,10 +291,11 @@ void Transport::setBeat( int nBeat )
 long long Transport::computeFrameFromTick(
 	const double fTick,
 	double* fTickMismatch,
-	int nSampleRate
+	int nSampleRate,
+	Hydrogen* pHydrogen
 )
 {
-	const auto pHydrogen = Hydrogen::get_instance();
+	assert( pHydrogen != nullptr );
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return 0;
@@ -571,7 +573,7 @@ long long Transport::computeFrameFromTick(
 		// importance. But we harness the ability of getBpmAtColumn()
 		// to collect and choose between tempo information gathered
 		// from various sources.
-		const float fBpm = AudioEngine::getBpmAtColumn( 0 );
+		const float fBpm = pHydrogen->getAudioEngine()->getBpmAtColumn( 0 );
 
 		const double fTickSize =
 			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm );
@@ -598,9 +600,10 @@ long long Transport::computeFrameFromTick(
 // This function uses the assumption that sample rate and resolution
 // are constant over the whole song.
 double
-Transport::computeTickFromFrame( const long long nFrame, int nSampleRate )
+Transport::computeTickFromFrame( const long long nFrame, int nSampleRate,
+								 Hydrogen* pHydrogen )
 {
-	const auto pHydrogen = Hydrogen::get_instance();
+	assert( pHydrogen != nullptr );
 
 	if ( nFrame < 0 ) {
 		ERRORLOG(
@@ -799,7 +802,7 @@ Transport::computeTickFromFrame( const long long nFrame, int nSampleRate )
 		// importance. But we harness the ability of getBpmAtColumn()
 		// to collect and choose between tempo information gathered
 		// from various sources.
-		const float fBpm = AudioEngine::getBpmAtColumn( 0 );
+		const float fBpm = pHydrogen->getAudioEngine()->getBpmAtColumn( 0 );
 		const double fTickSize =
 			AudioEngine::computeDoubleTickSize( nSampleRate, fBpm );
 

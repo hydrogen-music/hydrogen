@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef APPVEYOR_TEST_LISTENER_H
-#define APPVEYOR_TEST_LISTENER_H
+#ifndef H2C_APPVEYOR_TEST_LISTENER_H
+#define H2C_APPVEYOR_TEST_LISTENER_H
 
 #include <cppunit/TestListener.h>
 

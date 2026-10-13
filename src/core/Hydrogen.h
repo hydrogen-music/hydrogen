@@ -19,33 +19,61 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef HYDROGEN_H
-#define HYDROGEN_H
+#ifndef H2C_HYDROGEN_H
+#define H2C_HYDROGEN_H
 
 #include <core/Basics/Event.h>
+#include <core/Basics/Note.h>
 #include <core/Basics/Song.h>
 #include <core/config.h>
 #include <core/Helpers/Time.h>
+#include <core/IO/AudioDriverInfo.h>
 #include <core/IO/JackDriver.h>
+#include <core/IO/MidiDriverInfo.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Sampler/Interpolation.h>
 
-#include <stdint.h> // for uint32_t et al
 #include <cassert>
 #include <chrono>
+#include <deque>
+#include <map>
 #include <memory>
+#include <mutex>
+#include <sstream>
+#include <stdint.h> // for uint32_t et al
+#include <string>
+#include <tuple>
+#include <utility>
+#include <thread>
+#include <vector>
 
 namespace H2Core
 {
 	class AudioEngine;
 	class AudioDriver;
+	class CoreActionController;
 	class Drumkit;
+	class EventQueue;
 	class MidiBaseDriver;
 	class MidiActionManager;
+	class NsmClient;
+	class OscServer;
 	class Playlist;
+	class Preferences;
 	class SoundLibraryDatabase;
 	class TimeHelper;
+
+	/** One file to render in a one-shot export plan (ADR 0030 batch
+	 * 2l): the target file plus the identities of the instruments to
+	 * leave out of it (per-instrument / track-out renders; an empty
+	 * list exports every instrument). */
+	struct ExportRender {
+		QString sFileName;
+		std::vector<Uuid> excludedInstruments;
+	};
 
 ///
 /// Hydrogen Audio Engine.
@@ -80,17 +108,20 @@ public:
 			case the JACK audio driver is used, JACK Timebase support is
 			activated in the Preferences, and an external Timebase controller is
 			registered to the JACK server.*/
-		Jack = 3
+		Jack = 3,
+		/** Hydrogen runs as a plugin and follows the tempo broadcast by the
+			host transport (ADR 0013). Takes precedence over the Timeline. */
+		Plugin = 4,
+		/** The engine is a mirror in editor mode (ADR 0016/0030). Tempo is
+		 * controlled by the authoritative engine instance and followed via
+		 * telemetry + IPC events. This is the highest-priority source: the
+		 * mirror never resolves tempo locally. */
+		Remote = 5
 	};
 
 	enum ErrorMessages {
 		/**
-		 * The provided input in createDriver() does not match any of the
-		 * choices for #H2Core::Preferences::AudioDriver.
-		 */
-		UNKNOWN_DRIVER,
-		/**
-		 * Unable to connect the audio driver stored. The NullDriver will be
+		 * Unable to connect the audio driver stored. The StubAudioDriver will be
 		 * used as a fallback instead.
 		 */
 		ERROR_STARTING_DRIVER,
@@ -110,41 +141,78 @@ public:
 		PLAYBACK_TRACK_INVALID
 	};
 
-	/** Specifies the state of the Qt GUI*/
-	enum class GUIState {
-		/** Hydrogen is still starting up. Core maybe already somewhat ready but
-		 * GUI is most probably not.*/
-		startup = -1,
-		/** Hydrogen is up and running but there is no GUI available. */
-		headless = 0,
-		/** Hydrogen is up and running and there is a working GUI. */
-		ready = 1,
-		/** Teardown of Hydrogen was initialized and the Event handling system
-		 * might not work anymore. */
-		shutdown
-	};
-		static QString GUIStateToQString( const GUIState& state );
+	/**
+	 * Standalone helper: loads the process-current Preferences and constructs
+	 * the single Hydrogen instance used by the standalone application.
+	 *
+	 * A thin wrapper around the instance constructor (ADR 0015); plugin hosts
+	 * construct instances directly via #Hydrogen().
+	 */
+	static Hydrogen* create_instance( int nOscPort,
+									  std::shared_ptr<Preferences> pPreferences,
+									  H2Core::ProcessMode processMode );
 
 	/**
-	 * Creates all the instances used within Hydrogen in the right
-	 * order.
+	 * Constructs a Hydrogen instance owning the given @a pPref Preferences and
+	 * its own EventQueue (ADR 0015). Multiple instances may coexist in one
+	 * process; the caller owns the instance.
+	 *
+	 * @param pPref Preferences owned by this instance.
+	 * @param processMode Whether the resulting application will have a GUI
+	 *   and/or an authoritative engine.
+	 * @param nOscPort OSC port for this instance, or -1 to disable OSC.
 	 */
-	static void		create_instance( int nOscPort );
-	/**
-	 * Returns the current Hydrogen instance #__instance.
-	 */
-	static Hydrogen*	get_instance(){ return __instance; };
+	Hydrogen(
+		std::shared_ptr<Preferences> pPref,
+		H2Core::ProcessMode processMode,
+		int nOscPort
+	);
 
 	/**
 	 * Destructor taking care of most of the clean up.
 	 */
 	~Hydrogen();
 
+	/** \return The Preferences owned by this instance (#m_pPreferences). */
+	std::shared_ptr<Preferences> getPreferences() const { return m_pPreferences; }
+	/** Adopts @a pPreferences as the Preferences owned by this instance (ADR
+	 * 0015). Used when a different configuration is loaded at runtime. */
+	void setPreferences( std::shared_ptr<Preferences> pPreferences ) {
+		m_pPreferences = pPreferences;
+	}
+
+	/** Effective sample-interpolation mode used by the #H2Core::Sampler: the
+	 * audio-export override (#m_interpolateModeOverride) when active, else the
+	 * persistent #H2Core::Preferences::m_interpolateMode (ADR 0027). */
+	Interpolation::InterpolateMode getInterpolateMode() const;
+	/** Temporarily overrides the interpolation mode (audio export only, CLI or
+	 * ExportSongDialog). Not persisted; cleared with
+	 * clearInterpolateModeOverride() once the export is done. */
+	void setInterpolateModeOverride( Interpolation::InterpolateMode mode );
+	/** Drops the audio-export interpolation override set via
+	 * setInterpolateModeOverride(). */
+	void clearInterpolateModeOverride();
+	/** \return The EventQueue owned by this instance (#m_pEventQueue). */
+	EventQueue*		getEventQueue() const { return m_pEventQueue; }
+#ifdef H2CORE_HAVE_OSC
+	/** \return The OSC server owned by this instance (ADR 0015). */
+	OscServer*		getOscServer() const { return m_pOscServer; }
+	/** \return The NSM client owned by this instance (ADR 0015). */
+	NsmClient*		getNsmClient() const { return m_pNsmClient; }
+#endif
+	/** \return The per-instance Logger owned by this instance (ADR 0015, T1.6).
+	 * Used with Logger::Scope at the instance entry points so logging routes to
+	 * this instance's own log file. */
+	Logger*			getLogger() const { return m_pLogger; }
+
 	/*
 	 * return central instance of the audio engine
 	 */
 	AudioEngine*		getAudioEngine() const;
 		std::shared_ptr<MidiActionManager> getMidiActionManager() const;
+	std::shared_ptr<CoreActionController> getCoreActionController() const {
+		return m_pCoreActionController;
+	}
 	std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const {
 		return m_pSoundLibraryDatabase;
 	}
@@ -228,9 +296,14 @@ public:
 
 	Song::PatternMode getPatternMode() const;
 	/** Wrapper around Song::setPatternMode() which also triggers
-	Event::Type::StackedModeActivation and should be used by all parts of the
-	code except for song reading/setting.*/
-	void setPatternMode( const Song::PatternMode& mode );
+		Event::Type::StackedModeActivation and should be used by all parts of
+		the code except for song reading/setting. The @a trigger parameter is
+		passed to the internal setSongModified() call (Suppress for the
+		engine-side apply of an editor-forwarded command, ADR 0026 point
+		13). */
+	void setPatternMode(
+		const Song::PatternMode& mode,
+		Event::Trigger trigger = Event::Trigger::Default );
 
 	/** Wrapper around both Song::setIsTimelineActivated (recent) and
 	Preferences::setUseTimelinebpm() (former place to store the
@@ -261,22 +334,33 @@ public:
 	 *
 	 * Use this wrapper function instead of Drumkit::setIsModified() since it
 	 * ensures the modification state of the enclosing song is set as well. */
-	void setDrumkitModified( bool bIsModified );
+	void setDrumkitModified(
+		bool bIsModified, Event::Trigger trigger = Event::Trigger::Default );
 	/** Sets the state of a pattern contained in #m_pSong to @a bIsModified.
 	 *
 	 * Use this wrapper function instead of Pattern::setIsModified() since it
 	 * ensures the modification state of the enclosing song is set as well. */
-	void setPatternModified( bool bIsModified, int nIndex );
+	void setPatternModified(
+		bool bIsModified, int nIndex,
+		Event::Trigger trigger = Event::Trigger::Default );
+	/** Wrapper around Playlist::setIsModified() that checks whether a
+	 * playlist is set. Unlike the wrappers above it does not touch the
+	 * modification state of the enclosing song: the playlist is an
+	 * artifact in its own right. */
+	void setPlaylistIsModified( bool bIsModified );
 	/** Wrapper around Song::setIsModified() that checks whether a
-		song is set.*/
-	void setSongModified( bool bIsModified );
+		song is set. On the headless engine a non-suppressed call fires
+		SongIsModified even when the flag is unchanged — the attached
+		editor re-pulls the song on that echo and would otherwise miss
+		every engine-local edit after the first (ADR 0026 point 13). */
+	void setSongModified( bool bIsModified,
+						  Event::Trigger trigger = Event::Trigger::Default );
 	/** Wrapper around Song::getIsModified() that checks whether a
 		song is set.*/
 	bool getSongModified() const;
 
 	void			onTapTempoAccelEvent( TimePoint start = TimePoint() );
 
-	void			restartLadspaFX();
 	/** \return #m_nSelectedPatternNumber*/
 	int				getSelectedPatternNumber() const;
 	/**
@@ -326,16 +410,32 @@ public:
 	void			setBeatCounterBeatLength( float fBeatLength );
 	float			getBeatCounterBeatLength() const;
 	int			getBeatCounterEventCount() const;
+	/** Mirror-side apply of the engine's BeatCounter echo: the engine's
+	 * beat-counter pushes carry their event count as the event value, so
+	 * the editor's "n/total" display stays in step without a blocking
+	 * query (ADR 0026 point 12). */
+	void			setBeatCounterEventCount( int nEventCount );
 	bool			handleBeatCounter( TimePoint start = TimePoint() );
 	void			updateBeatCounterSettings();
-
-	void			initJackTimebaseControl();
-	void			releaseJackTimebaseControl();
-
-	void			panic();
+	/** Applies an explicit beat-counter configuration. In editor mode the
+	 * editor owns this config (the BpmTap buttons and the preferences
+	 * dialog write the mirror's state), so the IPC layer forwards a
+	 * snapshot of it instead of letting the engine read its own
+	 * preferences copy — which goes stale between syncs (ADR 0026 point
+	 * 12). The mode is written to the preferences as well: the TapAndPlay
+	 * completion branch of #handleBeatCounter reads it from there. */
+	void			updateBeatCounterSettings( float fBeatLength,
+						int nTotalBeats,
+						int nDriftCompensation,
+						int nStartOffset,
+						Preferences::BeatCounter mode );
 
 	//export management
 	bool			getIsExportSessionActive() const;
+	/** Whether the disk writer driver of an active export session
+	 * failed to write the current file (false without an active
+	 * session). */
+	bool			isExportWritingFailed() const;
 	/**
 	 * @param nSampleRate sample rate using which to export
 	 * @param nSampleDepth sample depth using which to export
@@ -348,8 +448,30 @@ public:
 	bool			startExportSession( int nSampleRate, int nSampleDepth,
 										double fCompressionLevel = 0.0 );
 	void			stopExportSession();
-	void			startExportSong( const QString& sFileName );
+	/** Renders the current song to @a sFileName.
+	 *
+	 * @param excludedInstruments Identities of instruments to leave out of this
+	 *   export (per-instrument/track exports). Empty (the default) exports every
+	 *   instrument. The per-instrument export flag is set here rather than by the
+	 *   caller (ADR 0027). */
+	void			startExportSong(
+		const QString& sFileName,
+		const std::vector<Uuid>& excludedInstruments = {} );
 	void			stopExportSong();
+	/** Runs a whole export plan in one shot (ADR 0030 batch 2l):
+	 * opens an export session with the given render settings, renders
+	 * one file per #ExportRender entry on a background thread, and
+	 * restores the previous drivers, transport state, rubberband
+	 * batch mode flag, and interpolation override afterwards. An
+	 * empty plan is an acknowledged no-op.
+	 *
+	 * \return true on success */
+	bool			exportSong(
+		int nSampleRate, int nSampleDepth,
+		double fCompressionLevel,
+		Interpolation::InterpolateMode interpolateMode,
+		bool bRubberbandBatchMode,
+		const std::vector<ExportRender>& renders );
 	
 	/************************************************************/
 	/********************** Playback track **********************/
@@ -359,18 +481,38 @@ public:
 	void			loadPlaybackTrack( const QString& sFileName );
 	/************************************************************/
 
-	/**\return #m_GUIState*/
-	const GUIState&	getGUIState() const;
+	/**\return #m_ProcessMode*/
+	const H2Core::ProcessMode&	getProcessMode() const;
+
+	/** Whether Hydrogen is starting up or tearing down. */
+	bool isFullyOperational() const;
+	void setFullyOperational( bool bFullyOperational );
+
 	/**\param state Specifies whether the Qt5 GUI is active. Sets
-	   #m_GUIState.*/
-	void			setGUIState( const GUIState& state );
+	   #m_ProcessMode.*/
+	void			setProcessMode( const H2Core::ProcessMode& state );
+	/** \return Whether a #H2Core::JackDriver is the local audio driver of
+	 * this process. Engine-core question: branches on the live driver
+	 * only, never on the IPC-cached editor copy (ADR 0029). */
 	bool			hasJackDriver() const;
 	/**
-	 * \return Whether #H2Core::JackDriver is used as current audio driver and
-	 * JACK transport was activated via the GUI
-	 * (#H2Core::Preferences::m_nJackTransportMode).
+	 * \return Whether #H2Core::JackDriver is used as current local audio
+	 * driver and JACK transport was activated via the GUI
+	 * (#H2Core::Preferences::m_nJackTransportMode). Engine-core question:
+	 * branches on the live driver only, never on the IPC-cached editor
+	 * copy (ADR 0029).
 	 */
 	bool			hasJackTransport() const;
+	/** \return Whether the authoritative engine uses a #H2Core::JackDriver.
+	 * GUI-facing question: in editor mode answered from the IPC-cached
+	 * #m_cachedAudioDriverInfo (ADR 0029), locally via hasJackDriver()
+	 * otherwise. */
+	bool			coreUsesJackDriver() const;
+	/** \return Whether the authoritative engine uses JACK transport.
+	 * GUI-facing question: in editor mode answered from the IPC-cached
+	 * #m_cachedAudioDriverInfo (ADR 0029), locally via hasJackTransport()
+	 * otherwise. */
+	bool			coreUsesJackTransport() const;
 
 	/**
 	 * Convenience function checking whether using the Timeline tempo is set in
@@ -386,10 +528,28 @@ public:
 	 * is locked in the song settings and the song is in song mode.
 	 */
 	bool isPatternEditorLocked() const;
-	void setIsPatternEditorLocked( bool bValue );
+	void setIsPatternEditorLocked(
+		bool bValue, Event::Trigger trigger = Event::Trigger::Default );
 
-	Tempo getTempoSource() const;
-	
+	/** Tells what is currently controlling the tempo of Hydrogen.
+	 *
+	 * @param bAuthoritativeEngine when set to true, helps the GUI in editor
+	 *   mode to determine what governs the tempo of the (remote) authoritative
+	 *   engine. The local mirror engine will always be in #Tempo::Remote. */
+	Tempo getTempoSource( bool bAuthoritativeEngine = false ) const;
+
+	/** \return Whether this instance is driven by a plugin host (ADR 0013):
+	 * audio, MIDI, and transport come from the host rather than from local
+	 * real-time drivers. The single predicate gating plugin-mode behaviour
+	 * (host-transport following here; feature disablement in ADR 0026). In
+	 * editor mode the mirror has no real driver; this returns the IPC-cached
+	 * value (ADR 0029). */
+	bool isUnderPluginHost() const;
+	/** Cache @a bValue as the plugin-host state. Called by the GUI after
+	 * fetching it from the authoritative engine via IPC (syncViaIpc).
+	 * Editor mode only (ADR 0029). */
+	void setCachedUnderPluginHost( bool bValue );
+
 	/**
 	 * \return Whether we hasJackTransport() and there is an external JACK
 	 *   Timebase controller broadcasting tempo information. If so, we disregard
@@ -397,15 +557,63 @@ public:
 	 *   #H2Core::JackDriver::m_timebaseState).
 	 */
 	JackDriver::Timebase		getJackTimebaseState() const;
-	/** \return NsmClient::m_bUnderSessionManagement if NSM is
-		supported.*/
+
+	/** \return A value description of the active audio driver, resolved from
+	 * the live driver pointer (ADR 0029). In editor mode the mirror engine has
+	 * no real driver; use #getCachedAudioDriverInfo for the IPC-cached copy. */
+	AudioDriverInfo		getAudioDriverInfo() const;
+	/** \return The external audio devices the @a kind driver can open on this
+	 * host, for the GUI's driver dialogs. ALSA enumerates statically —
+	 * independent of the running driver — while PortAudio and CoreAudio
+	 * require their driver to be running. Shared by LocalEngineAccess and
+	 * the IPC bridge so both processes enumerate identically (ADR 0029). */
+	QStringList		getAudioDevices( Preferences::AudioDriver kind,
+									 const QString& sHostAPI ) const;
+	/** \return The host APIs the running PortAudio driver knows; empty for
+	 * any other driver (ADR 0029). */
+	QStringList		getAudioHostAPIs() const;
+	/** \return The fallback port this instance's OSC server took when the
+	 * configured port was unavailable, -1 when none is in effect. In the
+	 * editor split only the authoritative engine has a server; the mirror
+	 * reports -1 (ADR 0016/0026). */
+	int				getOscTemporaryPort() const;
+	/** \return The NSM session folder the engine's NsmClient received in
+	 * the NSM open handshake; empty when not under session management (or
+	 * built without OSC support). In the editor split only the
+	 * authoritative engine has a folder — the GUI reads it through
+	 * IEngineAccess (IPC query, ADR 0032). */
+	QString			getSessionFolderPath() const;
+	/** \return The cached AudioDriverInfo populated via IPC in editor mode
+	 * (ADR 0029). In standalone mode this is default-constructed and unused. */
+	const AudioDriverInfo&	getCachedAudioDriverInfo() const;
+	/** Cache @a info as the current audio-driver state. Called by the GUI
+	 * after fetching AudioDriverInfo from the authoritative engine via IPC
+	 * (syncViaIpc / event-driven re-fetch). Editor mode only (ADR 0029). */
+	void			setCachedAudioDriverInfo( const AudioDriverInfo& info );
+
+	/** \return A value description of the active MIDI driver, resolved from
+	 * the live driver pointer (ADR 0029). In editor mode the mirror engine has
+	 * no real driver; use #getCachedMidiDriverInfo for the IPC-cached copy. */
+	MidiDriverInfo		getMidiDriverInfo() const;
+	/** \return The cached MidiDriverInfo populated via IPC in editor mode
+	 * (ADR 0029). In standalone mode this is default-constructed and unused. */
+	const MidiDriverInfo&	getCachedMidiDriverInfo() const;
+	/** Cache @a info as the current MIDI driver state. Called by the GUI
+	 * after fetching MidiDriverInfo from the authoritative engine via IPC
+	 * (syncViaIpc / event-driven re-fetch). Editor mode only (ADR 0029). */
+	void			setCachedMidiDriverInfo( const MidiDriverInfo& info );
+
+	/** \return Whether Hydrogen is under NSM session management. In standalone
+	 * this queries the live NsmClient; in editor mode the mirror has no NSM
+	 * client and this returns the IPC-cached value (ADR 0029). */
 	bool			isUnderSessionManagement() const;
+	/** Cache @a bValue as the session-management state. Called by the GUI
+	 * after fetching it from the authoritative engine via IPC (syncViaIpc).
+	 * Editor mode only (ADR 0029). */
+	void			setCachedUnderSessionManagement( bool bValue );
 
 		bool getRecordEnabled() const;
 		void setRecordEnabled( bool bEnabled );
-
-	void			setSessionIsExported( bool bIsExported );
-	bool			getSessionIsExported() const;
 
 	/**
 	 * Add @a pInstr to death row.
@@ -439,6 +647,28 @@ public:
 		bool getSendBbtChangeEvents() const;
 		void setSendBbtChangeEvents( bool bSend );
 
+	/** If a GUI is present, tells it to save the current Preferences to disk.
+	 * Otherwise Preferences are stored directly. Used when the editor needs to
+	 * persist geometry or other GUI-specific settings back to the Preferences
+	 * file.*/
+	void requestPreferencesSave();
+
+	/** \return Unique id of this Hydrogen instance within the current
+	 * process. Ids are assigned in increasing order during construction and
+	 * are used, among other things, to derive collision-free cache folders
+	 * for extracted `.h2project` bundles (ADR 0025). */
+	int getInstanceId() const;
+
+	/**
+	 * Register @a sDir as the extraction folder of a `.h2project` bundle
+	 * loaded by this instance (ADR 0025).
+	 *
+	 * Such folders live below Filesystem::cacheDir() and are removed again
+	 * in ~Hydrogen(). Registering the same folder multiple times is a
+	 * no-op.
+	 */
+	void registerExtractedProjectDir( const QString& sDir );
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -451,32 +681,43 @@ public:
 
 private:
 
-	/**
-	 * Constructor, entry point, and initialization of the
-	 * Hydrogen application.
-	 *
-	 * It is called by the main() function after setting up a
-	 * bunch of Qt5 stuff and creating an instance of the Logger
-	 * and Preferences.
-	 *
-	 * Only one Hydrogen object is allowed to exist. If the
-	 * #__instance object is present, the constructor will throw
-	 * an error.
-	 */
-	Hydrogen();
-
 		void killInstruments();
 
 	void			midiNoteOn( std::shared_ptr<Note> pNote );
 
-	/**
-	 * Static reference to the Hydrogen singleton. 
-	 *
-	 * It is created using the Hydrogen::Hydrogen() constructor,
-	 * initialized with NULL and assigned a new Hydrogen instance
-	 * if still 0 in create_instance().
-	 */
-	static Hydrogen* 	__instance;
+	/** Consumes #m_exportPlanQueue on the plan thread: renders one
+	 * file per entry and — on natural completion — restores the
+	 * session state itself (ADR 0030 batch 2l). */
+	void			runExportPlan();
+	/** Full export-session teardown: the parked transport state and
+	 * drivers (like the pre-split stop path) plus, for sessions armed
+	 * by exportSong(), the rubberband batch mode flag and
+	 * interpolation override it applied. */
+	void			finishExportSession();
+
+	/** Per-instance Logger owned by this instance (ADR 0015, T1.6) — own queue,
+	 * worker thread and log file. */
+	Logger* m_pLogger;
+	/** Preferences owned by this instance (ADR 0015). */
+	std::shared_ptr<Preferences> m_pPreferences;
+	/** Audio-export interpolation override (ADR 0027). When
+	 * #m_bUseInterpolateModeOverride is set it takes priority over the
+	 * persistent Preferences value; not serialised. */
+	Interpolation::InterpolateMode m_interpolateModeOverride;
+	bool m_bUseInterpolateModeOverride;
+	/** EventQueue owned by this instance (ADR 0015). */
+	EventQueue*		m_pEventQueue;
+
+#ifdef H2CORE_HAVE_OSC
+	/** OSC server owned by this instance (ADR 0015). Constructed in every
+	 * mode except Editor — the editor process never uses OSC itself; the
+	 * headless engine owns the control surface (ADR 0016/0026). Only binds
+	 * a port when OSC is enabled in this instance's Preferences. */
+	OscServer*		m_pOscServer = nullptr;
+	/** NSM client owned by this instance (ADR 0015). Not constructed in
+	 * Editor mode (the headless engine owns the NSM session). */
+	NsmClient*		m_pNsmClient = nullptr;
+#endif
 
 	/**
 	 * Pointer to the current song. It is initialized with NULL in
@@ -484,6 +725,16 @@ private:
 	 * via getSong().
 	 */
 	std::shared_ptr<Song>			m_pSong;
+
+	/** Unique id of this instance within the current process. Assigned in
+	 * increasing order in the constructor and exposed via
+	 * getInstanceId(). */
+	int m_nInstanceId;
+	/** Extraction folders of `.h2project` bundles loaded by this instance
+	 * (ADR 0025). They live below Filesystem::cacheDir(), are registered
+	 * via registerExtractedProjectDir(), and removed again in
+	 * ~Hydrogen(). */
+	QStringList m_extractedProjectDirs;
 
 	// beatcounter
 	float			m_fBeatCounterBeatLength;	///< beatcounter note length
@@ -506,6 +757,25 @@ private:
 	Song::Mode		m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
+	/** Preferences value of the rubberband batch mode flag, captured
+	 * before an export session applies its own (int-typed in
+	 * Preferences — restored verbatim). */
+	int				m_nOldRubberBandBatchMode = 0;
+	/** Remaining renders of the active one-shot export plan. */
+	std::deque<ExportRender> m_exportPlanQueue;
+	/** Set by stopExportSession() to abort the plan thread. */
+	bool			m_bExportPlanCancelled = false;
+	std::thread		m_exportPlanThread;
+	/** Guards #m_exportPlanQueue and #m_bExportPlanCancelled. */
+	std::mutex		m_exportPlanMutex;
+	/** Whether the active export session was armed by exportSong()
+	 * (as opposed to direct startExportSession() use) — only then do
+	 * the plan-only restores in finishExportSession() apply. */
+	bool			m_bExportPlanSession = false;
+	/** Serializes stopExportSession()/exportSong() around the
+	 * plan-thread join and (re)arm — a concurrent stop would
+	 * otherwise double-join or race the thread assignment. */
+	std::mutex		m_exportStopMutex;
 	
 	/**
 	 * Specifies whether the Qt5 GUI is active.
@@ -514,9 +784,14 @@ private:
 	 * the context of session management, the std::shared_ptr<Song> must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
-	 * Set by setGUIState() and accessed via getGUIState().
+	 * Set by setProcessMode() and accessed via getProcessMode().
 	 */
-	GUIState		m_GUIState;
+	H2Core::ProcessMode		m_ProcessMode;
+
+	/** Whether Hydrogen is starting up or tearing down. This variable must only
+	 * be set to false in case the entire startup was completed, e.g. the GUI
+	 * has a properly sized window frame. */
+	bool m_bIsFullyOperational;
 
 	/** Helper class for time-specific methods. */
 	std::shared_ptr<TimeHelper> m_pTimeHelper;
@@ -537,18 +812,19 @@ private:
 	 * Index of the pattern selected in the GUI or by a MIDI event.
 	 */
 	int				m_nSelectedPatternNumber;
-	/**
-	 * Indicates whether NSM session is saved or exported when entering
-	 * the CoreActionController::saveSong() function.
-	 */
-	bool			m_bSessionIsExported;
 
 	/**
-	 * Onset of the recorded last in addRealtimeNote(). It is used to
-	 * determine the custom length of the note in case the note on
-	 * event is followed by a note off event.
+	 * Note-ons recorded in addRealtimeNote() that have not seen their
+	 * matching note-off yet — keyed by (instrument id, key, octave),
+	 * value = (tick within the pattern, pattern number) of the recorded
+	 * note-on. The note-off resizes exactly the note its own note-on
+	 * recorded: a single "last recorded" tick would be moved by any
+	 * intervening note-on of another pitch or instrument, and the resize
+	 * would target — or miss — the wrong note.
 	 */
-	int				m_nLastRecordedMIDINoteTick;
+	std::map<std::tuple<Instrument::Id, Note::Key, Note::Octave>,
+			 std::pair<int, int>>
+		m_pendingRecordedNoteOns;
 
 		bool m_bRecordEnabled;
 
@@ -557,6 +833,7 @@ private:
 	 */
 	AudioEngine*	m_pAudioEngine;
 		std::shared_ptr<MidiActionManager> m_pMidiActionManager;
+	std::shared_ptr<CoreActionController> m_pCoreActionController;
 
 	std::shared_ptr<SoundLibraryDatabase> m_pSoundLibraryDatabase;
 
@@ -576,7 +853,60 @@ private:
 	 * event for better performance. */
 	bool m_bSendBbtChangeEvents;
 
+	/** Cached audio-driver state for editor mode (ADR 0029). Populated via IPC
+	 * from the authoritative engine; read by coreUsesJackDriver() /
+	 * coreUsesJackTransport() / getJackTimebaseState() when m_ProcessMode ==
+	 * Editor. Unused (default-constructed) in standalone. */
+	AudioDriverInfo m_cachedAudioDriverInfo;
+
+	/** Cached MIDI driver state for editor mode (ADR 0029). Populated via IPC
+	 * from the authoritative engine; Unused (default-constructed) in
+	 * standalone. */
+	MidiDriverInfo m_cachedMidiDriverInfo;
+
+	/** Cached session-management state for editor mode (ADR 0029). Populated
+	 * via IPC from the authoritative engine; read by
+	 * isUnderSessionManagement() when m_ProcessMode == Editor. Unused
+	 * (false) in standalone. */
+	bool m_bCachedUnderSessionManagement;
+
+	/** Cached plugin-host state for editor mode (ADR 0029). Populated via
+	 * IPC from the authoritative engine; read by isUnderPluginHost() when
+	 * m_ProcessMode == Editor. Unused (false) in standalone. */
+	bool m_bCachedUnderPluginHost;
+
+	/** Whether a custom #Logger instance was spawned by #Hydrogen */
+	bool m_bInstanceLoggerSpawned;
 };
+
+	/** Whenever Hydrogen is started in editor mode - connecting its GUI to an
+	 * authorative (remote) headless engine via IPC - it also starts a local
+	 * engine mirror for smooth transport control but without any audio, MIDI,
+	 * or OSC access. This assert marks methods directly accessing audio and
+	 * MIDI drivers as well as other things that _must_ be accessed from the
+	 * authorative engine and not from the mirrored one. */
+#if defined(H2CORE_HAVE_DEBUG) and !defined(NDEBUG)
+  #define ASSERT_NO_EDITOR_MODE(pHydrogen)	\
+	QString sMsg;								\
+	if ( pHydrogen == nullptr ) {				\
+		sMsg = "Invalid Hydrogen object. Wrong setup!";	\
+	}											\
+	else if ( pHydrogen->getProcessMode() == H2Core::ProcessMode::Editor ) { \
+		sMsg = "Hydrogen must not be in editor mode in this context!";	\
+	};											\
+	if ( ! sMsg.isEmpty() ) {					\
+		std::stringstream tmpStream;				\
+		tmpStream << std::this_thread::get_id();	\
+		ERRORLOG( QString( "[thread id: %1] %2" )	\
+				  .arg( QString::fromStdString( tmpStream.str() ) )	\
+				  .arg( sMsg ) );	\
+		__logger->flush();							\
+		assert( false );							\
+	}
+#else
+  #define ASSERT_NO_EDITOR_MODE(x)
+#endif
+
 
 inline bool Hydrogen::getIsExportSessionActive() const
 {
@@ -590,12 +920,18 @@ inline std::shared_ptr<MidiActionManager> Hydrogen::getMidiActionManager() const
 	return m_pMidiActionManager;
 }
 
-inline const Hydrogen::GUIState& Hydrogen::getGUIState() const {
-	return m_GUIState;
+inline const H2Core::ProcessMode& Hydrogen::getProcessMode() const {
+	return m_ProcessMode;
 }
 
-inline void Hydrogen::setGUIState( const Hydrogen::GUIState& state ) {
-	m_GUIState = state;
+inline void Hydrogen::setProcessMode( const H2Core::ProcessMode& state ) {
+	m_ProcessMode = state;
+}
+inline bool Hydrogen::isFullyOperational() const {
+	return m_bIsFullyOperational;
+}
+inline void Hydrogen::setFullyOperational( bool bFullyOperational ) {
+	m_bIsFullyOperational = bFullyOperational;
 }
 inline int Hydrogen::getSelectedPatternNumber() const
 {
@@ -613,12 +949,6 @@ inline void Hydrogen::setRecordEnabled( bool bEnabled ) {
 	m_bRecordEnabled = bEnabled;
 }
 
-inline void Hydrogen::setSessionIsExported( bool bSessionIsExported ) {
-	m_bSessionIsExported = bSessionIsExported;
-}
-inline bool Hydrogen::getSessionIsExported() const {
-	return m_bSessionIsExported;
-}
 inline const MidiEvent::Type& Hydrogen::getLastMidiEvent() const {
 	return m_lastMidiEvent;
 }
@@ -655,11 +985,17 @@ inline float Hydrogen::getBeatCounterBeatLength() const {
 inline int Hydrogen::getBeatCounterEventCount() const {
 	return m_nBeatCounterEventCount;
 }
+inline void Hydrogen::setBeatCounterEventCount( int nEventCount ) {
+	m_nBeatCounterEventCount = nEventCount;
+}
 inline bool Hydrogen::getSendBbtChangeEvents() const {
 	return m_bSendBbtChangeEvents;
 }
 inline void Hydrogen::setSendBbtChangeEvents( bool bSend ) {
 	m_bSendBbtChangeEvents = bSend;
+}
+inline int Hydrogen::getInstanceId() const {
+	return m_nInstanceId;
 }
 };
 

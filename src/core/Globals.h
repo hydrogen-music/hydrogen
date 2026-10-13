@@ -22,6 +22,7 @@
 #ifndef H2C_GLOBALS_H
 #define H2C_GLOBALS_H
 
+#include <QString>
 #include <QtGlobal>
 
 /** \addtogroup docConfiguration
@@ -57,7 +58,40 @@ namespace H2Core {
 	/** How many ticks make up a quarter note. This defines the smallest
 	 * possible resolution to 1 / nTicksPerQuarter. */
 	constexpr int nTicksPerQuarter = 48;
-}
+
+	/** Specifies the state of the Qt GUI.
+	 * Defined here (not in Hydrogen.h) to avoid circular includes when
+	 * Event.h needs to reference it. */
+	enum class ProcessMode {
+		/** Hydrogen is up and running but there is no GUI available. */
+		Headless = 0,
+		/** Hydrogen is up and running and there is a working GUI. */
+		Full = 1,
+		/** The Hydrogen GUI was started to connect via IPC to a headless
+		 * version of Hydrogen running in a different process. While this
+		 * project will spawn an engine too (driver-less), its sole purpose is
+		 * to serve as a mirror in order to ensure smooth playback and
+		 * transport. But the engine running in the other process is authorative
+		 * and the mirror one is synced to it periodically. */
+		Editor
+	};
+
+	inline QString ProcessModeToQString( const ProcessMode& state )
+	{
+		switch ( state ) {
+			case ProcessMode::Headless:
+				return "Headless";
+			case ProcessMode::Full:
+				return "Full";
+			case ProcessMode::Editor:
+				return "Editor";
+			default:
+				return QString( "Unknown ProcessMode [%1]" )
+					.arg( static_cast<int>( state ) );
+		}
+	}
+
+} // namespace H2Core
 
 #define MIN_BPM                  10
 #define MAX_BPM                 400

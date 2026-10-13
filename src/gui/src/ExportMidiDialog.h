@@ -21,8 +21,8 @@
  */
 
 
-#ifndef EXPORT_MIDI_DIALOG_H
-#define EXPORT_MIDI_DIALOG_H
+#ifndef H2C_EXPORT_MIDI_DIALOG_H
+#define H2C_EXPORT_MIDI_DIALOG_H
 
 #include <memory>
 

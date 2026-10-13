@@ -41,7 +41,7 @@
 #include "PatternEditorRuler.h"
 #include "PianoRollEditor.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../MainToolBar/MainToolBar.h"
@@ -183,9 +183,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 {
 	setAcceptDrops( true );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
 	m_nSelectedRowDB = pHydrogen->getSelectedInstrumentNumber();
 
@@ -206,8 +206,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 	m_pTabBar->setObjectName( "patternEditorTabBar" );
 	// Select a different pattern
 	connect( m_pTabBar, &QTabBar::tabBarClicked, [&]( int nIndex ) {
-		if ( Hydrogen::get_instance()->isPatternEditorLocked() &&
-			 Hydrogen::get_instance()->getAudioEngine()->getState() ==
+		if ( HydrogenApp::pEngine()->isPatternEditorLocked() &&
+			 HydrogenApp::pEngine()->getAudioEngine()->getState() ==
 				 AudioEngine::State::Playing ) {
 			HydrogenApp::get_instance()
 				->getSongEditorPanel()
@@ -218,16 +218,16 @@ PatternEditorPanel::PatternEditorPanel( QWidget* pParent )
 			if ( nIndex <= m_tabPatternMap.size() &&
 				 m_tabPatternMap[ nIndex ] != m_tabPatternMap[nIndex] ) {
 				m_bPatternSelectedViaTab = true;
-				CoreActionController::selectPattern( m_tabPatternMap[nIndex] );
+				HydrogenApp::pEngine()->getCoreActionController()->selectPattern( m_tabPatternMap[nIndex] );
 			}
 		}
 	} );
 	// Open the properties dialog for a particular pattern.
 	connect( m_pTabBar, &QTabBar::tabBarDoubleClicked, [&]( int nIndex ) {
 		const int nPattern = m_tabPatternMap[nIndex];
-		if ( Hydrogen::get_instance()->getSong() != nullptr ) {
+		if ( HydrogenApp::pEngine()->getSong() != nullptr ) {
 			const auto pPattern =
-				Hydrogen::get_instance()->getSong()->getPatternList()->get(
+				HydrogenApp::pEngine()->getSong()->getPatternList()->get(
 					nPattern
 				);
 			if ( pPattern != nullptr ) {
@@ -856,12 +856,12 @@ void PatternEditorPanel::createEditors()
 
 void PatternEditorPanel::updateDrumkitLabel()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
-	const auto pFontTheme = Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	QFont font(
 		pFontTheme->m_sApplicationFontFamily,
@@ -1024,9 +1024,12 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 			return;
 	}
 
-	auto pPref = Preferences::get_instance();
-	pPref->setPatternEditorGridResolution( m_nResolution );
-	pPref->setPatternEditorUsingTriplets( m_bIsUsingTriplets );
+	// The grid feeds the engine's realtime note quantization
+	// (addRealtimeNote): the pair crosses as one command so the
+	// authoritative engine never quantizes on a half-updated grid. The
+	// dual-apply installs it on the mirror's preferences too.
+	HydrogenApp::pEngine()->getCoreActionController()->setPatternEditorGrid(
+		m_nResolution, m_bIsUsingTriplets );
 
 	m_nCursorIncrement = ( m_bIsUsingTriplets ? 4 : 3 ) * 4 *
 						 H2Core::nTicksPerQuarter / ( m_nResolution * 3 );
@@ -1048,7 +1051,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 void PatternEditorPanel::hearNotesBtnClick()
 {
-	Preferences::get_instance()->setHearNewNotes( m_pHearNotesButton->isChecked(
+	HydrogenApp::pPreferences()->setHearNewNotes( m_pHearNotesButton->isChecked(
 	) );
 
 	if ( m_pHearNotesButton->isChecked() ) {
@@ -1063,9 +1066,12 @@ void PatternEditorPanel::hearNotesBtnClick()
 
 void PatternEditorPanel::quantizeEventsBtnClick()
 {
-	Preferences::get_instance()->setQuantizeEvents(
-		m_pQuantizeButton->isChecked()
-	);
+	// The flag feeds the engine's realtime note quantization
+	// (addRealtimeNote): the command crosses it to the authoritative
+	// engine and the dual-apply installs it on the mirror's
+	// preferences.
+	HydrogenApp::pEngine()->getCoreActionController()->setQuantizeEvents(
+		m_pQuantizeButton->isChecked() );
 
 	updateQuantization( nullptr );
 
@@ -1140,10 +1146,9 @@ void PatternEditorPanel::contentsMoving( int dummy )
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
 	const int nInstrument =
-		Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		HydrogenApp::pEngine()->getSelectedInstrumentNumber();
 	if ( nInstrument != -1 ) {
-		m_nSelectedRowDB =
-			Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		m_nSelectedRowDB = nInstrument;
 	}
 
 	ensureCursorIsVisible();
@@ -1232,7 +1237,7 @@ void PatternEditorPanel::zoomInBtnClicked()
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoomIn();
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
 	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
@@ -1258,7 +1263,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 	m_pNotePanEditor->zoomOut();
 	m_pPianoRollEditor->zoomOut();
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	pPref->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
 	pPref->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
@@ -1274,7 +1279,7 @@ void PatternEditorPanel::zoomOutBtnClicked()
 void PatternEditorPanel::updateIcons()
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorToolBarInactive = Skin::makeBackgroundColorInactive(
 		pColorTheme->m_patternEditor_selectedRowColor.darker(
 			PatternEditorPanel::nToolBarScaling
@@ -1282,7 +1287,7 @@ void PatternEditorPanel::updateIcons()
 	);
 	QColor color;
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 		color = Qt::white;
@@ -1362,7 +1367,7 @@ void PatternEditorPanel::updateInstance()
 
 void PatternEditorPanel::updatePatternInfo()
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
 	m_hoveredNotes.clear();
 
@@ -1492,7 +1497,7 @@ void PatternEditorPanel::updatePatternInfo()
 
 void PatternEditorPanel::updatePatternsToShow()
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	m_patternsToShow.clear();
@@ -1616,7 +1621,7 @@ void PatternEditorPanel::stateChangedEvent(
 	const H2Core::AudioEngine::State& state
 )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const bool bLocked = pHydrogen->isPatternEditorLocked();
 	if ( bLocked ) {
 		const bool bEnable =
@@ -1632,7 +1637,7 @@ void PatternEditorPanel::stateChangedEvent(
 
 void PatternEditorPanel::relocationEvent()
 {
-	if ( H2Core::Hydrogen::get_instance()->isPatternEditorLocked() ) {
+	if ( HydrogenApp::pEngine()->isPatternEditorLocked() ) {
 		updatePatternInfo();
 		updateDB();
 		updateEditors( Editor::Update::Content );
@@ -1700,39 +1705,25 @@ void PatternEditorPanel::patternSizeChangedAction(
 	int nSelectedPatternNumber
 )
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pAudioEngine = pHydrogen->getAudioEngine();
-	auto pSong = pHydrogen->getSong();
-	if ( pSong == nullptr ) {
-		return;
-	}
-	auto pPatternList = pSong->getPatternList();
-	std::shared_ptr<H2Core::Pattern> pPattern = nullptr;
-
-	if ( ( nSelectedPatternNumber != -1 ) &&
-		 ( nSelectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-
-	if ( pPattern == nullptr ) {
-		ERRORLOG( QString( "Pattern corresponding to pattern number [%1] could "
-						   "not be retrieved" )
-					  .arg( nSelectedPatternNumber ) );
+	// The engine edit (lock, length/denominator, song-size refresh,
+	// PatternChanged event) is owned by CoreActionController (ADR 0027).
+	if ( ! HydrogenApp::pEngine()->getCoreActionController()->setPatternSize(
+			 nLength, static_cast<int>( fDenominator ),
+			 nSelectedPatternNumber ) ) {
 		return;
 	}
 
-	pAudioEngine->lock( RIGHT_HERE );
-	// set length and denominator
-	pPattern->setLength( nLength );
-	pPattern->setDenominator( static_cast<int>( fDenominator ) );
-	pHydrogen->updateSongSize();
-	pAudioEngine->unlock();
+	// GUI-local view state: ensure the cursor stays within the accessible
+	// region of the current pattern (not part of the engine edit).
+	auto pSong = HydrogenApp::pHydrogen()->getSong();
+	std::shared_ptr<H2Core::Pattern> pEdited = nullptr;
+	if ( pSong != nullptr && nSelectedPatternNumber >= 0 &&
+		 nSelectedPatternNumber < pSong->getPatternList()->size() ) {
+		pEdited = pSong->getPatternList()->get( nSelectedPatternNumber );
+	}
 
-	pHydrogen->setPatternModified( true, nSelectedPatternNumber );
-
-	// Ensure the cursor stays within the accessible region of the current
-	// pattern.
-	if ( pPattern == m_pPattern && m_nCursorColumn >= nLength ) {
+	if ( pEdited != nullptr && sameObject( pEdited, m_pPattern ) &&
+		 m_nCursorColumn >= nLength ) {
 		int nNewColumn =
 			std::floor( m_pPattern->getLength() / m_nCursorIncrement ) *
 			m_nCursorIncrement;
@@ -1741,8 +1732,6 @@ void PatternEditorPanel::patternSizeChangedAction(
 		}
 		setCursorColumn( nNewColumn );
 	}
-
-	EventQueue::get_instance()->pushEvent( Event::Type::PatternChanged, -1 );
 }
 
 void PatternEditorPanel::addInstrument(
@@ -1751,7 +1740,7 @@ void PatternEditorPanel::addInstrument(
 	int nTargetRow
 )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -1792,22 +1781,20 @@ void PatternEditorPanel::addInstrument(
 
 	// We do not wait for the DB to be updated asynchronously but do so right
 	// away. This ensures we select the right row when appending an instrument.
-	long nEventId = Event::nInvalidId;
+	long nEventId = HydrogenApp::pEventQueue()->createEventId();
 
 	// We provide a copy of the instrument in order to not leak any changes
 	// into the original kit.
 	pHydrogenApp->pushUndoCommand(
 		new SE_addInstrumentAction(
 			std::make_shared<Instrument>( pTargetInstrument ), nTargetRowSE,
-			SE_addInstrumentAction::Type::DropInstrument, &nEventId
+			SE_addInstrumentAction::Type::DropInstrument, nEventId
 		),
 		"PatternEditorPanel::AddInstrumentAction"
 	);
-	if ( nEventId != Event::nInvalidId ) {
-		// Ensure we do not act on the queued event
-		// ourself.
-		blacklistEventId( nEventId );
-	}
+	// Ensure we do not act on the queued event ourselves.
+	blacklistEventId( nEventId );
+
 	pHydrogenApp->showStatusBarMessage(
 		QString( "%1 [%2]" )
 			.arg( pCommonStrings->getActionDropInstrument() )
@@ -1838,7 +1825,7 @@ void PatternEditorPanel::updatePreferencesEvent( int nValue )
 {
 	if ( nValue == 1 ) {
 		// new preferences loaded within the core
-		const auto pPref = H2Core::Preferences::get_instance();
+		const auto pPref = HydrogenApp::pPreferences();
 		const auto fGridWidth = pPref->getPatternEditorGridWidth();
 		if ( m_pDrumPatternEditor->getGridWidth() != fGridWidth ) {
 			m_pDrumPatternEditor->setGridWidth( fGridWidth );
@@ -2094,7 +2081,7 @@ void PatternEditorPanel::onPreferencesChanged(
 	const H2Core::Preferences::Changes& changes
 )
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	if ( changes & H2Core::Preferences::Changes::Font ) {
 		// It's sufficient to check the properties of just one label
@@ -2127,7 +2114,7 @@ void PatternEditorPanel::onPreferencesChanged(
 void PatternEditorPanel::updateStyleSheet()
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorDrumkit =
 		pColorTheme->m_patternEditor_instrumentAlternateRowColor.darker( 120 );
@@ -2142,7 +2129,7 @@ void PatternEditorPanel::updateStyleSheet()
 	const QColor colorPatternText = pColorTheme->m_patternEditor_textColor;
 
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
@@ -2247,19 +2234,22 @@ void PatternEditorPanel::setSelectedRowDB( int nNewRow )
 
 	m_nSelectedRowDB = nNewRow;
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pSong = pHydrogen->getSong();
 	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
 		 nNewRow < pSong->getDrumkit()->getInstruments()->size() ) {
-		// Within the kit, rows/ids are unique.
-		pHydrogen->setSelectedInstrumentNumber(
+		// Within the kit, rows/ids are unique. Routed through pEngine() so the
+		// change also reaches the authoritative engine (MIDI-to-selected
+		// routing runs there, ADR 0018).
+		HydrogenApp::pEngine()->setSelectedInstrumentNumber(
 			nNewRow, Event::Trigger::Default
 		);
 	}
 	else {
 		// For all other lines the cached instrument number does not change. But
 		// we still want to handle the update using the same event.
-		pHydrogen->setSelectedInstrumentNumber( -1, Event::Trigger::Force );
+		HydrogenApp::pEngine()->setSelectedInstrumentNumber(
+			-1, Event::Trigger::Force );
 	}
 }
 
@@ -2311,7 +2301,7 @@ void PatternEditorPanel::updateDB()
 {
 	m_db.clear();
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "song not ready yet" );
 		return;
@@ -2402,7 +2392,7 @@ void PatternEditorPanel::updateDB()
 	}
 
 	const int nSelectedInstrument =
-		Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		HydrogenApp::pEngine()->getSelectedInstrumentNumber();
 	if ( nSelectedInstrument != -1 ) {
 		m_nSelectedRowDB = nSelectedInstrument;
 	}
@@ -2425,7 +2415,7 @@ void PatternEditorPanel::updateDB()
 
 void PatternEditorPanel::updateQuantization( QInputEvent* pEvent )
 {
-	bool bQuantized = Preferences::get_instance()->getQuantizeEvents();
+	bool bQuantized = HydrogenApp::pPreferences()->getQuantizeEvents();
 
 	if ( pEvent != nullptr ) {
 		if ( QKeyEvent* pKeyEvent = dynamic_cast<QKeyEvent*>( pEvent ) ) {
@@ -2452,7 +2442,7 @@ void PatternEditorPanel::updateQuantization( QInputEvent* pEvent )
 
 void PatternEditorPanel::updateResolutionCombo()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	m_nResolution = pPref->getPatternEditorGridResolution();
 	m_bIsUsingTriplets = pPref->isPatternEditorUsingTriplets();
 
@@ -2516,7 +2506,7 @@ void PatternEditorPanel::updateTypeLabelVisibility()
 
 	// Update visibility
 	bool bVisible;
-	if ( Preferences::get_instance()->getPatternEditorAlwaysShowTypeLabels() ) {
+	if ( HydrogenApp::pPreferences()->getPatternEditorAlwaysShowTypeLabels() ) {
 		bVisible = true;
 	}
 	else {
@@ -2666,7 +2656,7 @@ void PatternEditorPanel::addOrRemoveNotes(
 		return;
 	}
 
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -2711,7 +2701,7 @@ void PatternEditorPanel::addOrRemoveNotes(
 
 	if ( oldNotes.size() == 0 ) {
 		// Play back added notes.
-		if ( Preferences::get_instance()->getHearNewNotes() &&
+		if ( HydrogenApp::pPreferences()->getHearNewNotes() &&
 			 row.bMappedToDrumkit &&
 			 ( static_cast<char>( modifier ) &
 			   static_cast<char>( Editor::ActionModifier::Playback ) ) ) {
@@ -2727,15 +2717,15 @@ void PatternEditorPanel::addOrRemoveNotes(
 				}
 				pNotePreview->setNoteOff( bIsNoteOff );
 
-				if ( !std::isnan( fYValue ) ) {
+				if ( std::abs( fYValue - PatternEditorPanel::fInvalidValue ) >
+					 0.01 ) {
 					NotePropertiesRuler::applyProperty(
 						pNotePreview, property, fYValue
 					);
 				}
 
-				Hydrogen::get_instance()
-					->getAudioEngine()
-					->getSampler()
+				HydrogenApp::pHydrogen()
+					->getCoreActionController()
 					->noteOn( pNotePreview );
 			}
 		}
@@ -2746,7 +2736,7 @@ void PatternEditorPanel::addOrRemoveNotes(
 		float fPan = PAN_DEFAULT;
 		float fLeadLag = LEAD_LAG_DEFAULT;
 		float fProbability = PROBABILITY_DEFAULT;
-		if ( !std::isnan( fYValue ) ) {
+		if ( std::abs( fYValue - PatternEditorPanel::fInvalidValue ) > 0.01 ) {
 			// We use a dummy note to retrieve the value.
 			auto pDummyNote = std::make_shared<Note>(
 				static_cast<std::shared_ptr<Instrument> >( nullptr )
@@ -2763,8 +2753,12 @@ void PatternEditorPanel::addOrRemoveNotes(
 				fLeadLag = pDummyNote->getLeadLag();
 			}
 			else if ( property == PatternEditor::Property::KeyOctave ) {
-				newKey = pDummyNote->getKey();
-				newOctave = pDummyNote->getOctave();
+				if ( pDummyNote->getKey() != Note::Key::Invalid ) {
+					newKey = pDummyNote->getKey();
+				}
+				if ( pDummyNote->getOctave() != Note::Octave::Invalid ) {
+					newOctave = pDummyNote->getOctave();
+				}
 			}
 			else if ( property == PatternEditor::Property::Probability ) {
 				fProbability = pDummyNote->getProbability();
@@ -2808,7 +2802,7 @@ bool PatternEditorPanel::isUsingAdditionalPatterns(
 	const std::shared_ptr<H2Core::Pattern> pPattern
 )
 {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	if ( pHydrogen->getPatternMode() == Song::PatternMode::Stacked ||
 		 ( pPattern != nullptr && pPattern->isVirtual() ) ||
@@ -2831,7 +2825,7 @@ void PatternEditorPanel::clearNotesInRow(
 		return;
 	}
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
@@ -2984,7 +2978,7 @@ void PatternEditorPanel::fillNotesInRow(
 		for ( int nnPosition : notePositions ) {
 			addOrRemoveNotes(
 				GridPoint( nnPosition, nRow ), key, octave,
-				false /* bIsNoteOff */, std::nan( "" ),
+				false /* bIsNoteOff */, PatternEditorPanel::fInvalidValue,
 				PatternEditor::Property::None, Editor::Action::Add,
 				Editor::ActionModifier::None
 			);
@@ -3082,7 +3076,7 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns(
 	Note::Pitch pitch
 )
 {
-	const auto pSong = Hydrogen::get_instance()->getSong();
+	const auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		ERRORLOG( "Song not ready" );
 		return;
@@ -3093,7 +3087,8 @@ void PatternEditorPanel::copyNotesFromRowOfAllPatterns(
 	// Serialize & put to clipboard
 	H2Core::XMLDoc doc;
 	auto rootNode = doc.set_root( "serializedPatternList" );
-	pSong->getPatternList()->saveTo( rootNode, row.id, row.sType, pitch );
+	pSong->getPatternList()->saveTo(
+		rootNode, row.id, row.sType, pitch, Xml::Flag::None );
 
 	const QString sSerialized = doc.toString();
 	if ( sSerialized.isEmpty() ) {
@@ -3124,7 +3119,7 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns(
 	Note::Pitch pitch
 )
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -3150,8 +3145,10 @@ void PatternEditorPanel::pasteNotesToRowOfAllPatterns(
 		return;
 	}
 
-	const auto pPatternList =
-		PatternList::loadFrom( rootNode, "", pSong->getDrumkit() );
+	const auto pPatternList = PatternList::loadFrom(
+		rootNode, "", pSong->getDrumkit(), Xml::Flag::None, false,
+		HydrogenApp::pHydrogen()->getSoundLibraryDatabase()
+	);
 	if ( pPatternList == nullptr ) {
 		ERRORLOG( QString( "Unable to deserialized pattern list [%1]" )
 					  .arg( sSerialized ) );

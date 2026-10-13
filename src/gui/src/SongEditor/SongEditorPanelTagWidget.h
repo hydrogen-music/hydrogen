@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_EDITOR_PANEL_TAG_WIDGET_H
-#define SONG_EDITOR_PANEL_TAG_WIDGET_H
+#ifndef H2C_SONG_EDITOR_PANEL_TAG_WIDGET_H
+#define H2C_SONG_EDITOR_PANEL_TAG_WIDGET_H
 
 #include <QDialog>
 #include "ui_SongEditorPanelTagWidget_UI.h"

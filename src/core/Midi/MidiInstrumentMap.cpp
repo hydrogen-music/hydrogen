@@ -283,10 +283,48 @@ MidiInstrumentMap::loadFrom( const XMLNode& node, bool bSilent )
 	return pMidiInstrumentMap;
 }
 
+QByteArray MidiInstrumentMap::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "midiInstrumentMap", "midiInstrumentMap" );
+	// saveTo() nests the settings in its own "midiInstrumentMap" child
+	// node (in the file format the map lives below the preferences
+	// root), so the buffer mirrors that layout and fromXmlBuffer()
+	// unwraps it again.
+	saveTo( root );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<MidiInstrumentMap> MidiInstrumentMap::fromXmlBuffer(
+	const QByteArray& xmlBuffer, bool bSilent )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( xmlBuffer ) ) {
+		ERRORLOG( "Unable to parse MIDI instrument map XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode root = doc.firstChildElement( "midiInstrumentMap" );
+	if ( root.isNull() ) {
+		ERRORLOG( "Error reading MIDI instrument map buffer: 'midiInstrumentMap' node not found" );
+		return nullptr;
+	}
+
+	XMLNode mapNode = root.firstChildElement( "midiInstrumentMap" );
+	if ( mapNode.isNull() ) {
+		ERRORLOG( "Error reading MIDI instrument map buffer: nested 'midiInstrumentMap' node not found" );
+		return nullptr;
+	}
+
+	return loadFrom( mapNode, bSilent );
+}
+
 std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 	Midi::Note note,
 	Midi::Channel channel,
-	std::shared_ptr<Drumkit> pDrumkit ) const
+	std::shared_ptr<Drumkit> pDrumkit,
+	Hydrogen* pHydrogen ) const
 {
 	std::vector< std::shared_ptr<Instrument> > instruments;
 
@@ -358,7 +396,7 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 			}
 		}
 
-		const auto fallbackMap = createFallbackMap();
+		const auto fallbackMap = createFallbackMap( pHydrogen );
 		for ( const auto& [nnoteRef, ppInstrument] : fallbackMap ) {
 			if ( nnoteRef.note == note &&
 				 ( nnoteRef.channel == channel ||
@@ -373,7 +411,7 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 
 	case Input::SelectedInstrument: {
 		auto pInstrument = pDrumkit->getInstruments()->get(
-			Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+			pHydrogen->getSelectedInstrumentNumber() );
 		if ( pInstrument != nullptr ) {
 			const auto channelMapped = getMappedChannel( pInstrument );
 			if ( channelMapped == channel ||
@@ -415,7 +453,8 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 
 MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	std::shared_ptr<Instrument> pInstrument,
-	std::shared_ptr<Drumkit> pDrumkit ) const
+	std::shared_ptr<Drumkit> pDrumkit,
+	Hydrogen* pHydrogen ) const
 {
 	if ( pInstrument == nullptr || pDrumkit == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -470,7 +509,7 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	}
 
 	case Input::SelectedInstrument: {
-		if ( Hydrogen::get_instance()->getSelectedInstrumentNumber() ==
+		if ( pHydrogen->getSelectedInstrumentNumber() ==
 			 pDrumkit->getInstruments()->index( pInstrument ) ) {
 			noteRef.channel = channelUsed;
 			// The note information is not handled by the UI
@@ -591,11 +630,11 @@ void MidiInstrumentMap::insertCustomInputMapping(
 }
 
 std::map<MidiInstrumentMap::NoteRef, std::shared_ptr<Instrument>>
-MidiInstrumentMap::createFallbackMap() const
+MidiInstrumentMap::createFallbackMap( Hydrogen* pHydrogen ) const
 {
 	std::map<NoteRef, std::shared_ptr<Instrument>> fallbackMap;
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return fallbackMap;
 	}

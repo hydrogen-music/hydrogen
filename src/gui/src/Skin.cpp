@@ -21,6 +21,7 @@
  */
 
 #include "Skin.h"
+#include "HydrogenApp.h"
 
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences/Preferences.h>
@@ -38,7 +39,7 @@ void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 				 y + Skin::nPlayheadHeight ),
 	};
 
-	QColor playheadColor( H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor );
+	QColor playheadColor( HydrogenApp::pPreferences()->getColorTheme()->m_playheadColor );
 	if ( bHovered ) {
 		playheadColor = Skin::makeTextColorInactive( playheadColor );
 	}
@@ -51,7 +52,7 @@ void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 
 void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 								 const Skin::Stacked& stacked ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	const QPointF points[3] = {
 		QPointF( x, y ),
@@ -88,7 +89,7 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 }
 
 QString Skin::getGlobalStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor buttonBackground = pColorTheme->m_widgetColor;
 	const QColor buttonBackgroundHover =
@@ -164,7 +165,7 @@ QString Skin::getSvgImagePath() {
 
 QString Skin::getToolButtonStyle( const QColor& backgroundColor )
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	QColor iconColor;
 	if ( pPref->getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
@@ -280,7 +281,7 @@ bool Skin::moreBlackThanWhite( const QColor& color ) {
 }
 
 void Skin::setPalette( QApplication *pQApp ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	// create the default palette
 	QPalette defaultPalette;
@@ -319,7 +320,7 @@ void Skin::setPalette( QApplication *pQApp ) {
 
 void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 	QColor playheadColor(
-		H2Core::Preferences::get_instance()->getColorTheme()->m_playheadColor
+		HydrogenApp::pPreferences()->getColorTheme()->m_playheadColor
 	);
 	if ( bHovered ) {
 		playheadColor = Skin::makeTextColorInactive( playheadColor );
@@ -342,7 +343,7 @@ void Skin::setToolButtonIcon(
 		return;
 	}
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	QColor enabledColor;
 	if ( pPref->getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
@@ -401,7 +402,7 @@ void Skin::setToolBarStyle(
 		return;
 	}
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	QColor iconColor;
 	if ( pPref->getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {

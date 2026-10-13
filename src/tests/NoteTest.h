@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef NOTE_TEST_H
-#define NOTE_TEST_H
+#ifndef H2C_NOTE_TEST_H
+#define H2C_NOTE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

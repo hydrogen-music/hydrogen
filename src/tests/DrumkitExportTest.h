@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef DRUMKIT_EXPORT_TEST_H
-#define DRUMKIT_EXPORT_TEST_H
+#ifndef H2C_DRUMKIT_EXPORT_TEST_H
+#define H2C_DRUMKIT_EXPORT_TEST_H
 
 #include <QString>
 #include <cppunit/extensions/HelperMacros.h>

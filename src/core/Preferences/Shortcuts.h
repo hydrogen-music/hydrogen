@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SHORTCUTS_H
-#define SHORTCUTS_H
+#ifndef H2C_SHORTCUTS_H
+#define H2C_SHORTCUTS_H
 
 #include <QString>
 #include <QKeySequence>
@@ -32,6 +32,8 @@
 #include <core/Object.h>
 
 namespace H2Core {
+
+class Hydrogen;
 
 class XMLNode;
 
@@ -132,8 +134,6 @@ public:
 		FirstWithManyArgs		 	= 300,
 		LayerPitch				 	= 301,
 		LayerGain				 	= 302,
-		
-		StripEffectLevel		 	= 303,
 
 		LastWithManyArgs		 	= 399,
 
@@ -173,53 +173,54 @@ public:
 		OpenPattern				 	= 506,
 		ExportPattern			 	= 507,
 		ExportSong				 	= 508,
-		ExportMIDI				 	= 509,
-		ExportLilyPond			 	= 510,
-		Quit					 	= 511,
+		ExportProject			 	= 509,
+		ExportMIDI				 	= 510,
+		ExportLilyPond			 	= 511,
+		Quit					 	= 512,
 
-		Undo					 	= 512,
-		Redo					 	= 513,
-		ShowUndoHistory			 	= 514,
+		Undo					 	= 513,
+		Redo					 	= 514,
+		ShowUndoHistory			 	= 515,
 
-		NewDrumkit				 	= 515,
-		OpenDrumkit				 	= 516,
-		EditDrumkitProperties	 	= 517,
-		SaveDrumkitToSoundLibrary	= 518,
-		SaveDrumkitToSession		= 519,
-		ExportDrumkit			 	= 520,
-		ImportDrumkit			 	= 521,
-		ImportOnlineDrumkit		 	= 522,
+		NewDrumkit				 	= 516,
+		OpenDrumkit				 	= 517,
+		EditDrumkitProperties	 	= 518,
+		SaveDrumkitToSoundLibrary	= 519,
+		SaveDrumkitToSession		= 520,
+		ExportDrumkit			 	= 521,
+		ImportDrumkit			 	= 522,
+		ImportOnlineDrumkit		 	= 523,
 
-		AddInstrument			 	= 523,
-		ClearAllInstruments		 	= 524,
-		AddComponent			 	= 525,
+		AddInstrument			 	= 524,
+		ClearAllInstruments		 	= 525,
+		AddComponent			 	= 526,
 
-		ShowPlaylist			 	= 526,
-		ShowDirector			 	= 527,
-		ShowMixer				 	= 528,
-		ShowRack		 	= 529,
-		ShowAutomation			 	= 530,
-		ShowPlaybackTrack		 	= 531,
-		ShowFullscreen			 	= 532,
+		ShowPlaylist			 	= 527,
+		ShowDirector			 	= 528,
+		ShowMixer				 	= 529,
+		ShowRack		 	= 530,
+		ShowAutomation			 	= 531,
+		ShowPlaybackTrack		 	= 532,
+		ShowFullscreen			 	= 533,
 
-		InputInstrument			= 533,
-		InputDrumkit			 	= 534,
-		ShowPreferencesDialog	 	= 535,
+		InputInstrument			= 534,
+		InputDrumkit			 	= 535,
+		ShowPreferencesDialog	 	= 536,
 
-		ShowAudioEngineInfo		= 536,
-		ShowFilesystemInfo		 	= 537,
-		LogLevelNone			 	= 538,
-		LogLevelError			 	= 539,
-		LogLevelWarning			= 540,
-		LogLevelInfo			 	= 541,
-		LogLevelDebug			 	= 542,
-		OpenLogFile				= 543,
-		DebugPrintObjects		 	= 544,
+		ShowAudioEngineInfo		= 537,
+		ShowFilesystemInfo		 	= 538,
+		LogLevelNone			 	= 539,
+		LogLevelError			 	= 540,
+		LogLevelWarning			= 541,
+		LogLevelInfo			 	= 542,
+		LogLevelDebug			 	= 543,
+		OpenLogFile				= 544,
+		DebugPrintObjects		 	= 545,
 
-		OpenManual				 	= 545,
-		ShowAbout				 	= 546,
-		ShowReportBug			 	= 547,
-		ShowDonate				 	= 548,
+		OpenManual				 	= 546,
+		ShowAbout				 	= 547,
+		ShowReportBug			 	= 548,
+		ShowDonate				 	= 549,
 
 		// Playlist editor
 		PlaylistAddSong			 	= 600,
@@ -269,7 +270,7 @@ public:
 	~Shortcuts();
 
 	void saveTo( XMLNode& node ) const;
-	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, bool bSilent = false );
+	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, H2Core::Hydrogen* pHydrogen, bool bSilent = false );
 
 	/**
 	 * Creates the default key bindings as fallback when upgrading
@@ -288,6 +289,21 @@ public:
 	 */
 	void deleteShortcut( const QKeySequence& keySequence, const Action& action );
 	void insertShortcut( const QKeySequence& keySequence, const Action& action );
+	/** Variants composing the sequence from modifier(s) and a key. The
+	 * composition goes through QKeySequence's int constructor - the one
+	 * route that works warning-free on every Qt from 5.15 to 6.8: Qt 5
+	 * lacks the operator|/QKeyCombination route entirely, while Qt 6
+	 * deletes operator+ between two modifiers and deprecates the
+	 * single-modifier one. */
+	void insertShortcut( Qt::KeyboardModifier modifier, Qt::Key key,
+						 const Action& action );
+	void insertShortcut( Qt::KeyboardModifier modifier1,
+						 Qt::KeyboardModifier modifier2, Qt::Key key,
+						 const Action& action );
+	void insertShortcut( Qt::KeyboardModifier modifier1,
+						 Qt::KeyboardModifier modifier2,
+						 Qt::KeyboardModifier modifier3, Qt::Key key,
+						 const Action& action );
 	ActionInfo getActionInfo( const Action& action ) const;
 
 	/**

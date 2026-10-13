@@ -22,53 +22,52 @@
 
 #include <core/IO/OssDriver.h>
 
+#include <core/Hydrogen.h>
+
 // check if OSS support is enabled
 #if defined(H2CORE_HAVE_OSS) || _DOXYGEN_
 
 #include <core/Preferences/Preferences.h>
-
-#include <pthread.h>
 
 namespace H2Core
 {
 
 audioProcessCallback ossDriver_audioProcessCallback;
 bool ossDriver_running;
-pthread_t ossDriverThread;
 int oss_driver_bufferSize = -1;
 OssDriver *m_pOssDriverInstance = NULL;
 
 unsigned nNextFrames = 0;
 
-void* ossDriver_processCaller( void* param )
+void ossDriver_processCaller( OssDriver* ossDriver )
 {
-	Base * __object = ( Base * )param;
+
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( ossDriver->getHydrogen()->getLogger() );
+
 	// stolen from amSynth
 	struct sched_param sched;
 	sched.sched_priority = 50;
 	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
 	sched_getparam( 0, &sched );
 	if ( res ) {
-		__WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
+		___WARNINGLOG( "Can't set realtime scheduling for OSS Driver" );
 	}
-	__INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
-
-	OssDriver *ossDriver = ( OssDriver* )param;
+	___INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	sleep( 1 );
 
 	while ( ossDriver_running ) {
-		ossDriver_audioProcessCallback( oss_driver_bufferSize, NULL );
+		ossDriver_audioProcessCallback( oss_driver_bufferSize,
+										ossDriver->getHydrogen() );
 		ossDriver->write();
 	}
-
-	pthread_exit( NULL );
-	return NULL;
 }
 
 
-OssDriver::OssDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+OssDriver::OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 {
 	audioBuffer = NULL;
 	ossDriver_running = false;
@@ -115,7 +114,7 @@ int OssDriver::connect()
 {
 	INFOLOG( "connect" );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 
 	// initialize OSS
 	int bits = 16;
@@ -192,10 +191,8 @@ int OssDriver::connect()
 
 	// start main thread
 	ossDriver_running = true;
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
 
-	pthread_create( &ossDriverThread, &attr, ossDriver_processCaller, this );
+	m_ossDriverThread = std::thread( ossDriver_processCaller, this );
 
 	return 0;
 }
@@ -210,7 +207,9 @@ void OssDriver::disconnect()
 	ossDriver_running = false;
 
 	// join ossDriverThread
-	pthread_join( ossDriverThread, NULL );
+	if ( m_ossDriverThread.joinable() ) {
+		m_ossDriverThread.join();
+	}
 
 	if ( fd != -1 ) {
 		if ( close( fd ) ) {
@@ -274,7 +273,7 @@ unsigned OssDriver::getBufferSize()
 
 unsigned OssDriver::getSampleRate()
 {
-	return Preferences::get_instance()->m_nSampleRate;
+	return m_pHydrogen->getPreferences()->m_nSampleRate;
 }
 
 

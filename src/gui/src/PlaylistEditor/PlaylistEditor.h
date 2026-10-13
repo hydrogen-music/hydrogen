@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PLAYLIST_EDITOR_H
-#define PLAYLIST_EDITOR_H
+#ifndef H2C_PLAYLIST_EDITOR_H
+#define H2C_PLAYLIST_EDITOR_H
 
 #include <QtGui>
 #include <QtWidgets>

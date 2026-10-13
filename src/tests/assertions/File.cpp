@@ -23,10 +23,14 @@
 
 #include <cmath>
 
+#include <core/config.h>
+#include <core/Helpers/Archive.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Xml.h>
 
 #include <QDir>
 #include <QFileInfo>
+#include <QTemporaryDir>
 
 static constexpr qint64 BUFFER_SIZE = 4096;
 
@@ -49,8 +53,22 @@ void H2Test::checkFilesEqual( const QString& sExpected, const QString& sActual,
 		if ( r1 != toRead ) {
 			if ( bEquality ) {
 				throw CppUnit::Exception(
-					CppUnit::Message( "Short read or read error" ), sourceLine );
-			} else {
+					CppUnit::Message(
+						QString(
+							"Short read or read error [%1/%2], remaining: %3, "
+							"buffer size: %4, expected: [%5]"
+						)
+							.arg( r1 )
+							.arg( toRead )
+							.arg( remaining )
+							.arg( BUFFER_SIZE )
+							.arg( sExpected )
+							.toStdString()
+					),
+					sourceLine
+				);
+			}
+			else {
 				return;
 			}
 		}
@@ -59,7 +77,20 @@ void H2Test::checkFilesEqual( const QString& sExpected, const QString& sActual,
 		if ( r2 != toRead ) {
 			if ( bEquality ) {
 				throw CppUnit::Exception(
-					CppUnit::Message( "Short read or read error" ), sourceLine );
+					CppUnit::Message(
+						QString(
+							"Short read or read error [%1/%2], remaining: %3, "
+							"buffer size: %4, actual [%5]"
+						)
+							.arg( r1 )
+							.arg( toRead )
+							.arg( remaining )
+							.arg( BUFFER_SIZE )
+							.arg( sActual )
+							.toStdString()
+					),
+					sourceLine
+				);
 			} else {
 				return;
 			}
@@ -463,4 +494,63 @@ void H2Test::checkDirsEqual( const QString& sDirExpected,
 			std::string( "Actual  : " ) + sDirActual.toStdString() );
 		throw CppUnit::Exception( msg, sourceLine );
 	}
+}
+
+void H2Test::checkTarArchivesEqual( const QString& sPathExpected,
+									const QString& sPathActual, bool bEquality,
+									CppUnit::SourceLine sourceLine ) {
+#ifndef H2CORE_HAVE_LIBARCHIVE
+	CppUnit::Message msg(
+		std::string( "libarchive is not available on this system. Unable to "
+					 "extract and compare tar archives" ) );
+	throw CppUnit::Exception( msg, sourceLine );
+#else
+	// Both archives are extracted into subfolders of a temporary directory.
+	// The latter is removed again by the QTemporaryDir destructor on every
+	// exit of this function - including the exceptions thrown below to abort
+	// the test.
+	QTemporaryDir tmpDir( H2Core::Filesystem::tmpDir() +
+						  "-tar-archive-assertion-XXXXXX" );
+	tmpDir.setAutoRemove( false );
+	if ( ! tmpDir.isValid() ) {
+		CppUnit::Message msg(
+			std::string( "Unable to create temporary directory for extracting "
+						 "the tar archives" ) );
+		throw CppUnit::Exception( msg, sourceLine );
+	}
+
+	const QString sDirExpected = tmpDir.path() + "/expected";
+	const QString sDirActual = tmpDir.path() + "/actual";
+	for ( const auto& [ssArchivePath, ssDir] :
+			  { std::pair( sPathExpected, sDirExpected ),
+				std::pair( sPathActual, sDirActual ) } ) {
+		if ( ! H2Core::Archive::extract( ssArchivePath, ssDir ) ) {
+			CppUnit::Message msg(
+				std::string( "Unable to extract archive [" ) +
+				ssArchivePath.toStdString() + "] into [" +
+				ssDir.toStdString() + "]" );
+			throw CppUnit::Exception( msg, sourceLine );
+		}
+	}
+
+	// Tar archives usually bundle their content below a single top-level
+	// folder, e.g. the drumkit name. Since checkDirsEqual() only compares
+	// the files of a folder itself, we descend into this root folder. Else
+	// we would end up comparing two empty folders.
+	const auto contentDir = []( const QString& sDir ) -> QString {
+		const QDir dir( sDir );
+		const QStringList files =
+			dir.entryList( QDir::Files | QDir::NoDotAndDotDot );
+		const QStringList subDirs =
+			dir.entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+		if ( files.isEmpty() && subDirs.size() == 1 ) {
+			return dir.filePath( subDirs.first() );
+		}
+		return sDir;
+	};
+
+	checkDirsEqual( contentDir( sDirExpected ), contentDir( sDirActual ),
+					bEquality, sourceLine );
+	H2Core::Filesystem::rm( tmpDir.path(), true );
+#endif
 }

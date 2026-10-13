@@ -34,7 +34,7 @@ libraries and development header files installed on your system:
 
 - Qt 6 or Qt 5
 - GNU g++ compiler (>=4.0, 3.x might work)
-- cmake (>=3.5)
+- cmake (>=3.16)
 - libsndfile >=1.0.18
 - zlib and libtar *OR* libarchive
 - At least one of the following audio and midi driver
@@ -51,7 +51,6 @@ libraries and development header files installed on your system:
 
 - liblo for OSC (Open Sound Control)
 - NSM (Non Session Manager)
-- liblrdf for LADSPA plugins
 - librubberband2 (Rubberband support is experimental)
 
 Currently it is recommended that you disable the rubberband config
@@ -69,8 +68,8 @@ following command to install all basic and some optional requirements.
 ``` bash
 $ sudo apt-get install cmake qt6-base-dev qt6-base-dev-tools qt6-tools-dev \
   qt6-tools-dev-tools qt6-svg-dev libarchive-dev libsndfile1-dev           \
-  libasound2-dev liblo-dev libpulse-dev libcppunit-dev liblrdf0-dev        \
-  librubberband-dev libjack-jackd2-dev
+  libasound2-dev liblo-dev libpulse-dev libcppunit-dev librubberband-dev   \
+  libjack-jackd2-dev liblilv-dev meson
 ```
 
 
@@ -158,6 +157,7 @@ are optional and do not have to be included in the command).
 | `c[lean]`        | Remove all cached files.                                          |
 | `m[ake]`         | Launch the build process.                                         |
 | `mm`             | Launch the build process using `ccache`.                          |
+| `deps`           | Build the dependencies of CLAP and LV2 unit tests.                |
 | `d[oc]`          | Build the documentation of Hydrogen.                              |
 | `g[raph]`        | Draw the dependency graphs of the Hydrogen code using `graphviz`. |
 | `h[elp]`         | Show all supported build options.                                 |
@@ -187,7 +187,7 @@ server and `Go` installed.
 All the following `cmake` commands should be executed in a build
 directory :
 
-If you wish to configure features like **LADSPA plugins**,
+If you wish to configure features like **Rubberband support**,
 or **debugging symbols**, get more information like this:
 
 ``` bash

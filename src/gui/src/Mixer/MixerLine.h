@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MIXER_LINE_H
-#define MIXER_LINE_H
+#ifndef H2C_MIXER_LINE_H
+#define H2C_MIXER_LINE_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -78,6 +78,11 @@ public:
 		/** Activates the corresponding LED widget for a short amount of time. */
 		void triggerSampleLED();
 
+protected:
+		/** Closes the per-strip undo context (see the strip-edit callbacks) so a
+		 * gesture forms a single undo step once the pointer leaves the strip. */
+		void leaveEvent( QEvent* ev ) override;
+
 private:
 		int retrieveLineNumber() const;
 		void updateActions();
@@ -100,7 +105,6 @@ private:
 	Button *				m_pPlaySampleBtn;
 	LED*				m_pTriggerSampleLED;
 	LED*				m_pSelectionLED;
-	std::vector<Rotary*> m_fxRotaries;
 
 	LCDDisplay *			m_pPeakLCD;
 };

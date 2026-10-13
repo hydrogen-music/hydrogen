@@ -22,7 +22,7 @@
 
 #include "MuteButton.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 
 #include <core/Preferences/Preferences.h>
@@ -46,7 +46,7 @@ MuteButton::MuteButton(
 		setText( pCommonStrings->getSmallMuteButton() );
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	setBaseColor( pColorTheme->m_muteColor );
 	setBaseTextColor( pColorTheme->m_muteTextColor );
 }
@@ -62,7 +62,7 @@ void MuteButton::onPreferencesChanged(
 	Button::onPreferencesChanged( changes );
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
-		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 		setBaseColor( pColorTheme->m_muteColor );
 		setBaseTextColor( pColorTheme->m_muteTextColor );
 	}

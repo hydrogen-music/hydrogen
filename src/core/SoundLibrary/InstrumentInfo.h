@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef INSTRUMENT_INFO_H
-#define INSTRUMENT_INFO_H
+#ifndef H2C_INSTRUMENT_INFO_H
+#define H2C_INSTRUMENT_INFO_H
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
@@ -75,4 +75,4 @@ inline Instrument::Type InstrumentInfo::getType() const
 }
 };	// namespace H2Core
 
-#endif	// INSTRUMENT_INFO_H
+#endif	// H2C_INSTRUMENT_INFO_H

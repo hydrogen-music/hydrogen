@@ -22,6 +22,7 @@
 
 #include "HydrogenApp.h"
 
+
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
@@ -29,23 +30,32 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
 #include <core/config.h>
 #include <core/EventQueue.h>
-#include <core/FX/LadspaFX.h>
+#include <core/IEngineAccess.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/EditorStateMirror.h>
+#include <core/IPC/IpcChannel.h>
+#include <core/IPC/IpcEngineAccess.h>
+#include <core/IPC/IpcMessage.h>
+#include <core/IO/AudioDriverInfo.h>
+#include <core/IO/MidiDriverInfo.h>
+#include <core/LocalEngineAccess.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
 #include "AudioEngineInfoForm.h"
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "Director.h"
 #include "Footer/Footer.h"
 #include "FilesystemInfoForm.h"
 #include "Rack/ComponentEditor/ComponentEditor.h"
 #include "Rack/InstrumentEditor.h"
 #include "Rack/Rack.h"
-#include "LadspaFXProperties.h"
 #include "MainForm.h"
 #include "Mixer/Mixer.h"
 #include "PatternEditor/PatternEditorPanel.h"
@@ -74,6 +84,12 @@ QString HydrogenApp::sMimeSeparator = "::";
 QString HydrogenApp::sMimeSubSeparator = ":";
 
 HydrogenApp* HydrogenApp::m_pInstance = nullptr;
+H2Core::Hydrogen* HydrogenApp::m_pBootstrapHydrogen = nullptr;
+std::shared_ptr<H2Core::Preferences> HydrogenApp::m_pBootstrapPreferences = nullptr;
+std::unique_ptr<H2Core::IEngineAccess> HydrogenApp::m_pEngineAccess = nullptr;
+std::unique_ptr<H2Core::IEngineAccess> HydrogenApp::m_pLocalFallback = nullptr;
+std::unique_ptr<H2Core::EditorSession> HydrogenApp::m_pEditorSession = nullptr;
+bool HydrogenApp::m_bConnectViaIpcMode = false;
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  : m_pMainForm( pMainForm )
@@ -89,8 +105,16 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
  , m_bufferedChanges( H2Core::Preferences::Changes::None )
  , m_pMainScrollArea( new QScrollArea )
  , m_pUndoStack( pUndoStack )
+ , m_pHydrogen( m_pBootstrapHydrogen )
 {
 	m_pInstance = this;
+
+	// In IPC mode the session was already created by setEditorBootstrap()
+	// in main(). Wire its disconnect signal so connection loss is surfaced.
+	if ( m_pEditorSession != nullptr ) {
+		m_sIpcEndpoint = m_pEditorSession->getEndpoint();
+		wireIpcDisconnectSignal();
+	}
 
 	m_pEventQueueTimer = new QTimer(this);
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
@@ -104,11 +128,19 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, QUndoStack* pUndoStack )
 	connect( m_pPreferencesUpdateTimer, SIGNAL(timeout()),
 			 this, SLOT(propagatePreferences()) );
 
+	// Debounce for engine-origin SongIsModified echoes: coalesce bursts
+	// of dirty flips (e.g. an OSC fader sweep) into few full re-pulls
+	// (ADR 0026 point 14).
+	m_pSongModifiedResyncTimer = new QTimer( this );
+	m_pSongModifiedResyncTimer->setSingleShot( true );
+	connect( m_pSongModifiedResyncTimer, SIGNAL( timeout() ),
+			 this, SLOT( onSongModifiedResyncTimeout() ) );
+
 	m_pCommonStrings = std::make_shared<CommonStrings>();
 
 	updateWindowTitle();
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 
 	setupSinglePanedInterface();
 
@@ -230,26 +262,465 @@ HydrogenApp::~HydrogenApp()
 		delete m_pSplitter;
 	}
 
-	#ifdef H2CORE_HAVE_LADSPA
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		delete m_pLadspaFXProperties[nFX];
-	}
-	#endif
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen != nullptr ) {
-		delete pHydrogen;
+	if ( m_pHydrogen != nullptr ) {
+		delete m_pHydrogen;
 	}
 
 	m_pInstance = nullptr;
 
+	// Release the early-startup bootstrap handles. The shared_ptr must be reset
+	// or it would keep the whole Preferences graph alive past teardown (ADR
+	// 0015/0016); the raw engine pointer would otherwise dangle.
+	m_pBootstrapHydrogen = nullptr;
+	m_pBootstrapPreferences = nullptr;
+	m_pEngineAccess = nullptr;
+	m_pLocalFallback = nullptr;
+	m_pEditorSession = nullptr;
+}
+
+std::shared_ptr<H2Core::Preferences> HydrogenApp::getPreferences() const {
+	return m_pHydrogen->getPreferences();
+}
+
+H2Core::EventQueue* HydrogenApp::getEventQueue() const {
+	return m_pHydrogen->getEventQueue();
+}
+
+void HydrogenApp::setBootstrap( H2Core::Hydrogen* pHydrogen,
+							   std::shared_ptr<H2Core::Preferences> pPreferences ) {
+	m_pBootstrapHydrogen = pHydrogen;
+	m_pBootstrapPreferences = pPreferences;
+	// Once the engine exists, wrap it in the access handle the GUI fans out
+	// from (ADR 0016). The GUI being single-instance, one handle suffices.
+	if ( pHydrogen != nullptr ) {
+		m_pEngineAccess =
+			std::make_unique<H2Core::LocalEngineAccess>( pHydrogen );
+	}
+}
+
+void HydrogenApp::setEditorBootstrap(
+	H2Core::Hydrogen* pMirror,
+	std::unique_ptr<H2Core::EditorSession> pEditorSession,
+	std::shared_ptr<H2Core::Preferences> pPreferences ) {
+	// Editor mode: pHydrogen() resolves to the headless mirror and pEngine() to
+	// the injected IPC-backed handle (ADR 0016). The mirror is owned like the
+	// standalone engine (freed via ~HydrogenApp); the IPC transport behind the
+	// access handle is owned by the EditorSession in main().
+	m_pBootstrapHydrogen = pMirror;
+	m_pBootstrapPreferences = pPreferences;
+	m_pEditorSession = std::move( pEditorSession );
+	m_pEngineAccess = std::move( m_pEditorSession->createEngineAccess() );
+	m_bConnectViaIpcMode = true;
+}
+
+H2Core::IEngineAccess* HydrogenApp::pEngine() {
+	if ( m_pEngineAccess != nullptr ) {
+		return m_pEngineAccess.get();
+	}
+	// IPC handle absent (connection lost or reconnect in progress): fall back
+	// to local access over the mirror engine so the GUI stays alive — reads
+	// resolve to the same mirror, commands apply locally (degraded mode, no
+	// audio; ADR 0016). The fallback is lazily created and reused.
+	if ( m_pLocalFallback == nullptr ) {
+		m_pLocalFallback = std::make_unique<H2Core::LocalEngineAccess>(
+			pHydrogen() );
+	}
+	return m_pLocalFallback.get();
+}
+
+H2Core::Hydrogen* HydrogenApp::pHydrogen() {
+	// Fall back to the bootstrap handle while HydrogenApp is still being
+	// constructed (ADR 0015/0016).
+	return m_pInstance != nullptr ? m_pInstance->m_pHydrogen
+								   : m_pBootstrapHydrogen;
+}
+
+std::shared_ptr<H2Core::Preferences> HydrogenApp::pPreferences() {
+	// Preferences exists independently of (and earlier than) the engine — the
+	// GUI touches it during early startup (e.g. Skin::setPalette) before
+	// Hydrogen is created. Fall back to the bootstrap Preferences directly, not
+	// through pHydrogen() (ADR 0015/0016).
+	return m_pInstance != nullptr ? m_pInstance->m_pHydrogen->getPreferences()
+								   : m_pBootstrapPreferences;
+}
+
+H2Core::EventQueue* HydrogenApp::pEventQueue() {
+	return pEngine()->getEventQueue();
+}
+
+bool HydrogenApp::isIpcConnected() {
+	return m_pEditorSession != nullptr && m_pEditorSession->isConnected();
+}
+
+void HydrogenApp::wireIpcDisconnectSignal() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel != nullptr ) {
+		connect( pChannel, &H2Core::IpcChannel::disconnected,
+				 this, &HydrogenApp::onIpcConnectionLost );
+	}
+}
+
+void HydrogenApp::connectToIpcEngine( const QString& sEndpoint ) {
+	if ( ! m_bConnectViaIpcMode ) {
+		return;
+	}
+
+	m_sIpcEndpoint = sEndpoint;
+
+	// Tear down any existing session first. The flag suppresses the
+	// connection-loss dialog that the channel's disconnected() signal would
+	// otherwise fire during destruction.
+	m_bIpcDisconnectExpected = true;
+	m_pEngineAccess = nullptr;
+	m_pEditorSession = nullptr;
+	m_bIpcDisconnectExpected = false;
+
+	// Attempt a fresh connection. The flag also suppresses the dialog if the
+	// connect fails and the channel is torn down immediately.
+	m_bIpcDisconnectExpected = true;
+	m_pEditorSession = H2Core::EditorSession::connect( sEndpoint, m_pHydrogen );
+	m_bIpcDisconnectExpected = false;
+
+	if ( m_pEditorSession == nullptr ) {
+		ERRORLOG( QString( "Unable to connect to headless engine endpoint [%1]" )
+				  .arg( sEndpoint ) );
+		QMessageBox::warning(
+			m_pMainForm, "Hydrogen",
+			m_pCommonStrings->getIpcConnectionFailed() + "\n[" + sEndpoint + "]"
+		);
+		if ( m_pMainToolBar != nullptr ) {
+			m_pMainToolBar->updateIpcConnectionState();
+		}
+		return;
+	}
+
+	m_pEngineAccess = m_pEditorSession->createEngineAccess();
+	wireIpcDisconnectSignal();
+
+	// Pull the full engine state so the mirror matches the headless engine.
+	syncViaIpc();
+
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updateIpcConnectionState();
+	}
+	INFOLOG( QString( "Connected to headless engine endpoint [%1]" )
+			 .arg( sEndpoint ) );
+}
+
+void HydrogenApp::disconnectFromIpcEngine() {
+	if ( ! m_bConnectViaIpcMode || m_pEditorSession == nullptr ) {
+		return;
+	}
+
+	m_bIpcDisconnectExpected = true;
+	m_pEditorSession->disconnect();
+	m_bIpcDisconnectExpected = false;
+
+	// Drop the IPC-backed handle so pEngine() falls back to local access over
+	// the mirror (degraded mode). The session itself stays alive (endpoint
+	// preserved for reconnection).
+	m_pEngineAccess = nullptr;
+
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updateIpcConnectionState();
+	}
+	INFOLOG( "Disconnected from headless engine." );
+}
+
+void HydrogenApp::syncViaIpc() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+	auto pStateMirror = m_pEditorSession->getStateMirror();
+
+	// Ordering is load-bearing: the song (step 1) must be in place before the
+	// selection pulls (steps 3-5), because applying a selection clamps against
+	// the mirror's drumkit — with an empty kit every value would collapse to
+	// "no selection" (-1).
+	// 1. Song — deserialize the reply XML and apply to the mirror. The attach
+	// is a new document for the editor: on a re-attach the engine's song may
+	// have changed while detached and the editor cannot know — reset the undo
+	// history (a no-op on the first attach, where the stack is still empty)
+	// (ADR 0026 point 15).
+	ipcSyncSong( pChannel );
+	m_pUndoStack->clear();
+
+	// 2. Playlist
+	ipcSyncPlaylist( pChannel );
+
+	// 3. Selected pattern
+	ipcSyncSelectedPattern( pChannel );
+
+	// 4. Selected instrument
+	ipcSyncSelectedInstrument( pChannel );
+
+	// 5. Record enabled
+	ipcSyncRecordEnabled( pChannel );
+
+	// 6. Core preferences
+	ipcSyncCorePreferences( pChannel );
+
+	// 7. Sound library info — register the engine's custom drumkit folders and
+	// paths, then rescan so the mirror's database matches the engine's.
+	ipcSyncSoundLibraryInfo( pChannel );
+
+	// 8. Force an immediate transport re-sync from telemetry.
+	if ( pStateMirror != nullptr ) {
+		pStateMirror->forceTransportSync();
+	}
+
+	// 9. Audio driver info — cache the engine's driver state so the mirror's
+	// coreUsesJackDriver() / coreUsesJackTransport() / getJackTimebaseState()
+	// work in editor mode (ADR 0029).
+	refreshCachedAudioDriverInfo();
+
+	// 10. MIDI driver info — cache the engine's driver state (ADR 0029).
+	refreshCachedMidiDriverInfo();
+
+	// 11. Session-management state — cache it so the mirror's
+	// isUnderSessionManagement() works in editor mode (ADR 0029).
+	ipcSyncSessionManagementState( pChannel );
+
+	// 12. Plugin-host state — cache it so the mirror's isUnderPluginHost()
+	// works in editor mode (ADR 0029).
+	ipcSyncPluginHostState( pChannel );
+
+	// 13. Update Audio and Midi Driver-related widgets
+	ipcSyncDriverWidgets();
+
+	INFOLOG( "State synced from headless engine via IPC." );
+}
+
+void HydrogenApp::ipcSyncSong( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSong ), reply, 3000 ) &&
+		 ! reply.getPayload().isEmpty() ) {
+		auto pSong = Song::fromXmlBuffer(
+			reply.getPayload(), Xml::Flag::Ipc, true, m_pHydrogen
+		);
+		if ( pSong != nullptr ) {
+			m_pHydrogen->getCoreActionController()->setSong( pSong );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncPlaylist( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetPlaylist ), reply, 3000 ) &&
+		 ! reply.getPayload().isEmpty() ) {
+		auto pPlaylist = Playlist::fromXmlBuffer( reply.getPayload() );
+		if ( pPlaylist != nullptr ) {
+			m_pHydrogen->getCoreActionController()->setPlaylist( pPlaylist );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncSelectedPattern( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedPattern ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setSelectedPatternNumber( args[0].toInt() );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncSelectedInstrument( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSelectedInstrument ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setSelectedInstrumentNumber( args[0].toInt() );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncRecordEnabled( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetRecordEnabled ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->getCoreActionController()->activateRecordMode(
+				args[0].toBool()
+			);
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncCorePreferences( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetCorePreferences ),
+							reply, 3000 ) &&
+		 ! reply.getPayload().isEmpty() ) {
+		auto pPref = m_pHydrogen->getPreferences();
+		if ( pPref != nullptr ) {
+			pPref->applyCorePropsFromXml( reply.getPayload() );
+			m_pHydrogen->getEventQueue()->pushEvent(
+				Event::Type::UpdatePreferences, 0 );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncSoundLibraryInfo( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request( IpcMessage( IpcOpcode::GetSoundLibraryInfo ),
+							reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( args.size() >= 3 ) {
+			auto pDb = m_pHydrogen->getSoundLibraryDatabase();
+			if ( pDb != nullptr ) {
+				for ( const auto& sFolder : args[1].toStringList() ) {
+					pDb->registerDrumkitFolder( sFolder );
+				}
+				for ( const auto& sPath : args[2].toStringList() ) {
+					pDb->registerCustomDrumkitPath( sPath );
+				}
+				pDb->update();
+			}
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncSessionManagementState( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request(
+			IpcMessage( IpcOpcode::GetIsUnderSessionManagement ),
+			reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setCachedUnderSessionManagement(
+				args[0].toBool() );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncPluginHostState( IpcChannel* pChannel ) {
+	IpcMessage reply;
+	if ( pChannel->request(
+			IpcMessage( IpcOpcode::GetIsUnderPluginHost ),
+			reply, 3000 ) ) {
+		const auto& args = reply.getArgs();
+		if ( ! args.isEmpty() ) {
+			m_pHydrogen->setCachedUnderPluginHost(
+				args[0].toBool() );
+		}
+	}
+}
+
+void HydrogenApp::ipcSyncDriverWidgets() {
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::AudioDriverChanged, 0 );
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::MidiDriverChanged, 0 );
+}
+
+void HydrogenApp::refreshCachedAudioDriverInfo() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+	IpcMessage reply;
+	if ( ! pChannel->request( IpcMessage( IpcOpcode::GetAudioDriverInfo ),
+							  reply, 3000 ) ) {
+		ERRORLOG( "Unable to fetch latest audio driver info" );
+		return;
+	}
+	const auto& args = reply.getArgs();
+	if ( args.size() < 9 ) {
+		ERRORLOG( QString( "Ill-formatted reply [%1]" )
+					  .arg( QString( reply.getPayload() ) ) );
+		return;
+	}
+
+	AudioDriverInfo info;
+	info.kind = static_cast<Preferences::AudioDriver>( args[0].toInt() );
+	info.isPresent = args[1].toBool();
+	info.isRunning = args[2].toBool();
+	info.connectedDevice = args[3].toString();
+	info.timebaseState = static_cast<JackDriver::Timebase>( args[4].toInt() );
+	info.jackTransportEnabled = args[5].toBool();
+	info.sampleRate = args[6].toInt();
+	info.bufferSize = args[7].toInt();
+	info.latencyFrames = args[8].toInt();
+	// setCachedAudioDriverInfo() re-rates the mirror's clock driver to the
+	// engine's sample rate (transport math must run on the engine's clock).
+	m_pHydrogen->setCachedAudioDriverInfo( info );
+}
+
+void HydrogenApp::refreshCachedMidiDriverInfo() {
+	if ( m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+	IpcMessage reply;
+	if ( ! pChannel->request( IpcMessage( IpcOpcode::GetMidiDriverInfo ),
+							  reply, 3000 ) ) {
+		ERRORLOG( "Unable to fetch latest MIDI driver info" );
+		return;
+	}
+	const auto& args = reply.getArgs();
+	if ( args.size() < 3 ) {
+		ERRORLOG( QString( "Ill-formatted reply [%1]" )
+					  .arg( QString( reply.getPayload() ) ) );
+		return;
+	}
+
+	MidiDriverInfo info;
+	info.isPresent = args[0].toBool();
+	info.isInputActive = args[1].toBool();
+	info.isOutputActive = args[2].toBool();
+	m_pHydrogen->setCachedMidiDriverInfo( info );
+}
+
+void HydrogenApp::onIpcConnectionLost() {
+	// A pending debounced resync would block on the dead channel — drop
+	// it; the next engine-origin echo after a reconnect starts a fresh
+	// burst.
+	m_pSongModifiedResyncTimer->stop();
+	m_songModifiedResyncCapTimer.invalidate();
+
+	if ( m_bIpcDisconnectExpected ) {
+		return;
+	}
+
+	ERRORLOG( "IPC connection to headless engine was lost." );
+	QMessageBox::warning(
+		m_pMainForm, "Hydrogen",
+		m_pCommonStrings->getIpcConnectionLost()
+	);
+
+	// Drop the dead IPC handle so pEngine() falls back to local access over
+	// the mirror. This destroys the IpcEngineAccess and its
+	// IpcCoreActionController, preventing further send() calls on the dead
+	// channel. The session stays alive (endpoint preserved for reconnection).
+	m_pEngineAccess = nullptr;
+
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updateIpcConnectionState();
+	}
 }
 
 
 
 void HydrogenApp::setupSinglePanedInterface()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 	InterfaceTheme::Layout layout = pPref->getInterfaceTheme()->m_layout;
 
 	// MAINFORM
@@ -271,7 +742,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	}
 	// trigger a relocation to sync the transport position of the
 	// editors in the panel.
-	H2Core::CoreActionController::locateToColumn( 0 );
+	m_pHydrogen->getCoreActionController()->locateToColumn( 0 );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	setWindowProperties( m_pSongEditorPanel, songEditorProp, SetWidth + SetHeight );
@@ -363,20 +834,10 @@ void HydrogenApp::setupSinglePanedInterface()
 	setWindowProperties( m_pMixer, mixerProp );
 
 	if( layout == InterfaceTheme::Layout::Tabbed ){
-		m_pTab->addTab(m_pMixer,tr("Mixer"));
+		m_pTab->addTab( m_pMixer, m_pCommonStrings->getMixerTab() );
 	}
 
 	m_pMixer->updateMixer();
-
-#ifdef H2CORE_HAVE_LADSPA
-	// LADSPA FX
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		m_pLadspaFXProperties[nFX] = new LadspaFXProperties( nullptr, nFX );
-		m_pLadspaFXProperties[nFX]->hide();
-		WindowProperties prop = pPref->getLadspaProperties(nFX);
-		setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetWidth + SetHeight );
-	}
-#endif
 
 	if( layout == InterfaceTheme::Layout::Tabbed ){
 		m_pTab->setCurrentIndex( pPref->getLastOpenTab() );
@@ -460,17 +921,8 @@ void HydrogenApp::handleUndoContext( const QString& sContext,
 
 void HydrogenApp::currentTabChanged(int index)
 {
-	Preferences::get_instance()->setLastOpenTab( index );
+	m_pHydrogen->getPreferences()->setLastOpenTab( index );
 	m_pMainToolBar->updateActions();
-}
-
-void HydrogenApp::closeFXProperties()
-{
-#ifdef H2CORE_HAVE_LADSPA
-	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		m_pLadspaFXProperties[nFX]->close();
-	}
-#endif
 }
 
 QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
@@ -488,6 +940,11 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 		/*: Object containing unsaved changes.*/
 		sEmpty = tr( "New Playlist" );
 		break;
+
+	case Filesystem::Artifact::Project:
+		// Projects are tar archives containing embedded samples. We do not
+		// store snapshots for them.
+		return "";
 
 	default:
 		ERRORLOG( QString( "Unsupported file type: [%1]" )
@@ -559,12 +1016,16 @@ QString HydrogenApp::findAutoSaveFile( const Filesystem::Artifact& type,
 	}
 }
 
-bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFileName ) {
+bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFileName, bool bOpenAsUnsaved ) {
 
 	QString sText;
 	switch( type ) {
 	case Filesystem::Artifact::Song:
 		sText = tr( "Error loading song." );
+		break;
+
+	case Filesystem::Artifact::Project:
+		sText = tr( "Error loading project." );
 		break;
 
 	case Filesystem::Artifact::Playlist:
@@ -588,25 +1049,34 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 
 	bool bRet;
 	// Ensure the path to the file is not relative.
-	if ( type == Filesystem::Artifact::Song ) {
+	if ( type == Filesystem::Artifact::Song ||
+		 type == Filesystem::Artifact::Project ) {
 		std::shared_ptr<Song> pSong;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
-			pSong = Song::getEmptySong();
+			pSong = Song::getEmptySong( HydrogenApp::pHydrogen() );
 		} else {
-			pSong = CoreActionController::loadSong( sPath, sRecoverFileName );
+			pSong = pEngine()->getCoreActionController()->loadSong( sPath, sRecoverFileName );
 		}
 
-		bRet = CoreActionController::setSong( pSong );
+		if ( bOpenAsUnsaved ) {
+			// Demos are opened as a scratch copy: the song must not point at
+			// the shipped file, or the first plain save would overwrite it.
+			// Clearing the path on the payload before the crossing keeps
+			// engine and mirror consistent in a single hop (batch 2t).
+			pSong->setPath( "" );
+		}
+
+		bRet = pEngine()->getCoreActionController()->setSong( pSong );
 	}
 	else {
 		std::shared_ptr<Playlist> pPlaylist;
 		if ( sFileName.isEmpty() && sRecoverFileName.isEmpty() ) {
 			pPlaylist = std::make_shared<Playlist>();
 		} else {
-			pPlaylist = CoreActionController::loadPlaylist( sPath, sRecoverFileName );
+			pPlaylist = pEngine()->getCoreActionController()->loadPlaylist( sPath, sRecoverFileName );
 		}
 
-		bRet = CoreActionController::setPlaylist( pPlaylist );
+		bRet = pEngine()->getCoreActionController()->setPlaylist( pPlaylist );
 	}
 
 	if ( ! bRet ) {
@@ -625,7 +1095,7 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 
 bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
-	if ( ! CoreActionController::setSong( pSong ) ) {
+	if ( ! pEngine()->getCoreActionController()->setSong( pSong ) ) {
 		QMessageBox msgBox;
 		// Not commonized in CommmonStrings as it is required before
 		// HydrogenApp was instantiated.
@@ -644,7 +1114,7 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 bool HydrogenApp::handleUnsavedChanges( const H2Core::Filesystem::Artifact& type )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pHydrogenApp->getHydrogen();
 	auto pSong = pHydrogen->getSong();
 	auto pPlaylist = pHydrogen->getPlaylist();
 
@@ -748,7 +1218,7 @@ void HydrogenApp::showMixer(bool show)
 		 *   otherwise open mixer window
 		 */
 
-	auto layout = Preferences::get_instance()->getInterfaceTheme()->m_layout;
+	auto layout = m_pHydrogen->getPreferences()->getInterfaceTheme()->m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 2 );
@@ -767,7 +1237,7 @@ void HydrogenApp::showRack(bool show)
 		 *   Switch to pattern editor/instrument tab in tabbed mode,
 		 *   otherwise hide instrument panel
 		 */
-	auto layout = Preferences::get_instance()->getInterfaceTheme()->m_layout;
+	auto layout = m_pHydrogen->getPreferences()->getInterfaceTheme()->m_layout;
 
 	if ( layout == InterfaceTheme::Layout::Tabbed ) {
 		m_pTab->setCurrentIndex( 1 );
@@ -783,6 +1253,8 @@ void HydrogenApp::showRack(bool show)
 }
 
 void HydrogenApp::showPreferencesDialog() {
+	refreshCachedAudioDriverInfo();
+
 	m_pMainToolBar->setPreferencesVisibilityState( true );
 
 	PreferencesDialog preferencesDialog(m_pMainForm);
@@ -797,19 +1269,16 @@ void HydrogenApp::showStatusBarMessage( const QString& sMessage, const QString& 
 }
 
 void HydrogenApp::XRunEvent() {
-	const auto pAudioDriver = Hydrogen::get_instance()->getAudioDriver();
-	if ( pAudioDriver == nullptr ) {
+	if ( ! pEngine()->getAudioDriverInfo().isPresent ) {
 		ERRORLOG( "AudioDriver is not ready!" );
 		return;
 	}
-	showStatusBarMessage(
-		QString( "XRUNS [%1]!!!" ).arg( pAudioDriver->getXRuns() ),
-		"HydrogenApp::XRunEvent" );
+	showStatusBarMessage( QString( "XRUNS!!!" ), "HydrogenApp::XRunEvent" );
 }
 
 void HydrogenApp::updateWindowTitle()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = m_pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		ERRORLOG( "invalid song" );
 		assert(pSong);
@@ -888,7 +1357,7 @@ void HydrogenApp::showPlaylistEditor()
 
 void HydrogenApp::showDirector()
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 
 	if ( m_pDirector->isVisible() ) {
 		m_pDirector->hide();
@@ -961,25 +1430,34 @@ void HydrogenApp::songIsModifiedEvent()
 void HydrogenApp::playlistLoadSongEvent() {
 	showStatusBarMessage(
 		tr( "Playlist: Set song No. %1" )
-		.arg( Hydrogen::get_instance()->getPlaylist()->getActiveSongNumber() + 1 ) );
+		.arg( m_pHydrogen->getPlaylist()->getActiveSongNumber() + 1 ) );
 }
 
 void HydrogenApp::onEventQueueTimer()
 {
 	// use the timer to do schedule instrument slaughter;
-	EventQueue *pQueue = EventQueue::get_instance();
+	EventQueue *pQueue = m_pHydrogen->getEventQueue();
 
 	while ( true ) {
 		auto pEvent = pQueue->popEvent();
 		if ( pEvent == nullptr ) {
 			break;
 		}
+		DEBUGLOG( pEvent->toQString() );
+
+		// Remote-origin events: the authoritative engine may have mutated state
+		// during a operation (e.g. paths adjusted on save as) or due to an MIDI
+		// / OSC action, so pull fresh state via IPC instead of trusting the
+		// local mirror.
+		if ( handleRemoteEvent( pEvent.get() ) ) {
+			continue;
+		}
 
 		if ( m_eventListenersToAdd.size() > 0 ||
 			 m_eventListenersToRemove.size() > 0 ) {
 			updateEventListeners();
 		}
-		
+
 		// Provide the event to all EventListeners registered to
 		// HydrogenApp. By registering itself as EventListener and
 		// implementing at least on the methods used below a
@@ -1026,10 +1504,6 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::DrumkitLoaded:
 				ppEventListener->drumkitLoadedEvent();
-				break;
-
-			case Event::Type::EffectChanged:
-				ppEventListener->effectChangedEvent();
 				break;
 
 			case Event::Type::Error:
@@ -1129,6 +1603,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->playbackTrackChangedEvent();
 				break;
 
+			case Event::Type::PlaybackTrackParameterChanged:
+				ppEventListener->playbackTrackParameterChangedEvent();
+				break;
+
 			case Event::Type::PlayingPatternsChanged:
 				ppEventListener->playingPatternsChangedEvent();
 				break;
@@ -1147,6 +1625,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::Relocation:
 				ppEventListener->relocationEvent();
+				break;
+
+			case Event::Type::RequestPreferencesSave:
+				ppEventListener->requestPreferencesSaveEvent();
 				break;
 
 			case Event::Type::SelectedPatternChanged:
@@ -1179,6 +1661,11 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::SoundLibraryChanged:
 				ppEventListener->soundLibraryChangedEvent();
+				break;
+
+			case Event::Type::SoundLibraryScanProgress:
+				ppEventListener->soundLibraryScanProgressEvent(
+					pEvent->getValue() );
 				break;
 
 			case Event::Type::TempoChanged:
@@ -1218,10 +1705,20 @@ void HydrogenApp::onEventQueueTimer()
 	}
 
 	// midi notes
-	while( !pQueue->m_addMidiNoteVector.empty() ){
-		auto pSong = Hydrogen::get_instance()->getSong();
+	// Swap the whole batch out under the queue's lock: the vector is
+	// pushed concurrently by the audio thread (standalone) or the IPC
+	// reader thread (split), so it must not be inspected or erased in
+	// place (ADR 0030 batch 2q).
+	const auto midiNoteActions = pQueue->drainMidiNoteActions();
+	for ( const auto& noteAction : midiNoteActions ) {
+		auto pSong = m_pHydrogen->getSong();
 		if ( pSong == nullptr ) {
-			return;
+			// Without a song the entries can not be integrated. The
+			// remainder of the batch is dropped, not re-queued: these
+			// notes were recorded against a song that is being replaced,
+			// so retrying them against the next one would be wrong.
+			WARNINGLOG( "No song set: dropping remaining recorded midi notes" );
+			break;
 		}
 
 		// The core registers the ID of the instrument the note is associated
@@ -1231,7 +1728,7 @@ void HydrogenApp::onEventQueueTimer()
 		int nRow = 0;
 		DrumPatternRow row;
 		for ( const auto& rrow : m_pPatternEditorPanel->getDB() ) {
-			if ( rrow.id == pQueue->m_addMidiNoteVector[0].id ) {
+			if ( rrow.id == noteAction.id ) {
 				row = rrow;
 				bFound = true;
 				break;
@@ -1242,27 +1739,65 @@ void HydrogenApp::onEventQueueTimer()
 		if ( !bFound ) {
 			ERRORLOG( QString( "Could not find row in Pattern Editor "
 							   "corresponding to instrument ID [%1]" )
-						  .arg( static_cast<int>(
-							  pQueue->m_addMidiNoteVector[0].id
-						  ) ) );
-			return;
+						  .arg( static_cast<int>( noteAction.id ) ) );
+			// Drop the note: the instrument is not in the editor's DB, so
+			// retrying can not succeed either.
+			continue;
 		}
 
 		// find if a (pitch matching) note is already present
 		const auto pOldNote = pSong->getPatternList()->
-			get( pQueue->m_addMidiNoteVector[0].nPattern )->
-			findNote( pQueue->m_addMidiNoteVector[0].nColumn,
+			get( noteAction.nPattern )->
+			findNote( noteAction.nColumn,
 					  row.id, row.sType,
-					  pQueue->m_addMidiNoteVector[0].key,
-					  pQueue->m_addMidiNoteVector[0].octave );
-		
+					  noteAction.key,
+					  noteAction.octave );
+
+		if ( noteAction.bNoteOff ) {
+			// A recorded note-off: the engine computed the hold length from
+			// the authoritative playhead; the edit itself is editor-domain
+			// — an undoable property edit on the single CAC-owned write
+			// path (ADR 0027), which dual-applies to the engine in the
+			// split.
+			if ( pOldNote == nullptr ) {
+				// The note-on was not integrated (yet) — nothing to resize.
+				WARNINGLOG( QString( "Skipping note-off at column [%1] in "
+									 "pattern [%2]: no matching note" )
+								.arg( noteAction.nColumn )
+								.arg( noteAction.nPattern ) );
+			}
+			else {
+				pushUndoCommand( new SE_editNotePropertiesAction(
+									 PatternEditor::Property::Length,
+									 noteAction.nPattern,
+									 pOldNote->getPosition(),
+									 row.id, row.id,
+									 row.sType, row.sType,
+									 pOldNote->getVelocity(),
+									 pOldNote->getVelocity(),
+									 pOldNote->getPan(),
+									 pOldNote->getPan(),
+									 pOldNote->getLeadLag(),
+									 pOldNote->getLeadLag(),
+									 pOldNote->getProbability(),
+									 pOldNote->getProbability(),
+									 noteAction.nLength,
+									 pOldNote->getLength(),
+									 pOldNote->getKey(),
+									 pOldNote->getKey(),
+									 pOldNote->getOctave(),
+									 pOldNote->getOctave() ) );
+			}
+			continue;
+		}
+
 		beginUndoMacro( tr( "Input Midi Note" ) );
 		if ( pOldNote != nullptr ) { // note found => remove it
 			pushUndoCommand( new SE_addOrRemoveNoteAction(
 								 pOldNote->getPosition(),
 								 pOldNote->getInstrumentId(),
 								 pOldNote->getType(),
-								 pQueue->m_addMidiNoteVector[0].nPattern,
+								 noteAction.nPattern,
 								 pOldNote->getLength(),
 								 pOldNote->getVelocity(),
 								 pOldNote->getPan(),
@@ -1278,27 +1813,187 @@ void HydrogenApp::onEventQueueTimer()
 		
 		// add the new note
 		pushUndoCommand( new SE_addOrRemoveNoteAction(
-							 pQueue->m_addMidiNoteVector[0].nColumn,
+							 noteAction.nColumn,
 							 row.id,
 							 row.sType,
-							 pQueue->m_addMidiNoteVector[0].nPattern,
-							 pQueue->m_addMidiNoteVector[0].nLength,
-							 pQueue->m_addMidiNoteVector[0].fVelocity,
-							 pQueue->m_addMidiNoteVector[0].fPan,
+							 noteAction.nPattern,
+							 noteAction.nLength,
+							 noteAction.fVelocity,
+							 noteAction.fPan,
 							 LEAD_LAG_DEFAULT,
-							 pQueue->m_addMidiNoteVector[0].key,
-							 pQueue->m_addMidiNoteVector[0].octave,
+							 noteAction.key,
+							 noteAction.octave,
 							 PROBABILITY_DEFAULT,
 							 Editor::Action::Add,
 							 /*isNoteOff*/ false,
 							 row.bMappedToDrumkit,
 							 Editor::ActionModifier::Playback ) );
 		endUndoMacro();
-
-		pQueue->m_addMidiNoteVector.erase( pQueue->m_addMidiNoteVector.begin() );
 	}
 }
 
+
+bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
+	// Only relevant in editor mode where we have a remote authoritative engine.
+	if ( ! m_bConnectViaIpcMode || m_pEditorSession == nullptr ) {
+		return false;
+	}
+
+	// Only intercept events that originated from the remote headless engine.
+	if ( pEvent == nullptr ||
+		 pEvent->getOrigin() != H2Core::ProcessMode::Headless ) {
+		return false;
+	}
+
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return false;
+	}
+
+	switch ( pEvent->getType() ) {
+	case Event::Type::PlaylistChanged: {
+		if ( pEvent->getValue() == 2 ) {
+			// With this additional event the core indicates that the playlist
+			// is read-only. No need to load anew or enqueue it locally.
+			return false;
+		}
+		// The authoritative engine changed core playlist — pull fresh state.
+		ipcSyncPlaylist( pChannel );
+		return true;
+	}
+
+	case Event::Type::UpdateSong: {
+		// A full song sync supersedes any pending debounced dirty-resync.
+		m_pSongModifiedResyncTimer->stop();
+		m_songModifiedResyncCapTimer.invalidate();
+
+		if ( pEvent->getValue() == 2 ) {
+			// With this additional event the core indicates that the song is
+			// read-only. No need to load anew or enqueue it locally.
+			return false;
+		}
+		else if ( pEvent->getValue() == 1 ) {
+			// The authoritative engine saved the song — pull fresh state (paths
+			// may have been mutated during the operation).
+			ipcSyncSong( pChannel );
+		}
+		else {
+			// The authoritative engine loaded a song — a new document.
+			// Reset the undo history here (its commands reference the
+			// previous song); re-syncs of the same document must keep it
+			// (ADR 0026 point 15).
+			m_pUndoStack->clear();
+
+			// Pull fresh state including all side-effects, which could
+			// have been altered.
+			pullSongStateFromEngine();
+		}
+		return true;
+	}
+
+	case Event::Type::SongIsModified: {
+		// An engine-origin dirty flip (OSC/MIDI-driven edit, NSM open
+		// re-mark): re-pull the song so the mirror's flag — and the
+		// content the engine changed — follow the authoritative state
+		// (ADR 0026 point 10). Editor-origin flips do not take this
+		// path: the bridge applies their command with Trigger::Suppress
+		// (no echo), and the mirror-local apply pushes an Editor-origin
+		// event which the origin gate above filters out. The re-pull is
+		// debounced: bursts of echoes (an OSC fader sweep fires one per
+		// change) coalesce into few pulls, and the first echo of a
+		// burst pulls immediately so single edits keep zero latency
+		// (ADR 0026 point 14). Note: the re-pull runs the mirror's
+		// setSong, whose local UpdateSong(0) no longer clears the undo
+		// stack while attached — the reset is reserved for new
+		// documents (ADR 0026 point 15) — and no longer resets the
+		// pattern selection either (Hydrogen::setSong only resets on
+		// document change — ADR 0026 point 16). The pull still re-syncs
+		// both selections from the engine so engine-origin selection
+		// changes surface (ADR 0026 point 13).
+		scheduleSongModifiedResync();
+		return true;
+	}
+
+	case Event::Type::UpdatePreferences: {
+		// The authoritative engine changed core preferences — pull fresh state.
+		ipcSyncCorePreferences( pChannel );
+		return true;
+	}
+
+	case Event::Type::AudioDriverChanged:
+	case Event::Type::JackTimebaseStateChanged: {
+		refreshCachedAudioDriverInfo();
+		// Now that GUI and mirror can work on correct data, retrigger the event
+		// locally.
+		m_pHydrogen->getEventQueue()->pushEvent(
+			pEvent->getType(), pEvent->getValue()
+		);
+		return true;
+	}
+
+	case Event::Type::MidiDriverChanged: {
+		refreshCachedMidiDriverInfo();
+		// Now that GUI and mirror can work on correct data, retrigger the event
+		// locally.
+		m_pHydrogen->getEventQueue()->pushEvent(
+			pEvent->getType(), pEvent->getValue()
+		);
+		return true;
+	}
+
+	default:
+		return false;
+	}
+}
+
+
+void HydrogenApp::scheduleSongModifiedResync() {
+	// First echo of a burst (or cap reached during a continuous stream):
+	// pull now — single edits keep zero-latency re-pulls and sweeps are
+	// still re-anchored at least once per cap period.
+	if ( ! m_songModifiedResyncCapTimer.isValid() ||
+		 m_songModifiedResyncCapTimer.elapsed() >=
+			 nSongModifiedResyncCapMs ) {
+		m_pSongModifiedResyncTimer->stop();
+		m_songModifiedResyncCapTimer.restart();
+		pullSongStateFromEngine();
+		return;
+	}
+
+	// Burst in progress: restart the debounce — the pull happens once
+	// the stream stays quiet for the debounce period.
+	m_pSongModifiedResyncTimer->start( nSongModifiedResyncDebounceMs );
+}
+
+void HydrogenApp::onSongModifiedResyncTimeout() {
+	// The burst ended: no echo arrived for a whole debounce period.
+	m_songModifiedResyncCapTimer.invalidate();
+	pullSongStateFromEngine();
+}
+
+void HydrogenApp::pullSongStateFromEngine() {
+	if ( ! m_bConnectViaIpcMode || m_pEditorSession == nullptr ) {
+		return;
+	}
+	auto pChannel = m_pEditorSession->getChannel();
+	if ( pChannel == nullptr ) {
+		return;
+	}
+
+	ipcSyncSong( pChannel );
+	// The re-pull preserves the selection for same-document installs
+	// (ADR 0026 point 16) — the explicit re-sync below surfaces
+	// engine-origin selection changes (ADR 0026 point 13).
+	ipcSyncSelectedPattern( pChannel );
+	ipcSyncSelectedInstrument( pChannel );
+	// Engine-local edits can be tempo-affecting (setBpm) — re-sync the
+	// mirror's transport instead of waiting for the periodic telemetry
+	// resync.
+	auto pStateMirror = m_pEditorSession->getStateMirror();
+	if ( pStateMirror != nullptr ) {
+		pStateMirror->forceTransportSync();
+	}
+}
 
 void HydrogenApp::addEventListener( EventListener* pListener ) {
 	if ( pListener != nullptr ) {
@@ -1390,7 +2085,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// these changes in the GUI - its format, colors, fonts,
 		// selections etc.
 		// But we won't change the layout!
-		const auto pPref = Preferences::get_instance();
+		const auto pPref = m_pHydrogen->getPreferences();
 		auto layout = pPref->getInterfaceTheme()->m_layout;
 
 		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
@@ -1424,15 +2119,6 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		WindowProperties directorProp = pPref->getDirectorProperties();
 		setWindowProperties( m_pDirector, directorProp, SetAll );
 
-#ifdef H2CORE_HAVE_LADSPA
-		// LADSPA FX
-		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-			m_pLadspaFXProperties[nFX]->hide();
-			WindowProperties prop = pPref->getLadspaProperties(nFX);
-			setWindowProperties( m_pLadspaFXProperties[ nFX ], prop, SetX + SetY );
-		}
-#endif
-
 		m_pMainToolBar->updateActions();
 
 		// Update all parts of the GUI wired to the PreferencesDialog.
@@ -1461,16 +2147,25 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 
 void HydrogenApp::updateSongEvent( int nValue ) {
 
-	auto pHydrogen = Hydrogen::get_instance();	
+	auto pHydrogen = m_pHydrogen;
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr ) {
 		return;
 	}
 	
 	if ( nValue == 0 ) {
-		// Cleanup
-		closeFXProperties();
-		m_pUndoStack->clear();
+		// While attached to the authoritative engine, local
+		// UpdateSong(0) pushes stem from re-syncs of the same document
+		// (dirty-echo and post-save pulls via the mirror's setSong) —
+		// the undo history must survive those. New documents reset it
+		// at their origin instead: the remote load in
+		// handleRemoteEvent() and the attach in syncViaIpc() (ADR 0026
+		// point 15). Standalone — and a detached editor, which falls
+		// back to local loads — keeps the reset here: every
+		// UpdateSong(0) there is the load/set of a new song.
+		if ( ! isIpcConnected() ) {
+			m_pUndoStack->clear();
+		}
 
 		// Update GUI components
 		updateWindowTitle();
@@ -1486,6 +2181,24 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 			.arg( tr("Song is read-only." ) )
 			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
 	}
+}
+
+void HydrogenApp::audioDriverChangedEvent() {
+	// In editor mode, re-fetch cached AudioDriverInfo before dispatching
+	// driver/timebase events so listeners read fresh state (ADR 0029).
+	refreshCachedAudioDriverInfo();
+}
+
+void HydrogenApp::jackTimebaseStateChangedEvent( int nValue ) {
+	// In editor mode, re-fetch cached AudioDriverInfo before dispatching
+	// driver/timebase events so listeners read fresh state (ADR 0029).
+	refreshCachedAudioDriverInfo();
+}
+
+void HydrogenApp::midiDriverChangedEvent() {
+	// In editor mode, re-fetch cached MidiDriverInfo before dispatching
+	// driver/timebase events so listeners read fresh state (ADR 0029).
+	refreshCachedMidiDriverInfo();
 }
 
 void HydrogenApp::playlistChangedEvent( int nValue ) {
@@ -1517,7 +2230,7 @@ void HydrogenApp::propagatePreferences() {
 
 bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit ) {
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = pPreferences();
 
 	if ( ! pPref->m_bShowExportDrumkitLicenseWarning &&
 		 ! pPref->m_bShowExportDrumkitCopyleftWarning &&
@@ -1639,8 +2352,10 @@ bool HydrogenApp::checkDrumkitLicense( std::shared_ptr<H2Core::Drumkit> pDrumkit
 
 void HydrogenApp::onPreferencesChanged( const H2Core::Preferences::Changes& changes ) {
 	if ( changes & H2Core::Preferences::Changes::AudioTab ) {
-		H2Core::Hydrogen::get_instance()->getAudioEngine()->
-			getMetronomeInstrument()->setVolume(
-				Preferences::get_instance()->m_fMetronomeVolume );
+		// Via the CAC so the authoritative engine applies it too — in the
+		// split a direct poke would only hit the editor's mirror (ADR
+		// 0030 batch 2r).
+		m_pHydrogen->getCoreActionController()->setMetronomeVolume(
+			m_pHydrogen->getPreferences()->m_fMetronomeVolume );
 	}
 }

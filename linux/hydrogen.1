@@ -27,6 +27,8 @@ Features:
 - High quality time-stretching and pitch shifting
 .br
 - Automate it using \fBMIDI\fR or \fBOSC\fR API
+.PP
+You can start \fBhydrogen\fR using a particular song (\fI*.h2song\fR), project (\fI*.h2project\fR), or playlist (\fI*.h2playlist\fR) file as positional argument. If neither this nor a corresponding option is present, \fBhydrogen\fR will recover the song of your last session.
 .SH OPTIONS
 .TP
 \fB\-d\fR, \fB\-\-driver\fR=[\fIAUDIO_DRIVER\fR]
@@ -34,7 +36,7 @@ Use the selected audio driver. The description of this option in the -\-help out
 drivers available on your system.
 .TP
 \fB\-s\fR, \fB\-\-song\fR=\fIFILE\fR
-Load a song (\fI*.h2song\fR) at startup. Alternatively, you can just pass the filename without this option.
+Load a song (\fI*.h2song\fR) or project (\fI*.h2project\fR) at startup. Alternatively, you can just pass the filename without this option.
 .TP
 \fB\-p\fR, \fB\-\-playlist\fR=\fIFILE\fR
 Load a playlist (\fI*.h2playlist\fR) at startup.
@@ -66,7 +68,7 @@ Hide splash screen.
 \fB\-V\fR, \fB\-\-verbose\fR=[\fILEVEL\fR]
 Print a lot of debugging info
 .IP
-Level, if present, may be \fINone\fR, \fIError\fR, \fIWarning\fR, \fIInfo\fR, or \fIDebug\fR.
+Level, if present, may be \fINone\fR, \fIError\fR, \fIWarning\fR, \fIInfo\fR, \fIDebug\fR, or \fIIpc\fR.
 .TP
 \fB\-L\fR, \fB\-\-log\-file\fR=\fIFILE\fR
 Use custom log file.
@@ -79,6 +81,11 @@ Use ANSI colors in log messages (default).
 .TP
 \fB\-\-no\-log\-colors\fR
 Suppress ANSI colors in log messages.
+.TP
+\fB\-c\fR, \fB\-\-connect\-via\-ipc\fR=\fIENDPOINT\fR
+Connect to a headless Hydrogen engine via IPC. The endpoint must be provided
+by a running \fBh2player\fR or plugin instance. This option runs Hydrogen in
+editor mode without creating a local engine.
 .TP
 \fB\-v\fR, \fB\-\-version\fR
 Show version info.

@@ -116,7 +116,7 @@ AudioFileBrowser::AudioFileBrowser(
 	m_pWaveDisplay->setLayer( nullptr );
 
 	playSamplescheckBox->setChecked(
-		Preferences::get_instance()->m_bPlaySamplesOnClicking
+		HydrogenApp::pPreferences()->m_bPlaySamplesOnClicking
 	);
 	// get the kde or gnome environment variable for mouse double or single
 	// clicking
@@ -299,7 +299,7 @@ void AudioFileBrowser::browseTree(
 	if ( isFileSupported( path2 ) ) {
 		filelineedit->setText( fleTxt );
 		m_pSample = Sample::load( path2 );
-		m_pPreviewInstrument = Instrument::from( m_pSample );
+		m_pPreviewInstrument = Instrument::from( m_pSample, HydrogenApp::pHydrogen() );
 
 		if ( m_pSample != nullptr && m_pPreviewInstrument != nullptr &&
 			 m_pPreviewInstrument->getComponent( 0 ) != nullptr &&
@@ -418,7 +418,7 @@ void AudioFileBrowser::on_openBTN_clicked()
 
 void AudioFileBrowser::on_playSamplescheckBox_clicked()
 {
-	Preferences::get_instance()->m_bPlaySamplesOnClicking =
+	HydrogenApp::pPreferences()->m_bPlaySamplesOnClicking =
 		playSamplescheckBox->isChecked();
 }
 
@@ -539,10 +539,10 @@ void AudioFileBrowser::startPlayback()
 
 	// Reset playhead and other widgets and perform one UI refresh before
 	// starting the actual rendering.
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
 	// Render sample
-	pAudioEngine->getSampler()->previewInstrument(
+	HydrogenApp::pEngine()->getCoreActionController()->previewInstrument(
 		pNote->getInstrument(), pNote
 	);
 	m_nLastRealtimeFrame = pAudioEngine->getRealtimeFrame();
@@ -567,8 +567,8 @@ void AudioFileBrowser::stopPlayback()
 	m_pWaveDisplay->setRenderPlayhead( false );
 	m_pWaveDisplay->setPlayheadPosition( 0 );
 
-	auto pSampler = Hydrogen::get_instance()->getAudioEngine()->getSampler();
-	pSampler->releasePlayingNotes( m_pPreviewInstrument );
+	HydrogenApp::pEngine()->getCoreActionController()->
+		releasePlayingNotes( m_pPreviewInstrument->getUuid() );
 
 	updateIcons();
 }
@@ -579,8 +579,11 @@ void AudioFileBrowser::updateTransport()
 		stopPlayback();
 		return;
 	}
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 
+	// The realtime frame is a continuously incremented number. As long as the
+	// authoritative engine and the mirror one in the IPC split share the same
+	// sample rate, we should be good with the mirror engine's frames.
 	const auto nRealtimeFrame = pAudioEngine->getRealtimeFrame();
 	if ( nRealtimeFrame == m_nLastRealtimeFrame ) {
 		return;
@@ -591,7 +594,7 @@ void AudioFileBrowser::updateTransport()
 	// this within the increment.
 	const float fStep =
 		static_cast<float>( m_pSample->getSampleRate() ) /
-		static_cast<float>( pAudioEngine->getAudioDriver()->getSampleRate() );
+		static_cast<float>( HydrogenApp::pEngine()->getAudioSampleRate() );
 	const float fIncrement =
 		static_cast<float>( nRealtimeFrame - m_nLastRealtimeFrame ) * fStep;
 
@@ -616,7 +619,7 @@ void AudioFileBrowser::updateTransport()
 void AudioFileBrowser::updateIcons()
 {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -624,7 +627,7 @@ void AudioFileBrowser::updateIcons()
 		sIconPath.append( "/icons/black/" );
 	}
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive =
 		Skin::makeBackgroundColorInactive( pColorTheme->m_widgetColor );

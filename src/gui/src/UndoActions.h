@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef UNDOACTIONS_H
-#define UNDOACTIONS_H
+#ifndef H2C_UNDOACTIONS_H
+#define H2C_UNDOACTIONS_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -47,7 +47,7 @@
 #include <core/Midi/MidiEventMap.h>
 #include <core/Preferences/Preferences.h>
 
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "HydrogenApp.h"
 #include "Rack/ComponentEditor/ComponentEditor.h"
 #include "MainForm.h"
@@ -122,14 +122,14 @@ class SE_deletePatternAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::CoreActionController::setPattern(
+		HydrogenApp::pEngine()->getCoreActionController()->setPattern(
 			std::make_shared<H2Core::Pattern>( m_pPattern ), m_nPatternPosition,
 			false
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::CoreActionController::removePattern( m_nPatternPosition );
+		HydrogenApp::pEngine()->getCoreActionController()->removePattern( m_nPatternPosition );
 	}
 
    private:
@@ -177,7 +177,7 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::CoreActionController::setPatternProperties(
+		HydrogenApp::pEngine()->getCoreActionController()->setPatternProperties(
 			m_sOldPatternPath, m_nOldVersion, __oldPatternName, m_sOldAuthor,
 			__oldPatternInfo, m_oldLicense, m_oldTags, __patternNr
 		);
@@ -185,7 +185,7 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::CoreActionController::setPatternProperties(
+		HydrogenApp::pEngine()->getCoreActionController()->setPatternProperties(
 			m_sNewPatternPath, m_nNewVersion, __newPatternName, m_sNewAuthor,
 			__newPatternInfo, m_newLicense, m_newTags, __patternNr
 		);
@@ -211,17 +211,45 @@ class SE_modifyPatternPropertiesAction : public QUndoCommand {
 };
 
 /** \ingroup docGUI*/
+class SE_setVirtualPatternsAction : public QUndoCommand {
+   public:
+	SE_setVirtualPatternsAction( const QStringList& oldVirtualPatterns,
+								 const QStringList& newVirtualPatterns,
+								 int nPatternNumber )
+	{
+		setText( HydrogenApp::get_instance()->getCommonStrings()
+					 ->getActionModifyVirtualPatterns() );
+		m_oldVirtualPatterns = oldVirtualPatterns;
+		m_newVirtualPatterns = newVirtualPatterns;
+		m_nPatternNumber = nPatternNumber;
+	}
+	virtual void undo()
+	{
+		HydrogenApp::pEngine()->getCoreActionController()->setVirtualPatterns(
+			m_nPatternNumber, m_oldVirtualPatterns );
+	}
+	virtual void redo()
+	{
+		HydrogenApp::pEngine()->getCoreActionController()->setVirtualPatterns(
+			m_nPatternNumber, m_newVirtualPatterns );
+	}
+
+   private:
+	QStringList m_oldVirtualPatterns;
+	QStringList m_newVirtualPatterns;
+	int m_nPatternNumber;
+};
+
+/** \ingroup docGUI*/
 class SE_modifySongPropertiesAction : public QUndoCommand {
    public:
 	SE_modifySongPropertiesAction(
-		const QString& sOldPath,
 		const int nOldVersion,
 		const QString& sOldName,
 		const QString& sOldAuthor,
 		const QString& sOldNotes,
 		const H2Core::License& oldLicense,
 		const QStringList& oldTags,
-		const QString& sNewPatternPath,
 		const int nNewVersion,
 		const QString& sNewName,
 		const QString sNewAuthor,
@@ -230,15 +258,14 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 		const QStringList& newTags
 	)
 	{
-		setText( QObject::tr( "Modify pattern properties" ) );
-		m_sOldPath = sOldPath;
+		setText( HydrogenApp::get_instance()->getCommonStrings()
+					 ->getActionModifySongProperties() );
 		m_nOldVersion = nOldVersion;
 		m_sOldName = sOldName;
 		m_sOldAuthor = sOldAuthor;
 		m_sOldNotes = sOldNotes;
 		m_oldLicense = oldLicense;
 		m_oldTags = oldTags;
-		m_sNewPatternPath = sNewPatternPath;
 		m_nNewVersion = nNewVersion;
 		m_sNewName = sNewName;
 		m_sNewAuthor = sNewAuthor;
@@ -248,22 +275,21 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::CoreActionController::setSongProperties(
-			m_sOldPath, m_nOldVersion, m_sOldName, m_sOldAuthor,
+		HydrogenApp::pEngine()->getCoreActionController()->setSongProperties(
+			m_nOldVersion, m_sOldName, m_sOldAuthor,
 			m_sOldNotes, m_oldLicense, m_oldTags
 		);
 	}
 
 	virtual void redo()
 	{
-		H2Core::CoreActionController::setSongProperties(
-			m_sNewPatternPath, m_nNewVersion, m_sNewName, m_sNewAuthor,
+		HydrogenApp::pEngine()->getCoreActionController()->setSongProperties(
+			m_nNewVersion, m_sNewName, m_sNewAuthor,
 			m_sNewNotes, m_newLicense, m_newTags
 		);
 	}
 
    private:
-	QString m_sOldPath;
 	int m_nOldVersion;
 	QString m_sOldName;
 	QString m_sOldAuthor;
@@ -271,7 +297,6 @@ class SE_modifySongPropertiesAction : public QUndoCommand {
 	H2Core::License m_oldLicense;
 	QStringList m_oldTags;
 
-	QString m_sNewPatternPath;
 	int m_nNewVersion;
 	QString m_sNewName;
 	QString m_sNewAuthor;
@@ -343,18 +368,18 @@ class SE_insertPatternAction : public QUndoCommand {
 	virtual void undo()
 	{
 		if ( m_type == Type::Replace ) {
-			H2Core::CoreActionController::setPattern(
+			HydrogenApp::pEngine()->getCoreActionController()->setPattern(
 				std::make_shared<H2Core::Pattern>( m_pOldPattern ),
 				m_nPatternPosition, m_type == Type::Replace
 			);
 		}
 		else {
-			H2Core::CoreActionController::removePattern( m_nPatternPosition );
+			HydrogenApp::pEngine()->getCoreActionController()->removePattern( m_nPatternPosition );
 		}
 	}
 	virtual void redo()
 	{
-		H2Core::CoreActionController::setPattern(
+		HydrogenApp::pEngine()->getCoreActionController()->setPattern(
 			std::make_shared<H2Core::Pattern>( m_pNewPattern ),
 			m_nPatternPosition, m_type == Type::Replace
 		);
@@ -442,14 +467,14 @@ class SE_editTimelineAction : public QUndoCommand {
 	{
 		if ( m_bTempoMarkerPresent ) {
 			if ( m_nOldColumn != m_nNewColumn ) {
-				H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
+				HydrogenApp::pEngine()->getCoreActionController()->deleteTempoMarker( m_nNewColumn );
 			}
-			H2Core::CoreActionController::addTempoMarker(
+			HydrogenApp::pEngine()->getCoreActionController()->addTempoMarker(
 				m_nOldColumn, m_fOldBpm
 			);
 		}
 		else {
-			H2Core::CoreActionController::deleteTempoMarker( m_nNewColumn );
+			HydrogenApp::pEngine()->getCoreActionController()->deleteTempoMarker( m_nNewColumn );
 		}
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
@@ -460,9 +485,9 @@ class SE_editTimelineAction : public QUndoCommand {
 	virtual void redo()
 	{
 		if ( m_nOldColumn != m_nNewColumn ) {
-			H2Core::CoreActionController::deleteTempoMarker( m_nOldColumn );
+			HydrogenApp::pEngine()->getCoreActionController()->deleteTempoMarker( m_nOldColumn );
 		}
-		H2Core::CoreActionController::addTempoMarker( m_nNewColumn, m_fNewBpm );
+		HydrogenApp::pEngine()->getCoreActionController()->addTempoMarker( m_nNewColumn, m_fNewBpm );
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
 			->getSongEditorPositionRuler()
@@ -488,7 +513,7 @@ class SE_deleteTimelineAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::CoreActionController::addTempoMarker( m_nColumn, m_fBpm );
+		HydrogenApp::pEngine()->getCoreActionController()->addTempoMarker( m_nColumn, m_fBpm );
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
 			->getSongEditorPositionRuler()
@@ -497,7 +522,7 @@ class SE_deleteTimelineAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::CoreActionController::deleteTempoMarker( m_nColumn );
+		HydrogenApp::pEngine()->getCoreActionController()->deleteTempoMarker( m_nColumn );
 		HydrogenApp::get_instance()
 			->getSongEditorPanel()
 			->getSongEditorPositionRuler()
@@ -526,20 +551,20 @@ class SE_editTagAction : public QUndoCommand {
 	virtual void undo()
 	{
 		if ( !m_sOldText.isEmpty() ) {
-			H2Core::CoreActionController::addTag( m_nPosition, m_sOldText );
+			HydrogenApp::pEngine()->getCoreActionController()->addTag( m_nPosition, m_sOldText );
 		}
 		else {
-			H2Core::CoreActionController::deleteTag( m_nPosition );
+			HydrogenApp::pEngine()->getCoreActionController()->deleteTag( m_nPosition );
 		}
 	}
 
 	virtual void redo()
 	{
 		if ( !m_sText.isEmpty() ) {
-			H2Core::CoreActionController::addTag( m_nPosition, m_sText );
+			HydrogenApp::pEngine()->getCoreActionController()->addTag( m_nPosition, m_sText );
 		}
 		else {
-			H2Core::CoreActionController::deleteTag( m_nPosition );
+			HydrogenApp::pEngine()->getCoreActionController()->deleteTag( m_nPosition );
 		}
 	}
 
@@ -560,9 +585,9 @@ class SE_tempoChangeAction : public QUndoCommand {
 		m_fNewBpm = fNewBpm;
 		m_fOldBpm = fOldBpm;
 	}
-	virtual void undo() { H2Core::CoreActionController::setBpm( m_fOldBpm ); }
+	virtual void undo() { HydrogenApp::pEngine()->getCoreActionController()->setBpm( m_fOldBpm ); }
 
-	virtual void redo() { H2Core::CoreActionController::setBpm( m_fNewBpm ); }
+	virtual void redo() { HydrogenApp::pEngine()->getCoreActionController()->setBpm( m_fNewBpm ); }
 
    private:
 	float m_fNewBpm;
@@ -870,13 +895,13 @@ class SE_moveInstrumentAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::CoreActionController::moveInstrument(
+		HydrogenApp::pEngine()->getCoreActionController()->moveInstrument(
 			m_nTargetIndex, m_nSourceIndex
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::CoreActionController::moveInstrument(
+		HydrogenApp::pEngine()->getCoreActionController()->moveInstrument(
 			m_nSourceIndex, m_nTargetIndex
 		);
 	}
@@ -963,11 +988,11 @@ class SE_addInstrumentAction : public QUndoCommand {
 		std::shared_ptr<H2Core::Instrument> pInstrument,
 		int nIndex,
 		Type type,
-		long* pEventId
+		long nEventId
 	)
 		: m_pInstrument( pInstrument ),
 		  m_nIndex( nIndex ),
-		  m_pEventId( pEventId )
+		  m_nEventId( nEventId )
 	{
 		const auto pCommonStrings =
 			HydrogenApp::get_instance()->getCommonStrings();
@@ -999,14 +1024,14 @@ class SE_addInstrumentAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		H2Core::CoreActionController::removeInstrument(
-			m_pInstrument, m_pEventId
+		HydrogenApp::pEngine()->getCoreActionController()->removeInstrument(
+			m_pInstrument, m_nEventId
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::CoreActionController::addInstrument(
-			m_pInstrument, m_nIndex, m_pEventId
+		HydrogenApp::pEngine()->getCoreActionController()->addInstrument(
+			m_pInstrument, m_nIndex, m_nEventId
 		);
 	}
 
@@ -1014,7 +1039,7 @@ class SE_addInstrumentAction : public QUndoCommand {
 	std::shared_ptr<H2Core::Instrument> m_pInstrument;
 	/** `-1` indicates that the instrument will be appended. */
 	int m_nIndex;
-	long* m_pEventId;
+	long m_nEventId;
 };
 
 /** \ingroup docGUI*/
@@ -1036,14 +1061,14 @@ class SE_deleteInstrumentAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		H2Core::CoreActionController::addInstrument(
-			m_pInstrument, m_nIndex, nullptr
+		HydrogenApp::pEngine()->getCoreActionController()->addInstrument(
+			m_pInstrument, m_nIndex, H2Core::Event::nInvalidId
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::CoreActionController::removeInstrument(
-			m_pInstrument, nullptr
+		HydrogenApp::pEngine()->getCoreActionController()->removeInstrument(
+			m_pInstrument, H2Core::Event::nInvalidId
 		);
 	}
 
@@ -1207,11 +1232,11 @@ class SE_replaceInstrumentAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::CoreActionController::replaceInstrument( m_pOld, m_pNew );
+		HydrogenApp::pEngine()->getCoreActionController()->replaceInstrument( m_pOld, m_pNew );
 	}
 	virtual void redo()
 	{
-		H2Core::CoreActionController::replaceInstrument( m_pNew, m_pOld );
+		HydrogenApp::pEngine()->getCoreActionController()->replaceInstrument( m_pNew, m_pOld );
 	}
 
    private:
@@ -1224,10 +1249,12 @@ class SE_renameComponentAction : public QUndoCommand {
 	SE_renameComponentAction(
 		const QString& sNewName,
 		const QString& sOldName,
+		int nInstrumentIdx,
 		int nComponentId
 	)
 		: m_sNewName( sNewName ),
 		  m_sOldName( sOldName ),
+		  m_nInstrumentIdx( nInstrumentIdx ),
 		  m_nComponentId( nComponentId )
 	{
 		const auto pCommonStrings =
@@ -1239,140 +1266,142 @@ class SE_renameComponentAction : public QUndoCommand {
 	}
 	virtual void undo()
 	{
-		H2Core::CoreActionController::renameComponent(
-			m_nComponentId, m_sOldName
+		HydrogenApp::pEngine()->getCoreActionController()->renameComponent(
+			m_nInstrumentIdx, m_nComponentId, m_sOldName
 		);
 	}
 	virtual void redo()
 	{
-		H2Core::CoreActionController::renameComponent(
-			m_nComponentId, m_sNewName
+		HydrogenApp::pEngine()->getCoreActionController()->renameComponent(
+			m_nInstrumentIdx, m_nComponentId, m_sNewName
 		);
 	}
 
    private:
 	QString m_sNewName;
 	QString m_sOldName;
+	int m_nInstrumentIdx;
 	int m_nComponentId;
 };
 
+// ADR 0030 batch 2aa — the automation path view pushes these actions
+// as the only write path for automation points: redo() crosses the
+// IPC split via the CoreActionController commands (dual-apply on the
+// mirror and the authoritative engine). A drag pushes one move action
+// per mouse step under a shared undo context, coalescing the whole
+// interaction into a single undo step.
 /** \ingroup docGUI*/
 class SE_automationPathAddPointAction : public QUndoCommand {
    public:
-	SE_automationPathAddPointAction(
-		H2Core::AutomationPath* path,
-		float x,
-		float y
-	)
+	SE_automationPathAddPointAction( float fX, float fY )
 	{
 		setText( QObject::tr( "Add point" ) );
-		__path = path;
-		__x = x;
-		__y = y;
+		m_fX = fX;
+		m_fY = fY;
 	}
 
 	virtual void undo()
 	{
-		__path->remove_point( __x );
+		HydrogenApp::pEngine()
+			->getCoreActionController()
+			->removeAutomationPoint( m_fX );
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		auto h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
 	virtual void redo()
 	{
-		__path->add_point( __x, __y );
+		HydrogenApp::pEngine()
+			->getCoreActionController()
+			->addAutomationPoint( m_fX, m_fY );
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		auto h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
    private:
-	H2Core::AutomationPath* __path;
-	float __x;
-	float __y;
+	float m_fX;
+	float m_fY;
 };
 
 /** \ingroup docGUI*/
 class SE_automationPathRemovePointAction : public QUndoCommand {
    public:
-	SE_automationPathRemovePointAction(
-		H2Core::AutomationPath* path,
-		float x,
-		float y
-	)
+	SE_automationPathRemovePointAction( float fX, float fY )
 	{
 		setText( QObject::tr( "Remove point" ) );
-		__path = path;
-		__x = x;
-		__y = y;
+		m_fX = fX;
+		m_fY = fY;
 	}
 
 	virtual void redo()
 	{
-		__path->remove_point( __x );
+		HydrogenApp::pEngine()
+			->getCoreActionController()
+			->removeAutomationPoint( m_fX );
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		auto h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
 	virtual void undo()
 	{
-		__path->add_point( __x, __y );
+		HydrogenApp::pEngine()
+			->getCoreActionController()
+			->addAutomationPoint( m_fX, m_fY );
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		auto h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
    private:
-	H2Core::AutomationPath* __path;
-	float __x;
-	float __y;
+	float m_fX;
+	float m_fY;
 };
 
 /** \ingroup docGUI*/
 class SE_automationPathMovePointAction : public QUndoCommand {
    public:
 	SE_automationPathMovePointAction(
-		H2Core::AutomationPath* path,
-		float ox,
-		float oy,
-		float tx,
-		float ty
+		float fOldX,
+		float fOldY,
+		float fNewX,
+		float fNewY
 	)
 	{
 		setText( QObject::tr( "Move point" ) );
-		__path = path;
-		__ox = ox;
-		__oy = oy;
-		__tx = tx;
-		__ty = ty;
+		m_fOldX = fOldX;
+		m_fOldY = fOldY;
+		m_fNewX = fNewX;
+		m_fNewY = fNewY;
 	}
 
 	virtual void redo()
 	{
-		__path->remove_point( __ox );
-		__path->add_point( __tx, __ty );
+		HydrogenApp::pEngine()
+			->getCoreActionController()
+			->moveAutomationPoint( m_fOldX, m_fOldY, m_fNewX, m_fNewY );
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		auto h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
 	virtual void undo()
 	{
-		__path->remove_point( __tx );
-		__path->add_point( __ox, __oy );
+		HydrogenApp::pEngine()
+			->getCoreActionController()
+			->moveAutomationPoint( m_fNewX, m_fNewY, m_fOldX, m_fOldY );
 
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+		auto h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->updateView();
 	}
 
    private:
-	H2Core::AutomationPath* __path;
-	float __ox;
-	float __oy;
-	float __tx;
-	float __ty;
+	float m_fOldX;
+	float m_fOldY;
+	float m_fNewX;
+	float m_fNewY;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1390,12 +1419,12 @@ class SE_addEntryToPlaylistAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::CoreActionController::addToPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pEngine()->getCoreActionController()->addToPlaylist( m_pEntry, m_nIndex );
 	}
 
 	virtual void undo()
 	{
-		H2Core::CoreActionController::removeFromPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pEngine()->getCoreActionController()->removeFromPlaylist( m_pEntry, m_nIndex );
 	}
 
    private:
@@ -1416,12 +1445,12 @@ class SE_removeEntryFromPlaylistAction : public QUndoCommand {
 
 	virtual void redo()
 	{
-		H2Core::CoreActionController::removeFromPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pEngine()->getCoreActionController()->removeFromPlaylist( m_pEntry, m_nIndex );
 	}
 
 	virtual void undo()
 	{
-		H2Core::CoreActionController::addToPlaylist( m_pEntry, m_nIndex );
+		HydrogenApp::pEngine()->getCoreActionController()->addToPlaylist( m_pEntry, m_nIndex );
 	}
 
    private:
@@ -1436,12 +1465,12 @@ class SE_replacePlaylistAction : public QUndoCommand {
 	{
 		setText( QObject::tr( "Replace playlist" ) );
 
-		m_pOldPlaylist = H2Core::Hydrogen::get_instance()->getPlaylist();
+		m_pOldPlaylist = HydrogenApp::pEngine()->getPlaylist();
 	}
 
 	virtual void redo()
 	{
-		H2Core::CoreActionController::setPlaylist( m_pNewPlaylist );
+		HydrogenApp::pEngine()->getCoreActionController()->setPlaylist( m_pNewPlaylist );
 		HydrogenApp::get_instance()
 			->getMainForm()
 			->setPreviousAutoSavePlaylistFile( "" );
@@ -1449,7 +1478,7 @@ class SE_replacePlaylistAction : public QUndoCommand {
 
 	virtual void undo()
 	{
-		H2Core::CoreActionController::setPlaylist( m_pOldPlaylist );
+		HydrogenApp::pEngine()->getCoreActionController()->setPlaylist( m_pOldPlaylist );
 		HydrogenApp::get_instance()
 			->getMainForm()
 			->setPreviousAutoSavePlaylistFile( "" );
@@ -1468,7 +1497,7 @@ class SE_addOrRemoveMidiEventsAction : public QUndoCommand {
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction,
+		std::shared_ptr<H2Core::MidiAction> pMidiAction,
 		bool bAdd
 	)
 		: m_nRow( nRow ),
@@ -1516,7 +1545,7 @@ class SE_addOrRemoveMidiEventsAction : public QUndoCommand {
 	int m_nRow;
 	H2Core::MidiEvent::Type m_eventType;
 	H2Core::Midi::Parameter m_eventParameter;
-	std::shared_ptr<MidiAction> m_pMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pMidiAction;
 	bool m_bAdd;
 };
 
@@ -1528,8 +1557,8 @@ class SE_replaceMidiEventsAction : public QUndoCommand {
 		H2Core::MidiEvent::Type oldEventType,
 		H2Core::Midi::Parameter newEventParameter,
 		H2Core::Midi::Parameter oldEventParameter,
-		std::shared_ptr<MidiAction> pNewMidiAction,
-		std::shared_ptr<MidiAction> pOldMidiAction
+		std::shared_ptr<H2Core::MidiAction> pNewMidiAction,
+		std::shared_ptr<H2Core::MidiAction> pOldMidiAction
 	)
 		: m_nRow( nRow ),
 		  m_newEventType( newEventType ),
@@ -1569,8 +1598,8 @@ class SE_replaceMidiEventsAction : public QUndoCommand {
 	H2Core::MidiEvent::Type m_oldEventType;
 	H2Core::Midi::Parameter m_newEventParameter;
 	H2Core::Midi::Parameter m_oldEventParameter;
-	std::shared_ptr<MidiAction> m_pNewMidiAction;
-	std::shared_ptr<MidiAction> m_pOldMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pNewMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pOldMidiAction;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1825,4 +1854,447 @@ class SE_modifyCustomLibraryDirsAction : public QUndoCommand {
 	Action m_action;
 };
 
-#endif	// UNDOACTIONS_H
+////////////////////////////////////////////////////////////////////////////////
+// mixer commands
+
+/** Thin undo wrapper for a mixer-strip edit (volume / pan / mute / solo). It
+ * routes through the existing #H2Core::CoreActionController strip commands, so
+ * the edit becomes undoable (and, in editor mode, IPC-routable) instead of
+ * mutating the engine directly. The strip is addressed by its list position
+ * (#m_nStrip), matching the CoreActionController strip API.
+ *
+ * A continuous drag pushes one command per value change; these are coalesced
+ * into a single undo step by the caller passing a per-strip-per-property undo
+ * context (`mixer:<line>:<property>`) to HydrogenApp::pushUndoCommand(), closed
+ * by HydrogenApp::endUndoContext() when the pointer leaves the strip — the same
+ * mechanism the editors use (see Widgets/EditorBase.h). No mergeWith() here.
+ *
+ * \ingroup docGUI */
+class SE_setStripPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Volume, Pan, Mute, Solo };
+
+	SE_setStripPropertyAction( int nStrip, Property property,
+							   float fOldValue, float fNewValue )
+		: m_nStrip( nStrip )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sName;
+		switch ( property ) {
+			case Property::Volume: sName = pCommonStrings->getActionSetStripVolume(); break;
+			case Property::Pan:    sName = pCommonStrings->getActionSetStripPan(); break;
+			case Property::Mute:   sName = pCommonStrings->getActionToggleStripMute(); break;
+			case Property::Solo:   sName = pCommonStrings->getActionToggleStripSolo(); break;
+		}
+		setText( QString( "%1 [%2]" ).arg( sName ).arg( nStrip ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Volume:
+				pController->setStripVolume( m_nStrip, fValue, true );
+				break;
+			case Property::Pan:
+				pController->setStripPanSym( m_nStrip, fValue, true );
+				break;
+			case Property::Mute:
+				pController->setStripIsMuted( m_nStrip, fValue != 0.0f, true );
+				break;
+			case Property::Solo:
+				pController->setStripIsSoloed( m_nStrip, fValue != 0.0f, true );
+				break;
+		}
+	}
+
+	int m_nStrip;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
+/** Thin undo wrapper for a master-strip / song-wide edit (master volume & mute,
+ * humanize velocity/time, swing). Like #SE_setStripPropertyAction it routes
+ * through #H2Core::CoreActionController so the edit is undoable (and, in editor
+ * mode, IPC-routable); a drag coalesces into one undo step via the per-property
+ * undo context (`master:<property>`) the caller passes to
+ * HydrogenApp::pushUndoCommand(), closed by HydrogenApp::endUndoContext() when
+ * the pointer leaves the strip.
+ *
+ * \ingroup docGUI */
+class SE_setMasterPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Volume, HumanizeVelocity, HumanizeTime, Swing, Mute };
+
+	SE_setMasterPropertyAction( Property property, float fOldValue,
+								float fNewValue )
+		: m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sName;
+		switch ( property ) {
+			case Property::Volume:
+				sName = pCommonStrings->getActionSetMasterVolume(); break;
+			case Property::HumanizeVelocity:
+				sName = pCommonStrings->getActionSetHumanizeVelocity(); break;
+			case Property::HumanizeTime:
+				sName = pCommonStrings->getActionSetHumanizeTime(); break;
+			case Property::Swing:
+				sName = pCommonStrings->getActionSetSwing(); break;
+			case Property::Mute:
+				sName = pCommonStrings->getActionToggleMasterMute(); break;
+		}
+		setText( sName );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Volume:
+				pController->setMasterVolume( fValue );
+				break;
+			case Property::HumanizeVelocity:
+				pController->setHumanizeVelocity( fValue );
+				break;
+			case Property::HumanizeTime:
+				pController->setHumanizeTime( fValue );
+				break;
+			case Property::Swing:
+				pController->setSwing( fValue );
+				break;
+			case Property::Mute:
+				pController->setMasterIsMuted( fValue != 0.0f );
+				break;
+		}
+	}
+
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
+/** Undo wrapper for the playback-track volume fader and mute button
+ * (SongEditorPanel). The playback track is a single special instrument, not part
+ * of the drumkit instrument list, so it needs no index. Routes through the
+ * #H2Core::CoreActionController playback-track setters. A volume drag coalesces
+ * into one undo step via the "playbackTrack:volume" undo context, closed by
+ * HydrogenApp::endUndoContext() when the pointer leaves the panel.
+ *
+ * \ingroup docGUI */
+class SE_setPlaybackTrackPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Volume, Mute };
+
+	SE_setPlaybackTrackPropertyAction( Property property, float fOldValue,
+									   float fNewValue )
+		: m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		switch ( property ) {
+			case Property::Volume:
+				setText( pCommonStrings->getActionSetPlaybackTrackVolume() );
+				break;
+			case Property::Mute:
+				setText( pCommonStrings->getActionTogglePlaybackTrackMute() );
+				break;
+		}
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Volume:
+				pController->setPlaybackTrackVolume( fValue );
+				break;
+			case Property::Mute:
+				pController->setPlaybackTrackMuted( fValue != 0.0f );
+				break;
+		}
+	}
+
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
+/** Thin undo wrapper for an instrument-parameter edit from the InstrumentEditor
+ * rotaries (gain, pitch offset, random pitch, filter cutoff/resonance, ADSR).
+ * Routes through the per-parameter #H2Core::CoreActionController setters (which
+ * resolve the instrument by index, apply, and emit InstrumentParametersChanged
+ * so the editor refreshes), so the edit is undoable and IPC-routable. A drag
+ * coalesces into one undo step via the per-instrument-per-property undo context
+ * (`instrument:<index>:<property>`) the caller passes to
+ * HydrogenApp::pushUndoCommand(), closed by HydrogenApp::endUndoContext() when
+ * the pointer leaves the editor.
+ *
+ * \ingroup docGUI */
+class SE_setInstrumentPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { Gain, PitchOffset, RandomPitch, FilterCutoff,
+						  FilterResonance, Attack, Decay, Sustain, Release,
+						  FilterActive, MuteGroup, StopNotes, ApplyVelocity,
+						  HihatGroup, LowerCc, HigherCc, MidiOutChannel,
+						  MidiOutNote };
+
+	SE_setInstrumentPropertyAction( int nInstrument, Property property,
+									float fOldValue, float fNewValue )
+		: m_nInstrument( nInstrument )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sName;
+		switch ( property ) {
+			case Property::Gain: sName = pCommonStrings->getActionSetInstrumentGain(); break;
+			case Property::PitchOffset: sName = pCommonStrings->getActionSetInstrumentPitch(); break;
+			case Property::RandomPitch: sName = pCommonStrings->getActionSetRandomPitch(); break;
+			case Property::FilterCutoff: sName = pCommonStrings->getActionSetFilterCutoff(); break;
+			case Property::FilterResonance: sName = pCommonStrings->getActionSetFilterResonance(); break;
+			case Property::Attack: sName = pCommonStrings->getActionSetAttack(); break;
+			case Property::Decay: sName = pCommonStrings->getActionSetDecay(); break;
+			case Property::Sustain: sName = pCommonStrings->getActionSetSustain(); break;
+			case Property::Release: sName = pCommonStrings->getActionSetRelease(); break;
+			case Property::FilterActive: sName = pCommonStrings->getActionToggleFilter(); break;
+			case Property::MuteGroup: sName = pCommonStrings->getActionSetMuteGroup(); break;
+			case Property::StopNotes: sName = pCommonStrings->getActionToggleStopNotes(); break;
+			case Property::ApplyVelocity: sName = pCommonStrings->getActionToggleApplyVelocity(); break;
+			case Property::HihatGroup: sName = pCommonStrings->getActionSetHihatGroup(); break;
+			case Property::LowerCc: sName = pCommonStrings->getActionSetHihatMinRange(); break;
+			case Property::HigherCc: sName = pCommonStrings->getActionSetHihatMaxRange(); break;
+			case Property::MidiOutChannel: sName = pCommonStrings->getActionSetMidiOutChannel(); break;
+			case Property::MidiOutNote: sName = pCommonStrings->getActionSetMidiOutNote(); break;
+		}
+		setText( QString( "%1 [%2]" ).arg( sName ).arg( nInstrument ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::Gain:
+				pController->setInstrumentGain( m_nInstrument, fValue ); break;
+			case Property::PitchOffset:
+				pController->setInstrumentPitch( m_nInstrument, fValue ); break;
+			case Property::RandomPitch:
+				pController->setInstrumentRandomPitch( m_nInstrument, fValue ); break;
+			case Property::FilterCutoff:
+				pController->setInstrumentFilterCutoff( m_nInstrument, fValue ); break;
+			case Property::FilterResonance:
+				pController->setInstrumentFilterResonance( m_nInstrument, fValue ); break;
+			case Property::Attack:
+				pController->setInstrumentAttack( m_nInstrument, fValue ); break;
+			case Property::Decay:
+				pController->setInstrumentDecay( m_nInstrument, fValue ); break;
+			case Property::Sustain:
+				pController->setInstrumentSustain( m_nInstrument, fValue ); break;
+			case Property::Release:
+				pController->setInstrumentRelease( m_nInstrument, fValue ); break;
+			case Property::FilterActive:
+				pController->setInstrumentFilterActive( m_nInstrument, fValue != 0.0f ); break;
+			case Property::MuteGroup:
+				pController->setInstrumentMuteGroup( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::StopNotes:
+				pController->setInstrumentStopNotes( m_nInstrument, fValue != 0.0f ); break;
+			case Property::ApplyVelocity:
+				pController->setInstrumentApplyVelocity( m_nInstrument, fValue != 0.0f ); break;
+			case Property::HihatGroup:
+				pController->setInstrumentHihatGroup( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::LowerCc:
+				pController->setInstrumentLowerCc( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::HigherCc:
+				pController->setInstrumentHigherCc( m_nInstrument, static_cast<int>( fValue ) ); break;
+			case Property::MidiOutChannel:
+				pController->setInstrumentMidiOutChannel(
+					m_nInstrument,
+					H2Core::Midi::channelFromInt( static_cast<int>( fValue ) ),
+					H2Core::Event::nInvalidId
+				);
+				break;
+			case Property::MidiOutNote:
+				pController->setInstrumentMidiOutNote(
+					m_nInstrument,
+					H2Core::Midi::noteFromIntClamp( static_cast<int>( fValue )
+					),
+					H2Core::Event::nInvalidId
+				);
+				break;
+		}
+	}
+
+	int m_nInstrument;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
+/** Thin undo wrapper for a component-property edit (mute / solo / gain) from the
+ * ComponentView. Routes through the per-parameter CoreActionController component
+ * setters (resolve by instrument+component index, apply, emit
+ * InstrumentParametersChanged, mark the kit modified), so it is undoable and
+ * IPC-routable. A drag coalesces via the undo context
+ * (`component:<instrument>:<component>:<property>`) the caller passes.
+ *
+ * \ingroup docGUI */
+class SE_setComponentPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { IsMuted, IsSoloed, Gain, Selection };
+
+	SE_setComponentPropertyAction( int nInstrument, int nComponent,
+								   Property property, float fOldValue,
+								   float fNewValue )
+		: m_nInstrument( nInstrument )
+		, m_nComponent( nComponent )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sName;
+		switch ( property ) {
+			case Property::IsMuted: sName = pCommonStrings->getActionToggleComponentMute(); break;
+			case Property::IsSoloed: sName = pCommonStrings->getActionToggleComponentSolo(); break;
+			case Property::Gain: sName = pCommonStrings->getActionSetComponentGain(); break;
+			case Property::Selection: sName = pCommonStrings->getActionSetSampleSelection(); break;
+		}
+		setText( QString( "%1 [%2:%3]" ).arg( sName ).arg( nInstrument )
+				 .arg( nComponent ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::IsMuted:
+				pController->setComponentIsMuted( m_nInstrument, m_nComponent, fValue != 0.0f ); break;
+			case Property::IsSoloed:
+				pController->setComponentIsSoloed( m_nInstrument, m_nComponent, fValue != 0.0f ); break;
+			case Property::Gain:
+				pController->setComponentGain( m_nInstrument, m_nComponent, fValue ); break;
+			case Property::Selection:
+				pController->setComponentSelection( m_nInstrument, m_nComponent, static_cast<int>( fValue ) ); break;
+		}
+	}
+
+	int m_nInstrument;
+	int m_nComponent;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
+/** Thin undo wrapper for a layer-property edit (mute / solo / gain / pitch /
+ * velocity range) from the ComponentView / LayerPreview. Routes through the
+ * per-parameter CoreActionController layer setters; a drag coalesces via the
+ * undo context (`layer:<instrument>:<component>:<layer>:<property>`).
+ *
+ * \ingroup docGUI */
+class SE_setLayerPropertyAction : public QUndoCommand {
+   public:
+	enum class Property { IsMuted, IsSoloed, Gain, PitchOffset, StartVelocity,
+						  EndVelocity };
+
+	SE_setLayerPropertyAction( int nInstrument, int nComponent, int nLayer,
+							   Property property, float fOldValue,
+							   float fNewValue )
+		: m_nInstrument( nInstrument )
+		, m_nComponent( nComponent )
+		, m_nLayer( nLayer )
+		, m_property( property )
+		, m_fOldValue( fOldValue )
+		, m_fNewValue( fNewValue )
+	{
+		const auto pCommonStrings =
+			HydrogenApp::get_instance()->getCommonStrings();
+		QString sName;
+		switch ( property ) {
+			case Property::IsMuted: sName = pCommonStrings->getActionToggleLayerMute(); break;
+			case Property::IsSoloed: sName = pCommonStrings->getActionToggleLayerSolo(); break;
+			case Property::Gain: sName = pCommonStrings->getActionSetLayerGain(); break;
+			case Property::PitchOffset: sName = pCommonStrings->getActionSetLayerPitch(); break;
+			case Property::StartVelocity: sName = pCommonStrings->getActionSetLayerVelocityStart(); break;
+			case Property::EndVelocity: sName = pCommonStrings->getActionSetLayerVelocityEnd(); break;
+		}
+		setText( QString( "%1 [%2:%3:%4]" ).arg( sName ).arg( nInstrument )
+				 .arg( nComponent ).arg( nLayer ) );
+	}
+
+	virtual void redo() override { apply( m_fNewValue ); }
+	virtual void undo() override { apply( m_fOldValue ); }
+
+   private:
+	void apply( float fValue ) {
+		auto pController = HydrogenApp::pEngine()->getCoreActionController();
+		if ( pController == nullptr ) {
+			return;
+		}
+		switch ( m_property ) {
+			case Property::IsMuted:
+				pController->setLayerIsMuted( m_nInstrument, m_nComponent, m_nLayer, fValue != 0.0f ); break;
+			case Property::IsSoloed:
+				pController->setLayerIsSoloed( m_nInstrument, m_nComponent, m_nLayer, fValue != 0.0f ); break;
+			case Property::Gain:
+				pController->setLayerGain( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+			case Property::PitchOffset:
+				pController->setLayerPitchOffset( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+			case Property::StartVelocity:
+				pController->setLayerStartVelocity( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+			case Property::EndVelocity:
+				pController->setLayerEndVelocity( m_nInstrument, m_nComponent, m_nLayer, fValue ); break;
+		}
+	}
+
+	int m_nInstrument;
+	int m_nComponent;
+	int m_nLayer;
+	Property m_property;
+	float m_fOldValue;
+	float m_fNewValue;
+};
+
+#endif	// H2C_UNDOACTIONS_H

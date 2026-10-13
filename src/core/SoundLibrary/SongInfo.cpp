@@ -35,7 +35,7 @@ SongInfo::~SongInfo()
 {
 }
 
-bool SongInfo::load( const QString& sPath )
+bool SongInfo::load( const QString& sPath, Hydrogen* pHydrogen )
 {
 	XMLDoc doc;
 	if ( !doc.read( sPath, true ) ) {
@@ -46,7 +46,7 @@ bool SongInfo::load( const QString& sPath )
 	const XMLNode rootNode = doc.firstChildElement( "song" );
 	if ( !rootNode.isNull() ) {
 		m_sPath = sPath;
-		m_context = Filesystem::DetermineContext( sPath );
+		m_context = Filesystem::DetermineContext( sPath, pHydrogen );
 		m_type = SoundLibraryInfo::Type::Song;
 		m_sAuthor =
 			rootNode.read_string( "author", "undefined author", false, false );

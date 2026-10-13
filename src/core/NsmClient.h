@@ -20,16 +20,23 @@
  *
  */
 
-#ifndef NSM_CLIENT_H
-#define NSM_CLIENT_H
+#ifndef H2C_NSM_CLIENT_H
+#define H2C_NSM_CLIENT_H
+
+// Pull in H2CORE_HAVE_OSC before the guard below so the class is defined
+// regardless of include order (the guard relied on the includer defining it).
+#include <core/config.h>
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include <core/Object.h>
 #include <cassert>
+#include <thread>
 
 #include "core/Nsm.h"
 
+namespace H2Core {
+	class Hydrogen;
 
 /**
 * @class NsmClient
@@ -62,29 +69,18 @@ class NsmClient : public H2Core::Object<NsmClient>
 	H2_OBJECT(NsmClient)
 	public:
 		/**
-		 * Object holding the current NsmClient singleton. It
-		 * is initialized with nullptr, set with
-		 * create_instance(), and accessed with
-		 * get_instance().
+		 * Owning Hydrogen instance (ADR 0015). Per-instance: each Hydrogen owns
+		 * its own NsmClient. The static NSM callbacks reach the engine through
+		 * the NsmClient passed to them as liblo/NSM user_data.
 		 */
-		static NsmClient* __instance;
+		H2Core::Hydrogen* m_pHydrogen;
+		/** Constructs an NsmClient owned by @a pHydrogen (ADR 0015). */
+		NsmClient( H2Core::Hydrogen* pHydrogen );
 		/** Destructor*/
 		~NsmClient();
-		/** Thread the NSM client will run in.*/
-		pthread_t m_NsmThread;
-		/**
-		 * If #__instance equals nullptr, a new NsmClient singleton
-		 * will be created and stored in it.
-		 *
-		 * It is called in
-		 * H2Core::Hydrogen::create_instance().
-		 */
-		static void create_instance();
-		/**
-		 * \return a pointer to the current NsmClient
-		 * singleton stored in #__instance.
-		 */
-		static NsmClient* get_instance() { return __instance; }
+		/** Thread the NSM client will run in. Detached at spawn: it
+		 * runs till process end and is never joined.*/
+		std::thread m_NsmThread;
 
 		/**
 		 * Informs the NSM server whether the current H2Core::Song is
@@ -155,10 +151,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 		void setClientId( const QString& sId );
 
 	private:
-		/** Private constructor to allow construction only via
-		   create_instance().*/
-		NsmClient();
-		
+	
 		/**
 		 * Stores the current instance of the NSM client.
 		 */
@@ -265,7 +258,7 @@ class NsmClient : public H2Core::Object<NsmClient>
 	 *
 	 * \param name Absolute path to the session folder.
 	 */
-	static void copyPreferences( const char* name );
+	void copyPreferences( const char* name );
 	
 	/** Indicates whether the NsmClient::NsmProcessEvent() function
 	 * should continue processing events.
@@ -275,29 +268,31 @@ class NsmClient : public H2Core::Object<NsmClient>
 	static bool bNsmShutdown;
 };
 
-inline bool NsmClient::getUnderSessionManagement() const {
+} // namespace H2Core
+
+inline bool H2Core::NsmClient::getUnderSessionManagement() const {
 	return m_bUnderSessionManagement;
 }
 
-inline const QString& NsmClient::getSessionFolderPath() const {
+inline const QString& H2Core::NsmClient::getSessionFolderPath() const {
 	return m_sSessionFolderPath;
 }
-inline void NsmClient::setSessionFolderPath( const QString& sPath ) {
+inline void H2Core::NsmClient::setSessionFolderPath( const QString& sPath ) {
 	m_sSessionFolderPath = sPath;
 }
 
-inline bool NsmClient::getIsNewSession() const {
+inline bool H2Core::NsmClient::getIsNewSession() const {
 	return m_bIsNewSession;
 }
-inline void NsmClient::setIsNewSession( bool bNew ) {
+inline void H2Core::NsmClient::setIsNewSession( bool bNew ) {
 	m_bIsNewSession = bNew;
 }
-inline const QString& NsmClient::getClientId() const {
+inline const QString& H2Core::NsmClient::getClientId() const {
 	return m_sClientId;
 }
-inline void NsmClient::setClientId( const QString& sId ) {
+inline void H2Core::NsmClient::setClientId( const QString& sId ) {
 	m_sClientId = sId;
 }
 #endif /* H2CORE_HAVE_OSC */
 
-#endif // NSM_CLIENT_H
+#endif // H2C_NSM_CLIENT_H

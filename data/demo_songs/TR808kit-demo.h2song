@@ -3,7 +3,6 @@
  <version>1.2.0</version>
  <bpm>125</bpm>
  <volume>0.71</volume>
- <metronomeVolume>0.5</metronomeVolume>
  <name>TR-808 Emulation Kit demo</name>
  <author>ArtemioLabs</author>
  <notes>Demo patterns for the TR-808 Emulation Kit.</notes>

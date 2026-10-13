@@ -23,14 +23,13 @@
 #include <core/Basics/Pattern.h>
 
 #include <cassert>
+#include <memory>
 
-#include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
-#include <core/Hydrogen.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
@@ -85,14 +84,15 @@ Pattern::~Pattern()
 {
 }
 
-std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo
+std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo,
+										std::shared_ptr<SoundLibraryDatabase> pDB
 )
 {
 	if ( pInfo == nullptr ) {
 		return nullptr;
 	}
 
-	auto pPattern = Pattern::load( pInfo->getPath() );
+	auto pPattern = Pattern::load( pInfo->getPath(), false, pDB );
 	if ( pPattern == nullptr ) {
 		ERRORLOG( QString( "Unable to load pattern from [%1]" )
 					  .arg( pInfo->toQString() ) );
@@ -103,7 +103,7 @@ std::shared_ptr<Pattern> Pattern::from( std::shared_ptr<SoundLibraryInfo> pInfo
 }
 
 std::shared_ptr<Pattern>
-Pattern::load( const QString& sPatternPath, bool bSilent )
+Pattern::load( const QString& sPatternPath, bool bSilent, std::shared_ptr<SoundLibraryDatabase> pDB )
 {
 	if ( !bSilent ) {
 		INFOLOG( QString( "Load pattern %1" ).arg( sPatternPath ) );
@@ -138,7 +138,8 @@ Pattern::load( const QString& sPatternPath, bool bSilent )
 	const QString sDrumkitName =
 		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
 
-	auto pPattern = loadFrom( patternNode, sDrumkitName, nullptr, bSilent );
+	auto pPattern = loadFrom(
+		patternNode, sDrumkitName, nullptr, Xml::Flag::None, bSilent, pDB );
 	if ( pPattern != nullptr ) {
 		pPattern->setPath( sPatternPath );
 	}
@@ -150,7 +151,9 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitName,
 	std::shared_ptr<Drumkit> pDrumkit,
-	bool bSilent
+	Xml::Flag flags,
+	bool bSilent,
+	std::shared_ptr<SoundLibraryDatabase> pDB
 )
 {
 	auto pPattern = std::make_shared<Pattern>();
@@ -172,7 +175,6 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 		"denominator", pPattern->getDenominator(), false, false, bSilent
 	) );
 
-	pPattern->setDrumkitName( sDrumkitName );
 	pPattern->m_nVersion = node.read_int(
 		"userVersion", pPattern->m_nVersion, false, false, bSilent
 	);
@@ -209,7 +211,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			auto pNote = Note::loadFrom( note_node, bSilent );
+			auto pNote = Note::loadFrom( note_node, flags, bSilent );
 			assert( pNote );
 			if ( pNote != nullptr &&
 				 ( pNote->getInstrumentId() != Instrument::EmptyId ||
@@ -229,7 +231,7 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 				sequenceNode.firstChildElement( "noteList" );
 			XMLNode noteNode = noteListNode.firstChildElement( "note" );
 			while ( !noteNode.isNull() ) {
-				const auto pNote = Note::loadFrom( noteNode, bSilent );
+				const auto pNote = Note::loadFrom( noteNode, flags, bSilent );
 				if ( pNote != nullptr ) {
 					pPattern->insertNote( pNote );
 				}
@@ -239,18 +241,37 @@ std::shared_ptr<Pattern> Pattern::loadFrom(
 		}
 	}
 
-	pPattern->applyMissingTypes( pDrumkit, bSilent );
+	if ( flags & Xml::Flag::Ipc ) {
+		// Additional members not present in .h2pattern but required for IPC.
+		pPattern->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		pPattern->setPath(
+			node.read_string( "ipc-path", "", false, true, false )
+		);
+		pPattern->setIsModified(
+			node.read_bool( "ipc-isModified", false, false, false, false )
+		);
+		pPattern->setDrumkitName(
+			node.read_string( "ipc-drumkitName", "", false, true, false )
+		);
+		if ( node.read_bool( "ipc-notesMapped", false, false, false, false ) ) {
+			pPattern->mapToDrumkit( pDrumkit );
+		}
+	}
+	else {
+		pPattern->setDrumkitName( sDrumkitName );
+	}
+
+	pPattern->applyMissingTypes( pDB, pDrumkit, bSilent );
 
 	return pPattern;
 }
 
-bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
+bool Pattern::save(
+	const QString& sPatternPath,
+	std::shared_ptr<Drumkit> pDrumkit,
+	bool bSilent
+) const
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
-		return false;
-	}
-
 	if ( !bSilent ) {
 		INFOLOG( QString( "Saving pattern into [%1]" ).arg( sPatternPath ) );
 	}
@@ -260,9 +281,59 @@ bool Pattern::save( const QString& sPatternPath, bool bSilent ) const
 
 	// For backward compatibility we will also add the name of the current
 	// drumkit.
-	root.write_string( "drumkit_name", pSong->getDrumkit()->getExportName() );
-	saveTo( root, Instrument::EmptyId, "", Note::Pitch::Invalid, bSilent );
+	if ( pDrumkit != nullptr ) {
+		root.write_string( "drumkit_name", pDrumkit->getExportName() );
+	}
+	else {
+		root.write_string( "drumkit_name", m_sDrumkitName );
+	}
+	saveTo(
+		root, Instrument::EmptyId, "", Note::Pitch::Invalid,
+		Xml::Flag::None, bSilent
+	);
 	return doc.write( sPatternPath );
+}
+
+QByteArray Pattern::toXmlBuffer( std::shared_ptr<Drumkit> pDrumkit,
+								 bool bSilent ) const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
+	root.write_string( "drumkit_name",
+					   pDrumkit != nullptr ? pDrumkit->getExportName()
+										   : m_sDrumkitName );
+	saveTo(
+		root, Instrument::EmptyId, "", Note::Pitch::Invalid,
+		Xml::Flag::Ipc, bSilent
+	);
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Pattern> Pattern::fromXmlBuffer(
+	const QByteArray& buffer,
+	std::shared_ptr<Drumkit> pDrumkit,
+	bool bSilent,
+	std::shared_ptr<SoundLibraryDatabase> pDB )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse pattern XML buffer" );
+		return nullptr;
+	}
+	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( "'drumkit_pattern' node not found in buffer" );
+		return nullptr;
+	}
+	XMLNode patternNode = rootNode.firstChildElement( "pattern" );
+	if ( patternNode.isNull() ) {
+		ERRORLOG( "'pattern' node not found in buffer" );
+		return nullptr;
+	}
+	const QString sDrumkitName =
+		rootNode.read_string( "drumkit_name", "", false, false, bSilent );
+	return loadFrom(
+		patternNode, sDrumkitName, pDrumkit, Xml::Flag::Ipc, bSilent, pDB );
 }
 
 void Pattern::saveTo(
@@ -270,6 +341,7 @@ void Pattern::saveTo(
 	Instrument::Id id,
 	const Instrument::Type& sType,
 	Note::Pitch pitch,
+	Xml::Flag flags,
 	bool bSilent
 ) const
 {
@@ -310,8 +382,22 @@ void Pattern::saveTo(
 				}
 			}
 			XMLNode note_node = note_list_node.createNode( "note" );
-			pNote->saveTo( note_node );
+			pNote->saveTo( note_node, flags );
 		}
+	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		// Additional members not present in .h2pattern but required for IPC.
+		pattern_node.write_uuid( "ipc-uuid", getUuid() );
+		pattern_node.write_string( "ipc-path", m_sPath );
+		pattern_node.write_bool( "ipc-isModified", m_bIsModified );
+		pattern_node.write_string( "ipc-drumkitName", m_sDrumkitName );
+		bool bNotesMapped = false;
+		if ( m_notes.size() > 0 && m_notes.begin()->second != nullptr &&
+			 m_notes.begin()->second->getInstrument() != nullptr ) {
+			bNotesMapped = true;
+		}
+		pattern_node.write_bool( "ipc-notesMapped", bNotesMapped );
 	}
 }
 
@@ -337,6 +423,16 @@ std::shared_ptr<Note> Pattern::findNote(
 		if ( ppNote != nullptr && ppNote->getInstrumentId() == id &&
 			 ppNote->getType() == sType && ppNote->getKey() == key &&
 			 ppNote->getOctave() == octave ) {
+			return ppNote;
+		}
+	}
+
+	return nullptr;
+}
+
+std::shared_ptr<Note> Pattern::findNote( Uuid noteUuid ) const {
+	for ( const auto& [ _, ppNote ] : m_notes ) {
+		if ( ppNote != nullptr && ppNote->getUuid() == noteUuid ) {
 			return ppNote;
 		}
 	}
@@ -373,7 +469,7 @@ void Pattern::removeNote( std::shared_ptr<Note> pNote )
 	int nPos = pNote->getPosition();
 	for ( notes_it_t it = m_notes.lower_bound( nPos );
 		  it != m_notes.end() && it->first == nPos; ++it ) {
-		if ( it->second == pNote ) {
+		if ( sameObject( it->second, pNote ) ) {
 			m_notes.erase( it );
 			break;
 		}
@@ -387,54 +483,36 @@ bool Pattern::references( std::shared_ptr<Instrument> pInstrument ) const
 	}
 
 	for ( const auto& [_, ppNote] : m_notes ) {
-		if ( ppNote != nullptr && ppNote->getInstrument() == pInstrument ) {
+		if ( ppNote != nullptr &&
+			 sameObject( ppNote->getInstrument(), pInstrument ) ) {
 			return true;
 		}
 	}
 	return false;
 }
 
-void Pattern::purgeInstrument(
-	std::shared_ptr<Instrument> pInstrument,
-	bool bRequiresLock
-)
+void Pattern::purgeInstrument( std::shared_ptr<Instrument> pInstrument )
 {
 	if ( pInstrument == nullptr ) {
 		return;
 	}
 
-	bool bLocked = false;
 	for ( notes_it_t it = m_notes.begin(); it != m_notes.end(); ) {
 		auto pNote = it->second;
 		assert( pNote );
-		if ( pNote != nullptr && pNote->getInstrument() == pInstrument ) {
-			if ( !bLocked && bRequiresLock ) {
-				Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-				bLocked = true;
-			}
+		if ( pNote != nullptr &&
+			 sameObject( pNote->getInstrument(), pInstrument ) ) {
 			m_notes.erase( it++ );
 		}
 		else {
 			++it;
 		}
 	}
-	if ( bLocked ) {
-		Hydrogen::get_instance()->getAudioEngine()->unlock();
-	}
 }
 
-void Pattern::clear( bool bRequiresLock )
+void Pattern::clear()
 {
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
-	if ( bRequiresLock ) {
-		pAudioEngine->lock( RIGHT_HERE );
-	}
-
 	m_notes.clear();
-
-	if ( bRequiresLock ) {
-		pAudioEngine->unlock();
-	}
 }
 
 void Pattern::flattenedVirtualPatternsCompute()
@@ -500,6 +578,7 @@ bool Pattern::isVirtual() const
 }
 
 void Pattern::applyMissingTypes(
+	std::shared_ptr<SoundLibraryDatabase> pDB,
 	std::shared_ptr<Drumkit> pDrumkit,
 	bool bSilent
 )
@@ -534,11 +613,13 @@ void Pattern::applyMissingTypes(
 			// over the DB as we search in different drumkit contexts with
 			// different priority. In each context, we just take the first
 			// match.
-			const auto pDB =
-				Hydrogen::get_instance()->getSoundLibraryDatabase();
+
+			// All swipes run over a single snapshot: the fallback must not
+			// mix content of different publications.
+			const auto pSnapshot = pDB->getSnapshot();
 
 			// Kits explicitly loaded by user via our API have highest priority.
-			for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+			for ( const auto& [_, ppDrumkit] : pSnapshot->drumkitDatabase ) {
 				if ( ppDrumkit != nullptr &&
 					 ( ppDrumkit->getContext() ==
 						   Filesystem::Context::SessionReadOnly ||
@@ -552,7 +633,8 @@ void Pattern::applyMissingTypes(
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in folders manually added by the user have a similar
 				// priority.
-				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] :
+					  pSnapshot->drumkitDatabase ) {
 					if ( ppDrumkit != nullptr &&
 						 ppDrumkit->getContext() == Filesystem::Context::Custom &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
@@ -563,7 +645,8 @@ void Pattern::applyMissingTypes(
 			}
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in the user's drumkit folder are next.
-				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] :
+					  pSnapshot->drumkitDatabase ) {
 					if ( ppDrumkit != nullptr &&
 						 ppDrumkit->getContext() == Filesystem::Context::User &&
 						 ppDrumkit->getName() == m_sDrumkitName ) {
@@ -575,7 +658,8 @@ void Pattern::applyMissingTypes(
 			if ( pDrumkitMap == nullptr ) {
 				// Kits in the system's drumkit folder, which were shipped as
 				// part of Hydrogen, have the lower priority.
-				for ( const auto& [_, ppDrumkit] : pDB->getDrumkitDatabase() ) {
+				for ( const auto& [_, ppDrumkit] :
+					  pSnapshot->drumkitDatabase ) {
 					if ( ppDrumkit != nullptr &&
 						 ppDrumkit->getContext() ==
 							 Filesystem::Context::System &&
@@ -731,6 +815,10 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[Pattern]\n" )
 				.arg( sPrefix )
+				.append( QString( "%1%2m_uuid: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( getUuid().toQString() ) )
 				.append( QString( "%1%2m_sPath: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -804,12 +892,15 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const
 			}
 		}
 		sOutput.append( QString( "%1%2m_bIsModified: %3\n" )
-						.arg( sPrefix ).arg( s ).arg( m_bIsModified ) );
+							.arg( sPrefix )
+							.arg( s )
+							.arg( m_bIsModified ) );
 	}
 	else {
 		sOutput =
 			QString( "[Pattern]" )
-				.append( QString( " m_sName: %1" ).arg( m_sName ) )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+				.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 				.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
 				.append( QString( ", m_nVersion: %1" ).arg( m_nVersion ) )
 				.append( QString( ", m_sDrumkitName: %1" ).arg( m_sDrumkitName )

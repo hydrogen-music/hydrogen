@@ -22,11 +22,14 @@
 
 #include "ComponentView.h"
 
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentList.h>
 #include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
 
@@ -35,7 +38,7 @@
 #include "../InstrumentEditor.h"
 #include "../Rack.h"
 #include "../../AudioFileBrowser/AudioFileBrowser.h"
-#include "../../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../../Compatibility/MouseEvent.h"
 #include "../../HydrogenApp.h"
 #include "../../Skin.h"
@@ -51,6 +54,35 @@
 
 using namespace H2Core;
 
+namespace {
+/** Push an undoable component-property edit, grouped per
+ * (instrument, component, property) so a gesture is one undo step. */
+void pushComponentUndo( int nInstrument, int nComponent,
+						SE_setComponentPropertyAction::Property property,
+						const QString& sProperty, float fOldValue,
+						float fNewValue )
+{
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_setComponentPropertyAction(
+			nInstrument, nComponent, property, fOldValue, fNewValue ),
+		QString( "component:%1:%2:%3" ).arg( nInstrument ).arg( nComponent )
+			.arg( sProperty ) );
+}
+
+/** Push an undoable layer-property edit, grouped per
+ * (instrument, component, layer, property). */
+void pushLayerUndo( int nInstrument, int nComponent, int nLayer,
+					SE_setLayerPropertyAction::Property property,
+					const QString& sProperty, float fOldValue, float fNewValue )
+{
+	HydrogenApp::get_instance()->pushUndoCommand(
+		new SE_setLayerPropertyAction(
+			nInstrument, nComponent, nLayer, property, fOldValue, fNewValue ),
+		QString( "layer:%1:%2:%3:%4" ).arg( nInstrument ).arg( nComponent )
+			.arg( nLayer ).arg( sProperty ) );
+}
+} // namespace
+
 ComponentView::ComponentView( QWidget* pParent,
 							  std::shared_ptr<InstrumentComponent> pComponent )
 	: QWidget( pParent )
@@ -63,7 +95,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
     auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 
 	setObjectName( "ComponentProperties" );
 
@@ -133,7 +165,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		const auto pCommonStrings = pHydrogenApp->getCommonStrings();
 
-		auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+		auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
 			return;
 		}
@@ -142,8 +174,12 @@ ComponentView::ComponentView( QWidget* pParent,
 		const QString sNewName = m_pInlineEdit->text();
 
 		if ( sOldName != sNewName ) {
+			int nInstrument, nComponent;
+			if ( ! resolveIndices( nInstrument, nComponent ) ) {
+				return;
+			}
 			pHydrogenApp->pushUndoCommand( new SE_renameComponentAction(
-				sNewName, sOldName, pInstrument->index( m_pComponent )
+				sNewName, sOldName, nInstrument, nComponent
 			) );
 			pHydrogenApp->showStatusBarMessage(
 				QString( "%1: [%2] -> [%3]" )
@@ -208,7 +244,7 @@ ComponentView::ComponentView( QWidget* pParent,
 		createButton( pCommonStrings->getActionDuplicateComponent(), false );
 	connect( m_pDuplicateComponentButton, &QToolButton::clicked, [=]() {
 		const auto pInstrument =
-			Hydrogen::get_instance()->getSelectedInstrument();
+			HydrogenApp::pEngine()->getSelectedInstrument();
 		if ( pInstrument == nullptr || m_pComponent == nullptr ) {
 			return;
 		}
@@ -272,12 +308,19 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentMuteBtn->setChecked( pComponent->getIsMuted() );
 	m_pComponentMuteBtn->setBorderless( true );
 	m_pComponentMuteBtn->setObjectName( "ComponentMuteButton" );
+	m_pComponentMuteBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleComponentMute() );
 	connect( m_pComponentMuteBtn, &QPushButton::clicked, [&]() {
-		if ( m_pComponent != nullptr ) {
-			m_pComponent->setIsMuted( m_pComponentMuteBtn->isChecked() );
-			// Repaint since we indicate mute for all layers.
-			m_pLayerPreview->update();
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		pushComponentUndo( nInstrument, nComponent,
+			SE_setComponentPropertyAction::Property::IsMuted, "mute",
+			m_pComponent->getIsMuted() ? 1.0f : 0.0f,
+			m_pComponentMuteBtn->isChecked() ? 1.0f : 0.0f );
+		// Repaint since we indicate mute for all layers.
+		m_pLayerPreview->update();
 	} );
 	pComponentButtonContainerLayout->addWidget( m_pComponentMuteBtn );
 
@@ -290,22 +333,34 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pComponentSoloBtn->setChecked( pComponent->getIsSoloed() );
 	m_pComponentSoloBtn->setBorderless( true );
 	m_pComponentSoloBtn->setObjectName( "ComponentSoloButton" );
+	m_pComponentSoloBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleComponentSolo() );
 	connect( m_pComponentSoloBtn, &QPushButton::clicked, [&](){
-		if ( m_pComponent != nullptr ) {
-			m_pComponent->setIsSoloed( m_pComponentSoloBtn->isChecked() );
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		pushComponentUndo( nInstrument, nComponent,
+			SE_setComponentPropertyAction::Property::IsSoloed, "solo",
+			m_pComponent->getIsSoloed() ? 1.0f : 0.0f,
+			m_pComponentSoloBtn->isChecked() ? 1.0f : 0.0f );
 	});
 	pComponentButtonContainerLayout->addWidget( m_pComponentSoloBtn );
 
 	m_pComponentGainRotary = new Rotary(
-		m_pToolBarComponent, Rotary::Type::Normal, tr( "Component volume" ), false,
+		m_pToolBarComponent, Rotary::Type::Normal,
+		pCommonStrings->getActionSetComponentGain(), false,
 		0.0, 5.0 );
 	m_pComponentGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pComponentGainRotary->setDefaultValue( 1.0 );
 	connect( m_pComponentGainRotary, &Rotary::valueChanged, [&]() {
-		if ( m_pComponent != nullptr ) {
-			m_pComponent->setGain( m_pComponentGainRotary->getValue() );
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		pushComponentUndo( nInstrument, nComponent,
+			SE_setComponentPropertyAction::Property::Gain, "gain",
+			m_pComponent->getGain(), m_pComponentGainRotary->getValue() );
 	});
 	m_pToolBarComponent->addWidget( m_pComponentGainRotary );
 
@@ -350,7 +405,7 @@ ComponentView::ComponentView( QWidget* pParent,
 	);
 	connect( m_pDuplicateLayerButton, &QToolButton::clicked, [=]() {
 		auto pHydrogenApp = HydrogenApp::get_instance();
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 		const auto pInstrument = pHydrogen->getSelectedInstrument();
 		if ( m_pComponent == nullptr || pInstrument == nullptr ) {
 			return;
@@ -373,8 +428,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 		auto pNewLayer = std::make_shared<InstrumentLayer>( pLayer );
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Suppress
-		);
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Suppress, HydrogenApp::pHydrogen() );
 
 		pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 			pNewInstrument, pInstrument,
@@ -421,15 +475,23 @@ ComponentView::ComponentView( QWidget* pParent,
 	);
 	m_pLayerMuteBtn->setModifierTarget( Modifier::Drumkit );
 	m_pLayerMuteBtn->setObjectName( "LayerMuteButton" );
+	m_pLayerMuteBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleLayerMute() );
 	m_pLayerMuteBtn->setBorderless( true );
 	connect( m_pLayerMuteBtn, &QPushButton::clicked, [&]() {
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setIsMuted( m_pLayerMuteBtn->isChecked() );
-				updateView();  // WaveDisplay update
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::IsMuted, "mute",
+			pLayer->getIsMuted() ? 1.0f : 0.0f,
+			m_pLayerMuteBtn->isChecked() ? 1.0f : 0.0f );
+		updateView();  // WaveDisplay update
 	} );
 	pLayerButtonContainerLayout->addWidget( m_pLayerMuteBtn );
 
@@ -441,31 +503,45 @@ ComponentView::ComponentView( QWidget* pParent,
 	);
 	m_pLayerSoloBtn->setModifierTarget( Modifier::Drumkit );
 	m_pLayerSoloBtn->setObjectName( "LayerSoloButton" );
+	m_pLayerSoloBtn->setBaseToolTip(
+		pCommonStrings->getActionToggleLayerSolo() );
 	m_pLayerSoloBtn->setBorderless( true );
 	connect( m_pLayerSoloBtn, &QPushButton::clicked, [&]() {
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setIsSoloed( m_pLayerSoloBtn->isChecked() );
-				updateView();  // WaveDisplay update
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::IsSoloed, "solo",
+			pLayer->getIsSoloed() ? 1.0f : 0.0f,
+			m_pLayerSoloBtn->isChecked() ? 1.0f : 0.0f );
+		updateView();  // WaveDisplay update
 	} );
 	pLayerButtonContainerLayout->addWidget( m_pLayerSoloBtn );
 
 	m_pLayerGainRotary = new Rotary(
-		m_pToolBarLayer, Rotary::Type::Normal, tr( "Layer gain" ), false,
+		m_pToolBarLayer, Rotary::Type::Normal,
+		pCommonStrings->getActionSetLayerGain(), false,
 		0.0, 5.0 );
 	m_pLayerGainRotary->setModifierTarget( Modifier::Drumkit );
 	m_pLayerGainRotary->setDefaultValue( 1.0 );
 	connect( m_pLayerGainRotary, &Rotary::valueChanged, [&]() {
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setGain( m_pLayerGainRotary->getValue() );
-				updateView(); // WaveDisplay update
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::Gain, "gain",
+			pLayer->getGain(), m_pLayerGainRotary->getValue() );
+		updateView(); // WaveDisplay update
 	});
 	m_pToolBarLayer->addWidget( m_pLayerGainRotary );
 
@@ -492,7 +568,8 @@ ComponentView::ComponentView( QWidget* pParent,
 	m_pSampleSelectionCombo->setModifierTarget( Modifier::Drumkit );
 	m_pSampleSelectionCombo->setFixedHeight(
 		ComponentView::nSampleSelectionHeight );
-	m_pSampleSelectionCombo->setToolTip( tr( "Select selection algorithm" ) );
+	m_pSampleSelectionCombo->setToolTip(
+		pCommonStrings->getActionSetSampleSelection() );
 	setupSampleSelectionCombo();
 	connect( m_pSampleSelectionCombo, SIGNAL( activated( int ) ),
 			 this, SLOT( sampleSelectionChanged( int ) ) );
@@ -564,7 +641,7 @@ ComponentView::ComponentView( QWidget* pParent,
 
 	m_pLayerPitchCoarseRotary = new Rotary(
 		pLayerPropCoarseWidget, Rotary::Type::Center,
-		tr( "Layer pitch (Coarse)" ), true,
+		pCommonStrings->getActionSetLayerPitch(), true,
 		Instrument::fPitchOffsetMinimum + InstrumentEditor::nPitchFineControl,
 		Instrument::fPitchOffsetMaximum - InstrumentEditor::nPitchFineControl
 	);
@@ -572,13 +649,18 @@ ComponentView::ComponentView( QWidget* pParent,
 	connect( m_pLayerPitchCoarseRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setPitchOffset( fNewPitch );
-				updatePitchDisplay();
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::PitchOffset, "pitch",
+			pLayer->getPitchOffset(), fNewPitch );
+		updatePitchDisplay();
 	} );
 	pLayerPropCoarseLayout->addWidget( m_pLayerPitchCoarseRotary );
 	m_pLayerPitchCoarseLbl = new ClickableLabel(
@@ -596,20 +678,26 @@ ComponentView::ComponentView( QWidget* pParent,
 	pLayerPropFineWidget->setLayout( pLayerPropFineLayout );
 
 	m_pLayerPitchFineRotary = new Rotary(
-		pLayerPropFineWidget, Rotary::Type::Center, tr( "Layer pitch (Fine)" ),
+		pLayerPropFineWidget, Rotary::Type::Center,
+		pCommonStrings->getActionSetLayerPitch(),
 		true, -50.0, 50.0
 	);
 	m_pLayerPitchFineRotary->setModifierTarget( Modifier::Drumkit );
 	connect( m_pLayerPitchFineRotary, &Rotary::valueChanged, [&]() {
 		const float fNewPitch = round( m_pLayerPitchCoarseRotary->getValue() ) +
 								m_pLayerPitchFineRotary->getValue() / 100.0;
-		if ( m_pComponent != nullptr ) {
-			auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
-			if ( pLayer != nullptr ) {
-				pLayer->setPitchOffset( fNewPitch );
-				updatePitchDisplay();
-			}
+		int nInstrument, nComponent;
+		if ( ! resolveIndices( nInstrument, nComponent ) ) {
+			return;
 		}
+		auto pLayer = m_pComponent->getLayer( m_nSelectedLayer );
+		if ( pLayer == nullptr ) {
+			return;
+		}
+		pushLayerUndo( nInstrument, nComponent, m_nSelectedLayer,
+			SE_setLayerPropertyAction::Property::PitchOffset, "pitch",
+			pLayer->getPitchOffset(), fNewPitch );
+		updatePitchDisplay();
 	} );
 	pLayerPropFineLayout->addWidget( m_pLayerPitchFineRotary );
 	m_pLayerPitchFineLbl = new ClickableLabel(
@@ -648,8 +736,28 @@ ComponentView::ComponentView( QWidget* pParent,
 ComponentView::~ComponentView() {
 }
 
+bool ComponentView::resolveIndices( int& nInstrument, int& nComponent ) const {
+	auto pSong = HydrogenApp::pEngine()->getSong();
+	auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 pInstrument == nullptr || m_pComponent == nullptr ) {
+		return false;
+	}
+	nInstrument = pSong->getDrumkit()->getInstruments()->index( pInstrument );
+	nComponent = pInstrument->index( m_pComponent );
+	return nInstrument != -1 && nComponent != -1;
+}
+
+void ComponentView::leaveEvent( QEvent* ev ) {
+	QWidget::leaveEvent( ev );
+	// Close the per-property undo context opened by the component/layer
+	// callbacks so a gesture collapses into one undo step and Undo/Redo re-enable
+	// once the pointer leaves the view (mirrors Widgets/EditorBase.h).
+	HydrogenApp::get_instance()->endUndoContext();
+}
+
 void ComponentView::updateColors() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	m_pComponentMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
 	m_pComponentMuteBtn->setCheckedBackgroundTextColor(
@@ -668,14 +776,14 @@ void ComponentView::updateColors() {
 
 void ComponentView::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
 		sIconPath.append( "/icons/black/" );
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor headerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_componentColor);
 	const QColor layerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_layerColor);
 
@@ -712,10 +820,10 @@ void ComponentView::updateIcons() {
 }
 
 void ComponentView::updateStyleSheet() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor iconColor;
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		iconColor = Qt::white;
 	} else {
@@ -997,7 +1105,10 @@ void ComponentView::collapse() {
 
 void ComponentView::deleteComponent() {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
 
 	if ( pInstrument->getComponents()->size() <= 1 ) {
 		ERRORLOG( "There is just a single component remaining. This one can not be deleted." );
@@ -1026,7 +1137,7 @@ void ComponentView::deleteComponent() {
 void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 {
 	auto pHydrogenApp = HydrogenApp::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const auto pInstrument = pHydrogen->getSelectedInstrument();
 	if ( m_pComponent == nullptr || pInstrument == nullptr ) {
 		return;
@@ -1072,7 +1183,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 			selectedFiles = pFileBrowser->getSelectedFiles();
 
 			if ( sDir != pFileBrowser->getSelectedDirectory() ) {
-				Preferences::get_instance()->setLastOpenLayerDirectory(
+				HydrogenApp::pPreferences()->setLastOpenLayerDirectory(
 					pFileBrowser->getSelectedDirectory()
 				);
 			}
@@ -1107,8 +1218,7 @@ void ComponentView::replaceLayer( int nLayer, const QString& sInputSamplePath )
 	}
 
 	pNewInstrument->setSample(
-		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default
-	);
+		pNewComponent, pNewLayer, pNewSample, Event::Trigger::Default, HydrogenApp::pHydrogen() );
 
 	auto sCleanedFileName = sNewSamplePath.section( '/', -1 );
 	sCleanedFileName.replace( "." + sCleanedFileName.section( '.', -1 ), "" );
@@ -1169,7 +1279,7 @@ void ComponentView::setComponent(
 	m_pLayerPreview->updatePreview();
 
 	// if there is just a single component left, we must not allow deleting it.
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -1189,7 +1299,10 @@ void ComponentView::setLayers(
         return;
 	}
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
 	QString sLastCleanedFileName;
 
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
@@ -1228,8 +1341,7 @@ void ComponentView::setLayers(
 			std::make_shared<H2Core::InstrumentLayer>( pNewSample );
 
 		pNewInstrument->addLayer(
-			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default
-		);
+			pNewComponent, pNewLayer, m_nSelectedLayer, Event::Trigger::Default, HydrogenApp::pHydrogen() );
 
 		if ( bRenameInstrument || bRenameComponent ) {
 			sLastCleanedFileName = ssPath.section( '/', -1 );
@@ -1372,7 +1484,7 @@ void ComponentView::showSampleEditor() {
 	if ( m_pComponent == nullptr ) {
 		return;
 	}
-	auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		return;
 	}
@@ -1393,7 +1505,10 @@ void ComponentView::removeLayerButtonClicked() {
 
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+	if ( pInstrument == nullptr ) {
+		return;
+	}
 	auto pNewInstrument = std::make_shared<Instrument>( pInstrument );
 	auto pNewComponent = pNewInstrument->getComponent(
 		pInstrument->index( m_pComponent ) );
@@ -1411,8 +1526,7 @@ void ComponentView::removeLayerButtonClicked() {
 		pLayer->getSample()->getFileName() : "nullptr";
 
 	pNewInstrument->removeLayer(
-		pNewComponent, m_nSelectedLayer, Event::Trigger::Default
-	);
+		pNewComponent, m_nSelectedLayer, Event::Trigger::Default, HydrogenApp::pHydrogen() );
 
 	pHydrogenApp->pushUndoCommand( new SE_replaceInstrumentAction(
 		pNewInstrument, pInstrument,
@@ -1429,7 +1543,7 @@ void ComponentView::addNewLayer()
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
 	QString sPath =
-		Preferences::get_instance()->getLastOpenLayerDirectory();
+		HydrogenApp::pPreferences()->getLastOpenLayerDirectory();
 	const QString sFileName = "";
 	if ( !Filesystem::dirReadable( sPath, false ) ) {
 		sPath = QDir::homePath();
@@ -1445,7 +1559,7 @@ void ComponentView::addNewLayer()
 		selectedFiles = pFileBrowser->getSelectedFiles();
 
 		if ( sPath != pFileBrowser->getSelectedDirectory() ) {
-			Preferences::get_instance()->setLastOpenLayerDirectory(
+			HydrogenApp::pPreferences()->setLastOpenLayerDirectory(
 				pFileBrowser->getSelectedDirectory()
 			);
 		}
@@ -1478,15 +1592,28 @@ void ComponentView::sampleSelectionChanged( int selected ) {
 		 return;
 	 }
 
-	if ( selected == 0 ){
-		m_pComponent->setSelection( InstrumentComponent::Selection::Velocity );
+	InstrumentComponent::Selection selection;
+	if ( selected == 0 ) {
+		selection = InstrumentComponent::Selection::Velocity;
 	}
-	else if ( selected == 1 ){
-		m_pComponent->setSelection( InstrumentComponent::Selection::RoundRobin );
+	else if ( selected == 1 ) {
+		selection = InstrumentComponent::Selection::RoundRobin;
 	}
-	else if ( selected == 2){
-		m_pComponent->setSelection( InstrumentComponent::Selection::Random );
+	else if ( selected == 2 ) {
+		selection = InstrumentComponent::Selection::Random;
 	}
+	else {
+		return;
+	}
+
+	int nInstrument, nComponent;
+	if ( ! resolveIndices( nInstrument, nComponent ) ) {
+		return;
+	}
+	pushComponentUndo( nInstrument, nComponent,
+		SE_setComponentPropertyAction::Property::Selection, "sampleSelection",
+		static_cast<float>( static_cast<int>( m_pComponent->getSelection() ) ),
+		static_cast<float>( static_cast<int>( selection ) ) );
 }
 
 void ComponentView::setupSampleSelectionCombo() {

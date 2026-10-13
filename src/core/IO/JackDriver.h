@@ -20,13 +20,13 @@
  *
  */
 
-#ifndef H2_JACK_DRIVER_H
-#define H2_JACK_DRIVER_H
+#ifndef H2C_JACK_DRIVER_H
+#define H2C_JACK_DRIVER_H
 
 #include <core/Basics/Instrument.h>
 #include <core/IO/AudioDriver.h>
 #include <core/IO/MidiBaseDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 // check if jack support is disabled
 #if defined( H2CORE_HAVE_JACK ) || _DOXYGEN_
@@ -46,6 +46,7 @@
 namespace H2Core {
 
 class Drumkit;
+class Hydrogen;
 class Song;
 class Transport;
 
@@ -173,9 +174,11 @@ class JackDriver : public Object<JackDriver>,
 	/** Maximum number of supported event. */
 	static constexpr uint32_t jackMidiBufferMax = 64;
 
-	static double bbtToTick( const jack_position_t& pos );
+	// Instance methods (ADR 0015): they read this instance's song/timeline via
+	// the Hydrogen back-pointer, so they cannot be static.
+	double bbtToTick( const jack_position_t& pos );
 	static bool isBBTValid( const jack_position_t& pos );
-	static void transportToBBT(
+	void transportToBBT(
 		const Transport& transportPos,
 		jack_position_t* pPos
 	);
@@ -184,7 +187,10 @@ class JackDriver : public Object<JackDriver>,
 	typedef std::map<std::shared_ptr<Instrument>, InstrumentPorts> PortMap;
 	typedef std::map<Instrument::Id, InstrumentPorts> PortMapStatic;
 
-	JackDriver( JackProcessCallback m_processCallback, Mode mode );
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which this driver reaches its per-instance context (ADR 0015). */
+	JackDriver( Hydrogen* pHydrogen, JackProcessCallback m_processCallback,
+				Mode mode );
 	~JackDriver();
 
 	/** Reports whether the driver was successfully activate and is usable. */
@@ -421,6 +427,9 @@ class JackDriver : public Object<JackDriver>,
 
 	Mode m_mode;
 
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
+
 	QString m_sClientName;
 
 	/** Buffer size of the JACK audio server. */
@@ -599,6 +608,10 @@ inline int JackDriver::getXRuns() const
 	return m_nJackServerXRuns;
 }
 
+inline float JackDriver::getTimebaseControllerBpm() const {
+	return m_fLastTimebaseBpm;
+}
+
 };	// namespace H2Core
 
 #else  // H2CORE_HAVE_JACK
@@ -606,7 +619,7 @@ inline int JackDriver::getXRuns() const
 
 namespace H2Core {
 /** \ingroup docCore docAudioDriver docMIDI */
-class JackDriver : public NullDriver {
+class JackDriver : public StubAudioDriver {
 	H2_OBJECT( JackDriver )
    public:
 	/** Whether Hydrogen or another program is in Timebase control. */
@@ -630,8 +643,9 @@ class JackDriver : public NullDriver {
 	 * and the usage of the JACK audio server is not intended by
 	 * the user.
 	 */
-	JackDriver( audioProcessCallback m_processCallback, Mode mode )
-		: NullDriver( m_processCallback )
+	JackDriver( Hydrogen* pHydrogen, audioProcessCallback m_processCallback,
+				Mode mode )
+		: StubAudioDriver( pHydrogen, m_processCallback )
 	{
 	}
 

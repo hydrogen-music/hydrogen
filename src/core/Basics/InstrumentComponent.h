@@ -31,12 +31,14 @@
 
 #include <core/Basics/Instrument.h>
 #include <core/Helpers/Legacy.h>
+#include <core/Helpers/Xml.h>
 #include <core/Object.h>
 #include <core/License.h>
 
 namespace H2Core
 {
 
+class Hydrogen;
 class InstrumentLayer;
 class XMLNode;
 
@@ -59,17 +61,19 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 
 		void saveTo(
 			XMLNode& node,
-			bool bSongKit,
-			bool bKeepMissingSamples,
+			Xml::Flag flags,
             const QString& sDrumkitPath,
-			bool bSilent
+			bool bSilent,
+			const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
 		);
 		static std::shared_ptr<InstrumentComponent> loadFrom(
 			const XMLNode& pNode,
 			const QString& sDrumkitPath,
-			const QString& sSongPath = "",
-			const License& drumkitLicense = License(),
-			bool bSilent = false
+			const QString& sSongPath,
+			Xml::Flag flags,
+			const License& drumkitLicense,
+			bool bSilent,
+			Hydrogen* pHydrogen
 		);
 
 		void				setName( const QString& sName );
@@ -78,6 +82,8 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 		std::shared_ptr<InstrumentLayer>	operator[]( int ix ) const;
 		std::shared_ptr<InstrumentLayer>	getLayer( int idx ) const;
 		int index( std::shared_ptr<InstrumentLayer> pLayer ) const;
+		/** Position of the layer with the given identity (ADR 0028). */
+		int index( const Uuid& uuid ) const;
 		const std::vector<std::shared_ptr<InstrumentLayer>> getLayers() const;
 
 		void setGain( float gain );
@@ -121,14 +127,15 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			const QString& sDrumkitPath,
 			const QString& sSongPath,
 			const License& drumkitLicense,
-			bool bSilent
+			bool bSilent,
+			Hydrogen* pHydrogen
 		);
 		friend void Instrument::addLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
 			int nIndex,
-			Event::Trigger trigger
-		);
+			Event::Trigger trigger,
+			Hydrogen* pHydrogen );
 		friend void Instrument::moveLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			int nOldIndex,
@@ -139,13 +146,13 @@ class InstrumentComponent : public H2Core::Object<InstrumentComponent>
 			std::shared_ptr<InstrumentComponent> pComponent,
 			std::shared_ptr<InstrumentLayer> pLayer,
 			int nIndex,
-			Event::Trigger trigger
-		);
+			Event::Trigger trigger,
+			Hydrogen* pHydrogen );
 		friend void Instrument::removeLayer(
 			std::shared_ptr<InstrumentComponent> pComponent,
 			int nIndex,
-			Event::Trigger trigger
-		);
+			Event::Trigger trigger,
+			Hydrogen* pHydrogen );
 
 	   private:
 		/** An @a nIndex of -1 will cause the method to append the new layer at

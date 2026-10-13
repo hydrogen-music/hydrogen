@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MAINFORM_H
-#define MAINFORM_H
+#ifndef H2C_MAINFORM_H
+#define H2C_MAINFORM_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -37,15 +37,30 @@
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
+#include <core/Preferences/Shortcuts.h>
 
 class HydrogenApp;
 class InfoBar;
+QT_BEGIN_NAMESPACE
 class QUndoView;///debug only
+QT_END_NAMESPACE
 
 namespace H2Core {
 	class Drumkit;
 	class Instrument;
 }
+
+/** Pre-supplied arguments for a shortcut action (ADR 0033).
+ *
+ * Empty strings for 0-arg actions. The production path fills these from
+ * InputCaptureDialog; the test path (EditorPathExerciser) fills them from
+ * predefined safe values. */
+struct ShortcutArgs {
+	QString sArg1;
+	QString sArg2;
+	QString sArg3;
+	QString sArg4;
+};
 
 ///
 /// Main window
@@ -74,14 +89,18 @@ class MainForm :  public QMainWindow,
 		virtual void updateSongEvent( int nValue ) override;
 	virtual void quitEvent( int ) override;
 
+		void requestPreferencesSaveEvent() override;
+		/** Reports the progress of the background sound library scan
+		 * (ADR 0034) as a status message in the footer. */
+		void soundLibraryScanProgressEvent( int nValue ) override;
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
 		 *
 		 * If \a nValue is
-		 *  - `0`: H2Core::Preferences should be saved
+		 *  - `0`: H2Core::Preferences was saved.
 		 *  - `1`: H2Core::Preferences has been reloaded. Update its
 		 *    representation. */
-		virtual void updatePreferencesEvent( int nValue ) override;
+		void updatePreferencesEvent( int nValue ) override;
 		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
@@ -157,10 +176,11 @@ class MainForm :  public QMainWindow,
 		 * name provided by the NSM server must be used or the restart
 		 * of the session fails.
 		 */
-		bool action_file_save_as();
+		bool action_file_save_as( const QString& sSuggestedPath = QString() );
 		void action_file_exit();
 
 		void action_file_export();
+		void action_file_export_project();
 		void action_file_export_midi();
 		void action_file_export_lilypond();
 		void action_file_songProperties();
@@ -345,7 +365,18 @@ class MainForm :  public QMainWindow,
 	 */
 	bool handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent );
 
-	bool nullDriverCheck();
+	/** Executes a shortcut action with pre-supplied arguments (ADR 0033).
+	 *
+	 * This is the action-execution half of handleKeyEvent, extracted so the
+	 * EditorPathExerciser can dispatch actions without popping
+	 * InputCaptureDialog. The production path (handleKeyEvent) fills
+	 * \a args from the dialog, then calls this; the test path fills \a args
+	 * from predefined safe values. */
+	void executeShortcut( H2Core::Shortcuts::Action action,
+						  const ShortcutArgs& args,
+						  QObject* pQObject = nullptr );
+
+	friend class EditorPathExerciser;
 };
 inline void MainForm::setPreviousAutoSavePlaylistFile( const QString& sFile ) {
 	m_sPreviousAutoSavePlaylistFile = sFile;

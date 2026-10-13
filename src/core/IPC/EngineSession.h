@@ -1,0 +1,172 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef H2C_IPC_ENGINE_SESSION_H
+#define H2C_IPC_ENGINE_SESSION_H
+
+#include <core/Object.h>
+
+#include <QtCore/QString>
+
+#include <atomic>
+#include <deque>
+#include <future>
+#include <memory>
+
+QT_BEGIN_NAMESPACE
+class QThread;
+QT_END_NAMESPACE
+
+namespace H2Core {
+
+class Hydrogen;
+class IpcChannel;
+class IpcMessage;
+class EngineTelemetryShm;
+class EngineEventSink;
+class Event;
+struct EngineTelemetrySnapshot;
+
+/**
+ * \ingroup docCore
+ *
+ * Engine-process side of the editor↔engine split (ADR 0016/0018/0030) — the
+ * counterpart to #EditorSession. It runs the **serve loop** on a dedicated bridge
+ * thread (off the audio thread, ADR 0018): it listens on the control endpoint,
+ * accepts the editor, and then for the life of the connection:
+ *  - answers the `hello` handshake and sends the current song as the initial
+ *    state snapshot,
+ *  - drains the engine's #EventQueue and forwards engine-origin events to the
+ *    editor (#IpcEngineBridge::forwardEvent) and to a registered
+ *    #EngineEventSink (ADR 0035 UI-3),
+ *  - dispatches inbound commands (#IpcEngineBridge::dispatchCommand) and answers
+ *    request/response frames (#IpcEngineBridge::handleRequest).
+ *
+ * The engine keeps running if the editor disconnects: the loop simply returns to
+ * accepting, so a respawned editor can re-attach. Does NOT own the #Hydrogen
+ * engine. The #IpcServer and the accepted #IpcChannel live entirely on the bridge
+ * thread (a QLocalSocket is thread-affine — its QSocketNotifier may only be pumped
+ * on the Qt-managed thread that owns it), so nothing is shared across threads but
+ * the engine itself (the EventQueue is single-consumer here).
+ *
+ * \note A QCoreApplication must exist in the process (Qt's local-socket classes
+ *   require it). In a real plugin host the plugin bootstrap provides one.
+ */
+class EngineSession : public H2Core::Object<EngineSession> {
+	H2_OBJECT( EngineSession )
+public:
+	/** Listen on @a sEndpoint and start serving @a pEngine on a bridge thread.
+	 * Blocks up to @a nListenTimeoutMs for the listen to bind. Returns nullptr if
+	 * @a pEngine is null, @a sEndpoint is empty, or the listen fails. */
+	static std::unique_ptr<EngineSession> start(
+		Hydrogen* pEngine, const QString& sEndpoint,
+		int nListenTimeoutMs = 3000 );
+
+	~EngineSession();
+
+	const QString& getEndpoint() const { return m_sEndpoint; }
+	bool isRunning() const { return m_bRunning.load(); }
+
+	/** Stop the serve loop and join the bridge thread (idempotent). */
+	void stop();
+
+	/** Register @a pEventSink as an engine-process consumer of the engine's
+	 * event stream and telemetry (ADR 0035 UI-3): it receives exactly the
+	 * engine-origin events and telemetry snapshots the IPC editor receives
+	 * — on this session's bridge thread, so implementations must be cheap
+	 * and non-blocking. Pass nullptr to unregister. The caller owns the
+	 * sink and must keep it alive until it is unregistered and this session
+	 * is stopped (or destroyed). Error events are additionally retained for
+	 * the editor-attach replay (ADR 0026 point 9); the sink sees them live,
+	 * from registration onward. */
+	void setEventSink( EngineEventSink* pEventSink ) {
+		m_pEventSink.store( pEventSink );
+	}
+
+	/** Build a full telemetry snapshot (transport / peaks / process time, ADR
+	 * 0018) from @a pEngine. Static so it is unit-testable without a running
+	 * serve loop. */
+	static EngineTelemetrySnapshot buildTelemetrySnapshot( Hydrogen* pEngine );
+
+private:
+	EngineSession( Hydrogen* pEngine, const QString& sEndpoint );
+
+	/** Bridge-thread entry point. Sets @a pListenResult to the listen outcome,
+	 * then runs the accept + serve loop until stop(). */
+	void serve( std::shared_ptr<std::promise<bool>> pListenResult );
+	/** Apply one inbound frame: handshake reply / request reply / command. */
+	void handleMessage( IpcChannel* pConn, const IpcMessage& msg );
+	/** Forward all pending engine-origin events to the editor. */
+	void forwardEvents( IpcChannel* pConn );
+	/** Forward all MIDI notes the engine recorded
+	 * (EventQueue::m_addMidiNoteVector) to the editor's mirror, which
+	 * re-queues them for HydrogenApp::onEventQueueTimer's undoable
+	 * pattern integration (ADR 0030 batch 2n). */
+	void forwardMidiNotes( IpcChannel* pConn );
+	/** Drain the recorded MIDI notes while no editor is attached: without
+	 * a GUI consuming them they are unrecordable, and the vector would
+	 * grow unboundedly. */
+	void discardMidiNotes();
+	/** Drain the EventQueue while no editor is attached, so it does not
+	 * overflow: engine-origin events fan out to the registered sink, and
+	 * error events are retained for replay on the next attach (ADR 0026
+	 * point 9) instead of being discarded. */
+	void drainEvents();
+	/** Deliver one drained engine-origin event to the registered sink, if
+	 * any (ADR 0035 UI-3). Editor-internal events are dropped — the sink
+	 * sees exactly the engine-origin stream the wire carries. */
+	void fanOutToSink( const Event* pEvent );
+	/** Replay the errors retained while no editor was attached to a
+	 * freshly accepted editor connection, then clear the buffer.
+	 * Delivery is once per error: a respawned editor does not see the
+	 * first editor's boot errors again — only errors raised during a
+	 * later detached phase replay anew. */
+	void flushPendingErrors( IpcChannel* pConn );
+	/** Publish the engine's current transport into the telemetry block, if
+	 * any, and to the registered sink — the same snapshot, built once. */
+	void publishTelemetry();
+
+	/** Authoritative engine being served; not owned. */
+	Hydrogen* m_pEngine;
+	QString m_sEndpoint;
+	std::atomic<bool> m_bRunning;
+	/** Bridge thread owning the IpcServer + accepted channel; owned. */
+	QThread* m_pThread;
+	/** Telemetry block written for an attached editor (ADR 0018/0031); created on
+	 * the bridge thread, keyed off the endpoint. Owned. */
+	std::unique_ptr<EngineTelemetryShm> m_pTelemetry;
+	/** Registered engine-process event/meter consumer (ADR 0035 UI-3); not
+	 * owned. Atomic: stored from any thread, loaded on the bridge thread. */
+	std::atomic<EngineEventSink*> m_pEventSink{ nullptr };
+	/** Poll/accept granularity; also bounds stop() latency. */
+	int m_nPollTimeoutMs = 50;
+	/** Upper bound for retained error events; a driver error storm must
+	 * not grow the replay buffer unbounded (oldest dropped first). */
+	static constexpr int nMaxPendingErrors = 16;
+	/** Error codes raised while no editor was attached, replayed on the
+	 * next accept (ADR 0026 point 9). Only touched on the bridge
+	 * thread. */
+	std::deque<int> m_pendingErrorCodes;
+};
+
+}
+
+#endif

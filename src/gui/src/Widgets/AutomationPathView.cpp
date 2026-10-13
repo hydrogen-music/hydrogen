@@ -25,6 +25,7 @@
 #include "../Compatibility/MouseEvent.h"
 #include "../SongEditor/SongEditor.h"
 #include "../SongEditor/SongEditorPanel.h"
+#include "../UndoActions.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
@@ -42,11 +43,11 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	  m_fTick( 0 )
 {
 	setFocusPolicy( Qt::ClickFocus );
-	m_nMaxPatternSequence = Preferences::get_instance()->getMaxBars();
+	m_nMaxPatternSequence = HydrogenApp::pPreferences()->getMaxBars();
 
 	connect( HydrogenApp::get_instance(), &HydrogenApp::preferencesChanged, this, &AutomationPathView::onPreferencesChanged );
 	
-	_path = nullptr;
+	m_pPath = nullptr;
 	autoResize();
 
 	qreal pixelRatio = devicePixelRatio();
@@ -70,16 +71,18 @@ void AutomationPathView::onPreferencesChanged( const H2Core::Preferences::Change
 	}
 }
 
-
-void AutomationPathView::setAutomationPath( AutomationPath *path, bool bUpdate )
+void AutomationPathView::setAutomationPath(
+	std::shared_ptr<AutomationPath> pPath,
+	bool bUpdate
+)
 {
-	if ( path == _path ) {
+	if ( pPath == m_pPath ) {
 		return;
 	}
-	_path = path;
+	m_pPath = pPath;
 
-	if( _path ) {
-		_selectedPoint = path->end();
+	if ( m_pPath != nullptr ) {
+		_selectedPoint = pPath->end();
 	}
 
 	if ( bUpdate ) {
@@ -91,12 +94,18 @@ void AutomationPathView::setAutomationPath( AutomationPath *path, bool bUpdate )
 // Make sure we have the current automation path
 void AutomationPathView::updateAutomationPath()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong != nullptr ) {
-		setAutomationPath( pSong->getVelocityAutomationPath(), false );
+		setAutomationPath( pSong->getAutomationPath(), false );
 	} else {
 		setAutomationPath( nullptr, false );
 	}
+}
+
+void AutomationPathView::updateView()
+{
+	createBackground();
+	update();
 }
 
 void AutomationPathView::setGridWidth( int width )
@@ -109,7 +118,6 @@ void AutomationPathView::setGridWidth( int width )
 		update();
 	}
 }
-
 
 /**
  * \brief Locate path point on a wdiget surface
@@ -129,7 +137,7 @@ QPoint AutomationPathView::translatePoint(const std::pair<float,float> &p) const
 
 	return QPoint(
 		SongEditor::nMargin + p.first * m_nGridWidth,
-		m_nMarginHeight + contentHeight * ((_path->get_max()-p.second)/(_path->get_max()-_path->get_min()))
+		m_nMarginHeight + contentHeight * ((m_pPath->getMax()-p.second)/(m_pPath->getMax()-m_pPath->getMin()))
 	);
 }
 
@@ -159,7 +167,7 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
 	float x = (pEv->position().x() - SongEditor::nMargin) / (float)m_nGridWidth;
 	float y = ((contentHeight - pEv->position().y() + m_nMarginHeight)/
 			   (float)contentHeight)
-		* (_path->get_max() - _path->get_min()) + _path->get_min();
+		* (m_pPath->getMax() - m_pPath->getMin()) + m_pPath->getMin();
 
 	return std::pair<const float,float>(x,y);
 }
@@ -213,7 +221,7 @@ void AutomationPathView::paintEvent(QPaintEvent *ev)
 
 void AutomationPathView::createBackground() {
 	
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	updateAutomationPath();
 
 	QColor backgroundColor =
@@ -250,28 +258,28 @@ void AutomationPathView::createBackground() {
 	painter.drawLine(0, m_nMarginHeight, width(), m_nMarginHeight);
 	painter.drawLine(0, height()-m_nMarginHeight, width(), height()-m_nMarginHeight);
 
-	if (!_path) {
+	if (!m_pPath) {
 		return;
 	}
 
 	/* Paint default */
-	QPoint def = translatePoint(0, _path->get_default());
+	QPoint def = translatePoint(0, m_pPath->getDefault());
 	painter.drawLine(0, def.y(), width(), def.y());
 
 	QPen linePen( automationLineColor );
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 
-	if (_path->empty()) {
-		QPoint p = translatePoint(0,_path->get_default());
+	if (m_pPath->empty()) {
+		QPoint p = translatePoint(0,m_pPath->getDefault());
 
 		painter.drawLine(0, p.y(), width(), p.y());
 	} else {
-		std::pair<float, float> firstPoint = *_path->begin();
+		std::pair<float, float> firstPoint = *m_pPath->begin();
 		QPoint lastPoint = translatePoint(0,firstPoint.second);
 		lastPoint.setX(0);
 		
-		for ( const auto& point : *_path) {
+		for ( const auto& point : *m_pPath) {
 			QPoint current = translatePoint(point);
 			painter.drawLine(lastPoint, current);
 			lastPoint = current;
@@ -286,7 +294,7 @@ void AutomationPathView::createBackground() {
 	painter.setPen(circlePen);
 	painter.setBrush(QBrush( pColorTheme->m_windowColor ));
 
-	for ( const auto& point : *_path) {
+	for ( const auto& point : *m_pPath) {
 
 		QPoint center = translatePoint(point);
 		painter.drawEllipse(center, 3, 3);
@@ -306,7 +314,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 {
 	updateAutomationPath();
 
-	if (! checkBounds(event) || !_path) {
+	if (! checkBounds(event) || !m_pPath) {
 		return;
 	}
 
@@ -314,19 +322,25 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 	float x = p.first;
 	float y = p.second;
 
-	_selectedPoint = _path->find(x);
-	if (_selectedPoint == _path->end()) {
-		_path->add_point(x, y);	
-		_selectedPoint = _path->find(x);
-
-		m_bPointAdded = true;
+	_selectedPoint = m_pPath->find(x);
+	if (_selectedPoint == m_pPath->end()) {
+		// The command is the only write path: it crosses the IPC split
+		// (dual-apply) and is undoable. The undo context opened here
+		// swallows the drag's move commands into the same undo step.
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_automationPathAddPointAction( x, y ),
+			QString( "automationPath:edit" ) );
+		_selectedPoint = m_pPath->find(x);
 	} else {
-		_selectedPoint = _path->move(_selectedPoint, x, y);
-		m_fOriginX = x;
-		m_fOriginY = y;
-		m_bPointAdded = false;
+		// Capture the true pre-grab position before the snap move, so
+		// undo restores where the point actually came from.
+		float fOriginX = _selectedPoint->first;
+		float fOriginY = _selectedPoint->second;
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_automationPathMovePointAction( fOriginX, fOriginY, x, y ),
+			QString( "automationPath:edit" ) );
+		_selectedPoint = m_pPath->find(x);
 	}
-	H2Core::Hydrogen::get_instance()->setSongModified( true );
 
 	createBackground();
 	update();
@@ -347,17 +361,12 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 	updateAutomationPath();
 	m_bIsHolding = false;
 
-	if (! checkBounds(event) || !_path) {
-		return;
-	}
+	// Close the interaction's undo context no matter where the release
+	// landed, so the next press starts a fresh undo step.
+	HydrogenApp::get_instance()->endUndoContext();
 
-	auto p = locate(event);
-	float x = p.first;
-	float y = p.second;
-	if (m_bPointAdded) {
-		emit pointAdded(x, y);
-	} else {
-		emit pointMoved(m_fOriginX, m_fOriginY, x, y);
+	if (! checkBounds(event) || !m_pPath) {
+		return;
 	}
 
 	emit valueChanged();
@@ -372,7 +381,7 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 {
 	updateAutomationPath();
-	if (! checkBounds(event) || !_path) {
+	if (! checkBounds(event) || !m_pPath) {
 		return;
 	}
 
@@ -380,9 +389,16 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	float x = p.first;
 	float y = p.second;
 
-	if ( m_bIsHolding && _path && _selectedPoint != _path->end() ) {
-		_selectedPoint = _path->move(_selectedPoint, x, y);
-		H2Core::Hydrogen::get_instance()->setSongModified( true );
+	if ( m_bIsHolding && m_pPath && _selectedPoint != m_pPath->end() ) {
+		// One command per drag step — the shared context coalesces them
+		// into a single undo step, and each step crosses to the engine
+		// as the drag proceeds.
+		float fPrevX = _selectedPoint->first;
+		float fPrevY = _selectedPoint->second;
+		HydrogenApp::get_instance()->pushUndoCommand(
+			new SE_automationPathMovePointAction( fPrevX, fPrevY, x, y ),
+			QString( "automationPath:edit" ) );
+		_selectedPoint = m_pPath->find(x);
 	}
 
 	createBackground();
@@ -399,15 +415,15 @@ void AutomationPathView::keyPressEvent(QKeyEvent *event)
 {
 	updateAutomationPath();
 	if ( event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace ) {
-		if ( _path && _selectedPoint != _path->end() ) {
+		if ( m_pPath && _selectedPoint != m_pPath->end() ) {
 			float x = _selectedPoint->first;
 			float y = _selectedPoint->second;
-			_path->remove_point(_selectedPoint->first);
-			_selectedPoint = _path->end();
-			
-			H2Core::Hydrogen::get_instance()->setSongModified( true );
 
-			emit pointRemoved( x, y );
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_automationPathRemovePointAction( x, y ) );
+
+			_selectedPoint = m_pPath->end();
+
 			createBackground();
 			update();
 			emit valueChanged();

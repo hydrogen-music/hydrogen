@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef TIMELINE_H
-#define TIMELINE_H
+#ifndef H2C_TIMELINE_H
+#define H2C_TIMELINE_H
 
 #include <memory>
 
@@ -29,6 +29,8 @@
 
 namespace H2Core
 {
+
+class Hydrogen;
 
 /**
  * Timeline class storing and handling all TempoMarkers and Tags.
@@ -108,12 +110,16 @@ public:
 	/** 
 	 * Registers the current playback tempo to m_fDefaultBpm.
 	 */
-	void activate();
+	void activate( Hydrogen* pHydrogen );
 	/**
 	 * Convencience function in order to create a symmetric pair with activate
 	 */
 	void deactivate();
 
+	float getDefaultBpm() const;
+	/** \return Whether #m_fDefaultBpm holds real state (captured or
+	 *   crossed via IPC) instead of the constructor placeholder. */
+	bool hasDefaultBpmSet() const;
 		/** Has to be called while the #H2Core::AudioEngine is locked. */
 		void setDefaultBpm( float fDefaultBpm );
 
@@ -152,10 +158,10 @@ public:
 	 * @param nColumn Position of the Timeline to query for a 
 	 *   tempo marker.
 	 */
-	float		getTempoAtColumn( int nColumn ) const;
+	float		getTempoAtColumn( int nColumn, Hydrogen* pHydrogen ) const;
 
 	bool hasColumnTempoMarker( int nColumn ) const;
-	std::shared_ptr<const Timeline::TempoMarker> getTempoMarkerAtColumn( int nColumn ) const;
+	std::shared_ptr<const Timeline::TempoMarker> getTempoMarkerAtColumn( int nColumn, Hydrogen* pHydrogen ) const;
 	/**
 	 * @return std::vector<std::shared_ptr<const TempoMarker>>
 	 * Provides read-only access to m_tempoMarker.
@@ -232,6 +238,25 @@ private:
 	 * the last Song::m_fBpm when activating the Timeline.
 	 */
 	float m_fDefaultBpm;
+
+	/**
+	 * Whether #m_fDefaultBpm holds real state — captured by activate()
+	 * or crossed via the IPC song buffer (`ipc-defaultBpm`) — as opposed
+	 * to the constructor placeholder.
+	 *
+	 * Monotonic within an object's lifetime: once set it stays set.
+	 * deactivate() retains the last captured tempo as real state (it does
+	 * not reset the value either), and re-activation recaptures via
+	 * activate() anyway. Only a freshly constructed Timeline — e.g. from
+	 * a disk load — starts unset.
+	 *
+	 * Transient load-state, not serialized as its own element: it
+	 * round-trips semantically, since the IPC buffer always writes
+	 * `ipc-defaultBpm`, and .h2song never carries it.
+	 * AudioEngine::setSong() only re-captures the tempo for songs
+	 * whose Timeline still holds the placeholder (disk loads).
+	 */
+	bool m_bDefaultBpmSet;
 	
 	struct TempoMarkerComparator
 	{
@@ -248,7 +273,13 @@ private:
 		}
 	};
 };
-	
+
+inline float Timeline::getDefaultBpm() const {
+	return m_fDefaultBpm;
+}
+inline bool Timeline::hasDefaultBpmSet() const {
+	return m_bDefaultBpmSet;
+}
 inline const std::vector<std::shared_ptr<const Timeline::TempoMarker>>& Timeline::getAllTempoMarkers() const {
 	return m_allTempoMarkers;
 }
@@ -256,4 +287,4 @@ inline const std::vector<std::shared_ptr<const Timeline::Tag>>& Timeline::getAll
 	return m_tags;
 }
 };
-#endif // TIMELINE_H
+#endif // H2C_TIMELINE_H

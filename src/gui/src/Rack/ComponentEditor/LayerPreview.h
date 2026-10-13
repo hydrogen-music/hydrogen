@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef LAYER_PREVIEW_H
-#define LAYER_PREVIEW_H
+#ifndef H2C_LAYER_PREVIEW_H
+#define H2C_LAYER_PREVIEW_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -128,6 +128,7 @@ class LayerPreview : public QWidget, protected WidgetWithScalableFont<6, 8, 10>,
 	virtual void mousePressEvent( QMouseEvent* ev ) override;
 	virtual void mouseReleaseEvent( QMouseEvent* ev ) override;
 	virtual void mouseMoveEvent( QMouseEvent* ev ) override;
+	void leaveEvent( QEvent* ev ) override;
 
 	ComponentView* m_pComponentView;
 

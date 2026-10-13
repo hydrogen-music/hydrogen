@@ -36,6 +36,10 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <cppunit/TestAssert.h>
 
+#include <QtCore/QFile>
+
+#include <vector>
+
 using namespace H2Core;
 
 void SampleTest::testLoadInvalidSample()
@@ -59,7 +63,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 {
 	___INFOLOG( "" );
 
-	auto pSong = Song::getEmptySong();
+	auto pSong = Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 
 	auto pDrumkit = std::make_shared<Drumkit>(pSong->getDrumkit());
@@ -74,7 +78,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 		Filesystem::systemDrumkitsDir() + "TR808EmulationKit/drumkit.xml"
 	);
 	auto pAnotherDrumkit =
-		std::make_shared<Drumkit>(Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
+		std::make_shared<Drumkit>(pTestHydrogen()->getSoundLibraryDatabase()->getDrumkit(
 			sAnotherDrumkitPath, false
 		));
 	CPPUNIT_ASSERT( pAnotherDrumkit != nullptr );
@@ -125,8 +129,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 		);
 		pInstrument->addLayer(
 			pComponent, std::make_shared<InstrumentLayer>( pSample ), -1,
-			Event::Trigger::Suppress
-		);
+			Event::Trigger::Suppress, nullptr );
 		pDrumkit->addInstrument( pInstrument );
 		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
 	}
@@ -139,8 +142,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 		auto pComponent = pInstrument->getComponent( 0 );
 		pInstrument->addLayer(
 			pComponent, pAnotherInstrument->getComponent( 0 )->getLayer( 0 ), -1,
-			Event::Trigger::Suppress
-		);
+			Event::Trigger::Suppress, nullptr );
 		pDrumkit->addInstrument( pInstrument );
 		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
 	}
@@ -155,8 +157,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 			std::make_shared<Sample>( H2TEST_FILE( "/drumkits/baseKit/crash.wav" ) );
 		pInstrument->addLayer(
 			pComponent, std::make_shared<InstrumentLayer>( pSample ), -1,
-			Event::Trigger::Suppress
-		);
+			Event::Trigger::Suppress, nullptr );
 		pDrumkit->addInstrument( pInstrument );
 		CPPUNIT_ASSERT( !pDrumkit->hasMissingSamples() );
 	}
@@ -172,7 +173,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	pDrumkitCopy->save( sTmpDrumkitPath, false );
 
 	auto pDrumkitReloaded =
-		Drumkit::load( sTmpDrumkitPath, false, nullptr, false );
+		Drumkit::load( sTmpDrumkitPath, false, nullptr, false , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkitReloaded != nullptr );
 	CPPUNIT_ASSERT( !pDrumkitReloaded->hasMissingSamples() );
 	CPPUNIT_ASSERT(
@@ -183,7 +184,7 @@ void SampleTest::testStoringSamplesInCurrentDrumkit()
 	const QString sTmpSongPath =
 		Filesystem::tmpFilePath( "storing-samples-test-song" );
 	CPPUNIT_ASSERT( pSong->save( sTmpSongPath, false, false ) );
-	auto pSongReloaded = Song::load( sTmpSongPath, false );
+	auto pSongReloaded = Song::load( sTmpSongPath, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongReloaded != nullptr );
 	auto pSongKitReloaded = pSongReloaded->getDrumkit();
 	CPPUNIT_ASSERT( pSongKitReloaded != nullptr );

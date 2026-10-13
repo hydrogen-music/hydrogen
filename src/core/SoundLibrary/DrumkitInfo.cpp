@@ -54,10 +54,10 @@ std::shared_ptr<DrumkitInfo> DrumkitInfo::from(
 	return pInfo;
 }
 
-bool DrumkitInfo::load( const QString& sPath )
+bool DrumkitInfo::load( const QString& sPath, Hydrogen* pHydrogen )
 {
 	const auto pDrumkit =
-		Hydrogen::get_instance()->getSoundLibraryDatabase()->getDrumkit(
+		pHydrogen->getSoundLibraryDatabase()->getDrumkit(
 			sPath, false
 		);
 	if ( pDrumkit == nullptr ) {

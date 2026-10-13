@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_EDITOR_H
-#define SONG_EDITOR_H
+#ifndef H2C_SONG_EDITOR_H
+#define H2C_SONG_EDITOR_H
 
 #include "GridCell.h"
 #include "../Widgets/EditorBase.h"

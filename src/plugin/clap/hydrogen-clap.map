@@ -1,0 +1,17 @@
+# Hydrogen CLAP module link script (Linux).
+#
+# Export exactly the CLAP entry and nothing else. The module statically links
+# the hydrogen core, Qt and Dear ImGui, and hosts load several plugin binaries
+# into one process: with default visibility those interiors interpose on each
+# other (one binary's symbols resolving into another's copies), which crashed
+# Qtractor and Ardour (see src/plugin/vst3/interpose_smoke.cpp and the
+# symbol-hygiene-* ctest gates). Local symbols still satisfy every reference
+# inside the module - they are only invisible to the dynamic linker's scope
+# search. Windows exports explicitly via CLAP_EXPORT; macOS's two-level
+# namespace does not interpose.
+{
+	global:
+		clap_entry;
+	local:
+		*;
+};

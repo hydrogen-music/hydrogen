@@ -460,7 +460,7 @@ std::shared_ptr<SMFTrack> SMFWriter::createTrack0( std::shared_ptr<Song> pSong )
 }
 
 void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
-					  bool bUseHumanization ) {
+					  bool bUseHumanization, Hydrogen* pHydrogen ) {
 	if ( pSong == nullptr || pSong->getTimeline() == nullptr ||
 		 pSong->getDrumkit() == nullptr ) {
         ERRORLOG( "Invalid song" );
@@ -470,7 +470,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
     // The configuration in #MidiControlDialog also affect MIDI export to file.
     // This is done to ensure MIDI notes sent via the MIDI driver and those
     // written to file are consistent as possible.
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = pHydrogen->getPreferences();
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 
     // Since the user explicitly requested to export a MIDI file, have to ensure
@@ -494,7 +494,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 	const bool bUseTimeline = pSong->getIsTimelineActivated();
 	float fBpm;
 	if ( bUseTimeline ) {
-		fBpm = pTimeline->getTempoAtColumn( 0 );
+		fBpm = pTimeline->getTempoAtColumn( 0, pHydrogen );
 	}
 	else {
 		fBpm = pSong->getBpm();
@@ -517,7 +517,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 	addEvent( std::make_shared<SMFTimeSignatureMetaEvent>(
 				  nLastNumerator, nLastDenominator , 0 ), nullptr );
 
-	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
+	auto pAutomationPath = pSong->getAutomationPath();
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 	int nTick = 0;
@@ -529,7 +529,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 		if ( bUseTimeline ) {
 			// In case the timeline is used, we adopt the new tempo (even if
 			// there is no pattern in the current column).
-			const float fBpmColumn = pTimeline->getTempoAtColumn( nnColumn );
+			const float fBpmColumn = pTimeline->getTempoAtColumn( nnColumn, pHydrogen );
 			if ( fBpmColumn != fBpm ) {
 				// Tempo change
 				addEvent( std::make_shared<SMFSetTempoMetaEvent>(
@@ -601,7 +601,8 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 				// Humanization
 				if ( bUseHumanization ) {
 					const auto nLeadLagFactor = AudioEngine::getLeadLagInFrames(
-						static_cast<double>( pCopiedNote->getPosition() ) );
+						static_cast<double>( pCopiedNote->getPosition() ),
+						pHydrogen );
 					pCopiedNote->setHumanizeDelay(
 						pCopiedNote->getHumanizeDelay() +
 						static_cast<int>(
@@ -609,7 +610,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 							static_cast<float>(nLeadLagFactor) ));
 
 					pCopiedNote->setPosition( static_cast<int>(fNoteTick) );
-					pCopiedNote->humanize();
+					pCopiedNote->humanize( pSong );
 
 					// delay the upbeat 16th-notes by a constant (manual)
 					// offset. This must done _after_ setting the position of
@@ -618,7 +619,7 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 						   ( H2Core::nTicksPerQuarter / 4 ) == 0 ) &&
 						 ( static_cast<int>(fNoteTick) %
 						   ( H2Core::nTicksPerQuarter / 2 ) != 0 ) ) {
-						pCopiedNote->swing();
+						pCopiedNote->swing( pHydrogen );
 					}
 
 					// Frames introduced due to the humanization. Note that we
@@ -634,17 +635,18 @@ void SMFWriter::save( const QString& sFileName, std::shared_ptr<Song> pSong,
 					// markers).
 					double fMismatch;
 					const auto nNoteFrame = Transport::computeFrameFromTick(
-						static_cast<double>(fNoteTick), &fMismatch );
+						static_cast<double>(fNoteTick), &fMismatch, 0,
+						pHydrogen );
 					fNoteTick = Transport::computeTickFromFrame(
 						std::max( static_cast<long long>(0),
-								  nNoteFrame + nHumanizeFrames ) );
+								  nNoteFrame + nHumanizeFrames ), 0, pHydrogen );
 				}
 
 				const float fColumnPos = static_cast<float>(nnColumn) +
 					(fNoteTick - static_cast<float>(nTick)) /
 					static_cast<float>(nColumnLength);
 				const float fVelocityAdjustment =
-					pAutomationPath->get_value( fColumnPos );
+					pAutomationPath->getValue( fColumnPos );
 				const auto velocity =
 					Midi::parameterFromIntClamp( static_cast<int>(
 						static_cast<float>( Midi::ParameterMaximum ) *

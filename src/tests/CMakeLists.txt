@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.16)
 
 add_definitions()
 include_directories(
@@ -19,11 +19,14 @@ add_executable(tests ${TESTS_SRCS})
 set_property(TARGET tests PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(tests
+	hydrogen-plugin
+	hydrogen-plugin-ui-models
 	hydrogen-core-${VERSION}
 	${CPPUNIT_LIBRARIES}
 	Qt${QT_VERSION_MAJOR}::Core
 	Qt${QT_VERSION_MAJOR}::Test
 	Qt${QT_VERSION_MAJOR}::Network
+	Qt${QT_VERSION_MAJOR}::Xml
 )
 
 if(Backtrace_FOUND)
@@ -32,4 +35,4 @@ if(Backtrace_FOUND)
 	)
 endif()
 
-add_dependencies(tests hydrogen-core-${VERSION})
+add_dependencies(tests hydrogen-core-${VERSION} hydrogen-plugin)

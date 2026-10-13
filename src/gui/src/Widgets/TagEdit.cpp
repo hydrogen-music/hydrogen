@@ -22,6 +22,7 @@
  */
 
 #include "TagEdit.h"
+#include "../HydrogenApp.h"
 
 #include "../Skin.h"
 
@@ -70,7 +71,7 @@ TagEdit::TagEdit( QWidget* pParent ) : QWidget( pParent )
 
 	// Create the bottom-most row. This one should never be removed.
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( H2Core::Preferences::get_instance()
+	if ( HydrogenApp::pPreferences()
 			 ->getInterfaceTheme()
 			 ->m_iconColor == H2Core::InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
@@ -139,7 +140,7 @@ void TagEdit::addRow( const QString& sText )
 	m_pTable->insertRow( nNewRow );
 
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( H2Core::Preferences::get_instance()
+	if ( HydrogenApp::pPreferences()
 			 ->getInterfaceTheme()
 			 ->m_iconColor == H2Core::InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
@@ -206,7 +207,7 @@ void TagEdit::removeRow( int nIndex )
 void TagEdit::updateStyleSheet()
 {
 	const QColor backgroundColor =
-		H2Core::Preferences::get_instance()->getColorTheme()->m_midLightColor;
+		HydrogenApp::pPreferences()->getColorTheme()->m_midLightColor;
 
 	setStyleSheet( QString( "                   \
 QTableWidget {                                  \

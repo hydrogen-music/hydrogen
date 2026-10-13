@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_ACTION_TABLE_H
-#define MIDI_ACTION_TABLE_H
+#ifndef H2C_MIDI_ACTION_TABLE_H
+#define H2C_MIDI_ACTION_TABLE_H
 
 #include <memory>
 
@@ -76,18 +76,18 @@ class MidiActionTable : public QTableWidget,
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction
+		std::shared_ptr<H2Core::MidiAction> pMidiAction
 	);
 	void removeRow( int nRow );
 	void replaceRow(
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction
+		std::shared_ptr<H2Core::MidiAction> pMidiAction
 	);
 	/** @} */
 
-	void removeRegisteredEvents( std::shared_ptr<MidiAction> pMidiAction );
+	void removeRegisteredEvents( std::shared_ptr<H2Core::MidiAction> pMidiAction );
 
    private slots:
 	void midiSensePressed( int );
@@ -97,16 +97,23 @@ class MidiActionTable : public QTableWidget,
 	struct RowContent {
 		H2Core::MidiEvent::Type eventType;
 		H2Core::Midi::Parameter eventParameter;
-		std::shared_ptr<MidiAction> pMidiAction;
+		std::shared_ptr<H2Core::MidiAction> pMidiAction;
 	};
 
 	void appendEmptyRow();
+	/** Writes the (config) Preferences MIDI event map to disk after an edit so
+	 * table changes are persisted immediately — like every other Preferences
+	 * option on dialog OK — instead of living only in memory until shutdown
+	 * (ADR 0027 bucket C). In editor mode the same call also forwards the
+	 * map to the authoritative engine via setMidiEventMap() so its MIDI
+	 * dispatch applies the changes live (ADR 0030). */
+	void persistMidiMap();
 
 	void updateRowContent(
 		int nRow,
 		H2Core::MidiEvent::Type eventType,
 		H2Core::Midi::Parameter eventParameter,
-		std::shared_ptr<MidiAction> pMidiAction
+		std::shared_ptr<H2Core::MidiAction> pMidiAction
 	);
 	/** We can not use updateRowContent() in paintEvent() because the former
 	 * does trigger a redraw itself. */

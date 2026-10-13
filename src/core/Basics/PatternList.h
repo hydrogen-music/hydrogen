@@ -30,6 +30,7 @@
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Note.h>
+#include <core/Helpers/Xml.h>
 #include <core/Object.h>
 
 namespace H2Core
@@ -38,6 +39,7 @@ namespace H2Core
 class Drumkit;
 class InstrumentList;
 class Pattern;
+class SoundLibraryDatabase;
 class XMLNode;
 
 /**
@@ -62,47 +64,55 @@ class XMLNode;
 		 * \param pDrumkit In case the PatternList is loaded as part of a song,
 		 *   the current drumkit used to retrieve the types of all contained
 		 *   notes.
+		 * @param flags OR-ed combination of #Xml::Flag options.
 		 * \param bSilent Whether infos, warnings, and errors should
 		 * be logged.
 		 * \return a new Pattern instance
 		 */
-	static std::shared_ptr<PatternList> loadFrom( const XMLNode& pNode,
-												  const QString& sDrumkitName,
-												  std::shared_ptr<Drumkit> pDrumkit = nullptr,
-												  bool bSilent = false );
+		static std::shared_ptr<PatternList> loadFrom(
+			const XMLNode& pNode,
+			const QString& sDrumkitName,
+			std::shared_ptr<Drumkit> pDrumkit,
+			Xml::Flag flags,
+			bool bSilent,
+			std::shared_ptr<SoundLibraryDatabase> pDB
+		);
 
-	/** Stores a serialized version of the instance to the XML note @a
-	 * pNote.
-	 *
-	 * @param pNode the XMLNode to feed
-	 * @param id If set to a value other than #Instrument::EmptyId, it
-	 *   is used to filter serialized notes by requiring a matching id.
-	 * @param sType If set to a non-empty value, it is used to filter
-	 *   serialized notess by requiring a matching type.
-	 * @param nPitch If a valid one is provided, one those notes matching
-	 *   this particular pitch will be stored. */
-	void saveTo(
-		XMLNode& pNode,
-		Instrument::Id id = Instrument::EmptyId,
-		const QString& sType = "",
-		Note::Pitch pitch = Note::Pitch::Invalid
-	) const;
+		/** Stores a serialized version of the instance to the XML note @a
+		 * pNote.
+		 *
+		 * @param pNode the XMLNode to feed
+		 * @param id If set to a value other than #Instrument::EmptyId, it
+		 *   is used to filter serialized notes by requiring a matching id.
+		 * @param sType If set to a non-empty value, it is used to filter
+		 *   serialized notess by requiring a matching type.
+		 * @param nPitch If a valid one is provided, one those notes matching
+		 *   this particular pitch will be stored.
+		 * @param flags OR-ed combination of #Xml::Flag options. */
+		void saveTo(
+			XMLNode& pNode,
+			Instrument::Id id = Instrument::EmptyId,
+			const Instrument::Type& sType = "",
+			Note::Pitch pitch = Note::Pitch::Invalid,
+			Xml::Flag flags = Xml::Flag::None
+		) const;
 
-	/** returns the numbers of patterns */
-	int size() const;
+		/** returns the numbers of patterns */
+		int size() const;
 
-	/**
-	 * get a pattern from  the list
-	 * \param idx the index to get the pattern from
-	 */
-	std::shared_ptr<Pattern> operator[]( int idx ) const;
-	/**
-	 * add a pattern to the list
-	 * \param pattern a pointer to the pattern to add
-	 * \param bAddVirtuals Whether virtual patterns contained in
-	 * @a pattern should be added too.
-	 */
-	void add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals = false );
+		/**
+		 * get a pattern from  the list
+		 * \param idx the index to get the pattern from
+		 */
+		std::shared_ptr<Pattern> operator[]( int idx ) const;
+		/**
+		 * add a pattern to the list
+		 * \param pattern a pointer to the pattern to add
+		 * \param bAddVirtuals Whether virtual patterns contained in
+		 * @a pattern should be added too.
+		 */
+		void
+		add( std::shared_ptr<Pattern> pPattern, bool bAddVirtuals = false );
 		/**
 		 * insert a pattern into the list
 		 * \param idx the index to insert the pattern at
@@ -127,11 +137,23 @@ class XMLNode;
 		 */
 		std::shared_ptr<Pattern> del( std::shared_ptr<Pattern> pPattern );
 		/**
+		 * remove the pattern with the given identity, does not delete it
+		 * \param uuid identity of the pattern to be removed (ADR 0028)
+		 * \return a pointer to the removed pattern, 0 if not found
+		 */
+		std::shared_ptr<Pattern> del( const Uuid& uuid );
+		/**
 		 * get the index of the pattern within the patterns
 		 * \param pPattern a pointer to the pattern to find
 		 * \return -1 if not found
 		 */
 		int index( const std::shared_ptr<Pattern> pPattern ) const;
+		/**
+		 * get the position of the pattern with the given identity (ADR 0028)
+		 * \param uuid identity of the pattern to find
+		 * \return -1 if not found
+		 */
+		int index( const Uuid& uuid ) const;
 		/**
 		 * replace the pattern at a given index with a new one
 		 * \param idx the index

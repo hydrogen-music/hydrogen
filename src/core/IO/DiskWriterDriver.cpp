@@ -31,7 +31,6 @@
 #include <core/Basics/Sample.h>
 #include <core/IO/DiskWriterDriver.h>
 
-#include <pthread.h>
 #include <cassert>
 
 #if defined(WIN32) || _DOXYGEN_
@@ -49,16 +48,16 @@
 namespace H2Core
 {
 
-pthread_t diskWriterDriverThread;
-
-void* diskWriterDriver_thread( void* param )
+void diskWriterDriver_thread( DiskWriterDriver* pDriver )
 {
 
-	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 0 );
+	pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 0 );
 
-	auto pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pDriver->getHydrogen()->getAudioEngine();
 	
 	___INFOLOG( "DiskWriterDriver thread started" );
 
@@ -121,9 +120,8 @@ void* diskWriterDriver_thread( void* param )
 					.arg( pDriver->m_sFileName ).arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
-		pthread_exit( nullptr );
-		return nullptr;
+		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
+		return;
 
 	}
 
@@ -163,9 +161,8 @@ void* diskWriterDriver_thread( void* param )
 					.arg( sf_version_string() ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
-		pthread_exit( nullptr );
-		return nullptr;
+		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
+		return;
 	}
 
 #ifdef WIN32
@@ -194,9 +191,8 @@ void* diskWriterDriver_thread( void* param )
 					.arg( sf_strerror( pSndfile ) ) );
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
-		EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
-		pthread_exit( nullptr );
-		return nullptr;
+		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
+		return;
 	}
 
 	// Perform some per-file settings.
@@ -232,7 +228,7 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_L = pDriver->m_pOut_L;
 	float *pData_R = pDriver->m_pOut_R;
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = pDriver->getHydrogen();
 	auto pSong = pHydrogen->getSong();
 	auto pSampler = pHydrogen->getAudioEngine()->getSampler();
 
@@ -243,6 +239,8 @@ void* diskWriterDriver_thread( void* param )
 	int nColumns = pPatternColumns->size();
 
 	// Used to cleanly terminate this thread and close all handlers.
+	// Every caller must return right after: this only releases the
+	// render resources, it cannot end the thread itself.
 	auto tearDown = [&](){
 		pDriver->m_bDoneWriting = true;
 		delete[] pData;
@@ -251,8 +249,6 @@ void* diskWriterDriver_thread( void* param )
 		sf_close( pSndfile );
 
 		___INFOLOG( "DiskWriterDriver thread end" );
-
-		pthread_exit( nullptr );
 	};
 	
 	int nPatternSize, nBufferWriteLength;
@@ -268,7 +264,8 @@ void* diskWriterDriver_thread( void* param )
 			nPatternSize = 4 * H2Core::nTicksPerQuarter;
 		}
 
-		fBpm = AudioEngine::getBpmAtColumn( patternPosition );
+		fBpm = pDriver->getHydrogen()->getAudioEngine()->getBpmAtColumn(
+			patternPosition );
 		fTicksize = AudioEngine::computeTickSize( pDriver->m_nSampleRate, fBpm );
 		
 		//here we have the pattern length in frames dependent from bpm and samplerate
@@ -284,8 +281,14 @@ void* diskWriterDriver_thread( void* param )
 													 // all notes are
 													 // processed
 				  ( nFrameNumber < nPatternLengthInFrames ||
-					pSampler->isRenderingNotes() ) ) ) {
-			
+				pSampler->isRenderingNotes() ) ) ) {
+			if ( pDriver->m_bCancelRequested ) {
+				// A stop asked for the session mid-render — bail out
+				// without finishing the file.
+				tearDown();
+				return;
+			}
+
 			int nUsedBuffer = pDriver->m_nBufferSize;
 			
 			// This will calculate the size from -last- (end of
@@ -305,20 +308,22 @@ void* diskWriterDriver_thread( void* param )
 			// acquire the lock).
 			if ( ! pDriver->m_bIsRunning ) {
 				___ERRORLOG( "Driver was stop before export was completed." );
-				EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, -1 );
+				pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
-				return nullptr;
+				return;
 			}
 			
-			int ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+			int ret = pDriver->m_processCallback( nUsedBuffer,
+												  pDriver->getHydrogen() );
 
 			// Only try a reasonable amount of times.
 			int nMutexLockAttempts = 0;
 			
 			// In case the DiskWriter couldn't acquire the lock of the AudioEngine.
 			while( ret == 2 ) {
-				ret = pDriver->m_processCallback( nUsedBuffer, nullptr );
+				ret = pDriver->m_processCallback( nUsedBuffer,
+												  pDriver->getHydrogen() );
 
 				// No need for a sleep() statement in here because the
 				// AudioEngine::tryLockFor() in the processCallback
@@ -327,10 +332,10 @@ void* diskWriterDriver_thread( void* param )
 				if ( nMutexLockAttempts > 30 ) {
 					___ERRORLOG( "Too many attempts to lock the AudioEngine. Aborting." );
 					
-					EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, -1 );
+					pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 					pDriver->m_bWritingFailed = true;
 					tearDown();
-					return nullptr;
+					return;
 				}
 			}
 
@@ -391,15 +396,15 @@ void* diskWriterDriver_thread( void* param )
 			
 			const int res = sf_writef_float( pSndfile, pData, nBufferWriteLength );
 			if ( res != ( int )nBufferWriteLength ) {
-				___ERRORLOG( QString( "Error during sf_write_float using [%1]. Floats written: [%2], target: [%3]. %4" )
-							.arg( sf_version_string() ).arg( res )
-							.arg( nBufferWriteLength )
-							.arg( sf_strerror( nullptr ) ) );
+			___ERRORLOG( QString( "Error during sf_write_float using [%1]. Floats written: [%2], target: [%3]. %4" )
+						.arg( sf_version_string() ).arg( res )
+						.arg( nBufferWriteLength )
+						.arg( sf_strerror( pSndfile ) ) );
 
-				EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, -1 );
+				pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
-				return nullptr;
+				return;
 			}
 
 			// Sampler is still rendering notes put we seem to have
@@ -414,22 +419,21 @@ void* diskWriterDriver_thread( void* param )
 		int nPercent = static_cast<int>( ( float )(patternPosition +1) /
 										 ( float )nColumns * 100.0 );
 		if ( nPercent < 100 ) {
-			EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, nPercent );
+			pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, nPercent );
 		}
 	}
 
 	// Explicitly mark export as finished.
-	EventQueue::get_instance()->pushEvent( Event::Type::AudioExportProgress, 100 );
+	pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
 	
 	tearDown();
-
-	return nullptr;
+	return;
 }
 
 
 
-DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+DiskWriterDriver::DiskWriterDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 		, m_nSampleRate( 4800 )
 		, m_nSampleDepth( 32 )
 		, m_processCallback( processCallback )
@@ -439,7 +443,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback )
 		, m_bIsRunning( false )
 		, m_bDoneWriting( false )
 		, m_bWritingFailed( false )
-		, m_fCompressionLevel( 0.0 ) {
+		, m_fCompressionLevel( 0.0 )
+	, m_bCancelRequested( false ) {
 }
 
 
@@ -470,12 +475,25 @@ void DiskWriterDriver::write()
 {
 	INFOLOG( "" );
 
-	m_bIsRunning = true;
-	
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
+	// Per-file flags: the previous render in this session (or on this
+	// driver) left them done/failed/cancelled — reset so
+	// isDoneWriting(), writingFailed() and the render loop reflect
+	// *this* file.
+	m_bDoneWriting = false;
+	m_bWritingFailed = false;
+	m_bCancelRequested = false;
 
-	pthread_create( &diskWriterDriverThread, &attr, diskWriterDriver_thread, this );
+	// Reap the previous render's writer thread before spawning the
+	// next one. write() is only called once the previous file is
+	// done, so the join returns immediately — but without it every
+	// additional file in the session would leak a zombie thread.
+	if ( m_writerThread.joinable() ) {
+		m_writerThread.join();
+	}
+
+	m_bIsRunning = true;
+
+	m_writerThread = std::thread( diskWriterDriver_thread, this );
 }
 
 /// disconnect
@@ -485,7 +503,17 @@ void DiskWriterDriver::disconnect()
 	
 	m_bIsRunning = false;
 
-	pthread_join( diskWriterDriverThread, nullptr );
+	// Ask a mid-render writer to bail out before joining — the render
+	// loop checks this every buffer, so the join is bounded by one
+	// buffer instead of the rest of the song.
+	m_bCancelRequested = true;
+
+	// A session can be stopped before its first render started (an
+	// export plan cancelled right away) — there is no writer thread
+	// to join (joinable() is false before the first write()).
+	if ( m_writerThread.joinable() ) {
+		m_writerThread.join();
+	}
 
 	delete[] m_pOut_L;
 	m_pOut_L = nullptr;

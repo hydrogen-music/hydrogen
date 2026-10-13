@@ -1564,6 +1564,23 @@ QString FontTheme::FontSizeToQString( const FontSize& fontSize ) {
 	}
 }
 
+void FontTheme::sanitizeFamilies( const QStringList& sAvailableFamilies,
+								  const QString& sFallbackFamily ) {
+	// Qt resolves font families case-insensitively; a case-sensitive
+	// check would fall back on e.g. "sans serif" vs "Sans Serif".
+	const auto sanitize = [&]( QString& sFamily, const QString& sContext ) {
+		if ( sFamily.isEmpty() ||
+			 ! sAvailableFamilies.contains( sFamily, Qt::CaseInsensitive ) ) {
+			WARNINGLOG( QString( "%1 font family '%2' not found, falling back to default" )
+						.arg( sContext ).arg( sFamily ) );
+			sFamily = sFallbackFamily;
+		}
+	};
+	sanitize( m_sApplicationFontFamily, "Application" );
+	sanitize( m_sLevel2FontFamily, "Level2" );
+	sanitize( m_sLevel3FontFamily, "Level3" );
+}
+
 QString FontTheme::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Base::sPrintIndention;
 	QString sOutput;

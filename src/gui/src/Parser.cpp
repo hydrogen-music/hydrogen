@@ -67,7 +67,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 		"playlist", "Load a playlist (*.h2playlist) at startup", "File" );
 	QCommandLineOption songFileOption(
 		QStringList() << "s" <<
-		"song", "Load a song (*.h2song) at startup", "File" );
+		"song", "Load a song (*.h2song) or project (*.h2project) at startup", "File" );
 	QCommandLineOption kitOption(
 		QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
 
@@ -77,7 +77,7 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	QCommandLineOption verboseOption(
 		QStringList() << "V" <<
-		"verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Constructors, Locks, or 0xHHHH", "Level" );
+		"verbose", "Level, if present, may be None, Error, Warning, Info, Debug, Ipc, Constructors, Locks, or 0xHHHH", "Level" );
 	QCommandLineOption logFileOption(
 		QStringList() << "L" << "log-file", "Alternative log file path", "Path" );
 	QCommandLineOption logTimestampsOption(
@@ -113,6 +113,22 @@ bool Parser::parse( int argc, char* argv[] ) {
 	QCommandLineOption noReporterOption(
 		QStringList() << "child", "Child process (no crash reporter)");
 
+	QCommandLineOption quitAfterStartupOption(
+		QStringList() << "quit-after-startup",
+		"Quit immediately after startup (startup smoke test)" );
+	quitAfterStartupOption.setFlags( QCommandLineOption::HiddenFromHelp );
+
+	QCommandLineOption exerciseEditorPathsOption(
+		QStringList() << "exercise-editor-paths",
+		"Exercise all safe shortcut actions in editor mode "
+		"(ASSERT_NO_EDITOR_MODE integration test; ADR 0033)" );
+	exerciseEditorPathsOption.setFlags( QCommandLineOption::HiddenFromHelp );
+
+	QCommandLineOption connectViaIpcOption(
+		QStringList() << "c" << "connect-via-ipc",
+		"Connect to a headless engine at the given IPC endpoint instead of "
+		"creating a new engine", "Endpoint" );
+
 	parser.addHelpOption();
 	parser.addVersionOption();
 
@@ -142,7 +158,13 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	parser.addOption( noReporterOption );
 
-	parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
+	parser.addOption( quitAfterStartupOption );
+
+	parser.addOption( exerciseEditorPathsOption );
+
+	parser.addOption( connectViaIpcOption );
+
+	parser.addPositionalArgument( "file", "Song, project, playlist, or Drumkit file" );
 
 	// Evaluate the options
 	parser.process( *( QCoreApplication::instance() ) );
@@ -205,18 +227,25 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	m_bNoReporter = parser.isSet( noReporterOption );
 
+	m_bQuitAfterStartup = parser.isSet( quitAfterStartupOption );
+
+	m_bExerciseEditorPaths = parser.isSet( exerciseEditorPathsOption );
+
+	m_sConnectViaIpcEndpoint = parser.value( connectViaIpcOption );
+
 	// Operating system GUIs typically pass documents to open as simple
 	// positional arguments to the process command line. Handling this here
 	// enables "Open with" as well as default document bindings to work.
 	QString sArg;
 	foreach ( sArg, parser.positionalArguments() ) {
-		if ( sArg.endsWith( H2Core::Filesystem::sSongSuffix ) ) {
+		if ( sArg.endsWith( H2Core::Filesystem::sSongSuffix ) ||
+			 sArg.endsWith( H2Core::Filesystem::sProjectSuffix ) ) {
 			m_sSongFileName = sArg;
 		}
-		if ( sArg.endsWith( H2Core::Filesystem::sDrumkitSuffix ) ) {
+		else if ( sArg.endsWith( H2Core::Filesystem::sDrumkitSuffix ) ) {
 			m_sInstallDrumkitPath = sArg;
 		}
-		if ( sArg.endsWith( H2Core::Filesystem::sPlaylistSuffix ) ) {
+		else if ( sArg.endsWith( H2Core::Filesystem::sPlaylistSuffix ) ) {
 			m_sPlaylistFileName = sArg;
 		}
 	}

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PATTERN_EDITOR_RULER_H
-#define PATTERN_EDITOR_RULER_H
+#ifndef H2C_PATTERN_EDITOR_RULER_H
+#define H2C_PATTERN_EDITOR_RULER_H
 
 #include "../EventListener.h"
 #include <QtGui>

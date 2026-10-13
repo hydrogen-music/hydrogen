@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef TIME_HELPER_H
-#define TIME_HELPER_H
+#ifndef H2C_TIME_HELPER_H
+#define H2C_TIME_HELPER_H
 
 #include <core/Helpers/Time.h>
 #include <core/Object.h>

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef LICENSE_H
-#define LICENSE_H
+#ifndef H2C_LICENSE_H
+#define H2C_LICENSE_H
 
 #include <core/Object.h>
 
@@ -212,6 +212,6 @@ inline QString License::getGPLLicenseNotice( const QString& sAuthor ) {
 }
 };
 
-#endif // LICENSE_H
+#endif // H2C_LICENSE_H
 
 /* vim: set softtabstop=4 noexpandtab: */

@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef LCDSPINBOX_H
-#define LCDSPINBOX_H
+#ifndef H2C_LCDSPINBOX_H
+#define H2C_LCDSPINBOX_H
 
 #include <QtGui>
 #include <QDoubleSpinBox>

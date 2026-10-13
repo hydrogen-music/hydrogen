@@ -21,8 +21,8 @@
  */
 
 
-#ifndef DRUM_PATTERN_EDITOR_H
-#define DRUM_PATTERN_EDITOR_H
+#ifndef H2C_DRUM_PATTERN_EDITOR_H
+#define H2C_DRUM_PATTERN_EDITOR_H
 
 #include "../Selection.h"
 #include "PatternEditor.h"

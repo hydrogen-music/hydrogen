@@ -71,6 +71,7 @@ Instrument::Instrument(
 	  m_bSoloed( false ),
 	  m_bMuted( false ),
 	  m_nMuteGroup( -1 ),
+	  m_nOutputBus( -1 ),
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( -1 ),
@@ -82,7 +83,8 @@ Instrument::Instrument(
 	  m_bHasMissingSamples( false ),
 	  m_pComponents(
 		  std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>()
-	  )
+	  ),
+	  m_fLastSampleLoadBpm( MIN_BPM )
 {
 	/*: Name assigned to an Instrument created either as part of a fresh kit
 	 *  created via the Main Menu > Drumkit > New or via the "Add Instrument"
@@ -96,10 +98,6 @@ Instrument::Instrument(
 
 	if ( m_pAdsr == nullptr ) {
 		m_pAdsr = std::make_shared<ADSR>();
-	}
-
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		m_fxLevel[i] = 0.0;
 	}
 
 	m_pComponents->push_back( std::make_shared<InstrumentComponent>() );
@@ -128,6 +126,7 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_bSoloed( other->isSoloed() ),
 	  m_bMuted( other->isMuted() ),
 	  m_nMuteGroup( other->getMuteGroup() ),
+	  m_nOutputBus( other->getOutputBus() ),
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( other->getHihatGrp() ),
@@ -139,10 +138,6 @@ Instrument::Instrument( std::shared_ptr<Instrument> other )
 	  m_bHasMissingSamples( other->hasMissingSamples() ),
 	  m_pComponents( nullptr )
 {
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		m_fxLevel[i] = other->getFxLevel( i );
-	}
-
 	m_pComponents =
 		std::make_shared<std::vector<std::shared_ptr<InstrumentComponent>>>();
 	for ( const auto& pComponent : *other->getComponents() ) {
@@ -164,7 +159,8 @@ Instrument::~Instrument()
 	}
 }
 
-std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample )
+std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample,
+											  Hydrogen* pHydrogen )
 {
 	if ( pSample == nullptr ) {
 		return nullptr;
@@ -174,8 +170,11 @@ std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample )
 	auto pLayer = std::make_shared<InstrumentLayer>( pSample );
 	auto pComponent = pInstrument->getComponent( 0 );
 	if ( pComponent != nullptr ) {
+		// Event::Trigger::Suppress never dereferences pHydrogen, so passing a
+		// null pHydrogen is safe here (ADR 0015).
 		pInstrument->addLayer(
-			pComponent, pLayer, -1, Event::Trigger::Suppress
+			pComponent, pLayer, -1, Event::Trigger::Suppress,
+			pHydrogen
 		);
 	}
 	else {
@@ -185,17 +184,58 @@ std::shared_ptr<Instrument> Instrument::from( std::shared_ptr<Sample> pSample )
 	return pInstrument;
 }
 
+QByteArray Instrument::toXmlBuffer( Xml::Flag flags, bool bSilent )
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "instrument_buffer" );
+	saveTo( root, flags | Xml::Flag::Ipc, bSilent );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Instrument> Instrument::fromXmlBuffer(
+	const QByteArray& buffer, Xml::Flag flags, bool bSilent,
+	Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse instrument XML buffer" );
+		return nullptr;
+	}
+	XMLNode root = doc.firstChildElement( "instrument_buffer" );
+	if ( root.isNull() ) {
+		ERRORLOG( "'instrument_buffer' node not found in buffer" );
+		return nullptr;
+	}
+	XMLNode instrumentNode = root.firstChildElement( "instrument" );
+	if ( instrumentNode.isNull() ) {
+		ERRORLOG( "'instrument' node not found in buffer" );
+		return nullptr;
+	}
+	bool bLegacyFormatEncountered = false;
+	const QString sDrumkitPath =
+		instrumentNode.read_string( "drumkitPath", "", false, false, false );
+	return loadFrom(
+		instrumentNode, sDrumkitPath,
+		instrumentNode.read_string( "drumkit", "", false, false, false ), "",
+		flags | Xml::Flag::Ipc, License(), &bLegacyFormatEncountered, bSilent,
+		pHydrogen
+	);
+}
+
 std::shared_ptr<Instrument> Instrument::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
+	Xml::Flag flags,
 	const License& license,
-	bool bSongKit,
 	bool* pLegacyFormatEncountered,
-	bool bSilent
+	bool bSilent,
+	Hydrogen* pHydrogen
 )
 {
+
 	// We use -22 instead of Instrument::EmptyId (-1) to allow for loading
 	// empty instruments as well (e.g. during unit tests or as part of
 	// dummy kits)
@@ -221,13 +261,15 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	pInstrument->setType( node.read_string( "type", "", true, true, bSilent ) );
 
 	QString sInstrumentDrumkitPath, sInstrumentDrumkitName;
-	if ( bSongKit ) {
+	if ( flags & Xml::Flag::SongKit && ! ( flags & Xml::Flag::Project ) ) {
 		// Instrument is not read as part of a plain Drumkit but as part of a
 		// Song.
 		sInstrumentDrumkitName =
 			node.read_string( "drumkit", "", false, true, bSilent );
 
-		if ( !node.firstChildElement( "drumkitPath" ).isNull() ) {
+		const bool bDrumkitPathNodeFound =
+			! node.firstChildElement( "drumkitPath" ).isNull();
+		if ( bDrumkitPathNodeFound ) {
 			// Current format
 			sInstrumentDrumkitPath =
 				node.read_string( "drumkitPath", "", false, true, bSilent );
@@ -252,15 +294,13 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 			}
 		}
 
-		auto pHydrogen = Hydrogen::get_instance();
-
 		// Both empty drumkit path and name indicate that the instrument was
 		// added as a new one to the drumkit instead of importing it from
 		// another kit. It must only hold absolute paths for samples.
-		if ( sInstrumentDrumkitPath.isEmpty() &&
-			 !sInstrumentDrumkitName.isEmpty() && pHydrogen != nullptr &&
+		if ( !bDrumkitPathNodeFound && !sInstrumentDrumkitName.isEmpty() &&
+			 pHydrogen != nullptr &&
 			 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
-
+			// We are in some sort of legacy format.
 			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
 			if ( !node.firstChildElement( "drumkitLookup" ).isNull() ) {
 				// Format introduced in #1f2a06b and used in (at least)
@@ -354,16 +394,69 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 				}
 			}
 		}
+		else if ( sInstrumentDrumkitPath.isEmpty() && !sInstrumentDrumkitName.isEmpty() &&
+			 pHydrogen != nullptr &&
+			 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
+			// We use the current format but the path sanitization discarded the
+			// string because the corresponding file does not exist on the
+			// current system. Instead, let's search for a drumkit bearing the
+			// same name within the DB.
+			auto pSoundLibraryDatabase = pHydrogen->getSoundLibraryDatabase();
+			sInstrumentDrumkitPath = pSoundLibraryDatabase->findArtifact(
+				Filesystem::Artifact::DrumkitExtracted,
+				Filesystem::Context::System, sInstrumentDrumkitName,
+				/*stacked*/ true
+			);
+		}
+
+		if ( sInstrumentDrumkitPath.isEmpty() &&
+			 !sInstrumentDrumkitName.isEmpty() ) {
+			// The stored absolute path of the drumkit is broken - e.g. the
+			// song was written on a different machine using a different
+			// install prefix - and the database-based lookup above did not
+			// yield the kit either (it is populated by a background scan and
+			// can still be empty). As a deterministic last resort the kit is
+			// looked up by its name in the user-level and system-level data
+			// folder.
+			for ( const auto& ssFolder :
+				  { Filesystem::userDrumkitsDir(),
+					Filesystem::systemDrumkitsDir() } ) {
+				const QString sCandidatePath = Filesystem::sanitizeDrumkitPath(
+					QString( "%1/%2" ).arg( ssFolder )
+						.arg( sInstrumentDrumkitName ) );
+				if ( !sCandidatePath.isEmpty() ) {
+					if ( !bSilent ) {
+						WARNINGLOG( QString( "Drumkit [%1] could neither be "
+										   "found via its stored path nor "
+										   "via the database. Falling back "
+										   "to [%2] found in the data "
+										   "folders" )
+										.arg( sInstrumentDrumkitName )
+										.arg( sCandidatePath ) );
+					}
+					sInstrumentDrumkitPath = sCandidatePath;
+					break;
+				}
+			}
+		}
 	}
 	else {
 		sInstrumentDrumkitPath = sDrumkitPath;
 		sInstrumentDrumkitName = sDrumkitName;
 	}
 
-	sInstrumentDrumkitPath =
-		Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
+	if ( flags & Xml::Flag::Project ) {
+		// When stored as part of a .h2project, the samples of a song's drumkit
+		// will be included into the tar archive directly and not loaded from an
+		// installed drumkit.
+		pInstrument->setDrumkitPath( "" );
+	}
+	else {
+		sInstrumentDrumkitPath =
+			Filesystem::sanitizeDrumkitPath( sInstrumentDrumkitPath );
 
-	pInstrument->setDrumkitPath( sInstrumentDrumkitPath );
+		pInstrument->setDrumkitPath( sInstrumentDrumkitPath );
+	}
 	pInstrument->m_sDrumkitName = sInstrumentDrumkitName;
 
 	pInstrument->setVolume(
@@ -446,15 +539,6 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		bSilent
 	) ) );
 
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		pInstrument->setFxLevel(
-			node.read_float(
-				QString( "FX%1Level" ).arg( i + 1 ), 0.0, true, true, bSilent
-			),
-			i
-		);
-	}
-
 	// This license will be applied to all samples contained in this
 	// instrument.
 	License instrumentLicense = License();
@@ -466,7 +550,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		// the drumkit is not present yet, the License will be loaded
 		// directly.
 		auto pSoundLibraryDatabase =
-			Hydrogen::get_instance()->getSoundLibraryDatabase();
+			pHydrogen->getSoundLibraryDatabase();
 		if ( pSoundLibraryDatabase != nullptr &&
 			 !pInstrument->getDrumkitPath().isEmpty() ) {
 			// It is important to _not_ load the drumkit into the
@@ -489,7 +573,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		while ( !componentNode.isNull() ) {
 			auto ppComponent = InstrumentComponent::loadFrom(
 				componentNode, pInstrument->getDrumkitPath(), sSongPath,
-				instrumentLicense, bSilent
+				flags, instrumentLicense, bSilent, pHydrogen
 			);
 			if ( ppComponent != nullptr ) {
 				componentsLoaded.push_back( ppComponent );
@@ -502,7 +586,7 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		// back compatibility code
 		auto pCompo = Legacy::loadInstrumentComponent(
 			node, pInstrument->getDrumkitPath(), sSongPath, instrumentLicense,
-			bSilent
+			bSilent, pHydrogen
 		);
 		if ( pCompo == nullptr ) {
 			ERRORLOG(
@@ -560,20 +644,53 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 		);
 	}
 
-	pInstrument->checkForMissingSamples( Event::Trigger::Suppress );
+	if ( ! ( flags & Xml::Flag::Project ) ) {
+		// If loaded as part of a .h2project, the song including its drumkit and
+		// instruments is loaded first without sample and the individual samples
+		// in a later stage.
+		pInstrument->checkForMissingSamples(
+			Event::Trigger::Suppress, pHydrogen );
+	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		// Additional members not present in files written to disk but required
+		// for IPC.
+		pInstrument->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		pInstrument->setOutputBus(
+			node.read_int( "ipc-outputBus", -1, true, false, bSilent )
+		);
+		pInstrument->setIsPreviewInstrument( node.read_bool(
+			"ipc-isPreviewInstrument", false, false, false, false
+		) );
+		// Circumvent path mangling
+		pInstrument->setDrumkitPath( node.read_string(
+			"drumkitPath", sDrumkitPath, false, true, bSilent
+		) );
+		if ( node.read_bool(
+				 "ipc-samplesLoaded", false, false, false, false
+			 ) ) {
+			pInstrument->loadSamples(
+				node.read_float(
+					"ipc-lastUsedSampleLoadBpm", MIN_BPM, false, false, false
+				),
+				pHydrogen->getPreferences().get()
+			);
+		}
+	}
 
 	return pInstrument;
 }
 
-void Instrument::loadSamples( float fBpm )
+void Instrument::loadSamples( float fBpm, Preferences* pPreferences )
 {
+	m_fLastSampleLoadBpm = fBpm;
 	for ( auto& ppComponent : *m_pComponents ) {
 		if ( ppComponent == nullptr ) {
 			continue;
 		}
 		for ( auto& ppLayer : *ppComponent ) {
 			if ( ppLayer != nullptr ) {
-				ppLayer->loadSample( fBpm );
+				ppLayer->loadSample( fBpm, pPreferences );
 			}
 		}
 	}
@@ -595,10 +712,9 @@ void Instrument::unloadSamples()
 
 void Instrument::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	bool bKeepMissingSamples,
-	bool bSilent
-)
+	Xml::Flag flags,
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries )
 {
 	XMLNode InstrumentNode = node.createNode( "instrument" );
 	InstrumentNode.write_int( "id", static_cast<int>( m_id ) );
@@ -606,8 +722,10 @@ void Instrument::saveTo(
 
 	InstrumentNode.write_string( "type", m_type );
 
-	if ( bSongKit ) {
-		InstrumentNode.write_string( "drumkitPath", m_sDrumkitPath );
+	if ( flags & ( Xml::Flag::SongKit | Xml::Flag::Ipc ) ) {
+		if ( ! ( flags & Xml::Flag::Project ) ) {
+			InstrumentNode.write_string( "drumkitPath", m_sDrumkitPath );
+		}
 		InstrumentNode.write_string( "drumkit", m_sDrumkitName );
 	}
 
@@ -655,17 +773,11 @@ void Instrument::saveTo(
 	InstrumentNode.write_int( "lower_cc", static_cast<int>( m_lowerCc ) );
 	InstrumentNode.write_int( "higher_cc", static_cast<int>( m_higherCc ) );
 
-	for ( int i = 0; i < MAX_FX; i++ ) {
-		InstrumentNode.write_float(
-			QString( "FX%1Level" ).arg( i + 1 ), m_fxLevel[i]
-		);
-	}
-
 	for ( const auto& pComponent : *m_pComponents ) {
 		if ( pComponent != nullptr ) {
 			pComponent->saveTo(
-				InstrumentNode, bSongKit, bKeepMissingSamples, m_sDrumkitPath,
-				bSilent
+				InstrumentNode, flags, m_sDrumkitPath, bSilent,
+				pProjectSampleEntries
 			);
 		}
 		else {
@@ -675,7 +787,39 @@ void Instrument::saveTo(
 
 	// Instrument layers with missing samples will be discarded during saving.
 	if ( m_bHasMissingSamples ) {
-		checkForMissingSamples( Event::Trigger::Suppress );
+		// Suppress trigger ⇒ checkForMissingSamples never dereferences the
+		// instance pointer, so saveTo need not thread one (ADR 0015).
+		checkForMissingSamples( Event::Trigger::Suppress, nullptr );
+	}
+
+	// Additional members not present in files written to disk but required for
+	// IPC.
+	if ( flags & Xml::Flag::Ipc ) {
+		InstrumentNode.write_uuid( "ipc-uuid", getUuid() );
+		// The implicit 1-to-1 routing (ADR 0019) is the default and must not be
+		// persisted; only an explicit custom mapping round-trips.
+		if ( m_nOutputBus >= 0 ) {
+			InstrumentNode.write_int( "ipc-outputBus", m_nOutputBus );
+		}
+		InstrumentNode.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
+		bool bSamplesLoaded = false;
+		for ( auto& ppComponent : *m_pComponents ) {
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+			for ( auto& ppLayer : *ppComponent ) {
+				if ( ppLayer != nullptr && ppLayer->getSample() != nullptr &&
+					 ppLayer->getSample()->isLoaded() ) {
+					bSamplesLoaded = true;
+					break;
+				}
+			}
+			if ( bSamplesLoaded ) {
+				break;
+			}
+		}
+		InstrumentNode.write_bool( "ipc-samplesLoaded", bSamplesLoaded );
+		InstrumentNode.write_float( "ipc-lastUsedSampleLoadBpm", m_fLastSampleLoadBpm );
 	}
 }
 
@@ -745,8 +889,14 @@ std::shared_ptr<InstrumentComponent> Instrument::getComponent( int nIdx ) const
 
 int Instrument::index( std::shared_ptr<InstrumentComponent> pComponent ) const
 {
+	return pComponent == nullptr ? -1 : index( pComponent->getUuid() );
+}
+
+int Instrument::index( const Uuid& uuid ) const
+{
 	for ( int ii = 0; ii < m_pComponents->size(); ii++ ) {
-		if ( m_pComponents->at( ii ) == pComponent ) {
+		if ( m_pComponents->at( ii ) != nullptr &&
+			 m_pComponents->at( ii )->getUuid() == uuid ) {
 			return ii;
 		}
 	}
@@ -779,8 +929,8 @@ void Instrument::addLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
 	int nIndex,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr ) {
 		// The provided layer is allowed to be nullptr. This will be used to
@@ -790,12 +940,12 @@ void Instrument::addLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->addLayer( pLayer, nIndex );
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 void Instrument::moveLayer(
@@ -811,7 +961,7 @@ void Instrument::moveLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->moveLayer( nOldIndex, nNewIndex );
 		}
 	}
@@ -821,8 +971,8 @@ void Instrument::setLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
 	int nIndex,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr || pLayer == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -830,19 +980,19 @@ void Instrument::setLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->setLayer( pLayer, nIndex );
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 void Instrument::removeLayer(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	int nIndex,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -850,12 +1000,12 @@ void Instrument::removeLayer(
 	}
 
 	for ( auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			ppComponent->removeLayer( nIndex );
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 bool Instrument::hasSamples() const
@@ -873,8 +1023,8 @@ void Instrument::setSample(
 	std::shared_ptr<InstrumentComponent> pComponent,
 	std::shared_ptr<InstrumentLayer> pLayer,
 	std::shared_ptr<Sample> pSample,
-	Event::Trigger trigger
-)
+	Event::Trigger trigger,
+	Hydrogen* pHydrogen )
 {
 	if ( pComponent == nullptr || pLayer == nullptr || pSample == nullptr ) {
 		ERRORLOG( "Invalid input" );
@@ -882,16 +1032,16 @@ void Instrument::setSample(
 	}
 
 	for ( const auto& ppComponent : *m_pComponents ) {
-		if ( pComponent == ppComponent ) {
+		if ( sameObject( pComponent, ppComponent ) ) {
 			for ( auto& ppLayer : *pComponent ) {
-				if ( ppLayer == pLayer ) {
+				if ( sameObject( ppLayer, pLayer ) ) {
 					ppLayer->setSample( pSample );
 				}
 			}
 		}
 	}
 
-	checkForMissingSamples( trigger );
+	checkForMissingSamples( trigger, pHydrogen );
 }
 
 long long Instrument::getLongestSampleFrames() const
@@ -914,7 +1064,7 @@ long long Instrument::getLongestSampleFrames() const
 	return nLongestFrames;
 }
 
-void Instrument::checkForMissingSamples( Event::Trigger trigger )
+void Instrument::checkForMissingSamples( Event::Trigger trigger, Hydrogen* pHydrogen )
 {
 	const bool bPreviousValue = m_bHasMissingSamples;
 
@@ -942,7 +1092,7 @@ void Instrument::checkForMissingSamples( Event::Trigger trigger )
 
 	if ( m_bHasMissingSamples != bPreviousValue &&
 		 trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::InstrumentLayerChanged, static_cast<int>( m_id )
 		);
 	}
@@ -966,10 +1116,14 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[Instrument]\n" )
 				.arg( sPrefix )
+				.append( QString( "%1%2m_uuid: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( getUuid().toQString() ) )
 				.append( QString( "%1%2m_id: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( static_cast<int>(m_id) ) )
+							 .arg( static_cast<int>( m_id ) ) )
 				.append( QString( "%1%2m_sName: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1032,11 +1186,11 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( "%1%2m_nMidiOutNote: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( static_cast<int>(m_midiOutNote) ) )
+							 .arg( static_cast<int>( m_midiOutNote ) ) )
 				.append( QString( "%1%2m_nMidiOutChannel: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
-							 .arg( static_cast<int>(m_midiOutChannel) ) )
+							 .arg( static_cast<int>( m_midiOutChannel ) ) )
 				.append( QString( "%1%2m_bStopNotes: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1049,11 +1203,15 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_bMuted ) )
-				.append( QString( "%1%2m_nMuteGroup: %3\n" )
-							 .arg( sPrefix )
-							 .arg( s )
-							 .arg( m_nMuteGroup ) )
-				.append( QString( "%1%2m_nQueued: %3\n" )
+			.append( QString( "%1%2m_nMuteGroup: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nMuteGroup ) )
+			.append( QString( "%1%2m_nOutputBus: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_nOutputBus ) )
+			.append( QString( "%1%2m_nQueued: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_nQueued ) )
@@ -1061,43 +1219,38 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_enqueuedBy.join( "\n" + sPrefix + s + s ) )
+				)
+				.append( QString( "%1%2m_nHihatGrp: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_nHihatGrp ) )
+				.append( QString( "%1%2m_lowerCc: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( static_cast<int>( m_lowerCc ) ) )
+				.append( QString( "%1%2m_higherCc: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( static_cast<int>( m_higherCc ) ) )
+				.append( QString( "%1%2m_bIsPreviewInstrument: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_bIsPreviewInstrument ) )
+				.append( QString( "%1%2m_bApplyVelocity: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_bApplyVelocity ) )
+				.append( QString( "%1%2m_bCurrentInstrForExport: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_bCurrentInstrForExport ) )
+				.append( QString( "%1%2m_bHasMissingSamples: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_bHasMissingSamples ) )
+				.append(
+					QString( "%1%2m_pComponents:\n" ).arg( sPrefix ).arg( s )
 				);
-		sOutput.append( QString( "%1%2m_fxLevel: [ " ).arg( sPrefix ).arg( s )
-		);
-		for ( const auto& ff : m_fxLevel ) {
-			sOutput.append( QString( "%1 " ).arg( ff ) );
-		}
-		sOutput.append( QString( "]\n" ) )
-			.append( QString( "%1%2m_nHihatGrp: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_nHihatGrp ) )
-			.append( QString( "%1%2m_lowerCc: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( static_cast<int>( m_lowerCc ) ) )
-			.append( QString( "%1%2m_higherCc: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( static_cast<int>( m_higherCc ) ) )
-			.append( QString( "%1%2m_bIsPreviewInstrument: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_bIsPreviewInstrument ) )
-			.append( QString( "%1%2m_bApplyVelocity: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_bApplyVelocity ) )
-			.append( QString( "%1%2m_bCurrentInstrForExport: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_bCurrentInstrForExport ) )
-			.append( QString( "%1%2m_bHasMissingSamples: %3\n" )
-						 .arg( sPrefix )
-						 .arg( s )
-						 .arg( m_bHasMissingSamples ) )
-			.append( QString( "%1%2m_pComponents:\n" ).arg( sPrefix ).arg( s )
-			);
 		for ( const auto& cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( "%1" ).arg(
@@ -1109,7 +1262,8 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Instrument]" )
-				.append( QString( " m_id: %1" ).arg( static_cast<int>( m_id ) )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+				.append( QString( ", m_id: %1" ).arg( static_cast<int>( m_id ) )
 				)
 				.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 				.append( QString( ", m_type: %1" ).arg( m_type ) )
@@ -1138,36 +1292,33 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( m_fRandomPitchFactor ) )
 				.append( QString( ", m_fPitchOffset: %1" ).arg( m_fPitchOffset )
 				)
-				.append( QString( ", m_midiOutNote: %1" ).arg( static_cast<int>(m_midiOutNote) )
-				)
+				.append( QString( ", m_midiOutNote: %1" )
+							 .arg( static_cast<int>( m_midiOutNote ) ) )
 				.append( QString( ", m_midiOutChannel: %1" )
-							 .arg( static_cast<int>(m_midiOutChannel) ) )
+							 .arg( static_cast<int>( m_midiOutChannel ) ) )
 				.append( QString( ", m_bStopNotes: %1" ).arg( m_bStopNotes ) )
 				.append( QString( ", m_bSoloed: %1" ).arg( m_bSoloed ) )
 				.append( QString( ", m_bMuted: %1" ).arg( m_bMuted ) )
-				.append( QString( ", m_nMuteGroup: %1" ).arg( m_nMuteGroup ) )
-				.append( QString( ", m_nQueued: %1" ).arg( m_nQueued ) )
+			.append( QString( ", m_nMuteGroup: %1" ).arg( m_nMuteGroup ) )
+			.append( QString( ", m_nOutputBus: %1" ).arg( m_nOutputBus ) )
+			.append( QString( ", m_nQueued: %1" ).arg( m_nQueued ) )
 				.append( QString( ", m_enqueuedBy: [%1]" )
-							 .arg( m_enqueuedBy.join( " ; " ) ) );
-		sOutput.append( QString( ", m_fxLevel: [ " ) );
-		for ( const auto& ff : m_fxLevel ) {
-			sOutput.append( QString( "%1 " ).arg( ff ) );
-		}
-		sOutput.append( QString( "]" ) )
-			.append( QString( ", m_nHihatGrp: %1" ).arg( m_nHihatGrp ) )
-			.append( QString( ", m_lowerCc: %1" )
-						 .arg( static_cast<int>( m_lowerCc ) ) )
-			.append( QString( ", m_higherCc: %1" )
-						 .arg( static_cast<int>( m_higherCc ) ) )
-			.append( QString( ", m_bIsPreviewInstrument: %1" )
-						 .arg( m_bIsPreviewInstrument ) )
-			.append( QString( ", m_bApplyVelocity: %1" ).arg( m_bApplyVelocity )
-			)
-			.append( QString( ", m_bCurrentInstrForExport: %1" )
-						 .arg( m_bCurrentInstrForExport ) )
-			.append( QString( ", m_bHasMissingSamples: %1" )
-						 .arg( m_bHasMissingSamples ) )
-			.append( QString( ", m_pComponents: [" ) );
+							 .arg( m_enqueuedBy.join( " ; " ) ) )
+				.append( QString( ", m_nHihatGrp: %1" ).arg( m_nHihatGrp ) )
+				.append( QString( ", m_lowerCc: %1" )
+							 .arg( static_cast<int>( m_lowerCc ) ) )
+				.append( QString( ", m_higherCc: %1" )
+							 .arg( static_cast<int>( m_higherCc ) ) )
+				.append( QString( ", m_bIsPreviewInstrument: %1" )
+							 .arg( m_bIsPreviewInstrument ) )
+				.append(
+					QString( ", m_bApplyVelocity: %1" ).arg( m_bApplyVelocity )
+				)
+				.append( QString( ", m_bCurrentInstrForExport: %1" )
+							 .arg( m_bCurrentInstrForExport ) )
+				.append( QString( ", m_bHasMissingSamples: %1" )
+							 .arg( m_bHasMissingSamples ) )
+				.append( QString( ", m_pComponents: [" ) );
 		for ( const auto& cc : *m_pComponents ) {
 			if ( cc != nullptr ) {
 				sOutput.append( QString( " %1" ).arg( cc->getName() ) );

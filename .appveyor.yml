@@ -49,9 +49,9 @@ environment:
       job_group: 'Linux'
       appveyor_build_worker_image: Ubuntu2204
 
-    - job_name: 'Ubuntu 20.04 (AppImage)'
+    - job_name: 'Ubuntu 18.04 (AppImage)'
       job_group: 'Linux (AppImage)'
-      appveyor_build_worker_image: Ubuntu2004
+      appveyor_build_worker_image: Ubuntu
 
     - job_name: 'OS X'
       job_group: 'Mac OS X'
@@ -110,7 +110,7 @@ for:
 
       echo $DISPLAY_VERSION
 
-      cache_tag=usr_cache_online # this can be modified to rebuild deps
+      cache_tag=usr_cache_plugin # this can be modified to rebuild deps
 
       cdir=$HOME/cache_dir
       cache_tar=$cdir/$cache_tag.tar
@@ -133,8 +133,12 @@ for:
 
         sudo python3 ./treestate.py scan /usr usr.json
         sudo apt-get update
-        sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libqt6svg6-dev libtool
+        sudo apt-get install -y clang qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools libarchive-dev libsndfile1-dev libasound2-dev libqt6svg6-dev
         sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libxml2-utils
+        # Toolchains + libs for the plugin conformance tools built by `build.sh
+        # deps`: clap-validator (cargo) and lv2lint (meson/ninja; needs lv2 +
+        # lilv, with curl/elf/x11 for its optional test groups).
+        sudo apt-get install -y cargo meson ninja-build lv2-dev liblilv-dev libcurl4-openssl-dev libelf-dev libx11-dev
 
         # Install a recent PortMidi version
         git clone https://github.com/PortMidi/PortMidi || exit 1
@@ -165,19 +169,37 @@ for:
     build_script: |-
       git submodule init && git submodule update
 
+      # Build the CLAP/LV2 conformance tools so the clap-validate and lv2lint
+      # CTests actually run (CMake find_program picks them up from
+      # extern/clap-validator/target/release and extern/lv2lint/build). Without
+      # them those tests are silently skipped. CARGO_HOME points at the cached
+      # dir so the crate registry persists across runs. Must run before the cmake
+      # configure below (find_program resolves at configure time).
+      export CARGO_HOME="$HOME/cache_dir/cargo"
+      ./build.sh deps
+
       export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
       mkdir build || exit 1
       cd build || exit 1
-      cmake -DWANT_LRDF=1 \
-            -DWANT_LRDF=1 \
-            -DWANT_JACK:BOOL=OFF \
+
+      # Plugins: CLAP + LV2 are always built so the plugin CTest suite runs
+      # (lv2-smoke; clap-validate / lv2lint when those tools are present). VST3 is
+      # heavy (clap-wrapper fetches the Steinberg VST3 SDK at configure), so it is
+      # built only on artifact builds and on Linux purely as a clean-compile check
+      # — its bundle is never packaged or uploaded here.
+      VST3_FLAG=""
+      if [ "$UPLOAD_ARTIFACTS" == "true" ]; then VST3_FLAG="-DWANT_VST3=1"; fi
+      cmake -DWANT_JACK:BOOL=OFF \
             -DWANT_QT6:BOOL=ON \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
             -DWANT_RUBBERBAND=1 \
+            -DWANT_CLAP=ON \
+            -DWANT_LV2=ON \
+            ${VST3_FLAG} \
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache .. || exit 1
       make -j $CPUS || exit 1
@@ -190,7 +212,7 @@ for:
     test_script: |-
 
       # Do not exit on test failure since we still need to upload artifacts.
-      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
+      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log -VIpc --no-log-colors
 
       res=$?;
       if [ "$res" != "0" ]; then
@@ -198,6 +220,16 @@ for:
           appveyor PushArtifact testOutput.log
           exit $res
       fi
+
+      # GUI startup smoke test: launch the full GUI headless (Qt offscreen) and
+      # require a clean startup + teardown (catches construction/teardown
+      # crashes). The test is registered via CTest in src/gui/CMakeLists.txt.
+      echo "GUI startup smoke test + plugin conformance suite"
+      # vst3-validate (the full Steinberg validator) is registered only when the
+      # VST3 bundle was built (artifact builds); on other builds the -R simply
+      # finds no such test. It builds the SDK validator on demand and validates
+      # the bundle (not uploaded on Linux — clean-compile + conformance only).
+      ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate|QtNamespaceGuard|WriteSurfaceGuard|PluginUiGuard|PluginUiSmoke" || exit 1
 
       echo "Validating desktop file."
       desktop-file-validate ../linux/org.hydrogenmusic.Hydrogen.desktop || exit 1
@@ -251,7 +283,7 @@ for:
          exit 0
       fi
 
-      cache_tag=usr_cache_appimage_qt6 # this can be modified to rebuild deps
+      cache_tag=usr_cache_appimage_beaver # this can be modified to rebuild deps
 
       ## Since we use a different Linux image we, unfortunately, have
       ## to use a separate cache.
@@ -277,7 +309,7 @@ for:
         sudo python3 ./treestate.py scan /usr usr.json || exit 1
         sudo apt-get update
         sudo apt-get install -y clang libarchive-dev libasound2-dev libjack-jackd2-dev libflac-dev libogg-dev libvorbis-dev autogen || exit 1
-        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev || exit 1
+        sudo apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev librubberband-dev ladspa-sdk ccache appstream intltool desktop-file-utils libmp3lame-dev libopus-dev libmpg123-dev libtool || exit 1
 
         # Compile and ship a more recent libsndfile version to support MP3
         # export in AppImages.
@@ -321,20 +353,28 @@ for:
 
       ls $HOME/Qt/
 
-      export QT_DIR=${HOME}/Qt/5.15.2/gcc_64
+      export PATH=$HOME/Qt/6.8/bin:$PATH
+      export Qt6Widgets_DIR=$HOME/Qt/6.8/lib/cmake/Qt6Widgets
 
-      ls ${QT_DIR}
+      ## The preinstalled Qt 6.8 binaries are linked against ICU 73 but no
+      ## Ubuntu release ever shipped this version and the image provides a
+      ## different major one. Without it `lrelease` fails to start and
+      ## `linuxdeploy` can not resolve and bundle the ICU dependencies of
+      ## Qt6Core. The Debian build is fetched from the immutable snapshot
+      ## archive and installed alongside the system ICU (different soname,
+      ## no conflicts).
+      wget -O libicu73.deb https://snapshot.debian.org/archive/debian/20230701T000000Z/pool/main/i/icu/libicu73_73.2-1_amd64.deb || exit 1
+      echo "2ae3e9cb9ff6999c856177c1c49473c4b0d45a41672aca62ed07bf52a2fb0c1d  libicu73.deb" | sha256sum -c || exit 1
+      sudo dpkg -i libicu73.deb || exit 1
 
-      export PATH=${QT_DIR}/bin:$PATH
       export CXXFLAGS="-fstrict-enums -fstack-protector-strong -Werror=format-security -Wformat -Wunused-result -D_FORTIFY_SOURCE=2"
 
       CPUS=$(nproc)
       echo "Building with $CPUS cpus"
       mkdir build || exit 1
       cd build || exit 1
-      cmake -DWANT_LRDF=1 \
-            -DWANT_QT6=0 \
-            -DWANT_RUBBERBAND=1 \
+      cmake -DWANT_RUBBERBAND=1 \
+            -DWANT_QT6:BOOL=ON \
             -DWANT_PORTMIDI=1 \
             -DWANT_PORTAUDIO=1 \
             -DWANT_APPIMAGE=1 \
@@ -342,7 +382,7 @@ for:
             -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION} \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=/usr \
-            -DCMAKE_PREFIX_PATH=${QT_DIR} .. || exit 1
+            -DCMAKE_PREFIX_PATH=$HOME/Qt/6.8 .. || exit 1
       make -j $CPUS || exit 1
 
       ccache -s || exit 1
@@ -371,8 +411,8 @@ for:
       ## Add custom OpenSSL libraries. They are used as fallback by Qt
       ## and are only dl_opened in case no matching version was found
       ## on system level.
-      cp /usr/lib/x86_64-linux-gnu/libssl3.so AppDir/usr/lib || exit 1
-      cp /usr/lib/x86_64-linux-gnu/libcrypto.so AppDir/usr/lib || exit 1
+      cp /usr/lib/x86_64-linux-gnu/libssl.so.3 AppDir/usr/lib || exit 1
+      cp /usr/lib/x86_64-linux-gnu/libcrypto.so.3 AppDir/usr/lib || exit 1
 
       ## Copy the version compiled above to shadow the system library. Else
       ## `linuxdeploy` will ship the system one which is too old to support MP3,
@@ -381,7 +421,24 @@ for:
 
       find /usr -name "*libportmidi*"
       cp /usr/local/lib/libportmidi.so.2 AppDir/usr/lib || exit 1
-      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:${QT_DIR}/lib ./linuxdeploy-x86_64.AppImage \
+
+      ## linuxdeploy-plugin-qt determines all Qt deployment paths via
+      ## `qmake -query`. A stale or broken `qt.conf` next to the
+      ## preinstalled qmake can remap the reported installation to a
+      ## no-longer-existing location (e.g. the AppDir of a previous
+      ## build). The plugin would then try to deploy Qt libraries and
+      ## plugins from there and fail. We enforce a configuration
+      ## matching the actual installation layout and verify the query
+      ## before handing control to the plugin.
+      printf '[Paths]\nPrefix = %s\n' "$HOME/Qt/6.8" > $HOME/Qt/6.8/bin/qt.conf || exit 1
+      if [[ "$($HOME/Qt/6.8/bin/qmake -query QT_INSTALL_LIBS)" != "$HOME/Qt/6.8/lib" ]]; then
+          echo "ERROR: qmake does not report the expected Qt installation paths:"
+          env | grep "^QT"
+          $HOME/Qt/6.8/bin/qmake -query
+          exit 1
+      fi
+
+      LD_LIBRARY_PATH=AppDir/usr/lib/x86_64-linux-gnu/:AppDir/usr/lib:$HOME/Qt/6.8/lib ./linuxdeploy-x86_64.AppImage \
         --appdir AppDir \
         --executable AppDir/usr/bin/hydrogen \
         --library AppDir/usr/lib/libsndfile.so.1 \
@@ -496,21 +553,27 @@ for:
 
       git submodule init && git submodule update
 
+      # Plugins: CLAP + LV2 always (so the plugin CTest suite runs); VST3 only on
+      # artifact builds (heavy: clap-wrapper fetches the Steinberg VST3 SDK). When
+      # built, all available bundles are staged into the .dmg by build_dmg.sh -p.
+      VST3_FLAG=""
+      if [ "$UPLOAD_ARTIFACTS" == "true" ]; then VST3_FLAG="-DWANT_VST3=1"; fi
+
       # Do the build
       (
           mkdir build &&                                                        \
               cd build &&                                                       \
-              cmake -DWANT_LRDF=1                                               \
-                    -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION}               \
-                    -DWANT_RUBBERBAND=1 .. &&                                   \
+              cmake -DDISPLAY_VERSION_PIPELINE=${DISPLAY_VERSION}               \
+                    -DWANT_RUBBERBAND=1                                         \
+                    -DWANT_CLAP=ON -DWANT_LV2=ON ${VST3_FLAG} .. &&             \
               make -j $CPUS
       ) || exit 1
 
-      # Build installation DMG
+      # Build installation DMG (-p . stages any built plugin bundles into it)
       (
         cd build
         PATH="$(brew --prefix qt5)/bin:$PATH"
-        ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen-${DISPLAY_VERSION}.dmg
+        ../macos/build_dmg.sh -v -p . src/gui/hydrogen.app Hydrogen-${DISPLAY_VERSION}.dmg
 
         if [ "$UPLOAD_ARTIFACTS" == "true" ]; then
             appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer;
@@ -521,7 +584,7 @@ for:
     test_script: |-
       cd build
 
-      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log
+      TMPDIR=/tmp src/tests/tests --appveyor --output-file=testOutput.log   -VIpc --no-log-colors
 
       res=$?
       wait
@@ -530,6 +593,19 @@ for:
           # The tests failed. Upload all output to ease debugging.
           appveyor PushArtifact testOutput.log
       fi
+
+      # GUI startup smoke test: launch the full GUI headless (Qt offscreen) and
+      # require a clean startup + teardown. Registered via CTest in
+      # src/gui/CMakeLists.txt.
+      if [ "$res" == "0" ]; then
+          echo "GUI startup smoke test + plugin conformance suite"
+          # vst3-validate (full Steinberg validator) is registered only when the
+          # VST3 bundle was built (artifact builds); it builds the SDK validator
+          # on demand and validates the bundle that ships in the .dmg.
+          ctest --output-on-failure -R "GuiStartup|clap-validate|lv2-smoke|lv2lint|vst3-smoke|vst3-validate|QtNamespaceGuard|WriteSurfaceGuard|PluginUiGuard|PluginUiSmoke"
+          res=$?
+      fi
+
       echo "=== Build cache usage is " $( du -h $cdir | tail -1 ) "==="
       ( exit $res )
 
@@ -658,11 +734,27 @@ for:
           git submodule init
           git submodule update
 
+          REM *** Pre-fetch the VST3 SDK (with the submodules clap-wrapper ***
+          REM *** needs: base, public.sdk, pluginterfaces) while sh.exe is ***
+          REM *** still available. The rename below - required by CMake's ***
+          REM *** MinGW Makefiles generator - breaks `git submodule`, which ***
+          REM *** the in-build CPM download of the SDK would otherwise ***
+          REM *** depend on. The VST3_SDK_ROOT passed to cmake below makes ***
+          REM *** clap-wrapper use this copy instead of fetching it itself. ***
+          if %UPLOAD_ARTIFACTS%=="true" (git clone --branch v3.7.6_build_18 https://github.com/steinbergmedia/vst3sdk.git %APPVEYOR_BUILD_FOLDER%\vst3sdk || exit /b 1)
+          if %UPLOAD_ARTIFACTS%=="true" (git -C %APPVEYOR_BUILD_FOLDER%\vst3sdk submodule update --init base public.sdk pluginterfaces || exit /b 1)
+
           REM *** Configure build ***
           rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
           mkdir build
           cd build
-          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          REM *** Plugins: CLAP + LV2 always (so the plugin CTest suite runs and the
+          REM     bundles are packaged by cpack/NSIS); VST3 only on artifact builds
+          REM     (heavy). VST3_SDK_ROOT points at the SDK pre-fetched above, so
+          REM     no git/submodule work happens inside the build itself. ***
+          set VST3_FLAG=
+          if %UPLOAD_ARTIFACTS%=="true" set VST3_FLAG=-DWANT_VST3=1 -DVST3_SDK_ROOT=%APPVEYOR_BUILD_FOLDER%\vst3sdk
+          cmake -G "%GENERATOR%" -DDISPLAY_VERSION_PIPELINE=%DISPLAY_VERSION% -DCMAKE_BUILD_TYPE=Release -DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DWANT_JACK=ON -DWANT_CLAP=ON -DWANT_LV2=ON %VST3_FLAG% -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
 
     build_script:
       - cmd: |-
@@ -676,11 +768,15 @@ for:
           SET CORE_PATH=%cd%\src\core
           echo %CORE_PATH%
           set PATH=%CORE_PATH%;%PATH%
-          src\tests\tests.exe --appveyor --output-file=testOutput.log
+          src\tests\tests.exe --appveyor --output-file=testOutput.log -VIpc --no-log-colors
 
           REM *** In case the test passed, we delete its output. If it fails, the
           REM     script won't reach this point and the output will be uploaded later on ***
           IF %ERRORLEVEL% EQU 0 (del testOutput.log)
+
+          REM *** Plugin conformance suite (lv2-smoke etc.; needs WANT_CLAP/LV2). ***
+          ctest --output-on-failure -R "clap-validate|lv2-smoke|lv2lint|vst3-smoke|PluginUiSmoke"
+          if %ERRORLEVEL% NEQ 0 exit /b 1
 
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen || cmd /c "exit  /b 1"
           if %UPLOAD_ARTIFACTS%=="true" appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
@@ -709,6 +805,14 @@ for:
           mkdir %INSTDIR%
           FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
           %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
+
+          REM *** GUI startup smoke test on the installed build: launch the full
+          REM     GUI and require a clean startup + teardown (--quit-after-startup
+          REM     also selects the Fake audio driver and suppresses the
+          REM     development-build warning). Catches construction/teardown
+          REM     crashes. The installed tree carries all Qt DLLs + plugins. ***
+          %INSTDIR%\hydrogen.exe --nosplash --child --quit-after-startup -P %APPVEYOR_BUILD_FOLDER%\data
+          if %ERRORLEVEL% NEQ 0 exit /b 1
 
           ccache -s
 

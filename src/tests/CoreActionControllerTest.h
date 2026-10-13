@@ -29,15 +29,64 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
 	CPPUNIT_TEST( testCountIn );
 	CPPUNIT_TEST( testSessionManagement );
+	CPPUNIT_TEST( testSetPatternSize );
+	CPPUNIT_TEST( testEditNoteProperty );
+	CPPUNIT_TEST( testAddOrRemoveNote );
+	CPPUNIT_TEST( testSetPanLaw );
+	CPPUNIT_TEST( testPlaybackTrack );
+	CPPUNIT_TEST( testSaveSongDiscardEvent );
+	CPPUNIT_TEST( testSetSongPatternSelectionPreservation );
+	CPPUNIT_TEST( testSetMidiEventMap );
+	CPPUNIT_TEST( testSetMidiInstrumentMap );
+	CPPUNIT_TEST( testSetLastMidiEvent );
+	CPPUNIT_TEST( testAddRemoveCustomSoundLibraryDir );
+	CPPUNIT_TEST( testExportSong );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 
 		void testCountIn();
-	
-	// Tests the CoreActionController::loadSong(),
-	// CoreActionController::setSong(),
-	// CoreActionController::saveSong()
-	// CoreActionController::saveSongAs() methods.
+		/** Bucket-B write-surface entry points (ADR 0027 / T4.5). */
+		void testSetPatternSize();
+		void testEditNoteProperty();
+		void testAddOrRemoveNote();
+		void testSetPanLaw();
+		void testPlaybackTrack();
+
+		/** saveSong() with discarded missing samples signals
+		 * DrumkitLoaded — the change is confined to the instruments of
+		 * the current drumkit — alongside the regular UpdateSong(1),
+		 * and never UpdateSong(0), which the GUI treats as a new
+		 * document and resets the undo stack for (ADR 0026 point 15). */
+		void testSaveSongDiscardEvent();
+
+		/** Hydrogen::setSong() only resets the selected pattern number
+		 * when the document changes (path comparison) — a same-path
+		 * re-install (the editor mirror applying a pulled copy in the
+		 * IPC split) keeps the selection (ADR 0026 point 16). */
+		void testSetSongPatternSelectionPreservation();
+
+		/** setMidiEventMap() installs the provided map as the live map
+		 * of the current Preferences (ADR 0030). */
+		void testSetMidiEventMap();
+
+		/** setMidiInstrumentMap() installs the provided map as the live
+		 * map of the current Preferences (ADR 0030). */
+		void testSetMidiInstrumentMap();
+
+	/** setLastMidiEvent() sets the engine's MIDI-learn channel —
+	 * type and parameter as one pair (ADR 0030). */
+	void testSetLastMidiEvent();
+
+	/** addCustomSoundLibraryDir()/removeCustomSoundLibraryDir() keep
+	 * the Preferences list and the sound library database in sync
+	 * (ADR 0030). */
+	void testAddRemoveCustomSoundLibraryDir();
+
+	/** exportSong() runs a whole export plan on the engine — session,
+	 * renders, restore — including the empty-plan no-op and
+	 * stopExportSession() cancel/idempotency (ADR 0030 batch 2l). */
+	void testExportSong();
+
 	void testSessionManagement();
 };

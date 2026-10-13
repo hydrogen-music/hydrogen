@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PATERN_EDITOR_H
-#define PATERN_EDITOR_H
+#ifndef H2C_PATERN_EDITOR_H
+#define H2C_PATERN_EDITOR_H
 
 #include "../Selection.h"
 #include "../Widgets/EditorBase.h"
@@ -367,4 +367,4 @@ inline unsigned PatternEditor::getGridHeight() const {
 	return m_nGridHeight;
 }
 
-#endif // PATERN_EDITOR_H
+#endif // H2C_PATERN_EDITOR_H

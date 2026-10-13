@@ -90,8 +90,8 @@ void LCDCombo::showPopup() {
 }
 
 void LCDCombo::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	QColor widgetColor = pColorTheme->m_widgetColor;
 	QColor widgetTextColor = pColorTheme->m_widgetTextColor;
@@ -100,17 +100,19 @@ void LCDCombo::updateStyleSheet() {
 	QColor widgetTextInactiveColor =
 		Skin::makeTextColorInactive( widgetTextColor );
 	
+	// The family has to be quoted — a name containing a space (like
+	// the default "Lucida Grande") would fail the stylesheet parser.
 	setStyleSheet( QString( "\
 QComboBox:enabled { \
     color: %1; \
     background-color: %2; \
-    font-family: %3; \
+    font-family: \"%3\"; \
     font-size: %4; \
 } \
 QComboBox:disabled { \
     color: %5; \
     background-color: %6; \
-    font-family: %3; \
+    font-family: \"%3\"; \
     font-size: %4; \
 } \
 QComboBox QAbstractItemView { \
@@ -134,7 +136,7 @@ void LCDCombo::onPreferencesChanged( const H2Core::Preferences::Changes& changes
 }
 
 void LCDCombo::paintEvent( QPaintEvent *ev ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QComboBox::paintEvent( ev );
 

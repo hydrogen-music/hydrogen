@@ -1,0 +1,78 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef H2C_AUDIO_DRIVER_INFO_H
+#define H2C_AUDIO_DRIVER_INFO_H
+
+#include <QString>
+
+#include <core/IO/JackDriver.h>
+#include <core/Preferences/Preferences.h>
+
+namespace H2Core {
+
+/**
+ * \ingroup docCore docAudioDriver
+ *
+ * Value description of the active audio driver (ADR 0029).
+ *
+ * This replaces GUI-side `std::dynamic_pointer_cast` on the live #AudioDriver
+ * pointer: the GUI branches on #kind and reads #isRunning / #isPresent instead
+ * of probing RTTI on an engine object that, in editor mode, lives in another
+ * process and cannot be `dynamic_cast` across the wire. It is filled engine-side
+ * — #LocalEngineAccess from the live driver (standalone), #IpcEngineAccess from a
+ * query (editor mode) — and crosses IPC as plain fields.
+ */
+struct AudioDriverInfo {
+	/** Concrete kind of the running driver (None when no driver object exists). */
+	Preferences::AudioDriver kind = Preferences::AudioDriver::None;
+	/** A driver object exists (including the #StubAudioDriver fallback). Mirrors the
+	 * old `getAudioDriver() != nullptr` check. */
+	bool isPresent = false;
+	/** A real (non-#StubAudioDriver) audio driver is connected. Replaces the GUI's
+	 * `dynamic_pointer_cast<StubAudioDriver>(...) == nullptr` "is it real?" gate. */
+	bool isRunning = false;
+	/** Device the running driver is connected to, where the driver exposes one
+	 * (e.g. ALSA); empty otherwise. For display only. */
+	QString connectedDevice;
+	/** JACK timebase state of the running driver (#JackDriver::Timebase::None
+	 * when JACK is not the active driver or no timebase master/listener is
+	 * registered). Filled engine-side; in editor mode the mirror reads it from
+	 * the cached copy populated via IPC (ADR 0029). */
+	JackDriver::Timebase timebaseState = JackDriver::Timebase::None;
+	/** Whether JACK transport is enabled in the preferences
+	 * (#Preferences::USE_JACK_TRANSPORT) and a JackDriver is active. In editor
+	 * mode this comes from the cached AudioDriverInfo (ADR 0029). */
+	bool jackTransportEnabled = false;
+	/** Rate using which analog signals will be measured and represented as
+	 * digital ones. The values of authoritative engine and mirror must
+	 * match. Initialized to a sane value to guard against division by zero. */
+	int sampleRate = 48000;
+	/** Number of frames handled per sound card interrupt. Initialized to a sane
+	 * value to guard against division by zero. */
+	int bufferSize = 1028;
+	/** Latency componensation supported by some audio drivers. */
+	int latencyFrames = 1028;
+};
+
+}
+
+#endif

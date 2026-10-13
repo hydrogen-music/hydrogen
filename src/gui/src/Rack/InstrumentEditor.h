@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef INSTRUMENT_EDITOR_H
-#define INSTRUMENT_EDITOR_H
+#ifndef H2C_INSTRUMENT_EDITOR_H
+#define H2C_INSTRUMENT_EDITOR_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -73,6 +73,11 @@ class InstrumentEditor : public QWidget,
 	   public slots:
 		void onPreferencesChanged( const H2Core::Preferences::Changes& changes
 		);
+
+	protected:
+		/** Closes the per-parameter undo context (see the rotary callbacks) so a
+		 * gesture forms a single undo step once the pointer leaves the editor. */
+		void leaveEvent( QEvent* ev ) override;
 
 	   private:
 		void updateActivation();

@@ -117,7 +117,7 @@ void WaveDisplay::setRenderPlayhead( bool bRender )
 
 void WaveDisplay::updateBackground()
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor = Qt::black;
@@ -256,7 +256,7 @@ void WaveDisplay::drawPeakData()
 		return;
 	}
 
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor backgroundColor, textColor;

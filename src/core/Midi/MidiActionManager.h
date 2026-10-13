@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MIDI_ACTION_MANAGER_H
-#define MIDI_ACTION_MANAGER_H
+#ifndef H2C_MIDI_ACTION_MANAGER_H
+#define H2C_MIDI_ACTION_MANAGER_H
 
 #include <core/Helpers/Time.h>
 #include <core/Midi/MidiAction.h>
@@ -40,6 +40,8 @@
 #include <vector>
 
 namespace H2Core {
+
+class Hydrogen;
 
 /**
 * @class MidiActionManager
@@ -65,7 +67,10 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		static constexpr int nMidiClockIntervals = 10;
 		static constexpr int nActionQueueMaxSize = 200;
 
-		MidiActionManager();
+		/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+		 * through which this manager reaches its per-instance context
+		 * (ADR 0015). */
+		MidiActionManager( Hydrogen* pHydrogen );
 		~MidiActionManager();
 
 		/**
@@ -118,7 +123,16 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 
 		void resetTimingClockTicks();
 
+		/** Whether @a type only makes sense in the process owning the GUI:
+		 * the action must not cross the editor/engine IPC split (ADR
+		 * 0030). Undo/redo drive the editor's command stack; the engine
+		 * holds none. */
+		static bool isEditorLocal( const MidiAction::Type& type );
+
 	private:
+		/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+		Hydrogen* m_pHydrogen;
+
 
 		/** Holds all Actions which Hydrogen is able to interpret. */
 		std::set<MidiAction::Type> m_midiActions;
@@ -143,8 +157,6 @@ class MidiActionManager : public H2Core::Object<MidiActionManager>
 		bool countIn( std::shared_ptr<MidiAction> );
 		bool countInPauseToggle( std::shared_ptr<MidiAction> );
 		bool countInStopToggle( std::shared_ptr<MidiAction> );
-		bool effectLevelAbsolute( std::shared_ptr<MidiAction> );
-		bool effectLevelRelative( std::shared_ptr<MidiAction> );
 		bool filterCutoffLevelAbsolute( std::shared_ptr<MidiAction> );
 		bool gainLevelAbsolute( std::shared_ptr<MidiAction> );
 		bool humanizationSwingAbsolute( std::shared_ptr<MidiAction> );

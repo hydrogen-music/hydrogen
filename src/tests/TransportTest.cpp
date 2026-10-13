@@ -27,20 +27,26 @@
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/AudioEngine/Transport.h>
 #include <core/Hydrogen.h>
-#include <core/IO/FakeAudioDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/Preferences/Preferences.h>
 
+#include <cstdlib>
 #include <iostream>
 
 #include "TestHelper.h"
+#include "utils/FakePluginHost.h"
 
 #include "assertions/AudioFile.h"
 
 using namespace H2Core;
 
 void TransportTest::setUp(){
-	Preferences::get_instance()->m_bUseMetronome = false;
+	pTestPreferences()->m_bUseMetronome = false;
+	// AudioEngineTests lives in libcore and cannot reach pTestHydrogen(); inject
+	// the instance under test here (ADR 0015).
+	AudioEngineTests::setHydrogen( pTestHydrogen() );
 }
 
 void TransportTest::tearDown() {
@@ -53,18 +59,18 @@ void TransportTest::tearDown() {
 	H2Core::Logger::get_instance()->flush();
 
 	// Reset to default audio driver config
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	pPref->m_nBufferSize = 1024;
 	pPref->m_nSampleRate = 44100;
-	Hydrogen::get_instance()->restartAudioDriver();
+	pTestHydrogen()->restartAudioDriver();
 }
 
 void TransportTest::testFrameToTickConversion() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 12 };
 	for ( const int ii : indices ) {
@@ -77,9 +83,9 @@ void TransportTest::testFrameToTickConversion() {
 void TransportTest::testTransportProcessing() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 1, 9, 14 };
 	for ( const int ii : indices ) {
@@ -92,9 +98,9 @@ void TransportTest::testTransportProcessing() {
 void TransportTest::testTransportProcessingTimeline() {
 	___INFOLOG( "" );
 	auto pSongTransportProcessingTimeline =
-		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_transportProcessingTimeline.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongTransportProcessingTimeline );
-	H2Core::CoreActionController::
+	pTestHydrogen()->getCoreActionController()->
 		setSong( pSongTransportProcessingTimeline );
 
 	const std::vector<int> indices{ 2, 9, 10 };
@@ -108,20 +114,20 @@ void TransportTest::testTransportProcessingTimeline() {
 void TransportTest::testTransportRelocation() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 	
-	H2Core::CoreActionController::activateTimeline( true );
-	H2Core::CoreActionController::addTempoMarker( 0, 120 );
-	H2Core::CoreActionController::addTempoMarker( 1, 100 );
-	H2Core::CoreActionController::addTempoMarker( 2, 20 );
-	H2Core::CoreActionController::addTempoMarker( 3, 13.4 );
-	H2Core::CoreActionController::addTempoMarker( 4, 383.2 );
-	H2Core::CoreActionController::addTempoMarker( 5, 64.38372 );
-	H2Core::CoreActionController::addTempoMarker( 6, 96.3 );
-	H2Core::CoreActionController::addTempoMarker( 7, 240.46 );
-	H2Core::CoreActionController::addTempoMarker( 8, 200.1 );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( true );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 0, 120 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 1, 100 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 2, 20 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 3, 13.4 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 4, 383.2 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 5, 64.38372 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 6, 96.3 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 7, 240.46 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 8, 200.1 );
 	
 	const std::vector<int> indices{ 0, 5, 6 };
 	for ( const int ii : indices ) {
@@ -129,7 +135,7 @@ void TransportTest::testTransportRelocation() {
 		perform( &AudioEngineTests::testTransportRelocation );
 	}
 
-	H2Core::CoreActionController::activateTimeline( false );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( false );
 	___INFOLOG( "passed" );
 }
 
@@ -138,10 +144,10 @@ void TransportTest::testLoopMode() {
 
 	const QString sSongFile = H2TEST_FILE( "song/AE_loopMode.h2song" );
 
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
-	H2Core::CoreActionController::setSong( pSong );
+	pTestHydrogen()->getCoreActionController()->setSong( pSong );
 	
 	const std::vector<int> indices{ 0, 1, 12 };
 	for ( const int ii : indices ) {
@@ -154,9 +160,9 @@ void TransportTest::testLoopMode() {
 void TransportTest::testSongSizeChange() {
 	___INFOLOG( "" );
 	auto pSongSizeChanged =
-		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_songSizeChanged.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongSizeChanged );
-	H2Core::CoreActionController::setSong( pSongSizeChanged );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongSizeChanged );
 
 	// Depending on buffer size and sample rate transport might be
 	// loop when toggling a pattern at the end of the song. If there
@@ -165,7 +171,7 @@ void TransportTest::testSongSizeChange() {
 	// different tickSize than its first part. This is itself no
 	// problem but it would make the test much more complex as we test
 	// against those calculated intervals to remain constant.
-	H2Core::CoreActionController::activateTimeline( false );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( false );
 
 	const std::vector<int> indices{ 0, 1, 2, 3 };
 	for ( const int ii : indices ) {
@@ -173,21 +179,21 @@ void TransportTest::testSongSizeChange() {
 		
 		// For larger sample rates no notes will remain in the
 		// AudioEngine::m_songNoteQueue after one process step.
-		if ( H2Core::Preferences::get_instance()->m_nSampleRate <= 48000 ) {
+		if ( pTestPreferences()->m_nSampleRate <= 48000 ) {
 			perform( &AudioEngineTests::testSongSizeChange );
 		}
 	}
 	
-	H2Core::CoreActionController::activateLoopMode( false );
+	pTestHydrogen()->getCoreActionController()->activateLoopMode( false );
 	___INFOLOG( "passed" );
 }		
 
 void TransportTest::testSongSizeChangeInLoopMode() {
 	___INFOLOG( "" );
 	auto pSongDemo = Song::load( QString( "%1/GM_kit_demo3.h2song" )
-								   .arg( Filesystem::demosDir() ) );
+								   .arg( Filesystem::demosDir() ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongDemo );
-	H2Core::CoreActionController::setSong( pSongDemo );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongDemo );
 
 	const std::vector<int> indices{ 0, 5, 7, 13 };
 	for ( const int ii : indices ) {
@@ -218,18 +224,18 @@ void TransportTest::testSampleConsistency() {
 	const QString sOutFile = Filesystem::tmpFilePath("testsampleConsistency.wav");
 	const QString sRefFile = H2TEST_FILE("drumkits/sampleKit/longSample.flac");
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 		
 	pHydrogen->setSong( pSong );
 
 	// Apply drumkit containing the long sample to be tested.
 	const auto pDrumkit = H2Core::Drumkit::load(
-		sDrumkitPath, false, nullptr, true );
+		sDrumkitPath, false, nullptr, true , pTestHydrogen() );
 	CPPUNIT_ASSERT( pDrumkit != nullptr );
-	H2Core::CoreActionController::setDrumkit( pDrumkit );
+	pTestHydrogen()->getCoreActionController()->setDrumkit( pDrumkit );
 
 	TestHelper::exportSong( sOutFile );
 	
@@ -240,13 +246,13 @@ void TransportTest::testSampleConsistency() {
 
 void TransportTest::testNoteEnqueuing() {
 	___INFOLOG( "" );
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 
 	auto pSongNoteEnqueuing =
-		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuing.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongNoteEnqueuing );
 
-	H2Core::CoreActionController::setSong( pSongNoteEnqueuing );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongNoteEnqueuing );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 1, 9, 12 };
@@ -259,11 +265,11 @@ void TransportTest::testNoteEnqueuing() {
 
 void TransportTest::testNoteEnqueuingTimeline() {
 	___INFOLOG( "" );
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ) );
+	auto pHydrogen = pTestHydrogen();
+	auto pSong = Song::load( QString( H2TEST_FILE( "song/AE_noteEnqueuingTimeline.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
-	H2Core::CoreActionController::setSong( pSong );
+	pTestHydrogen()->getCoreActionController()->setSong( pSong );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 0, 5, 7 };
@@ -277,12 +283,12 @@ void TransportTest::testNoteEnqueuingTimeline() {
 
 void TransportTest::testHumanization() {
 	___INFOLOG( "" );
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 
 	auto pSongHumanization =
-		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_humanization.h2song" ) ), false, pTestHydrogen() );
 	ASSERT_SONG( pSongHumanization );
-	H2Core::CoreActionController::setSong( pSongHumanization );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongHumanization );
 
 	// This test is quite time consuming.
 	std::vector<int> indices{ 1, 10 };
@@ -295,12 +301,12 @@ void TransportTest::testHumanization() {
 
 void TransportTest::testMuteGroups() {
 	___INFOLOG( "" );
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 
 	auto pSongMuteGroups =
-		Song::load( QString( H2TEST_FILE( "song/AE_muteGroups.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_muteGroups.h2song" ) ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongMuteGroups != nullptr );
-	H2Core::CoreActionController::setSong( pSongMuteGroups );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongMuteGroups );
 
 	std::vector<int> indices{ 1, 3, 10 };
 	for ( auto ii : indices ) {
@@ -312,12 +318,12 @@ void TransportTest::testMuteGroups() {
 
 void TransportTest::testNoteOff() {
 	___INFOLOG( "" );
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 
 	auto pSongNoteOff =
-		Song::load( QString( H2TEST_FILE( "song/AE_noteOff.h2song" ) ) );
+		Song::load( QString( H2TEST_FILE( "song/AE_noteOff.h2song" ) ), false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongNoteOff != nullptr );
-	H2Core::CoreActionController::setSong( pSongNoteOff );
+	pTestHydrogen()->getCoreActionController()->setSong( pSongNoteOff );
 
 	std::vector<int> indices{ 1, 3, 10 };
 	for ( auto ii : indices ) {
@@ -338,9 +344,10 @@ void TransportTest::testUpdateTransport() {
 void TransportTest::perform( std::function<void()> func ) {
 	try {
 		// Stop the processing of the callback of the AudioEngine. TransportTest
-		// was written before `FakeAudioDriver` was a proper driver.
-		auto pDriver = std::dynamic_pointer_cast<FakeAudioDriver>(
-			Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()
+		// was written before `FakeAudioDriver` (now `SoftwareDriver`) was a
+		// proper driver.
+		auto pDriver = std::dynamic_pointer_cast<SoftwareDriver>(
+			pTestHydrogen()->getAudioEngine()->getAudioDriver()
 		);
 		if ( pDriver != nullptr ) {
 			pDriver->deactivate();
@@ -351,4 +358,159 @@ void TransportTest::perform( std::function<void()> func ) {
 		CppUnit::Message msg( err.what() );
 		throw CppUnit::Exception( msg );
 	}
+}
+
+// ── T3.3: host-transport follower (ADR 0013) ──────────────────────────────
+// These run against a FakePluginHost, which owns its own headless engine driven
+// by the host-driven Plugin audio/MIDI drivers, independent of pTestHydrogen().
+
+void TransportTest::testPluginHostTempo() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+
+	host.setBpm( 156.0f );
+	host.setPlaying( true );
+	host.process( 256 );
+	host.process( 256 );
+
+	// The playhead adopted the host tempo.
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 156.0, pPlayhead->getBpm(), 0.001 );
+
+	// A subsequent host tempo change is followed too.
+	host.setBpm( 92.5f );
+	host.process( 256 );
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 92.5, pPlayhead->getBpm(), 0.001 );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostTransportState() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+
+	// Stopped: processing must not advance the playhead.
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( (long long)0, pPlayhead->getFrame() );
+
+	// Rolling: the playhead advances by exactly one block per cycle.
+	host.setPlaying( true );
+	host.process( 256 );
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( (long long)512, pPlayhead->getFrame() );
+
+	// Stopped again: the playhead freezes at its last position.
+	host.setPlaying( false );
+	const long long nFrozen = pPlayhead->getFrame();
+	host.process( 256 );
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( nFrozen, pPlayhead->getFrame() );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostPositionTracking() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+	host.setPlaying( true );
+
+	const int nBlocks = 16;
+	for ( int ii = 0; ii < nBlocks; ++ii ) {
+		host.process( 256 );
+	}
+
+	// The engine advanced by exactly nframes per block, matching the host clock.
+	CPPUNIT_ASSERT_EQUAL( (long long)( nBlocks * 256 ), pPlayhead->getFrame() );
+	CPPUNIT_ASSERT_EQUAL( (long long)( nBlocks * 256 ), host.getFramePosition() );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostRelocate() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+
+	// A relocate while stopped jumps the playhead to the host frame.
+	host.setFramePosition( 88200 ); // 2 s at 44.1 kHz
+	host.process( 256 );
+	CPPUNIT_ASSERT( std::llabs( pPlayhead->getFrame() - 88200 ) <= 1 );
+
+	// And while rolling: jump, then keep rolling contiguously from there.
+	host.setPlaying( true );
+	host.setFramePosition( 44100 );
+	host.process( 256 );
+	CPPUNIT_ASSERT( std::llabs( pPlayhead->getFrame() - ( 44100 + 256 ) ) <= 1 );
+	host.process( 256 );
+	CPPUNIT_ASSERT( std::llabs( pPlayhead->getFrame() - ( 44100 + 512 ) ) <= 1 );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostLoop() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pPlayhead = host.getHydrogen()->getAudioEngine()->getPlayhead();
+	host.setBpm( 120.0f );
+	host.setPlaying( true );
+
+	for ( int ii = 0; ii < 4; ++ii ) {
+		host.process( 256 );
+	}
+	CPPUNIT_ASSERT_EQUAL( (long long)1024, pPlayhead->getFrame() );
+
+	// The host loops back to the start of its region (frame jumps backwards).
+	host.setFramePosition( 0 );
+	host.process( 256 );
+	// Followed back and rolling again, no hang, no stop.
+	CPPUNIT_ASSERT_EQUAL( (long long)256, pPlayhead->getFrame() );
+	host.process( 256 );
+	CPPUNIT_ASSERT_EQUAL( (long long)512, pPlayhead->getFrame() );
+
+	host.setPlaying( false );
+
+	___INFOLOG( "passed" );
+}
+
+void TransportTest::testPluginHostTempoWinsOverTimeline() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto* pHydrogen = host.getHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+	auto pPlayhead = pHydrogen->getAudioEngine()->getPlayhead();
+
+	// Song mode + an active Timeline with a tempo marker that disagrees with the
+	// host. Under a plugin host the host tempo must still win (ADR 0013).
+	pCAC->activateSongMode( true );
+	pCAC->activateTimeline( true );
+	pCAC->addTempoMarker( 0, 90.0f );
+
+	host.setBpm( 150.0f );
+	host.setPlaying( true );
+	host.process( 256 );
+	host.process( 256 );
+
+	CPPUNIT_ASSERT_DOUBLES_EQUAL( 150.0, pPlayhead->getBpm(), 0.001 );
+
+	host.setPlaying( false );
+	pCAC->activateTimeline( false );
+
+	___INFOLOG( "passed" );
 }

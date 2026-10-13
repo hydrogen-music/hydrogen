@@ -28,8 +28,74 @@
 #include <QColor>
 #include <QtXml/QDomDocument>
 
+#include <map>
+
 namespace H2Core
 {
+
+namespace Xml
+{
+	/** Maps the file path of a sample to the name of the bundle entry its
+	 * audio data is stored in (ADR 0025).
+	 *
+	 * While assembling a `.h2project` bundle this map is handed through the
+	 * whole saveTo() chain so that `<filename>` elements reference samples
+	 * by their entry names - e.g. `samples/<hash>.flac` - instead of local
+	 * drumkit or cache paths. This keeps the bundle portable and its XML
+	 * reproducible across machines. */
+	using ProjectSampleEntries = std::map<QString, QString>;
+
+	/** OR-able options altering how the classes in Basics are
+	 * (de)serialized in their loadFrom(), saveTo(), fromXmlBuffer(),
+	 * and toXmlBuffer() methods. */
+	enum class Flag {
+		/** No option specified. */
+		None = 0x000,
+		/** When (de)serializing a class as an IPC message, members not
+		 * written to disk directly have to be handled as well.
+		 * Otherwise, there would be a loss of information. */
+		Ipc = 0x001,
+		/** Whether the instruments are part of a stand-alone kit or
+		 * part of a song. In the latter case all samples are located
+		 * in the corresponding drumkit folder and are referenced by
+		 * filenames. In the former case, each instrument might be
+		 * associated with a different kit and the lookup folder for
+		 * the samples is stored on a per-instrument basis. */
+		SongKit = 0x002,
+		/** Whether layers containing a missing sample should be kept
+		 * or discarded. */
+		KeepMissingSamples = 0x004,
+		/** Whether the song and script paths of a Playlist are stored
+		 * relative to the path of the playlist itself (instead of
+		 * absolute ones). */
+		UseRelativePaths = 0x008,
+		/** Whether the object is serialized as part of a H2Project. This does
+		 * not use sample data from installed drumkits but bundles them directly
+		 * into a tar archive along with the song. */
+		Project = 0x010
+	};
+
+	constexpr Flag operator|( Flag flag1, Flag flag2 ) {
+		return static_cast<Flag>(
+			static_cast<int>(flag1) | static_cast<int>(flag2) );
+	}
+	constexpr Flag& operator|=( Flag& flag1, Flag flag2 ) {
+		flag1 = flag1 | flag2;
+		return flag1;
+	}
+	/**
+	 * \param flag1 Combination of options to check.
+	 * \param flag2 Single option (or combination of options) of
+	 * interest.
+	 * \return Whether any of the options in @a flag2 is set in
+	 *   @a flag1.
+	 */
+	constexpr bool operator&( Flag flag1, Flag flag2 ) {
+		return ( static_cast<int>(flag1) & static_cast<int>(flag2) ) != 0;
+	}
+
+	QString flagToQString( const Flag& flags );
+}
 
 /**
  * XMLNode is a subclass of QDomNode with read and write values methods
@@ -120,6 +186,12 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 						   const QColor& defaultValue = QColor( 97, 167, 251 ),
 						   bool inexistent_ok = true, bool empty_ok = true,
 						   bool bSilent = false ) const;
+		Uuid read_uuid(
+			const QString& node,
+			bool inexistent_ok = true,
+			bool empty_ok = true,
+			bool bSilent = false
+		) const;
 
 		/**
 		 * reads an attribute from the node
@@ -167,6 +239,7 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 */
 		void write_string( const QString& node, const QString& value );
 	void write_color( const QString& node, const QColor& color );
+		void write_uuid( const QString& node, const Uuid& uuid );
 
 		/**
 		 * write a string as an attribute of the node

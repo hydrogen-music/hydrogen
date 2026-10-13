@@ -34,8 +34,8 @@ You have the following options available:
 Simply run the script with the `-b` switch and pass in the architecture you want
 to build, either i686 or x86_64
 	
-If you want the "fat" package, which bundles with the JACK installer, and the
-ladspa plugins, then pass in the `-f` as well.
+If you want the "fat" package, which bundles with the JACK installer, then pass
+in the `-f` as well.
 
 ```
 ./cross_compile.sh -b x86_64

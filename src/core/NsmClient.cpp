@@ -33,19 +33,19 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <pthread.h>
 #include <unistd.h>
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
-NsmClient * NsmClient::__instance = nullptr;
+namespace H2Core {
+
 bool NsmClient::bNsmShutdown = false;
 
 
-NsmClient::NsmClient()
-	: m_pNsm( nullptr ),
+NsmClient::NsmClient( H2Core::Hydrogen* pHydrogen )
+	: m_pHydrogen( pHydrogen ),
+	  m_pNsm( nullptr ),
 	  m_bUnderSessionManagement( false ),
-	  m_NsmThread( 0 ),
 	  m_sSessionFolderPath( "" ),
 	  m_bIsNewSession( false )
 {
@@ -53,14 +53,6 @@ NsmClient::NsmClient()
 
 NsmClient::~NsmClient()
 {
-	__instance = nullptr;
-}
-
-void NsmClient::create_instance()
-{
-	if( __instance == nullptr ) {
-		__instance = new NsmClient;
-	}
 }
 
 int NsmClient::OpenCallback( const char *name,
@@ -69,9 +61,11 @@ int NsmClient::OpenCallback( const char *name,
 							 char **outMsg,
 							 void *userData ) {
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pPref = H2Core::Preferences::get_instance();
-	auto pNsmClient = NsmClient::get_instance();
+	// Static NSM callback: reach this NsmClient (and its owning Hydrogen)
+	// through the user_data bound at registration (ADR 0015).
+	auto pNsmClient = static_cast<H2Core::NsmClient*>( userData );
+	auto pHydrogen = pNsmClient->m_pHydrogen;
+	auto pPref = pHydrogen->getPreferences();
 
 	if ( !name ) {
 		NsmClient::printError( "No `name` supplied in NSM open callback!" );
@@ -95,7 +89,7 @@ int NsmClient::OpenCallback( const char *name,
 		}
 	}
 
-	NsmClient::copyPreferences( name );
+	pNsmClient->copyPreferences( name );
 
 	pNsmClient->setSessionFolderPath( name );
 	
@@ -126,7 +120,7 @@ int NsmClient::OpenCallback( const char *name,
 	bool bEmptySongOpened = false;
 	std::shared_ptr<H2Core::Song> pSong = nullptr;
 	if ( songFileInfo.exists() ) {
-		pSong = H2Core::Song::load( sSongPath );
+		pSong = H2Core::Song::load( sSongPath, false, pHydrogen );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( QString( "Unable to open existing Song [%1]." )
 								   .arg( sSongPath ) );
@@ -135,7 +129,7 @@ int NsmClient::OpenCallback( const char *name,
 	}
 	else {
 
-		pSong = H2Core::Song::getEmptySong();
+		pSong = H2Core::Song::getEmptySong( pHydrogen );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;
@@ -150,11 +144,21 @@ int NsmClient::OpenCallback( const char *name,
 		pNsmClient->setIsNewSession( true );
 	}
 
-	if ( ! H2Core::CoreActionController::setSong( pSong ) ) {
+	if ( ! pHydrogen->getCoreActionController()->setSong( pSong ) ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 	}
-	
+
+	// setSong() resets the fresh song's modified flag, which would
+	// discard the marking above (it applied to the *outgoing* song).
+	// Re-mark a new session's empty song so NSM — and the editor, which
+	// pulls the flag with the song — sees that an initial save is
+	// required. The standalone GUI bootstrap (gui/main.cpp) re-marks as
+	// well; idempotent.
+	if ( bEmptySongOpened ) {
+		pHydrogen->setSongModified( true );
+	}
+
 	NsmClient::printMessage( "Song loaded!" );
 
 	return ERR_OK;
@@ -162,8 +166,8 @@ int NsmClient::OpenCallback( const char *name,
 
 void NsmClient::copyPreferences( const char* name ) {
 	
-	auto pPref = H2Core::Preferences::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pPref = m_pHydrogen->getPreferences();
+	auto pHydrogen = m_pHydrogen;
 
 	QFile preferences( H2Core::Filesystem::userConfigPath() );
 	if ( !preferences.exists() ) {
@@ -185,9 +189,9 @@ void NsmClient::copyPreferences( const char* name ) {
 		// If there's already a preference file present from a
 		// previous session, we load it instead of overwriting it.
 		auto pPref =
-			H2Core::CoreActionController::loadPreferences( sNewPreferencesPath );
+			m_pHydrogen->getCoreActionController()->loadPreferences( sNewPreferencesPath );
 		if ( pPref != nullptr ) {
-			H2Core::CoreActionController::setPreferences( pPref );
+			m_pHydrogen->getCoreActionController()->setPreferences( pPref );
 
 			NsmClient::printMessage( "Preferences loaded!" );
 		}
@@ -245,17 +249,16 @@ void NsmClient::printMessage( const QString& msg ) {
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {
+	// Static NSM callback: reach the owning Hydrogen via user_data (ADR 0015).
+	auto pHydrogen = static_cast<H2Core::NsmClient*>( userData )->m_pHydrogen;
 	// Discarding missing samples and their corresponding instrument layer is an
 	// operation with information loss. This is only allowed to be performed
 	// explicitly via the GUI.
-	if ( ! H2Core::CoreActionController::saveSong( /* bKeepMissingSamples */ true ) ) {
+	if ( ! pHydrogen->getCoreActionController()->saveSong( /* bKeepMissingSamples */ true ) ) {
 		NsmClient::printError( "Unable to save Song!" );
 		return ERR_GENERAL;
 	}
-	if ( ! H2Core::CoreActionController::savePreferences() ) {
-		NsmClient::printError( "Unable to save Preferences!" );
-		return ERR_GENERAL;
-	}
+	pHydrogen->requestPreferencesSave();
 
 	NsmClient::printMessage( "Song and Preferences saved!" );
 
@@ -282,9 +285,10 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 	 * Make first contact with NSM server.
 	 */
 
+	ASSERT_NO_EDITOR_MODE( m_pHydrogen );
 	nsm_client_t* pNsm = nullptr;
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = m_pHydrogen->getPreferences();
 	QByteArray byteArray = sProcessName.toLatin1();
 
 	const char *nsm_url = getenv( "NSM_URL" );
@@ -299,8 +303,8 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 
 		if ( pNsm )
 		{
-			nsm_set_open_callback( pNsm, NsmClient::OpenCallback, (void*) nullptr );
-			nsm_set_save_callback( pNsm, NsmClient::SaveCallback, (void*) nullptr );
+			nsm_set_open_callback( pNsm, NsmClient::OpenCallback, (void*) this );
+			nsm_set_save_callback( pNsm, NsmClient::SaveCallback, (void*) this );
 
 			if ( nsm_init( pNsm, nsm_url ) == 0 )
 			{
@@ -316,7 +320,22 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 
 				nsm_send_announce( pNsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
 
-				if ( pthread_create( &m_NsmThread, nullptr, NsmClient::ProcessEvent, pNsm ) ) {
+				// The NSM thread serves this instance for its whole life, so a
+				// single scope at entry routes its logging to that instance's
+				// logger (ADR 0015, T1.6). ProcessEvent is a static C-callback
+				// without instance access, so the instance logger is captured
+				// at spawn and passed to the wrapper. The thread is detached
+				// right away: it runs till process end and is never joined.
+				try {
+					m_NsmThread = std::thread(
+						[]( nsm_client_t* pNsm, Logger* pLogger ) {
+							Logger::Scope loggerScope( pLogger );
+							NsmClient::ProcessEvent( pNsm );
+						},
+						pNsm, Logger::currentLogger() );
+					m_NsmThread.detach();
+				}
+				catch ( const std::system_error& ) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
 					return;
@@ -325,7 +344,7 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 				// Wait until first the Song and afterwards the audio
 				// driver was set (asynchronously by the
 				// NsmClient::OpenCallback() function).
-				const H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+				const H2Core::Hydrogen* pHydrogen = m_pHydrogen;
 				const int nNumberOfChecks = 10;
 				int nCheck = 0;
 				
@@ -365,6 +384,8 @@ void NsmClient::sendDirtyState( const bool bIsDirty ) {
 		}
 	}
 }
+
+} // namespace H2Core
 
 #endif /* H2CORE_HAVE_OSC */
 

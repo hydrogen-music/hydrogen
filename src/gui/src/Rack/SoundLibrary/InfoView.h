@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef INFO_VIEW_H
-#define INFO_VIEW_H
+#ifndef H2C_INFO_VIEW_H
+#define H2C_INFO_VIEW_H
 
 #include <map>
 #include <memory>

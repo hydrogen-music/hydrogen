@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef EVENT_QUEUE_TEST_H
-#define EVENT_QUEUE_TEST_H
+#ifndef H2C_EVENT_QUEUE_TEST_H
+#define H2C_EVENT_QUEUE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <core/EventQueue.h>
@@ -31,6 +31,8 @@ class EventQueueTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testOverflow );
 	CPPUNIT_TEST( testThreadedAccess );
 	CPPUNIT_TEST( testEventDrop );
+	CPPUNIT_TEST( testIndependentInstances );
+	CPPUNIT_TEST( testMidiNoteVectorThreadedAccess );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -45,6 +47,8 @@ public:
 	void testOverflow();
 	void testThreadedAccess();
 	void testEventDrop();
+	void testIndependentInstances();
+	void testMidiNoteVectorThreadedAccess();
 
 };
 

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MAIN_TOOL_BAR_H
-#define MAIN_TOOL_BAR_H
+#ifndef H2C_MAIN_TOOL_BAR_H
+#define H2C_MAIN_TOOL_BAR_H
 
 #include <memory>
 #include <QtGui>
@@ -41,10 +41,13 @@ class ClickableLabel;
 class LCDSpinBox;
 class LCDDisplay;
 class LED;
-class MidiAction;
 class MidiControlButton;
 class MidiControlDialog;
 class MidiLearnableToolButton;
+
+namespace H2Core {
+	class MidiAction;
+}
 
 /** \ingroup docGUI*/
 class MainToolBar : public QToolBar,
@@ -62,6 +65,9 @@ class MainToolBar : public QToolBar,
 	static constexpr int nSeparatorHeight = 30;
 	static constexpr int nSeparatorMargin = 3;
 	static constexpr int nSeparatorWidth = 1;
+	/** Minimum width reserved for the time display; it grows with the
+	 *	digit cells of the "Item font" selected in the Preferences. */
+	static constexpr int nTimeDisplayMinWidth = 146;
 	static constexpr int nWidgetHeight =
 		MainToolBar::nHeight - MainToolBar::nMargin * 2;
 
@@ -77,6 +83,7 @@ class MainToolBar : public QToolBar,
 	void setPreferencesVisibilityState( bool bChecked );
 	void updateActions();
 	void updateInput();
+	void updateIpcConnectionState();
 
 	Editor::Input getInput() const;
 	void setInput( Editor::Input input );
@@ -123,12 +130,13 @@ class MainToolBar : public QToolBar,
 
 	LCDDisplay* m_pTimeDisplay;
 
+	QToolButton* m_pIpcConnectionButton;
 	MidiLearnableToolButton* m_pRwdButton;
 	MidiLearnableToolButton* m_pRecButton;
 	MidiLearnableToolButton* m_pPlayButton;
 	QAction* m_pPlayAction;
-	std::shared_ptr<MidiAction> m_pPlayMidiAction;
-	std::shared_ptr<MidiAction> m_pCountInMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pPlayMidiAction;
+	std::shared_ptr<H2Core::MidiAction> m_pCountInMidiAction;
 	QAction* m_pCountInAction;
 	MidiLearnableToolButton* m_pStopButton;
 	MidiLearnableToolButton* m_pFfwdButton;

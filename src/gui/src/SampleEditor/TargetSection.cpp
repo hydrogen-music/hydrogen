@@ -84,3 +84,9 @@ void TargetSection::update()
 	m_pWaveDisplayL->update();
 	m_pWaveDisplayR->update();
 }
+
+void TargetSection::updateBackground()
+{
+	m_pWaveDisplayL->updateBackground();
+	m_pWaveDisplayR->updateBackground();
+}

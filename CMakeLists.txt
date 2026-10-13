@@ -2,17 +2,29 @@
 # CMAKE SETUP
 #
 
-cmake_minimum_required(VERSION 3.8)
+# The floor is dictated by Qt6 (which requires 3.16 policies) and by
+# target_precompile_headers() in src/gui. Building the VST3 plugin via
+# clap-wrapper additionally requires 3.21 (enforced by that submodule's own
+# cmake_minimum_required).
+cmake_minimum_required(VERSION 3.16)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-# The CMake Policy mechanism is designed to help keep existing projects building as new versions of CMake introduce changes in behavior.
-# http://www.cmake.org/cmake/help/cmake2.6docs.html#command:cmake_policy
-if(COMMAND CMAKE_POLICY)
-    #	cmake_policy(SET CMP0005 NEW)
-	cmake_policy(SET CMP0003 NEW)   # add_library
-	cmake_policy(SET CMP0006 NEW)   # bundle destination property
-endif()
 
 project(hydrogen)
+
+# CMake bug #24104 (unfixed through at least 4.4): enable_language() in a
+# subdirectory defines the <LANG> rule variables (CMAKE_OBJCXX_COMPILE_OBJECT
+# & friends) only in that directory's scope - they propagate down into
+# subdirectories, never up. clap-wrapper enables OBJC/OBJCXX in its own
+# scope, but the VST3 wrapper target - created by target_add_vst3_wrapper()
+# from src/plugin, an ancestor of clap-wrapper's scope - compiles macos.mm
+# there, so the generate step dies with "Missing variable is:
+# CMAKE_OBJCXX_COMPILE_OBJECT". Enabling the languages at the top level puts
+# the rules into every scope (the workaround SDL adopted for
+# libsdl-org/SDL#6454; CMake itself only fixes this via CMP0220 in 4.5).
+if(APPLE)
+	enable_language(OBJC)
+	enable_language(OBJCXX)
+endif()
 
 ## Determine proper semantic version
 set(VERSION_MAJOR "2")
@@ -64,7 +76,10 @@ else()
             # last one (feature branch, develop branch, main after splitting of
             # a dedicated release branch). We just add the commit hash to the
             # display version.
-            execute_process(COMMAND git log --pretty=format:'%h' -n 1
+            # No quotes around %h: execute_process runs git without a shell, so
+            # shell-style quotes would end up literally in the hash (and in the
+            # version string / package filenames).
+            execute_process(COMMAND git log --pretty=format:%h -n 1
                 OUTPUT_VARIABLE GIT_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
             set(DISPLAY_VERSION "${DISPLAY_VERSION}-${GIT_REVISION}")
             message(STATUS "MIS")
@@ -89,7 +104,6 @@ endif()
 option(WANT_QT6             "Compile using Qt6 instead of Qt5 " OFF)
 
 option(WANT_LIBARCHIVE      "Enable use of libarchive instead of libtar" ON)
-option(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
 if(APPLE)
 	option(WANT_OSC  "Enable OSC support" OFF)
@@ -112,7 +126,6 @@ else()
 endif()
 option(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 option(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
-option(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
 option(WANT_RUBBERBAND   "Include RubberBand (Audio Time Stretcher Library) support" OFF)
 if(APPLE)
     option(WANT_COREAUDIO   "Include CoreAudio support" ON)
@@ -124,6 +137,12 @@ option(WANT_APPIMAGE "Build Linux AppImage" OFF)
 
 option(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 option(WANT_INTEGRATION_TESTS "Include integration tests" OFF)
+
+# Plugin build options
+option(WANT_LV2             "Build LV2 plugin" OFF)
+option(WANT_CLAP            "Build CLAP plugin" OFF)
+option(WANT_VST3            "Build VST3 plugin (via clap-wrapper)" OFF)
+set(H2_PLUGIN_OUTPUT_BUSES 32 CACHE STRING "Number of plugin output buses")
 
 include(Sanitizers)
 include(StatusSupportOptions)
@@ -255,7 +274,6 @@ else()
 endif()
 set(H2_USR_PATH ".hydrogen")
 
-set(MAX_FX          4    CACHE STRING "Maximum number of effects")
 set(MAX_BUFFER_SIZE 8192 CACHE STRING "Maximum size of buffer")
 
 #
@@ -263,7 +281,6 @@ set(MAX_BUFFER_SIZE 8192 CACHE STRING "Maximum size of buffer")
 #
 include(CompileHelper)
 include(FindHelper)
-include(FindLadspa)
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(FindZLIB)
@@ -294,7 +311,6 @@ if( WANT_LIBARCHIVE AND LIBARCHIVE_FOUND)
 endif()
 find_helper(LIBSNDFILE sndfile sndfile.h sndfile)
 find_helper(ALSA alsa alsa/asoundlib.h asound )
-find_ladspa(LADSPA ladspa.h noise)
 
 find_helper(OSC liblo lo/lo.h lo)
 
@@ -324,7 +340,6 @@ if ("${PC_PORTMIDI_VERSION}" STREQUAL "" AND WANT_PORTMIDI AND PORTMIDI_FOUND)
 endif()
 
 find_helper(PULSEAUDIO libpulse pulse/pulseaudio.h pulse)
-find_helper(LRDF lrdf lrdf.h lrdf)
 
 find_helper(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)
 find_helper(CPPUNIT cppunit cppunit/TestCase.h cppunit)
@@ -354,7 +369,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-set(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LRDF RUBBERBAND CPPUNIT )
+set(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO RUBBERBAND CPPUNIT )
 foreach( _pkg ${STATUS_LIST})
     compute_pkgs_flags(${_pkg})
 endforeach()
@@ -432,6 +447,84 @@ if(HAVE_TO_TIME_T)
 endif()
 
 #
+# PLUGIN SDKs & HELPER TOOLS
+#
+# The CLAP/LV2/VST3 SDKs are vendored under extern/. Feed compute_pkgs_flags()
+# so the plugin lines in the summary use the very same "used [version] /
+# available but not desired / not found" wording and colours as every other
+# dependency.
+
+# CLAP SDK (header-only).
+if(EXISTS "${CMAKE_SOURCE_DIR}/extern/clap/include/clap/clap.h")
+    set(CLAP_FOUND TRUE)
+    set(CLAP_LIBRARIES "${CMAKE_SOURCE_DIR}/extern/clap")
+    file(READ "${CMAKE_SOURCE_DIR}/extern/clap/include/clap/version.h" _clap_ver_h)
+    string(REGEX MATCH "CLAP_VERSION_MAJOR[ \t]+([0-9]+)" _ "${_clap_ver_h}")
+    set(_clap_major "${CMAKE_MATCH_1}")
+    string(REGEX MATCH "CLAP_VERSION_MINOR[ \t]+([0-9]+)" _ "${_clap_ver_h}")
+    set(_clap_minor "${CMAKE_MATCH_1}")
+    string(REGEX MATCH "CLAP_VERSION_REVISION[ \t]+([0-9]+)" _ "${_clap_ver_h}")
+    set(_clap_rev "${CMAKE_MATCH_1}")
+    set(CLAP_VERSION "${_clap_major}.${_clap_minor}.${_clap_rev}")
+endif()
+compute_pkgs_flags(CLAP)
+
+# LV2 SDK (headers + spec bundles).
+if(EXISTS "${CMAKE_SOURCE_DIR}/extern/lv2/include/lv2/core/lv2.h")
+    set(LV2_FOUND TRUE)
+    set(LV2_LIBRARIES "${CMAKE_SOURCE_DIR}/extern/lv2")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/extern/lv2/meson.build")
+        file(READ "${CMAKE_SOURCE_DIR}/extern/lv2/meson.build" _lv2_meson)
+        string(REGEX MATCH "version:[ \t]*'([0-9.]+)'" _ "${_lv2_meson}")
+        set(LV2_VERSION "${CMAKE_MATCH_1}")
+    endif()
+endif()
+compute_pkgs_flags(LV2)
+
+# VST3 is produced via clap-wrapper (Phase 6); its SDK is not vendored yet.
+if(EXISTS "${CMAKE_SOURCE_DIR}/extern/clap-wrapper/CMakeLists.txt")
+    set(VST3_FOUND TRUE)
+    set(VST3_LIBRARIES "${CMAKE_SOURCE_DIR}/extern/clap-wrapper")
+endif()
+compute_pkgs_flags(VST3)
+
+# Plugin helper tools (conformance validators). Tri-state per the build-summary
+# spec: "used" (present and the matching plugin is enabled) / "available but not
+# needed" (present, plugin disabled) / "not compiled" (absent). Same colours as
+# the dependency states above.
+# @version_flag is the tool's version switch (clap-validator: --version,
+# lv2lint: -v). The version is parsed from either stdout or stderr since tools
+# differ in where they print it.
+macro(PLUGIN_TOOL_STATUS prefix exe needed version_flag)
+    set(_tool_ver "")
+    if(${exe})
+        execute_process(COMMAND "${${exe}}" ${version_flag}
+            OUTPUT_VARIABLE _tool_out OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_VARIABLE _tool_err ERROR_STRIP_TRAILING_WHITESPACE
+            TIMEOUT 5)
+        string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" _tool_match
+            "${_tool_out}${_tool_err}")
+        if(_tool_match)
+            set(_tool_ver "[ ${_tool_match} ] ")
+        endif()
+        if(${needed})
+            set(${prefix}_STATUS "${_escape}[1;32m+ used${_escape}[0m ${_tool_ver}( ${${exe}} )")
+        else()
+            set(${prefix}_STATUS "${_escape}[0;33m| available${_escape}[0m but not needed ${_tool_ver}( ${${exe}} )")
+        endif()
+    else()
+        set(${prefix}_STATUS "${_escape}[1;31m- not compiled${_escape}[0m")
+    endif()
+endmacro()
+
+find_program(CLAP_VALIDATOR_EXE clap-validator
+    PATHS "${CMAKE_SOURCE_DIR}/extern/clap-validator/target/release")
+find_program(LV2LINT_EXE lv2lint
+    PATHS "${CMAKE_SOURCE_DIR}/extern/lv2lint/build")
+plugin_tool_status(CLAP_VALIDATOR CLAP_VALIDATOR_EXE WANT_CLAP --version)
+plugin_tool_status(LV2LINT LV2LINT_EXE WANT_LV2 -v)
+
+#
 # CONFIG PROCESS SUMMARY
 #
 set(reset "${_escape}[0m")
@@ -463,7 +556,7 @@ color_message("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_ST
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
 * ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
-* ${purple}ladspa${reset}                       : ${LADSPA_STATUS}\n"
+* ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}\n"
 )
 
 color_message("${cyan}Supported audio interfaces${reset}
@@ -481,18 +574,27 @@ color_message("${cyan}Supported audio interfaces${reset}
 
 color_message("${cyan}Useful extensions${reset}
 -----------------------------------------
-* ${purple}LRDF${reset}                         : ${LRDF_STATUS}
 * ${purple}RUBBERBAND${reset}                   : ${RUBBERBAND_STATUS}
-*                                ${LIBRUBBERBAND_MSG}\n"
+                                 ${LIBRUBBERBAND_MSG}\n"
+)
+
+color_message("${cyan}Plugin build options${reset}
+-----------------------------------------
+* ${purple}LV2 plugin${reset}                   : ${LV2_STATUS}
+* ${purple}CLAP plugin${reset}                  : ${CLAP_STATUS}
+* ${purple}VST3 plugin (clap-wrapper)${reset}   : ${VST3_STATUS}
+* ${purple}Plugin output buses${reset}          : ${H2_PLUGIN_OUTPUT_BUSES}
+* ${purple}clap-validator${reset}               : ${CLAP_VALIDATOR_STATUS}
+* ${purple}lv2lint${reset}                      : ${LV2LINT_STATUS}\n"
 )
 
 if(WANT_DEBUG)
     color_message("${cyan}Miscellaneous capabilities${reset}
 -----------------------------------------
-* realtime clock               : ${HAVE_RTCLOCK}
-* working sscanf               : ${HAVE_SSCANF}
-* unit tests                   : ${CPPUNIT_STATUS}
-* clang tidy                   : ${CLANG_TIDY_STATUS}\n"
+* ${purple}realtime clock${reset}               : ${HAVE_RTCLOCK}
+* ${purple}working sscanf${reset}               : ${HAVE_SSCANF}
+* ${purple}unit tests${reset}                   : ${CPPUNIT_STATUS}
+* ${purple}clang tidy${reset}                   : ${CLANG_TIDY_STATUS}\n"
     )
 endif()
 
@@ -526,7 +628,31 @@ endif()
 #
 # SET BUILD INFORMATION
 #
+# Enable CTest so integration tests (e.g. the GUI startup smoke test in
+# src/gui) can be registered with add_test() and run via `ctest`.
+enable_testing()
+
+# Qt-namespace guard: static source check that every Qt-type forward
+# declaration is enclosed in QT_BEGIN_NAMESPACE/QT_END_NAMESPACE (and that
+# the enclosure is balanced). Bare declarations compile fine against the
+# system Qt but collide with the namespaced classes of the static
+# QT_NAMESPACE Qt the plugin artifacts are built against (Justfile:
+# `plugin`) — only that build breaks, which the regular CI never runs.
+# Pure source scan over all of src/; it is a bash script, so it is only
+# registered on Unix (Linux + macOS); on Windows there is no shell to run
+# it. The always-on Linux CI job runs it.
+if ( UNIX )
+	add_test(
+		NAME QtNamespaceGuard
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/check_qt_namespace
+	)
+	set_tests_properties( QtNamespaceGuard PROPERTIES TIMEOUT 60 )
+endif()
+
 add_subdirectory(src/core)
+# Plugin core (the format-agnostic engine wrapper) is built before the tests so
+# the test binary can link it; the gated CLAP/LV2 targets live here too.
+add_subdirectory(src/plugin)
 if(H2CORE_HAVE_CPPUNIT)
     add_subdirectory(src/tests)
 endif()
@@ -547,7 +673,7 @@ install(DIRECTORY data DESTINATION ${H2_DATA_PATH} PATTERN ".git" EXCLUDE PATTER
 if(NOT MINGW AND NOT APPLE)
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.metainfo.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo")
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
-	install(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/hicolor/scalable/apps" RENAME "org.hydrogenmusic.Hydrogen.svg")
+	install(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps" RENAME "org.hydrogenmusic.Hydrogen.svg")
 	install(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 endif()
 
@@ -620,6 +746,16 @@ if(MINGW)
     #end NSIS customizations
 else(MINGW)
     #apple stuff was moved to src/gui/CMakeLists.txt
+endif()
+
+# Linux: a relocatable .tar.xz of the install tree — the hydrogen binaries, the
+# CLAP/LV2/VST3 plugin bundles (under lib/{clap,lv2,vst3}) and the shared data
+# (T6.2). NB: this packages against the *system* Qt; a fully self-contained
+# bundle that ships Qt is produced via the AppImage path (WANT_APPIMAGE).
+if(NOT MINGW AND NOT APPLE)
+    set(CPACK_GENERATOR "TXZ")
+    set(CPACK_PACKAGE_FILE_NAME
+        "hydrogen-${DISPLAY_VERSION}-linux-${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "hydrogen")

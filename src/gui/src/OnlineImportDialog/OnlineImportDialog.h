@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ONLINE_IMPORT_DIALOG_H
-#define ONLINE_IMPORT_DIALOG_H
+#ifndef H2C_ONLINE_IMPORT_DIALOG_H
+#define H2C_ONLINE_IMPORT_DIALOG_H
 
 #include <core/Object.h>
 #include <core/OnlineImporter.h>
@@ -31,6 +31,7 @@
 #include <QSortFilterProxyModel>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -40,6 +41,7 @@ class QPushButton;
 class QTableView;
 class QToolButton;
 class QWidget;
+QT_END_NAMESPACE
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OnlineArtifactTableModel
@@ -242,4 +244,4 @@ private:
 	bool m_bDownloading;
 };
 
-#endif // ONLINE_IMPORT_DIALOG_H
+#endif // H2C_ONLINE_IMPORT_DIALOG_H

@@ -100,10 +100,10 @@ void InstrumentLayer::setPitchOffset( float fValue )
 	m_fPitchOffset = std::clamp( fValue, Instrument::fPitchOffsetMinimum, Instrument::fPitchOffsetMaximum );
 }
 
-void InstrumentLayer::loadSample( float fBpm )
+void InstrumentLayer::loadSample( float fBpm, Preferences* pPreferences )
 {
 	if ( m_pSample != nullptr ) {
-		m_pSample->load( fBpm );
+		m_pSample->load( fBpm, pPreferences );
 	}
 }
 
@@ -118,90 +118,116 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
+	Xml::Flag flags,
 	const License& drumkitLicense,
-	bool bSilent )
+	bool bSilent,
+	Hydrogen* pHydrogen )
 {
-	auto pHydrogen = Hydrogen::get_instance();
-	
+
 	const QString sFileName =
 		node.read_string( "filename", "", false, false, bSilent );
 
-	QFileInfo filenameInfo( sFileName );
 	QString sFilePath;
-	if ( filenameInfo.isAbsolute() ) {
-		// Samples with absolute filenames are those added using the
-		// InstrumentEditor.
-		sFilePath = sFileName;
+	if ( flags & Xml::Flag::Project ) {
+		// Sample data is stored in the .h2project bundle itself and loaded at a
+		// later stage.
+		sFilePath = "";
 	}
 	else {
-		// QFileInfo::isRelative() can not be used in here as samples of
-		// drumkits within the user or system drumkit folder are stored
-		// relatively as well (by saving just the filename).
-		if ( ( sFileName.contains( "\\" ) || sFileName.contains( "/" ) ) &&
-			 ! sSongPath.isEmpty() ) {
-			// Sample path can be stored relative to the .h2song file. This is
-			// mainly present to allow for more thorough unit test. It, however,
-			// has to be written manually. Hydrogen itself does not store paths
-			// relatively (except when under session management) to increase
-			// portability.
-			QFileInfo songPathInfo( sSongPath );
-			sFilePath = songPathInfo.absoluteDir().absoluteFilePath( sFileName );
+		QFileInfo filenameInfo( sFileName );
+		if ( filenameInfo.isAbsolute() ) {
+			// Samples with absolute filenames are those added using the
+			// InstrumentEditor.
+			sFilePath = sFileName;
 		}
-		else if ( ! sDrumkitPath.isEmpty() ){
-			// Plain filenames of samples associated with an installed drumkit.
-			QFileInfo drumkitPathInfo( sDrumkitPath );
-			if ( drumkitPathInfo.isDir() ) {
-				// Path to the overall drumkit folder. This likely was written
-				// using a pre 2.0 version of Hydrogen.
-				sFilePath = QDir( sDrumkitPath ).absoluteFilePath( sFileName );
-			}
-			else {
-				// Path to drumkit.xml was entered. This is the way to store
-				// drumkit paths since 2.0.
+		else {
+			// QFileInfo::isRelative() can not be used in here as samples of
+			// drumkits within the user or system drumkit folder are stored
+			// relatively as well (by saving just the filename).
+			if ( ( sFileName.contains( "\\" ) || sFileName.contains( "/" ) ) &&
+				 !sSongPath.isEmpty() ) {
+				// Sample path can be stored relative to the .h2song file. This
+				// is mainly present to allow for more thorough unit test. It,
+				// however, has to be written manually. Hydrogen itself does not
+				// store paths relatively (except when under session management)
+				// to increase portability.
+				QFileInfo songPathInfo( sSongPath );
 				sFilePath =
-					drumkitPathInfo.absoluteDir().absoluteFilePath( sFileName );
+					songPathInfo.absoluteDir().absoluteFilePath( sFileName );
+			}
+			else if ( !sDrumkitPath.isEmpty() ) {
+				// Plain filenames of samples associated with an installed
+				// drumkit.
+				QFileInfo drumkitPathInfo( sDrumkitPath );
+				if ( drumkitPathInfo.isDir() ) {
+					// Path to the overall drumkit folder. This likely was
+					// written using a pre 2.0 version of Hydrogen.
+					sFilePath =
+						QDir( sDrumkitPath ).absoluteFilePath( sFileName );
+				}
+				else {
+					// Path to drumkit.xml was entered. This is the way to store
+					// drumkit paths since 2.0.
+					sFilePath = drumkitPathInfo.absoluteDir().absoluteFilePath(
+						sFileName
+					);
+				}
 			}
 		}
-	}
 
-	// If the sample still could not be found, this could be e.g. due to an
-	// absolute path referencing a sample imported from a session kit - one,
-	// which was loaded by the user manually and does not reside in either user
-	// or system drumkit folder - or due to a bug like #2174. We give it another
-	// try by checking whether the /path/to/<drumkit>/<sample> could refer to
-	// the exact same <drumkit>/<sample> in one of our drumkit folders.
-	if ( ! Filesystem::fileExists( sFilePath, true ) &&
-		 ( sFileName.contains( "/" ) || sFileName.contains( "\\" ) ) ) {
-		// We need to ensure we work on a single set of separators without any
-		// duplication. This is especially important as songs created on Windows
-		// could be loaded on Linux/macOS and vice versa.
-		const QString sFileNameCleaned = QString( sFileName )
-			.replace( "\\", "/" ).replace( "//", "/" );
+		// If the sample still could not be found, this could be e.g. due to an
+		// absolute path referencing a sample imported from a session kit - one,
+		// which was loaded by the user manually and does not reside in either
+		// user or system drumkit folder - or due to a bug like #2174. We give
+		// it another try by checking whether the /path/to/<drumkit>/<sample>
+		// could refer to the exact same <drumkit>/<sample> in one of our
+		// drumkit folders.
+		if ( !Filesystem::fileExists( sFilePath, true ) &&
+			 ( sFileName.contains( "/" ) || sFileName.contains( "\\" ) ) ) {
+			// We need to ensure we work on a single set of separators without
+			// any duplication. This is especially important as songs created on
+			// Windows could be loaded on Linux/macOS and vice versa.
+			const QString sFileNameCleaned =
+				QString( sFileName ).replace( "\\", "/" ).replace( "//", "/" );
 
-		const auto pathSegments = sFileNameCleaned.split( "/" );
-		if ( pathSegments.size() > 2 ) {
-			const auto sDrumkitSampleSegment = QString( "%1/%2" )
-				.arg( pathSegments[ pathSegments.size() - 2 ] )
-				.arg( pathSegments[ pathSegments.size() - 1 ] );
+			const auto pathSegments = sFileNameCleaned.split( "/" );
+			if ( pathSegments.size() > 2 ) {
+				const auto sDrumkitSampleSegment =
+					QString( "%1/%2" )
+						.arg( pathSegments[pathSegments.size() - 2] )
+						.arg( pathSegments[pathSegments.size() - 1] );
 
-			const auto drumkitFolders = pHydrogen->getSoundLibraryDatabase()
-				->getDrumkitFolders();
-			for ( const auto& ssFolder : drumkitFolders ) {
-				const auto sNewPath = QString( "%1/%2" )
-					.arg( ssFolder ).arg( sDrumkitSampleSegment );
-				if ( Filesystem::fileExists( sNewPath, true ) ) {
-					WARNINGLOG( QString( "File [%1] does not exist. Loading similar file [%2] instead." )
-								.arg( sFileName ).arg( sNewPath ) );
-					sFilePath = sNewPath;
-					break;
+				const auto drumkitFolders =
+					pHydrogen->getSoundLibraryDatabase()->getDrumkitFolders();
+				for ( const auto& ssFolder : drumkitFolders ) {
+					const auto sNewPath = QString( "%1/%2" )
+											  .arg( ssFolder )
+											  .arg( sDrumkitSampleSegment );
+					if ( Filesystem::fileExists( sNewPath, true ) ) {
+						WARNINGLOG(
+							QString( "File [%1] does not exist. Loading "
+									 "similar file [%2] instead." )
+								.arg( sFileName )
+								.arg( sNewPath )
+						);
+						sFilePath = sNewPath;
+						break;
+					}
 				}
 			}
 		}
 	}
 
 	std::shared_ptr<Sample> pSample = nullptr;
-	if ( ! sFilePath.isEmpty() && Filesystem::fileExists( sFilePath, true ) ) {
+	if ( flags & Xml::Flag::Project ||
+		 ! sFilePath.isEmpty() && Filesystem::fileExists( sFilePath, true ) ) {
 		pSample = std::make_shared<Sample>( sFilePath, drumkitLicense );
+
+		if ( flags & Xml::Flag::Ipc ) {
+			pSample->setLicense( License( node.read_string(
+				"license", drumkitLicense.getLicenseString(), true, false, true
+			) ) );
+		}
 
 		const bool bIsModified =
 			node.read_bool( "ismodified", false, true, false, true );
@@ -223,11 +249,13 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 			rubberband.nCrispness = node.read_int( "rubberCsettings", 1, false, false, bSilent );
 			rubberband.fSemitonesToShift = node.read_float( "rubberPitch", 0.0, false, false, bSilent );
 
-			// Check whether the rubberband executable is present.
-			if ( ! Filesystem::fileExists( Preferences::get_instance()->
+			// Check whether the rubberband executable is present in case Rubberband support was not compiled into Hydrogen.
+#ifndef H2CORE_HAVE_RUBBERBAND
+			if ( ! Filesystem::fileExists( pHydrogen->getPreferences()->
 											m_sRubberBandCLIexecutable ) ) {
 				rubberband.bUse = false;
 			}
+#endif
 			pSample->setRubberband( rubberband );
 	
 			// FIXME, kill EnvelopePoint, create Envelope class
@@ -282,13 +310,23 @@ std::shared_ptr<InstrumentLayer> InstrumentLayer::loadFrom(
 		"isSoloed", pLayer->m_bIsSoloed, true, false, true );
 	pLayer->m_sFallbackSampleFileName = sFileName;
 
+	if ( flags & Xml::Flag::Ipc ) {
+		pLayer->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
+		if ( pSample != nullptr ) {
+			pLayer->setUuid(
+				node.read_uuid( "uuid-sample", false, false, false )
+			);
+		}
+	}
+
 	return pLayer;
 }
 
 void InstrumentLayer::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	const QString& sDrumkitPath
+	Xml::Flag flags,
+	const QString& sDrumkitPath,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
 ) const
 {
 	auto pSample = getSample();
@@ -297,7 +335,24 @@ void InstrumentLayer::saveTo(
 
 	QString sFileName;
 	if ( pSample != nullptr ) {
-		if ( bSongKit ) {
+		if ( ( flags & Xml::Flag::Project ) &&
+			 pProjectSampleEntries != nullptr ) {
+			// Within a `.h2project` bundle samples are referenced by their
+			// entry names. Neither drumkit nor cache paths must leak into the
+			// portable bundle (ADR 0025).
+			const auto it = pProjectSampleEntries->find(
+				pSample->getFilePath() );
+			if ( it != pProjectSampleEntries->end() ) {
+				sFileName = it->second;
+			}
+			else {
+				// The sample could not be bundled, e.g. because its file is
+				// unreadable. We still store its plain name so the layer
+				// survives the round-trip structurally.
+				sFileName = pSample->getFileName();
+			}
+		}
+		else if ( flags & Xml::Flag::SongKit ) {
 			if ( !sDrumkitPath.isEmpty() ) {
 				sFileName = Filesystem::prepareSamplePath(
 					pSample->getFilePath(), sDrumkitPath
@@ -308,7 +363,17 @@ void InstrumentLayer::saveTo(
 			}
 		}
 		else {
-			sFileName = pSample->getFileName();
+			if ( flags & Xml::Flag::Ipc ) {
+				// A stand-alone instrument crossing the editor↔engine
+				// split has no kit context the engine could resolve a
+				// bare filename against (ad-hoc preview instruments are
+				// not associated with any drumkit). loadFrom() accepts
+				// absolute filenames directly.
+				sFileName = pSample->getFilePath();
+			}
+			else {
+				sFileName = pSample->getFileName();
+			}
 		}
 	}
 	else {
@@ -357,6 +422,14 @@ void InstrumentLayer::saveTo(
 		panNode.write_int( "pan-position", pan.nFrame );
 		panNode.write_int( "pan-value", pan.nValue );
 	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		layer_node.write_uuid( "ipc-uuid", getUuid() );
+		layer_node.write_uuid( "uuid-sample", getUuid() );
+		layer_node.write_string(
+			"license", pSample->getLicense().getLicenseString()
+		);
+	}
 }
 
 QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const {
@@ -364,6 +437,8 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fGain ) )
 			.append( QString( "%1%2m_fPitchOffset: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPitchOffset ) )
 			.append( QString( "%1%2m_fStartVelocity: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fStartVelocity ) )
@@ -383,7 +458,8 @@ QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const 
 }
 	else {
 		sOutput = QString( "[InstrumentLayer]" )
-			.append( QString( " m_fGain: %1" ).arg( m_fGain ) )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
 			.append( QString( ", m_fPitchOffset: %1" ).arg( m_fPitchOffset ) )
 			.append( QString( ", m_fStartVelocity: %1" ).arg( m_fStartVelocity ) )
 			.append( QString( ", m_fEndVelocity: %1" ).arg( m_fEndVelocity ) )

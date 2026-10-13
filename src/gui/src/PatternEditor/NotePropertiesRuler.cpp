@@ -28,6 +28,8 @@
 
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
+
+#include <core/CoreActionController.h>
 #include "PianoRollEditor.h"
 #include "core/Basics/Note.h"
 
@@ -85,7 +87,7 @@ KeyOctaveLabel::~KeyOctaveLabel()
 
 void KeyOctaveLabel::updateColors()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	if ( m_type == Type::Key ) {
 		QColor backgroundColor;
@@ -109,7 +111,7 @@ void KeyOctaveLabel::updateColors()
 
 void KeyOctaveLabel::updateFont()
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 
 	int nMargin;
 	switch ( pPref->getFontTheme()->m_fontSize ) {
@@ -136,7 +138,7 @@ void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent )
 	auto p = QPainter( this );
 
 	if ( m_type == Type::Key ) {
-		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 		p.fillRect( QRect( 0, 0, width(), height() ), m_backgroundColor );
 
@@ -161,10 +163,9 @@ NotePropertiesRuler::NotePropertiesRuler(
 	m_instance = Editor::Instance::NotePropertiesRuler;
 	m_nGridHeight = NotePropertiesRuler::nKeyLineHeight;
 
-	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	m_property = property;
 
-	m_fGridWidth = ( Preferences::get_instance() )->getPatternEditorGridWidth();
+	m_fGridWidth = ( HydrogenApp::pPreferences() )->getPatternEditorGridWidth();
 	m_nEditorWidth = PatternEditor::nMargin +
 					 m_fGridWidth * 4 * 4 * H2Core::nTicksPerQuarter;
 
@@ -207,20 +208,14 @@ NotePropertiesRuler::NotePropertiesRuler(
 			) );
 		}
 
-		// Annotate with note class names
-		static QStringList noteNames = QStringList()
-									   << pCommonStrings->getNotePitchB()
-									   << pCommonStrings->getNotePitchASharp()
-									   << pCommonStrings->getNotePitchA()
-									   << pCommonStrings->getNotePitchGSharp()
-									   << pCommonStrings->getNotePitchG()
-									   << pCommonStrings->getNotePitchFSharp()
-									   << pCommonStrings->getNotePitchF()
-									   << pCommonStrings->getNotePitchE()
-									   << pCommonStrings->getNotePitchDSharp()
-									   << pCommonStrings->getNotePitchD()
-									   << pCommonStrings->getNotePitchCSharp()
-									   << pCommonStrings->getNotePitchC();
+		// Annotate with note class names — the rows run top-down from
+		// the octave's highest pitch, so the keys count DOWN from B
+		// (Note::Key counts up from C).
+		static QStringList noteNames;
+		for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
+			noteNames << CommonStrings::createPitchLabel(
+				static_cast<Note::Key>( KEYS_PER_OCTAVE - 1 - nnKey ) );
+		}
 
 		for ( int nnKey = 0; nnKey < KEYS_PER_OCTAVE; ++nnKey ) {
 			const int nY = NotePropertiesRuler::nOctaveHeight -
@@ -304,6 +299,32 @@ bool NotePropertiesRuler::applyProperty(
 	}
 
 	return false;
+}
+
+bool NotePropertiesRuler::commitNoteProperty(
+	std::shared_ptr<Note> pNote,
+	PatternEditor::Property property,
+	float fVelocity,
+	float fPan,
+	float fLeadLag,
+	float fProbability,
+	Note::Key newKey,
+	Note::Octave newOctave )
+{
+	if ( pNote == nullptr ) {
+		return false;
+	}
+
+	return HydrogenApp::pEngine()->getCoreActionController()->editNoteProperty(
+		static_cast<H2Core::NoteProperty>( property ),
+		m_pPatternEditorPanel->getPatternNumber(),
+		pNote->getPosition(),
+		static_cast<int>( pNote->getInstrumentId() ),
+		static_cast<int>( pNote->getInstrumentId() ),
+		pNote->getType(), pNote->getType(),
+		fVelocity, fPan, fLeadLag, fProbability, -1,
+		static_cast<int>( newKey ), static_cast<int>( pNote->getKey() ),
+		static_cast<int>( newOctave ), static_cast<int>( pNote->getOctave() ) );
 }
 
 float NotePropertiesRuler::eventToYValue( QMouseEvent* pEvent ) const
@@ -676,24 +697,38 @@ void NotePropertiesRuler::selectionMoveEndEvent( QInputEvent* ev )
 //! Move of selection is cancelled. Revert notes to preserved state.
 void NotePropertiesRuler::selectionMoveCancelEvent()
 {
+	// Revert each note to its preserved value through CAC (ADR 0027).
 	for ( auto it : m_oldNotes ) {
 		std::shared_ptr<Note> pNote = it.first, pOldNote = it.second;
+		if ( pNote == nullptr || pOldNote == nullptr ) {
+			continue;
+		}
 		switch ( m_property ) {
 			case PatternEditor::Property::Velocity:
-				pNote->setVelocity( pOldNote->getVelocity() );
+				commitNoteProperty(
+					pNote, m_property, pOldNote->getVelocity(), 0.0f, 0.0f, 0.0f,
+					pNote->getKey(), pNote->getOctave() );
 				break;
 			case PatternEditor::Property::Pan:
-				pNote->setPan( pOldNote->getPan() );
+				commitNoteProperty(
+					pNote, m_property, 0.0f, pOldNote->getPan(), 0.0f, 0.0f,
+					pNote->getKey(), pNote->getOctave() );
 				break;
 			case PatternEditor::Property::LeadLag:
-				pNote->setLeadLag( pOldNote->getLeadLag() );
+				commitNoteProperty(
+					pNote, m_property, 0.0f, 0.0f, pOldNote->getLeadLag(), 0.0f,
+					pNote->getKey(), pNote->getOctave() );
 				break;
 			case PatternEditor::Property::KeyOctave:
-				pNote->setKey( pOldNote->getKey() );
-				pNote->setOctave( pOldNote->getOctave() );
+				commitNoteProperty(
+					pNote, m_property, 0.0f, 0.0f, 0.0f, 0.0f,
+					pOldNote->getKey(), pOldNote->getOctave() );
 				break;
 			case PatternEditor::Property::Probability:
-				pNote->setProbability( pOldNote->getProbability() );
+				commitNoteProperty(
+					pNote, m_property, 0.0f, 0.0f, 0.0f,
+					pOldNote->getProbability(), pNote->getKey(),
+					pNote->getOctave() );
 				break;
 			case PatternEditor::Property::None:
 			default:
@@ -983,19 +1018,34 @@ void NotePropertiesRuler::mouseDrawUpdate( QMouseEvent* ev )
 	bool bValueChanged = false;
 
 	for ( const auto& ppNote : notesSinceLastAction ) {
+		if ( ppNote == nullptr ) {
+			continue;
+		}
 		// If a subset of notes is selected, we only act on them.
 		if ( !m_selection.isEmpty() && !m_selection.isSelected( ppNote ) ) {
 			continue;
 		}
 
-		if ( applyProperty( ppNote, m_property, fYValue ) ) {
+		// Compute the new native value(s) on a throwaway copy (reusing the
+		// exact applyProperty mapping, incl. the note-off guards and the
+		// key/octave Invalid convention), then commit through CAC (ADR 0027).
+		auto pCandidate = std::make_shared<Note>( ppNote );
+		if ( ! applyProperty( pCandidate, m_property, fYValue ) ) {
+			continue;
+		}
+
+		if ( commitNoteProperty(
+				 ppNote, m_property, pCandidate->getVelocity(),
+				 pCandidate->getPan(), pCandidate->getLeadLag(),
+				 pCandidate->getProbability(), pCandidate->getKey(),
+				 pCandidate->getOctave() ) ) {
 			bValueChanged = true;
 			triggerStatusMessage( notesSinceLastAction, m_property, true );
 		}
 	}
 
 	if ( bValueChanged ) {
-		Hydrogen::get_instance()->setPatternModified(
+		HydrogenApp::pEngine()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 		if ( m_property == PatternEditor::Property::Velocity ) {
@@ -1057,6 +1107,9 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 			continue;
 		}
 
+		// Each delta edit is committed through CAC (ADR 0027); commitNoteProperty
+		// applies only the component matching m_property and reports whether a
+		// value actually changed.
 		switch ( m_property ) {
 			case PatternEditor::Property::Velocity: {
 				if ( !ppNote->getNoteOff() ) {
@@ -1064,10 +1117,9 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 						VELOCITY_MIN, ( pOldNote->getVelocity() + fDelta ),
 						VELOCITY_MAX
 					);
-					if ( fVelocity != ppNote->getVelocity() ) {
-						ppNote->setVelocity( fVelocity );
-						bValueChanged = true;
-					}
+					bValueChanged |= commitNoteProperty(
+						ppNote, m_property, fVelocity, 0.0f, 0.0f, 0.0f,
+						ppNote->getKey(), ppNote->getOctave() );
 				}
 				break;
 			}
@@ -1076,11 +1128,12 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 					// value in [0,1] or slight out of boundaries
 					const float fVal =
 						pOldNote->getPanWithRangeFrom0To1() + fDelta;
-					if ( fVal != ppNote->getPanWithRangeFrom0To1() ) {
-						// Does check boundaries internally.
-						ppNote->setPanWithRangeFrom0To1( fVal );
-						bValueChanged = true;
-					}
+					// Translate into the native [-1;1] pan range (boundaries are
+					// checked internally by setPan).
+					const float fPan = PAN_MIN + ( PAN_MAX - PAN_MIN ) * fVal;
+					bValueChanged |= commitNoteProperty(
+						ppNote, m_property, 0.0f, fPan, 0.0f, 0.0f,
+						ppNote->getKey(), ppNote->getOctave() );
 				}
 				break;
 			}
@@ -1093,10 +1146,9 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 					LEAD_LAG_MIN, pOldNote->getLeadLag() - fDelta * 2,
 					LEAD_LAG_MAX
 				);
-				if ( fLeadLag != ppNote->getLeadLag() ) {
-					ppNote->setLeadLag( fLeadLag );
-					bValueChanged = true;
-				}
+				bValueChanged |= commitNoteProperty(
+					ppNote, m_property, 0.0f, 0.0f, fLeadLag, 0.0f,
+					ppNote->getKey(), ppNote->getOctave() );
 				break;
 			}
 			case PatternEditor::Property::Probability: {
@@ -1105,10 +1157,9 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 						PROBABILITY_MIN, pOldNote->getProbability() + fDelta,
 						PROBABILITY_MAX
 					);
-					if ( fProbability != ppNote->getProbability() ) {
-						ppNote->setProbability( fProbability );
-						bValueChanged = true;
-					}
+					bValueChanged |= commitNoteProperty(
+						ppNote, m_property, 0.0f, 0.0f, 0.0f, fProbability,
+						ppNote->getKey(), ppNote->getOctave() );
 				}
 				break;
 			}
@@ -1117,14 +1168,9 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 					static_cast<float>( pOldNote->toPitch() ) +
 					fDelta * ( bKey ? 1 : KEYS_PER_OCTAVE )
 				);
-				const auto key = pitch.toKey();
-				const auto octave = pitch.toOctave();
-				if ( key != ppNote->getKey() ||
-					 octave != ppNote->getOctave() ) {
-					ppNote->setKey( key );
-					ppNote->setOctave( octave );
-					bValueChanged = true;
-				}
+				bValueChanged |= commitNoteProperty(
+					ppNote, m_property, 0.0f, 0.0f, 0.0f, 0.0f,
+					pitch.toKey(), pitch.toOctave() );
 				break;
 			}
 			case PatternEditor::Property::None:
@@ -1134,7 +1180,7 @@ bool NotePropertiesRuler::adjustNotePropertyDelta(
 	}
 
 	if ( bValueChanged ) {
-		Hydrogen::get_instance()->setPatternModified(
+		HydrogenApp::pEngine()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 	}
@@ -1214,7 +1260,7 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta, bool bKey )
 			updateEditor( Editor::Update::Content );
 		}
 
-		Hydrogen::get_instance()->setPatternModified(
+		HydrogenApp::pEngine()->setPatternModified(
 			true, m_pPatternEditorPanel->getPatternNumber()
 		);
 	}
@@ -1222,7 +1268,7 @@ void NotePropertiesRuler::applyCursorDelta( float fDelta, bool bKey )
 
 void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	if ( pPattern == nullptr ) {
 		// No pattern selected.
@@ -1256,8 +1302,12 @@ void NotePropertiesRuler::addUndoAction( const QString& sUndoContext )
 				// For all other note property edits this is not critical as the
 				// note will be found and one the edit will be skip since the
 				// note already holds the proper value.
-				pNewNote->setKey( pOldNote->getKey() );
-				pNewNote->setOctave( pOldNote->getOctave() );
+				//
+				// Routed through CAC (ADR 0027); editNoteProperty fires no
+				// event, so this stays redraw-free as required.
+				commitNoteProperty(
+					pNewNote, PatternEditor::Property::KeyOctave, 0.0f, 0.0f,
+					0.0f, 0.0f, pOldNote->getKey(), pOldNote->getOctave() );
 			}
 
 			pHydrogenApp->pushUndoCommand(
@@ -1349,7 +1399,7 @@ void NotePropertiesRuler::drawDefaultBackground(
 	int nIncrement
 )
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor lineColor( pColorTheme->m_patternEditor_line5Color );
@@ -1362,7 +1412,7 @@ void NotePropertiesRuler::drawDefaultBackground(
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}
@@ -1708,7 +1758,7 @@ void NotePropertiesRuler::sortAndDrawNotes(
 
 void NotePropertiesRuler::createBackground()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
@@ -1725,7 +1775,7 @@ void NotePropertiesRuler::createBackground()
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
 			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
 	}

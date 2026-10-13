@@ -26,7 +26,7 @@
 
 #include "SoundLibraryPanel.h"
 #include "SoundLibraryTree.h"
-#include "../../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../../HydrogenApp.h"
 
 using namespace H2Core;

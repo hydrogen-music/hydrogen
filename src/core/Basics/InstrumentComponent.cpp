@@ -147,8 +147,10 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	const XMLNode& node,
 	const QString& sDrumkitPath,
 	const QString& sSongPath,
+	Xml::Flag flags,
 	const License& drumkitLicense,
-	bool bSilent )
+	bool bSilent,
+	Hydrogen* pHydrogen )
 {
 	auto pInstrumentComponent = std::make_shared<InstrumentComponent>();
 	pInstrumentComponent->m_sName = node.read_string(
@@ -178,11 +180,17 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 	XMLNode layer_node = node.firstChildElement( "layer" );
 	while ( ! layer_node.isNull() ) {
 		auto pLayer = InstrumentLayer::loadFrom(
-			layer_node, sDrumkitPath, sSongPath, drumkitLicense, bSilent );
+			layer_node, sDrumkitPath, sSongPath, flags, drumkitLicense,
+			bSilent, pHydrogen
+		);
 		if ( pLayer != nullptr ) {
 			pInstrumentComponent->addLayer( pLayer, -1 );
 		}
 		layer_node = layer_node.nextSiblingElement( "layer" );
+	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		pInstrumentComponent->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
 	}
 	
 	return pInstrumentComponent;
@@ -190,10 +198,10 @@ std::shared_ptr<InstrumentComponent> InstrumentComponent::loadFrom(
 
 void InstrumentComponent::saveTo(
 	XMLNode& node,
-	bool bSongKit,
-	bool bKeepMissingSamples,
-    const QString& sDrumkitPath,
-	bool bSilent
+	Xml::Flag flags,
+	const QString& sDrumkitPath,
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
 )
 {
 	XMLNode component_node;
@@ -219,8 +227,12 @@ void InstrumentComponent::saveTo(
 	for ( int nn = 0; nn < m_layers.size(); nn++ ) {
 		auto pLayer = m_layers[nn];
 		if ( pLayer != nullptr ) {
-			if ( pLayer->getSample() != nullptr || bKeepMissingSamples ) {
-				pLayer->saveTo( component_node, bSongKit, sDrumkitPath );
+			if ( pLayer->getSample() != nullptr ||
+				 ( flags & Xml::Flag::KeepMissingSamples ) ) {
+				pLayer->saveTo(
+					component_node, flags, sDrumkitPath,
+					pProjectSampleEntries
+				);
 			}
 			else {
 				if ( !bSilent ) {
@@ -236,7 +248,8 @@ void InstrumentComponent::saveTo(
 		}
 	}
 
-	if ( !bKeepMissingSamples && indicesToRemove.size() > 0 ) {
+	if ( ! ( flags & Xml::Flag::KeepMissingSamples ) &&
+		 indicesToRemove.size() > 0 ) {
 		std::vector<std::shared_ptr<InstrumentLayer>> newLayers;
 		for ( int nn = 0; nn < m_layers.size(); ++nn ) {
 			if ( indicesToRemove.find( nn ) == indicesToRemove.end() ) {
@@ -245,6 +258,10 @@ void InstrumentComponent::saveTo(
 		}
 
 		m_layers = newLayers;
+	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		component_node.write_uuid( "ipc-uuid", getUuid() );
 	}
 }
 
@@ -294,6 +311,8 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_sName ) )
 			.append( QString( "%1%2m_fGain: %3\n" ).arg( sPrefix ).arg( s )
@@ -312,8 +331,9 @@ QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) co
 			}
 		}
 	} else {
-		sOutput = QString( "[InstrumentComponent] " )
-			.append( QString( "m_sName: %1" ).arg( m_sName ) )
+		sOutput = QString( "[InstrumentComponent]" )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_sName:i%1" ).arg( m_sName ) )
 			.append( QString( ", m_fGain: %1" ).arg( m_fGain ) )
 			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
 			.append( QString( ", m_bIsSoloed: %1" ).arg( m_bIsSoloed ) )
@@ -361,8 +381,13 @@ const std::vector<std::shared_ptr<InstrumentLayer>> InstrumentComponent::getLaye
 }
 
 int InstrumentComponent::index( std::shared_ptr<InstrumentLayer> pLayer ) const {
+	return pLayer == nullptr ? -1 : index( pLayer->getUuid() );
+}
+
+int InstrumentComponent::index( const Uuid& uuid ) const {
 	for( int ii = 0; ii < m_layers.size(); ii++ ) {
-		if ( m_layers.at( ii ) == pLayer ) {
+		if ( m_layers.at( ii ) != nullptr &&
+			 m_layers.at( ii )->getUuid() == uuid ) {
 			return ii;
 		}
 	}

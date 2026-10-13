@@ -3,7 +3,6 @@
  <version>1.2.0</version>
  <bpm>100</bpm>
  <volume>0.5</volume>
- <metronomeVolume>0.5</metronomeVolume>
  <name>Jazzy</name>
  <author>Emiliano Grilli</author>
  <notes>Jazzy...</notes>

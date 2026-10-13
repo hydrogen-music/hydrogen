@@ -21,7 +21,6 @@
  */
 #include <core/config.h>
 
-#include <pthread.h>
 #include <cassert>
 #include <cstdio>
 #include <deque>
@@ -50,10 +49,13 @@
 #include <core/Basics/Sample.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
-#include <core/FX/Effects.h>
-#include <core/FX/LadspaFX.h>
 #include <core/H2Exception.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Logger.h>
+
+#include <atomic>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <core/Helpers/TimeHelper.h>
 #include <core/IO/AlsaAudioDriver.h>
 #include <core/IO/AlsaMidiDriver.h>
@@ -61,14 +63,14 @@
 #include <core/IO/CoreAudioDriver.h>
 #include <core/IO/CoreMidiDriver.h>
 #include <core/IO/DiskWriterDriver.h>
-#include <core/IO/FakeAudioDriver.h>
 #include <core/IO/JackDriver.h>
 #include <core/IO/MidiBaseDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 #include <core/IO/OssDriver.h>
 #include <core/IO/PortAudioDriver.h>
 #include <core/IO/PortMidiDriver.h>
 #include <core/IO/PulseAudioDriver.h>
+#include <core/IO/SoftwareDriver.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
@@ -89,101 +91,258 @@ namespace H2Core
 //
 //----------------------------------------------------------------------------
 
-Hydrogen* Hydrogen::__instance = nullptr;
+// Source for the per-instance ids exposed via Hydrogen::getInstanceId().
+// Deliberately separate from the instance counter used for naming plugin
+// log files (which only counts plugin-hosted instances).
+static std::atomic<int> sInstanceIdCounter { 0 };
 
-Hydrogen::Hydrogen() : m_fBeatCounterBeatLength( 1 )
-					 , m_nBeatCounterTotalBeats( 4 )
-					 , m_nBeatCounterEventCount( 1 )
-					 , m_nBeatCounterBeatCount( 1 )
-					 , m_lastBeatCounterTimePoint( TimePoint() )
-					 , m_lastTapTempoTimePoint( TimePoint() )
-					 , m_fTapTempoAverageBpm( MIN_BPM )
-					 , m_nTapTempoEventsAveraged( 0 )
-					 , m_nSelectedInstrumentNumber( 0 )
-					 , m_nSelectedPatternNumber( 0 )
-					 , m_bExportSessionIsActive( false )
-					 , m_GUIState( GUIState::startup )
-					 , m_lastMidiEvent( MidiEvent::Type::Null )
-					 , m_lastMidiEventParameter( Midi::ParameterInvalid )
-					 , m_oldEngineMode( Song::Mode::Song )
-					 , m_bOldLoopEnabled( false )
-					 , m_nLastRecordedMIDINoteTick( 0 )
-					 , m_bRecordEnabled( false )
-					 , m_bSessionIsExported( false )
-					 , m_hihatOpenness( Midi::ParameterMaximum )
+Hydrogen::Hydrogen(
+	std::shared_ptr<Preferences> pPref,
+	ProcessMode processMode,
+	int nOscPort
+)
+	: m_fBeatCounterBeatLength( 1 ),
+	  m_nBeatCounterTotalBeats( 4 ),
+	  m_nBeatCounterEventCount( 1 ),
+	  m_nBeatCounterBeatCount( 1 ),
+	  m_lastBeatCounterTimePoint( TimePoint() ),
+	  m_lastTapTempoTimePoint( TimePoint() ),
+	  m_fTapTempoAverageBpm( MIN_BPM ),
+	  m_nTapTempoEventsAveraged( 0 ),
+	  m_nSelectedInstrumentNumber( 0 ),
+	  m_nSelectedPatternNumber( 0 ),
+	  m_bExportSessionIsActive( false ),
+	  m_ProcessMode( processMode ),
+	  m_bIsFullyOperational( false ),
+	  m_lastMidiEvent( MidiEvent::Type::Null ),
+	  m_lastMidiEventParameter( Midi::ParameterInvalid ),
+	  m_oldEngineMode( Song::Mode::Song ),
+	  m_bOldLoopEnabled( false ),
+	  m_bRecordEnabled( false ),
+	  m_hihatOpenness( Midi::ParameterMaximum ),
+	  m_pPreferences( pPref ),
+	  m_interpolateModeOverride( Interpolation::InterpolateMode::Linear ),
+	  m_bUseInterpolateModeOverride( false ),
+	  m_pEventQueue( nullptr ),
+	  m_bCachedUnderSessionManagement( false ),
+	  m_bCachedUnderPluginHost( false ),
+	  m_bInstanceLoggerSpawned( false )
 {
-	if ( __instance ) {
-		ERRORLOG( "Hydrogen audio engine is already running" );
-		throw H2Exception( "Hydrogen audio engine is already running" );
+	// This instance owns its Preferences and EventQueue (ADR 0015); no
+	// process-wide singleton is involved.
+	m_nInstanceId = sInstanceIdCounter++;
+	m_pEventQueue = new EventQueue( this );
+
+	// Per-instance Logger (ADR 0015, T1.6): its own queue/worker/log file, with
+	// a path made unique per process+instance (pid + counter). Mirrors the
+	// process-default logger's stdout/colour settings so console verbosity is
+	// unchanged; the default logger remains the unscoped/static fallback. The
+	// instance entry points (e.g. the audio process callback) wrap work in a
+	// Logger::Scope( getLogger() ) so logging routes here. The file is opened
+	// append-only: its pid-based name can recur after pid reuse, and
+	// truncating would destroy the previous session's log.
+	static std::atomic<int> nInstanceCounter { 0 };
+	const QFileInfo defaultLogInfo( Filesystem::logFilePath() );
+	if ( pPref->m_audioDriver == Preferences::AudioDriver::Plugin ) {
+		// Only in case Hydrogen was instantiated by a plugin host, we use a
+		// custom log file. It is a per-run transient artifact, so it lives
+		// in the tmp dir - named after the process default's log file so
+		// the two correlate - instead of next to it: an explicit log file
+		// location (e.g. the suite's `-o <plain name>` landing in the CWD)
+		// designates just that one file, not a dumping ground for every
+		// instance's log. The spawning announcement below carries the full
+		// path, so the shared log still doubles as the index.
+		const QString sInstanceLogPath =
+			Filesystem::tmpDir() + "/" +
+			defaultLogInfo.completeBaseName() +
+			QString( "_%1_%2." )
+				.arg( QCoreApplication::applicationPid() )
+				.arg( nInstanceCounter++ ) +
+			defaultLogInfo.suffix();
+		// No Scope is active during construction, so currentLogger() resolves
+		// to the process-default logger — read its settings to mirror them
+		// (console verbosity, timestamps).
+		const auto pDefaultLogger = Logger::currentLogger();
+		Logger::Options instanceOptions = Logger::Option::Append;
+		if ( pDefaultLogger != nullptr && pDefaultLogger->getUseStdout() ) {
+			instanceOptions |= Logger::Option::UseStdout;
+		}
+		if ( pDefaultLogger == nullptr || pDefaultLogger->getLogColors() ) {
+			instanceOptions |= Logger::Option::Colors;
+		}
+		if ( pDefaultLogger == nullptr || pDefaultLogger->getLogTimestamps() ) {
+			instanceOptions |= Logger::Option::Timestamps;
+		}
+		m_pLogger = Logger::createInstanceLogger( sInstanceLogPath,
+												 instanceOptions );
+		INFOLOG( QString( "Spawning instance logger backed by [%1]" )
+					 .arg( sInstanceLogPath ) );
+		m_bInstanceLoggerSpawned = true;
+	}
+	else {
+		m_pLogger = Logger::currentLogger();
 	}
 
-	auto pPref = Preferences::get_instance();
+	// From here on, this instance's work (SoundLibraryDatabase scan, audio
+	// and MIDI driver startup, ...) routes to its own logger (ADR 0015,
+	// T1.6). The "Spawning" announcement above deliberately stays on the
+	// process default so the shared log lists the per-instance files.
+	Logger::Scope loggerScope( m_pLogger );
+
+#ifdef H2CORE_HAVE_OSC
+	// OSC server + NSM client are owned per-instance (ADR 0015). The
+	// OscServer only binds a port when OSC is enabled in this instance's
+	// Preferences, so multiple instances coexist (disabled ones never touch
+	// the network). The editor process constructs neither: the headless
+	// engine owns all control surfaces (ADR 0016/0026), and an inert local
+	// client would silently corrupt session-management logic (e.g. an empty
+	// session folder matching every song path).
+	if ( m_ProcessMode != ProcessMode::Editor ) {
+		m_pNsmClient = new NsmClient( this );
+		m_pOscServer = new OscServer( this, nOscPort );
+	}
+#endif
+
 	m_nBeatCounterDriftCompensation = pPref->m_nBeatCounterDriftCompensation;
 	m_nBeatCounterStartOffset = pPref->m_nBeatCounterStartOffset;
 	m_beatCounterDiffs.resize( 16 );
 
-	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>();
-	m_pSong = Song::getEmptySong( m_pSoundLibraryDatabase );
+	m_pSoundLibraryDatabase = std::make_shared<SoundLibraryDatabase>( this );
+	m_pSong = Song::getEmptySong( this );
 
-	m_pAudioEngine = new AudioEngine();
-	m_pMidiActionManager = std::make_shared<MidiActionManager>();
+	m_pAudioEngine = new AudioEngine( this );
+	m_pMidiActionManager = std::make_shared<MidiActionManager>( this );
+	m_pCoreActionController = std::make_shared<CoreActionController>( this );
 	m_pPlaylist = std::make_shared<Playlist>();
 	m_pTimeHelper = std::make_shared<TimeHelper>();
-
-	// Prevent double creation caused by calls from MIDI thread
-	__instance = this;
 
 	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
 	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 
-	if ( pPref->getOscServerEnabled() ) {
+	// The OSC server is disabled when running as a plugin: the host owns control
+	// surfaces and network endpoints (ADR 0026).
+	if ( pPref->getOscServerEnabled() && ! isUnderPluginHost() ) {
 		toggleOscServer( true );
 	}
+
+	// The initial sound library scan runs in the background in all
+	// process modes: its disk I/O must not block the startup. It is
+	// started as the last statement — everything the scan uses (the
+	// EventQueue, Preferences, this instance's back-pointer chain) is
+	// alive by now, and nothing below depends on a scanned database
+	// (the default song loads its drumkit directly from disk).
+	m_pSoundLibraryDatabase->startInitialScan();
 }
 
 Hydrogen::~Hydrogen()
 {
-	INFOLOG( "[~Hydrogen]" );
+	// All teardown work routes to this instance's logger (ADR 0015, T1.6).
+	// The scope ends before the logger itself is deleted below: nothing
+	// after it may resolve through the ambient context anymore (e.g. the
+	// release-build log-file removal logs through the process default).
+	{
+		Logger::Scope loggerScope( m_pLogger );
+
+		INFOLOG( "[~Hydrogen]" );
+
+		// We reuse this member to indicate shutdown as well.
+		m_bIsFullyOperational = false;
+
+		// The background sound library scan must be interrupted and
+		// joined before anything it uses (the EventQueue, Preferences,
+		// the logger scope) is torn down.
+		m_pSoundLibraryDatabase->shutdown();
+
+		// A still-armed export plan owns a thread and parked driver state
+		// — cancel and restore before anything else tears down.
+		stopExportSession();
 
 #ifdef H2CORE_HAVE_OSC
-	NsmClient* pNsmClient = NsmClient::get_instance();
-	if( pNsmClient ) {
-		pNsmClient->shutdown();
-		delete pNsmClient;
-	}
-	OscServer* pOscServer = OscServer::get_instance();
-	if( pOscServer ) {
-		delete pOscServer;
-	}
+		// This instance owns its OSC server and NSM client (ADR 0015).
+		if ( m_pNsmClient != nullptr ) {
+			m_pNsmClient->shutdown();
+			delete m_pNsmClient;
+			m_pNsmClient = nullptr;
+		}
+		if ( m_pOscServer != nullptr ) {
+			delete m_pOscServer;
+			m_pOscServer = nullptr;
+		}
 #endif
 
-	m_pAudioEngine->lock( RIGHT_HERE );
-	m_pAudioEngine->prepare( Event::Trigger::Suppress );
-	m_pAudioEngine->unlock();
+		m_pAudioEngine->lock( RIGHT_HERE );
+		m_pAudioEngine->prepare( Event::Trigger::Suppress );
+		m_pAudioEngine->unlock();
 
-	killInstruments();
+		killInstruments();
 
-	delete m_pAudioEngine;
+		delete m_pAudioEngine;
 
-	__instance = nullptr;
+		// This instance owns its EventQueue; tear it down last (after the
+		// engine, which may still emit events during teardown).
+		delete m_pEventQueue;
+		m_pEventQueue = nullptr;
+
+		// The extraction folders of `.h2project` bundles loaded by this
+		// instance are only used by it and have to go away with it (ADR
+		// 0025). The song is released first so that nothing references the
+		// folders anymore.
+		m_pSong.reset();
+		for ( const auto& ssDir : m_extractedProjectDirs ) {
+			Filesystem::rm( ssDir, true, true );
+		}
+		m_extractedProjectDirs.clear();
+
+		// The remaining shared_ptr members are released inside the scope —
+		// like m_pSong above — so their destructors run (and log) before
+		// the instance logger dies instead of after the destructor body.
+		m_pPlaylist.reset();
+		m_pSoundLibraryDatabase.reset();
+		m_pCoreActionController.reset();
+		m_pMidiActionManager.reset();
+		m_pTimeHelper.reset();
+		m_pPreferences.reset();
+	}
+
+	// In case we created a logger for this very instance, we also have to tear
+	// down its custom Logger instance. In release builds we also remove the
+	// custom log file - since the process id is used in the file name, we
+	// would clutter up disk space otherwise. Debug builds keep it: a plugin
+	// host neither passes our CLI options nor reliably shows our stdout, so
+	// the per-instance files are the only way to inspect a plugin guest's
+	// logs after the fact.
+	if ( m_bInstanceLoggerSpawned ) {
+		const auto sInstanceLogFile = m_pLogger->getLogFile();
+		delete m_pLogger;
+#ifndef H2CORE_HAVE_DEBUG
+		Filesystem::rm( sInstanceLogFile );
+#endif
+	}
 }
 
-void Hydrogen::create_instance( int nOscPort )
-{
-	// Create all the other instances that we need
-	// ....and in the right order
-	Logger::create_instance();
-	Preferences::create_instance();
-	EventQueue::create_instance();
-
-#ifdef H2CORE_HAVE_OSC
-	NsmClient::create_instance();
-	OscServer::create_instance( nOscPort );
-#endif
-
-	if ( __instance == nullptr ) {
-		__instance = new Hydrogen;
+void Hydrogen::registerExtractedProjectDir( const QString& sDir ) {
+	if ( sDir.isEmpty() ) {
+		ERRORLOG( "Empty extraction folder" );
+		return;
 	}
+
+	if ( ! m_extractedProjectDirs.contains( sDir ) ) {
+		m_extractedProjectDirs.append( sDir );
+	}
+}
+
+Hydrogen* Hydrogen::create_instance(
+	int nOscPort,
+	std::shared_ptr<Preferences> pPreferences,
+	ProcessMode processMode
+)
+{
+	// Standalone factory (ADR 0015): construct a Hydrogen owning the provided
+	// Preferences. The caller owns the returned instance and is responsible for
+	// deleting it. No process-wide singleton is registered.
+	Logger::create_instance(
+		QString(), Logger::Option::UseStdout | Logger::Option::Colors );
+	return new Hydrogen( pPreferences, processMode, nOscPort );
 }
 
 /// Start the internal sequencer
@@ -195,8 +354,18 @@ void Hydrogen::sequencerPlay()
 /// Stop the internal sequencer
 void Hydrogen::sequencerStop()
 {
+	// A user-initiated stop must win over an export plan still
+	// running: every remaining render would call play() again and
+	// roll the transport over this stop. Cancel the plan — the
+	// session teardown parks the transport itself. (The park in
+	// startExportSession() runs before the session flag is set, so
+	// this cannot recurse.)
+	if ( m_bExportSessionIsActive ) {
+		stopExportSession();
+	}
+
 	m_pAudioEngine->stop();
-	CoreActionController::activateRecordMode( false );
+	m_pCoreActionController->activateRecordMode( false );
 
 	// Delete redundant instruments still alive after switching the
 	// drumkit to a smaller one.
@@ -219,16 +388,17 @@ void Hydrogen::loadPlaybackTrack( const QString& sFileName )
 		return;
 	}
 
-	const auto pInstrument = Instrument::from( pSample );
+	const auto pInstrument = Instrument::from( pSample, this );
 	if ( pInstrument != nullptr ) {
 		pInstrument->setName( "PlaybackTrack" );
 		pInstrument->setId( Instrument::PlaybackTrackId );
-		pInstrument->loadSamples( m_pAudioEngine->getPlayhead()->getBpm() );
+		pInstrument->loadSamples( m_pAudioEngine->getPlayhead()->getBpm(),
+								  getPreferences().get() );
 	}
 
 	m_pSong->setPlaybackTrackInstrument( pInstrument );
 
-	EventQueue::get_instance()->pushEvent(
+	m_pEventQueue->pushEvent(
 		Event::Type::PlaybackTrackChanged, 0
 	);
 }
@@ -240,20 +410,33 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 	}
 
 	std::shared_ptr<Song> pCurrentSong = getSong();
-	if ( pSong == pCurrentSong ) {
-		return;
-	}
 
 	m_pAudioEngine->lock( RIGHT_HERE );
 
-	// Move to the beginning.
-	setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
+	// Move to the beginning — but only when the document actually
+	// changes. Identity is the song's uuid, not its path: a re-install
+	// of the same document (e.g. the editor mirror applying a pulled
+	// copy in the IPC split, whose XML round-trip preserves the uuid)
+	// must keep the user's pattern context — including after a save-as,
+	// which only setPath()s the same object (standalone save-as never
+	// re-installs the song at all). Uuids are instance-minted, so a
+	// fresh load or File > New over the sentinel path still resets.
+	// Mirrors the identity check applied to the drumkit samples below
+	// (ADR 0026 point 16).
+	if ( pSong == nullptr || pCurrentSong == nullptr ||
+		 pCurrentSong->getUuid() != pSong->getUuid() ) {
+		setSelectedPatternNumber( 0, false, Event::Trigger::Suppress );
+	}
 
 	if ( pCurrentSong != nullptr ) {
 		if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-			if ( pCurrentSong->getPath().contains(
-					 NsmClient::get_instance()->getSessionFolderPath() ) ) {
+			// Only a live NsmClient enforces the NSM session policy; the
+			// editor mirror has none and must not pin paths (an absent
+			// session folder would match every song). The headless engine
+			// re-applies the policy when the change syncs.
+			if ( m_pNsmClient != nullptr && pCurrentSong->getPath().contains(
+					 m_pNsmClient->getSessionFolderPath() ) ) {
 				// When under session management Hydrogen is only allowed to
 				// replace the content of the session song but not to write to a
 				// different location.
@@ -266,19 +449,21 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 		m_pAudioEngine->prepare( Event::Trigger::Suppress );
 
 		if ( pCurrentSong->getDrumkit() != nullptr ) {
-			pCurrentSong->getDrumkit()->unloadSamples();
+			if ( ! ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+					 pCurrentSong->getDrumkit()->getUuid() ==
+					 pSong->getDrumkit()->getUuid() ) ) {
+				// Only unload samples in case we do load a new drumkit.
+				pCurrentSong->getDrumkit()->unloadSamples();
+			}
 		}
 	}
 
 	renamePerTrackJackAudioPorts( pSong, m_pSong != nullptr ? m_pSong->getDrumkit() : nullptr );
 
-	// In order to allow functions like audioEngine_setupLadspaFX() to
-	// load the settings of the new song, like whether the LADSPA FX
-	// are activated, m_pSong has to be set prior to the call of
-	// AudioEngine::setSong().
 	m_pSong = pSong;
-	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
-		pSong->getDrumkit()->loadSamples();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+		 !pSong->getDrumkit()->areSamplesLoaded() ) {
+		pSong->getDrumkit()->loadSamples( 120, getPreferences().get() );
 	}
 
 	// Ensure the selected instrument is within the range of new
@@ -290,6 +475,18 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 			std::max( m_pSong->getDrumkit()->getInstruments()->size() - 1, 0 );
 	}
 
+	// A preserved pattern selection must stay within the new pattern
+	// list — the same document may have fewer patterns than before
+	// (e.g. engine-side deletions before an editor re-pull). Mirrors the
+	// instrument clamp above; -1 ("no selection") passes through. An
+	// empty list degrades to the reset-to-0 baseline (unreachable via
+	// deletePattern, which keeps at least one pattern).
+	if ( pSong != nullptr &&
+		 m_nSelectedPatternNumber >= pSong->getPatternList()->size() ) {
+		m_nSelectedPatternNumber =
+			std::max( pSong->getPatternList()->size() - 1, 0 );
+	}
+
 	// Update the audio engine to work with the new song.
 	m_pAudioEngine->setSong( pSong );
 
@@ -297,11 +494,13 @@ void Hydrogen::setSong( std::shared_ptr<Song> pSong )
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
-	CoreActionController::initExternalControlInterfaces();
+	m_pCoreActionController->initExternalControlInterfaces();
 }
 
 void Hydrogen::midiNoteOn( std::shared_ptr<Note> pNote )
 {
+	ASSERT_NO_EDITOR_MODE( this );
+
 	m_pAudioEngine->noteOn( pNote );
 }
 
@@ -312,9 +511,11 @@ bool Hydrogen::addRealtimeNote(
 	Midi::Note note
 )
 {
+	ASSERT_NO_EDITOR_MODE( this );
+
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	auto pSampler = pAudioEngine->getSampler();
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = m_pPreferences;
 	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
@@ -430,84 +631,108 @@ bool Hydrogen::addRealtimeNote(
 				 .arg( nCurrentPatternNumber ).arg( pCurrentPattern->getName() )
 				 .arg( nTickInPattern ).arg( pCurrentPattern->getLength() ) );
 
+		// Both note-on and note-off are queued for the editor to integrate
+		// (HydrogenApp::onEventQueueTimer): the note-on as an undoable add,
+		// the note-off as an undoable length edit. The engine never mutates
+		// the pattern here — the CAC-owned write path is the single writer
+		// (ADR 0027) — and this code runs on the audio thread.
+		EventQueue::AddMidiNoteVector noteAction;
+		noteAction.id = instrumentId;
+		noteAction.nPattern = nCurrentPatternNumber;
+		noteAction.fVelocity = fVelocity;
+		noteAction.fPan = fPan;
+		noteAction.bNoteOff = bNoteOff;
+
+		if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
+			noteAction.octave = Note::octaveFrom( note );
+			noteAction.key = Note::keyFrom( note );
+		}
+		else {
+			noteAction.octave = Note::OctaveDefault;
+			noteAction.key = Note::KeyDefault;
+		}
+		const auto noteOnKey = std::make_tuple(
+			instrumentId, noteAction.key, noteAction.octave );
+
+		bool bQueueNoteAction = true;
 		if ( bNoteOff ) {
-            // Handle the Note-Off event corresponding to the previous Note-On.
-            // This is used to record notes of custom lengths.
-			const int nPatternSize = pCurrentPattern->getLength();
-			const int nCurrentTick = static_cast<int>(
-				pAudioEngine->getPlayhead()->getPatternTickPosition()
-			);
-
-			int nNoteLength;
-			if ( nCurrentTick < m_nLastRecordedMIDINoteTick ) {
-				// BUG: We passed the boundary between to patterns or
-				// transported got looped. As we do not support the notion of
-				// custom note lengths reaching from one pattern into the next
-				// one, we trim it at the end of the pattern instead.
-				nNoteLength = nPatternSize - m_nLastRecordedMIDINoteTick;
-
-				// We also omit pitch-related rescaling as we do not know the
-                // true length of the note (transport could have been wrapped
-                // multiple times).
+			// Handle the Note-Off event corresponding to the previous
+			// Note-On of the same instrument and pitch. This is used to
+			// record notes of custom lengths. The pending note-on is
+			// tracked per (instrument, pitch): a single "last recorded"
+			// tick would be moved by any intervening note-on, and the
+			// resize would target — or miss — the wrong note.
+			const auto itPending = m_pendingRecordedNoteOns.find( noteOnKey );
+			if ( itPending == m_pendingRecordedNoteOns.end() ) {
+				// No recorded note-on pending for this pitch — it was not
+				// recorded (yet), or already released. Nothing to resize;
+				// the playback section below still releases the sounding
+				// note.
+				bQueueNoteAction = false;
 			}
 			else {
-				nNoteLength =
-					static_cast<int>( pAudioEngine->getPlayhead()
-										  ->getPatternTickPosition() ) -
-					m_nLastRecordedMIDINoteTick;
-			}
-
-			bool bPatternModified = false;
-			for ( unsigned nnNote = 0; nnNote < nPatternSize; nnNote++ ) {
-				const Pattern::notes_t* notes = pCurrentPattern->getNotes();
-				FOREACH_NOTE_CST_IT_BOUND_LENGTH(
-					notes, it, nnNote, pCurrentPattern
-				)
-				{
-					auto pNote = it->second;
-					if ( pNote != nullptr &&
-						 pNote->getPosition() == m_nLastRecordedMIDINoteTick &&
-						 pInstrument == pNote->getInstrument() ) {
-						int nNewNoteLength = nNoteLength;
-						if ( m_nLastRecordedMIDINoteTick + nNoteLength >
-							 nPatternSize ) {
-							nNewNoteLength =
-								nPatternSize - m_nLastRecordedMIDINoteTick;
-						}
-						pNote->setLength( nNewNoteLength );
-						bPatternModified = true;
-					}
+				const int nNoteOnTick = itPending->second.first;
+				const int nNoteOnPattern = itPending->second.second;
+				auto pRecordedPattern =
+					pSong->getPatternList()->get( nNoteOnPattern );
+				if ( pRecordedPattern == nullptr ) {
+					// The pattern holding the recorded note-on is gone
+					// (deleted in the editor meanwhile) — nothing to
+					// resize.
+					bQueueNoteAction = false;
 				}
-			}
+				else {
+					// The length is computed here — only the authoritative
+					// playhead knows how long the note was actually held —
+					// while the edit itself is applied editor-side.
+					const int nPatternSize = pRecordedPattern->getLength();
+					const int nCurrentTick = static_cast<int>(
+						pAudioEngine->getPlayhead()
+							->getPatternTickPosition() );
 
-			if ( bPatternModified && ! pCurrentPattern->getIsModified() ) {
-				EventQueue::get_instance()->pushEvent(
-					Event::Type::PatternChanged, -1
-				);
-				setPatternModified( true, nCurrentPatternNumber );
+					int nNoteLength;
+					if ( nCurrentTick < nNoteOnTick ) {
+						// BUG: We passed the boundary between to patterns or
+						// transported got looped. As we do not support the
+						// notion of custom note lengths reaching from one
+						// pattern into the next one, we trim it at the end
+						// of the pattern instead.
+						nNoteLength = nPatternSize - nNoteOnTick;
+
+						// We also omit pitch-related rescaling as we do not
+						// know the true length of the note (transport could
+						// have been wrapped multiple times).
+					}
+					else {
+						nNoteLength = nCurrentTick - nNoteOnTick;
+					}
+					if ( nNoteOnTick + nNoteLength > nPatternSize ) {
+						nNoteLength = nPatternSize - nNoteOnTick;
+					}
+
+					noteAction.nColumn = nNoteOnTick;
+					noteAction.nPattern = nNoteOnPattern;
+					noteAction.nLength = nNoteLength;
+				}
+				// The pending note-on is spent either way — a later
+				// note-off of the same pitch must not resize a stale
+				// target.
+				m_pendingRecordedNoteOns.erase( itPending );
 			}
 		}
 		else { // note on
-			EventQueue::AddMidiNoteVector noteAction;
 			noteAction.nColumn = nTickInPattern;
-			noteAction.id = instrumentId;
-			noteAction.nPattern = nCurrentPatternNumber;
-			noteAction.fVelocity = fVelocity;
-			noteAction.fPan = fPan;
 			noteAction.nLength = -1;
+			// Remember where this pitch's note-on landed; the matching
+			// note-off resizes exactly this note. A re-trigger of a still
+			// pending pitch overwrites the entry — the editor's note-on
+			// integration replaces the previous note at the new position.
+			m_pendingRecordedNoteOns[ noteOnKey ] =
+				std::make_pair( nTickInPattern, nCurrentPatternNumber );
+		}
 
-			if ( bPlaySelectedInstrument && note != Midi::NoteInvalid ) {
-				noteAction.octave = Note::octaveFrom( note );
-				noteAction.key = Note::keyFrom( note );
-			}
-			else {
-				noteAction.octave = Note::OctaveDefault;
-				noteAction.key = Note::KeyDefault;
-			}
-
-			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-
-			m_nLastRecordedMIDINoteTick = nTickInPattern;
+		if ( bQueueNoteAction ) {
+			m_pEventQueue->pushMidiNoteAction( noteAction );
 		}
 	}
 
@@ -559,7 +784,7 @@ void Hydrogen::toggleNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->toggleNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( Event::Type::NextPatternsChanged, 0 );
+		m_pEventQueue->pushEvent( Event::Type::NextPatternsChanged, 0 );
 
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
@@ -571,7 +796,7 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 		m_pAudioEngine->flushAndAddNextPattern( nPatternNumber );
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( Event::Type::NextPatternsChanged, 0 );
+		m_pEventQueue->pushEvent( Event::Type::NextPatternsChanged, 0 );
 
 		return true;
 
@@ -583,6 +808,17 @@ bool Hydrogen::flushAndAddNextPattern( int nPatternNumber ) {
 }
 
 void Hydrogen::restartAudioDriver() {
+	// A plugin host owns the process cycle: the PluginAudioDriver is a
+	// passive adapter the host drives, and the plugin wrapper holds its
+	// own reference to it. Recreating the driver would swap a fresh
+	// adapter with unset host buffers into the engine while the wrapper
+	// keeps driving the old one — the engine would mix into null
+	// buffers. The host dictates sample rate and block size anyway, so
+	// there is nothing to restart.
+	if ( isUnderPluginHost() ) {
+		return;
+	}
+
 	const bool bWasPlaying =
 		m_pAudioEngine->getState() == AudioEngine::State::Playing;
 
@@ -604,7 +840,7 @@ void Hydrogen::restartAudioDriver() {
 	m_pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
 	m_pAudioEngine->startAudioDriver( Event::Trigger::Default );
 
-	if ( bCombinedDriver && Preferences::get_instance()->m_audioDriver !=
+	if ( bCombinedDriver && m_pPreferences->m_audioDriver !=
 		 Preferences::AudioDriver::Jack ) {
 		// We stopped a combined MIDI and audio driver. But the user shows to
 		// use separate ones instead. We have to ensure the audio driver is
@@ -618,6 +854,13 @@ void Hydrogen::restartAudioDriver() {
 }
 
 void Hydrogen::restartMidiDriver() {
+	// Same host-ownership rule as restartAudioDriver(): the
+	// PluginMidiDriver is a passive adapter the host feeds per block, and
+	// the plugin wrapper holds its own reference to it.
+	if ( isUnderPluginHost() ) {
+		return;
+	}
+
 	bool bCombinedDriver = false;
 #ifdef H2CORE_HAVE_JACK
 	{
@@ -636,7 +879,7 @@ void Hydrogen::restartMidiDriver() {
 	m_pAudioEngine->stopMidiDriver( Event::Trigger::Suppress );
 	m_pAudioEngine->startMidiDriver( Event::Trigger::Default );
 
-	if ( bCombinedDriver && Preferences::get_instance()->m_midiDriver !=
+	if ( bCombinedDriver && m_pPreferences->m_midiDriver !=
 		 Preferences::MidiDriver::Jack ) {
 		// We stopped a combined MIDI and audio driver. But the user shows to
 		// use separate ones instead. We have to ensure the audio driver is
@@ -680,6 +923,17 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 		std::dynamic_pointer_cast<DiskWriterDriver>( pDriver );
 	if ( pDriver == nullptr || pDiskWriterDriver == nullptr ) {
 		ERRORLOG( "Unable to start up DiskWriterDriver" );
+		// The transport state was parked and the previous drivers
+		// stopped above — restore both, the session never became
+		// active.
+		pSong->setMode( m_oldEngineMode );
+		if ( m_bOldLoopEnabled ) {
+			pSong->setLoopMode( Song::LoopMode::Enabled );
+		} else {
+			pSong->setLoopMode( Song::LoopMode::Disabled );
+		}
+		pAudioEngine->startAudioDriver( Event::Trigger::Default );
+		pAudioEngine->startMidiDriver( Event::Trigger::Default );
 		return false;
 	}
 
@@ -693,15 +947,41 @@ bool Hydrogen::startExportSession( int nSampleRate, int nSampleDepth,
 }
 
 /// Export a song to a wav file
-void Hydrogen::startExportSong( const QString& sFileName)
+void Hydrogen::startExportSong( const QString& sFileName,
+								const std::vector<Uuid>& excludedInstruments )
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
-	CoreActionController::locateToTick( 0 );
+
+	// Arm the instruments for this export (ADR 0027): every instrument is
+	// exported unless its identity is in the exclusion list (per-instrument /
+	// track-out exports). The Sampler honours this only while an export session
+	// is active.
+	auto pSong = getSong();
+	if ( pSong != nullptr && pSong->getDrumkit() != nullptr ) {
+		auto pInstrumentList = pSong->getDrumkit()->getInstruments();
+		for ( int ii = 0; ii < pInstrumentList->size(); ++ii ) {
+			auto pInstr = pInstrumentList->get( ii );
+			if ( pInstr == nullptr ) {
+				continue;
+			}
+			const bool bExcluded = std::find(
+				excludedInstruments.begin(), excludedInstruments.end(),
+				pInstr->getUuid() ) != excludedInstruments.end();
+			pInstr->setCurrentlyExported( ! bExcluded );
+		}
+	}
+
+	m_pCoreActionController->locateToTick( 0 );
 	pAudioEngine->play();
 	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	auto pDiskWriterDriver =
 		std::dynamic_pointer_cast<DiskWriterDriver>( pAudioEngine->getAudioDriver() );
+	if ( pDiskWriterDriver == nullptr ) {
+		ERRORLOG( QString( "Unable to export audio to [%1]: no disk writer driver" )
+					  .arg( sFileName ) );
+		return;
+	}
 	pDiskWriterDriver->setFileName( sFileName );
 	pDiskWriterDriver->write();
 }
@@ -710,27 +990,209 @@ void Hydrogen::stopExportSong()
 {
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	pAudioEngine->getSampler()->stopPlayingNotes();
-	CoreActionController::locateToTick( 0 );
+	m_pCoreActionController->locateToTick( 0 );
 }
 
 void Hydrogen::stopExportSession()
 {
-	std::shared_ptr<Song> pSong = getSong();
-	if ( pSong == nullptr ) {
+	std::lock_guard<std::mutex> stopLock( m_exportStopMutex );
+
+	// Idempotent: without an active session (and nothing left to
+	// reap) this is a no-op — the export dialog and the destructor
+	// both call it unconditionally.
+	if ( ! m_bExportSessionIsActive && ! m_exportPlanThread.joinable() ) {
 		return;
 	}
 
-	pSong->setMode( m_oldEngineMode );
-	if ( m_bOldLoopEnabled ) {
-		pSong->setLoopMode( Song::LoopMode::Enabled );
-	} else {
-		pSong->setLoopMode( Song::LoopMode::Disabled );
+	// Cancel the plan and drain the queue before joining — the plan
+	// thread must not be waiting on the plan mutex while we wait for
+	// it here.
+	{
+		std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+		m_bExportPlanCancelled = true;
+		m_exportPlanQueue.clear();
 	}
-	
+	if ( m_exportPlanThread.joinable() ) {
+		m_exportPlanThread.join();
+	}
+
+	// On natural completion the plan thread restored everything
+	// itself; finish the session here only when it exited early
+	// (cancel or write failure).
+	if ( m_bExportSessionIsActive ) {
+		finishExportSession();
+	}
+}
+
+bool Hydrogen::exportSong( int nSampleRate, int nSampleDepth,
+						   double fCompressionLevel,
+						   Interpolation::InterpolateMode interpolateMode,
+						   bool bRubberbandBatchMode,
+						   const std::vector<ExportRender>& renders )
+{
+	std::lock_guard<std::mutex> stopLock( m_exportStopMutex );
+
+	if ( m_bExportSessionIsActive ) {
+		ERRORLOG( "An export session is already active" );
+		return false;
+	}
+
+	if ( renders.empty() ) {
+		WARNINGLOG( "Empty export plan — nothing to render" );
+		return true;
+	}
+
+	// A previous plan may have completed naturally without anyone
+	// joining it — reap it before arming a new one.
+	if ( m_exportPlanThread.joinable() ) {
+		m_exportPlanThread.join();
+	}
+
+	auto pPref = getPreferences();
+	m_nOldRubberBandBatchMode = pPref->getRubberBandBatchMode();
+	pPref->setRubberBandBatchMode( bRubberbandBatchMode ? 1 : 0 );
+	setInterpolateModeOverride( interpolateMode );
+	m_bExportPlanSession = true;
+
+	if ( ! startExportSession( nSampleRate, nSampleDepth,
+							   fCompressionLevel ) ) {
+		// startExportSession() restored the parked transport state and
+		// the drivers itself; the flag and the override are ours to
+		// undo.
+		pPref->setRubberBandBatchMode( m_nOldRubberBandBatchMode );
+		clearInterpolateModeOverride();
+		m_bExportPlanSession = false;
+		return false;
+	}
+
+	{
+		std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+		m_bExportPlanCancelled = false;
+		m_exportPlanQueue.assign( renders.begin(), renders.end() );
+	}
+
+	// std::thread construction throws on resource exhaustion — the
+	// session is armed already, so finish it here instead of leaving
+	// it dangling (and before the exception can escape through the
+	// IPC handler).
+	try {
+		m_exportPlanThread = std::thread( &Hydrogen::runExportPlan, this );
+	}
+	catch ( const std::system_error& e ) {
+		ERRORLOG( QString( "Unable to spawn the export plan thread: %1" )
+					  .arg( e.what() ) );
+		finishExportSession();
+		return false;
+	}
+
+	return true;
+}
+
+bool Hydrogen::isExportWritingFailed() const
+{
+	const auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
+		m_pAudioEngine->getAudioDriver() );
+	return pDriver != nullptr && pDriver->writingFailed();
+}
+
+void Hydrogen::runExportPlan()
+{
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( m_pLogger );
+
+	while ( true ) {
+		ExportRender render;
+		{
+			std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+			if ( m_bExportPlanCancelled || m_exportPlanQueue.empty() ) {
+				break;
+			}
+			render = m_exportPlanQueue.front();
+			m_exportPlanQueue.pop_front();
+		}
+
+		startExportSong( render.sFileName, render.excludedInstruments );
+
+		auto pDriver = std::dynamic_pointer_cast<DiskWriterDriver>(
+			m_pAudioEngine->getAudioDriver() );
+		if ( pDriver == nullptr ) {
+			ERRORLOG( QString( "Unable to render [%1]: no disk writer driver" )
+						  .arg( render.sFileName ) );
+			break;
+		}
+
+		// The render itself runs on the audio engine's process loop;
+		// poll the writer thread until this file is finished.
+		while ( ! pDriver->isDoneWriting() ) {
+			if ( pDriver->writingFailed() ) {
+				break;
+			}
+			std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+			std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+			if ( m_bExportPlanCancelled ) {
+				break;
+			}
+		}
+
+		if ( pDriver->writingFailed() ) {
+			ERRORLOG( QString( "Unable to render [%1]" )
+						  .arg( render.sFileName ) );
+			// Abort the remaining plan — the files after this one
+			// would miss the context of the failed one.
+			break;
+		}
+
+		bool bCancelled = false;
+		{
+			std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+			bCancelled = m_bExportPlanCancelled;
+		}
+		if ( bCancelled ) {
+			break;
+		}
+	}
+
+	// Natural completion (queue drained, nobody cancelled): the
+	// engine restores itself — nobody will call stopExportSession()
+	// afterwards. On cancel or failure the external
+	// stopExportSession() finishes the job after joining us.
+	bool bCancelled = false;
+	{
+		std::lock_guard<std::mutex> lock( m_exportPlanMutex );
+		bCancelled = m_bExportPlanCancelled;
+	}
+	if ( ! bCancelled ) {
+		finishExportSession();
+	}
+}
+
+void Hydrogen::finishExportSession()
+{
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 
+	// Tear the disk writer down before touching anything else: in the
+	// cancel path its render loop is still running, and the sampler
+	// flush and locate in stopExportSong() (and the song mode/loop
+	// restore below) must not mutate state under a live render. The
+	// driver's cancel flag bounds the join to one buffer. Between
+	// this teardown and the restart below no audio callback exists,
+	// so the unlocked sampler flush cannot race any render.
 	pAudioEngine->stop();
 	pAudioEngine->stopAudioDriver( Event::Trigger::Suppress );
+
+	stopExportSong();
+
+	auto pSong = getSong();
+	if ( pSong != nullptr ) {
+		pSong->setMode( m_oldEngineMode );
+		if ( m_bOldLoopEnabled ) {
+			pSong->setLoopMode( Song::LoopMode::Enabled );
+		} else {
+			pSong->setLoopMode( Song::LoopMode::Disabled );
+		}
+	}
+
 	pAudioEngine->startAudioDriver( Event::Trigger::Default );
 	if ( pAudioEngine->getAudioDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart previous audio driver after exporting song." );
@@ -739,6 +1201,26 @@ void Hydrogen::stopExportSession()
 	if ( pAudioEngine->getMidiDriver() == nullptr ) {
 		ERRORLOG( "Unable to restart MIDI driver after exporting song." );
 	}
+
+	if ( m_bExportPlanSession ) {
+		// Session armed by exportSong(): restore what it applied on
+		// top of the parked transport state.
+		auto pPref = getPreferences();
+		if ( pPref->getRubberBandBatchMode() != 0 && pSong != nullptr &&
+			 pSong->getDrumkit() != nullptr ) {
+			// Like the pre-split dialog: batch mode recalculates every
+			// sample's rubberband pre-processing for the playhead
+			// tempo, under the audio engine lock.
+			pAudioEngine->lock( RIGHT_HERE );
+			pSong->getDrumkit()->recalculateRubberband(
+				pAudioEngine->getPlayhead()->getBpm(), this );
+			pAudioEngine->unlock();
+		}
+		pPref->setRubberBandBatchMode( m_nOldRubberBandBatchMode );
+		clearInterpolateModeOverride();
+		m_bExportPlanSession = false;
+	}
+
 	m_bExportSessionIsActive = false;
 }
 
@@ -800,20 +1282,7 @@ void Hydrogen::onTapTempoAccelEvent( TimePoint start ) {
 
 	++m_nTapTempoEventsAveraged;
 
-	CoreActionController::setBpm( m_fTapTempoAverageBpm );
-}
-
-void Hydrogen::restartLadspaFX()
-{
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-	
-	if ( pAudioEngine->getAudioDriver() ) {
-		pAudioEngine->lock( RIGHT_HERE );
-		pAudioEngine->setupLadspaFX();
-		pAudioEngine->unlock();
-	} else {
-		ERRORLOG( "m_pAudioDriver = NULL" );
-	}
+	m_pCoreActionController->setBpm( m_fTapTempoAverageBpm );
 }
 
 void Hydrogen::updateSelectedPattern( bool bNeedsLock ) {
@@ -833,8 +1302,8 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 {
 	if ( nPat == m_nSelectedPatternNumber ) {
 		if ( trigger == Event::Trigger::Force ) {
-			EventQueue::get_instance()->pushEvent(
-				Event::Type::SelectedPatternChanged, -1 );
+			m_pEventQueue->pushEvent( Event::Type::SelectedPatternChanged,
+									  m_nSelectedPatternNumber );
 		}
 		return;
 	}
@@ -857,7 +1326,8 @@ void Hydrogen::setSelectedPatternNumber( int nPat, bool bNeedsLock,
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent( Event::Type::SelectedPatternChanged, -1 );
+		m_pEventQueue->pushEvent( Event::Type::SelectedPatternChanged,
+								  m_nSelectedPatternNumber );
 	}
 }
 
@@ -868,8 +1338,8 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	// another type-only row might be selected in the GUI.
 	if ( m_nSelectedInstrumentNumber == nInstrument ) {
 		if ( trigger == Event::Trigger::Force ) {
-			EventQueue::get_instance()->pushEvent(
-				Event::Type::SelectedInstrumentChanged, -1 );
+			m_pEventQueue->pushEvent( Event::Type::SelectedInstrumentChanged,
+									  m_nSelectedInstrumentNumber );
 		}
 		return;
 	}
@@ -884,8 +1354,8 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument,
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
-			Event::Type::SelectedInstrumentChanged, -1 );
+		m_pEventQueue->pushEvent( Event::Type::SelectedInstrumentChanged,
+								  m_nSelectedInstrumentNumber );
 	}
 }
 
@@ -896,15 +1366,12 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 	if ( pSong == nullptr ) {
 		return;
 	}
-	
-	if ( Preferences::get_instance()->m_bJackTrackOuts == true &&
-		hasJackDriver() ) {
 
+	if ( m_pPreferences->m_bJackTrackOuts == true && hasJackDriver() ) {
 		// When restarting the audio driver after loading a new song under
 		// Non session management all ports have to be registered _prior_
 		// to the activation of the client.
-		if ( isUnderSessionManagement() &&
-			 getGUIState() != Hydrogen::GUIState::ready ) {
+		if ( isUnderSessionManagement() && !isFullyOperational() ) {
 			return;
 		}
 
@@ -916,14 +1383,18 @@ void Hydrogen::renamePerTrackJackAudioPorts( std::shared_ptr<Song> pSong,
 void Hydrogen::setBeatCounterTotalBeats( int nBeatsToCount ) {
 	if ( m_nBeatCounterTotalBeats != nBeatsToCount ) {
 		m_nBeatCounterTotalBeats = nBeatsToCount;
-		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+		// The value carries the event count so the editor's "n/total"
+		// display stays in step across the IPC split (ADR 0026 point 12).
+		m_pEventQueue->pushEvent( Event::Type::BeatCounter,
+								  m_nBeatCounterEventCount );
 	}
 }
 
 void Hydrogen::setBeatCounterBeatLength( float fBeatLength ) {
 	if ( m_fBeatCounterBeatLength != fBeatLength ) {
 		m_fBeatCounterBeatLength = fBeatLength;
-		EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+		m_pEventQueue->pushEvent( Event::Type::BeatCounter,
+								  m_nBeatCounterEventCount );
 	}
 }
 
@@ -933,7 +1404,7 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 		return false;
 	}
 
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = m_pEventQueue;
 
 	auto now = start;
 	if ( now == TimePoint() ) {
@@ -962,13 +1433,15 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 		m_nBeatCounterEventCount = 1;
 		m_nBeatCounterBeatCount = 1;
 
-		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+		pEventQueue->pushEvent( Event::Type::BeatCounter,
+								m_nBeatCounterEventCount );
 		return false;
 	}
 
 	// Only accept differences big enough
 	if ( m_nBeatCounterBeatCount != 1 && fTimeDeltaSeconds <= .001 ) {
-		pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+		pEventQueue->pushEvent( Event::Type::BeatCounter,
+								m_nBeatCounterEventCount );
 		return false;
 	}
 
@@ -993,7 +1466,7 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 		const float fBeatCountBpm =
 			static_cast<float>(std::floor( 60 / fAverageTime * 100 ) / 100);
 			
-		if ( CoreActionController::setBpm( fBeatCountBpm ) ) {
+		if ( m_pCoreActionController->setBpm( fBeatCountBpm ) ) {
 			bTempoSet = true;
 		}
 
@@ -1006,9 +1479,10 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 
 	// Update counter numbers before starting playback. Else the user could
 	// experience visual delays in the BpmTap.
-	pEventQueue->pushEvent( Event::Type::BeatCounter, 0 );
+	pEventQueue->pushEvent( Event::Type::BeatCounter,
+							m_nBeatCounterEventCount );
 
-	if ( bTempoSet && Preferences::get_instance()->m_beatCounter ==
+	if ( bTempoSet && m_pPreferences->m_beatCounter ==
 		 Preferences::BeatCounter::TapAndPlay &&
 		 m_pAudioEngine->getState() != AudioEngine::State::Playing ) {
 		const int nSampleRate =
@@ -1034,39 +1508,31 @@ bool Hydrogen::handleBeatCounter( TimePoint start )
 
 	return true;
 }
-
 void Hydrogen::updateBeatCounterSettings() {
-	const auto pPreferences = Preferences::get_instance();
+	const auto pPreferences = m_pPreferences;
 
-	m_nBeatCounterDriftCompensation =
-		pPreferences->m_nBeatCounterDriftCompensation;
-	m_nBeatCounterStartOffset = pPreferences->m_nBeatCounterStartOffset;
-
-	EventQueue::get_instance()->pushEvent( Event::Type::BeatCounter, 0 );
+	updateBeatCounterSettings( m_fBeatCounterBeatLength,
+							   m_nBeatCounterTotalBeats,
+							   pPreferences->m_nBeatCounterDriftCompensation,
+							   pPreferences->m_nBeatCounterStartOffset,
+							   pPreferences->m_beatCounter );
 }
 
-void Hydrogen::releaseJackTimebaseControl()
+void Hydrogen::updateBeatCounterSettings(
+	float fBeatLength, int nTotalBeats, int nDriftCompensation,
+	int nStartOffset, Preferences::BeatCounter mode )
 {
-#ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
+	m_fBeatCounterBeatLength = fBeatLength;
+	m_nBeatCounterTotalBeats = nTotalBeats;
+	m_nBeatCounterDriftCompensation = nDriftCompensation;
+	m_nBeatCounterStartOffset = nStartOffset;
+	// The TapAndPlay completion branch of handleBeatCounter() reads the
+	// mode from the preferences — keep them consistent with the applied
+	// snapshot.
+	m_pPreferences->m_beatCounter = mode;
 
-	if ( hasJackTransport() ) {
-		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->getAudioDriver() )
-			->releaseTimebaseControl();
-	}
-#endif
-}
-
-void Hydrogen::initJackTimebaseControl()
-{
-#ifdef H2CORE_HAVE_JACK
-	AudioEngine* pAudioEngine = m_pAudioEngine;
-
-	if ( hasJackTransport() ) {
-		std::dynamic_pointer_cast<JackDriver>( pAudioEngine->getAudioDriver() )
-			->initTimebaseControl();
-	}
-#endif
+	m_pEventQueue->pushEvent( Event::Type::BeatCounter,
+							  m_nBeatCounterEventCount );
 }
 
 void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr )
@@ -1078,7 +1544,7 @@ void Hydrogen::addInstrumentToDeathRow( std::shared_ptr<Instrument> pInstr )
 void Hydrogen::removeInstrumentFromDeathRow( std::shared_ptr<Instrument> pInstr ) {
 	for ( auto it = m_instrumentDeathRow.begin();
 		  it != m_instrumentDeathRow.end(); ) {
-        if ( *it == pInstr ) {
+        if ( sameObject( *it, pInstr ) ) {
             it = m_instrumentDeathRow.erase( it );
 		} else {
             ++it;
@@ -1110,6 +1576,11 @@ void Hydrogen::killInstruments() {
 		}
 	}
 
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		// The mirror engine has no access to the actual audio drivers.
+		return;
+	}
+
 #ifdef H2CORE_HAVE_JACK
 	if ( hasJackDriver() ) {
 		auto pJackDriver = std::dynamic_pointer_cast<JackDriver>(
@@ -1120,18 +1591,6 @@ void Hydrogen::killInstruments() {
 		}
 	}
 #endif
-}
-
-void Hydrogen::panic()
-{
-	m_pAudioEngine->lock( RIGHT_HERE );
-	sequencerStop();
-	m_pAudioEngine->getSampler()->stopPlayingNotes();
-	m_pAudioEngine->unlock();
-
-    if ( m_pAudioEngine->getMidiDriver() != nullptr ) {
-		m_pAudioEngine->getMidiDriver()->sendAllNotesOff();
-    }
 }
 
 bool Hydrogen::hasJackDriver() const
@@ -1157,7 +1616,7 @@ bool Hydrogen::hasJackTransport() const
 		if ( std::dynamic_pointer_cast<JackDriver>(
 				 m_pAudioEngine->getAudioDriver()
 			 ) != nullptr &&
-			 Preferences::get_instance()->m_nJackTransportMode ==
+			 m_pPreferences->m_nJackTransportMode ==
 				 Preferences::USE_JACK_TRANSPORT ) {
 			return true;
 		}
@@ -1168,8 +1627,35 @@ bool Hydrogen::hasJackTransport() const
 #endif
 }
 
+bool Hydrogen::coreUsesJackDriver() const
+{
+	// The GUI-facing question "does the authoritative engine use JACK?" — in
+	// editor mode the answer crosses IPC via the cached AudioDriverInfo
+	// (ADR 0029). The engine core itself must not consume the cache: it
+	// branches on its own live driver via hasJack*() only.
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_cachedAudioDriverInfo.kind == Preferences::AudioDriver::Jack;
+	}
+	return hasJackDriver();
+}
+
+bool Hydrogen::coreUsesJackTransport() const
+{
+	// See coreUsesJackDriver().
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_cachedAudioDriverInfo.jackTransportEnabled;
+	}
+	return hasJackTransport();
+}
+
 JackDriver::Timebase Hydrogen::getJackTimebaseState() const
 {
+	// In editor mode the mirror has no real audio driver; consult the
+	// IPC-cached AudioDriverInfo instead (ADR 0029).
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_cachedAudioDriverInfo.timebaseState;
+	}
+
 #ifdef H2CORE_HAVE_JACK
 	AudioEngine* pAudioEngine = m_pAudioEngine;
 	if ( hasJackTransport() ) {
@@ -1184,11 +1670,205 @@ JackDriver::Timebase Hydrogen::getJackTimebaseState() const
 #endif
 }
 
-bool Hydrogen::isUnderSessionManagement() const
+AudioDriverInfo Hydrogen::getAudioDriverInfo() const {
+	AudioDriverInfo info;
+	const auto pDriver = m_pAudioEngine->getAudioDriver();
+	if ( pDriver == nullptr ) {
+		return info;
+	}
+	info.isPresent = true;
+	info.isRunning =
+		std::dynamic_pointer_cast<StubAudioDriver>( pDriver ) == nullptr;
+	info.bufferSize = pDriver->getBufferSize();
+	info.sampleRate = pDriver->getSampleRate();
+	info.latencyFrames = pDriver->getLatency();
+
+	// The consolidated software driver (ADR 0031) clocks the engine but may be
+	// headless (no real output). Its producesAudio flag is the authoritative
+	// "running" signal: false → headless (former Null), reported as kind Null.
+	if ( const auto pSw = std::dynamic_pointer_cast<SoftwareDriver>( pDriver ) ) {
+		info.isRunning = pSw->getProducesAudio();
+		info.kind = pSw->getProducesAudio() ?
+			Preferences::AudioDriver::Fake : Preferences::AudioDriver::Null;
+		return info;
+	}
+
+	// Resolve the concrete kind. Each cast is guarded by the same H2CORE_HAVE_*
+	// flag the GUI used, so a selected-but-not-compiled backend falls through to
+	// Null below.
+#ifdef H2CORE_HAVE_JACK
+	if ( std::dynamic_pointer_cast<JackDriver>( pDriver ) != nullptr ) {
+		info.kind = Preferences::AudioDriver::Jack;
+		info.timebaseState = getJackTimebaseState();
+		info.jackTransportEnabled =
+			m_pPreferences->m_nJackTransportMode ==
+				Preferences::USE_JACK_TRANSPORT;
+		return info;
+	}
+#endif
+#ifdef H2CORE_HAVE_ALSA
+	if ( const auto pAlsa =
+			 std::dynamic_pointer_cast<AlsaAudioDriver>( pDriver ) ) {
+		info.kind = Preferences::AudioDriver::Alsa;
+		info.connectedDevice = pAlsa->m_sAlsaAudioDevice;
+		return info;
+	}
+#endif
+#ifdef H2CORE_HAVE_PORTAUDIO
+	if ( std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) != nullptr ) {
+		info.kind = Preferences::AudioDriver::PortAudio;
+		return info;
+	}
+#endif
+#ifdef H2CORE_HAVE_COREAUDIO
+	if ( std::dynamic_pointer_cast<CoreAudioDriver>( pDriver ) != nullptr ) {
+		info.kind = Preferences::AudioDriver::CoreAudio;
+		return info;
+	}
+#endif
+#ifdef H2CORE_HAVE_PULSEAUDIO
+	if ( std::dynamic_pointer_cast<PulseAudioDriver>( pDriver ) != nullptr ) {
+		info.kind = Preferences::AudioDriver::PulseAudio;
+		return info;
+	}
+#endif
+#ifdef H2CORE_HAVE_OSS
+	if ( std::dynamic_pointer_cast<OssDriver>( pDriver ) != nullptr ) {
+		info.kind = Preferences::AudioDriver::Oss;
+		return info;
+	}
+#endif
+	if ( std::dynamic_pointer_cast<DiskWriterDriver>( pDriver ) != nullptr ) {
+		info.kind = Preferences::AudioDriver::Disk;
+		return info;
+	}
+
+	// Present but unmatched: the StubAudioDriver fallback (or a backend not
+	// surfaced in the UI, e.g. the plugin/fake drivers).
+	info.kind = Preferences::AudioDriver::Null;
+	return info;
+}
+
+QStringList Hydrogen::getAudioDevices(
+	Preferences::AudioDriver kind, const QString& sHostAPI ) const
+{
+	(void)kind;
+	(void)sHostAPI;
+#ifdef H2CORE_HAVE_ALSA
+	// ALSA devices are enumerated statically, independent of the running driver.
+	if ( kind == Preferences::AudioDriver::Alsa ) {
+		return AlsaAudioDriver::getAlsaDevices();
+	}
+#endif
+	const auto pDriver = getAudioDriver();
+	if ( pDriver == nullptr ) {
+		return QStringList();
+	}
+#ifdef H2CORE_HAVE_PORTAUDIO
+	if ( kind == Preferences::AudioDriver::PortAudio ) {
+		if ( const auto pPortAudio =
+				 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
+			return pPortAudio->getDevices( sHostAPI );
+		}
+		return QStringList();
+	}
+#endif
+#ifdef H2CORE_HAVE_COREAUDIO
+	if ( kind == Preferences::AudioDriver::CoreAudio ) {
+		return pDriver->getDevices();
+	}
+#endif
+	return QStringList();
+}
+
+QStringList Hydrogen::getAudioHostAPIs() const
+{
+#ifdef H2CORE_HAVE_PORTAUDIO
+	const auto pDriver = getAudioDriver();
+	if ( const auto pPortAudio =
+			 std::dynamic_pointer_cast<PortAudioDriver>( pDriver ) ) {
+		return pPortAudio->getHostAPIs();
+	}
+#endif
+	return QStringList();
+}
+
+int Hydrogen::getOscTemporaryPort() const
 {
 #ifdef H2CORE_HAVE_OSC
-	if ( NsmClient::get_instance() != nullptr ) {
-		if ( NsmClient::get_instance()->getUnderSessionManagement() ) {
+	if ( m_pOscServer != nullptr ) {
+		return m_pOscServer->getTemporaryPort();
+	}
+#endif
+	return -1;
+}
+
+QString Hydrogen::getSessionFolderPath() const
+{
+#ifdef H2CORE_HAVE_OSC
+	// The editor process holds no NsmClient (ADR 0016/0026); its folder
+	// state is served by the IPC query instead.
+	if ( m_ProcessMode != ProcessMode::Editor && m_pNsmClient != nullptr ) {
+		return m_pNsmClient->getSessionFolderPath();
+	}
+#endif
+	return QString();
+}
+
+const AudioDriverInfo& Hydrogen::getCachedAudioDriverInfo() const {
+	return m_cachedAudioDriverInfo;
+}
+
+void Hydrogen::setCachedAudioDriverInfo( const AudioDriverInfo& info ) {
+	m_cachedAudioDriverInfo = info;
+
+	// ADR 0018/0029: the mirror's frame<->tick conversion runs on its own
+	// driver rate, so the mirror engine must be re-rated to the authoritative
+	// engine's actual rate whenever fresh driver info lands — otherwise every
+	// telemetry frame maps to a wrong tick/BBT position. Only the headless
+	// SoftwareDriver is touched (real drivers own their rate; the export
+	// DiskWriterDriver keeps its own). The buffer size deliberately stays
+	// local: it only paces the mirror's own clock loop.
+	if ( info.sampleRate > 0 ) {
+		if ( const auto pSw = std::dynamic_pointer_cast<SoftwareDriver>(
+				 m_pAudioEngine->getAudioDriver() ) ) {
+			pSw->setSampleRate( static_cast<unsigned>( info.sampleRate ) );
+		}
+	}
+}
+
+MidiDriverInfo Hydrogen::getMidiDriverInfo() const {
+	MidiDriverInfo info;
+	const auto pDriver = m_pAudioEngine->getMidiDriver();
+	if ( pDriver == nullptr ) {
+		return info;
+	}
+	info.isPresent = true;
+	info.isInputActive = pDriver->isInputActive();
+	info.isOutputActive = pDriver->isOutputActive();
+	return info;
+}
+
+const MidiDriverInfo& Hydrogen::getCachedMidiDriverInfo() const {
+	return m_cachedMidiDriverInfo;
+}
+
+void Hydrogen::setCachedMidiDriverInfo( const MidiDriverInfo& info ) {
+	m_cachedMidiDriverInfo = info;
+}
+
+bool Hydrogen::isUnderSessionManagement() const
+{
+	// In editor mode the mirror has no NsmClient; return the IPC-cached
+	// value (ADR 0029).
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_bCachedUnderSessionManagement;
+	}
+
+#ifdef H2CORE_HAVE_OSC
+	ASSERT_NO_EDITOR_MODE( this );
+	if ( m_pNsmClient != nullptr ) {
+		if ( m_pNsmClient->getUnderSessionManagement() ) {
 			return true;
 		} else {
 			return false;
@@ -1201,10 +1881,20 @@ bool Hydrogen::isUnderSessionManagement() const
 #endif
 }
 
+void Hydrogen::setCachedUnderSessionManagement( bool bValue ) {
+	m_bCachedUnderSessionManagement = bValue;
+}
+
 bool Hydrogen::isTimelineEnabled() const {
+	// In editor mode this intentionally returns true when the Timeline is
+	// activated in Song mode. Even though tempo is controlled by the remote
+	// engine (Tempo::Remote), the mirror needs Timeline-based frame/tick
+	// conversion (Transport.cpp) and Timeline-aware GUI rendering
+	// (SongEditorPositionRuler) to stay consistent with the authoritative
+	// engine. The mirror has the Timeline data (synced via SetSong IPC).
 	if ( m_pSong != nullptr && m_pSong->getIsTimelineActivated() &&
 		 getMode() == Song::Mode::Song &&
-		 ! Preferences::get_instance()->getMidiClockInputHandling() &&
+		 ! m_pPreferences->getMidiClockInputHandling() &&
 		 getJackTimebaseState() != JackDriver::Timebase::Listener ) {
 		return true;
 	}
@@ -1223,15 +1913,16 @@ bool Hydrogen::isPatternEditorLocked() const {
 	return false;
 }
 
-void Hydrogen::setIsPatternEditorLocked( bool bValue ) {
+void Hydrogen::setIsPatternEditorLocked( bool bValue,
+										 Event::Trigger trigger ) {
 	if ( m_pSong != nullptr &&
 		 bValue != m_pSong->getIsPatternEditorLocked() ) {
 		m_pSong->setIsPatternEditorLocked( bValue );
-		setSongModified( true );
+		setSongModified( true, trigger );
 
 		updateSelectedPattern();
 			
-		EventQueue::get_instance()->pushEvent( Event::Type::PatternEditorLocked,
+		m_pEventQueue->pushEvent( Event::Type::PatternEditorLocked,
 												bValue );
 	}
 }
@@ -1248,12 +1939,12 @@ void Hydrogen::setMode( const Song::Mode& mode, Event::Trigger trigger ) {
 	if ( m_pSong != nullptr && mode != m_pSong->getMode() ) {
 		m_pSong->setMode( mode );
 		if ( trigger != Event::Trigger::Suppress ) {
-			EventQueue::get_instance()->pushEvent(
+			m_pEventQueue->pushEvent(
 				Event::Type::SongModeActivation, ( mode == Song::Mode::Song) ? 1 : 0 );
 		}
 	}
 	else if ( trigger == Event::Trigger::Force ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pEventQueue->pushEvent(
 			Event::Type::SongModeActivation, ( mode == Song::Mode::Song) ? 1 : 0 );
 
 	}
@@ -1269,7 +1960,7 @@ Song::ActionMode Hydrogen::getActionMode() const {
 void Hydrogen::setActionMode( const Song::ActionMode& mode ) {
 	if ( m_pSong != nullptr ) {
 		m_pSong->setActionMode( mode );
-		EventQueue::get_instance()->pushEvent( Event::Type::ActionModeChanged,
+		m_pEventQueue->pushEvent( Event::Type::ActionModeChanged,
 												( mode == Song::ActionMode::drawMode ) ? 1 : 0 );
 	}
 }
@@ -1281,14 +1972,15 @@ Song::PatternMode Hydrogen::getPatternMode() const {
 	return Song::PatternMode::None;
 }
 
-void Hydrogen::setPatternMode( const Song::PatternMode& mode )
+void Hydrogen::setPatternMode( const Song::PatternMode& mode,
+							   Event::Trigger trigger )
 {
 	if ( m_pSong != nullptr &&
 		 getPatternMode() != mode ) {
 		m_pAudioEngine->lock( RIGHT_HERE );
 
 		m_pSong->setPatternMode( mode );
-		setSongModified( true );
+		setSongModified( true, trigger );
 		
 		if ( m_pAudioEngine->getState() != AudioEngine::State::Playing ||
 			 mode == Song::PatternMode::Selected ) {
@@ -1303,16 +1995,64 @@ void Hydrogen::setPatternMode( const Song::PatternMode& mode )
 		}
 
 		m_pAudioEngine->unlock();
-		EventQueue::get_instance()->pushEvent( Event::Type::StackedModeActivation,
+		m_pEventQueue->pushEvent( Event::Type::StackedModeActivation,
 												( mode == Song::PatternMode::Selected ) ? 1 : 0 );
 	}
 }
 
-Hydrogen::Tempo Hydrogen::getTempoSource() const {
+bool Hydrogen::isUnderPluginHost() const {
+	// In editor mode the mirror's audio driver is Null (forced by
+	// configureMirrorPreferences); return the IPC-cached value instead
+	// (ADR 0029).
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return m_bCachedUnderPluginHost;
+	}
+
+	ASSERT_NO_EDITOR_MODE( this );
+	return m_pPreferences != nullptr &&
+		m_pPreferences->m_audioDriver == Preferences::AudioDriver::Plugin;
+}
+
+void Hydrogen::setCachedUnderPluginHost( bool bValue ) {
+	m_bCachedUnderPluginHost = bValue;
+}
+
+Interpolation::InterpolateMode Hydrogen::getInterpolateMode() const {
+	if ( m_bUseInterpolateModeOverride ) {
+		return m_interpolateModeOverride;
+	}
+	if ( m_pPreferences != nullptr ) {
+		return m_pPreferences->m_interpolateMode;
+	}
+	return Interpolation::InterpolateMode::Linear;
+}
+
+void Hydrogen::setInterpolateModeOverride( Interpolation::InterpolateMode mode ) {
+	m_interpolateModeOverride = mode;
+	m_bUseInterpolateModeOverride = true;
+}
+
+void Hydrogen::clearInterpolateModeOverride() {
+	m_bUseInterpolateModeOverride = false;
+}
+
+Hydrogen::Tempo Hydrogen::getTempoSource( bool bAuthoritativeEngine ) const {
+	if ( ! bAuthoritativeEngine &&
+		 getProcessMode() == H2Core::ProcessMode::Editor ) {
+		// The mirror engine does not own any audio/MIDI drivers or external
+		// tempo sources. Tempo is controlled by the authoritative engine and
+		// followed via telemetry + IPC events (ADR 0016/0030).
+		return Tempo::Remote;
+	}
+
+	if ( isUnderPluginHost() ) {
+		// The host transport owns tempo; it wins over the Timeline (ADR 0013).
+		return Tempo::Plugin;
+	}
 	if ( getJackTimebaseState() == JackDriver::Timebase::Listener ) {
 		return Tempo::Jack;
 	}
-	else if ( Preferences::get_instance()->getMidiClockInputHandling() ) {
+	else if ( m_pPreferences->getMidiClockInputHandling() ) {
 		return Tempo::Midi;
 	}
 	else if ( getMode() == Song::Mode::Song &&
@@ -1324,42 +2064,54 @@ Hydrogen::Tempo Hydrogen::getTempoSource() const {
 }
 
 void Hydrogen::toggleOscServer( bool bEnable ) {
+	// No OSC server under a plugin host (ADR 0026): ignore enable requests.
+	if ( isUnderPluginHost() || m_ProcessMode == ProcessMode::Editor ) {
+		return;
+	}
 #ifdef H2CORE_HAVE_OSC
 	if ( bEnable ) {
-		OscServer::get_instance()->start();
+		m_pOscServer->start();
 	} else {
-		OscServer::get_instance()->stop();
+		m_pOscServer->stop();
 	}
 #endif
 }
 
 void Hydrogen::recreateOscServer() {
+	// The editor process holds no OscServer (ADR 0016/0026); OSC
+	// configuration is applied by the headless engine when the editor's
+	// preferences are forwarded to it.
+	if ( m_ProcessMode == ProcessMode::Editor ) {
+		return;
+	}
 #ifdef H2CORE_HAVE_OSC
-	OscServer* pOscServer = OscServer::get_instance();
-	if( pOscServer ) {
-		delete pOscServer;
+	if ( m_pOscServer != nullptr ) {
+		delete m_pOscServer;
 	}
 
 	// This function is called in response to altering the OSC port in the
 	// preferences dialog and pressing Ok/apply. We want the specified port to
 	// be set and overwrite a potential value the user might have provided as
 	// CLI argument.
-	OscServer::create_instance( -1 );
-	
-	if ( Preferences::get_instance()->getOscServerEnabled() ) {
+	m_pOscServer = new OscServer( this, -1 );
+
+	if ( m_pPreferences->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
 #endif
 }
 
-void Hydrogen::setDrumkitModified( bool bIsModified )
+void Hydrogen::setDrumkitModified( bool bIsModified, Event::Trigger trigger )
 {
 	if ( m_pSong == nullptr || m_pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
-	if ( bIsModified && ! m_pSong->getIsModified() ) {
-		setSongModified( true );
+	// Forward every dirty flip, not just clean -> dirty: on the headless
+	// engine the SongIsModified echo is the attached editor's only
+	// signal to re-pull engine-local edits (ADR 0026 point 13).
+	if ( bIsModified ) {
+		setSongModified( true, trigger );
 	}
 
 	if ( m_pSong->getDrumkit()->getIsModified() == bIsModified ) {
@@ -1368,10 +2120,11 @@ void Hydrogen::setDrumkitModified( bool bIsModified )
 
 	m_pSong->getDrumkit()->setIsModified( bIsModified );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::DrumkitIsModified, -1 );
+	m_pEventQueue->pushEvent( Event::Type::DrumkitIsModified, -1 );
 }
 
-void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
+void Hydrogen::setPatternModified( bool bIsModified, int nIndex,
+								   Event::Trigger trigger )
 {
 	if ( m_pSong == nullptr ) {
 		return;
@@ -1382,8 +2135,11 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 		return;
 	}
 
-	if ( bIsModified && ! m_pSong->getIsModified() ) {
-		setSongModified( true );
+	// Forward every dirty flip, not just clean -> dirty: on the headless
+	// engine the SongIsModified echo is the attached editor's only
+	// signal to re-pull engine-local edits (ADR 0026 point 13).
+	if ( bIsModified ) {
+		setSongModified( true, trigger );
 	}
 
 	if ( pPattern->getIsModified() == bIsModified ) {
@@ -1392,26 +2148,58 @@ void Hydrogen::setPatternModified( bool bIsModified, int nIndex )
 
 	pPattern->setIsModified( bIsModified );
 
-	EventQueue::get_instance()->pushEvent(
+	m_pEventQueue->pushEvent(
 		Event::Type::PatternIsModified, nIndex
 	);
 }
 
-void Hydrogen::setSongModified( bool bIsModified )
+void Hydrogen::setPlaylistIsModified( bool bIsModified )
 {
-	if ( m_pSong == nullptr || m_pSong->getIsModified() == bIsModified ) {
+	if ( m_pPlaylist == nullptr ) {
+		return;
+	}
+
+	m_pPlaylist->setIsModified( bIsModified );
+}
+
+void Hydrogen::setSongModified( bool bIsModified, Event::Trigger trigger )
+{
+	if ( m_pSong == nullptr ) {
+		return;
+	}
+
+	// On the headless engine every non-suppressed call must be audible as
+	// an event: the attached editor's only signal to re-pull changed
+	// content is the engine-origin SongIsModified echo, so swallowing
+	// calls while the song is already dirty would hide every engine-local
+	// edit after the first (ADR 0026 point 13). Everywhere else the
+	// transition-only behavior stands: the local (G)UI already knows the
+	// current state and re-firing would be noise. An explicit Force
+	// bypasses the transition-only rule everywhere — its contract
+	// (Event.h) is queueing regardless of a change.
+	const bool bUnchanged = m_pSong->getIsModified() == bIsModified;
+	if ( bUnchanged && trigger != Event::Trigger::Force &&
+		 ! ( m_ProcessMode == ProcessMode::Headless &&
+			 trigger != Event::Trigger::Suppress ) ) {
 		return;
 	}
 
 	m_pSong->setIsModified( bIsModified );
 
-	EventQueue::get_instance()->pushEvent( Event::Type::SongIsModified, -1 );
+	// Suppress: the editor already applied an editor-originated flip on
+	// its mirror before forwarding the command — an echoed event would
+	// trigger a redundant full song re-pull per edit once the editor
+	// re-syncs on SongIsModified (ADR 0026 point 10).
+	if ( trigger != Event::Trigger::Suppress ) {
+		m_pEventQueue->pushEvent( Event::Type::SongIsModified, -1 );
+	}
 
 #ifdef H2CORE_HAVE_OSC
-	if ( isUnderSessionManagement() ) {
+	if ( isUnderSessionManagement() && m_pNsmClient != nullptr ) {
 		// If Hydrogen is under session management (NSM), tell the
-		// NSM server that the Song was modified.
-		NsmClient::get_instance()->sendDirtyState( bIsModified );
+		// NSM server that the Song was modified. In the editor split the
+		// headless engine's client does the reporting.
+		m_pNsmClient->sendDirtyState( bIsModified );
 	}
 #endif
 }
@@ -1428,7 +2216,7 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
         return;
     }
 
-	auto pPref = Preferences::get_instance();
+	auto pPref = m_pPreferences;
 	auto pAudioEngine = getAudioEngine();
 
 	if ( bEnabled != getSong()->getIsTimelineActivated() ) {
@@ -1437,7 +2225,7 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 		m_pSong->setIsTimelineActivated( bEnabled );
 
 		if ( bEnabled ) {
-			m_pSong->getTimeline()->activate();
+			m_pSong->getTimeline()->activate( this );
 		}
 		else {
 			m_pSong->getTimeline()->deactivate();
@@ -1446,7 +2234,7 @@ void Hydrogen::setIsTimelineActivated( bool bEnabled ) {
 		pAudioEngine->handleTimelineChange();
 		pAudioEngine->unlock();
 
-		EventQueue::get_instance()->pushEvent(
+		m_pEventQueue->pushEvent(
 			Event::Type::TimelineActivation, static_cast<int>( bEnabled )
 		);
 	}
@@ -1622,9 +2410,23 @@ void Hydrogen::updateVirtualPatterns( Event::Trigger trigger ) {
 	m_pAudioEngine->unlock();
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		EventQueue::get_instance()->pushEvent(
+		m_pEventQueue->pushEvent(
 			Event::Type::PatternChanged, 0
 		);
+	}
+}
+
+void Hydrogen::requestPreferencesSave() {
+	// When connected via IPC we do not need to request the GUI to perform the
+	// save, because it only sends the core props of Preferences anyway (see
+	// #H2Core::Preferences::corePropsToXml()).
+	if ( m_ProcessMode != H2Core::ProcessMode::Headless ) {
+		m_pEventQueue->pushEvent(
+			Event::Type::RequestPreferencesSave, 0
+		);
+	}
+	else {
+		m_pCoreActionController->savePreferences();
 	}
 }
 
@@ -1666,8 +2468,10 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_bOldLoopEnabled ) )
 			.append( QString( "%1%2m_bExportSessionIsActive: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bExportSessionIsActive ) )
-			.append( QString( "%1%2m_GUIState: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( GUIStateToQString( m_GUIState ) ) )
+			.append( QString( "%1%2m_ProcessMode: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( ProcessModeToQString( m_ProcessMode ) ) )
+			.append( QString( "%1%2m_bIsFullyOperational: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_bIsFullyOperational ) )
 			.append( QString( "%1%2m_instrumentDeathRow:\n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
@@ -1680,10 +2484,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( "%1%2m_nSelectedPatternNumber: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nSelectedPatternNumber ) )
-			.append( QString( "%1%2m_bSessionIsExported: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_bSessionIsExported ) )
-			.append( QString( "%1%2m_nLastRecordedMIDINoteTick: %3\n" ).arg( sPrefix ).arg( s )
-					 .arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( "%1%2m_pendingRecordedNoteOns: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( m_pendingRecordedNoteOns.size() ) )
 			.append( QString( "%1%2m_bRecordEnabled: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_bRecordEnabled ) )
 			.append( QString( "%1%2m_pAudioEngine:\n" ).arg( sPrefix ).arg( s ) );
@@ -1754,8 +2556,10 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( Song::ModeToQString( m_oldEngineMode ) ) )
 			.append( QString( ", m_bOldLoopEnabled: %1" ).arg( m_bOldLoopEnabled ) )
 			.append( QString( ", m_bExportSessionIsActive: %1" ).arg( m_bExportSessionIsActive ) )
-			.append( QString( ", m_GUIState: %1" ).
-					 arg( GUIStateToQString( m_GUIState ) ) )
+			.append( QString( ", m_ProcessMode: %1" ).
+					 arg( ProcessModeToQString( m_ProcessMode ) ) )
+			.append( QString( ", m_bIsFullyOperational: %1" )
+					 .arg( m_bIsFullyOperational ) )
 			.append( QString( ", m_instrumentDeathRow: [" ) );
 		for ( const auto& ii : m_instrumentDeathRow ) {
 			if ( ii != nullptr ) {
@@ -1768,10 +2572,8 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 						.arg( m_nSelectedInstrumentNumber ) )
 			.append( QString( ", m_nSelectedPatternNumber: %1" )
 						.arg( m_nSelectedPatternNumber ) )
-			.append( QString( ", m_bSessionIsExported: %1" )
-						.arg( m_bSessionIsExported ) )
-			.append( QString( ", m_nLastRecordedMIDINoteTick: %1" )
-						.arg( m_nLastRecordedMIDINoteTick ) )
+			.append( QString( ", m_pendingRecordedNoteOns: %1" )
+					 .arg( m_pendingRecordedNoteOns.size() ) )
 			.append( QString( ", m_bRecordEnabled: %1" )
 						.arg( m_bRecordEnabled ) )
 			.append( ", m_pAudioEngine:" );
@@ -1803,21 +2605,4 @@ QString Hydrogen::toQString( const QString& sPrefix, bool bShort ) const {
 		
 	return sOutput;
 }
-
-QString Hydrogen::GUIStateToQString( const GUIState& state ) {
-	switch( state ) {
-	case GUIState::startup:
-		return "startup";
-	case GUIState::headless:
-		return "headless";
-	case GUIState::ready:
-		return "ready";
-	case GUIState::shutdown:
-		return "shutdown";
-	default:
-		return QString( "Unknown GUIState [%1]" )
-			.arg( static_cast<int>(state) );
-	}
-}
-
 }; /* Namespace */

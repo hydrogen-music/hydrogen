@@ -1,0 +1,62 @@
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+
+<https://hydrogen-music.org/lv2/hydrogen>
+    a lv2:Plugin , lv2:InstrumentPlugin ;
+    doap:name "Hydrogen" ;
+    # GPL-2.0-or-later (GPLv2+), matching the source headers and the AppStream
+    # <project_license>. The gnu.org gpl-2.0.html URL would mean GPL-2.0-only.
+    doap:license <https://spdx.org/licenses/GPL-2.0-or-later.html> ;
+    # Odd minor version marks this as a development/pre-release build (LV2
+    # convention). Both are required by lv2lint.
+    lv2:minorVersion 1 ;
+    lv2:microVersion 0 ;
+    lv2:project [
+        doap:name "Hydrogen" ;
+        doap:maintainer [
+            a foaf:Person ;
+            foaf:name "The Hydrogen development team" ;
+            foaf:mbox <mailto:hydrogen-devel@lists.sourceforge.net> ;
+            foaf:homepage <https://hydrogen-music.org>
+        ]
+    ] ;
+    lv2:requiredFeature urid:map ;
+    ui:ui <https://hydrogen-music.org/lv2/hydrogen#ui> ;
+    lv2:port [
+        a lv2:InputPort , atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports midi:MidiEvent ;
+        lv2:index 0 ;
+        lv2:symbol "midi_in" ;
+        lv2:name "MIDI In"
+    ] , [
+@H2_LV2_PORTS@
+    ] .
+
+# Basic UI (ADR 0016 + ADR 0035 + proposal 0006 UI-5). Two modes over one
+# window seam: with a ui:parent feature the UI embeds a child window on the
+# host parent (ADR 0035's on-contract embedding); without one showInterface
+# drives the self-managed top-level basic-UI window (UI-5, TU5.2) - show
+# creates it, hide destroys it, idle reports the user's close. Neither mode
+# spawns the editor process (TU5.7): the landing view's Open editor button
+# owns it, and it dies with the DSP instance (ADR 0035).
+<https://hydrogen-music.org/lv2/hydrogen#ui>
+    a ui:@H2_LV2_UI_TYPE@ ;
+    # instance-access: the UI reaches the in-process engine (both modes).
+    #   idleInterface: both faces of the UI are idle-driven (embedded
+    #   rendering; fallback rendering + close detection), so the feature is
+    #   required and provided as extension data (hosts that cannot drive
+    #   idle cannot run this UI). ui:parent stays optional (the showInterface
+    #   fallback), which lv2lint's UI Widget check cannot express - it passes
+    #   only required features, so it never sends a parent; skip it with -t
+    #   'UI*Widget' (the widget is covered by lv2-smoke + real hosts).
+    #   (lv2lint warns about instance-access / same binary, accepted here.)
+    lv2:requiredFeature <http://lv2plug.in/ns/ext/instance-access> ,
+                        ui:idleInterface ;
+    lv2:extensionData ui:showInterface , ui:idleInterface ;
+    ui:binary <hydrogen@CMAKE_SHARED_MODULE_SUFFIX@> .
