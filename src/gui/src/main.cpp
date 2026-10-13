@@ -43,6 +43,7 @@
 #include <core/Version.h>
 
 #include "EditorPathExerciser.h"
+#include "FontUtils.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "Parser.h"
@@ -343,6 +344,12 @@ int main(int argc, char *argv[])
 		// Process any pending events before showing splash screen. This allows macOS to show previous-crash
 		// warning dialogs before they are covered by the splash screen.
 		pQApp->processEvents();
+
+		// Font families from the config file are untrusted input. They
+		// are sanitized once here — after the QApplication exists (font
+		// database queries require it) and before the first font is
+		// used.
+		FontUtils::sanitizeFontTheme( pPref->getThemeWritable()->m_pFont );
 
 		QString family = pPref->getFontTheme()->m_sApplicationFontFamily;
 		pQApp->setFont( QFont( family, 10 ) );

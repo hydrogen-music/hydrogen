@@ -29,6 +29,7 @@
 #include <core/Helpers/Xml.h>
 
 #include <QString>
+#include <QStringList>
 #include <QColor>
 
 namespace H2Core
@@ -241,6 +242,18 @@ public:
 		Large = 2
 	};
 		static QString FontSizeToQString( const FontSize& fontSize );
+
+	/**
+	 * Replaces any family which is empty or not contained in
+	 * sAvailableFamilies with sFallbackFamily.
+	 *
+	 * Deliberately a pure string operation: the headless core (plugin
+	 * host) must never enumerate fonts, and keeping QFont/QFontDatabase
+	 * out makes this unit-testable without a QGuiApplication. The GUI
+	 * passes the local QFontDatabase content once at its boundary.
+	 */
+	void sanitizeFamilies( const QStringList& sAvailableFamilies,
+						   const QString& sFallbackFamily );
 
 	QString toQString( const QString& sPrefix = "",
 					   bool bShort = true ) const override;

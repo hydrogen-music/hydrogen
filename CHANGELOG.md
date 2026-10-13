@@ -127,6 +127,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Instead of using the raw font family names of the config file and imported
+  themes, they are validated first and might trigger a fallback to a safer
+  font. This was done to prevent crashes of `libfontconfig` on Linux (#2343).
 - All threading in the core is now based on the C++ standard library
   (`std::thread`) instead of pthreads, removing the pthread API from all
   cross-platform code. This drops the hard dependency on the winpthreads

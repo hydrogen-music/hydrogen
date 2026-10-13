@@ -27,7 +27,6 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 #include <QPixmap>
-#include <QFontDatabase>
 #include <QTreeWidgetItemIterator>
 #include <memory>
 
@@ -43,6 +42,7 @@
 #include <core/Sampler/Sampler.h>
 
 #include <core/CommonStrings.h>
+#include "../FontUtils.h"
 #include "../HydrogenApp.h"
 #include "../MainForm.h"
 #include "../MainToolBar/MainToolBar.h"
@@ -2570,6 +2570,9 @@ void PreferencesDialog::importTheme() {
 		QMessageBox::critical( this, "Hydrogen", tr("Theme couldn't be imported") );
 		return;
 	}
+	// The imported file was authored on another machine; its font
+	// families are untrusted input.
+	FontUtils::sanitizeFontTheme( pTheme->m_pFont );
 	m_pCurrentTheme = pTheme;
 	pPref->setTheme( m_pCurrentTheme );
 	if ( m_nCurrentId == 0 ) {
@@ -2715,33 +2718,14 @@ void PreferencesDialog::updateAppearanceTab( std::shared_ptr<H2Core::Theme> pThe
 		}
 	}
 
-	// Fonts - use QFontDatabase to validate font families before setting them
-	// to prevent crashes in fontconfig when invalid font names are used
-	QString sApplicationFont = pTheme->m_pFont->m_sApplicationFontFamily;
-	QString sLevel2Font = pTheme->m_pFont->m_sLevel2FontFamily;
-	QString sLevel3Font = pTheme->m_pFont->m_sLevel3FontFamily;
+	// Defense-in-depth: every theme reaching the dialog was already
+	// sanitized at its ingress (startup, import), but the parameter is
+	// sanitized again so the comboboxes can never see an invalid family.
+	FontUtils::sanitizeFontTheme( pTheme->m_pFont );
 
-	// Validate font families and fall back to system defaults if invalid
-	QFontDatabase fontDatabase;
-	if ( !fontDatabase.families().contains( sApplicationFont ) ) {
-		WARNINGLOG( QString( "Application font family '%1' not found, falling back to default" )
-					.arg( sApplicationFont ) );
-		sApplicationFont = QFont().family();
-	}
-	if ( !fontDatabase.families().contains( sLevel2Font ) ) {
-		WARNINGLOG( QString( "Level2 font family '%1' not found, falling back to default" )
-					.arg( sLevel2Font ) );
-		sLevel2Font = QFont().family();
-	}
-	if ( !fontDatabase.families().contains( sLevel3Font ) ) {
-		WARNINGLOG( QString( "Level3 font family '%1' not found, falling back to default" )
-					.arg( sLevel3Font ) );
-		sLevel3Font = QFont().family();
-	}
-
-	applicationFontComboBox->setCurrentFont( QFont( sApplicationFont ) );
-	level2FontComboBox->setCurrentFont( QFont( sLevel2Font ) );
-	level3FontComboBox->setCurrentFont( QFont( sLevel3Font ) );
+	applicationFontComboBox->setCurrentFont( QFont( pTheme->m_pFont->m_sApplicationFontFamily ) );
+	level2FontComboBox->setCurrentFont( QFont( pTheme->m_pFont->m_sLevel2FontFamily ) );
+	level3FontComboBox->setCurrentFont( QFont( pTheme->m_pFont->m_sLevel3FontFamily ) );
 
 	switch( pTheme->m_pFont->m_fontSize ) {
 	case FontTheme::FontSize::Small:

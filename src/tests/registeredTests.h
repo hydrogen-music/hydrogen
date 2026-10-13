@@ -75,6 +75,7 @@
 #include "PreferencesSchemaTest.h"
 #include "SampleTest.h"
 #include "SoundLibraryTest.h"
+#include "ThemeTest.h"
 #include "TimeTest.h"
 #include "Translations.cpp"
 #include "TransportTest.h"
@@ -141,6 +142,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesPersistTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesSchemaTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ThemeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TransportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( UITranslationTest );
