@@ -794,9 +794,12 @@ namespace {
 	{
 		const XMLNode node = parent.firstChildElement( row.key );
 		if ( node.isNull() ) {
-			if ( context.bEmitStructuralWarnings ) {
-				___WARNINGLOG( "<colorTheme> node not found" );
-			}
+			// In order to ensure the user always gets the latest theme on a
+			// fresh install and to prevent a divergence of the color values in
+			// the constructor and the shipped default config, the latter won't
+			// include the color theme at all. During first-run a fresh copy
+			// will be created. That's why we must not warn about its absence
+			// either.
 			return;
 		}
 		data.m_pTheme->m_pColor = ColorTheme::loadFrom( node, context.bSilent );
