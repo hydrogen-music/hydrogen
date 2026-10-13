@@ -61,7 +61,7 @@ All notable changes to this project will be documented in this file.
   - `--online-import-type <type>`:  to filter by `pattern`, `song`, `drumkit`,
 	or `all`.
   - `-c/--connect-via-ipc <endpoint>`: start GUI instance without drivers and
-    connect to a headless instance instead.
+    connect to a headless instance (`h2player` or LV2/CLAP/VST3 plugin) instead.
 - The IPC connection button in the MainToolBar to toggle the connection to the
   remote headless engine.
 - Patterns are now independent of Drumkits and the latter can switched without
@@ -83,7 +83,7 @@ All notable changes to this project will be documented in this file.
 - Button in main toolbar indicating both MIDI input and output signals and
   opening a dialog showing the latest MIDI events.
 - Instruments can now be duplicated via popup context menu (#1925).
-- Midi: 
+- Midi:
   - A MIDI control dialog listing all incoming and outgoing messages is now
     accessible via a button in the main toolbar.
   - Hydrogen does now only act on MIDI `START`, `CONTINUE`, and `STOP` messages,
@@ -120,6 +120,10 @@ All notable changes to this project will be documented in this file.
   - new CLI option `-i/--interactive` flag for keyboard-controlled mode (can be
   combined with IPC server for simultaneous keyboard and GUI control).
 - A song and all its samples can now be stored and loaded from a self-contained `.h2project` file (#272).
+- The Hydrogen project does now provide LV2, CLAP, and VST3 plugins. It features
+  a minimal UI to render incoming MIDI notes and/or play back loaded patterns or
+  songs from within the plugin host. For more advanced features, it allows to
+  open the regular GUI for remote controlling of the plugin.
 
 ### Changed
 

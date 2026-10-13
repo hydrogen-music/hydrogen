@@ -144,6 +144,10 @@ order to make a release has several, easy-to-forget steps.  They are:
      in `.appveyor` tweaking the `DISPLAY_VERSION` variable according to tag and
      commit id. When pushing this branch to Github, our AppVeyor pipeline will
      create release artifacts for Linux, macOS, and Windows.
+	 
+	 Note that this does not include any plugins. Since these have to be build
+     against a static Qt with a dedicated namespace, they can not be compiled in
+     our current pipeline and have to build locally.
 
   6. Call your friends.  Have a party.  Be sure to tests the artifacts
      on as many systems as possible.  Be sure to install and uninstall
