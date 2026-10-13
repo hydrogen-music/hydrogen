@@ -44,10 +44,6 @@
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
    <instrumentComponent>
     <name>Main</name>
     <gain>1</gain>
@@ -131,10 +127,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -312,10 +304,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -372,10 +360,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -432,10 +416,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -492,10 +472,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -628,10 +604,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -780,10 +752,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -840,10 +808,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -976,10 +940,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -1112,10 +1072,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -1248,10 +1204,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -1384,10 +1336,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -1520,10 +1468,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -1656,10 +1600,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -1792,10 +1732,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -1928,10 +1864,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -2064,10 +1996,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -2200,10 +2128,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -2336,10 +2260,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -2472,10 +2392,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -2608,10 +2524,6 @@ p, li { white-space: pre-wrap; }
     <isHihat>-1</isHihat>
     <lower_cc>0</lower_cc>
     <higher_cc>127</higher_cc>
-    <FX1Level>0</FX1Level>
-    <FX2Level>0</FX2Level>
-    <FX3Level>0</FX3Level>
-    <FX4Level>0</FX4Level>
     <instrumentComponent>
      <name>Main</name>
      <gain>1</gain>
@@ -2943,32 +2855,6 @@ p, li { white-space: pre-wrap; }
    <patternID>Pattern 1</patternID>
   </group>
  </patternSequence>
- <ladspa>
-  <fx>
-   <name>no plugin</name>
-   <filename>-</filename>
-   <enabled>false</enabled>
-   <volume>0</volume>
-  </fx>
-  <fx>
-   <name>no plugin</name>
-   <filename>-</filename>
-   <enabled>false</enabled>
-   <volume>0</volume>
-  </fx>
-  <fx>
-   <name>no plugin</name>
-   <filename>-</filename>
-   <enabled>false</enabled>
-   <volume>0</volume>
-  </fx>
-  <fx>
-   <name>no plugin</name>
-   <filename>-</filename>
-   <enabled>false</enabled>
-   <volume>0</volume>
-  </fx>
- </ladspa>
  <BPMTimeLine/>
  <timeLineTag/>
  <automationPaths>

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.8] - XXXX-XX-XX
+
+The support for **LADSPA** effect plugins is **deprecated** and will be removed
+in version 2.0 of Hydrogen.
+
 ## [1.2.7] - 2026-10-02
 
 ### Added
