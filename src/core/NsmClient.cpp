@@ -33,7 +33,6 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <pthread.h>
 #include <unistd.h>
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
@@ -47,7 +46,6 @@ NsmClient::NsmClient( H2Core::Hydrogen* pHydrogen )
 	: m_pHydrogen( pHydrogen ),
 	  m_pNsm( nullptr ),
 	  m_bUnderSessionManagement( false ),
-	  m_NsmThread( 0 ),
 	  m_sSessionFolderPath( "" ),
 	  m_bIsNewSession( false )
 {
@@ -326,22 +324,18 @@ void NsmClient::createInitialClient( const QString& sProcessName ) {
 				// single scope at entry routes its logging to that instance's
 				// logger (ADR 0015, T1.6). ProcessEvent is a static C-callback
 				// without instance access, so the instance logger is captured
-				// at spawn and threaded through a wrapper.
-				struct NsmThreadArgs {
-					nsm_client_t* pNsm;
-					Logger* pLogger;
-				};
-				auto* pArgs = new NsmThreadArgs{ pNsm, Logger::currentLogger() };
-				if ( pthread_create( &m_NsmThread, nullptr,
-									 []( void* pData ) -> void* {
-										 auto* pArgs = static_cast<NsmThreadArgs*>( pData );
-										 Logger::Scope loggerScope( pArgs->pLogger );
-										 void* pResult = NsmClient::ProcessEvent( pArgs->pNsm );
-										 delete pArgs;
-										 return pResult;
-									 },
-									 pArgs ) ) {
-					delete pArgs;
+				// at spawn and passed to the wrapper. The thread is detached
+				// right away: it runs till process end and is never joined.
+				try {
+					m_NsmThread = std::thread(
+						[]( nsm_client_t* pNsm, Logger* pLogger ) {
+							Logger::Scope loggerScope( pLogger );
+							NsmClient::ProcessEvent( pNsm );
+						},
+						pNsm, Logger::currentLogger() );
+					m_NsmThread.detach();
+				}
+				catch ( const std::system_error& ) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
 					return;

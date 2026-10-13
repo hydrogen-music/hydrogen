@@ -25,9 +25,11 @@
 
 #include <atomic>
 #include <cassert>
+#include <condition_variable>
 #include <list>
-#include <pthread.h>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <QtCore/QString>
 #include <QtCore/QFlags>
 #include <QStringList>
@@ -195,7 +197,7 @@ class Logger {
 		 * needed for being able to access logger internal
 		 * \param param is a pointer to the logger instance
 		 */
-		friend void* loggerThread_func( void* param );
+		friend void loggerThread_func( Logger* pLogger );
 
 		/** @name Crash context management
 		 * Access the crash context string that can be used to report what caused a crash.  The crash-context
@@ -246,14 +248,14 @@ class Logger {
 		 * (ADR 0015, T1.6). nullptr ⇒ fall back to the process default. */
 		static thread_local Logger* __pCurrent;
 		bool __running;                 ///< set to true when the logger thread is running
-		pthread_mutex_t __mutex;        ///< lock for adding or removing elements only
+		std::mutex __mutex;             ///< lock for adding or removing elements only
 		queue_t __msg_queue;            ///< the message queue
 		static unsigned __bit_msk;      ///< the bitmask of log_level_t
 		static const char* __levels[];  ///< levels strings
-		pthread_cond_t __messages_available;
+		std::condition_variable __messages_available;
 		/** Worker thread servicing this logger's queue. Per-instance (ADR 0015,
 		 * T1.6) so multiple loggers each drain their own queue/file. */
-		pthread_t m_loggerThread;
+		std::thread m_loggerThread;
 	QString m_sLogFilePath;
 
 		QStringList m_prefixList;

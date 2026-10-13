@@ -27,8 +27,10 @@
 
 #if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
-#include <pthread.h>
+#include <condition_variable>
 #include <inttypes.h>
+#include <mutex>
+#include <thread>
 #include <pulse/pulseaudio.h>
 
 namespace H2Core
@@ -56,9 +58,9 @@ public:
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
-	pthread_t				m_thread;
-	pthread_mutex_t			m_mutex;
-	pthread_cond_t			m_cond;
+	std::thread				m_thread;
+	std::mutex				m_mutex;
+	std::condition_variable	m_cond;
 	/** File descriptors used to write data to (m_pipe[1]) and read
 		data from (m_pipe[0]) the pipe.*/
 	int						m_pipe[2];
@@ -73,7 +75,7 @@ private:
 	float*					m_outL;
 	float*					m_outR;
 
-	static void* s_thread_body(void*);
+	static void s_thread_body(PulseAudioDriver*);
 	int thread_body();
 
 	static void ctx_state_callback(pa_context* ctx, void* udata);

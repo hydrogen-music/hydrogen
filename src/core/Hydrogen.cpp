@@ -21,7 +21,6 @@
  */
 #include <core/config.h>
 
-#include <pthread.h>
 #include <cassert>
 #include <cstdio>
 #include <deque>

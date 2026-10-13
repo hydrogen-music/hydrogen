@@ -52,7 +52,7 @@ Logger* Base::__logger = nullptr;
 bool Base::bLogColors = true;
 bool Base::__count = false;
 std::atomic<int> Base::__objects_count(0);
-pthread_mutex_t Base::__mutex;
+std::mutex Base::__mutex;
 object_internal_map_t Base::__objects_map;
 QString Base::sPrintIndention = "  ";
 TimePoint Base::m_lastTimePoint = TimePoint();
@@ -142,7 +142,6 @@ int Base::bootstrap( Logger* pLogger, bool count ) {
 
 		Base::bLogColors = pLogger->getLogColors();
 
-		pthread_mutex_init( &__mutex, nullptr );
 		return 0;
 	}
 	return 1;
@@ -176,7 +175,7 @@ void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 	}
 	
 	std::ostringstream o;
-	pthread_mutex_lock( &__mutex );
+	std::lock_guard<std::mutex> lock( __mutex );
 	object_map_t::iterator it = map->begin();
 	while ( it != map->end() ) {
 		if ( it->second.constructed || it->second.destructed ) {
@@ -185,7 +184,6 @@ void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 		}
 		it++;
 	}
-	pthread_mutex_unlock( &__mutex );
 
 	out << std::endl;
 	if ( Base::bLogColors ) {

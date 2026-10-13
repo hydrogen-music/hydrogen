@@ -25,17 +25,15 @@
 
 #include <core/Hydrogen.h>
 
-#include <pthread.h>
+#include <thread>
 
 using namespace H2Core;
 
-static void *pushThread(void *p) {
-	int *pInt = (int *)p;
+static void pushThread(int* pInt) {
 	auto pEventQueue = pTestEventQueue();
 	for ( int i = 0; i < EventQueueTest::nCountsPerThread; i++) {
 		pEventQueue->pushEvent( Event::Type::Metronome, *pInt );
 	}
-	return nullptr;
 }
 
 /** Entries pushed by the concurrent-drain test below. Kept larger than a
@@ -43,7 +41,7 @@ static void *pushThread(void *p) {
  * main thread drains — the overlap the lock has to survive. */
 static constexpr int nMidiNotesToPush = 2000;
 
-static void *pushMidiNoteThread(void *) {
+static void pushMidiNoteThread() {
 	auto pEventQueue = pTestEventQueue();
 	for ( int i = 0; i < nMidiNotesToPush; i++ ) {
 		EventQueue::AddMidiNoteVector noteAction;
@@ -58,7 +56,6 @@ static void *pushMidiNoteThread(void *) {
 		noteAction.bNoteOff = false;
 		pEventQueue->pushMidiNoteAction( noteAction );
 	}
-	return nullptr;
 }
 
 void EventQueueTest::setUp() {
@@ -127,7 +124,7 @@ void EventQueueTest::testThreadedAccess() {
 	___INFOLOG( "" );
 	auto pEventQueue = pTestEventQueue();
 
-	pthread_t threads[ EventQueueTest::nThreads ];
+	std::thread threads[ EventQueueTest::nThreads ];
 	int counters[ EventQueueTest::nThreads ];
 	int threadIds[ EventQueueTest::nThreads ];
 
@@ -138,8 +135,7 @@ void EventQueueTest::testThreadedAccess() {
 
 	// Start writer threads
 	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
-		int nRetVal = pthread_create(
-			&threads[ i ], nullptr, pushThread, &threadIds[ i ]);
+		threads[ i ] = std::thread( pushThread, &threadIds[ i ] );
 	}
 
 	// Reader counts up the number of events from each thread
@@ -156,6 +152,14 @@ void EventQueueTest::testThreadedAccess() {
 		else {
 			CPPUNIT_ASSERT( pEvent == nullptr );
 		}
+	}
+
+	// The reader loop only completes once every writer finished pushing
+	// (the total counts them all), so these joins return immediately —
+	// but they are mandatory: destroying a joinable std::thread
+	// terminates the process (an abandoned pthread_t was merely sloppy).
+	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
+		threads[ i ].join();
 	}
 
 	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
@@ -266,9 +270,9 @@ void EventQueueTest::testMidiNoteVectorThreadedAccess() {
 	// the shape of the GUI timer racing the audio thread (standalone) or
 	// the IPC reader thread (split). Every entry must survive exactly
 	// once and in order.
-	pthread_t thread;
-	CPPUNIT_ASSERT( pthread_create( &thread, nullptr, pushMidiNoteThread,
-									nullptr ) == 0 );
+	// std::thread reports a failed spawn by throwing, which fails the
+	// test as loudly as the old pthread_create() return check.
+	std::thread thread( pushMidiNoteThread );
 
 	int nSeen = 0;
 	int nIdleSpins = 0;
@@ -283,7 +287,7 @@ void EventQueueTest::testMidiNoteVectorThreadedAccess() {
 			++nSeen;
 		}
 	}
-	pthread_join( thread, nullptr );
+	thread.join();
 	// Whatever the producer pushed after our last drain.
 	for ( const auto& drainedNote : pEventQueue->drainMidiNoteActions() ) {
 		CPPUNIT_ASSERT( drainedNote.nColumn == nSeen );

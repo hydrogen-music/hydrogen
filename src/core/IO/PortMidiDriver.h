@@ -26,6 +26,7 @@
 #include <core/IO/MidiBaseDriver.h>
 
 #include <memory>
+#include <thread>
 
 #if defined(H2CORE_HAVE_PORTMIDI) || _DOXYGEN_
 #include <portmidi.h>
@@ -76,6 +77,9 @@ private:
 
 	int m_nVirtualInputDeviceId;
 	int m_nVirtualOutputDeviceId;
+	// Polls MIDI input while m_bRunning (created in open(), joined in
+	// close()).
+	std::thread m_midiDriverThread;
 };
 
 };

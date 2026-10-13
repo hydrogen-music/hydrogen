@@ -27,7 +27,7 @@
 
 #include <atomic>
 #include <inttypes.h>
-#include <pthread.h>
+#include <thread>
 
 #include <core/IO/AudioDriver.h>
 #include <core/Object.h>
@@ -35,7 +35,8 @@
 namespace H2Core
 {
 
-	void* diskWriterDriver_thread( void *param );
+	class DiskWriterDriver;
+	void diskWriterDriver_thread( DiskWriterDriver *pDriver );
 ///
 /// Driver for export audio to disk
 ///
@@ -109,13 +110,12 @@ class DiskWriterDriver : public Object<DiskWriterDriver>, public AudioDriver
 
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 	private:
-		// Writer thread of the most recent write() call. Only valid
-		// while m_bWriterThreadCreated is true — a session stopped
-		// before its first render has no thread to join. The flag is
-		// not synchronised: write() and disconnect() must stay
+		// Writer thread of the most recent write() call. A session
+		// stopped before its first render has no thread to join —
+		// joinable() is false both before the first write() and after
+		// a join. Not synchronised: write() and disconnect() must stay
 		// serialized (same thread, or via the export plan join).
-		pthread_t m_writerThread;
-		bool m_bWriterThreadCreated;
+		std::thread m_writerThread;
 };
 
 };

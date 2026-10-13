@@ -31,7 +31,6 @@
 #include <core/Basics/Sample.h>
 #include <core/IO/DiskWriterDriver.h>
 
-#include <pthread.h>
 #include <cassert>
 
 #if defined(WIN32) || _DOXYGEN_
@@ -49,10 +48,8 @@
 namespace H2Core
 {
 
-void* diskWriterDriver_thread( void* param )
+void diskWriterDriver_thread( DiskWriterDriver* pDriver )
 {
-
-	DiskWriterDriver *pDriver = ( DiskWriterDriver* )param;
 
 	// This thread serves one engine instance for its whole life, so a single
 	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
@@ -124,8 +121,7 @@ void* diskWriterDriver_thread( void* param )
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
 		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
-		pthread_exit( nullptr );
-		return nullptr;
+		return;
 
 	}
 
@@ -166,8 +162,7 @@ void* diskWriterDriver_thread( void* param )
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
 		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
-		pthread_exit( nullptr );
-		return nullptr;
+		return;
 	}
 
 #ifdef WIN32
@@ -197,8 +192,7 @@ void* diskWriterDriver_thread( void* param )
 		pDriver->m_bDoneWriting = true;
 		pDriver->m_bWritingFailed = true;
 		pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
-		pthread_exit( nullptr );
-		return nullptr;
+		return;
 	}
 
 	// Perform some per-file settings.
@@ -245,6 +239,8 @@ void* diskWriterDriver_thread( void* param )
 	int nColumns = pPatternColumns->size();
 
 	// Used to cleanly terminate this thread and close all handlers.
+	// Every caller must return right after: this only releases the
+	// render resources, it cannot end the thread itself.
 	auto tearDown = [&](){
 		pDriver->m_bDoneWriting = true;
 		delete[] pData;
@@ -253,8 +249,6 @@ void* diskWriterDriver_thread( void* param )
 		sf_close( pSndfile );
 
 		___INFOLOG( "DiskWriterDriver thread end" );
-
-		pthread_exit( nullptr );
 	};
 	
 	int nPatternSize, nBufferWriteLength;
@@ -292,6 +286,7 @@ void* diskWriterDriver_thread( void* param )
 				// A stop asked for the session mid-render — bail out
 				// without finishing the file.
 				tearDown();
+				return;
 			}
 
 			int nUsedBuffer = pDriver->m_nBufferSize;
@@ -316,7 +311,7 @@ void* diskWriterDriver_thread( void* param )
 				pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
-				return nullptr;
+				return;
 			}
 			
 			int ret = pDriver->m_processCallback( nUsedBuffer,
@@ -340,7 +335,7 @@ void* diskWriterDriver_thread( void* param )
 					pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 					pDriver->m_bWritingFailed = true;
 					tearDown();
-					return nullptr;
+					return;
 				}
 			}
 
@@ -409,7 +404,7 @@ void* diskWriterDriver_thread( void* param )
 				pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, -1 );
 				pDriver->m_bWritingFailed = true;
 				tearDown();
-				return nullptr;
+				return;
 			}
 
 			// Sampler is still rendering notes put we seem to have
@@ -432,8 +427,7 @@ void* diskWriterDriver_thread( void* param )
 	pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::AudioExportProgress, 100 );
 	
 	tearDown();
-
-	return nullptr;
+	return;
 }
 
 
@@ -450,7 +444,6 @@ DiskWriterDriver::DiskWriterDriver( Hydrogen* pHydrogen, audioProcessCallback pr
 		, m_bDoneWriting( false )
 		, m_bWritingFailed( false )
 		, m_fCompressionLevel( 0.0 )
-	, m_bWriterThreadCreated( false )
 	, m_bCancelRequested( false ) {
 }
 
@@ -494,18 +487,13 @@ void DiskWriterDriver::write()
 	// next one. write() is only called once the previous file is
 	// done, so the join returns immediately — but without it every
 	// additional file in the session would leak a zombie thread.
-	if ( m_bWriterThreadCreated ) {
-		pthread_join( m_writerThread, nullptr );
-		m_bWriterThreadCreated = false;
+	if ( m_writerThread.joinable() ) {
+		m_writerThread.join();
 	}
 
 	m_bIsRunning = true;
-	
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
 
-	pthread_create( &m_writerThread, &attr, diskWriterDriver_thread, this );
-	m_bWriterThreadCreated = true;
+	m_writerThread = std::thread( diskWriterDriver_thread, this );
 }
 
 /// disconnect
@@ -522,11 +510,9 @@ void DiskWriterDriver::disconnect()
 
 	// A session can be stopped before its first render started (an
 	// export plan cancelled right away) — there is no writer thread
-	// to join, and joining a stale handle would be undefined
-	// behaviour.
-	if ( m_bWriterThreadCreated ) {
-		pthread_join( m_writerThread, nullptr );
-		m_bWriterThreadCreated = false;
+	// to join (joinable() is false before the first write()).
+	if ( m_writerThread.joinable() ) {
+		m_writerThread.join();
 	}
 
 	delete[] m_pOut_L;

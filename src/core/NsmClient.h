@@ -31,6 +31,7 @@
 
 #include <core/Object.h>
 #include <cassert>
+#include <thread>
 
 #include "core/Nsm.h"
 
@@ -77,8 +78,9 @@ class NsmClient : public H2Core::Object<NsmClient>
 		NsmClient( H2Core::Hydrogen* pHydrogen );
 		/** Destructor*/
 		~NsmClient();
-		/** Thread the NSM client will run in.*/
-		pthread_t m_NsmThread;
+		/** Thread the NSM client will run in. Detached at spawn: it
+		 * runs till process end and is never joined.*/
+		std::thread m_NsmThread;
 
 		/**
 		 * Informs the NSM server whether the current H2Core::Song is

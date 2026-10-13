@@ -30,12 +30,8 @@
 #include <core/Midi/MidiMessage.h>
 #include <core/Preferences/Preferences.h>
 
-#include <pthread.h>
-
 namespace H2Core
 {
-
-pthread_t midiDriverThread;
 
 bool isMidiDriverRunning = false;
 
@@ -47,10 +43,8 @@ int clientId;
 int outPortId;
 
 
-void* alsaMidiDriver_thread( void* param )
+void alsaMidiDriver_thread( AlsaMidiDriver* pDriver )
 {
-	Base * __object = ( Base * )param;
-	AlsaMidiDriver *pDriver = ( AlsaMidiDriver* )param;
 	// This thread serves one engine instance for its whole life, so a single
 	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
 	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
@@ -58,13 +52,13 @@ void* alsaMidiDriver_thread( void* param )
 
 	if ( seq_handle != nullptr ) {
 		___ERRORLOG( "seq_handle != NULL" );
-		pthread_exit( nullptr );
+		return;
 	}
 
 	int err;
 	if ( ( err = snd_seq_open( &seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0 ) ) < 0 ) {
 		___ERRORLOG( QString( "Error opening ALSA sequencer: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
-		pthread_exit( nullptr );
+		return;
 	}
 
 	snd_seq_set_client_name( seq_handle, "Hydrogen" );
@@ -77,7 +71,7 @@ void* alsaMidiDriver_thread( void* param )
 											  )
 		 ) < 0 ) {
 		___ERRORLOG( "Error creating sequencer port." );
-		pthread_exit( nullptr );
+		return;
 	}
 
 	if ( ( outPortId = snd_seq_create_simple_port( 	seq_handle,
@@ -88,7 +82,7 @@ void* alsaMidiDriver_thread( void* param )
 											  )
 		 ) < 0 ) {
 		___ERRORLOG( "Error creating sequencer port." );
-		pthread_exit( nullptr );
+		return;
 	}
 
 	clientId = snd_seq_client_id( seq_handle );
@@ -174,9 +168,6 @@ void* alsaMidiDriver_thread( void* param )
 	snd_seq_close ( seq_handle );
 	seq_handle = nullptr;
 	___INFOLOG( "MIDI Thread DESTROY" );
-
-	pthread_exit( nullptr );
-	return nullptr;
 }
 
 
@@ -198,14 +189,14 @@ AlsaMidiDriver::~AlsaMidiDriver() {
 void AlsaMidiDriver::open() {
 	// start main thread
 	isMidiDriverRunning = true;
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_create( &midiDriverThread, &attr, alsaMidiDriver_thread, ( void* )this );
+	m_midiDriverThread = std::thread( alsaMidiDriver_thread, this );
 }
 
 void AlsaMidiDriver::close() {
 	isMidiDriverRunning = false;
-	pthread_join( midiDriverThread, nullptr );
+	if ( m_midiDriverThread.joinable() ) {
+		m_midiDriverThread.join();
+	}
 }
 
 void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle ) {

@@ -123,6 +123,11 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- All threading in the core is now based on the C++ standard library
+  (`std::thread`) instead of pthreads, removing the pthread API from all
+  cross-platform code. This drops the hard dependency on the winpthreads
+  emulation for Windows builds and opens the door to building with
+  toolchains without pthread support (e.g. MSVC).
 - Preference changes are now saved to disk automatically during the
   session (at the configured autosave rate, or once a minute with
   autosaving disabled) instead of only on dialog confirmation and

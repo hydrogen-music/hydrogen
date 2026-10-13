@@ -26,15 +26,12 @@
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
-#include <pthread.h>
 #include <iostream>
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 
 namespace H2Core
 {
-
-pthread_t alsaAudioDriverThread;
 
 static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 {
@@ -55,10 +52,8 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 	return err;
 }
 
-void* alsaAudioDriver_processCaller( void* param )
+void alsaAudioDriver_processCaller( AlsaAudioDriver* pDriver )
 {
-	Base *__object = (Base*)param;
-	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
 
 	// This thread serves one engine instance for its whole life, so a single
 	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
@@ -150,7 +145,6 @@ void* alsaAudioDriver_processCaller( void* param )
 			}
 		}
 	}
-	return nullptr;
 }
 
 
@@ -366,9 +360,7 @@ int AlsaAudioDriver::connect()
 	m_bIsRunning = true;
 
 	// start the main thread
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_create( &alsaAudioDriverThread, &attr, alsaAudioDriver_processCaller, this );
+	m_alsaAudioDriverThread = std::thread( alsaAudioDriver_processCaller, this );
 
 	return 0;	// OK
 }
@@ -382,7 +374,9 @@ void AlsaAudioDriver::disconnect()
 	
 	m_bIsRunning = false;
 
-	pthread_join( alsaAudioDriverThread, nullptr );
+	if ( m_alsaAudioDriverThread.joinable() ) {
+		m_alsaAudioDriverThread.join();
+	}
 
 	snd_pcm_close( m_pPlayback_handle );
 

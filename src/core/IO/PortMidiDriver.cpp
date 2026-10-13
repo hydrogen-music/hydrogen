@@ -38,17 +38,11 @@
 #include <porttime.h>
 #define TIME_PROC ((int32_t (*)(void *)) Pt_Time)
 
-#include <pthread.h>
-
 namespace H2Core
 {
 
-pthread_t PortMidiDriverThread;
-
-void* PortMidiDriver_thread( void* param )
+void PortMidiDriver_thread( PortMidiDriver* instance )
 {
-	Base *__object = (Base *)param;
-	PortMidiDriver *instance = ( PortMidiDriver* )param;
 	// This thread serves one engine instance for its whole life, so a single
 	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
 	Logger::Scope loggerScope( instance->getHydrogen()->getLogger() );
@@ -138,8 +132,6 @@ void* PortMidiDriver_thread( void* param )
 
 
 	___INFOLOG( "MIDI Thread DESTROY" );
-	pthread_exit( nullptr );
-	return nullptr;
 }
 
 PortMidiDriver::PortMidiDriver( Hydrogen* pHydrogen )
@@ -373,9 +365,7 @@ void PortMidiDriver::open()
 	if ( m_pMidiIn != nullptr ) {
 		m_bRunning = true;
 
-		pthread_attr_t attr;
-		pthread_attr_init( &attr );
-		pthread_create( &PortMidiDriverThread, &attr, PortMidiDriver_thread, ( void* )this );
+		m_midiDriverThread = std::thread( PortMidiDriver_thread, this );
 	}
 }
 
@@ -385,7 +375,7 @@ void PortMidiDriver::close()
 	INFOLOG( "[close]" );
 	if ( m_bRunning ) {
 		m_bRunning = false;
-		pthread_join( PortMidiDriverThread, nullptr );
+		m_midiDriverThread.join();
 
 		PmError err;
 		if ( m_pMidiIn != nullptr ) {

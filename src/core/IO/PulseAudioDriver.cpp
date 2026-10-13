@@ -43,15 +43,11 @@ PulseAudioDriver::PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback pr
 		m_outL(nullptr),
 		m_outR(nullptr)
 {
-	pthread_mutex_init(&m_mutex, nullptr);
-	pthread_cond_init(&m_cond, nullptr);
 }
 
 
 PulseAudioDriver::~PulseAudioDriver()
 {
-	pthread_cond_destroy(&m_cond);
-	pthread_mutex_destroy(&m_mutex);
 	delete []m_outL;
 	delete []m_outR;
 }
@@ -84,23 +80,25 @@ int PulseAudioDriver::connect()
 	fcntl(m_pipe[0], F_SETFL, fcntl(m_pipe[0], F_GETFL) | O_NONBLOCK);
 
 	m_ready = 0;
-	if (pthread_create(&m_thread, nullptr, s_thread_body, this))
-	{
+	// std::thread reports a failed spawn by throwing (pthread_create
+	// returned an error code instead), so the error path moves into a
+	// catch.
+	try {
+		m_thread = std::thread( s_thread_body, this );
+	}
+	catch ( const std::system_error& ) {
 		close(m_pipe[0]);
 		close(m_pipe[1]);
 		ERRORLOG( "unable to start thread." );
 		return 1;
 	}
 
-	pthread_mutex_lock(&m_mutex);
-	while (!m_ready) {
-		pthread_cond_wait(&m_cond, &m_mutex);
-	}
-	pthread_mutex_unlock(&m_mutex);
+	std::unique_lock<std::mutex> lock( m_mutex );
+	m_cond.wait( lock, [&] { return m_ready != 0; } );
 
 	if (m_ready < 0)
 	{
-		pthread_join(m_thread, nullptr);
+		m_thread.join();
 		close(m_pipe[0]);
 		close(m_pipe[1]);
 		ERRORLOG( QString( "unable to run driver. Main loop returned %1" ).arg( m_ready ) );
@@ -120,7 +118,7 @@ void PulseAudioDriver::disconnect()
 		while (write(m_pipe[1], &junk, 1) != 1) {
 			;
 		}
-		pthread_join(m_thread, nullptr);
+		m_thread.join();
 		close(m_pipe[0]);
 		close(m_pipe[1]);
 	}
@@ -150,22 +148,18 @@ float* PulseAudioDriver::getOut_R()
 	return m_outR;
 }
 
-void* PulseAudioDriver::s_thread_body(void* arg)
+void PulseAudioDriver::s_thread_body(PulseAudioDriver* self)
 {
-	PulseAudioDriver* self = (PulseAudioDriver*)arg;
 	// This thread serves one engine instance for its whole life, so a single
 	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
 	Logger::Scope loggerScope( self->getHydrogen()->getLogger() );
 	int r = self->thread_body();
 	if (r)
 	{
-		pthread_mutex_lock(&self->m_mutex);
+		std::lock_guard<std::mutex> lock( self->m_mutex );
 		self->m_ready = -r;
-		pthread_cond_signal(&self->m_cond);
-		pthread_mutex_unlock(&self->m_mutex);
+		self->m_cond.notify_one();
 	}
-
-	return nullptr;
 }
 
 
@@ -233,10 +227,9 @@ void PulseAudioDriver::stream_state_callback(pa_stream* stream, void* udata)
 	if ( s == PA_STREAM_FAILED ) {
 		pa_mainloop_quit(self->m_main_loop, 1);
 	} else if ( s == PA_STREAM_READY ) {
-		pthread_mutex_lock(&self->m_mutex);
+		std::lock_guard<std::mutex> lock( self->m_mutex );
 		self->m_ready = 1;
-		pthread_cond_signal(&self->m_cond);
-		pthread_mutex_unlock(&self->m_mutex);
+		self->m_cond.notify_one();
 	}
 }
 

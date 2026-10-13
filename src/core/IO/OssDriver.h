@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <iostream>
+#include <thread>
 #include <unistd.h>
 #include <inttypes.h>
 
@@ -89,6 +90,9 @@ private:
 	audioProcessCallback processCallback;
 	int log2( int n );
 
+	// Audio processing thread (created in connect(), joined in
+	// disconnect()).
+	std::thread m_ossDriverThread;
 };
 
 #else

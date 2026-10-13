@@ -34,6 +34,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <QDebug>
 #include <QtCore>
 #include <unistd.h>
@@ -239,7 +240,7 @@ class Base {
 		Uuid m_uuid;
 		static std::atomic<int> __objects_count;        ///< total objects count
 		static object_internal_map_t __objects_map;      ///< objects classes and instances count structure
-		static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
+		static std::mutex __mutex;         ///< yeah this has to be thread safe
 };
 
 std::ostream& operator<<( std::ostream& os, const Base& object );

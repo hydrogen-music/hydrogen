@@ -28,6 +28,7 @@
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <inttypes.h>
+#include <thread>
 #include <alsa/asoundlib.h>
 
 namespace H2Core
@@ -65,6 +66,9 @@ public:
 private:
 
 	unsigned int m_nSampleRate;
+	// Audio processing thread (created in connect(), joined in
+	// disconnect()).
+	std::thread m_alsaAudioDriverThread;
 };
 
 #else

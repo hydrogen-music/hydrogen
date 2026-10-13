@@ -139,11 +139,7 @@ class LogWriteLock {
 
 }
 
-void* loggerThread_func( void* param ) {
-	if ( param == nullptr ) {
-		return nullptr;
-	}
-	Logger* pLogger = ( Logger* )param;
+void loggerThread_func( Logger* pLogger ) {
 #ifdef WIN32
 #  ifdef H2CORE_HAVE_DEBUG
 	::AllocConsole();
@@ -188,24 +184,23 @@ void* loggerThread_func( void* param ) {
 		bUseLogFile = false;
 	}
 	Logger::queue_t* queue = &pLogger->__msg_queue;
-	// Drain loop. Uses a predicate around pthread_cond_wait() to avoid lost
-	// wakeups, and — crucially for short-lived per-instance loggers (ADR 0015,
-	// T1.6) — always performs a final drain once __running is cleared, so
-	// messages queued just before destruction are flushed before the file is
-	// closed (the dtor joins this thread).
+	// Drain loop. Uses a predicate around the condition variable wait to
+	// avoid lost wakeups, and — crucially for short-lived per-instance
+	// loggers (ADR 0015, T1.6) — always performs a final drain once
+	// __running is cleared, so messages queued just before destruction are
+	// flushed before the file is closed (the dtor joins this thread).
 	bool bDraining = true;
 	while ( bDraining ) {
-		pthread_mutex_lock( &pLogger->__mutex );
-		while ( pLogger->__running && queue->empty() ) {
-			pthread_cond_wait( &pLogger->__messages_available, &pLogger->__mutex );
-		}
+		std::unique_lock<std::mutex> lock( pLogger->__mutex );
+		pLogger->__messages_available.wait(
+			lock, [&] { return ! pLogger->__running || ! queue->empty(); } );
 		// Stop once shutdown has been requested and nothing is left to write.
 		bDraining = pLogger->__running || ! queue->empty();
 		// Detach the pending messages under the lock, then write them out
 		// without holding it.
 		Logger::queue_t pending;
 		pending.swap( *queue );
-		pthread_mutex_unlock( &pLogger->__mutex );
+		lock.unlock();
 
 		for ( const auto& sEntry : pending ) {
 			if ( pLogger->m_bUseStdout ) {
@@ -250,8 +245,6 @@ void* loggerThread_func( void* param ) {
 
 	stderrStream.flush();
 	stdoutStream.flush();
-	pthread_exit( nullptr );
-	return nullptr;
 }
 
 Logger* Logger::bootstrap( unsigned msk, const QString& sLogFilePath,
@@ -340,11 +333,7 @@ Logger::Logger( const QString& sLogFilePath, Options options )
 		m_sLogFilePath = Filesystem::logFilePath();
 	}
 
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_mutex_init( &__mutex, nullptr );
-	pthread_cond_init( &__messages_available, nullptr );
-	pthread_create( &m_loggerThread, &attr, loggerThread_func, this );
+	m_loggerThread = std::thread( loggerThread_func, this );
 
 	if ( should_log( Info ) ) {
 		log( Info, "Logger", "Logger", QString( "Starting Hydrogen version [%1]" )
@@ -359,8 +348,8 @@ Logger::~Logger() {
 		__nInstanceLoggers.fetch_sub( 1, std::memory_order_relaxed );
 	}
 	__running = false;
-	pthread_cond_broadcast ( &__messages_available );
-	pthread_join( m_loggerThread, nullptr );
+	__messages_available.notify_all();
+	m_loggerThread.join();
 }
 
 QString Logger::timestampPrefix() const {
@@ -427,10 +416,11 @@ void Logger::log( unsigned level, const QString& sClassName, const char* func_na
 		.arg( sCol ).arg( sTimestampPrefix ).arg( m_prefixList[i] )
 		.arg( sClassName ).arg( func_name ).arg( sMsgFull ).arg( m_sColorOff );
 
-	pthread_mutex_lock( &__mutex );
-	__msg_queue.push_back( tmp );
-	pthread_mutex_unlock( &__mutex );
-	pthread_cond_broadcast( &__messages_available );
+	{
+		std::lock_guard<std::mutex> lock( __mutex );
+		__msg_queue.push_back( tmp );
+	}
+	__messages_available.notify_all();
 }
 
 void Logger::flush() const {
