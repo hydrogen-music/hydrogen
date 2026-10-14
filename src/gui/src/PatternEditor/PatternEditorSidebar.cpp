@@ -91,8 +91,8 @@ SidebarLabel::SidebarLabel(
 
 	updateFont();
 	setColor(
-		pColorTheme->m_patternEditor_backgroundColor,
-		pColorTheme->m_patternEditor_textColor, pColorTheme->m_cursorColor
+		Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ),
+		Skin::toQColor( pColorTheme->m_patternEditor_textColor ), Skin::toQColor( pColorTheme->m_cursorColor )
 	);
 	updateStyle();
 
@@ -321,7 +321,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 				return;
 		}
 
-		QColor color = m_bEntered ? pPref->getColorTheme()->m_highlightColor
+		QColor color = m_bEntered ? Skin::toQColor( pPref->getColorTheme()->m_highlightColor )
 								  : m_textBaseColor;
 
 		if ( m_bDimed ) {
@@ -1025,10 +1025,10 @@ void SidebarRow::updateColors()
 {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
-	m_pMuteBtn->setCheckedBackgroundTextColor( pColorTheme->m_muteTextColor );
-	m_pSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
-	m_pSoloBtn->setCheckedBackgroundTextColor( pColorTheme->m_soloTextColor );
+	m_pMuteBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_muteColor ) );
+	m_pMuteBtn->setCheckedBackgroundTextColor( Skin::toQColor( pColorTheme->m_muteTextColor ) );
+	m_pSoloBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_soloColor ) );
+	m_pSoloBtn->setCheckedBackgroundTextColor( Skin::toQColor( pColorTheme->m_soloTextColor ) );
 }
 
 void SidebarRow::updateFont()
@@ -1074,72 +1074,72 @@ void SidebarRow::updateStyleSheet()
 	QColor textInstrumentColor, textTypeColor, backgroundTypeColor, backgroundInstrumentColor;
 	if ( m_bIsSelected ) {
 		backgroundTypeColor =
-			pColorTheme->m_patternEditor_selectedRowColor.darker(
+			Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ).darker(
 				Skin::nListBackgroundColorScaling
 			);
 		backgroundInstrumentColor =
-			pColorTheme->m_patternEditor_instrumentSelectedRowColor;
-		textTypeColor = pColorTheme->m_patternEditor_selectedRowTextColor;
-		textInstrumentColor = pColorTheme->m_patternEditor_instrumentSelectedRowTextColor;
+			Skin::toQColor( pColorTheme->m_patternEditor_instrumentSelectedRowColor );
+		textTypeColor = Skin::toQColor( pColorTheme->m_patternEditor_selectedRowTextColor );
+		textInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentSelectedRowTextColor );
 	}
 	else if ( m_row.bAlternate ) {
 		backgroundTypeColor =
-			pColorTheme->m_patternEditor_alternateRowColor.darker(
+			Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ).darker(
 				Skin::nListBackgroundColorScaling
 			);
 		backgroundInstrumentColor =
-			pColorTheme->m_patternEditor_instrumentAlternateRowColor;
-		textTypeColor = pColorTheme->m_patternEditor_textColor;
-		textInstrumentColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
+			Skin::toQColor( pColorTheme->m_patternEditor_instrumentAlternateRowColor );
+		textTypeColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
+		textInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowTextColor );
 	}
 	else {
 		backgroundTypeColor =
-			pColorTheme->m_patternEditor_backgroundColor.darker(
+			Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ).darker(
 				Skin::nListBackgroundColorScaling
 			);
-		backgroundInstrumentColor = pColorTheme->m_patternEditor_instrumentRowColor;
-		textTypeColor = pColorTheme->m_patternEditor_textColor;
-		textInstrumentColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
+		backgroundInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowColor );
+		textTypeColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
+		textInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowTextColor );
 	}
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
-			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
+			Skin::toQColor( pColorTheme->m_windowColor ).lighter( Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	m_pInstrumentNameLbl->setColor(
-		backgroundInstrumentColor, textInstrumentColor, pColorTheme->m_cursorColor
+		backgroundInstrumentColor, textInstrumentColor, Skin::toQColor( pColorTheme->m_cursorColor )
 	);
 	m_pTypeLbl->setColor(
-		backgroundTypeColor, textTypeColor, pColorTheme->m_cursorColor
+		backgroundTypeColor, textTypeColor, Skin::toQColor( pColorTheme->m_cursorColor )
 	);
 
 	QColor buttonColor =
-		pColorTheme->m_widgetColor.darker( Skin::nListBackgroundColorScaling );
+		Skin::toQColor( pColorTheme->m_widgetColor ).darker( Skin::nListBackgroundColorScaling );
 
     m_pMuteBtn->setDefaultBackgroundColor( buttonColor );
     m_pSoloBtn->setDefaultBackgroundColor( buttonColor );
 
-    const QColor backgroundColor = pColorTheme->m_windowColor;
+    const QColor backgroundColor = Skin::toQColor( pColorTheme->m_windowColor );
 
 	QColor borderColor, borderTopColor;
 	if ( m_bIsSelected ) {
-		borderColor = pColorTheme->m_highlightColor;
+		borderColor = Skin::toQColor( pColorTheme->m_highlightColor );
 		borderTopColor = borderColor;
 	}
 	else if ( m_bBelowSelection ) {
 		borderColor = backgroundColor;
-		borderTopColor = pColorTheme->m_highlightColor;
+		borderTopColor = Skin::toQColor( pColorTheme->m_highlightColor );
 	}
 	else {
 		borderColor = backgroundColor;
 		borderTopColor =
-			m_bDragHovered ? pColorTheme->m_highlightColor : backgroundColor;
+			m_bDragHovered ? Skin::toQColor( pColorTheme->m_highlightColor ) : backgroundColor;
 	}
 
 	QString sBorderTop, sBorderBottom;

@@ -93,11 +93,11 @@ void KeyOctaveLabel::updateColors()
 		QColor backgroundColor;
 		if ( m_bAlternateBackground ) {
 			backgroundColor =
-				pPref->getColorTheme()->m_patternEditor_alternateRowColor;
+				Skin::toQColor( pPref->getColorTheme()->m_patternEditor_alternateRowColor );
 		}
 		else {
 			backgroundColor =
-				pPref->getColorTheme()->m_patternEditor_octaveRowColor;
+				Skin::toQColor( pPref->getColorTheme()->m_patternEditor_octaveRowColor );
 		}
 		m_backgroundColor =
 			backgroundColor.darker( Skin::nListBackgroundColorScaling );
@@ -143,7 +143,7 @@ void KeyOctaveLabel::paintEvent( QPaintEvent* pEvent )
 		p.fillRect( QRect( 0, 0, width(), height() ), m_backgroundColor );
 
 		// borders
-		p.setPen( pColorTheme->m_windowColor );
+		p.setPen( Skin::toQColor( pColorTheme->m_windowColor ) );
 		p.drawLine( 0, height() - 1, width(), height() - 1 );
 		p.drawLine( 0, 0, 0, height() - 1 );
 		p.drawLine( width() - 1, 0, width() - 1, height() - 1 );
@@ -1402,22 +1402,22 @@ void NotePropertiesRuler::drawDefaultBackground(
 	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor lineColor( pColorTheme->m_patternEditor_line5Color );
-	QColor backgroundColor( pColorTheme->m_patternEditor_backgroundColor );
+	QColor lineColor( Skin::toQColor( pColorTheme->m_patternEditor_line5Color ) );
+	QColor backgroundColor( Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ) );
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
-	const QColor lineInactiveColor( pColorTheme->m_windowTextColor.darker( 170 )
+	const QColor lineInactiveColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 170 )
 	);
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
-			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
+			Skin::toQColor( pColorTheme->m_windowColor ).lighter( Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	if ( !hasFocus() ) {
@@ -1762,25 +1762,25 @@ void NotePropertiesRuler::createBackground()
 	const auto pColorTheme = pPref->getColorTheme();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 
-	QColor lineColor( pColorTheme->m_patternEditor_lineColor );
-	QColor textColor( pColorTheme->m_patternEditor_textColor );
+	QColor lineColor( Skin::toQColor( pColorTheme->m_patternEditor_lineColor ) );
+	QColor textColor( Skin::toQColor( pColorTheme->m_patternEditor_textColor ) );
 	const QColor alternateRowColor =
-		pColorTheme->m_patternEditor_alternateRowColor;
-	const QColor octaveColor = pColorTheme->m_patternEditor_octaveRowColor;
+		Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor );
+	const QColor octaveColor = Skin::toQColor( pColorTheme->m_patternEditor_octaveRowColor );
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
-	const QColor lineInactiveColor( pColorTheme->m_windowTextColor.darker( 170 )
+	const QColor lineInactiveColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 170 )
 	);
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
-			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
+			Skin::toQColor( pColorTheme->m_windowColor ).lighter( Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	if ( !hasFocus() ) {

@@ -24,6 +24,7 @@
 
 #include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/LCDCombo.h"
@@ -134,7 +135,7 @@ SampleEditor::SampleEditor(
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 	const auto pPref = HydrogenApp::pPreferences();
 	const auto separatorColor =
-		pPref->getColorTheme()->m_windowColor.darker( 135 );
+		Skin::toQColor( pPref->getColorTheme()->m_windowColor ).darker( 135 );
 
 	auto pMainLayout = new QVBoxLayout();
 	pMainLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -1779,8 +1780,8 @@ void SampleEditor::checkRubberbandSettings()
 void SampleEditor::updateStyleSheet()
 {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	const QColor colorBackground = pColorTheme->m_sampleEditor_backgroundColor;
-	const QColor colorFont = pColorTheme->m_sampleEditor_textColor;
+	const QColor colorBackground = Skin::toQColor( pColorTheme->m_sampleEditor_backgroundColor );
+	const QColor colorFont = Skin::toQColor( pColorTheme->m_sampleEditor_textColor );
 
 	setStyleSheet( QString( "\
 QWidget {\

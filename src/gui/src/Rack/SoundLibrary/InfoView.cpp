@@ -204,10 +204,10 @@ void InfoView::updateStyleSheet()
 {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	const auto borderColor = pColorTheme->m_windowColor.darker( 140 );
-	const auto separatorColor = pColorTheme->m_windowColor;
+	const auto borderColor = Skin::toQColor( pColorTheme->m_windowColor ).darker( 140 );
+	const auto separatorColor = Skin::toQColor( pColorTheme->m_windowColor );
 
-	const auto backgroundColor = pColorTheme->m_baseColor;
+	const auto backgroundColor = Skin::toQColor( pColorTheme->m_baseColor );
 	const QColor textColor = Skin::moreBlackThanWhite( backgroundColor )
 							   ? Qt::white
 							   : Qt::black;

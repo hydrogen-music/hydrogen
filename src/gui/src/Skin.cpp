@@ -39,7 +39,11 @@ void Skin::drawPlayhead( QPainter* p, int x, int y, bool bHovered ) {
 				 y + Skin::nPlayheadHeight ),
 	};
 
-	QColor playheadColor( HydrogenApp::pPreferences()->getColorTheme()->m_playheadColor );
+	QColor playheadColor(
+		Skin::toQColor(
+			HydrogenApp::pPreferences()->getColorTheme()->m_playheadColor
+		)
+	);
 	if ( bHovered ) {
 		playheadColor = Skin::makeTextColorInactive( playheadColor );
 	}
@@ -71,13 +75,13 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 		fillColor.setAlpha( 0 );
 		break;
 	case Skin::Stacked::OffNext:
-		fillColor = pColorTheme->m_songEditor_stackedModeOffNextColor;
+		fillColor = Skin::toQColor( pColorTheme->m_songEditor_stackedModeOffNextColor );
 		break;
 	case Skin::Stacked::On:
-		fillColor = pColorTheme->m_songEditor_stackedModeOnColor;
+		fillColor = Skin::toQColor( pColorTheme->m_songEditor_stackedModeOnColor );
 		break;
 	case Skin::Stacked::OnNext:
-		fillColor = pColorTheme->m_songEditor_stackedModeOnNextColor;
+		fillColor = Skin::toQColor( pColorTheme->m_songEditor_stackedModeOnNextColor );
 		break;
 	}
 
@@ -91,13 +95,16 @@ void Skin::drawStackedIndicator( QPainter* p, int x, int y,
 QString Skin::getGlobalStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	const QColor buttonBackground = pColorTheme->m_widgetColor;
+	const QColor buttonBackground = Skin::toQColor( pColorTheme->m_widgetColor );
 	const QColor buttonBackgroundHover =
-		pColorTheme->m_widgetColor.lighter( Skin::nToolButtonHoveredScaling );
+		Skin::toQColor( pColorTheme->m_widgetColor )
+			.lighter( Skin::nToolButtonHoveredScaling );
 	const QColor buttonBackgroundChecked =
-		pColorTheme->m_accentColor.lighter( Skin::nToolButtonCheckedScaling );
-	const QColor buttonTextChecked = pColorTheme->m_accentTextColor;
-	const QColor spinBoxSelection = pColorTheme->m_spinBoxColor.darker( 120 );
+		Skin::toQColor( pColorTheme->m_accentColor )
+			.lighter( Skin::nToolButtonCheckedScaling );
+	const QColor buttonTextChecked = Skin::toQColor( pColorTheme->m_accentTextColor );
+	const QColor spinBoxSelection =
+		Skin::toQColor( pColorTheme->m_spinBoxColor ).darker( 120 );
 
 	return QString( "\
 QToolTip { \
@@ -280,28 +287,38 @@ bool Skin::moreBlackThanWhite( const QColor& color ) {
 	return nValue < nThreshold;
 }
 
+QColor Skin::toQColor( const H2Core::Color& color )
+{
+	return QColor( color.red(), color.green(), color.blue() );
+}
+
+H2Core::Color Skin::fromQColor( const QColor& color )
+{
+	return H2Core::Color( color.red(), color.green(), color.blue() );
+}
+
 void Skin::setPalette( QApplication *pQApp ) {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	// create the default palette
 	QPalette defaultPalette;
 
-	defaultPalette.setColor( QPalette::Window, pColorTheme->m_windowColor );
-	defaultPalette.setColor( QPalette::WindowText, pColorTheme->m_windowTextColor );
-	defaultPalette.setColor( QPalette::Base, pColorTheme->m_baseColor );
-	defaultPalette.setColor( QPalette::AlternateBase, pColorTheme->m_alternateBaseColor );
-	defaultPalette.setColor( QPalette::Text, pColorTheme->m_textColor );
-	defaultPalette.setColor( QPalette::Button, pColorTheme->m_buttonColor );
-	defaultPalette.setColor( QPalette::ButtonText, pColorTheme->m_buttonTextColor );
-	defaultPalette.setColor( QPalette::Light, pColorTheme->m_lightColor );
-	defaultPalette.setColor( QPalette::Midlight, pColorTheme->m_midLightColor );
-	defaultPalette.setColor( QPalette::Dark, pColorTheme->m_darkColor );
-	defaultPalette.setColor( QPalette::Mid, pColorTheme->m_midColor );
-	defaultPalette.setColor( QPalette::Shadow, pColorTheme->m_shadowTextColor );
-	defaultPalette.setColor( QPalette::Highlight, pColorTheme->m_highlightColor );
-	defaultPalette.setColor( QPalette::HighlightedText, pColorTheme->m_highlightedTextColor );
-	defaultPalette.setColor( QPalette::ToolTipBase, pColorTheme->m_toolTipBaseColor );
-	defaultPalette.setColor( QPalette::ToolTipText, pColorTheme->m_toolTipTextColor );
+	defaultPalette.setColor( QPalette::Window, Skin::toQColor( pColorTheme->m_windowColor ) );
+	defaultPalette.setColor( QPalette::WindowText, Skin::toQColor( pColorTheme->m_windowTextColor ) );
+	defaultPalette.setColor( QPalette::Base, Skin::toQColor( pColorTheme->m_baseColor ) );
+	defaultPalette.setColor( QPalette::AlternateBase, Skin::toQColor( pColorTheme->m_alternateBaseColor ) );
+	defaultPalette.setColor( QPalette::Text, Skin::toQColor( pColorTheme->m_textColor ) );
+	defaultPalette.setColor( QPalette::Button, Skin::toQColor( pColorTheme->m_buttonColor ) );
+	defaultPalette.setColor( QPalette::ButtonText, Skin::toQColor( pColorTheme->m_buttonTextColor ) );
+	defaultPalette.setColor( QPalette::Light, Skin::toQColor( pColorTheme->m_lightColor ) );
+	defaultPalette.setColor( QPalette::Midlight, Skin::toQColor( pColorTheme->m_midLightColor ) );
+	defaultPalette.setColor( QPalette::Dark, Skin::toQColor( pColorTheme->m_darkColor ) );
+	defaultPalette.setColor( QPalette::Mid, Skin::toQColor( pColorTheme->m_midColor ) );
+	defaultPalette.setColor( QPalette::Shadow, Skin::toQColor( pColorTheme->m_shadowTextColor ) );
+	defaultPalette.setColor( QPalette::Highlight, Skin::toQColor( pColorTheme->m_highlightColor ) );
+	defaultPalette.setColor( QPalette::HighlightedText, Skin::toQColor( pColorTheme->m_highlightedTextColor ) );
+	defaultPalette.setColor( QPalette::ToolTipBase, Skin::toQColor( pColorTheme->m_toolTipBaseColor ) );
+	defaultPalette.setColor( QPalette::ToolTipText, Skin::toQColor( pColorTheme->m_toolTipTextColor ) );
 
 	// Desaturate disabled widgets by blending with the alternate colour
 	for ( QPalette::ColorRole role : { QPalette::Window, QPalette::Base, QPalette::AlternateBase, QPalette::Dark,
@@ -320,7 +337,9 @@ void Skin::setPalette( QApplication *pQApp ) {
 
 void Skin::setPlayheadPen( QPainter* p, bool bHovered ) {
 	QColor playheadColor(
-		HydrogenApp::pPreferences()->getColorTheme()->m_playheadColor
+		Skin::toQColor(
+			HydrogenApp::pPreferences()->getColorTheme()->m_playheadColor
+		)
 	);
 	if ( bHovered ) {
 		playheadColor = Skin::makeTextColorInactive( playheadColor );

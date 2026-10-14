@@ -207,7 +207,8 @@ void TagEdit::removeRow( int nIndex )
 void TagEdit::updateStyleSheet()
 {
 	const QColor backgroundColor =
-		HydrogenApp::pPreferences()->getColorTheme()->m_midLightColor;
+		Skin::toQColor(
+			HydrogenApp::pPreferences()->getColorTheme()->m_midLightColor );
 
 	setStyleSheet( QString( "                   \
 QTableWidget {                                  \

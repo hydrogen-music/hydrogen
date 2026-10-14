@@ -103,7 +103,7 @@ void Rack::showSoundLibrary()
 void Rack::updateStyleSheet()
 {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	const QColor colorWidget = pColorTheme->m_windowColor;
+	const QColor colorWidget = Skin::toQColor( pColorTheme->m_windowColor );
 
 	setStyleSheet( QString( "\
 QTabWidget { \

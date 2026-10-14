@@ -1049,7 +1049,7 @@ void PlaylistEditor::updateIcons() {
 		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive =
-		Skin::makeBackgroundColorInactive( pColorTheme->m_baseColor );
+		Skin::makeBackgroundColorInactive( Skin::toQColor( pColorTheme->m_baseColor ) );
 
 	Skin::setToolButtonIcon(
 		m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
@@ -1070,7 +1070,7 @@ void PlaylistEditor::updateStyleSheet()
 	const auto pColorTheme =
 		HydrogenApp::pPreferences()->getColorTheme();
 
-	const QColor colorBackground = pColorTheme->m_baseColor;
+	const QColor colorBackground = Skin::toQColor( pColorTheme->m_baseColor );
 	Skin::setToolBarStyle( m_pToolBar, colorBackground, true );
 }
 
@@ -1340,8 +1340,8 @@ void PlaylistTableWidget::update() {
 	auto colorNonExisting = [=]( QTableWidgetItem* pItem ) {
 		const auto pColorTheme =
 			HydrogenApp::pPreferences()->getColorTheme();
-		pItem->setBackground( QBrush( pColorTheme->m_buttonRedColor ) );
-		pItem->setForeground( QBrush( pColorTheme->m_buttonRedTextColor ) );
+		pItem->setBackground( QBrush( Skin::toQColor( pColorTheme->m_buttonRedColor ) ) );
+		pItem->setForeground( QBrush( Skin::toQColor( pColorTheme->m_buttonRedTextColor ) ) );
 	};
 	auto colorDefault = [=]( QTableWidgetItem* pItem ) {
 		pItem->setBackground( QBrush( ) );
@@ -1352,9 +1352,9 @@ void PlaylistTableWidget::update() {
 			HydrogenApp::pPreferences()->getColorTheme();
 
 		// Highlighting of non-existing file has higher priority.
-		if ( pItem->background().color() != pColorTheme->m_buttonRedColor ) {
-			pItem->setBackground( QBrush( pColorTheme->m_accentColor ) );
-			pItem->setForeground( QBrush( pColorTheme->m_accentTextColor ) );
+		if ( pItem->background().color() != Skin::toQColor( pColorTheme->m_buttonRedColor ) ) {
+			pItem->setBackground( QBrush( Skin::toQColor( pColorTheme->m_accentColor ) ) );
+			pItem->setForeground( QBrush( Skin::toQColor( pColorTheme->m_accentTextColor ) ) );
 		}
 	};
 

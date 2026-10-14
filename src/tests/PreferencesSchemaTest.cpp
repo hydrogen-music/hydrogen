@@ -34,7 +34,7 @@
 #include <core/Preferences/PreferencesKeys.h>
 #include <core/Preferences/PreferencesSchema.h>
 
-#include <QColor>
+#include <core/Preferences/Color.h>
 #include <QCoreApplication>
 #include <QFile>
 #include <QKeySequence>
@@ -78,12 +78,12 @@ void perturbValue( T& value )
 	else if constexpr ( std::is_same_v<T, QStringList> ) {
 		value.append( "X" );
 	}
-	else if constexpr ( std::is_same_v<T, std::vector<QColor>> ) {
+	else if constexpr ( std::is_same_v<T, std::vector<Color>> ) {
 		// The read codec always yields nMaxPatternColors entries, so the
 		// container size must stay untouched.
 		if ( !value.empty() ) {
-			value.front() = QColor( 12, 34, 56 );
-			value.back() = QColor( 65, 43, 21 );
+			value.front() = Color( 12, 34, 56 );
+			value.back() = Color( 65, 43, 21 );
 		}
 	}
 }
@@ -145,8 +145,8 @@ void perturbSpecialized( PreferencesData& data )
 	);
 
 	auto pColor = std::make_shared<ColorTheme>( data.m_pTheme->m_pColor );
-	pColor->m_songEditor_backgroundColor = QColor( 1, 2, 3 );
-	pColor->m_songEditor_selectedRowTextColor = QColor( 4, 5, 6 );
+	pColor->m_songEditor_backgroundColor = Color( 1, 2, 3 );
+	pColor->m_songEditor_selectedRowTextColor = Color( 4, 5, 6 );
 	data.m_pTheme->m_pColor = pColor;
 
 	data.m_pShortcuts->insertShortcut(
@@ -237,7 +237,7 @@ QString describe( const T& value )
 		return QString::number( value );
 	}
 	else if constexpr ( std::is_same_v<T, QStringList> ||
-						std::is_same_v<T, std::vector<QColor>> ) {
+						std::is_same_v<T, std::vector<Color>> ) {
 		return QString::number( value.size() ) + " entries";
 	}
 	else if constexpr ( std::is_enum_v<T> ) {

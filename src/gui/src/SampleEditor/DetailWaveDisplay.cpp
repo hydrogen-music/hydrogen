@@ -64,15 +64,15 @@ void DetailWaveDisplay::paintEvent( QPaintEvent* ev )
 
 	QColor color;
 	if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Start ) {
-		color = pColorTheme->m_sampleEditor_startSliderColor;
+		color = Skin::toQColor( pColorTheme->m_sampleEditor_startSliderColor );
 		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::Loop ) {
-		color = pColorTheme->m_sampleEditor_loopSliderColor;
+		color = Skin::toQColor( pColorTheme->m_sampleEditor_loopSliderColor );
 		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else if ( m_pSampleEditor->getSelectedSlider() == SampleEditor::Slider::End ) {
-		color = pColorTheme->m_sampleEditor_endSliderColor;
+		color = Skin::toQColor( pColorTheme->m_sampleEditor_endSliderColor );
 		p.setPen( QPen( color, 1, Qt::SolidLine ) );
 	}
 	else {
@@ -101,16 +101,16 @@ void DetailWaveDisplay::drawPeakData()
 
 	QColor backgroundColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
-		backgroundColor = pColorTheme->m_muteColor;
+		backgroundColor = Skin::toQColor( pColorTheme->m_muteColor );
 	}
 	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
-		backgroundColor = pColorTheme->m_soloColor;
+		backgroundColor = Skin::toQColor( pColorTheme->m_soloColor );
 	}
 	else {
-		backgroundColor = pColorTheme->m_accentColor;
+		backgroundColor = Skin::toQColor( pColorTheme->m_accentColor );
 	}
 
-	p.setPen( pColorTheme->m_waveFormColor );
+	p.setPen( Skin::toQColor( pColorTheme->m_waveFormColor ) );
 	p.setRenderHint( QPainter::Antialiasing );
 	const int nVerticalCenter = height() / 2;
 

@@ -29,85 +29,85 @@ namespace H2Core
 {
 
 ColorTheme::ColorTheme()
-	: m_songEditor_backgroundColor( QColor( 128, 134, 152 ) )
-	, m_songEditor_alternateRowColor( QColor( 106, 111, 126 ) )
-	, m_songEditor_virtualRowColor( QColor( 120, 112, 97 ) )
-	, m_songEditor_selectedRowColor( QColor( 149, 157, 178 ) )
-	, m_songEditor_selectedRowTextColor( QColor( 0, 0, 0 ) )
-	, m_songEditor_lineColor( QColor( 54, 57, 67 ) )
-	, m_songEditor_textColor( QColor( 206, 211, 224 ) )
-	, m_songEditor_automationBackgroundColor( QColor( 83, 89, 103 ) )
-	, m_songEditor_automationLineColor( QColor( 45, 66, 89 ) )
-	, m_songEditor_automationNodeColor( QColor( 255, 255, 255 ) )
-	, m_songEditor_stackedModeOnColor( QColor( 127, 159, 127 ) )
-	, m_songEditor_stackedModeOnNextColor( QColor( 240, 223, 175 ) )
-	, m_songEditor_stackedModeOffNextColor( QColor( 247, 100, 100 ) )
-	, m_patternEditor_backgroundColor( QColor( 165, 166, 160 ) )
-	, m_patternEditor_alternateRowColor( QColor( 133, 134, 129 ) )
-	, m_patternEditor_selectedRowColor( QColor( 194, 195, 187 ) )
-	, m_patternEditor_selectedRowTextColor( QColor( 0, 0, 0 ) )
-	, m_patternEditor_octaveRowColor( QColor( 180, 181, 173 ) )
-	, m_patternEditor_textColor( QColor( 240, 240, 240 ) )
-	, m_patternEditor_noteVelocityFullColor( QColor( 247, 100, 100 ) )
-	, m_patternEditor_noteVelocityDefaultColor( QColor( 40, 40, 40 ) )
-	, m_patternEditor_noteVelocityHalfColor( QColor( 89, 131, 175 ) )
-	, m_patternEditor_noteVelocityZeroColor( QColor( 255, 255, 255 ) )
-	, m_patternEditor_noteOffColor( QColor( 71, 79, 191 ) )
-	, m_patternEditor_lineColor( QColor(45, 45, 45) )
-	, m_patternEditor_line1Color( QColor(55, 55, 55) )
-	, m_patternEditor_line2Color( QColor(75, 75, 75) )
-	, m_patternEditor_line3Color( QColor(95, 95, 95) )
-	, m_patternEditor_line4Color( QColor(105, 105, 105) )
-	, m_patternEditor_line5Color( QColor(115, 115, 115) )
-	, m_patternEditor_instrumentRowColor( QColor( 128, 134, 152 ) )
-	, m_patternEditor_instrumentRowTextColor( QColor( 240, 240, 240 ) )
-	, m_patternEditor_instrumentAlternateRowColor( QColor( 106, 111, 126 ) )
-	, m_patternEditor_instrumentSelectedRowColor( QColor( 149, 157, 178 ) )
-	, m_patternEditor_instrumentSelectedRowTextColor( QColor( 0, 0, 0 ) )
-	, m_componentEditor_componentColor( QColor( 127, 133, 150 ) )
-	, m_componentEditor_componentTextColor( QColor( 0, 0, 0 ) )
-	, m_componentEditor_layerColor( QColor( 155, 161, 180 ) )
-	, m_componentEditor_layerTextColor( QColor( 18, 18, 18 ) )
-	, m_sampleEditor_backgroundColor( QColor( 128, 134, 152 ) )
-	, m_sampleEditor_textColor( QColor( 0, 0, 0 ) )
-	, m_sampleEditor_startSliderColor( QColor( 0, 219, 0 ) )
-	, m_sampleEditor_loopSliderColor( QColor( 219, 219, 0 ) )
-	, m_sampleEditor_endSliderColor( QColor( 217, 68, 0 ) )
-	, m_sampleEditor_velocityEnvelopeColor( QColor( 219, 110, 0 ) )
-	, m_sampleEditor_panEnvelopeColor( QColor( 234, 130, 255 ) )
-	, m_selectionHighlightColor( QColor( 255, 255, 255 ) )
-	, m_selectionInactiveColor( QColor( 199, 199, 199 ) )
-	, m_windowColor( QColor( 58, 62, 72 ) )
-	, m_windowTextColor( QColor( 255, 255, 255 ) )
-	, m_baseColor( QColor( 88, 94, 112 ) )
-	, m_alternateBaseColor( QColor( 138, 144, 162 ) )
-	, m_textColor( QColor( 255, 255, 255 ) )
-	, m_buttonColor( QColor( 88, 94, 112 ) )
-	, m_buttonTextColor( QColor( 255, 255, 255 ) )
-	, m_lightColor( QColor( 138, 144, 162 ) )
-	, m_midLightColor( QColor( 128, 134, 152 ) )
-	, m_midColor( QColor( 58, 62, 72 ) )
-	, m_darkColor( QColor( 81, 86, 99 ) )
-	, m_shadowTextColor( QColor( 255, 255, 255 ) )
-	, m_highlightColor( QColor( 206, 150, 30 ) )
-	, m_highlightedTextColor( QColor( 255, 255, 255 ) )
-	, m_toolTipBaseColor( QColor( 227, 243, 252 ) )
-	, m_toolTipTextColor( QColor( 64, 64, 66 ) )
-	, m_widgetColor( QColor( 164, 170, 190 ) )
-	, m_widgetTextColor( QColor( 10, 10, 10 ) )
-	, m_buttonRedColor( QColor( 247, 100, 100 ) )
-	, m_buttonRedTextColor( QColor( 10, 10, 10 ) )
-	, m_spinBoxColor( QColor( 51, 74 , 100 ) )
-	, m_spinBoxTextColor( QColor( 240, 240, 240 ) )
-	, m_accentColor( QColor( 67, 96, 131 ) )
-	, m_accentTextColor( QColor( 255, 255, 255 ) )
-	, m_playheadColor( QColor( 0, 0, 0 ) )
-	, m_cursorColor( QColor( 38, 39, 44 ) )
-	, m_muteColor( QColor( 170, 29, 29 ) )
-	, m_muteTextColor( QColor( 255, 255, 255 ) )
-	, m_soloColor( QColor( 219, 177, 50 ) )
-	, m_soloTextColor( QColor( 255, 255, 255 ) )
-	, m_waveFormColor( QColor( 24, 35, 48 ) )
+	: m_songEditor_backgroundColor( Color( 128, 134, 152 ) )
+	, m_songEditor_alternateRowColor( Color( 106, 111, 126 ) )
+	, m_songEditor_virtualRowColor( Color( 120, 112, 97 ) )
+	, m_songEditor_selectedRowColor( Color( 149, 157, 178 ) )
+	, m_songEditor_selectedRowTextColor( Color( 0, 0, 0 ) )
+	, m_songEditor_lineColor( Color( 54, 57, 67 ) )
+	, m_songEditor_textColor( Color( 206, 211, 224 ) )
+	, m_songEditor_automationBackgroundColor( Color( 83, 89, 103 ) )
+	, m_songEditor_automationLineColor( Color( 45, 66, 89 ) )
+	, m_songEditor_automationNodeColor( Color( 255, 255, 255 ) )
+	, m_songEditor_stackedModeOnColor( Color( 127, 159, 127 ) )
+	, m_songEditor_stackedModeOnNextColor( Color( 240, 223, 175 ) )
+	, m_songEditor_stackedModeOffNextColor( Color( 247, 100, 100 ) )
+	, m_patternEditor_backgroundColor( Color( 165, 166, 160 ) )
+	, m_patternEditor_alternateRowColor( Color( 133, 134, 129 ) )
+	, m_patternEditor_selectedRowColor( Color( 194, 195, 187 ) )
+	, m_patternEditor_selectedRowTextColor( Color( 0, 0, 0 ) )
+	, m_patternEditor_octaveRowColor( Color( 180, 181, 173 ) )
+	, m_patternEditor_textColor( Color( 240, 240, 240 ) )
+	, m_patternEditor_noteVelocityFullColor( Color( 247, 100, 100 ) )
+	, m_patternEditor_noteVelocityDefaultColor( Color( 40, 40, 40 ) )
+	, m_patternEditor_noteVelocityHalfColor( Color( 89, 131, 175 ) )
+	, m_patternEditor_noteVelocityZeroColor( Color( 255, 255, 255 ) )
+	, m_patternEditor_noteOffColor( Color( 71, 79, 191 ) )
+	, m_patternEditor_lineColor( Color(45, 45, 45) )
+	, m_patternEditor_line1Color( Color(55, 55, 55) )
+	, m_patternEditor_line2Color( Color(75, 75, 75) )
+	, m_patternEditor_line3Color( Color(95, 95, 95) )
+	, m_patternEditor_line4Color( Color(105, 105, 105) )
+	, m_patternEditor_line5Color( Color(115, 115, 115) )
+	, m_patternEditor_instrumentRowColor( Color( 128, 134, 152 ) )
+	, m_patternEditor_instrumentRowTextColor( Color( 240, 240, 240 ) )
+	, m_patternEditor_instrumentAlternateRowColor( Color( 106, 111, 126 ) )
+	, m_patternEditor_instrumentSelectedRowColor( Color( 149, 157, 178 ) )
+	, m_patternEditor_instrumentSelectedRowTextColor( Color( 0, 0, 0 ) )
+	, m_componentEditor_componentColor( Color( 127, 133, 150 ) )
+	, m_componentEditor_componentTextColor( Color( 0, 0, 0 ) )
+	, m_componentEditor_layerColor( Color( 155, 161, 180 ) )
+	, m_componentEditor_layerTextColor( Color( 18, 18, 18 ) )
+	, m_sampleEditor_backgroundColor( Color( 128, 134, 152 ) )
+	, m_sampleEditor_textColor( Color( 0, 0, 0 ) )
+	, m_sampleEditor_startSliderColor( Color( 0, 219, 0 ) )
+	, m_sampleEditor_loopSliderColor( Color( 219, 219, 0 ) )
+	, m_sampleEditor_endSliderColor( Color( 217, 68, 0 ) )
+	, m_sampleEditor_velocityEnvelopeColor( Color( 219, 110, 0 ) )
+	, m_sampleEditor_panEnvelopeColor( Color( 234, 130, 255 ) )
+	, m_selectionHighlightColor( Color( 255, 255, 255 ) )
+	, m_selectionInactiveColor( Color( 199, 199, 199 ) )
+	, m_windowColor( Color( 58, 62, 72 ) )
+	, m_windowTextColor( Color( 255, 255, 255 ) )
+	, m_baseColor( Color( 88, 94, 112 ) )
+	, m_alternateBaseColor( Color( 138, 144, 162 ) )
+	, m_textColor( Color( 255, 255, 255 ) )
+	, m_buttonColor( Color( 88, 94, 112 ) )
+	, m_buttonTextColor( Color( 255, 255, 255 ) )
+	, m_lightColor( Color( 138, 144, 162 ) )
+	, m_midLightColor( Color( 128, 134, 152 ) )
+	, m_midColor( Color( 58, 62, 72 ) )
+	, m_darkColor( Color( 81, 86, 99 ) )
+	, m_shadowTextColor( Color( 255, 255, 255 ) )
+	, m_highlightColor( Color( 206, 150, 30 ) )
+	, m_highlightedTextColor( Color( 255, 255, 255 ) )
+	, m_toolTipBaseColor( Color( 227, 243, 252 ) )
+	, m_toolTipTextColor( Color( 64, 64, 66 ) )
+	, m_widgetColor( Color( 164, 170, 190 ) )
+	, m_widgetTextColor( Color( 10, 10, 10 ) )
+	, m_buttonRedColor( Color( 247, 100, 100 ) )
+	, m_buttonRedTextColor( Color( 10, 10, 10 ) )
+	, m_spinBoxColor( Color( 51, 74 , 100 ) )
+	, m_spinBoxTextColor( Color( 240, 240, 240 ) )
+	, m_accentColor( Color( 67, 96, 131 ) )
+	, m_accentTextColor( Color( 255, 255, 255 ) )
+	, m_playheadColor( Color( 0, 0, 0 ) )
+	, m_cursorColor( Color( 38, 39, 44 ) )
+	, m_muteColor( Color( 170, 29, 29 ) )
+	, m_muteTextColor( Color( 255, 255, 255 ) )
+	, m_soloColor( Color( 219, 177, 50 ) )
+	, m_soloTextColor( Color( 255, 255, 255 ) )
+	, m_waveFormColor( Color( 24, 35, 48 ) )
 {
 }
 
@@ -1378,26 +1378,26 @@ InterfaceTheme::InterfaceTheme()
 	, m_bIndicateEffectiveNoteLength( true ) {
 	m_patternColors.resize( nMaxPatternColors );
 
-	std::vector<QColor> defaultColors {
-		QColor( 67,96,131 ),
-		QColor( 67,114,175 ),
-		QColor( 105,165,189 ),
-		QColor( 148,189,202 ),
-		QColor( 193,211,215 ),
-		QColor( 229,201,130 ),
-		QColor( 234,160,90 ),
-		QColor( 218,97,60 ),
-		QColor( 186,55,50 ),
-		QColor( 152,22,26 ),
-		QColor( 186,55,50 ),
-		QColor( 218,97,60 ),
-		QColor( 234,160,90 ),
-		QColor( 229,201,130 ),
-		QColor( 193,211,215 ),
-		QColor( 148,189,202 ),
-		QColor( 105,165,189 ),
-		QColor( 67,114,175 ),
-		QColor( 67,96,131 )
+	std::vector<Color> defaultColors {
+		Color( 67,96,131 ),
+		Color( 67,114,175 ),
+		Color( 105,165,189 ),
+		Color( 148,189,202 ),
+		Color( 193,211,215 ),
+		Color( 229,201,130 ),
+		Color( 234,160,90 ),
+		Color( 218,97,60 ),
+		Color( 186,55,50 ),
+		Color( 152,22,26 ),
+		Color( 186,55,50 ),
+		Color( 218,97,60 ),
+		Color( 234,160,90 ),
+		Color( 229,201,130 ),
+		Color( 193,211,215 ),
+		Color( 148,189,202 ),
+		Color( 105,165,189 ),
+		Color( 67,114,175 ),
+		Color( 67,96,131 )
 	};
 
 	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
@@ -1703,7 +1703,7 @@ std::shared_ptr<Theme> Theme::importFrom( const QString& sPath ) {
 			interfaceNode.read_int("SongEditor_ColoringMethod",
 								   static_cast<int>(pInterfaceTheme->m_coloringMethod),
 								   false, false ));
-	std::vector<QColor> colors( pInterfaceTheme->nMaxPatternColors );
+	std::vector<Color> colors( pInterfaceTheme->nMaxPatternColors );
 	for ( int ii = 0; ii < pInterfaceTheme->nMaxPatternColors; ii++ ) {
 		colors[ ii ] = interfaceNode.read_color( QString( "SongEditor_pattern_color_%1" ).arg( ii ),
 												 pInterfaceTheme->m_patternColors[ ii ],

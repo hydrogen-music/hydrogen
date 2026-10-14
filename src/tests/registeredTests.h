@@ -30,6 +30,7 @@
 #include "AudioExportTest.h"
 #include "AutomationPathTest.h"
 #include "CliTest.h"
+#include "ColorTest.h"
 #include "ConfigConcurrencyTest.h"
 #include "ConnectViaIpcModeTest.h"
 #include "CoreActionControllerTest.h"
@@ -92,6 +93,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( AutomationPathTest );
   // For now h2cli is just part of our Linux package.
   CPPUNIT_TEST_SUITE_REGISTRATION( CliTest );
 #endif
+CPPUNIT_TEST_SUITE_REGISTRATION( ColorTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( ConfigConcurrencyTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( ConnectViaIpcModeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );

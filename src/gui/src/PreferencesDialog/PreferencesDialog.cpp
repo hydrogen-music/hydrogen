@@ -493,7 +493,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	colorSelectionGrid->setHorizontalSpacing( 4 );
 	for ( int ii = 0; ii < InterfaceTheme::nMaxPatternColors; ii++ ) {
 		ColorSelectionButton* bbutton = new ColorSelectionButton(
-			this, m_pCurrentTheme->m_pInterface->m_patternColors[ ii ], nButtonSize );
+			this, Skin::toQColor( m_pCurrentTheme->m_pInterface->m_patternColors[ ii ] ), nButtonSize );
 		bbutton->pretendToHide();
 		connect( bbutton, &ColorSelectionButton::colorChanged, this,
 				 &PreferencesDialog::onColorSelectionClicked );
@@ -1842,9 +1842,9 @@ void PreferencesDialog::onColorNumberChanged( int nIndex ) {
 void PreferencesDialog::onColorSelectionClicked() {
 	int nMaxPatternColors =
 		InterfaceTheme::nMaxPatternColors;
-	std::vector<QColor> colors( nMaxPatternColors );
+	std::vector<H2Core::Color> colors( nMaxPatternColors );
 	for ( int ii = 0; ii < nMaxPatternColors; ii++ ) {
-		colors[ ii ] = m_colorSelectionButtons[ ii ]->getColor();
+		colors[ ii ] = Skin::fromQColor( m_colorSelectionButtons[ ii ]->getColor() );
 	}
 	m_pCurrentTheme->m_pInterface->m_patternColors = colors;
 	HydrogenApp::pPreferences()->getThemeWritable()->m_pInterface->m_patternColors =
@@ -2049,97 +2049,97 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 
 std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, std::shared_ptr<H2Core::ColorTheme> pColorTheme ) const {
 	switch( nId ) {
-	case 0x100: return std::make_unique<QColor>(pColorTheme->m_windowColor);
-	case 0x101: return std::make_unique<QColor>(pColorTheme->m_windowTextColor);
-	case 0x102: return std::make_unique<QColor>(pColorTheme->m_baseColor);
-	case 0x103: return std::make_unique<QColor>(pColorTheme->m_alternateBaseColor);
-	case 0x104: return std::make_unique<QColor>(pColorTheme->m_textColor);
-	case 0x105: return std::make_unique<QColor>(pColorTheme->m_buttonColor);
-	case 0x106: return std::make_unique<QColor>(pColorTheme->m_buttonTextColor);
-	case 0x107: return std::make_unique<QColor>(pColorTheme->m_lightColor);
-	case 0x108: return std::make_unique<QColor>(pColorTheme->m_midLightColor);
-	case 0x109: return std::make_unique<QColor>(pColorTheme->m_midColor);
-	case 0x10a: return std::make_unique<QColor>(pColorTheme->m_darkColor);
-	case 0x10b: return std::make_unique<QColor>(pColorTheme->m_shadowTextColor);
-	case 0x10c: return std::make_unique<QColor>(pColorTheme->m_highlightColor);
-	case 0x10d: return std::make_unique<QColor>(pColorTheme->m_highlightedTextColor);
-	case 0x10e: return std::make_unique<QColor>(pColorTheme->m_selectionHighlightColor);
-	case 0x10f: return std::make_unique<QColor>(pColorTheme->m_selectionInactiveColor);
-	case 0x110: return std::make_unique<QColor>(pColorTheme->m_toolTipBaseColor);
-	case 0x111: return std::make_unique<QColor>(pColorTheme->m_toolTipTextColor);
-	case 0x200: return std::make_unique<QColor>(pColorTheme->m_widgetColor);
-	case 0x201: return std::make_unique<QColor>(pColorTheme->m_widgetTextColor);
-	case 0x202: return std::make_unique<QColor>(pColorTheme->m_accentColor);
-	case 0x203: return std::make_unique<QColor>(pColorTheme->m_accentTextColor);
-	case 0x204: return std::make_unique<QColor>(pColorTheme->m_buttonRedColor);
-	case 0x205: return std::make_unique<QColor>(pColorTheme->m_buttonRedTextColor);
-	case 0x206: return std::make_unique<QColor>(pColorTheme->m_spinBoxColor);
-	case 0x207: return std::make_unique<QColor>(pColorTheme->m_spinBoxTextColor);
-	case 0x208: return std::make_unique<QColor>(pColorTheme->m_playheadColor);
-	case 0x209: return std::make_unique<QColor>(pColorTheme->m_cursorColor);
-	case 0x20a: return std::make_unique<QColor>(pColorTheme->m_muteColor);
-	case 0x20b: return std::make_unique<QColor>(pColorTheme->m_muteTextColor);
-	case 0x20c: return std::make_unique<QColor>(pColorTheme->m_soloColor);
-	case 0x20d: return std::make_unique<QColor>(pColorTheme->m_soloTextColor);
-	case 0x20e: return std::make_unique<QColor>(pColorTheme->m_waveFormColor);
-	case 0x300: return std::make_unique<QColor>(pColorTheme->m_songEditor_backgroundColor);
-	case 0x301: return std::make_unique<QColor>(pColorTheme->m_songEditor_alternateRowColor);
-	case 0x302: return std::make_unique<QColor>(pColorTheme->m_songEditor_virtualRowColor);
-	case 0x303: return std::make_unique<QColor>(pColorTheme->m_songEditor_selectedRowColor);
-	case 0x304: return std::make_unique<QColor>(pColorTheme->m_songEditor_selectedRowTextColor);
-	case 0x305: return std::make_unique<QColor>(pColorTheme->m_songEditor_lineColor);
-	case 0x306: return std::make_unique<QColor>(pColorTheme->m_songEditor_textColor);
-	case 0x307: return std::make_unique<QColor>(pColorTheme->m_songEditor_automationBackgroundColor);
-	case 0x308: return std::make_unique<QColor>(pColorTheme->m_songEditor_automationLineColor);
-	case 0x309: return std::make_unique<QColor>(pColorTheme->m_songEditor_automationNodeColor);
-	case 0x30a: return std::make_unique<QColor>(pColorTheme->m_songEditor_stackedModeOnColor);
-	case 0x30b: return std::make_unique<QColor>(pColorTheme->m_songEditor_stackedModeOnNextColor);
-	case 0x30c: return std::make_unique<QColor>(pColorTheme->m_songEditor_stackedModeOffNextColor);
-	case 0x400: return std::make_unique<QColor>(pColorTheme->m_patternEditor_backgroundColor);
-	case 0x401: return std::make_unique<QColor>(pColorTheme->m_patternEditor_alternateRowColor);
-	case 0x402: return std::make_unique<QColor>(pColorTheme->m_patternEditor_selectedRowColor);
-	case 0x403: return std::make_unique<QColor>(pColorTheme->m_patternEditor_selectedRowTextColor);
-	case 0x404: return std::make_unique<QColor>(pColorTheme->m_patternEditor_octaveRowColor);
-	case 0x405: return std::make_unique<QColor>(pColorTheme->m_patternEditor_textColor);
-	case 0x406: return std::make_unique<QColor>(pColorTheme->m_patternEditor_noteVelocityFullColor);
-	case 0x407: return std::make_unique<QColor>(pColorTheme->m_patternEditor_noteVelocityDefaultColor);
-	case 0x408: return std::make_unique<QColor>(pColorTheme->m_patternEditor_noteVelocityHalfColor);
-	case 0x409: return std::make_unique<QColor>(pColorTheme->m_patternEditor_noteVelocityZeroColor);
-	case 0x40a: return std::make_unique<QColor>(pColorTheme->m_patternEditor_noteOffColor);
-	case 0x40b: return std::make_unique<QColor>(pColorTheme->m_patternEditor_lineColor);
-	case 0x40c: return std::make_unique<QColor>(pColorTheme->m_patternEditor_line1Color);
-	case 0x40d: return std::make_unique<QColor>(pColorTheme->m_patternEditor_line2Color);
-	case 0x40e: return std::make_unique<QColor>(pColorTheme->m_patternEditor_line3Color);
-	case 0x40f: return std::make_unique<QColor>(pColorTheme->m_patternEditor_line4Color);
-	case 0x410: return std::make_unique<QColor>(pColorTheme->m_patternEditor_line5Color);
-	case 0x411: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentRowColor);
-	case 0x412: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentRowTextColor);
-	case 0x413: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentAlternateRowColor);
-	case 0x414: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentSelectedRowColor);
-	case 0x415: return std::make_unique<QColor>(pColorTheme->m_patternEditor_instrumentSelectedRowTextColor);
+	case 0x100: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_windowColor ) );
+	case 0x101: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_windowTextColor ) );
+	case 0x102: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_baseColor ) );
+	case 0x103: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_alternateBaseColor ) );
+	case 0x104: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_textColor ) );
+	case 0x105: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_buttonColor ) );
+	case 0x106: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_buttonTextColor ) );
+	case 0x107: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_lightColor ) );
+	case 0x108: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_midLightColor ) );
+	case 0x109: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_midColor ) );
+	case 0x10a: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_darkColor ) );
+	case 0x10b: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_shadowTextColor ) );
+	case 0x10c: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_highlightColor ) );
+	case 0x10d: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_highlightedTextColor ) );
+	case 0x10e: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_selectionHighlightColor ) );
+	case 0x10f: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_selectionInactiveColor ) );
+	case 0x110: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_toolTipBaseColor ) );
+	case 0x111: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_toolTipTextColor ) );
+	case 0x200: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_widgetColor ) );
+	case 0x201: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_widgetTextColor ) );
+	case 0x202: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_accentColor ) );
+	case 0x203: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_accentTextColor ) );
+	case 0x204: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_buttonRedColor ) );
+	case 0x205: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_buttonRedTextColor ) );
+	case 0x206: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_spinBoxColor ) );
+	case 0x207: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_spinBoxTextColor ) );
+	case 0x208: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_playheadColor ) );
+	case 0x209: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_cursorColor ) );
+	case 0x20a: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_muteColor ) );
+	case 0x20b: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_muteTextColor ) );
+	case 0x20c: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_soloColor ) );
+	case 0x20d: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_soloTextColor ) );
+	case 0x20e: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_waveFormColor ) );
+	case 0x300: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_backgroundColor ) );
+	case 0x301: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ) );
+	case 0x302: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_virtualRowColor ) );
+	case 0x303: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_selectedRowColor ) );
+	case 0x304: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_selectedRowTextColor ) );
+	case 0x305: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_lineColor ) );
+	case 0x306: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_textColor ) );
+	case 0x307: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_automationBackgroundColor ) );
+	case 0x308: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_automationLineColor ) );
+	case 0x309: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_automationNodeColor ) );
+	case 0x30a: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_stackedModeOnColor ) );
+	case 0x30b: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_stackedModeOnNextColor ) );
+	case 0x30c: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_songEditor_stackedModeOffNextColor ) );
+	case 0x400: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ) );
+	case 0x401: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ) );
+	case 0x402: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ) );
+	case 0x403: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_selectedRowTextColor ) );
+	case 0x404: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_octaveRowColor ) );
+	case 0x405: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_textColor ) );
+	case 0x406: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityFullColor ) );
+	case 0x407: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityDefaultColor ) );
+	case 0x408: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityHalfColor ) );
+	case 0x409: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityZeroColor ) );
+	case 0x40a: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_noteOffColor ) );
+	case 0x40b: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_lineColor ) );
+	case 0x40c: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_line1Color ) );
+	case 0x40d: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_line2Color ) );
+	case 0x40e: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_line3Color ) );
+	case 0x40f: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_line4Color ) );
+	case 0x410: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_line5Color ) );
+	case 0x411: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowColor ) );
+	case 0x412: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowTextColor ) );
+	case 0x413: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_instrumentAlternateRowColor ) );
+	case 0x414: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_instrumentSelectedRowColor ) );
+	case 0x415: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_patternEditor_instrumentSelectedRowTextColor ) );
 	case 0x500:
 		return std::make_unique<QColor>(
-			pColorTheme->m_componentEditor_componentColor
+			Skin::toQColor( pColorTheme->m_componentEditor_componentColor )
 		);
 	case 0x501:
 		return std::make_unique<QColor>(
-			pColorTheme->m_componentEditor_componentTextColor
+			Skin::toQColor( pColorTheme->m_componentEditor_componentTextColor )
 		);
 	case 0x502:
 		return std::make_unique<QColor>(
-			pColorTheme->m_componentEditor_layerColor
+			Skin::toQColor( pColorTheme->m_componentEditor_layerColor )
 		);
 	case 0x503:
 		return std::make_unique<QColor>(
-			pColorTheme->m_componentEditor_layerTextColor
+			Skin::toQColor( pColorTheme->m_componentEditor_layerTextColor )
 		);
-	case 0x600: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_backgroundColor);
-	case 0x601: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_textColor);
-	case 0x602: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_startSliderColor);
-	case 0x603: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_loopSliderColor);
-	case 0x604: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_endSliderColor);
-	case 0x605: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_velocityEnvelopeColor);
-	case 0x606: return std::make_unique<QColor>(pColorTheme->m_sampleEditor_panEnvelopeColor);
+	case 0x600: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_sampleEditor_backgroundColor ) );
+	case 0x601: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_sampleEditor_textColor ) );
+	case 0x602: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_sampleEditor_startSliderColor ) );
+	case 0x603: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_sampleEditor_loopSliderColor ) );
+	case 0x604: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_sampleEditor_endSliderColor ) );
+	case 0x605: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor ) );
+	case 0x606: return std::make_unique<QColor>( Skin::toQColor( pColorTheme->m_sampleEditor_panEnvelopeColor ) );
 	default:
 		return nullptr;
 	}
@@ -2150,167 +2150,167 @@ std::unique_ptr<QColor> PreferencesDialog::getColorById( int nId, std::shared_pt
 void PreferencesDialog::setColorById( int nId, const QColor& color,
 									  std::shared_ptr<H2Core::ColorTheme> pColorTheme ) {
 	switch( nId ) {
-	case 0x100:  pColorTheme->m_windowColor = color;
+	case 0x100:  pColorTheme->m_windowColor = Skin::fromQColor( color );
 		break;
-	case 0x101:  pColorTheme->m_windowTextColor = color;
+	case 0x101:  pColorTheme->m_windowTextColor = Skin::fromQColor( color );
 		break;
-	case 0x102:  pColorTheme->m_baseColor = color;
+	case 0x102:  pColorTheme->m_baseColor = Skin::fromQColor( color );
 		break;
-	case 0x103:  pColorTheme->m_alternateBaseColor = color;
+	case 0x103:  pColorTheme->m_alternateBaseColor = Skin::fromQColor( color );
 		break;
-	case 0x104:  pColorTheme->m_textColor = color;
+	case 0x104:  pColorTheme->m_textColor = Skin::fromQColor( color );
 		break;
-	case 0x105:  pColorTheme->m_buttonColor = color;
+	case 0x105:  pColorTheme->m_buttonColor = Skin::fromQColor( color );
 		break;
-	case 0x106:  pColorTheme->m_buttonTextColor = color;
+	case 0x106:  pColorTheme->m_buttonTextColor = Skin::fromQColor( color );
 		break;
-	case 0x107:  pColorTheme->m_lightColor = color;
+	case 0x107:  pColorTheme->m_lightColor = Skin::fromQColor( color );
 		break;
-	case 0x108:  pColorTheme->m_midLightColor = color;
+	case 0x108:  pColorTheme->m_midLightColor = Skin::fromQColor( color );
 		break;
-	case 0x109:  pColorTheme->m_midColor = color;
+	case 0x109:  pColorTheme->m_midColor = Skin::fromQColor( color );
 		break;
-	case 0x10a:  pColorTheme->m_darkColor = color;
+	case 0x10a:  pColorTheme->m_darkColor = Skin::fromQColor( color );
 		break;
-	case 0x10b:  pColorTheme->m_shadowTextColor = color;
+	case 0x10b:  pColorTheme->m_shadowTextColor = Skin::fromQColor( color );
 		break;
-	case 0x10c:  pColorTheme->m_highlightColor = color;
+	case 0x10c:  pColorTheme->m_highlightColor = Skin::fromQColor( color );
 		break;
-	case 0x10d:  pColorTheme->m_highlightedTextColor = color;
+	case 0x10d:  pColorTheme->m_highlightedTextColor = Skin::fromQColor( color );
 		break;
-	case 0x10e:  pColorTheme->m_selectionHighlightColor = color;
+	case 0x10e:  pColorTheme->m_selectionHighlightColor = Skin::fromQColor( color );
 		break;
-	case 0x10f:  pColorTheme->m_selectionInactiveColor = color;
+	case 0x10f:  pColorTheme->m_selectionInactiveColor = Skin::fromQColor( color );
 		break;
-	case 0x110:  pColorTheme->m_toolTipBaseColor = color;
+	case 0x110:  pColorTheme->m_toolTipBaseColor = Skin::fromQColor( color );
 		break;
-	case 0x111:  pColorTheme->m_toolTipTextColor = color;
+	case 0x111:  pColorTheme->m_toolTipTextColor = Skin::fromQColor( color );
 		break;
-	case 0x200:  pColorTheme->m_widgetColor = color;
+	case 0x200:  pColorTheme->m_widgetColor = Skin::fromQColor( color );
 		break;
-	case 0x201:  pColorTheme->m_widgetTextColor = color;
+	case 0x201:  pColorTheme->m_widgetTextColor = Skin::fromQColor( color );
 		break;
-	case 0x202:  pColorTheme->m_accentColor = color;
+	case 0x202:  pColorTheme->m_accentColor = Skin::fromQColor( color );
 		break;
-	case 0x203:  pColorTheme->m_accentTextColor = color;
+	case 0x203:  pColorTheme->m_accentTextColor = Skin::fromQColor( color );
 		break;
-	case 0x204:  pColorTheme->m_buttonRedColor = color;
+	case 0x204:  pColorTheme->m_buttonRedColor = Skin::fromQColor( color );
 		break;
-	case 0x205:  pColorTheme->m_buttonRedTextColor = color;
+	case 0x205:  pColorTheme->m_buttonRedTextColor = Skin::fromQColor( color );
 		break;
-	case 0x206:  pColorTheme->m_spinBoxColor = color;
+	case 0x206:  pColorTheme->m_spinBoxColor = Skin::fromQColor( color );
 		break;
-	case 0x207:  pColorTheme->m_spinBoxTextColor = color;
+	case 0x207:  pColorTheme->m_spinBoxTextColor = Skin::fromQColor( color );
 		break;
-	case 0x208:  pColorTheme->m_playheadColor = color;
+	case 0x208:  pColorTheme->m_playheadColor = Skin::fromQColor( color );
 		break;
-	case 0x209:  pColorTheme->m_cursorColor = color;
+	case 0x209:  pColorTheme->m_cursorColor = Skin::fromQColor( color );
 		break;
-	case 0x20a:  pColorTheme->m_muteColor = color;
+	case 0x20a:  pColorTheme->m_muteColor = Skin::fromQColor( color );
 		break;
-	case 0x20b:  pColorTheme->m_muteTextColor = color;
+	case 0x20b:  pColorTheme->m_muteTextColor = Skin::fromQColor( color );
 		break;
-	case 0x20c:  pColorTheme->m_soloColor = color;
+	case 0x20c:  pColorTheme->m_soloColor = Skin::fromQColor( color );
 		break;
-	case 0x20d:  pColorTheme->m_soloTextColor = color;
+	case 0x20d:  pColorTheme->m_soloTextColor = Skin::fromQColor( color );
 		break;
-	case 0x20e:  pColorTheme->m_waveFormColor = color;
+	case 0x20e:  pColorTheme->m_waveFormColor = Skin::fromQColor( color );
 		break;
-	case 0x300:  pColorTheme->m_songEditor_backgroundColor = color;
+	case 0x300:  pColorTheme->m_songEditor_backgroundColor = Skin::fromQColor( color );
 		break;
-	case 0x301:  pColorTheme->m_songEditor_alternateRowColor = color;
+	case 0x301:  pColorTheme->m_songEditor_alternateRowColor = Skin::fromQColor( color );
 		break;
-	case 0x302:  pColorTheme->m_songEditor_virtualRowColor = color;
+	case 0x302:  pColorTheme->m_songEditor_virtualRowColor = Skin::fromQColor( color );
 		break;
-	case 0x303:  pColorTheme->m_songEditor_selectedRowColor = color;
+	case 0x303:  pColorTheme->m_songEditor_selectedRowColor = Skin::fromQColor( color );
 		break;
-	case 0x304:  pColorTheme->m_songEditor_selectedRowTextColor = color;
+	case 0x304:  pColorTheme->m_songEditor_selectedRowTextColor = Skin::fromQColor( color );
 		break;
-	case 0x305:  pColorTheme->m_songEditor_lineColor = color;
+	case 0x305:  pColorTheme->m_songEditor_lineColor = Skin::fromQColor( color );
 		break;
-	case 0x306:  pColorTheme->m_songEditor_textColor = color;
+	case 0x306:  pColorTheme->m_songEditor_textColor = Skin::fromQColor( color );
 		break;
-	case 0x307:  pColorTheme->m_songEditor_automationBackgroundColor = color;
+	case 0x307:  pColorTheme->m_songEditor_automationBackgroundColor = Skin::fromQColor( color );
 		break;
-	case 0x308:  pColorTheme->m_songEditor_automationLineColor = color;
+	case 0x308:  pColorTheme->m_songEditor_automationLineColor = Skin::fromQColor( color );
 		break;
-	case 0x309:  pColorTheme->m_songEditor_automationNodeColor = color;
+	case 0x309:  pColorTheme->m_songEditor_automationNodeColor = Skin::fromQColor( color );
 		break;
-	case 0x30a:  pColorTheme->m_songEditor_stackedModeOnColor = color;
+	case 0x30a:  pColorTheme->m_songEditor_stackedModeOnColor = Skin::fromQColor( color );
 		break;
-	case 0x30b:  pColorTheme->m_songEditor_stackedModeOnNextColor = color;
+	case 0x30b:  pColorTheme->m_songEditor_stackedModeOnNextColor = Skin::fromQColor( color );
 		break;
-	case 0x30c:  pColorTheme->m_songEditor_stackedModeOffNextColor = color;
+	case 0x30c:  pColorTheme->m_songEditor_stackedModeOffNextColor = Skin::fromQColor( color );
 		break;
-	case 0x400:  pColorTheme->m_patternEditor_backgroundColor = color;
+	case 0x400:  pColorTheme->m_patternEditor_backgroundColor = Skin::fromQColor( color );
 		break;
-	case 0x401:  pColorTheme->m_patternEditor_alternateRowColor = color;
+	case 0x401:  pColorTheme->m_patternEditor_alternateRowColor = Skin::fromQColor( color );
 		break;
-	case 0x402:  pColorTheme->m_patternEditor_selectedRowColor = color;
+	case 0x402:  pColorTheme->m_patternEditor_selectedRowColor = Skin::fromQColor( color );
 		break;
-	case 0x403:  pColorTheme->m_patternEditor_selectedRowTextColor = color;
+	case 0x403:  pColorTheme->m_patternEditor_selectedRowTextColor = Skin::fromQColor( color );
 		break;
-	case 0x404:  pColorTheme->m_patternEditor_octaveRowColor = color;
+	case 0x404:  pColorTheme->m_patternEditor_octaveRowColor = Skin::fromQColor( color );
 		break;
-	case 0x405:  pColorTheme->m_patternEditor_textColor = color;
+	case 0x405:  pColorTheme->m_patternEditor_textColor = Skin::fromQColor( color );
 		break;
-	case 0x406:  pColorTheme->m_patternEditor_noteVelocityFullColor = color;
+	case 0x406:  pColorTheme->m_patternEditor_noteVelocityFullColor = Skin::fromQColor( color );
 		break;
-	case 0x407:  pColorTheme->m_patternEditor_noteVelocityDefaultColor = color;
+	case 0x407:  pColorTheme->m_patternEditor_noteVelocityDefaultColor = Skin::fromQColor( color );
 		break;
-	case 0x408:  pColorTheme->m_patternEditor_noteVelocityHalfColor = color;
+	case 0x408:  pColorTheme->m_patternEditor_noteVelocityHalfColor = Skin::fromQColor( color );
 		break;
-	case 0x409:  pColorTheme->m_patternEditor_noteVelocityZeroColor = color;
+	case 0x409:  pColorTheme->m_patternEditor_noteVelocityZeroColor = Skin::fromQColor( color );
 		break;
-	case 0x40a:  pColorTheme->m_patternEditor_noteOffColor = color;
+	case 0x40a:  pColorTheme->m_patternEditor_noteOffColor = Skin::fromQColor( color );
 		break;
-	case 0x40b:  pColorTheme->m_patternEditor_lineColor = color;
+	case 0x40b:  pColorTheme->m_patternEditor_lineColor = Skin::fromQColor( color );
 		break;
-	case 0x40c:  pColorTheme->m_patternEditor_line1Color = color;
+	case 0x40c:  pColorTheme->m_patternEditor_line1Color = Skin::fromQColor( color );
 		break;
-	case 0x40d:  pColorTheme->m_patternEditor_line2Color = color;
+	case 0x40d:  pColorTheme->m_patternEditor_line2Color = Skin::fromQColor( color );
 		break;
-	case 0x40e:  pColorTheme->m_patternEditor_line3Color = color;
+	case 0x40e:  pColorTheme->m_patternEditor_line3Color = Skin::fromQColor( color );
 		break;
-	case 0x40f:  pColorTheme->m_patternEditor_line4Color = color;
+	case 0x40f:  pColorTheme->m_patternEditor_line4Color = Skin::fromQColor( color );
 		break;
-	case 0x410:  pColorTheme->m_patternEditor_line5Color = color;
+	case 0x410:  pColorTheme->m_patternEditor_line5Color = Skin::fromQColor( color );
 		break;
-	case 0x411:  pColorTheme->m_patternEditor_instrumentRowColor = color;
+	case 0x411:  pColorTheme->m_patternEditor_instrumentRowColor = Skin::fromQColor( color );
 		break;
-	case 0x412:  pColorTheme->m_patternEditor_instrumentRowTextColor = color;
+	case 0x412:  pColorTheme->m_patternEditor_instrumentRowTextColor = Skin::fromQColor( color );
 		break;
-	case 0x413:  pColorTheme->m_patternEditor_instrumentAlternateRowColor = color;
+	case 0x413:  pColorTheme->m_patternEditor_instrumentAlternateRowColor = Skin::fromQColor( color );
 		break;
-	case 0x414:  pColorTheme->m_patternEditor_instrumentSelectedRowColor = color;
+	case 0x414:  pColorTheme->m_patternEditor_instrumentSelectedRowColor = Skin::fromQColor( color );
 		break;
-	case 0x415:  pColorTheme->m_patternEditor_instrumentSelectedRowTextColor = color;
+	case 0x415:  pColorTheme->m_patternEditor_instrumentSelectedRowTextColor = Skin::fromQColor( color );
 		break;
 	case 0x500:
-		pColorTheme->m_componentEditor_componentColor = color;
+		pColorTheme->m_componentEditor_componentColor = Skin::fromQColor( color );
 		break;
 	case 0x501:
-		pColorTheme->m_componentEditor_componentTextColor = color;
+		pColorTheme->m_componentEditor_componentTextColor = Skin::fromQColor( color );
 		break;
 	case 0x502:
-		pColorTheme->m_componentEditor_layerColor = color;
+		pColorTheme->m_componentEditor_layerColor = Skin::fromQColor( color );
 		break;
 	case 0x503:
-		pColorTheme->m_componentEditor_layerTextColor = color;
+		pColorTheme->m_componentEditor_layerTextColor = Skin::fromQColor( color );
 		break;
-	case 0x600:  pColorTheme->m_sampleEditor_backgroundColor = color;
+	case 0x600:  pColorTheme->m_sampleEditor_backgroundColor = Skin::fromQColor( color );
 		break;
-	case 0x601:  pColorTheme->m_sampleEditor_textColor = color;
+	case 0x601:  pColorTheme->m_sampleEditor_textColor = Skin::fromQColor( color );
 		break;
-	case 0x602:  pColorTheme->m_sampleEditor_startSliderColor = color;
+	case 0x602:  pColorTheme->m_sampleEditor_startSliderColor = Skin::fromQColor( color );
 		break;
-	case 0x603:  pColorTheme->m_sampleEditor_loopSliderColor = color;
+	case 0x603:  pColorTheme->m_sampleEditor_loopSliderColor = Skin::fromQColor( color );
 		break;
-	case 0x604:  pColorTheme->m_sampleEditor_endSliderColor = color;
+	case 0x604:  pColorTheme->m_sampleEditor_endSliderColor = Skin::fromQColor( color );
 		break;
-	case 0x605:  pColorTheme->m_sampleEditor_velocityEnvelopeColor = color;
+	case 0x605:  pColorTheme->m_sampleEditor_velocityEnvelopeColor = Skin::fromQColor( color );
 		break;
-	case 0x606:  pColorTheme->m_sampleEditor_panEnvelopeColor = color;
+	case 0x606:  pColorTheme->m_sampleEditor_panEnvelopeColor = Skin::fromQColor( color );
 		break;
 	default: WARNINGLOG( "Unknown ID" );
 	}
@@ -2712,8 +2712,9 @@ void PreferencesDialog::updateAppearanceTab( std::shared_ptr<H2Core::Theme> pThe
 
 		// Display only the required number and update their colors.
 		for ( int ii = 0; ii < pTheme->m_pInterface->m_nVisiblePatternColors; ii++ ) {
-			m_colorSelectionButtons[ ii ]->setColor( pTheme->m_pInterface->
-													 m_patternColors[ ii ] );
+			m_colorSelectionButtons[ ii ]->setColor( Skin::toQColor(
+													 pTheme->m_pInterface->
+													 m_patternColors[ ii ] ) );
 			m_colorSelectionButtons[ ii ]->pretendToShow();
 		}
 	}

@@ -81,7 +81,8 @@ Director::Director ( QWidget* pParent )
 	
 	m_nBar = pPos->getBar();
 	m_nBeat = pPos->getBeat();
-	m_Color = HydrogenApp::pPreferences()->getColorTheme()->m_accentColor;
+	m_Color = Skin::toQColor(
+		HydrogenApp::pPreferences()->getColorTheme()->m_accentColor );
 	m_Color.setAlpha( 0 );
 	m_nFlashingArea = width() * 5/100;
 
@@ -163,13 +164,13 @@ void Director::updateBBT()
 	m_nBeat = pPos->getBeat();
 
 	if ( m_nBeat == 1 ) {	//foregroundcolor "rect" for first blink
-		m_Color = pColorTheme->m_buttonRedColor;
+		m_Color = Skin::toQColor( pColorTheme->m_buttonRedColor );
 	}
 	else {	//foregroundcolor "rect" for all other blinks
 		if ( m_nBeat %2 == 0 ) {
 			m_nFlashingArea = width() * 52.5/100;
 		}
-		m_Color = pColorTheme->m_accentColor;
+		m_Color = Skin::toQColor( pColorTheme->m_accentColor );
 	}
 }
 
@@ -294,14 +295,14 @@ void Director::paintEvent( QPaintEvent* ev )
 
 
 	//draw the metronome
-	painter.setPen( QPen( pColorTheme->m_highlightColor, 1 , Qt::SolidLine ) );
+	painter.setPen( QPen( Skin::toQColor( pColorTheme->m_highlightColor ), 1 , Qt::SolidLine ) );
 	painter.setBrush( m_Color );
 	painter.drawRect( m_nFlashingArea, height() * 25/100, width() * 42.5/100,
 					  height() * 35/100);
 
 
 	//draw bars
-	QColor textColor = pColorTheme->m_windowTextColor;
+	QColor textColor = Skin::toQColor( pColorTheme->m_windowTextColor );
 	painter.setPen( textColor );
 	painter.setFont(QFont( sFontFamily, height() * 25/100 ));
 	QRect r1(QPoint( width() * 5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));

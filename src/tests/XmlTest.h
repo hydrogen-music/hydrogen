@@ -64,6 +64,7 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testSamplePathsWritten);
 	CPPUNIT_TEST(testWriteToNonExistingDir);
 	CPPUNIT_TEST(testUuidSerialization);
+	CPPUNIT_TEST(testColorSerialization);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -156,6 +157,10 @@ class XmlTest : public CppUnit::TestCase {
 
 		void testWriteToNonExistingDir();
 		void testUuidSerialization();
+		/** Pins the "r,g,b" color wire format of write_color/read_color,
+		 * including its quirks, so the H2Core::Color migration cannot
+		 * drift a single byte. */
+		void testColorSerialization();
 
 	private:
 		static bool checkSampleData( std::shared_ptr<H2Core::Drumkit> pKit,

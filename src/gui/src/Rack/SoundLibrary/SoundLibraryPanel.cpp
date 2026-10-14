@@ -31,6 +31,7 @@
 #include "../Rack.h"
 #include <core/CommonStrings.h>
 #include "../../HydrogenApp.h"
+#include "../../Skin.h"
 #include "core/SoundLibrary/SoundLibraryInfo.h"
 
 #include <core/CoreActionController.h>
@@ -400,7 +401,7 @@ void SoundLibraryPanel::updateStyleSheet()
 {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	const auto backgroundColor = pColorTheme->m_baseColor;
+	const auto backgroundColor = Skin::toQColor( pColorTheme->m_baseColor );
 	const QColor textColor = Skin::moreBlackThanWhite( backgroundColor )
 							   ? Qt::white
 							   : Qt::black;

@@ -78,3 +78,9 @@ so the IPC serialization round-trip remains covered and all unit tests do pass:
 Members that are intentionally not serialized (e.g. `m_sPath`, `m_bIsModified`,
 `m_bIsEdited`, `m_context`) for file operations must be included during XML
 buffer serialization.
+
+### Coding conventions
+
+- All CppUnit tests in `src/test` must start with a `___INFOLOG( "" );` and end
+  with a `___INFOLOG( "passed" );` statement in order to allow correlating log
+  output with the corresponding unit test.

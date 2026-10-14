@@ -56,7 +56,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	const auto pPref = HydrogenApp::pPreferences();
 
-	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( Skin::toQColor( pPref->getColorTheme()->m_patternEditor_backgroundColor ) );
 
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 
@@ -298,11 +298,11 @@ void PatternEditorRuler::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	QColor backgroundColor( pColorTheme->m_patternEditor_alternateRowColor.darker( 120 ) );
-	QColor textColor = pColorTheme->m_patternEditor_textColor;
+	QColor backgroundColor( Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ).darker( 120 ) );
+	QColor textColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
 	textColor.setAlpha( 220 );
 	
-	QColor lineColor = pColorTheme->m_patternEditor_lineColor;
+	QColor lineColor = Skin::toQColor( pColorTheme->m_patternEditor_lineColor );
 
 	QPainter painter( m_pBackgroundPixmap );
 	
@@ -312,7 +312,7 @@ void PatternEditorRuler::createBackground()
 	if ( m_nRulerWidth - m_nWidthActive != 0 ) {
 		painter.fillRect( m_nWidthActive, 0, m_nRulerWidth - m_nWidthActive,
 						  m_nRulerHeight,
-						  pColorTheme->m_midLightColor );
+						  Skin::toQColor( pColorTheme->m_midLightColor ) );
 	}
 
 	// numbers
@@ -384,7 +384,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 			PatternEditor::nMargin - 4 - m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
-		painter.setPen( QPen( pColorTheme->m_cursorColor, 2 ) );
+		painter.setPen( QPen( Skin::toQColor( pColorTheme->m_cursorColor ), 2 ) );
 		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawLine( nCursorX + m_fGridWidth * 5 + 4, height() - 6,
 						  nCursorX + m_fGridWidth * 5 + 4, height() - 13 );

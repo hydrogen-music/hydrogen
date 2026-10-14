@@ -1281,7 +1281,7 @@ void PatternEditorPanel::updateIcons()
 	const auto pColorTheme =
 		HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorToolBarInactive = Skin::makeBackgroundColorInactive(
-		pColorTheme->m_patternEditor_selectedRowColor.darker(
+		Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ).darker(
 			PatternEditorPanel::nToolBarScaling
 		)
 	);
@@ -2117,24 +2117,24 @@ void PatternEditorPanel::updateStyleSheet()
 		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorDrumkit =
-		pColorTheme->m_patternEditor_instrumentAlternateRowColor.darker( 120 );
+		Skin::toQColor( pColorTheme->m_patternEditor_instrumentAlternateRowColor ).darker( 120 );
 	const QColor colorDrumkitText =
-		pColorTheme->m_patternEditor_instrumentRowTextColor;
+		Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowTextColor );
 	const QColor colorPatternLabel =
-		pColorTheme->m_patternEditor_alternateRowColor.darker( 120 );
+		Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ).darker( 120 );
 	const QColor colorToolBar =
-		pColorTheme->m_patternEditor_selectedRowColor.darker(
+		Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ).darker(
 			PatternEditorPanel::nToolBarScaling
 		);
-	const QColor colorPatternText = pColorTheme->m_patternEditor_textColor;
+	const QColor colorPatternText = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
 
 	QColor backgroundInactiveColor;
 	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
-			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
+			Skin::toQColor( pColorTheme->m_windowColor ).lighter( Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	setStyleSheet( QString( "\

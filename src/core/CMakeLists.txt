@@ -72,8 +72,8 @@ target_link_libraries(hydrogen-core-${VERSION}
 target_link_libraries(hydrogen-core-${VERSION}
 	Qt${QT_VERSION_MAJOR}::Core
 	Qt${QT_VERSION_MAJOR}::Xml
-    Qt${QT_VERSION_MAJOR}::Test
-	Qt${QT_VERSION_MAJOR}::Gui # For QColor
+	Qt${QT_VERSION_MAJOR}::Test
+	Qt${QT_VERSION_MAJOR}::Gui # For QKeySequence in Shortcuts
 	Qt${QT_VERSION_MAJOR}::Network
 )
 

@@ -456,8 +456,8 @@ void BpmTap::updateStyleSheet() {
 	const auto pColorTheme =
 		HydrogenApp::pPreferences()->getColorTheme();
 
-	const QColor colorText = pColorTheme->m_windowTextColor;
-	const QColor colorLabel = pColorTheme->m_windowColor;
+	const QColor colorText = Skin::toQColor( pColorTheme->m_windowTextColor );
+	const QColor colorLabel = Skin::toQColor( pColorTheme->m_windowColor );
 
 	setStyleSheet( QString( "\
 QToolButton#BpmTapTapButton {\

@@ -22,6 +22,7 @@
 #ifndef H2C_SKIN_H
 #define H2C_SKIN_H
 
+#include <core/Preferences/Color.h>
 #include <QString>
 #include <QtGui>
 
@@ -106,6 +107,12 @@ class Skin {
 	static QColor makeWidgetColorInactive( const QColor& color );
 
 	static bool moreBlackThanWhite( const QColor& color );
+
+	/** Converts a core color into a QColor at the GUI boundary. */
+	static QColor toQColor( const H2Core::Color& color );
+
+	/** Converts a QColor into a core color at the GUI boundary. */
+	static H2Core::Color fromQColor( const QColor& color );
 
 	/** Function used to update the global palette of the QApplication.
 	 *

@@ -813,7 +813,7 @@ void SongEditorPatternList::paintEvent( QPaintEvent* ev )
 		const auto cursorPoint =
 			pSongEditor->gridPointToPoint( pSongEditor->getCursorPosition() );
 
-		QPen cursorPen( pPref->getColorTheme()->m_cursorColor );
+		QPen cursorPen( Skin::toQColor( pPref->getColorTheme()->m_cursorColor ) );
 		cursorPen.setWidth( 2 );
 		painter.setPen( cursorPen );
 		painter.setBrush( Qt::NoBrush );
@@ -826,7 +826,7 @@ void SongEditorPatternList::paintEvent( QPaintEvent* ev )
 	// Drag highlight
 	if ( m_nLastDragRow != -1 ) {
 		const int nDragY = m_nGridHeight * m_nLastDragRow + 1;
-		painter.setPen( pPref->getColorTheme()->m_highlightColor );
+		painter.setPen( Skin::toQColor( pPref->getColorTheme()->m_highlightColor ) );
 		painter.drawLine( 0, nDragY, width(), nDragY );
 	}
 }
@@ -878,15 +878,15 @@ void SongEditorPatternList::createBackground()
 	}
 
 	const QColor backgroundColorDefault =
-		pColorTheme->m_songEditor_backgroundColor.darker( 120 );
+		Skin::toQColor( pColorTheme->m_songEditor_backgroundColor ).darker( 120 );
 	const QColor backgroundColorSelected =
-		pColorTheme->m_songEditor_selectedRowColor.darker( 114 );
+		Skin::toQColor( pColorTheme->m_songEditor_selectedRowColor ).darker( 114 );
 	const QColor backgroundColorAlternate =
-		pColorTheme->m_songEditor_alternateRowColor.darker( 132 );
-	const QColor backgroundColorVirtual = pColorTheme->m_songEditor_virtualRowColor;
+		Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker( 132 );
+	const QColor backgroundColorVirtual = Skin::toQColor( pColorTheme->m_songEditor_virtualRowColor );
 
-    const QColor borderColor = pColorTheme->m_windowColor;
-    const QColor borderColorSelected = pColorTheme->m_highlightColor;
+    const QColor borderColor = Skin::toQColor( pColorTheme->m_windowColor );
+    const QColor borderColorSelected = Skin::toQColor( pColorTheme->m_highlightColor );
 
 	QPainter p( m_pBackgroundPixmap );
 
@@ -976,10 +976,10 @@ void SongEditorPatternList::createBackground()
 	/// paint the foreground (pattern name etc.)
 	for ( int i = 0; i < nPatterns; i++ ) {
 		if ( i == nSelectedPattern ) {
-			p.setPen( pColorTheme->m_songEditor_selectedRowTextColor );
+			p.setPen( Skin::toQColor( pColorTheme->m_songEditor_selectedRowTextColor ) );
 		}
 		else {
-			p.setPen( pColorTheme->m_songEditor_textColor );
+			p.setPen( Skin::toQColor( pColorTheme->m_songEditor_textColor ) );
 		}
 
 		int text_y = i * m_nGridHeight;

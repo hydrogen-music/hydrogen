@@ -24,8 +24,8 @@
 #define H2C_XML_H
 
 #include <core/Object.h>
+#include <core/Preferences/Color.h>
 #include <QtCore/QString>
-#include <QColor>
 #include <QtXml/QDomDocument>
 
 #include <map>
@@ -182,10 +182,10 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		QString read_string( const QString& node, const QString& default_value,
 							 bool inexistent_ok = true, bool empty_ok = true,
 							 bool bSilent = false ) const;
-		QColor read_color( const QString& node,
-						   const QColor& defaultValue = QColor( 97, 167, 251 ),
-						   bool inexistent_ok = true, bool empty_ok = true,
-						   bool bSilent = false ) const;
+	Color read_color( const QString& node,
+					  const Color& defaultValue = Color( 97, 167, 251 ),
+					  bool inexistent_ok = true, bool empty_ok = true,
+					  bool bSilent = false ) const;
 		Uuid read_uuid(
 			const QString& node,
 			bool inexistent_ok = true,
@@ -238,7 +238,7 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param value the value to write
 		 */
 		void write_string( const QString& node, const QString& value );
-	void write_color( const QString& node, const QColor& color );
+	void write_color( const QString& node, const Color& color );
 		void write_uuid( const QString& node, const Uuid& uuid );
 
 		/**

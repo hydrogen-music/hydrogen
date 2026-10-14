@@ -38,7 +38,6 @@
 #include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 
-#include <QColor>
 #include <QDir>
 #include <QDomDocument>
 #include <QMutex>

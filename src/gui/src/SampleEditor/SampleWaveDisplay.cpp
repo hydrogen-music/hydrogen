@@ -278,7 +278,7 @@ void SampleWaveDisplay::renderSlider(
 			nHandleX = nX;
 			nHandleY = SampleWaveDisplay::nHandleMargin +
 					   SampleWaveDisplay::nHandleSlope;
-			color = pColorTheme->m_sampleEditor_startSliderColor;
+			color = Skin::toQColor( pColorTheme->m_sampleEditor_startSliderColor );
 			/*: Single character used as a label of the loop start slider within
 			 *  the sample editor. */
 			sLabel = tr( "S" );
@@ -290,7 +290,7 @@ void SampleWaveDisplay::renderSlider(
 			nHandleY = height() - SampleWaveDisplay::nHandleMargin -
 					   SampleWaveDisplay::nHandleHeight -
 					   SampleWaveDisplay::nHandleSlope * 2;
-			color = pColorTheme->m_sampleEditor_loopSliderColor;
+			color = Skin::toQColor( pColorTheme->m_sampleEditor_loopSliderColor );
 			/*: Single character used as a label of the loop onset slider within
 			 *  the sample editor. */
 			sLabel = tr( "L" );
@@ -302,7 +302,7 @@ void SampleWaveDisplay::renderSlider(
 			nHandleY = height() - SampleWaveDisplay::nHandleMargin -
 					   SampleWaveDisplay::nHandleHeight -
 					   SampleWaveDisplay::nHandleSlope * 2;
-			color = pColorTheme->m_sampleEditor_endSliderColor;
+			color = Skin::toQColor( pColorTheme->m_sampleEditor_endSliderColor );
 			/*: Single character used as a label of the loop end slider within
 			 *  the sample editor. */
 			sLabel = tr( "E" );

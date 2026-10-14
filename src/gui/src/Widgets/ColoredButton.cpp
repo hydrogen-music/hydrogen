@@ -53,7 +53,7 @@ ColoredButton::ColoredButton(
 
 	const auto pColorTheme =
 		HydrogenApp::pPreferences()->getColorTheme();
-	m_defaultBackgroundColor = pColorTheme->m_widgetColor;
+	m_defaultBackgroundColor = Skin::toQColor( pColorTheme->m_widgetColor );
 
 	setFixedFontSize(
 		std::min( width(), height() ) - 2 * ColoredButton::nTextMargin

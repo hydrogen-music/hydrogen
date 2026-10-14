@@ -309,8 +309,8 @@ void OnlineImportSourcesDialog::checkAllSourceStatus()
 
 void OnlineImportSourcesDialog::updateStyleSheet()
 {
-	const QColor backgroundColor =
-		HydrogenApp::pPreferences()->getColorTheme()->m_midLightColor;
+	const QColor backgroundColor = Skin::toQColor(
+		HydrogenApp::pPreferences()->getColorTheme()->m_midLightColor );
 
 	m_pTable->setStyleSheet(
 		QString( "                \

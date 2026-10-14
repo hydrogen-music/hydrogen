@@ -49,8 +49,10 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	, m_bUseCustomBackgroundColors( false )
 {
 	auto pPref = HydrogenApp::pPreferences();
-	m_checkedBackgroundColor = pPref->getColorTheme()->m_accentColor;
-	m_checkedBackgroundTextColor = pPref->getColorTheme()->m_accentTextColor;
+	m_checkedBackgroundColor =
+		Skin::toQColor( pPref->getColorTheme()->m_accentColor );
+	m_checkedBackgroundTextColor =
+		Skin::toQColor( pPref->getColorTheme()->m_accentTextColor );
 
 	setFocusPolicy( Qt::NoFocus );
 	setSize( size );
@@ -139,7 +141,7 @@ QPushButton {									\
 
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	
-	const QColor backgroundColor = pColorTheme->m_widgetColor;
+	const QColor backgroundColor = Skin::toQColor( pColorTheme->m_widgetColor );
 	const QColor backgroundHoverColor = backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
 	const QColor borderColor = Qt::black;
 
@@ -148,11 +150,12 @@ QPushButton {									\
 		backgroundCheckedColor = m_checkedBackgroundColor;
 		backgroundCheckedTextColor = m_checkedBackgroundTextColor;
 	} else {
-		backgroundCheckedColor = pColorTheme->m_accentColor;
-		backgroundCheckedTextColor = pColorTheme->m_accentTextColor;
+		backgroundCheckedColor = Skin::toQColor( pColorTheme->m_accentColor );
+		backgroundCheckedTextColor =
+			Skin::toQColor( pColorTheme->m_accentTextColor );
 	}
 
-	const QColor textColor = pColorTheme->m_widgetTextColor;
+	const QColor textColor = Skin::toQColor( pColorTheme->m_widgetTextColor );
 	
 	const QColor backgroundInactiveColor =
 		Skin::makeWidgetColorInactive( backgroundColor );

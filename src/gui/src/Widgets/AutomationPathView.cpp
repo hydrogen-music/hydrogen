@@ -225,11 +225,12 @@ void AutomationPathView::createBackground() {
 	updateAutomationPath();
 
 	QColor backgroundColor =
-		pColorTheme->m_songEditor_automationBackgroundColor;
+		Skin::toQColor( pColorTheme->m_songEditor_automationBackgroundColor );
 	QColor automationLineColor =
-		pColorTheme->m_songEditor_automationLineColor;
-	QColor nodeColor = pColorTheme->m_songEditor_automationNodeColor;
-	QColor textColor = pColorTheme->m_songEditor_textColor;
+		Skin::toQColor( pColorTheme->m_songEditor_automationLineColor );
+	QColor nodeColor =
+		Skin::toQColor( pColorTheme->m_songEditor_automationNodeColor );
+	QColor textColor = Skin::toQColor( pColorTheme->m_songEditor_textColor );
 
 	// Resize pixmap if pixel ratio has changed
 	qreal pixelRatio = devicePixelRatio();
@@ -292,7 +293,7 @@ void AutomationPathView::createBackground() {
 	QPen circlePen( nodeColor );
 	circlePen.setWidth(1);
 	painter.setPen(circlePen);
-	painter.setBrush(QBrush( pColorTheme->m_windowColor ));
+	painter.setBrush(QBrush( Skin::toQColor( pColorTheme->m_windowColor ) ));
 
 	for ( const auto& point : *m_pPath) {
 

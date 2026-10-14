@@ -103,11 +103,11 @@ void LCDTextEdit::updateFont() {
 void LCDTextEdit::updateStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	QColor textColor = pColorTheme->m_windowTextColor;
-	QColor textColorActive = pColorTheme->m_widgetTextColor;
+	QColor textColor = Skin::toQColor( pColorTheme->m_windowTextColor );
+	QColor textColorActive = Skin::toQColor( pColorTheme->m_widgetTextColor );
 
-	QColor backgroundColor = pColorTheme->m_windowColor;
-	QColor backgroundColorActive = pColorTheme->m_widgetColor;
+	QColor backgroundColor = Skin::toQColor( pColorTheme->m_windowColor );
+	QColor backgroundColorActive = Skin::toQColor( pColorTheme->m_widgetColor );
 
 	QString sStyleSheet = QString( "\
 QTextEdit:enabled { \
@@ -145,9 +145,9 @@ void LCDTextEdit::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pColorTheme->m_highlightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 		} else {
-			colorHighlightActive = pColorTheme->m_lightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 		}
 
 		// If the mouse is placed on the widget but the user hasn't

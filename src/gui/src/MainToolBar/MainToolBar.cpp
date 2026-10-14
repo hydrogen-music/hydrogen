@@ -1030,8 +1030,9 @@ void MainToolBar::updateIpcConnectionState() {
 	m_pIpcConnectionButton->setChecked( bConnected );
 
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	const QColor color =
-		bConnected ? pColorTheme->m_accentColor : pColorTheme->m_buttonRedColor;
+	const QColor color = bConnected
+		? Skin::toQColor( pColorTheme->m_accentColor )
+		: Skin::toQColor( pColorTheme->m_buttonRedColor );
 	m_pIpcConnectionButton->setStyleSheet( QString( "\
 #IpcConnectionButton {									 \
    background-color: %1;								 \
@@ -1197,7 +1198,7 @@ void MainToolBar::updateIcons()
 		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive = Skin::makeBackgroundColorInactive(
-		pColorTheme->m_songEditor_backgroundColor.darker( 110 )
+		Skin::toQColor( pColorTheme->m_songEditor_backgroundColor ).darker( 110 )
 	);
 
 	if ( HydrogenApp::isConnectViaIpcMode() ) {
@@ -1256,7 +1257,7 @@ void MainToolBar::updateStyleSheet()
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor colorBackground =
-		pColorTheme->m_songEditor_backgroundColor.darker( 110 );
+		Skin::toQColor( pColorTheme->m_songEditor_backgroundColor ).darker( 110 );
 
 	Skin::setToolBarStyle( this, colorBackground, false );
 	setStyleSheet( styleSheet().append( QString( "\

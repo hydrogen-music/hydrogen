@@ -35,6 +35,7 @@
 #include "Rack.h"
 #include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/InlineEdit.h"
@@ -895,7 +896,7 @@ void InstrumentEditor::updateIcons()
 	}
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorBackgroundDisabled =
-		Skin::makeBackgroundColorInactive( pColorTheme->m_midLightColor );
+		Skin::makeBackgroundColorInactive( Skin::toQColor( pColorTheme->m_midLightColor ) );
 
 	auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 
@@ -924,6 +925,6 @@ ClickableLabel {                     \
 %2" )
 		// Color hard-coded to the hue used in the background PNG
 		.arg( QColor( 78, 83, 95 ).name() )
-        .arg( Skin::getToolButtonStyle( pColorTheme->m_midLightColor ) )
+        .arg( Skin::getToolButtonStyle( Skin::toQColor( pColorTheme->m_midLightColor ) ) )
 	);
 }

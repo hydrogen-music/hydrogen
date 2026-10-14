@@ -1050,8 +1050,7 @@ namespace {
 	{
 		// Shortcuts::loadFrom() handles a missing <shortcuts> element
 		// internally (falling back to the defaults).
-		data.m_pShortcuts =
-			Shortcuts::loadFrom( parent, context.pHydrogen, context.bSilent );
+		data.m_pShortcuts = Shortcuts::loadFrom( parent, context.bSilent );
 	}
 
 }  // namespace

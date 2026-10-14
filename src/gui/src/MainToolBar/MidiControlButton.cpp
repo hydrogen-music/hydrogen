@@ -151,10 +151,10 @@ void MidiControlButton::midiOutputEvent() {
 void MidiControlButton::paintEvent( QPaintEvent* pEvent ) {
 	QToolButton::paintEvent( pEvent );
 
-	const auto highlightColor =
-		HydrogenApp::pPreferences()->getColorTheme()->m_highlightColor;
-	const auto disabledColor =
-		HydrogenApp::pPreferences()->getColorTheme()->m_lightColor;
+	const auto highlightColor = Skin::toQColor(
+		HydrogenApp::pPreferences()->getColorTheme()->m_highlightColor );
+	const auto disabledColor = Skin::toQColor(
+		HydrogenApp::pPreferences()->getColorTheme()->m_lightColor );
 
 	QPainter painter( this );
 

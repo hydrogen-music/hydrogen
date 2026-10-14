@@ -118,8 +118,8 @@ QString XMLNode::read_string( const QString& node, const QString& sDefaultValue,
 	}
 	return sText;
 }
-QColor XMLNode::read_color( const QString& node, const QColor& default_value,
-							bool inexistent_ok, bool empty_ok, bool bSilent ) const
+Color XMLNode::read_color( const QString& node, const Color& default_value,
+						   bool inexistent_ok, bool empty_ok, bool bSilent ) const
 {
 	QString text = read_child_node( node, inexistent_ok, empty_ok, bSilent );
 	
@@ -133,7 +133,7 @@ QColor XMLNode::read_color( const QString& node, const QColor& default_value,
 			return default_value;
 		}
 		
-		QColor color( textList[ 0 ].toInt(), textList[ 1 ].toInt(), textList[ 2 ].toInt() );
+		Color color( textList[ 0 ].toInt(), textList[ 1 ].toInt(), textList[ 2 ].toInt() );
 		if ( ! color.isValid() ) {
 			if ( ! bSilent ) {
 				WARNINGLOG( QString( "Invalid color values [%1] for node [%2]" )
@@ -308,7 +308,7 @@ void XMLNode::write_string( const QString& node, const QString& value )
 {
 	write_child_node( node, value );
 }
-void XMLNode::write_color( const QString& node, const QColor& color )
+void XMLNode::write_color( const QString& node, const Color& color )
 {
 	write_child_node( node, QString( "%1,%2,%3" )
 					  .arg( color.red() )

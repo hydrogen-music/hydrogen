@@ -398,9 +398,9 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pColorTheme->m_highlightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 		} else {
-			colorHighlightActive = pColorTheme->m_lightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
@@ -435,8 +435,8 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 void LCDSpinBox::updateStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	QColor spinBoxColor = pColorTheme->m_spinBoxColor;
-	QColor spinBoxTextColor = pColorTheme->m_spinBoxTextColor;
+	QColor spinBoxColor = Skin::toQColor( pColorTheme->m_spinBoxColor );
+	QColor spinBoxTextColor = Skin::toQColor( pColorTheme->m_spinBoxTextColor );
 	QColor selectionColor = spinBoxColor.darker( 120 );
 
 	QColor spinBoxInactiveColor =

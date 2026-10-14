@@ -22,6 +22,7 @@
 #include "PreferencesPersistTest.h"
 #include "TestHelper.h"
 
+#include <core/Preferences/Color.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -618,12 +619,12 @@ void PreferencesPersistTest::testPatternColorRowPersisted() {
 
 	auto& colors = pPref->m_pTheme->m_pInterface->m_patternColors;
 	CPPUNIT_ASSERT( colors.size() >= 2 );
-	const QColor originalSecond = colors.at( 1 );
+	const Color originalSecond = colors.at( 1 );
 	const int nSeedColors = colors.size();
 
 	// Pattern colors are prefix-matched rows: changing one color rewrites
 	// the row wholesale; sibling colors and the cardinality are preserved.
-	colors[ 0 ] = QColor( 1, 2, 3 );
+	colors[ 0 ] = Color( 1, 2, 3 );
 
 	CPPUNIT_ASSERT( pPref->save( true ) );
 
@@ -633,7 +634,7 @@ void PreferencesPersistTest::testPatternColorRowPersisted() {
 		pReloaded->m_pTheme->m_pInterface->m_patternColors;
 	CPPUNIT_ASSERT_EQUAL( nSeedColors,
 						  static_cast<int>( reloadedColors.size() ) );
-	CPPUNIT_ASSERT( reloadedColors.at( 0 ) == QColor( 1, 2, 3 ) );
+	CPPUNIT_ASSERT( reloadedColors.at( 0 ) == Color( 1, 2, 3 ) );
 	CPPUNIT_ASSERT( reloadedColors.at( 1 ) == originalSecond );
 
 	___INFOLOG( "passed" );

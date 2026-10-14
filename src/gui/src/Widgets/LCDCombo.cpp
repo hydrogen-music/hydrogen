@@ -93,8 +93,8 @@ void LCDCombo::updateStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
-	QColor widgetColor = pColorTheme->m_widgetColor;
-	QColor widgetTextColor = pColorTheme->m_widgetTextColor;
+	QColor widgetColor = Skin::toQColor( pColorTheme->m_widgetColor );
+	QColor widgetTextColor = Skin::toQColor( pColorTheme->m_widgetTextColor );
 	QColor widgetInactiveColor = 
 		Skin::makeWidgetColorInactive( widgetColor );
 	QColor widgetTextInactiveColor =
@@ -145,9 +145,9 @@ void LCDCombo::paintEvent( QPaintEvent *ev ) {
 	
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pColorTheme->m_highlightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 		} else {
-			colorHighlightActive = pColorTheme->m_lightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 		}
 
 		// If the mouse is placed on the widget but the user hasn't

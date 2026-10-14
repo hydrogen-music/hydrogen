@@ -26,6 +26,7 @@ https://www.gnu.org/licenses
 #include "StatusMessageDisplay.h"
 #include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Hydrogen.h>
 #include <core/IPC/EditorSession.h>
@@ -205,9 +206,9 @@ void Footer::updateFont() {
 void Footer::updateStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	const QColor colorText = pColorTheme->m_windowTextColor;
-	const QColor colorFooter = pColorTheme->m_baseColor;
-	const QColor colorRed = pColorTheme->m_buttonRedColor;
+	const QColor colorText = Skin::toQColor( pColorTheme->m_windowTextColor );
+	const QColor colorFooter = Skin::toQColor( pColorTheme->m_baseColor );
+	const QColor colorRed = Skin::toQColor( pColorTheme->m_buttonRedColor );
 
 	setStyleSheet( QString( "\
 QWidget#MainFooter {\

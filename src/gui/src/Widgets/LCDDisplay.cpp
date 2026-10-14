@@ -171,15 +171,15 @@ void LCDDisplay::updateStyleSheet() {
 
 	QColor textColor, textColorActive;
 	if ( m_bUseRedFont ) {
-		textColor = pColorTheme->m_buttonRedColor;
-		textColorActive = pColorTheme->m_buttonRedColor;
+		textColor = Skin::toQColor( pColorTheme->m_buttonRedColor );
+		textColorActive = Skin::toQColor( pColorTheme->m_buttonRedColor );
 	} else {
-		textColor = pColorTheme->m_windowTextColor;
-		textColorActive = pColorTheme->m_widgetTextColor;
+		textColor = Skin::toQColor( pColorTheme->m_windowTextColor );
+		textColorActive = Skin::toQColor( pColorTheme->m_widgetTextColor );
 	}
-	QColor backgroundColor = pColorTheme->m_windowColor;
+	QColor backgroundColor = Skin::toQColor( pColorTheme->m_windowColor );
 
-	QColor backgroundColorActive = pColorTheme->m_widgetColor;
+	QColor backgroundColorActive = Skin::toQColor( pColorTheme->m_widgetColor );
 
 	// In tabular mode the text is painted manually in paintEvent();
 	// the base line edit must not render it a second time. Degenerate
@@ -286,13 +286,13 @@ void LCDDisplay::paintTabularText() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	QColor color;
 	if ( m_bUseRedFont ) {
-		color = pColorTheme->m_buttonRedColor;
+		color = Skin::toQColor( pColorTheme->m_buttonRedColor );
 	}
 	else if ( m_bIsActive ) {
-		color = pColorTheme->m_widgetTextColor;
+		color = Skin::toQColor( pColorTheme->m_widgetTextColor );
 	}
 	else {
-		color = pColorTheme->m_windowTextColor;
+		color = Skin::toQColor( pColorTheme->m_windowTextColor );
 	}
 
 	const QFontMetrics metrics( font() );
@@ -363,9 +363,9 @@ void LCDDisplay::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pColorTheme->m_highlightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 		} else {
-			colorHighlightActive = pColorTheme->m_lightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
