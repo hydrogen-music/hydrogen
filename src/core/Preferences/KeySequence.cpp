@@ -44,7 +44,8 @@ struct KeyNameMap
 
 /** Key names for the portable-text format, sorted by combined value.
  *
- * Generated from Qt 5.15's Qt::Key enum: the portable name
+ * Generated from Qt 5.15's Qt::Key enum, plus keys later Qt
+ * versions added (Qt 6.11's Key_Keyboard): the portable name
  * QKeySequence::toString() emits where it is ASCII, and the enum name
  * for the keys Qt formats as non-ASCII or garbage (the Latin-1
  * supplement, dead keys, IME keys, the modifier key-codes,
@@ -411,6 +412,7 @@ const KeyNameMap keyNameMap[] = {
 	{ 0x100011C, "Settings" },
 	{ 0x100011D, "Microphone Volume Up" },
 	{ 0x100011E, "Microphone Volume Down" },
+	{ 0x100011F, "Keyboard" },
 	{ 0x1000120, "New" },
 	{ 0x1000121, "Open" },
 	{ 0x1000122, "Find" },
