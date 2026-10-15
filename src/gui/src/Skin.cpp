@@ -287,16 +287,6 @@ bool Skin::moreBlackThanWhite( const QColor& color ) {
 	return nValue < nThreshold;
 }
 
-QColor Skin::toQColor( const H2Core::Color& color )
-{
-	return QColor( color.red(), color.green(), color.blue() );
-}
-
-H2Core::Color Skin::fromQColor( const QColor& color )
-{
-	return H2Core::Color( color.red(), color.green(), color.blue() );
-}
-
 void Skin::setPalette( QApplication *pQApp ) {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 

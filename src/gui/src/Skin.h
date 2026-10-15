@@ -118,10 +118,14 @@ class Skin {
 	static bool moreBlackThanWhite( const QColor& color );
 
 	/** Converts a core color into a QColor at the GUI boundary. */
-	static QColor toQColor( const H2Core::Color& color );
+	static QColor toQColor( const H2Core::Color& color ) {
+		return QColor( color.red(), color.green(), color.blue() );
+	}
 
 	/** Converts a QColor into a core color at the GUI boundary. */
-	static H2Core::Color fromQColor( const QColor& color );
+	static H2Core::Color fromQColor( const QColor& color ) {
+		return H2Core::Color( color.red(), color.green(), color.blue() );
+	}
 
 	/** Converts a core key sequence into a QKeySequence at the GUI
 	 * boundary. */

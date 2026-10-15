@@ -24,6 +24,12 @@
 #include <core/Preferences/Color.h>
 #include <core/Object.h>
 
+#include "Skin.h"
+
+#include <QColor>
+
+#include <vector>
+
 void ColorTest::testColor()
 {
 	___INFOLOG( "" );
@@ -60,6 +66,49 @@ void ColorTest::testColor()
 	CPPUNIT_ASSERT( invalid != H2Core::Color( 0, 0, 0 ) );
 	CPPUNIT_ASSERT( color == H2Core::Color( 1, 2, 3 ) );
 	CPPUNIT_ASSERT( color != H2Core::Color( 3, 2, 1 ) );
+
+	___INFOLOG( "passed" );
+}
+
+void ColorTest::testQColorConversion()
+{
+	___INFOLOG( "" );
+
+	// The GUI boundary converts in both directions; parity must hold
+	// across the full component range.
+	const std::vector<H2Core::Color> pins = {
+		H2Core::Color( 0, 0, 0 ),
+		H2Core::Color( 255, 255, 255 ),
+		H2Core::Color( 1, 2, 3 ),
+		H2Core::Color( 128, 64, 200 ),
+		H2Core::Color( 255, 0, 128 ),
+	};
+	for ( const auto& core : pins ) {
+		const QColor qt = Skin::toQColor( core );
+		CPPUNIT_ASSERT( qt.isValid() );
+		CPPUNIT_ASSERT( qt.red() == core.red() );
+		CPPUNIT_ASSERT( qt.green() == core.green() );
+		CPPUNIT_ASSERT( qt.blue() == core.blue() );
+		// "#rrggbb" parity holds across the boundary.
+		CPPUNIT_ASSERT( qt.name() == core.name() );
+		CPPUNIT_ASSERT( Skin::fromQColor( qt ) == core );
+	}
+
+	// An invalid core color reads as black — the boundary hands the
+	// GUI a valid black QColor, never an invalid one.
+	const QColor invalidCore = Skin::toQColor( H2Core::Color() );
+	CPPUNIT_ASSERT( invalidCore.isValid() );
+	CPPUNIT_ASSERT( invalidCore == QColor( 0, 0, 0 ) );
+
+	// Alpha does not survive the boundary: core colors have no alpha.
+	CPPUNIT_ASSERT( Skin::fromQColor( QColor( 1, 2, 3, 128 ) )
+					== H2Core::Color( 1, 2, 3 ) );
+
+	// An invalid QColor reads as black too (its components read back
+	// as 0), so the boundary yields a valid black core color.
+	const H2Core::Color invalidQt = Skin::fromQColor( QColor() );
+	CPPUNIT_ASSERT( invalidQt.isValid() );
+	CPPUNIT_ASSERT( invalidQt == H2Core::Color( 0, 0, 0 ) );
 
 	___INFOLOG( "passed" );
 }

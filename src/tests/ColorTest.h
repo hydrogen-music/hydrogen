@@ -33,10 +33,12 @@
 class ColorTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( ColorTest );
 	CPPUNIT_TEST( testColor );
+	CPPUNIT_TEST( testQColorConversion );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 	void testColor();
+	void testQColorConversion();
 };
 
 #endif
