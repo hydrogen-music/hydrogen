@@ -2771,7 +2771,14 @@ void PreferencesDialog::initializeShortcutsTab() {
 	connect( duplicateActionsButton, SIGNAL( clicked() ),
 			 this, SLOT( duplicateActions() ) );
 	connect( resetShortcutButton, &QPushButton::clicked, [=]() {
-		m_pShortcuts->createDefaultShortcuts();
+		// The Undo/Redo defaults are platform-dependent
+		// (QKeySequence::keyBindings() requires a QGuiApplication)
+		// and are injected from the GUI side.
+		m_pShortcuts->createDefaultShortcuts(
+			Skin::fromQKeySequence(
+				QKeySequence( QKeySequence::StandardKey::Undo ) ),
+			Skin::fromQKeySequence(
+				QKeySequence( QKeySequence::StandardKey::Redo ) ) );
 		// Reset selection as it would be too expensive to check for
 		// all currently selected items that would change and we do
 		// not want selection artifacts either.
@@ -2843,7 +2850,7 @@ void PreferencesDialog::updateShortcutsTab() {
 
 			m_lastShortcutsSelected.emplace_back(
 				std::make_pair( static_cast<Shortcuts::Action>(pSelectedItem->getId()),
-								QKeySequence( pSelectedItem->text( 0 ) ) ) );
+								KeySequence::fromPortableText( pSelectedItem->text( 0 ) ) ) );
 		}
 	}
 
@@ -2860,10 +2867,10 @@ void PreferencesDialog::updateShortcutsTab() {
 		if ( m_selectedCategory == Shortcuts::Category::All ||
 			 m_selectedCategory == aactionInfo.category ) {
 
-			const std::vector<QKeySequence> keySequences =
+			const std::vector<KeySequence> keySequences =
 				m_pShortcuts->getKeySequences( aaction );
 			for ( const auto& kkeySequence : keySequences ) {
-				QString sKeySequence = kkeySequence.toString( QKeySequence::PortableText );
+				QString sKeySequence = kkeySequence.toPortableText();
 
 				// Filter by line edit
 				if ( ( sDescriptionFilter.isEmpty() ||
@@ -2957,13 +2964,14 @@ void PreferencesDialog::defineShortcut() {
 		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
 
 		// Remove the old definition of the selected row.
-		m_pShortcuts->deleteShortcut( QKeySequence( pSelectedItem->text( 0 ) ),
-									  selectedAction );
-		m_pShortcuts->insertShortcut( QKeySequence( nKey ), selectedAction );
+		m_pShortcuts->deleteShortcut(
+			KeySequence::fromPortableText( pSelectedItem->text( 0 ) ),
+			selectedAction );
+		m_pShortcuts->insertShortcut( KeySequence( nKey ), selectedAction );
 
 		// Ensure the item will remain selected.
 		m_lastShortcutsSelected.emplace_back(
-			std::make_pair( selectedAction, QKeySequence( nKey ) ) );
+			std::make_pair( selectedAction, KeySequence( nKey ) ) );
 	}
 
 	updateShortcutsTab();
@@ -2989,7 +2997,8 @@ void PreferencesDialog::clearShortcut() {
 		}
 
 		const auto selectedAction = static_cast<Shortcuts::Action>(pSelectedItem->getId());
-		const auto keySequence = QKeySequence( pSelectedItem->text( 0 ) );
+		const auto keySequence =
+			KeySequence::fromPortableText( pSelectedItem->text( 0 ) );
 		m_pShortcuts->deleteShortcut( keySequence, selectedAction );
 
 		// Ensure the item will remain selected.
@@ -3025,11 +3034,11 @@ void PreferencesDialog::duplicateActions() {
 
 		// Create an empty shortcut binding for the event to introduce
 		// an additional row.
-		m_pShortcuts->insertShortcut( QKeySequence( "" ), selectedAction );
+		m_pShortcuts->insertShortcut( KeySequence(), selectedAction );
 
 		// Ensure the item will remain selected.
 		m_lastShortcutsSelected.emplace_back(
-			std::make_pair( selectedAction, QKeySequence( "" ) ) );
+			std::make_pair( selectedAction, KeySequence() ) );
 	}
 
 	updateShortcutsTab();

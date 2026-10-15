@@ -398,10 +398,16 @@ int main(int argc, char *argv[])
 		setApplicationIcon( pQApp );
 
 		// This must be done after creating a QApplication instance
-		// and setting its locale as some Qt standard keys are used as
-		// defaults.
+		// and setting its locale: the Undo/Redo defaults are
+		// platform-dependent (QKeySequence::keyBindings() requires a
+		// QGuiApplication) and are therefore injected from the GUI
+		// side.
 		if ( pPref->getShortcuts()->requiresDefaults() ) {
-			pPref->getShortcuts()->createDefaultShortcuts();
+			pPref->getShortcuts()->createDefaultShortcuts(
+				Skin::fromQKeySequence(
+					QKeySequence( QKeySequence::StandardKey::Undo ) ),
+				Skin::fromQKeySequence(
+					QKeySequence( QKeySequence::StandardKey::Redo ) ) );
 		}
 
 		if ( ! pPref->getLoadingSuccessful() ) {

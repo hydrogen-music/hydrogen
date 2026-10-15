@@ -37,7 +37,6 @@
 #include <core/Preferences/Color.h>
 #include <QCoreApplication>
 #include <QFile>
-#include <QKeySequence>
 #include <QTextStream>
 
 #include <initializer_list>
@@ -150,7 +149,8 @@ void perturbSpecialized( PreferencesData& data )
 	data.m_pTheme->m_pColor = pColor;
 
 	data.m_pShortcuts->insertShortcut(
-		QKeySequence( "Ctrl+Alt+Shift+P" ), Shortcuts::Action::Panic
+		KeySequence::fromPortableText( "Ctrl+Alt+Shift+P" ),
+		Shortcuts::Action::Panic
 	);
 
 	data.m_pMidiEventMap->registerEvent(

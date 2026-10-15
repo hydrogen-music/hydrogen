@@ -24,16 +24,14 @@
 #define H2C_SHORTCUTS_H
 
 #include <QString>
-#include <QKeySequence>
 #include <map>
 #include <vector>
 #include <memory>
 
+#include <core/Preferences/KeySequence.h>
 #include <core/Object.h>
 
 namespace H2Core {
-
-class Hydrogen;
 
 class XMLNode;
 
@@ -270,31 +268,29 @@ public:
 	~Shortcuts();
 
 	void saveTo( XMLNode& node ) const;
-	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, H2Core::Hydrogen* pHydrogen, bool bSilent = false );
+	static std::shared_ptr<Shortcuts> loadFrom( const XMLNode& node, bool bSilent = false );
 
 	/**
 	 * Creates the default key bindings as fallback when upgrading
 	 * from older versions or starting Hydrogen the first time.
 	 *
-	 * If no QApplication is present, Qt will segfault when attempting
-	 * to access standard keys as done within this functions. It has
-	 * to be used with care.
+	 * The Undo/Redo defaults are platform-dependent - Qt resolves
+	 * them via QKeySequence::keyBindings(), which requires a
+	 * QGuiApplication - and are therefore injected by the GUI after
+	 * its bootstrap. This keeps the function headless-safe.
 	 */
-	void createDefaultShortcuts();
+	void createDefaultShortcuts( const KeySequence& undo,
+								 const KeySequence& redo );
 
-	std::vector<Action> getActions( const QKeySequence& keySequence ) const;
+	std::vector<Action> getActions( const KeySequence& keySequence ) const;
 	/**
 	 * Removes mapping between @a keySequence and @a action in
 	 * #m_actionsMap.
 	 */
-	void deleteShortcut( const QKeySequence& keySequence, const Action& action );
-	void insertShortcut( const QKeySequence& keySequence, const Action& action );
-	/** Variants composing the sequence from modifier(s) and a key. The
-	 * composition goes through QKeySequence's int constructor - the one
-	 * route that works warning-free on every Qt from 5.15 to 6.8: Qt 5
-	 * lacks the operator|/QKeyCombination route entirely, while Qt 6
-	 * deletes operator+ between two modifiers and deprecates the
-	 * single-modifier one. */
+	void deleteShortcut( const KeySequence& keySequence, const Action& action );
+	void insertShortcut( const KeySequence& keySequence, const Action& action );
+	/** Variants composing the sequence from modifier(s) and a key. */
+	void insertShortcut( Qt::Key key, const Action& action );
 	void insertShortcut( Qt::KeyboardModifier modifier, Qt::Key key,
 						 const Action& action );
 	void insertShortcut( Qt::KeyboardModifier modifier1,
@@ -315,12 +311,12 @@ public:
 	 * the generated GUI menus. Only the first one is used for this
 	 * purpose.
 	 */
-	QKeySequence getKeySequence( const Action& action ) const;
+	KeySequence getKeySequence( const Action& action ) const;
 
 	/**
 	 * Returns all key sequences mapped to an @a action.
 	 */
-	std::vector<QKeySequence> getKeySequences( const Action& action ) const;
+	std::vector<KeySequence> getKeySequences( const Action& action ) const;
 
 	const std::map<Action, ActionInfo>& getActionInfoMap() const;
 
@@ -336,7 +332,7 @@ private:
 						   const QString& sDescription );
 
 	std::map<Action, ActionInfo> m_actionInfoMap;
-	std::map<QKeySequence, std::vector<Action>> m_actionsMap;
+	std::map<KeySequence, std::vector<Action>> m_actionsMap;
 
 	/**
 	 * 

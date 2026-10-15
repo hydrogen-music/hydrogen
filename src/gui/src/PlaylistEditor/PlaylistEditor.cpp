@@ -218,36 +218,36 @@ void PlaylistEditor::populateMenuBar() {
 	auto pActionNew = m_pPlaylistMenu->addAction(
 		tr( "&New Playlist" ), this, SLOT( newPlaylist() ) );
 	pActionNew->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) ) );
 	auto pActionOpen = m_pPlaylistMenu->addAction(
 		tr( "&Open Playlist" ), this, SLOT( openPlaylist() ) );
 	pActionOpen->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) ) );
 	m_pPlaylistMenu->addSeparator();
 	auto pActionSave = m_pPlaylistMenu->addAction(
 		tr( "&Save Playlist" ), this, SLOT( savePlaylist() ) );
 	pActionSave->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) ) );
 	auto pActionSaveAs = m_pPlaylistMenu->addAction(
 		tr( "Save Playlist &as" ), this, SLOT( savePlaylistAs() ) );
 	pActionSaveAs->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) ) );
 	m_pPlaylistMenu->addSeparator();				// -----
 	auto pActionAddSong = m_pPlaylistMenu->addAction(
 		tr( "Add song to Play&list" ), this, SLOT( addSong() ) );
 	pActionAddSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) ) );
 	auto pActionAddCurrentSong = m_pPlaylistMenu->addAction(
 		tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ) );
 	pActionAddCurrentSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) ) );
 
 	m_pPlaylistMenu->addSeparator();				// -----
 
 	auto pActionRemoveSong = m_pPlaylistMenu->addAction(
 		tr( "&Remove selected song from Playlist" ), this, SLOT( removeSong() ) );
 	pActionRemoveSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) ) );
 	m_actionsSelected.push_back( pActionRemoveSong );
 	m_pPlaylistMenu->setFont( font );
 
@@ -256,7 +256,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pUndoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuUndo(), this, SLOT( undo() ) );
 	pUndoAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::Undo ) ) );
 	pUndoAction->setEnabled( false );
 	connect( m_pUndoStack, &QUndoStack::canUndoChanged,
 			 [=]( bool bCanUndo ) {
@@ -267,7 +267,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pRedoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuRedo(), this, SLOT( redo() ) );
 	pRedoAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::Redo ) ) );
 	pRedoAction->setEnabled( false );
 	connect( m_pUndoStack, &QUndoStack::canRedoChanged,
 			 [=]( bool bCanRedo ) {
@@ -278,7 +278,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pActionUndoHistory = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuHistory(), this, SLOT( showUndoHistory() ) );
 	pActionUndoHistory->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) ) );
 
 #ifndef WIN32
 	// Script menu
@@ -287,19 +287,19 @@ void PlaylistEditor::populateMenuBar() {
 	auto pActionNewScript = m_pScriptMenu->addAction(
 		tr( "&Create a new Script" ), this, SLOT( newScript() ) );
 	pActionNewScript->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) ) );
 	m_actionsSelected.push_back( pActionNewScript );
 
 	auto pActionAddScript = m_pScriptMenu->addAction(
 		tr( "&Add Script to selected song" ), this, SLOT( loadScript() ) );
 	pActionAddScript->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) ) );
 	m_actionsSelected.push_back( pActionAddScript );
 
 	auto pScriptEditAction = m_pScriptMenu->addAction(
 		tr( "&Edit selected Script" ), this, SLOT( editScript() ) );
 	pScriptEditAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) ) );
 	m_actionsSelected.push_back( pScriptEditAction );
 	m_actionsSelectedScript.push_back( pScriptEditAction );
 
@@ -308,7 +308,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pScriptRemoveAction = m_pScriptMenu->addAction(
 		tr( "&Remove selected Script" ), this, SLOT( removeScript() ) );
 	pScriptRemoveAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) ) );
 	m_actionsSelected.push_back( pScriptRemoveAction );
 	m_actionsSelectedScript.push_back( pScriptRemoveAction );
 

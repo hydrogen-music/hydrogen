@@ -49,6 +49,7 @@
 #include "IpcProtocolTest.h"
 #include "IpcRoundTripTest.h"
 #include "IpcTransportTest.h"
+#include "KeySequenceTest.h"
 #include "LicenseTest.h"
 #include "LoggerInstanceTest.h"
 #include "MemoryLeakageTest.h"
@@ -74,7 +75,9 @@
 #include "PreferencesInstanceTest.h"
 #include "PreferencesPersistTest.h"
 #include "PreferencesSchemaTest.h"
+#include "QtGuiGateTest.h"
 #include "SampleTest.h"
+#include "ShortcutsTest.h"
 #include "SoundLibraryTest.h"
 #include "ThemeTest.h"
 #include "TimeTest.h"
@@ -115,6 +118,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( H2ProjectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcProtocolTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcRoundTripTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( IpcTransportTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( KeySequenceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LicenseTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LoggerInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MemoryLeakageTest );
@@ -142,7 +146,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION( PluginUiModelTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesPersistTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesSchemaTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( QtGuiGateTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SampleTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ShortcutsTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SoundLibraryTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( ThemeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TimeTest );

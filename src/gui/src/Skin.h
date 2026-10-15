@@ -23,8 +23,17 @@
 #define H2C_SKIN_H
 
 #include <core/Preferences/Color.h>
+#include <core/Preferences/KeySequence.h>
 #include <QString>
 #include <QtGui>
+
+// Only used as pointer arguments of declarations (defined in Skin.cpp);
+// forward declarations keep this header free of a QtWidgets include.
+QT_BEGIN_NAMESPACE
+class QApplication;
+class QToolButton;
+class QToolBar;
+QT_END_NAMESPACE
 
 ///
 /// Skin support
@@ -113,6 +122,30 @@ class Skin {
 
 	/** Converts a QColor into a core color at the GUI boundary. */
 	static H2Core::Color fromQColor( const QColor& color );
+
+	/** Converts a core key sequence into a QKeySequence at the GUI
+	 * boundary. */
+	static QKeySequence toQKeySequence(
+		const H2Core::KeySequence& keySequence ) {
+		return QKeySequence( keySequence[ 0 ], keySequence[ 1 ],
+							 keySequence[ 2 ], keySequence[ 3 ] );
+	}
+
+	/** Converts a QKeySequence into a core key sequence at the GUI
+	 * boundary. */
+	static H2Core::KeySequence fromQKeySequence(
+		const QKeySequence& keySequence ) {
+		H2Core::KeySequence core;
+		for ( int ii = 0; ii < keySequence.count(); ++ii ) {
+#if QT_VERSION >= QT_VERSION_CHECK( 6, 0, 0 )
+			// Qt 6 returns QKeyCombination from operator[].
+			core.setKey( ii, keySequence[ ii ].toCombined() );
+#else
+			core.setKey( ii, keySequence[ ii ] );
+#endif
+		}
+		return core;
+	}
 
 	/** Function used to update the global palette of the QApplication.
 	 *

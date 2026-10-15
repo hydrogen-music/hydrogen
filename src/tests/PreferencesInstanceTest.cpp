@@ -69,7 +69,8 @@ void PreferencesInstanceTest::testCopyConstructorIsDeep() {
 	auto pSource = std::make_shared<Preferences>();
 
 	pSource->m_pShortcuts->insertShortcut(
-		QKeySequence( "Ctrl+Alt+Shift+P" ), Shortcuts::Action::Play );
+		KeySequence::fromPortableText( "Ctrl+Alt+Shift+P" ),
+		Shortcuts::Action::Play );
 	pSource->m_pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, Midi::parameterFromInt( 0 ),
 		std::make_shared<MidiAction>( MidiAction::Type::BeatCounter ),
@@ -91,7 +92,8 @@ void PreferencesInstanceTest::testCopyConstructorIsDeep() {
 	const auto copySequences =
 		pCopy->m_pShortcuts->getKeySequences( Shortcuts::Action::Play );
 	CPPUNIT_ASSERT( std::find( copySequences.begin(), copySequences.end(),
-							   QKeySequence( "Ctrl+Alt+Shift+P" ) ) !=
+							   KeySequence::fromPortableText(
+								   "Ctrl+Alt+Shift+P" ) ) !=
 					copySequences.end() );
 	CPPUNIT_ASSERT_EQUAL(
 		1, static_cast<int>( pCopy->m_pMidiEventMap->getMidiEvents().size() ) );
@@ -113,7 +115,8 @@ void PreferencesInstanceTest::testCopyConstructorIsDeep() {
 
 	// Mutating the copy never leaks into the source.
 	pCopy->m_pShortcuts->insertShortcut(
-		QKeySequence( "Ctrl+Alt+Shift+O" ), Shortcuts::Action::Play );
+		KeySequence::fromPortableText( "Ctrl+Alt+Shift+O" ),
+		Shortcuts::Action::Play );
 	CPPUNIT_ASSERT_EQUAL(
 		1, static_cast<int>(
 			   pSource->m_pShortcuts->getKeySequences( Shortcuts::Action::Play )

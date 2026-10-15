@@ -353,16 +353,16 @@ void MainForm::createMenuBar()
 	auto pActionFileNew = m_pFileMenu->addAction(
 		sLabelNew, this, SLOT( action_file_new() ) );
 	pActionFileNew->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::NewSong ) ) );
 
 	auto pActionOpenSong = m_pFileMenu->addAction(
 		sLabelOpen, this, SLOT( action_file_open() ) );
 	pActionOpenSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenSong ) ) );
 	auto pActionOpenDemoSong = m_pFileMenu->addAction(
 		sLabelOpenDemo, this, SLOT( action_file_openDemo() ) );
 	pActionOpenDemoSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenDemoSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenDemoSong ) ) );
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( sLabelOpenRecent );
 
 	m_pFileMenu->addSeparator();				// -----
@@ -370,35 +370,35 @@ void MainForm::createMenuBar()
 	auto pActionSongProperties = m_pFileMenu->addAction(
 		tr( "Song Properties" ), this, SLOT( action_file_songProperties() ) );
 	pActionSongProperties->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::EditSongProperties ) ) );
 
 	auto pActionSongSave = m_pFileMenu->addAction(
 		tr( "&Save" ), this, SLOT( action_file_save() ) );
 	pActionSongSave->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SaveSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveSong ) ) );
 	auto pActionSongSaveAs = m_pFileMenu->addAction(
 		sLabelSaveAs, this, SLOT( action_file_save_as() ) );
 	pActionSongSaveAs->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SaveAsSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveAsSong ) ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
 	auto pActionExportMidi = m_pFileMenu->addAction(
 		tr( "Export &MIDI File" ), this, SLOT( action_file_export_midi() ) );
 	pActionExportMidi->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ExportMIDI ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ExportMIDI ) ) );
 	auto pActionExportSong = m_pFileMenu->addAction(
 		tr( "&Export Song" ), this, SLOT( action_file_export() ) );
 	pActionExportSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ExportSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ExportSong ) ) );
 	auto pActionExportProject = m_pFileMenu->addAction(
 		pCommonStrings->getExportProject(), this, SLOT( action_file_export_project() ) );
 	pActionExportProject->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ExportProject ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ExportProject ) ) );
 	auto pActionExportLilyPond = m_pFileMenu->addAction(
 		tr( "Export &LilyPond File" ), this, SLOT( action_file_export_lilypond() ) );
 	pActionExportLilyPond->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ExportLilyPond ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ExportLilyPond ) ) );
 
 
 #ifndef Q_OS_MACX
@@ -407,7 +407,7 @@ void MainForm::createMenuBar()
 	auto pActionQuit = m_pFileMenu->addAction(
 		tr("&Quit"), this, SLOT( action_file_exit() ) );
 	pActionQuit->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::Quit ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::Quit ) ) );
 #endif
 
 	updateRecentUsedSongList();
@@ -420,53 +420,53 @@ void MainForm::createMenuBar()
 	m_pUndoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuUndo(), this, SLOT( action_undo() ) );
 	m_pUndoAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::Undo ) ) );
 	m_pUndoAction->setEnabled( h2app->m_pUndoStack->canUndo() );
 	m_pRedoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuRedo(), this, SLOT( action_redo() ) );
 	m_pRedoAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::Redo ) ) );
 	m_pRedoAction->setEnabled( h2app->m_pUndoStack->canRedo() );
 
 	auto pActionUndoHistory = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuHistory(), this, SLOT( openUndoStack() ) );
 	pActionUndoHistory->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) ) );
 
 	// Pattern menu
 	m_pPatternMenu = pMenubar->addMenu( tr( "Pa&ttern" ) );
 	auto pActionPatternNew = m_pPatternMenu->addAction(
 		tr( "&New" ), this, SLOT( action_pattern_new() ) );
 	// pActionPatternNew->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::NewPattern ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::NewPattern ) ) );
 
 	auto pActionPatternOpen = m_pPatternMenu->addAction(
 		tr( "&Open" ), this, SLOT( action_pattern_open() ) );
 	// pActionPatternOpen->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenPattern ) ) );
 
 	m_pPatternMenu->addSeparator();				// -----
 
 	m_pPatternPropertiesAction = m_pPatternMenu->addAction(
 		tr( "&Properties" ), this, SLOT( action_pattern_properties() ) );
 	// pActionPatternProperties->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::EditPatternProperties ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::EditPatternProperties ) ) );
 	m_pSavePatternAction = m_pPatternMenu->addAction(
 		tr( "&Save" ), this, SLOT( action_pattern_save() ) );
 	// pActionPatternSave->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::SavePatternToSoundLibrary ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SavePatternToSoundLibrary ) ) );
 
 	m_pSavePatternAsAction = m_pPatternMenu->addAction(
 		sLabelSaveAs, this, SLOT( action_pattern_save_as() ) );
 	// pActionPatternSaveAs->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPattern ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPattern ) ) );
 
 	m_pPatternMenu->addSeparator();				// -----
 
 	m_pDuplicatePatternAction = m_pPatternMenu->addAction(
 		tr( "&Duplicate" ), this, SLOT( action_pattern_duplicate() ) );
 	// pActionDuplicatePattern->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::DuplicatePattern ) ) );
 
 	m_pPatternMenu->addSeparator();				// -----
 
@@ -478,36 +478,36 @@ void MainForm::createMenuBar()
 	auto pActionDrumkitNew = m_pDrumkitMenu->addAction(
 		tr( "&New" ), this, SLOT( action_drumkit_new() ) );
 	pActionDrumkitNew->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::NewDrumkit ) ) );
 
 	auto pActionDrumkitOpen = m_pDrumkitMenu->addAction(
 		tr( "&Open" ), this, SLOT( action_drumkit_open() ) );
 	pActionDrumkitOpen->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenDrumkit ) ) );
 
 	m_pDrumkitMenu->addSeparator();				// -----
 
 	auto pActionDrumkitProperties = m_pDrumkitMenu->addAction(
 		tr( "&Properties" ), this, SLOT( action_drumkit_properties() ) );
 	pActionDrumkitProperties->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::EditDrumkitProperties ) ) );
 
 	auto pActionDrumkitSave = m_pDrumkitMenu->addAction(
 		tr( "&Save" ), this, SLOT( action_drumkit_save() ) );
 	// pActionDrumkitSave->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) ) );
 
 	auto pActionDrumkitSaveAs = m_pDrumkitMenu->addAction(
 		sLabelSaveAs, this, SLOT( action_drumkit_save_as() ) );
 	// pActionDrumkitSaveAs->setShortcut(
-	// 	pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) );
+	// 	Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSoundLibrary ) ) );
 
 	if ( bUnderSessionManagement ) {
 		auto pActionDrumkitSaveSession = m_pDrumkitMenu->addAction(
 			tr( "Save &To Session" ), this,
 			SLOT( action_drumkit_save_to_session() ) );
 		pActionDrumkitSaveSession->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSession ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveDrumkitToSession ) ) );
 	}
 
 	m_pDrumkitMenu->addSeparator();				// -----
@@ -515,15 +515,15 @@ void MainForm::createMenuBar()
 	auto pActionDrumkitExport = m_pDrumkitMenu->addAction(
 		tr( "&Export" ), this, SLOT( action_drumkit_export() ) );
 	pActionDrumkitExport->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ExportDrumkit ) ) );
 	auto pActionDrumkitImport = m_pDrumkitMenu->addAction(
 		tr( "&Import" ), this, SLOT( action_drumkit_import() ) );
 	pActionDrumkitImport->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ImportDrumkit ) ) );
 	auto pActionDrumkitOnlineImport = m_pDrumkitMenu->addAction(
 		tr( "On&line Import" ), this, SLOT( action_drumkit_onlineImport() ) );
 	pActionDrumkitOnlineImport->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ImportOnlineDrumkit ) ) );
 
 	// VIEW MENU
 	m_pViewMenu = pMenubar->addMenu( tr( "&View" ) );
@@ -531,26 +531,26 @@ void MainForm::createMenuBar()
 	m_pViewPlaylistEditorAction = m_pViewMenu->addAction(
 		tr("Play&list Editor"), this, SLOT( action_window_showPlaylistEditor() ) );
 		m_pViewPlaylistEditorAction->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaylist ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaylist ) ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
 	m_pViewDirectorAction = m_pViewMenu->addAction(
 		tr("&Director"), this, SLOT( action_window_show_DirectorWidget() ) );
 	m_pViewDirectorAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowDirector ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowDirector ) ) );
 	m_pViewDirectorAction->setCheckable( true );
 
 	m_pFileMenu->addSeparator();
 	m_pViewMixerAction = m_pViewMenu->addAction(
 		tr("&Mixer"), this, SLOT( action_window_showMixer() ) );
 	m_pViewMixerAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowMixer ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowMixer ) ) );
 	m_pViewMixerAction->setCheckable( true );
 	m_pViewMixerAction->setChecked( pPref->getMixerProperties().visible );
 
 	m_pViewRackAction = m_pViewMenu->addAction(
 		tr("&Rack"), this, SLOT( action_window_showRack() ) );
 	m_pViewRackAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowRack ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowRack ) ) );
 	m_pViewRackAction->setCheckable( true );
 	m_pViewRackAction->setChecked(
 		pPref->getRackProperties().visible );
@@ -558,7 +558,7 @@ void MainForm::createMenuBar()
 	m_pViewAutomationPathAction = m_pViewMenu->addAction(
 		tr("&Automation Path"), this, SLOT( action_window_showAutomationArea() ) );
 	m_pViewAutomationPathAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowAutomation ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowAutomation ) ) );
 	m_pViewAutomationPathAction->setCheckable( true );
 	if ( pPref->getShowAutomationArea() ){
 		m_pViewAutomationPathAction->setChecked(true);	
@@ -569,7 +569,7 @@ void MainForm::createMenuBar()
 	m_pViewPlaybackTrackAction = m_pViewMenu->addAction(
 		tr("&Playback Track"), this, SLOT( action_window_showPlaybackTrack() ) );
 	m_pViewPlaybackTrackAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaybackTrack ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowPlaybackTrack ) ) );
 	m_pViewPlaybackTrackAction->setCheckable( true );
     m_pViewPlaybackTrackAction->setChecked( pPref->getShowPlaybackTrack() );
 
@@ -578,7 +578,7 @@ void MainForm::createMenuBar()
 	auto pActionFullScreen = m_pViewMenu->addAction(
 		tr("&Full screen"), this, SLOT( action_window_toggleFullscreen() ) );
 	pActionFullScreen->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowFullscreen ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowFullscreen ) ) );
 
 
 	// Options menu
@@ -593,7 +593,7 @@ void MainForm::createMenuBar()
 	auto pActionPreferences = m_pOptionsMenu->addAction(
 		tr("&Preferences"), this, SLOT( showPreferencesDialog() ) );
 	pActionPreferences->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowPreferencesDialog ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowPreferencesDialog ) ) );
 
 	// ~ Tools menu
 
@@ -606,45 +606,45 @@ void MainForm::createMenuBar()
 			tr( "Show &Audio Engine Info" ), this,
 			SLOT( action_debug_showAudioEngineInfo() ) );
 		pActionEngineInfo->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::ShowAudioEngineInfo ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowAudioEngineInfo ) ) );
 		auto pActionFilesystemInfo = m_pDebugMenu->addAction(
 			tr( "Show &Filesystem Info" ), this,
 			SLOT( action_debug_showFilesystemInfo() ) );
 		pActionFilesystemInfo->setShortcut(
-				pShortcuts->getKeySequence( Shortcuts::Action::ShowFilesystemInfo ) );
+				Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowFilesystemInfo ) ) );
 		
 		m_pLogLevelMenu = m_pDebugMenu->addMenu( tr( "&Log Level" ) );		
 		auto pActionDebugLevelNone = m_pLogLevelMenu->addAction(
 			tr( "&None" ), this, SLOT( action_debug_logLevel_none() ) );
 		pActionDebugLevelNone->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::LogLevelNone ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::LogLevelNone ) ) );
 		auto pActionDebugLevelError = m_pLogLevelMenu->addAction(
 			tr( "&Error" ), this, SLOT( action_debug_logLevel_error() ) );
 		pActionDebugLevelError->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::LogLevelError ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::LogLevelError ) ) );
 		auto pActionDebugLevelWarning = m_pLogLevelMenu->addAction(
 			tr( "&Warning" ), this, SLOT( action_debug_logLevel_warn() ) );
 		pActionDebugLevelWarning->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::LogLevelWarning ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::LogLevelWarning ) ) );
 		auto pActionDebugLevelInfo = m_pLogLevelMenu->addAction(
 			tr( "&Info" ), this, SLOT( action_debug_logLevel_info() ) );
 		pActionDebugLevelInfo->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::LogLevelInfo ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::LogLevelInfo ) ) );
 		auto pActionDebugLevelDebug = m_pLogLevelMenu->addAction(
 			tr( "&Debug" ), this, SLOT( action_debug_logLevel_debug() ) );
 		pActionDebugLevelDebug->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::LogLevelDebug ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::LogLevelDebug ) ) );
 
 		auto pActionOpenLogFile = m_pDebugMenu->addAction(
 			tr( "&Open Log File" ), this, SLOT( action_debug_openLogfile() ) );
 		pActionOpenLogFile->setShortcut(
-			pShortcuts->getKeySequence( Shortcuts::Action::OpenLogFile ) );
+			Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenLogFile ) ) );
 		
 		if ( pLogger->bit_mask() == 8 ) { // hydrogen -V8 list object map in console
 			auto pActionPrintObjects = m_pDebugMenu->addAction(
 				tr( "&Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 			pActionPrintObjects->setShortcut(
-				pShortcuts->getKeySequence( Shortcuts::Action::DebugPrintObjects ) );
+				Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::DebugPrintObjects ) ) );
 		}
 		// ~ DEBUG menu
 	}
@@ -654,20 +654,20 @@ void MainForm::createMenuBar()
 	auto pActionUserManual = m_pInfoMenu->addAction(
 		tr("User &Manual"), this, SLOT( showUserManual() ) );
 	pActionUserManual->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenManual ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenManual ) ) );
 	m_pInfoMenu->addSeparator();
 	auto pActionAbout = m_pInfoMenu->addAction(
 		tr("&About"), this, SLOT( action_help_about() ) );
 	pActionAbout->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowAbout ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowAbout ) ) );
 	auto pActionReportBug = m_pInfoMenu->addAction(
 		tr("&Report Bug"), this, SLOT( action_report_bug() ) );
 	pActionReportBug->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowReportBug ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowReportBug ) ) );
 	auto pActionDonate = m_pInfoMenu->addAction(
 		tr("&Donate"), this, SLOT( action_donate() ) );
 	pActionDonate->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowDonate ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowDonate ) ) );
 	// ~ INFO menu
 
 	setMenuBar( pMenubar );
@@ -3113,8 +3113,8 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
     if ( modifiers & Qt::MetaModifier ) {
         nKey += Qt::META;
 	}
-	const auto keySequence = QKeySequence( nKey );
-	if ( keySequence == QKeySequence( "" ) ) {
+	const auto keySequence = KeySequence( nKey );
+	if ( keySequence.isEmpty() ) {
 		return false;
 	}
 	
