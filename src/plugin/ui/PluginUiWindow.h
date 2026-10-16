@@ -21,9 +21,10 @@
 
 // The embedded basic plugin UI's window (ADR 0035, proposal 0006 TU2.3): a
 // native child window on a host-provided parent, a per-instance Dear ImGui
-// context, and one frame per idle(). The platform mechanism lives behind
-// PluginUiBackend (X11 child window + GLX adapted from DPF/Pugl, Win32 child
-// HWND, NSView + Metal).
+// context, and request-driven frames on idle() at a 30 Hz ceiling (ADR
+// 0035's amendment). The platform mechanism lives behind PluginUiBackend
+// (X11 child window + GLX adapted from DPF/Pugl, Win32 child HWND, NSView +
+// Metal).
 //
 // Per-instance ImGui context discipline (ADR 0035's recorded obligation):
 // ImGui contexts are thread-local and hosts idle multiple UI instances
@@ -77,9 +78,16 @@ public:
 	// Resizes the window (CLAP guiSetSize); the tracked size follows with
 	// the next idle() at the latest (the resize's ConfigureNotify).
 	void setSize( int width, int height );
+	// Frames rendered since construction — the frame-governance evidence
+	// (ADR 0035's amendment): idle() renders only owed frames.
+	unsigned renderedFrameCount() const;
+	// Requests a frame on the next eligible idle() — the seam a view with
+	// live state (meters, once wired) calls when its state changes; native
+	// input/resize/visibility events request through the backend's latch.
+	void requestFrame();
 
-	// One frame: pump native events, drive the per-instance ImGui context,
-	// render, present.
+	// Pumps native events every call; renders only when the frame gate
+	// owes a frame (ADR 0035's amendment).
 	void idle();
 
 private:

@@ -235,6 +235,12 @@ public:
 				XCloseIM( m_inputMethod );
 			}
 			if ( m_context != nullptr ) {
+				// Defensive: a current context cannot be destroyed —
+				// shutdownRenderBackend() already released it on the
+				// normal path.
+				if ( glXGetCurrentContext() == m_context ) {
+					glXMakeCurrent( m_display, None, nullptr );
+				}
 				glXDestroyContext( m_display, m_context );
 			}
 			if ( m_window != None ) {
@@ -308,6 +314,16 @@ public:
 		return m_inputEvents;
 	}
 
+	bool takeFrameRequest() override {
+		const bool bRequested = m_bFrameRequested;
+		m_bFrameRequested = false;
+		return bRequested;
+	}
+
+	bool isPresentable() const override {
+		return m_bPresentable;
+	}
+
 	void mouseState( float& x, float& y, int& nButtons ) const override {
 		x = m_fMouseX;
 		y = m_fMouseY;
@@ -334,10 +350,26 @@ public:
 			if ( event.xany.window != m_window ) {
 				continue;
 			}
+			// Every event on the window can change what a frame must
+			// show (input, exposure, stacking) — latch one frame request;
+			// the window's gate coalesces and rate-limits it.
+			m_bFrameRequested = true;
 			switch ( event.type ) {
 			case ConfigureNotify:
 				m_width = event.xconfigure.width;
 				m_height = event.xconfigure.height;
+				break;
+			case MapNotify:
+				m_bPresentable = true;
+				break;
+			case UnmapNotify:
+				m_bPresentable = false;
+				break;
+			case VisibilityNotify:
+				// Fully obscured windows still receive events but cannot
+				// present; partially obscured and visible ones can.
+				m_bPresentable =
+					event.xvisibility.state != VisibilityFullyObscured;
 				break;
 			case MotionNotify:
 				translateMousePosition( event.xmotion.x, event.xmotion.y );
@@ -399,20 +431,35 @@ public:
 		if ( ! glXMakeCurrent( m_display, m_window, m_context ) ) {
 			return false;
 		}
-		const bool ok = ImGui_ImplOpenGL3_Init();
-		glXMakeCurrent( m_display, None, nullptr );
-		return ok;
+		disableVsync();
+		if ( ! ImGui_ImplOpenGL3_Init() ) {
+			glXMakeCurrent( m_display, None, nullptr );
+			return false;
+		}
+		// The context stays current on the caller's thread (the frame
+		// discipline): beginFrame() only re-makes it when another
+		// context intervened.
+		return true;
 	}
 
 	void shutdownRenderBackend() override {
-		if ( glXMakeCurrent( m_display, m_window, m_context ) ) {
-			ImGui_ImplOpenGL3_Shutdown();
-			glXMakeCurrent( m_display, None, nullptr );
+		if ( glXGetCurrentContext() != m_context
+			 && ! glXMakeCurrent( m_display, m_window, m_context ) ) {
+			return;
 		}
+		ImGui_ImplOpenGL3_Shutdown();
+		// Release before the destructor destroys the context — a
+		// current context cannot be destroyed.
+		glXMakeCurrent( m_display, None, nullptr );
 	}
 
 	void beginFrame() override {
-		glXMakeCurrent( m_display, m_window, m_context );
+		// Re-make only when another context displaced ours on this
+		// thread (a sibling instance's frame, the host's own GL) — the
+		// per-frame make/uncurrent churn is what slowed the host down.
+		if ( glXGetCurrentContext() != m_context ) {
+			glXMakeCurrent( m_display, m_window, m_context );
+		}
 		ImGui_ImplOpenGL3_NewFrame();
 	}
 
@@ -422,12 +469,68 @@ public:
 
 	void endFrame() override {
 		glXSwapBuffers( m_display, m_window );
-		glXMakeCurrent( m_display, None, nullptr );
+		// The context stays current for the next frame — uncurrenting
+		// here would force a make-current on every following frame on
+		// the host's thread.
 	}
 
 private:
 	// Input translation (UI-4): native events → the current ImGui IO.
 	// The caller guarantees the per-instance context is current.
+
+	// Swap-interval 0 (clap-imgui-support's Present(0, 0) precedent): the
+	// host's idle cadence — not the display's vsync — paces the frames,
+	// and a vsynced swap on the host's main thread would block the host
+	// (the Reaper slowdown's mechanism). The first available GLX
+	// swap-control extension wins; none being available (Xvfb, remote
+	// GL) is not an error — the swap stays unsynchronized, which is the
+	// desired state anyway.
+	void disableVsync() {
+		const char* sExtensions = glXQueryExtensionsString(
+			m_display, DefaultScreen( m_display ) );
+		if ( sExtensions == nullptr ) {
+			return;
+		}
+		// Token match, not substring: "GLX_EXT_swap_control" would also
+		// match "GLX_EXT_swap_control_tear", and a _tear-only driver
+		// would then take the EXT branch and silently skip MESA/SGI.
+		const std::string sPaddedExtensions =
+			std::string( " " ) + sExtensions + " ";
+		const auto hasExtension = [ &sPaddedExtensions ]( const char* sName ) {
+			return sPaddedExtensions.find( std::string( " " ) + sName + " " )
+				!= std::string::npos;
+		};
+		if ( hasExtension( "GLX_EXT_swap_control" ) ) {
+			using SwapIntervalEXT_t =
+				void ( * )( Display*, GLXDrawable, int );
+			const auto pSwapIntervalEXT = reinterpret_cast<SwapIntervalEXT_t>(
+				glXGetProcAddress( reinterpret_cast<const GLubyte*>(
+					"glXSwapIntervalEXT" ) ) );
+			if ( pSwapIntervalEXT != nullptr ) {
+				pSwapIntervalEXT( m_display, m_window, 0 );
+			}
+		}
+		else if ( hasExtension( "GLX_MESA_swap_control" ) ) {
+			using SwapIntervalMESA_t = int ( * )( unsigned int );
+			const auto pSwapIntervalMESA =
+				reinterpret_cast<SwapIntervalMESA_t>(
+					glXGetProcAddress( reinterpret_cast<const GLubyte*>(
+						"glXSwapIntervalMESA" ) ) );
+			if ( pSwapIntervalMESA != nullptr ) {
+				pSwapIntervalMESA( 0 );
+			}
+		}
+		else if ( hasExtension( "GLX_SGI_swap_control" ) ) {
+			using SwapIntervalSGI_t = int ( * )( int );
+			const auto pSwapIntervalSGI =
+				reinterpret_cast<SwapIntervalSGI_t>(
+					glXGetProcAddress( reinterpret_cast<const GLubyte*>(
+						"glXSwapIntervalSGI" ) ) );
+			if ( pSwapIntervalSGI != nullptr ) {
+				pSwapIntervalSGI( 0 );
+			}
+		}
+	}
 
 	void translateMousePosition( int x, int y ) {
 		ImGui::GetIO().AddMousePosEvent( static_cast<float>( x ),
@@ -562,6 +665,11 @@ private:
 	int m_nMouseButtons = 0;
 	mutable double m_scaleFactor = 0.0;
 	bool m_bShouldClose = false;
+	// The frame-request latch (takeFrameRequest) and the presentability
+	// the Map/Unmap/VisibilityNotify events track — presentable starts
+	// true: the constructor maps the window (embedded = visible).
+	bool m_bFrameRequested = false;
+	bool m_bPresentable = true;
 	bool m_valid = false;
 };
 

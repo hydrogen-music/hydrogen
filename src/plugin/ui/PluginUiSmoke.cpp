@@ -56,6 +56,7 @@
 #else
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+#include <GL/glx.h>
 #endif
 
 namespace {
@@ -339,6 +340,71 @@ int main( int argc, char** argv ) {
 		window.getSize( nWidth, nHeight );
 		check( nWidth == 400 && nHeight == 300,
 			   "getSize() != setSize() (TU5.3)" );
+		// Frame governance (ADR 0035's amendment): idle() renders only owed
+		// frames — requests (input/resize/visibility, or an explicit
+		// requestFrame()) coalesced onto the 30 Hz ceiling. The settle
+		// sequence first guarantees a fresh rendered frame, so the rapid
+		// idles below sit inside the gate's interval whatever the resize
+		// above left pending.
+		const Window child = static_cast<Window>( nChild );
+		auto sendVisibility = [ pDisplay, child ]( int state ) {
+			if ( child == None ) {
+				return;
+			}
+			XEvent ev = {};
+			ev.xvisibility.type = VisibilityNotify;
+			ev.xvisibility.window = child;
+			ev.xvisibility.state = state;
+			XSendEvent( pDisplay, child, False, 0, &ev );
+			// The smoke's connection did not create the child, so the
+			// event lands on the backend's connection; sync so it is
+			// queued there before idle() pumps.
+			XSync( pDisplay, False );
+		};
+		// A real desktop may deliver a fully-obscured VisibilityNotify at
+		// map time (the child maps under whatever covers it) — force the
+		// unobscured state so the assertions below are deterministic on a
+		// developer box too (CI's Xvfb never obscures).
+		sendVisibility( VisibilityUnobscured );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+		window.requestFrame();
+		window.idle();
+		const unsigned nFramesRendered = window.renderedFrameCount();
+		for ( int i = 0; i < 10; ++i ) {
+			window.idle();
+		}
+		check( window.renderedFrameCount() == nFramesRendered,
+			   "unrequested idles rendered frames (frame gate)" );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+		window.requestFrame();
+		window.idle();
+		check( window.renderedFrameCount() == nFramesRendered + 1,
+			   "requested frame not rendered after the interval (frame gate)" );
+		window.idle();
+		check( window.renderedFrameCount() == nFramesRendered + 1,
+			   "unrequested idle after a render rendered a frame (frame gate)" );
+		// Presentability gating: an obscured window renders nothing, and
+		// its reveal owes exactly one frame — the backend's event latch
+		// and the window's reveal transition both request (macOS has no
+		// event to latch with; on X11 either path serves the frame).
+		sendVisibility( VisibilityFullyObscured );
+		window.idle();
+		check( window.renderedFrameCount() == nFramesRendered + 1,
+			   "obscured idle rendered a frame (frame gate)" );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+		sendVisibility( VisibilityUnobscured );
+		window.idle();
+		check( window.renderedFrameCount() == nFramesRendered + 2,
+			   "reveal did not render a frame (frame gate)" );
+		window.idle();
+		check( window.renderedFrameCount() == nFramesRendered + 2,
+			   "unrequested idle after a reveal rendered a frame (frame gate)" );
+		// Context discipline: a rendered frame leaves the per-instance GL
+		// context current on the host's thread — no per-frame
+		// make-current/uncurrent churn (the multi-instance host-thread
+		// contract, ADR 0035).
+		check( glXGetCurrentContext() != nullptr,
+			   "GL context not current after a rendered frame" );
 	}
 	// The real views (UI-4): a plugin-backed window must construct the
 	// three views and render frames without crashing — the renderers'

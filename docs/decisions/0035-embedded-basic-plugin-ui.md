@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-10-05
-amended: 2026-10-12
+amended: 2026-10-16
 deciders: phil (theGreatWhiteShark)
 ---
 
@@ -273,3 +273,53 @@ from the start.
   [ADR 0022](0022-layered-plugin-configuration.md),
   [ADR 0026](0026-plugin-mode-feature-disablement-and-gui.md),
   [ADR 0032](0032-h2player-gui-connection-mode.md)
+
+## Amendment (2026-10-16): frame-governed rendering on the host idle
+
+The accepted design rendered one frame per idle tick ("immediate mode fits
+the host-idle execution model"). In real hosts that broke down: hosts idle
+at *their* cadence — VST3 via clap-wrapper at ≥ 30 ms, CLAP at 16 ms, LV2
+unbounded — so an open UI rendered and swapped as fast as the host spun,
+and the per-frame `glXMakeCurrent` → render → swap → un-current churn plus
+an uncontrolled swap interval put a constant load on the host's UI thread
+(opening the UI in REAPER visibly crippled the host). Industry practice
+agrees on event-driven, ceiling-capped frames (DPF 16 ms, VSTGUI 30 Hz,
+iPlug2 dirty-rect).
+
+Rendering is now **request-driven with a 30 Hz ceiling**:
+
+1. **Frame gate** — `PluginUiFrameGate`, pure logic (unit-tested headless
+   through hydrogen-plugin-ui-models): a frame is owed when a request is
+   pending and either no frame was ever rendered (the first frame is
+   unconditional — a mapped window must not stay blank) or 27 ms elapsed
+   since the last one (the 30 Hz target minus slack; a 33 ms gate would
+   beat against the hosts' 30 ms timers down to ~17 Hz). Requests
+   accumulate; one frame serves all.
+2. **Request sources** — native input/resize/visibility events latch in
+   the backend (`takeFrameRequest()` consumes on take); a size change
+   since the last rendered frame (macOS has no resize event — the view
+   autoresizes); a presentability false→true transition — the reveal —
+   (macOS has no paint/visibility event to latch one with, so the
+   window tracks the transition itself); `PluginUiWindow::requestFrame()`
+   as the seam a live view (meters, once wired) calls when its state
+   changes.
+3. **Presentability** — `isPresentable()`: an unmapped, fully obscured, or
+   hidden-tab window skips rendering; the pending request survives until
+   it can present again.
+4. **Context and swap discipline** — the GL context stays current between
+   frames (re-bound only when another context took it); the swap
+   interval is forced to 0 at backend init (EXT/MESA/SGI
+   `glXSwapIntervalEXT` on X11, `wglSwapIntervalEXT(0)` on Win32,
+   `displaySyncEnabled = NO` on macOS 10.15+): the host owns the cadence,
+   the compositor must not add its own.
+
+`idle()` still pumps native events on every tick — input translation and
+resize bookkeeping must not wait for a frame. The CLAP 16 ms host timer
+and all host-layer shims stay untouched.
+
+Evidence: `PluginUiFrameGateTest` (six cases, headless) and the
+PluginUiSmoke gate assertions — ten rapid idles render nothing, a request
+after the interval renders exactly one frame, an unrequested idle renders
+nothing, an obscured window renders nothing while its reveal renders
+exactly one frame, and the GL context stays current across a rendered
+frame.
