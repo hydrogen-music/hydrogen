@@ -60,7 +60,10 @@ void PluginUiLandingView::draw()
 		config.countSelectionMax = 1;
 		m_fileDialog.OpenDialog(
 			"song", m_pCommonStrings->getSongFileDialogTitle().toStdString(),
-			Filesystem::sSongSuffix.toUtf8(), config );
+			Filesystem::sSongSuffix.toUtf8() + ", " +
+				Filesystem::sProjectSuffix.toUtf8(),
+			config
+		);
 	}
 	ImGui::SameLine();
 	if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
