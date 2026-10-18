@@ -322,8 +322,8 @@ bool CLAP_ABI guiGetSize( const clap_plugin_t* plugin, uint32_t* width,
 		*height = static_cast<uint32_t>( h );
 	}
 	else {
-		*width = 960;
-		*height = 600;
+		*width = HydrogenPlugin::nDefaultWidth;
+		*height = HydrogenPlugin::nDefaultHeight;
 	}
 	return true;
 }
@@ -350,11 +350,11 @@ bool CLAP_ABI guiAdjustSize( const clap_plugin_t*, uint32_t* width,
 	if ( width == nullptr || height == nullptr ) {
 		return false;
 	}
-	if ( *width < 640 ) {
-		*width = 640;
+	if ( *width < HydrogenPlugin::nMinWidth ) {
+		*width = HydrogenPlugin::nMinWidth;
 	}
-	if ( *height < 400 ) {
-		*height = 400;
+	if ( *height < HydrogenPlugin::nMinHeight ) {
+		*height = HydrogenPlugin::nMinHeight;
 	}
 	return true;
 }
@@ -394,8 +394,10 @@ bool CLAP_ABI guiSetParent( const clap_plugin_t* plugin,
 		return false;
 	}
 	p->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-		parent, 960, 600, p->engine );
-	if ( ! p->pWindow->isValid() ) {
+		parent, HydrogenPlugin::nDefaultWidth, HydrogenPlugin::nDefaultHeight,
+		p->engine
+	);
+	if ( !p->pWindow->isValid() ) {
 		p->pWindow.reset();
 		return false;
 	}
@@ -421,8 +423,10 @@ bool CLAP_ABI guiShow( const clap_plugin_t* plugin ) {
 	// view's Open editor button owns that).
 	if ( ! p->bEmbedded && p->pWindow == nullptr ) {
 		p->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-			0, 960, 600, p->engine );
-		if ( ! p->pWindow->isValid() ) {
+			0, HydrogenPlugin::nDefaultWidth, HydrogenPlugin::nDefaultHeight,
+			p->engine
+		);
+		if ( !p->pWindow->isValid() ) {
 			p->pWindow.reset();
 			return false;
 		}

@@ -161,14 +161,20 @@ void PluginUiLandingView::draw()
 	}
 
 	// The keyed browsers — one IGFD instance, at most one dialog open.
-	if ( m_fileDialog.Display( "song" ) ) {
+	//
+	// The default size on Linux+wayland is far too tiny.
+	const ImVec2 minSize =
+		ImVec2( HydrogenPlugin::nMinWidth, HydrogenPlugin::nMinHeight );
+	if ( m_fileDialog.Display(
+			 "song", ImGuiWindowFlags_NoCollapse, minSize
+		 ) ) {
 		if ( m_fileDialog.IsOk() ) {
 			m_model.loadSong( QString::fromStdString(
 				m_fileDialog.GetFilePathName() ) );
 		}
 		m_fileDialog.Close();
 	}
-	if ( m_fileDialog.Display( "pattern" ) ) {
+	if ( m_fileDialog.Display( "pattern", ImGuiWindowFlags_NoCollapse, minSize ) ) {
 		if ( m_fileDialog.IsOk() ) {
 			m_model.loadPattern(
 				QString::fromStdString( m_fileDialog.GetFilePathName() ),
@@ -176,7 +182,7 @@ void PluginUiLandingView::draw()
 		}
 		m_fileDialog.Close();
 	}
-	if ( m_fileDialog.Display( "drumkit" ) ) {
+	if ( m_fileDialog.Display( "drumkit", ImGuiWindowFlags_NoCollapse, minSize ) ) {
 		if ( m_fileDialog.IsOk() ) {
 			m_model.loadDrumkit( QString::fromStdString(
 				m_fileDialog.GetFilePathName() ) );

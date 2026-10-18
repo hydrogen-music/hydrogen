@@ -262,8 +262,10 @@ struct H2Lv2Ui {
 		// child with its FX window (the backend tracks ConfigureNotify).
 		ui->bEmbedded = true;
 		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-			parentHandle, 960, 600, engine );
-		if ( ! ui->pWindow->isValid() ) {
+			parentHandle, HydrogenPlugin::nDefaultWidth,
+			HydrogenPlugin::nDefaultHeight, engine
+		);
+		if ( !ui->pWindow->isValid() ) {
 			delete ui;
 			return nullptr;
 		}
@@ -304,8 +306,10 @@ int uiShow( LV2UI_Handle handle ) {
 	// show() while the window lives is a no-op.
 	if ( ui->pWindow == nullptr ) {
 		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-			0, 960, 600, ui->engine );
-		if ( ! ui->pWindow->isValid() ) {
+			0, HydrogenPlugin::nDefaultWidth, HydrogenPlugin::nDefaultHeight,
+			ui->engine
+		);
+		if ( !ui->pWindow->isValid() ) {
 			ui->pWindow.reset();
 			return 1;
 		}

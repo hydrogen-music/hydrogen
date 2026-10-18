@@ -58,6 +58,12 @@ class EngineEventSink;
  */
 class HydrogenPlugin {
 public:
+
+		static constexpr int nDefaultHeight = 600;
+		static constexpr int nDefaultWidth = 960;
+		static constexpr int nMinHeight = 400;
+		static constexpr int nMinWidth = 640;
+
 	/**
 	 * @param fSampleRate  Initial sample rate in Hz.
 	 * @param nMaxBlockSize Largest block the host will request (frames).
