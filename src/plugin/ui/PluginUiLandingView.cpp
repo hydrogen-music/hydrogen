@@ -57,6 +57,7 @@ void PluginUiLandingView::draw()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
 		config.path = ".";
+		config.countSelectionMax = 1;
 		m_fileDialog.OpenDialog(
 			"song", m_pCommonStrings->getSongFileDialogTitle().toStdString(),
 			Filesystem::sSongSuffix.toUtf8(), config );
@@ -66,6 +67,7 @@ void PluginUiLandingView::draw()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
 		config.path = ".";
+		config.countSelectionMax = 1;
 		m_fileDialog.OpenDialog(
 			"pattern",
 			m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
@@ -76,6 +78,7 @@ void PluginUiLandingView::draw()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
 		config.path = ".";
+		config.countSelectionMax = 1;
 		m_fileDialog.OpenDialog(
 			"drumkit",
 			m_pCommonStrings->getDrumkitFileDialogTitle().toStdString(),
