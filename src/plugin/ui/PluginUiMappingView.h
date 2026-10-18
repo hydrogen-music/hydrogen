@@ -21,9 +21,11 @@
 
 // The MIDI mapping view's renderer (proposal 0006 TU4.2): thin imgui
 // draw calls over PluginUiMappingModel — no logic grows here (TU1.3);
-// the window smoke covers it. Draws the map-wide settings, the
-// per-instrument rows, and the exposed MIDI configuration foldable
-// section (moved from the landing view).
+// the window smoke covers it. Draws the exposed MIDI configuration
+// foldable section (moved from the landing view) and the note mapping
+// as two foldable sections — Input (mode, global channel, the
+// per-instrument rows) and Output (mode, global channel, the
+// per-instrument rows).
 
 #ifndef H2C_PLUGIN_UI_MAPPING_VIEW_H
 #define H2C_PLUGIN_UI_MAPPING_VIEW_H
@@ -40,6 +42,8 @@ class HydrogenPlugin;
 class PluginUiMappingView
 {
 public:
+	static constexpr float nSpacing = 12;
+
 	explicit PluginUiMappingView( HydrogenPlugin* pPlugin );
 
 	/** One frame of the mapping view's widget tree. */
