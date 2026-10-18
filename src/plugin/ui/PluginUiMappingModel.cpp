@@ -62,6 +62,7 @@ std::shared_ptr<MidiInstrumentMap> PluginUiMappingModel::mapCopy() const
 	if ( pLive == nullptr ) {
 		return nullptr;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return std::make_shared<MidiInstrumentMap>( pLive );
 }
 
@@ -72,6 +73,7 @@ bool PluginUiMappingModel::applyMap(
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setMidiInstrumentMap( pMap );
 }
 
@@ -81,6 +83,7 @@ bool PluginUiMappingModel::setInputMode( MidiInstrumentMap::Input mode )
 	if ( pMap == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	pMap->setInput( mode );
 	return applyMap( pMap );
 }
@@ -91,6 +94,7 @@ bool PluginUiMappingModel::setOutputMode( MidiInstrumentMap::Output mode )
 	if ( pMap == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	pMap->setOutput( mode );
 	return applyMap( pMap );
 }
@@ -101,6 +105,7 @@ bool PluginUiMappingModel::setUseGlobalInputChannel( bool bUse )
 	if ( pMap == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	pMap->setUseGlobalInputChannel( bUse );
 	return applyMap( pMap );
 }
@@ -111,6 +116,7 @@ bool PluginUiMappingModel::setGlobalInputChannel( Midi::Channel channel )
 	if ( pMap == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	pMap->setGlobalInputChannel( channel );
 	return applyMap( pMap );
 }
@@ -121,6 +127,7 @@ bool PluginUiMappingModel::setUseGlobalOutputChannel( bool bUse )
 	if ( pMap == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	pMap->setUseGlobalOutputChannel( bUse );
 	return applyMap( pMap );
 }
@@ -131,6 +138,7 @@ bool PluginUiMappingModel::setGlobalOutputChannel( Midi::Channel channel )
 	if ( pMap == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	pMap->setGlobalOutputChannel( channel );
 	return applyMap( pMap );
 }
@@ -142,6 +150,7 @@ bool PluginUiMappingModel::insertCustomInputMapping(
 	if ( pInstrument == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	auto pMap = mapCopy();
 	if ( pMap == nullptr ) {
 		return false;
@@ -164,6 +173,7 @@ bool PluginUiMappingModel::setInstrumentMidiOutNote( int nInstrument,
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	// No event correlation id: the plugin UI does not deduplicate the
 	// UpdateEvents its own commands emit.
 	return pCAC->setInstrumentMidiOutNote( nInstrument, note, 0 );
@@ -176,6 +186,7 @@ bool PluginUiMappingModel::setInstrumentMidiOutChannel( int nInstrument,
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	// No event correlation id: the plugin UI does not deduplicate the
 	// UpdateEvents its own commands emit.
 	return pCAC->setInstrumentMidiOutChannel( nInstrument, channel, 0 );
@@ -225,6 +236,7 @@ MidiInstrumentMap::NoteRef PluginUiMappingModel::inputMapping(
 		 m_pPlugin->getHydrogen() == nullptr ) {
 		return MidiInstrumentMap::NoteRef();
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	const auto pSong = m_pPlugin->getHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return MidiInstrumentMap::NoteRef();
@@ -243,6 +255,7 @@ std::shared_ptr<Instrument> PluginUiMappingModel::instrument(
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return nullptr;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	const auto pInstruments = pSong->getDrumkit()->getInstruments();
 	// Guarded range check: a UI polling loop must not spam the log
 	// when the kit shrank between two frames.

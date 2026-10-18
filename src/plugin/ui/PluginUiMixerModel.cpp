@@ -54,6 +54,7 @@ bool PluginUiMixerModel::setStripVolume( int nStrip, float fVolume )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setStripVolume( nStrip, fVolume, /*bSelectStrip=*/false );
 }
 
@@ -63,6 +64,7 @@ bool PluginUiMixerModel::setStripPan( int nStrip, float fPan )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setStripPanSym( nStrip, fPan, /*bSelectStrip=*/false );
 }
 
@@ -72,6 +74,7 @@ bool PluginUiMixerModel::setStripIsMuted( int nStrip, bool bMuted )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setStripIsMuted( nStrip, bMuted, /*bSelectStrip=*/false );
 }
 
@@ -81,6 +84,7 @@ bool PluginUiMixerModel::setStripIsSoloed( int nStrip, bool bSoloed )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setStripIsSoloed( nStrip, bSoloed, /*bSelectStrip=*/false );
 }
 
@@ -90,6 +94,7 @@ bool PluginUiMixerModel::setMasterVolume( float fVolume )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setMasterVolume( fVolume );
 }
 
@@ -99,6 +104,7 @@ bool PluginUiMixerModel::setMasterIsMuted( bool bMuted )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setMasterIsMuted( bMuted );
 }
 
@@ -108,6 +114,7 @@ bool PluginUiMixerModel::setInstrumentOutputBus( int nInstrument, int nBus )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	return pCAC->setInstrumentOutputBus( nInstrument, nBus );
 }
 
@@ -136,6 +143,7 @@ int PluginUiMixerModel::stripCount() const
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
 		return 0;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	const auto pSong = m_pPlugin->getHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
 		 pSong->getDrumkit()->getInstruments() == nullptr ) {
@@ -179,6 +187,7 @@ float PluginUiMixerModel::masterVolume() const
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
 		return 0.0f;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	const auto pSong = m_pPlugin->getHydrogen()->getSong();
 	return pSong != nullptr ? pSong->getVolume() : 0.0f;
 }
@@ -188,6 +197,7 @@ bool PluginUiMixerModel::masterIsMuted() const
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	const auto pSong = m_pPlugin->getHydrogen()->getSong();
 	return pSong != nullptr ? pSong->getIsMuted() : false;
 }
@@ -203,6 +213,7 @@ std::shared_ptr<Instrument> PluginUiMixerModel::instrument(
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
 		return nullptr;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	const auto pSong = m_pPlugin->getHydrogen()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return nullptr;

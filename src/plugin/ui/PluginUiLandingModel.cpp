@@ -51,6 +51,7 @@ bool PluginUiLandingModel::loadSong( const QString& sPath )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	auto pSong = pCAC->loadSong( sPath );
 	if ( pSong == nullptr ) {
@@ -68,6 +69,7 @@ bool PluginUiLandingModel::loadPattern( const QString& sPath,
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	auto pPattern = pCAC->loadPattern( sPath );
 	if ( pPattern == nullptr ) {
@@ -86,6 +88,7 @@ bool PluginUiLandingModel::loadDrumkit( const QString& sPath )
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	// setDrumkit installs a full Drumkit object (not a path), so the kit is
 	// loaded first — upgraded like the sound library database loads it.
@@ -102,6 +105,7 @@ bool PluginUiLandingModel::openEditor( bool bLaunchProcess )
 	if ( m_pPlugin == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	return m_pPlugin->openEditor( bLaunchProcess );
 }
@@ -121,6 +125,7 @@ bool PluginUiLandingModel::applyMidiControlSettings(
 	if ( pCAC == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	return pCAC->setMidiControlSettings(
 		bNoteOffIgnore, actionChannel, bEnableFeedback,
@@ -136,6 +141,7 @@ bool PluginUiLandingModel::applyMidiInstrumentMap(
 	if ( pCAC == nullptr || pMap == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	return pCAC->setMidiInstrumentMap( pMap );
 }
@@ -148,6 +154,7 @@ bool PluginUiLandingModel::applyExposedMidiControlSettings(
 	if ( pPref == nullptr ) {
 		return false;
 	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	// The plugin UI does not expose feedback or transport; the apply
 	// preserves their current engine values.
