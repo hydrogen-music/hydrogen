@@ -24,7 +24,6 @@
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
-#include <core/Midi/MidiInstrumentMap.h>
 
 #include <plugin/HydrogenPlugin.h>
 
@@ -108,89 +107,6 @@ bool PluginUiLandingModel::openEditor( bool bLaunchProcess )
 	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
 	return m_pPlugin->openEditor( bLaunchProcess );
-}
-
-// The MIDI config applies go through the engine's granular install commands
-// (ADR 0030/0022): the plugin's engine preferences adopt them live. Neither
-// command persists — and the plugin never calls a preferences save on top —
-// so a host session cannot clobber the user's ~/.hydrogen.
-
-bool PluginUiLandingModel::applyMidiControlSettings(
-	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
-	bool bTransportInputHandling, bool bTransportOutputSend,
-	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff )
-{
-	auto pCAC = m_pPlugin != nullptr
-		? m_pPlugin->getHydrogen()->getCoreActionController() : nullptr;
-	if ( pCAC == nullptr ) {
-		return false;
-	}
-	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
-
-	return pCAC->setMidiControlSettings(
-		bNoteOffIgnore, actionChannel, bEnableFeedback,
-		bTransportInputHandling, bTransportOutputSend, feedbackChannel,
-		sendNoteOff );
-}
-
-bool PluginUiLandingModel::applyMidiInstrumentMap(
-	std::shared_ptr<MidiInstrumentMap> pMap )
-{
-	auto pCAC = m_pPlugin != nullptr
-		? m_pPlugin->getHydrogen()->getCoreActionController() : nullptr;
-	if ( pCAC == nullptr || pMap == nullptr ) {
-		return false;
-	}
-	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
-
-	return pCAC->setMidiInstrumentMap( pMap );
-}
-
-bool PluginUiLandingModel::applyExposedMidiControlSettings(
-	bool bNoteOffIgnore, Midi::Channel actionChannel,
-	Preferences::MidiSendNoteOff sendNoteOff )
-{
-	auto pPref = preferences();
-	if ( pPref == nullptr ) {
-		return false;
-	}
-	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
-
-	// The plugin UI does not expose feedback or transport; the apply
-	// preserves their current engine values.
-	return applyMidiControlSettings(
-		bNoteOffIgnore, actionChannel, pPref->m_bEnableMidiFeedback,
-		pPref->getMidiTransportInputHandling(),
-		pPref->getMidiTransportOutputSend(),
-		pPref->getMidiFeedbackChannel(), sendNoteOff );
-}
-
-bool PluginUiLandingModel::midiNoteOffIgnore() const
-{
-	auto pPref = preferences();
-	// The engine default (true) when the engine is unavailable.
-	return pPref != nullptr ? pPref->m_bMidiNoteOffIgnore : true;
-}
-
-Midi::Channel PluginUiLandingModel::midiActionChannel() const
-{
-	auto pPref = preferences();
-	// The engine default (all channels) when the engine is unavailable.
-	return pPref != nullptr ? pPref->m_midiActionChannel : Midi::ChannelAll;
-}
-
-Preferences::MidiSendNoteOff PluginUiLandingModel::midiSendNoteOff() const
-{
-	auto pPref = preferences();
-	// The engine default (always) when the engine is unavailable.
-	return pPref != nullptr ? pPref->getMidiSendNoteOff()
-							: Preferences::MidiSendNoteOff::Always;
-}
-
-std::shared_ptr<Preferences> PluginUiLandingModel::preferences() const
-{
-	return m_pPlugin != nullptr && m_pPlugin->getHydrogen() != nullptr
-		? m_pPlugin->getHydrogen()->getPreferences() : nullptr;
 }
 
 } // namespace H2Core

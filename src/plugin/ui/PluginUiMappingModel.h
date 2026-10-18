@@ -30,6 +30,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiInstrumentMap.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core {
 
@@ -46,6 +47,13 @@ class HydrogenPlugin;
  * MIDI instrument map dialog uses. This keeps every widget change
  * atomic and leaves the engine in charge of validation and event
  * emission.
+ *
+ * The scalar MIDI control settings of the "MIDI configuration"
+ * foldable section ride the same engine commands (ADR 0030/0022): the
+ * plugin's engine preferences adopt them live, runtime-only — never
+ * persisted back to the user config (the GUI dialog's save is
+ * deliberately not replicated — a host session must not clobber the
+ * user's data folder).
  *
  * Per-instrument output note/channel are not part of the map; they
  * live on the #Instrument itself and are forwarded to the matching
@@ -84,6 +92,35 @@ public:
 	bool setInstrumentMidiOutNote( int nInstrument, Midi::Note note );
 	bool setInstrumentMidiOutChannel( int nInstrument, Midi::Channel channel );
 
+	/** Applies the scalar MIDI control settings to the plugin's engine
+	 * (runtime-only; never persisted back to the user config). */
+	bool applyMidiControlSettings(
+		bool bNoteOffIgnore,
+		Midi::Channel actionChannel,
+		bool bEnableFeedback,
+		bool bTransportInputHandling,
+		bool bTransportOutputSend,
+		Midi::Channel feedbackChannel,
+		Preferences::MidiSendNoteOff sendNoteOff );
+	/** The plugin UI exposes only three of the MIDI control settings
+	 * (feedback and transport stay engine-side, settable via the
+	 * editor): this apply changes the exposed three and preserves the
+	 * current engine values of the other four. */
+	bool applyExposedMidiControlSettings(
+		bool bNoteOffIgnore,
+		Midi::Channel actionChannel,
+		Preferences::MidiSendNoteOff sendNoteOff );
+	/** Replaces the MIDI instrument map of the plugin's engine
+	 * (runtime-only; never persisted back to the user config). */
+	bool applyMidiInstrumentMap( std::shared_ptr<MidiInstrumentMap> pMap );
+
+	// The read side for populating the exposed MIDI config widgets.
+	// Each returns the engine's current value, or the engine default
+	// when the engine is unavailable.
+	bool midiNoteOffIgnore() const;
+	Midi::Channel midiActionChannel() const;
+	Preferences::MidiSendNoteOff midiSendNoteOff() const;
+
 	// The read side for populating the per-instrument rows. Each
 	// returns the engine's current value, or the documented degenerate
 	// value when the engine is unavailable.
@@ -91,13 +128,13 @@ public:
 	 *  unavailable). */
 	int instrumentCount() const;
 	/** The instrument's name (empty when the engine is unavailable or
-	 *  @a nInstrument is out of range). */
+	 * @a nInstrument is out of range). */
 	QString instrumentName( int nInstrument ) const;
 	/** The instrument's output note (Midi::NoteDefault when the engine
-	 *  is unavailable or @a nInstrument is out of range). */
+	 * is unavailable or @a nInstrument is out of range). */
 	Midi::Note instrumentMidiOutNote( int nInstrument ) const;
 	/** The instrument's output channel (Midi::ChannelOff when the
-	 *  engine is unavailable or @a nInstrument is out of range). */
+	 * engine is unavailable or @a nInstrument is out of range). */
 	Midi::Channel instrumentMidiOutChannel( int nInstrument ) const;
 	/** The instrument's effective incoming note/channel — resolved
 	 * through the engine's live map (custom row, global channel, or the
@@ -121,6 +158,9 @@ private:
 	std::shared_ptr<MidiInstrumentMap> mapCopy() const;
 	/** Installs @a pMap with one command; the engine adopts it. */
 	bool applyMap( std::shared_ptr<MidiInstrumentMap> pMap );
+	/** The plugin engine's preferences (nullptr when the plugin or the
+	 * engine is unavailable). */
+	std::shared_ptr<Preferences> preferences() const;
 };
 
 } // namespace H2Core

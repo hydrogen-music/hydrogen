@@ -30,11 +30,11 @@
 class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginUiModelTest );
 	CPPUNIT_TEST( testLandingLoadCommands );
-	CPPUNIT_TEST( testLandingMidiConfigNoWriteBack );
-	CPPUNIT_TEST( testLandingMidiConfigExposedReadApply );
 	CPPUNIT_TEST( testMappingModelRoundTrip );
 	CPPUNIT_TEST( testMappingModelInstrumentReads );
 	CPPUNIT_TEST( testMappingModelInputMappingRead );
+	CPPUNIT_TEST( testMappingMidiConfigNoWriteBack );
+	CPPUNIT_TEST( testMappingMidiConfigExposedReadApply );
 	CPPUNIT_TEST( testChannelDisplayName );
 	CPPUNIT_TEST( testCreatePitchLabel );
 	CPPUNIT_TEST( testMixerModelStripsAndMeters );
@@ -49,16 +49,6 @@ public:
 	 * the current state untouched on unloadable paths; the editor button
 	 * forwards to the plugin's editor seam. */
 	void testLandingLoadCommands();
-	/** TU4.a: MIDI config applies reach the plugin's engine preferences
-	 * (ADR 0022 plugin-instance layer) and are never written back to the
-	 * user config file. */
-	void testLandingMidiConfigNoWriteBack();
-	/** TU4.1: the read side populates the three exposed MIDI config
-	 * widgets from the engine, and the narrow apply changes exactly
-	 * those three while preserving the four settings the plugin UI does
-	 * not expose (feedback, transport — engine-side, settable via the
-	 * editor). */
-	void testLandingMidiConfigExposedReadApply();
 	/** TU4.b: the mapping model's setters land in the plugin's engine —
 	 * map-wide modes/channels in the live MidiInstrumentMap, per-instrument
 	 * custom input rows resolvable through it, per-instrument output
@@ -71,6 +61,16 @@ public:
 	/** TU4.2: the index-based custom-row insert and the effective input
 	 * mapping read — the mapping view's per-instrument row cells. */
 	void testMappingModelInputMappingRead();
+	/** TU4.b: MIDI config applies reach the plugin's engine preferences
+	 * (ADR 0022 plugin-instance layer) and are never written back to the
+	 * user config file. */
+	void testMappingMidiConfigNoWriteBack();
+	/** TU4.2: the read side populates the three exposed MIDI config
+	 * widgets from the engine, and the narrow apply changes exactly
+	 * those three while preserving the four settings the plugin UI does
+	 * not expose (feedback, transport — engine-side, settable via the
+	 * editor). */
+	void testMappingMidiConfigExposedReadApply();
 	/** UI-4: the channel dropdowns' display convention — "All" for
 	 * -1, "Off" for 0 and for the invalid -2 (unmapped rows), the
 	 * number itself for 1..16. */

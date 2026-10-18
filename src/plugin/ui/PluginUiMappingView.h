@@ -21,7 +21,9 @@
 
 // The MIDI mapping view's renderer (proposal 0006 TU4.2): thin imgui
 // draw calls over PluginUiMappingModel — no logic grows here (TU1.3);
-// the window smoke covers it.
+// the window smoke covers it. Draws the map-wide settings, the
+// per-instrument rows, and the exposed MIDI configuration foldable
+// section (moved from the landing view).
 
 #ifndef H2C_PLUGIN_UI_MAPPING_VIEW_H
 #define H2C_PLUGIN_UI_MAPPING_VIEW_H
@@ -44,8 +46,17 @@ public:
 	void draw();
 
 private:
+	/** Re-reads the exposed MIDI config from the engine into the widget
+	 * state — on construction and after every apply, never per frame
+	 * (typing into a widget must not snap back mid-edit). */
+	void refreshMidiConfigWidgets();
+
 	PluginUiMappingModel m_model;
 	std::shared_ptr<CommonStrings> m_pCommonStrings;
+	// Exposed MIDI config widget state.
+	bool m_bNoteOffIgnore = false;
+	int m_nActionChannel = -1;
+	int m_nSendNoteOff = 0;
 };
 
 } // namespace H2Core

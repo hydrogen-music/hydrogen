@@ -19,11 +19,15 @@
  *
  */
 
-// The MIDI mapping view's renderer (proposal 0006 TU4.2): the map-wide
-// settings and the per-instrument rows. Every widget applies its change
-// with one model command (apply-on-change — the model's atomic-command
-// design); nothing is held locally, so nothing can drift. Thin draw
-// calls only (TU1.3): every decision is the model's.
+// The MIDI mapping view's renderer (proposal 0006 TU4.2): the exposed
+// MIDI configuration foldable section (moved from the landing view —
+// feedback and transport stay engine-side, settable via the editor),
+// the map-wide settings, and the per-instrument rows. The map widgets
+// apply their change with one model command (apply-on-change — the
+// model's atomic-command design); nothing is held locally, so nothing
+// can drift — except the MIDI config widgets, whose values are held
+// locally and applied on the section's Apply button. Thin draw calls
+// only (TU1.3): every decision is the model's.
 
 #include "PluginUiMappingView.h"
 
@@ -37,10 +41,79 @@ namespace H2Core {
 PluginUiMappingView::PluginUiMappingView( HydrogenPlugin* pPlugin )
 	: m_model( pPlugin ), m_pCommonStrings( pPlugin->commonStrings() )
 {
+	refreshMidiConfigWidgets();
+}
+
+void PluginUiMappingView::refreshMidiConfigWidgets()
+{
+	m_bNoteOffIgnore = m_model.midiNoteOffIgnore();
+	m_nActionChannel = static_cast<int>( m_model.midiActionChannel() );
+	m_nSendNoteOff = static_cast<int>( m_model.midiSendNoteOff() );
 }
 
 void PluginUiMappingView::draw()
 {
+	// The exposed MIDI configuration — drawn before the engine guard so
+	// the section renders (with the engine defaults) even without an
+	// engine, exactly as it did on the landing view.
+	if ( ImGui::CollapsingHeader(
+			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
+					.constData(),
+			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		ImGui::Checkbox(
+			m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8().constData(),
+			&m_bNoteOffIgnore );
+
+		// The action channel dropdown — the GUI spinbox's range and
+		// texts (all channels, Off, 1..16), the same +1 index shift as
+		// the channel dropdowns below. The QByteArrays must outlive
+		// the Combo call — held locals, not chained temporaries.
+		QByteArray sActionChannelEntries[ 18 ];
+		const char* sActionChannelEntryPtrs[ 18 ];
+		for ( int n = 0; n < 18; ++n ) {
+			sActionChannelEntries[ n ] =
+				m_pCommonStrings->getChannelDisplayName(
+					Midi::channelFromInt( n - 1 ) ).toUtf8();
+			sActionChannelEntryPtrs[ n ] =
+				sActionChannelEntries[ n ].constData();
+		}
+		int nActionChannel = m_nActionChannel + 1;
+		ImGui::SetNextItemWidth( 72.0f );
+		if ( ImGui::Combo(
+				 m_pCommonStrings->getActionChannelLabel().toUtf8()
+					 .constData(),
+				 &nActionChannel, sActionChannelEntryPtrs, 18 ) ) {
+			m_nActionChannel = nActionChannel - 1;
+		}
+
+		// The combo entries must outlive the Combo call — held locals,
+		// not chained temporaries.
+		const auto sAlways = m_pCommonStrings->getOptionAlways().toUtf8();
+		const auto sOnCustomNoteLengths =
+			m_pCommonStrings->getOptionOnCustomNoteLengths().toUtf8();
+		const auto sNever = m_pCommonStrings->getOptionNever().toUtf8();
+		const char* sSendNoteOffEntries[ 3 ] = {
+			sAlways.constData(), sOnCustomNoteLengths.constData(),
+			sNever.constData()
+		};
+		ImGui::Combo( m_pCommonStrings->getSendNoteOffLabel().toUtf8()
+							.constData(),
+					 &m_nSendNoteOff, sSendNoteOffEntries, 3 );
+
+		if ( ImGui::Button( m_pCommonStrings->getApplyButton().toUtf8()
+								.constData() ) ) {
+			if ( m_model.applyExposedMidiControlSettings(
+					 m_bNoteOffIgnore,
+					 Midi::channelFromInt( m_nActionChannel ),
+					 static_cast<Preferences::MidiSendNoteOff>(
+						 m_nSendNoteOff ) ) ) {
+				// The engine may have normalized a value — resync the
+				// widgets, but never per frame (snap-back).
+				refreshMidiConfigWidgets();
+			}
+		}
+	}
+
 	auto pMap = m_model.liveMap();
 	if ( pMap == nullptr ) {
 		// No engine yet — nothing to map.

@@ -120,143 +120,6 @@ void PluginUiModelTest::testLandingLoadCommands()
 	___INFOLOG( "passed" );
 }
 
-void PluginUiModelTest::testLandingMidiConfigNoWriteBack()
-{
-	___INFOLOG( "" );
-
-	const unsigned nSampleRate = 44100;
-	const unsigned nBlock = 512;
-	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
-	plugin.activate( nSampleRate, nBlock );
-	PluginUiLandingModel model( &plugin );
-
-	// The plugin never persists its runtime config: whatever the model
-	// applies, the user config file must stay byte-identical (or stay
-	// absent). Snapshot after construction so bootstrap noise cannot
-	// mask the pin.
-	const QString sConfigPath = Filesystem::userConfigPath();
-	QByteArray sConfigBefore;
-	bool bConfigExists = false;
-	{
-		QFile file( sConfigPath );
-		if ( file.exists() ) {
-			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
-			sConfigBefore = file.readAll();
-			file.close();
-			bConfigExists = true;
-		}
-	}
-
-	// Scalar MIDI control settings: applied to the plugin's engine
-	// preferences (ADR 0022 plugin-instance layer). Distinctive values —
-	// several differ from the defaults, so adoption cannot pass vacuously.
-	CPPUNIT_ASSERT( model.applyMidiControlSettings(
-		/*bNoteOffIgnore=*/false, Midi::Channel( 9 ),
-		/*bEnableFeedback=*/true, /*bTransportInputHandling=*/false,
-		/*bTransportOutputSend=*/true, Midi::Channel( 12 ),
-		Preferences::MidiSendNoteOff::OnCustomLengths ) );
-	auto pPref = plugin.getHydrogen()->getPreferences();
-	CPPUNIT_ASSERT( pPref != nullptr );
-	CPPUNIT_ASSERT( pPref->m_bMidiNoteOffIgnore == false );
-	CPPUNIT_ASSERT( pPref->m_midiActionChannel == Midi::Channel( 9 ) );
-	CPPUNIT_ASSERT( pPref->m_bEnableMidiFeedback == true );
-	CPPUNIT_ASSERT( pPref->getMidiTransportInputHandling() == false );
-	CPPUNIT_ASSERT( pPref->getMidiTransportOutputSend() == true );
-	CPPUNIT_ASSERT( pPref->getMidiFeedbackChannel() == Midi::Channel( 12 ) );
-	CPPUNIT_ASSERT( pPref->getMidiSendNoteOff() ==
-					Preferences::MidiSendNoteOff::OnCustomLengths );
-
-	// MIDI instrument map: a custom-mode map with one per-instrument row.
-	auto pMap = std::make_shared<MidiInstrumentMap>();
-	pMap->setInput( MidiInstrumentMap::Input::Custom );
-	pMap->setUseGlobalInputChannel( true );
-	pMap->setGlobalInputChannel( Midi::Channel( 5 ) );
-	auto pInstrument = plugin.getHydrogen()->getSong()->getDrumkit()
-		->getInstruments()->get( 0 );
-	CPPUNIT_ASSERT( pInstrument != nullptr );
-	pMap->insertCustomInputMapping( pInstrument, Midi::Note( 42 ),
-									Midi::Channel( 5 ) );
-	CPPUNIT_ASSERT( model.applyMidiInstrumentMap( pMap ) );
-
-	auto pEngineMap = pPref->getMidiInstrumentMap();
-	CPPUNIT_ASSERT( pEngineMap != nullptr );
-	CPPUNIT_ASSERT( pEngineMap == pMap );
-	CPPUNIT_ASSERT( pEngineMap->getInput() ==
-					MidiInstrumentMap::Input::Custom );
-	CPPUNIT_ASSERT( pEngineMap->getUseGlobalInputChannel() == true );
-	CPPUNIT_ASSERT( pEngineMap->getGlobalInputChannel() ==
-					Midi::Channel( 5 ) );
-	CPPUNIT_ASSERT( pEngineMap->getCustomInputMappingsType().size() +
-					pEngineMap->getCustomInputMappingsId().size() == 1 );
-
-	// No write-back: the user config file is byte-identical (or still
-	// absent) after everything the model applied.
-	{
-		QFile file( sConfigPath );
-		if ( bConfigExists ) {
-			CPPUNIT_ASSERT( file.exists() );
-			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
-			CPPUNIT_ASSERT( file.readAll() == sConfigBefore );
-		}
-		else {
-			CPPUNIT_ASSERT( ! file.exists() );
-		}
-	}
-
-	___INFOLOG( "passed" );
-}
-
-void PluginUiModelTest::testLandingMidiConfigExposedReadApply()
-{
-	___INFOLOG( "" );
-
-	const unsigned nSampleRate = 44100;
-	const unsigned nBlock = 512;
-	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
-	plugin.activate( nSampleRate, nBlock );
-	PluginUiLandingModel model( &plugin );
-
-	// Distinctive values on all seven settings, so neither the reads
-	// nor the preservation pin below can pass vacuously.
-	CPPUNIT_ASSERT( model.applyMidiControlSettings(
-		/*bNoteOffIgnore=*/true, Midi::Channel( 3 ),
-		/*bEnableFeedback=*/true, /*bTransportInputHandling=*/false,
-		/*bTransportOutputSend=*/true, Midi::Channel( 12 ),
-		Preferences::MidiSendNoteOff::Never ) );
-
-	// Read side: the exposed widgets populate from the engine.
-	CPPUNIT_ASSERT( model.midiNoteOffIgnore() == true );
-	CPPUNIT_ASSERT( model.midiActionChannel() == Midi::Channel( 3 ) );
-	CPPUNIT_ASSERT( model.midiSendNoteOff() ==
-					Preferences::MidiSendNoteOff::Never );
-
-	// Narrow apply: changes the exposed three, preserves the rest.
-	CPPUNIT_ASSERT( model.applyExposedMidiControlSettings(
-		/*bNoteOffIgnore=*/false, Midi::Channel( 9 ),
-		Preferences::MidiSendNoteOff::OnCustomLengths ) );
-
-	auto pPref = plugin.getHydrogen()->getPreferences();
-	CPPUNIT_ASSERT( pPref != nullptr );
-	CPPUNIT_ASSERT( pPref->m_bMidiNoteOffIgnore == false );
-	CPPUNIT_ASSERT( pPref->m_midiActionChannel == Midi::Channel( 9 ) );
-	CPPUNIT_ASSERT( pPref->getMidiSendNoteOff() ==
-					Preferences::MidiSendNoteOff::OnCustomLengths );
-	// The four settings the plugin UI does not expose (feedback,
-	// transport) keep their engine values — the preservation pin.
-	CPPUNIT_ASSERT( pPref->m_bEnableMidiFeedback == true );
-	CPPUNIT_ASSERT( pPref->getMidiTransportInputHandling() == false );
-	CPPUNIT_ASSERT( pPref->getMidiTransportOutputSend() == true );
-	CPPUNIT_ASSERT( pPref->getMidiFeedbackChannel() == Midi::Channel( 12 ) );
-
-	// The reads follow the narrow apply.
-	CPPUNIT_ASSERT( model.midiNoteOffIgnore() == false );
-	CPPUNIT_ASSERT( model.midiActionChannel() == Midi::Channel( 9 ) );
-	CPPUNIT_ASSERT( model.midiSendNoteOff() ==
-					Preferences::MidiSendNoteOff::OnCustomLengths );
-
-	___INFOLOG( "passed" );
-}
-
 void PluginUiModelTest::testMappingModelRoundTrip()
 {
 	___INFOLOG( "" );
@@ -382,6 +245,143 @@ void PluginUiModelTest::testMappingModelInputMappingRead()
 	CPPUNIT_ASSERT( model.inputMapping( model.instrumentCount() ).isNull() );
 	CPPUNIT_ASSERT( ! model.insertCustomInputMapping(
 		model.instrumentCount(), Midi::Note( 42 ), Midi::Channel( 3 ) ) );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testMappingMidiConfigNoWriteBack()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiMappingModel model( &plugin );
+
+	// The plugin never persists its runtime config: whatever the model
+	// applies, the user config file must stay byte-identical (or stay
+	// absent). Snapshot after construction so bootstrap noise cannot
+	// mask the pin.
+	const QString sConfigPath = Filesystem::userConfigPath();
+	QByteArray sConfigBefore;
+	bool bConfigExists = false;
+	{
+		QFile file( sConfigPath );
+		if ( file.exists() ) {
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			sConfigBefore = file.readAll();
+			file.close();
+			bConfigExists = true;
+		}
+	}
+
+	// Scalar MIDI control settings: applied to the plugin's engine
+	// preferences (ADR 0022 plugin-instance layer). Distinctive values —
+	// several differ from the defaults, so adoption cannot pass vacuously.
+	CPPUNIT_ASSERT( model.applyMidiControlSettings(
+		/*bNoteOffIgnore=*/false, Midi::Channel( 9 ),
+		/*bEnableFeedback=*/true, /*bTransportInputHandling=*/false,
+		/*bTransportOutputSend=*/true, Midi::Channel( 12 ),
+		Preferences::MidiSendNoteOff::OnCustomLengths ) );
+	auto pPref = plugin.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pPref != nullptr );
+	CPPUNIT_ASSERT( pPref->m_bMidiNoteOffIgnore == false );
+	CPPUNIT_ASSERT( pPref->m_midiActionChannel == Midi::Channel( 9 ) );
+	CPPUNIT_ASSERT( pPref->m_bEnableMidiFeedback == true );
+	CPPUNIT_ASSERT( pPref->getMidiTransportInputHandling() == false );
+	CPPUNIT_ASSERT( pPref->getMidiTransportOutputSend() == true );
+	CPPUNIT_ASSERT( pPref->getMidiFeedbackChannel() == Midi::Channel( 12 ) );
+	CPPUNIT_ASSERT( pPref->getMidiSendNoteOff() ==
+					Preferences::MidiSendNoteOff::OnCustomLengths );
+
+	// MIDI instrument map: a custom-mode map with one per-instrument row.
+	auto pMap = std::make_shared<MidiInstrumentMap>();
+	pMap->setInput( MidiInstrumentMap::Input::Custom );
+	pMap->setUseGlobalInputChannel( true );
+	pMap->setGlobalInputChannel( Midi::Channel( 5 ) );
+	auto pInstrument = plugin.getHydrogen()->getSong()->getDrumkit()
+		->getInstruments()->get( 0 );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+	pMap->insertCustomInputMapping( pInstrument, Midi::Note( 42 ),
+									Midi::Channel( 5 ) );
+	CPPUNIT_ASSERT( model.applyMidiInstrumentMap( pMap ) );
+
+	auto pEngineMap = pPref->getMidiInstrumentMap();
+	CPPUNIT_ASSERT( pEngineMap != nullptr );
+	CPPUNIT_ASSERT( pEngineMap == pMap );
+	CPPUNIT_ASSERT( pEngineMap->getInput() ==
+					MidiInstrumentMap::Input::Custom );
+	CPPUNIT_ASSERT( pEngineMap->getUseGlobalInputChannel() == true );
+	CPPUNIT_ASSERT( pEngineMap->getGlobalInputChannel() ==
+					Midi::Channel( 5 ) );
+	CPPUNIT_ASSERT( pEngineMap->getCustomInputMappingsType().size() +
+					pEngineMap->getCustomInputMappingsId().size() == 1 );
+
+	// No write-back: the user config file is byte-identical (or still
+	// absent) after everything the model applied.
+	{
+		QFile file( sConfigPath );
+		if ( bConfigExists ) {
+			CPPUNIT_ASSERT( file.exists() );
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			CPPUNIT_ASSERT( file.readAll() == sConfigBefore );
+		}
+		else {
+			CPPUNIT_ASSERT( ! file.exists() );
+		}
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testMappingMidiConfigExposedReadApply()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiMappingModel model( &plugin );
+
+	// Distinctive values on all seven settings, so neither the reads
+	// nor the preservation pin below can pass vacuously.
+	CPPUNIT_ASSERT( model.applyMidiControlSettings(
+		/*bNoteOffIgnore=*/true, Midi::Channel( 3 ),
+		/*bEnableFeedback=*/true, /*bTransportInputHandling=*/false,
+		/*bTransportOutputSend=*/true, Midi::Channel( 12 ),
+		Preferences::MidiSendNoteOff::Never ) );
+
+	// Read side: the exposed widgets populate from the engine.
+	CPPUNIT_ASSERT( model.midiNoteOffIgnore() == true );
+	CPPUNIT_ASSERT( model.midiActionChannel() == Midi::Channel( 3 ) );
+	CPPUNIT_ASSERT( model.midiSendNoteOff() ==
+					Preferences::MidiSendNoteOff::Never );
+
+	// Narrow apply: changes the exposed three, preserves the rest.
+	CPPUNIT_ASSERT( model.applyExposedMidiControlSettings(
+		/*bNoteOffIgnore=*/false, Midi::Channel( 9 ),
+		Preferences::MidiSendNoteOff::OnCustomLengths ) );
+
+	auto pPref = plugin.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pPref != nullptr );
+	CPPUNIT_ASSERT( pPref->m_bMidiNoteOffIgnore == false );
+	CPPUNIT_ASSERT( pPref->m_midiActionChannel == Midi::Channel( 9 ) );
+	CPPUNIT_ASSERT( pPref->getMidiSendNoteOff() ==
+					Preferences::MidiSendNoteOff::OnCustomLengths );
+	// The four settings the plugin UI does not expose (feedback,
+	// transport) keep their engine values — the preservation pin.
+	CPPUNIT_ASSERT( pPref->m_bEnableMidiFeedback == true );
+	CPPUNIT_ASSERT( pPref->getMidiTransportInputHandling() == false );
+	CPPUNIT_ASSERT( pPref->getMidiTransportOutputSend() == true );
+	CPPUNIT_ASSERT( pPref->getMidiFeedbackChannel() == Midi::Channel( 12 ) );
+
+	// The reads follow the narrow apply.
+	CPPUNIT_ASSERT( model.midiNoteOffIgnore() == false );
+	CPPUNIT_ASSERT( model.midiActionChannel() == Midi::Channel( 9 ) );
+	CPPUNIT_ASSERT( model.midiSendNoteOff() ==
+					Preferences::MidiSendNoteOff::OnCustomLengths );
 
 	___INFOLOG( "passed" );
 }

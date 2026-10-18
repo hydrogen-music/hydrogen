@@ -48,6 +48,12 @@ std::shared_ptr<CoreActionController> PluginUiMappingModel::controller() const
 								: nullptr;
 }
 
+std::shared_ptr<Preferences> PluginUiMappingModel::preferences() const
+{
+	return m_pPlugin != nullptr && m_pPlugin->getHydrogen() != nullptr
+		? m_pPlugin->getHydrogen()->getPreferences() : nullptr;
+}
+
 std::shared_ptr<MidiInstrumentMap> PluginUiMappingModel::liveMap() const
 {
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
@@ -190,6 +196,80 @@ bool PluginUiMappingModel::setInstrumentMidiOutChannel( int nInstrument,
 	// No event correlation id: the plugin UI does not deduplicate the
 	// UpdateEvents its own commands emit.
 	return pCAC->setInstrumentMidiOutChannel( nInstrument, channel, 0 );
+}
+
+// The MIDI config applies go through the engine's granular install commands
+// (ADR 0030/0022): the plugin's engine preferences adopt them live. Neither
+// command persists — and the plugin never calls a preferences save on top —
+// so a host session cannot clobber the user's ~/.hydrogen.
+
+bool PluginUiMappingModel::applyMidiControlSettings(
+	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
+	bool bTransportInputHandling, bool bTransportOutputSend,
+	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	return pCAC->setMidiControlSettings(
+		bNoteOffIgnore, actionChannel, bEnableFeedback,
+		bTransportInputHandling, bTransportOutputSend, feedbackChannel,
+		sendNoteOff );
+}
+
+bool PluginUiMappingModel::applyMidiInstrumentMap(
+	std::shared_ptr<MidiInstrumentMap> pMap )
+{
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	// The wholesale install rides the same one-command sink as every
+	// read-modify-apply setter above.
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::applyExposedMidiControlSettings(
+	bool bNoteOffIgnore, Midi::Channel actionChannel,
+	Preferences::MidiSendNoteOff sendNoteOff )
+{
+	auto pPref = preferences();
+	if ( pPref == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	// The plugin UI does not expose feedback or transport; the apply
+	// preserves their current engine values.
+	return applyMidiControlSettings(
+		bNoteOffIgnore, actionChannel, pPref->m_bEnableMidiFeedback,
+		pPref->getMidiTransportInputHandling(),
+		pPref->getMidiTransportOutputSend(),
+		pPref->getMidiFeedbackChannel(), sendNoteOff );
+}
+
+bool PluginUiMappingModel::midiNoteOffIgnore() const
+{
+	auto pPref = preferences();
+	// The engine default (true) when the engine is unavailable.
+	return pPref != nullptr ? pPref->m_bMidiNoteOffIgnore : true;
+}
+
+Midi::Channel PluginUiMappingModel::midiActionChannel() const
+{
+	auto pPref = preferences();
+	// The engine default (all channels) when the engine is unavailable.
+	return pPref != nullptr ? pPref->m_midiActionChannel : Midi::ChannelAll;
+}
+
+Preferences::MidiSendNoteOff PluginUiMappingModel::midiSendNoteOff() const
+{
+	auto pPref = preferences();
+	// The engine default (always) when the engine is unavailable.
+	return pPref != nullptr ? pPref->getMidiSendNoteOff()
+							: Preferences::MidiSendNoteOff::Always;
 }
 
 int PluginUiMappingModel::instrumentCount() const

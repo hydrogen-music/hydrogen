@@ -46,21 +46,12 @@ public:
 	void draw();
 
 private:
-	/** Re-reads the exposed MIDI config from the engine into the widget
-	 * state — on construction and after every apply, never per frame
-	 * (typing into a widget must not snap back mid-edit). */
-	void refreshMidiConfigWidgets();
-
 	PluginUiLandingModel m_model;
 	std::shared_ptr<CommonStrings> m_pCommonStrings;
 	IGFD::FileDialog m_fileDialog;
 	// Pattern-load target state (the pattern row's widgets).
 	int m_nPatternNumber = 0;
 	bool m_bReplacePattern = false;
-	// Exposed MIDI config widget state.
-	bool m_bNoteOffIgnore = false;
-	int m_nActionChannel = -1;
-	int m_nSendNoteOff = 0;
 };
 
 } // namespace H2Core

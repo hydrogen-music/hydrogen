@@ -20,10 +20,8 @@
  */
 
 // The landing view's renderer (proposal 0006 TU4.1): the load buttons
-// with their keyed IGFD browsers, the pattern-load target row, and the
-// exposed MIDI configuration (feedback and transport stay engine-side —
-// settable via the editor). Thin draw calls only (TU1.3): every decision
-// is the model's.
+// with their keyed IGFD browsers and the pattern-load target row. Thin
+// draw calls only (TU1.3): every decision is the model's.
 
 #include "PluginUiLandingView.h"
 
@@ -39,14 +37,6 @@ namespace H2Core {
 PluginUiLandingView::PluginUiLandingView( HydrogenPlugin* pPlugin )
 	: m_model( pPlugin ), m_pCommonStrings( pPlugin->commonStrings() )
 {
-	refreshMidiConfigWidgets();
-}
-
-void PluginUiLandingView::refreshMidiConfigWidgets()
-{
-	m_bNoteOffIgnore = m_model.midiNoteOffIgnore();
-	m_nActionChannel = static_cast<int>( m_model.midiActionChannel() );
-	m_nSendNoteOff = static_cast<int>( m_model.midiSendNoteOff() );
 }
 
 void PluginUiLandingView::draw()
@@ -104,64 +94,6 @@ void PluginUiLandingView::draw()
 	ImGui::SameLine();
 	ImGui::Checkbox( m_pCommonStrings->getReplaceLabel().toUtf8().constData(),
 					 &m_bReplacePattern );
-
-	// The exposed MIDI configuration.
-	if ( ImGui::CollapsingHeader(
-			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
-					.constData(),
-			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
-		ImGui::Checkbox(
-			m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8().constData(),
-			&m_bNoteOffIgnore );
-
-		// The action channel dropdown — the GUI spinbox's range and
-		// texts (all channels, Off, 1..16), the same +1 index shift as
-		// the mapping tab's channel dropdowns. The QByteArrays must
-		// outlive the Combo call — held locals, not chained
-		// temporaries.
-		QByteArray sChannelEntries[ 18 ];
-		const char* sChannelEntryPtrs[ 18 ];
-		for ( int n = 0; n < 18; ++n ) {
-			sChannelEntries[ n ] = m_pCommonStrings->getChannelDisplayName(
-				Midi::channelFromInt( n - 1 ) ).toUtf8();
-			sChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
-		}
-		int nActionChannel = m_nActionChannel + 1;
-		ImGui::SetNextItemWidth( 72.0f );
-		if ( ImGui::Combo(
-				 m_pCommonStrings->getActionChannelLabel().toUtf8()
-					 .constData(),
-				 &nActionChannel, sChannelEntryPtrs, 18 ) ) {
-			m_nActionChannel = nActionChannel - 1;
-		}
-
-		// The combo entries must outlive the Combo call — held locals,
-		// not chained temporaries.
-		const auto sAlways = m_pCommonStrings->getOptionAlways().toUtf8();
-		const auto sOnCustomNoteLengths =
-			m_pCommonStrings->getOptionOnCustomNoteLengths().toUtf8();
-		const auto sNever = m_pCommonStrings->getOptionNever().toUtf8();
-		const char* sSendNoteOffEntries[ 3 ] = {
-			sAlways.constData(), sOnCustomNoteLengths.constData(),
-			sNever.constData()
-		};
-		ImGui::Combo( m_pCommonStrings->getSendNoteOffLabel().toUtf8()
-							.constData(),
-					 &m_nSendNoteOff, sSendNoteOffEntries, 3 );
-
-		if ( ImGui::Button( m_pCommonStrings->getApplyButton().toUtf8()
-								.constData() ) ) {
-			if ( m_model.applyExposedMidiControlSettings(
-					 m_bNoteOffIgnore,
-					 Midi::channelFromInt( m_nActionChannel ),
-					 static_cast<Preferences::MidiSendNoteOff>(
-						 m_nSendNoteOff ) ) ) {
-				// The engine may have normalized a value — resync the
-				// widgets, but never per frame (snap-back).
-				refreshMidiConfigWidgets();
-			}
-		}
-	}
 
 	// The keyed browsers — one IGFD instance, at most one dialog open.
 	//

@@ -90,14 +90,15 @@ own shims, state codec, and IPC transport.
 
 1. **Landing** — load song, pattern, and drumkit (file browser); spawn
    and connect an editor process (the existing `--connect-via-ipc`
-   flow); MIDI configuration (ignore note-offs, instrument vs. kit
-   mode). Configuration writes (MIDI options, instrument map) go
+   flow).
+2. **MIDI mapping** — the Instrument Mapping tab of
+   `MidiControlDialog` as a plugin view: a settings grid plus
+   per-instrument rows of channel/note spinboxes, plus the MIDI
+   configuration (ignore note-offs, instrument vs. kit mode).
+   Configuration writes (MIDI options, instrument map) go
    through the [ADR 0022](0022-layered-plugin-configuration.md)
    plugin-instance layer and are never written back to
    `~/.hydrogen`.
-2. **MIDI mapping** — the Instrument Mapping tab of
-   `MidiControlDialog` as a plugin view: a settings grid plus
-   per-instrument rows of channel/note spinboxes.
 3. **Mixer** — one strip per instrument (volume fader, pan encoder,
    mute, solo, meter), plus drag&drop bezier curves connecting
    instruments to the plugin's exposed audio busses
