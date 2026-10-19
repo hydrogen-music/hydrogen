@@ -40,6 +40,7 @@ endif()
 # The frame gate (ADR 0035's amendment) is pure logic too — same seam.
 set( H2_PLUGIN_UI_MODEL_SOURCES
     PluginUiFrameGate.cpp
+    PluginUiHtml.cpp
     PluginUiLandingModel.cpp
     PluginUiMappingModel.cpp
     PluginUiMixerModel.cpp )

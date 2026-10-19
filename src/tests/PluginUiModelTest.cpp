@@ -28,12 +28,15 @@
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiInstrumentMap.h>
 #include <core/Preferences/Preferences.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <plugin/HydrogenPlugin.h>
 #include <plugin/ui/PluginUiLandingModel.h>
 #include <plugin/ui/PluginUiMappingModel.h>
 #include <plugin/ui/PluginUiMixerModel.h>
 #include <core/CommonStrings.h>
+
+#include <algorithm>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
@@ -116,6 +119,285 @@ void PluginUiModelTest::testLandingLoadCommands()
 	// endpoint already.
 	CPPUNIT_ASSERT( model.openEditor( /*bLaunchProcess=*/false ) );
 	CPPUNIT_ASSERT( ! plugin.getEditorEndpoint().isEmpty() );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testLandingDrumkitListing()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiLandingModel model( &plugin );
+
+	// A model without a plugin reports an empty listing instead of
+	// crashing.
+	PluginUiLandingModel orphanModel( nullptr );
+	CPPUNIT_ASSERT( orphanModel.drumkits().empty() );
+
+	auto pHydrogen = plugin.getHydrogen();
+	CPPUNIT_ASSERT( pHydrogen != nullptr );
+
+	// The database populates asynchronously at startup; the picker
+	// only shows stable results once the initial scan finished.
+	pHydrogen->getSoundLibraryDatabase()->waitForInitialScan();
+
+	const auto kits = model.drumkits();
+	CPPUNIT_ASSERT( ! kits.empty() );
+
+	// Sorted by name, case-insensitive.
+	for ( std::size_t ii = 1; ii < kits.size(); ++ii ) {
+		CPPUNIT_ASSERT( kits[ ii - 1 ].sName.compare(
+			kits[ ii ].sName, Qt::CaseInsensitive ) <= 0 );
+	}
+
+	// The repo's GMRockKit is listed with its drumkit.xml metadata;
+	// the info is plain text (HTML tags stripped for the tooltip).
+	const auto it = std::find_if(
+		kits.begin(), kits.end(),
+		[]( const PluginUiLandingModel::DrumkitSummary& kit ) {
+			return kit.sName == "GMRockKit";
+		} );
+	CPPUNIT_ASSERT( it != kits.end() );
+	CPPUNIT_ASSERT( it->sAuthor == "Glen MacArthur / Sebastian Moors" );
+	CPPUNIT_ASSERT( it->sLicense == "GPL" );
+	CPPUNIT_ASSERT( it->nVersion == 0 );
+	// The database keys kits by their canonical drumkit.xml path.
+	CPPUNIT_ASSERT( it->sPath.endsWith( "drumkits/GMRockKit/drumkit.xml" ) );
+	CPPUNIT_ASSERT( it->sInfo.contains(
+		"A Sampled 5pc Pearl DX Series Drumkit." ) );
+	CPPUNIT_ASSERT( ! it->sInfo.contains( "<" ) );
+
+	// Paths are unique — they are the picker's selection key.
+	for ( std::size_t ii = 0; ii < kits.size(); ++ii ) {
+		for ( std::size_t jj = ii + 1; jj < kits.size(); ++jj ) {
+			CPPUNIT_ASSERT( kits[ ii ].sPath != kits[ jj ].sPath );
+		}
+	}
+
+	// Selecting a row loads the kit: a summary's path installs the kit
+	// it describes.
+	CPPUNIT_ASSERT( model.loadDrumkit( it->sPath ) );
+	auto pDrumkit = pHydrogen->getSong()->getDrumkit();
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( pDrumkit->getName() == "GMRockKit" );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testLandingEditorExecutable()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiLandingModel model( &plugin );
+
+	// A model without a plugin has no executable and refuses the
+	// override.
+	PluginUiLandingModel orphanModel( nullptr );
+	CPPUNIT_ASSERT( orphanModel.editorExecutable().isEmpty() );
+	CPPUNIT_ASSERT(
+		! orphanModel.setEditorExecutable( "/nonexistent/hydrogen" ) );
+
+	// Default: the resolved binary — never empty (the PATH fallback
+	// names the bare executable).
+	const QString sDefault = model.editorExecutable();
+	CPPUNIT_ASSERT( ! sDefault.isEmpty() );
+
+	// An explicit override wins; clearing it restores the default.
+	CPPUNIT_ASSERT( model.setEditorExecutable( "/nonexistent/hydrogen" ) );
+	CPPUNIT_ASSERT( model.editorExecutable() == "/nonexistent/hydrogen" );
+	CPPUNIT_ASSERT( model.setEditorExecutable( "" ) );
+	CPPUNIT_ASSERT( model.editorExecutable() == sDefault );
+
+	// The override is what launches: opening without spawning still
+	// serves the endpoint (the test acts as the editor itself).
+	CPPUNIT_ASSERT( model.setEditorExecutable( "/nonexistent/hydrogen" ) );
+	CPPUNIT_ASSERT( model.openEditor( /*bLaunchProcess=*/false ) );
+	CPPUNIT_ASSERT( ! plugin.getEditorEndpoint().isEmpty() );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testHtmlToPlainText()
+{
+	___INFOLOG( "" );
+
+	// The reference battery: every expected output below was produced by
+	// the QtGui template itself —
+	// QTextDocumentFragment::fromHtml( html ).toPlainText() — the exact
+	// path the GUI's InfoView tooltip takes with a drumkit's <info>
+	// (reference Qt 6.8.2). The plugin UI links QtCore only, so the
+	// model reimplements those semantics and this table pins them
+	// case-by-case: tags dropped, entities decoded, block boundaries as
+	// newlines, whitespace collapsed per white-space mode, tables as
+	// gridded cells.
+	struct Case {
+		const char* szName;
+		const char* szHtml;
+		const char* szExpected;
+	};
+	const Case cases[] = {
+		{ "gmrockkit-info", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np, li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Lucida Grande'; font-size:10pt; font-weight:400; font-style:normal;\">\n<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">A Sampled 5pc Pearl DX Series Drumkit.</p></body></html>", "A Sampled 5pc Pearl DX Series Drumkit." },
+		{ "two-paragraphs", "<p>Hello</p><p>World</p>", "Hello\nWorld" },
+		{ "br", "a<br>b", "a\nb" },
+		{ "br-br", "a<br><br>b", "a\n\nb" },
+		{ "p-br-p", "<p>a</p><br><p>b</p>", "a\n\n\nb" },
+		{ "entities", "&amp; &lt; &gt; &quot; &nbsp;&#65;&apos;", "& < > \"  A'" },
+		{ "nbsp-between", "a&nbsp;b", "a b" },
+		{ "head-noise", "<html><head><style>p { color: red }</style><script>var x = 1;</script><title>T</title></head><body><p>text</p></body></html>", "text" },
+		{ "comment", "a<!-- hidden -->b", "ab" },
+		{ "space-run", "<p>a    b</p>", "a b" },
+		{ "blank-lines", "a\n\nb", "a b" },
+		{ "padded-block", "<p>  padded  </p>", "padded " },
+		{ "inline-tags", "<p><b>bold</b> normal</p>", "bold normal" },
+		{ "empty", "", "" },
+		{ "plain", "just text", "just text" },
+		{ "list", "<ul><li>one</li><li>two</li></ul>", "one\ntwo" },
+		{ "bogus-entity", "&bogus; &#x41; &#66;", "&bogus; A B" },
+		{ "table", "<table><tr><td>x</td><td>y</td></tr></table>", "\nx\ny\n" },
+		{ "upper-tags", "<P>Hello</P>", "Hello" },
+		{ "stray-lt", "a < b", "a " },
+		{ "unterminated-tag", "a<b", "a" },
+		{ "nested-blocks", "<div><p>a</p><p>b</p></div>", "a\nb" },
+		{ "newline-in-block", "<p>line1\nline2</p>", "line1 line2" },
+		{ "no-close", "text1<p>text2", "text1\ntext2" },
+		{ "hr", "a<hr>b", "a\n\nb" },
+		{ "heading", "<h1>Title</h1><p>Body</p>", "Title\nBody" },
+		{ "pre", "<pre>  keep  spaces  </pre>", "  keep  spaces  " },
+		{ "entity-sentence", "1 &lt; 2 &amp;&amp; 3 &gt; 2", "1 < 2 && 3 > 2" },
+		{ "trailing-br", "a<br>", "a\n" },
+		{ "leading-br", "<br>a", "\na" },
+		{ "only-br", "<br>", "\n" },
+		{ "only-br-br", "<br><br>", "\n\n" },
+		{ "single-p", "<p>a</p>", "a" },
+		{ "three-ps", "<p>a</p><p>b</p><p>c</p>", "a\nb\nc" },
+		{ "empty-p", "<p></p>", "" },
+		{ "p-empty-p", "<p>a</p><p></p><p>b</p>", "a\nb" },
+		{ "text-after-pclose", "<p>a</p>b", "a\nb" },
+		{ "text-before-popen", "a<p>b</p>", "a\nb" },
+		{ "ws-between-blocks", "<p>a</p>   <p>b</p>", "a \nb" },
+		{ "ws-both-sides", "<p>  a  </p>  <p>  b  </p>", "a \nb " },
+		{ "ws-around-br", "a  <br>  b", "a \nb" },
+		{ "doc-leading-ws", "   text", "text" },
+		{ "doc-trailing-ws", "text   ", "text " },
+		{ "div-p", "<p>a</p><div>b</div>", "a\nb" },
+		{ "bare-div", "<div>a</div>", "a" },
+		{ "bare-li", "<li>one</li>", "one" },
+		{ "bare-h1", "<h1>a</h1>", "a" },
+		{ "bare-td", "<td>x</td>", "\nx\n" },
+		{ "bare-tr-td", "<tr><td>x</td></tr>", "\nx\n" },
+		{ "table-single-cell", "<table><tr><td>x</td></tr></table>", "\nx\n" },
+		{ "table-two-rows", "<table><tr><td>x</td><td>y</td></tr><tr><td>z</td></tr></table>", "\nx\ny\nz\n\n" },
+		{ "list-then-text", "<ul><li>a</li><li>b</li></ul>after", "a\nb\nafter" },
+		{ "text-then-list", "text<ul><li>a</li></ul>", "text\na" },
+		{ "unclosed-ps", "<p>a<p>b", "a\nb" },
+		{ "self-closing-br", "a<br/>b", "a\nb" },
+		{ "attr-gt-in-quotes", "<p title=\"a>b\">text</p>", "text" },
+		{ "style-then-text", "<style>x</style>text", "text" },
+		{ "script-then-text", "<script>x</script>text", "text" },
+		{ "title-then-text", "<title>T</title>text", "text" },
+		{ "a-style-b", "a<style>x</style>b", "ab" },
+		{ "a-title-b", "a<title>T</title>b", "ab" },
+		{ "only-comment", "<!-- only comment -->", "" },
+		{ "p-comment-p", "<p>a</p><!-- c --><p>b</p>", "a\nb" },
+		{ "entity-upper", "&AMP;&NBSP;", "&&NBSP;" },
+		{ "entity-no-semicolon", "a&ltb", "a&ltb" },
+		{ "entity-numeric-nl", "&#10;", "" },
+		{ "entity-numeric-emoji", "&#x1F600;", "\U0001f600" },
+		{ "entity-numeric-overflow", "&#999999999;", "&#999999999;" },
+		{ "inline-at-top", "<b>bold</b>", "bold" },
+		{ "a-div-b-c", "a<div>b</div>c", "a\nbc" },
+		{ "table-3rows-1cell", "<table><tr><td>a</td></tr><tr><td>b</td></tr><tr><td>c</td></tr></table>", "\na\nb\nc\n" },
+		{ "table-2rows-2cells", "<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>", "\na\nb\nc\nd\n" },
+		{ "table-text-after", "<table><tr><td>x</td></tr></table>a", "\nx\na" },
+		{ "text-table", "a<table><tr><td>x</td></tr></table>", "a\nx\n" },
+		{ "two-tables", "<table><tr><td>x</td></tr></table><table><tr><td>y</td></tr></table>", "\nx\n\ny\n" },
+		{ "table-p", "<table><tr><td>x</td></tr></table><p>p</p>", "\nx\n\np" },
+		{ "p-table", "<p>q</p><table><tr><td>x</td></tr></table>", "q\nx\n" },
+		{ "empty-cell", "<table><tr><td></td><td>y</td></tr></table>", "\n\ny\n" },
+		{ "hr-alone", "<hr>", "\n" },
+		{ "a-hr", "a<hr>", "a\n" },
+		{ "hr-a", "<hr>a", "\n\na" },
+		{ "hr-hr", "a<hr><hr>b", "a\n\n\nb" },
+		{ "nested-list", "<ul><li>a<ul><li>b</li></ul></li></ul>", "a\nb" },
+		{ "li-br", "<li>a<br>b</li>", "a\nb" },
+		{ "td-br", "<table><tr><td>x<br>z</td></tr></table>", "\nx\nz\n" },
+		{ "bare-tds", "<td>x</td><td>y</td>", "\nx\ny\n" },
+		{ "table-in-p", "<p>a<table><tr><td>x</td></tr></table>b</p>", "a\nx\nb" },
+		{ "empty-p-then-text", "<p></p>a", "a" },
+		{ "text-then-empty-p", "a<p></p>", "a\n" },
+		{ "ragged-first-row", "<table><tr><td>a</td></tr><tr><td>b</td><td>c</td></tr></table>", "\na\n\nb\nc\n" },
+		{ "td-multi-blocks", "<table><tr><td>a<p>b</p></td></tr></table>", "\na\nb\n" },
+		{ "td-trailing-ws", "<table><tr><td>x  </td></tr></table>", "\nx \n" },
+		{ "head-then-text", "<head>hidden</head>text", "text" },
+		{ "style-attrs", "<style type=\"text/css\">x</style>text", "text" },
+		{ "style-upper", "<STYLE>x</STYLE>text", "text" },
+		{ "script-src", "<script src=\"x\">y</script>text", "text" },
+		{ "ol-list", "<ol><li>a</li><li>b</li></ol>", "a\nb" },
+		{ "pre-then-text", "<pre>a</pre>b", "a\nb" },
+		{ "text-then-pre", "a<pre>b</pre>", "a\nb" },
+		{ "pre-nl", "<pre>a\nb</pre>", "a\nb" },
+		{ "pre-br", "<pre>a<br>b</pre>", "a\nb" },
+		{ "pre-pre", "<pre>  a  </pre>  <pre>  b  </pre>", "  a   \n  b  " },
+		{ "ws-after-last-close", "<p>a</p>  <p>b</p>  ", "a \nb " },
+		{ "entity-nl-between", "a&#10;b", "a b" },
+		{ "entity-nbsp-ws-run", "a &nbsp; b", "a   b" },
+		{ "multiple-nbsp", "a&nbsp;&nbsp;b", "a  b" },
+		{ "nbsp-leading", "&nbsp;a", " a" },
+		{ "lt-digit", "a <3 b", "a " },
+		{ "lt-space-gt", "a < b > c", "a c" },
+		{ "dl-dt-dd", "<dl><dt>t</dt><dd>d</dd></dl>", "t\nd" },
+		{ "h1-h2", "<h1>a</h1><h2>b</h2>", "a\nb" },
+		{ "blockquote", "<blockquote>q</blockquote>", "q" },
+		{ "tab-ws", "a\tb", "a b" },
+		{ "cr-lf", "a\r\nb", "a b" },
+		{ "uppercase-br", "a<BR>b", "a\nb" },
+		{ "mixed-case-p", "<P>a</P>", "a" },
+		{ "attr-single-quotes", "<p title='a>b'>text</p>", "text" },
+		{ "attr-no-quotes", "<p title=a>b>text</p>", "b>text" },
+		{ "inline-nested", "<p><b><i>x</i></b> y</p>", "x y" },
+		{ "p-br-only", "<p><br></p>", "\n" },
+		{ "td-empty-bare", "<td></td>", "\n\n" },
+		{ "qrichtext-ws", "<meta name=\"qrichtext\" content=\"1\"><p>a  b</p>", "a  b" },
+		{ "qrichtext-nl", "<meta name=\"qrichtext\" content=\"1\">a\nb", "ab" },
+		{ "qrichtext-attr-order", "<meta content=\"1\" name=\"qrichtext\"><p>a  b</p>", "a b" },
+		{ "qrichtext-br-ws", "<meta name=\"qrichtext\" content=\"1\">a<br> b", "a\n b" },
+		{ "qrichtext-entity-nl", "<meta name=\"qrichtext\" content=\"1\">a&#10;b", "ab" },
+		{ "caption", "<table><caption>C</caption><tr><td>x</td></tr></table>", "\nC\nx\n" },
+		{ "thead-text", "<table><thead>h</thead><tr><td>x</td></tr></table>", "h\nx\n" },
+		{ "colspan", "<table><tr><td colspan=\"2\">a</td></tr><tr><td>b</td><td>c</td></tr></table>", "\na\nb\nc\n" },
+		{ "rowspan", "<table><tr><td rowspan=\"2\">a</td><td>b</td></tr><tr><td>c</td></tr></table>", "\na\nb\nc\n" },
+		{ "startfragment", "x<!--StartFragment-->keep<!--EndFragment-->y", "keep" },
+		{ "startfragment-qrichtext-outside", "x<meta name=\"qrichtext\" content=\"1\" /><!--StartFragment-->a\nb<!--EndFragment-->y", "ab" },
+		{ "startfragment-qrichtext-inside", "x<!--StartFragment--><meta name=\"qrichtext\" content=\"1\" />a\nb<!--EndFragment-->y", "ab" },
+		{ "img", "a<img src=\"x.png\" alt=\"hi\">b", "a\ufffcb" },
+	};
+
+	for ( const Case& row : cases ) {
+		const QString sExpected = QString::fromUtf8( row.szExpected );
+		const QString sGot = PluginUiLandingModel::htmlToPlainText(
+			QString::fromUtf8( row.szHtml ) );
+		CPPUNIT_ASSERT_MESSAGE(
+			QString( "case [%1]: expected [%2], got [%3]" )
+				.arg( row.szName )
+				.arg( sExpected )
+				.arg( sGot )
+				.toStdString(),
+			sGot == sExpected );
+	}
+
+	// A numeric entity for NUL decodes to a NUL character in the output —
+	// kept out of the table because an embedded NUL ends any char*
+	// literal.
+	CPPUNIT_ASSERT( PluginUiLandingModel::htmlToPlainText( "&#0;" ) ==
+					QStringLiteral( "\u0000" ) );
 
 	___INFOLOG( "passed" );
 }

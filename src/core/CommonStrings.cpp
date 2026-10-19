@@ -1036,6 +1036,8 @@ CommonStrings::CommonStrings(){
 	m_sSettings = tr( "Settings" );
 	/*: Indicates a menu section which affects patterns. */
 	m_sPattern = tr( "Pattern" );
+	/*: A single song, e.g. as a tab label. */
+	m_sSong = tr( "Song" );
 
 	/*: Presented as an option to always e.g. perform an action. */
 	m_sOptionAlways = tr( "Always" );
@@ -1129,6 +1131,9 @@ CommonStrings::CommonStrings(){
 	/*: Button in the embedded plugin UI opening the full graphical
 	 *  editor. */
 	m_sOpenEditorButton = tr( "Open editor" );
+	/*: Label of the line edit holding the path to the editor
+	 *  executable in the embedded plugin UI. */
+	m_sEditorExecutableLabel = tr( "Editor executable" );
 	/*: Title of the file browser for songs in the embedded plugin
 	 *  UI. */
 	m_sSongFileDialogTitle = tr( "Choose a song file" );

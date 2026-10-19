@@ -2052,6 +2052,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Checkbox limiting the mixer tab of the embedded plugin UI to * the master strip.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Song</source>
+        <extracomment>A single song, e.g. as a tab label.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editor executable</source>
+        <extracomment>Label of the line edit holding the path to the editor * executable in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

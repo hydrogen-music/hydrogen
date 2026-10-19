@@ -20,12 +20,19 @@
  */
 
 #include "PluginUiLandingModel.h"
+#include "PluginUiHtml.h"
 
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
+#include <core/License.h>
+#include <core/SoundLibrary/SoundLibraryDatabase.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include <plugin/HydrogenPlugin.h>
+
+#include <algorithm>
+#include <utility>
 
 namespace H2Core {
 
@@ -84,19 +91,78 @@ bool PluginUiLandingModel::loadDrumkit( const QString& sPath )
 										  : nullptr;
 	auto pCAC = pHydrogen != nullptr
 		? pHydrogen->getCoreActionController() : nullptr;
-	if ( pCAC == nullptr ) {
+	auto pDatabase = pHydrogen != nullptr
+		? pHydrogen->getSoundLibraryDatabase() : nullptr;
+	if ( pCAC == nullptr || pDatabase == nullptr ) {
 		return false;
 	}
 	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
-	// setDrumkit installs a full Drumkit object (not a path), so the kit is
-	// loaded first — upgraded like the sound library database loads it.
-	auto pDrumkit = Drumkit::load( sPath, true, nullptr, false, pHydrogen );
+	// The database is the canonical kit source: it canonicalizes the path
+	// and serves already-loaded kits from its cache. A copy is installed so
+	// the engine owns its kit outright and the cached object stays pristine.
+	const auto pDrumkit = pDatabase->getDrumkit( sPath );
 	if ( pDrumkit == nullptr ) {
+		___ERRORLOG( QString( "Unable to retrieve drumkit [%1] from database" )
+					 .arg( sPath ) );
 		return false;
 	}
 
-	return pCAC->setDrumkit( pDrumkit );
+	return pCAC->setDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
+}
+
+QString PluginUiLandingModel::htmlToPlainText( const QString& sHtml )
+{
+	return pluginUiHtmlToPlainText( sHtml );
+}
+
+std::vector<PluginUiLandingModel::DrumkitSummary>
+PluginUiLandingModel::drumkits() const
+{
+	std::vector<DrumkitSummary> summaries;
+	if ( m_pPlugin == nullptr ) {
+		return summaries;
+	}
+
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	const auto pDatabase = m_pPlugin->getHydrogen()->getSoundLibraryDatabase();
+	for ( const auto& ppInfo : pDatabase->getDrumkitInfos() ) {
+		if ( ppInfo == nullptr ) {
+			continue;
+		}
+		DrumkitSummary summary;
+		summary.sName = ppInfo->getName();
+		summary.sAuthor = ppInfo->getAuthor();
+		summary.sLicense = ppInfo->getLicense().getLicenseString();
+		summary.sInfo = htmlToPlainText( ppInfo->getInfo() );
+		summary.nVersion = ppInfo->getVersion();
+		summary.sPath = ppInfo->getPath();
+		summaries.push_back( std::move( summary ) );
+	}
+
+	std::sort( summaries.begin(), summaries.end(),
+			   []( const DrumkitSummary& a, const DrumkitSummary& b ) {
+				   return a.sName.compare( b.sName, Qt::CaseInsensitive ) < 0;
+			   } );
+	return summaries;
+}
+
+QString PluginUiLandingModel::editorExecutable() const
+{
+	if ( m_pPlugin == nullptr ) {
+		return QString();
+	}
+	return m_pPlugin->editorBinary();
+}
+
+bool PluginUiLandingModel::setEditorExecutable( const QString& sPath )
+{
+	if ( m_pPlugin == nullptr ) {
+		return false;
+	}
+	m_pPlugin->setEditorBinary( sPath );
+	return true;
 }
 
 bool PluginUiLandingModel::openEditor( bool bLaunchProcess )

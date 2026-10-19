@@ -189,8 +189,13 @@ public:
 	static QString resolveEditorBinary( const QString& sExplicit,
 										const QString& sSearchDir );
 
-private:
+	/** The editor binary this instance would launch right now: the
+	 * #setEditorBinary override if set, else resolveEditorBinary with
+	 * the instance's search dir. Exposed so the landing view can
+	 * prefill its executable line edit. */
 	QString editorBinary() const;
+
+private:
 	void launchEditorProcess();
 	/** Process-exit handler. Respawns only on a crash (bounded); a clean exit
 	 * (the user closed the editor window) leaves it closed. */

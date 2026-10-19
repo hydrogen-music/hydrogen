@@ -760,6 +760,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	const QString& getSettings() const { return m_sSettings; }
 	const QString& getPattern() const { return m_sPattern; }
+	const QString& getSong() const { return m_sSong; }
 
 	const QString& getOptionAlways() const { return m_sOptionAlways; }
 	const QString& getOptionNever() const { return m_sOptionNever; }
@@ -801,6 +802,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	}
 	const QString& getOpenEditorButton() const {
 		return m_sOpenEditorButton;
+	}
+	const QString& getEditorExecutableLabel() const {
+		return m_sEditorExecutableLabel;
 	}
 	const QString& getSongFileDialogTitle() const {
 		return m_sSongFileDialogTitle;
@@ -1183,6 +1187,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	QString m_sSettings;
 	QString m_sPattern;
+	QString m_sSong;
 
 	QString m_sOptionAlways;
 	QString m_sOptionNever;
@@ -1215,6 +1220,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sLoadSongButton;
 	QString m_sLoadPatternButton;
 	QString m_sOpenEditorButton;
+	QString m_sEditorExecutableLabel;
 	QString m_sSongFileDialogTitle;
 	QString m_sPatternFileDialogTitle;
 	QString m_sDrumkitFileDialogTitle;

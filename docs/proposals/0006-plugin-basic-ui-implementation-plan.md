@@ -293,7 +293,14 @@ model logic (the scalar MIDI control applies/reads and the wholesale
 map apply) moved with it from `PluginUiLandingModel` to
 `PluginUiMappingModel`, leaving the landing model with the
 load/install/editor commands; the section still renders with the
-engine defaults when no engine is available.
+engine defaults when no engine is available. The landing view was
+reworked (2026-10-18): song/pattern loading is now a mutually
+exclusive tab pair (each tab keeps its keyed browser), the drumkit
+file browser became a sound-library picker (`SoundLibraryDatabase`
+listing — name/author/license/version columns, the kit's notes on
+hover, row select loads the kit), and the editor line at the bottom
+gained an executable path field prefilled with the resolved default
+(an empty field restores the default resolution).
 
 *Objective:* landing, MIDI mapping, mixer — model-first, each view's logic
 unit-tested headless, renderers thin.
@@ -326,8 +333,9 @@ unit-tested headless, renderers thin.
   existing `data/i18n` catalogs (not `CommonStrings.h` — that lives in
   `src/gui`, which the plugin must not link). The wiring itself lands at
   UI-6 (TU6.1).
-* **TU4.1** landing view (ImGuiFileDialog browser, load buttons, editor
-  button).
+* **TU4.1** landing view (song/pattern load tabs with keyed
+  ImGuiFileDialog browsers, sound-library drumkit picker, editor line
+  with executable path field).
 * **TU4.2** MIDI mapping view (settings grid + per-instrument rows + the
   MIDI config widgets, moved from TU4.1).
 * **TU4.3** mixer strips (fader, ImGuiKnobs pan encoder, mute/solo, meters).

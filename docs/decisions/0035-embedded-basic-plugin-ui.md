@@ -88,9 +88,12 @@ own shims, state codec, and IPC transport.
 
 ### The basic UI: three views
 
-1. **Landing** — load song, pattern, and drumkit (file browser); spawn
-   and connect an editor process (the existing `--connect-via-ipc`
-   flow).
+1. **Landing** — load song and pattern (mutually exclusive tabs, each
+   with a file browser); load a drumkit from the sound library
+   database (picker table: name/author/license/version, the kit's
+   notes on hover); spawn and connect an editor process (the existing
+   `--connect-via-ipc` flow), with its executable path editable in a
+   line edit prefilled with the resolved default.
 2. **MIDI mapping** — the Instrument Mapping tab of
    `MidiControlDialog` as a plugin view: a settings grid plus
    per-instrument rows of channel/note spinboxes, plus the MIDI

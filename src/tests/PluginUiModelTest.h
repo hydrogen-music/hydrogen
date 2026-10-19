@@ -30,6 +30,9 @@
 class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginUiModelTest );
 	CPPUNIT_TEST( testLandingLoadCommands );
+	CPPUNIT_TEST( testLandingDrumkitListing );
+	CPPUNIT_TEST( testLandingEditorExecutable );
+	CPPUNIT_TEST( testHtmlToPlainText );
 	CPPUNIT_TEST( testMappingModelRoundTrip );
 	CPPUNIT_TEST( testMappingModelInstrumentReads );
 	CPPUNIT_TEST( testMappingModelInputMappingRead );
@@ -49,6 +52,24 @@ public:
 	 * the current state untouched on unloadable paths; the editor button
 	 * forwards to the plugin's editor seam. */
 	void testLandingLoadCommands();
+	/** TU4.1: the drumkit picker's listing — the sound library
+	 * database's kits as name-sorted summaries carrying the
+	 * drumkit.xml metadata (author, license, version, plain-text
+	 * info) and unique paths as the selection key; a summary's path
+	 * loads the kit it describes. */
+	void testLandingDrumkitListing();
+	/** TU4.1: the editor line's executable handling — the effective
+	 * binary (override or resolved default) is exposed for the
+	 * prefill, an override wins, and clearing it restores the
+	 * default. */
+	void testLandingEditorExecutable();
+	/** TU4.1: the picker's info conversion — htmlToPlainText, the
+	 * pure-QtCore reimplementation of QtGui's
+	 * QTextDocumentFragment::fromHtml().toPlainText() (the GUI
+	 * InfoView tooltip path the plugin UI cannot link), pinned
+	 * case-by-case by a reference battery whose expected outputs the
+	 * QtGui template itself produced. */
+	void testHtmlToPlainText();
 	/** TU4.b: the mapping model's setters land in the plugin's engine —
 	 * map-wide modes/channels in the live MidiInstrumentMap, per-instrument
 	 * custom input rows resolvable through it, per-instrument output
