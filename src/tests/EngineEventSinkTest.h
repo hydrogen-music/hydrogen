@@ -34,6 +34,10 @@ class EngineEventSinkTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testFanoutWithoutEditor );
 	CPPUNIT_TEST( testSinkQueueDrainedByIdle );
 	CPPUNIT_TEST( testPluginFanoutWithoutEditor );
+	CPPUNIT_TEST( testInfoSnapshotFanout );
+	CPPUNIT_TEST( testBuildInfoSnapshotDegradedSkips );
+	CPPUNIT_TEST( testUnregisterQuiescesInFlight );
+	CPPUNIT_TEST( testClearEventSinkKeepsSuccessor );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -53,6 +57,25 @@ public:
 	 * session for its whole lifetime — a sink registered on the plugin
 	 * receives the engine's events (basic-UI-only mode). */
 	void testPluginFanoutWithoutEditor();
+	/** The publish cycle delivers an info snapshot to a registered sink
+	 * (ADR 0035 UI-3): the same song-level data the landing info
+	 * section shows — identity, mode, counts, playback position —
+	 * built on the bridge thread, so the UI never reads the song
+	 * itself. */
+	void testInfoSnapshotFanout();
+	/** A degraded cycle (engine-lock contention for the builder's
+	 * small try-lock budget) skips info delivery entirely — nullopt,
+	 * never a blank snapshot that would read as "no song". */
+	void testBuildInfoSnapshotDegradedSkips();
+	/** The unregister-before-destroy contract: setEventSink( nullptr )
+	 * drains in-flight callbacks before returning — it must not return
+	 * while the bridge thread is still inside a sink callback, or the
+	 * caller could destroy the sink out from under the bridge. */
+	void testUnregisterQuiescesInFlight();
+	/** HydrogenPlugin::clearEventSink is conditional: it unregisters
+	 * only the sink still registered — a displaced sink's teardown
+	 * must not kill its successor. */
+	void testClearEventSinkKeepsSuccessor();
 };
 
 #endif

@@ -239,6 +239,61 @@ Since acceptance, the telemetry pipeline was implemented end-to-end for the
    re-queueing it forever; with one request in flight at a time it can never
    be correlated again.
 
+## Amendment (2026-10-20): the info snapshot rides the publish cycle; sinks quiesce on unregister
+
+The basic plugin UI ([ADR 0035](0035-embedded-basic-plugin-ui.md)) needs the
+same rich engine state the editor mirrors — but in-process, and without the
+UI thread ever taking the engine lock. Five points extend the 2026-09-10
+amendment above:
+
+1. **A QString-rich `EngineInfoSnapshot` rides the publish cycle.** The
+   bridge thread's `publishTelemetry()` now also builds an info snapshot —
+   song and drumkit names, the mode, the song's pattern/column counts with
+   the playhead column and the playing patterns (song mode), the selected
+   pattern's name, tick length, and note count (pattern mode) — and delivers
+   it to the in-process `EngineEventSink` through the new `onInfoSnapshot`
+   callback. Same thread, same `tryLockFor` discipline as the telemetry
+   snapshot. The POD shared-memory `EngineTelemetry` stays at v1: no new
+   fields, no version bump — the rich payload is in-process-only, so the
+   cross-process protocol is untouched.
+
+2. **Degraded cycles skip delivery; the consumer keeps its last snapshot.**
+   On lock contention (`tryLockFor(2 ms)`), a null engine, or a null
+   audio engine, the cycle delivers *nothing* for the info snapshot — never
+   a blanked one. A null song still delivers (default-constructed): "no
+   song" is state, not degradation. Consumers render their previous data
+   until the next cycle; the landing info section can never flicker to
+   empty rows from a busy engine.
+
+3. **The engine-lock invariant this rests on is load-bearing.**
+   `buildInfoSnapshot` reads the *song pointer itself* under the lock — an
+   unlocked read racing a `setSong` swap would be a use-after-free — plus
+   the pattern lists, the column vector, and the selected pattern. This is
+   the same invariant the editor's state mirror relies on; any future
+   Song-structural mutation must keep taking the engine lock. Playing
+   patterns are additionally gated on `State::Playing` and no export
+   session: the transport pre-populates its playing patterns while idle,
+   and the snapshot shows what actually sounds.
+
+4. **`setEventSink` drains before it returns.** Every sink callback now
+   holds an in-flight counter (seq_cst) for its whole duration, and
+   `setEventSink` spins on that counter after storing the new pointer:
+   once it returns, no callback of the old sink is running or will ever
+   run — the sink object may be destroyed immediately. Unregister-before-
+   destroy is the ownership contract. `HydrogenPlugin::clearEventSink(
+   pExpected)` is the conditional form for ownership hand-off: it
+   unregisters only if `pExpected` is still the registered sink, so a late
+   clear (a destroyed window's destructor) cannot kill a successor's
+   registration. Both are host-thread-only, which makes the
+   check-then-clear race-free.
+
+5. **The last UI-side blocking engine lock is gone.** The plugin UI's
+   landing info section used to take the audio-engine lock per frame on
+   the host's UI thread (`PluginUiLandingModel::songInfo()`). It now
+   serves the publish cycle's cache — see [ADR 0035's
+   amendment](0035-embedded-basic-plugin-ui.md) for the window-side poll
+   that turns cache changes into frame requests.
+
 ## More Information
 
 * `src/core/EventQueue.h`, `src/core/Basics/Event.h:56`,

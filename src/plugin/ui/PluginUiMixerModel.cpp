@@ -274,4 +274,42 @@ float PluginUiMixerModel::masterPeakR() const
 	return m_bHasSnapshot ? m_snapshot.masterPeakR : 0.0f;
 }
 
+bool PluginUiMixerModel::pollMetersChanged()
+{
+	// Before the first snapshot the displayed surface is silence —
+	// value-initialized, like the diff base.
+	EngineTelemetrySnapshot snapshot{};
+	{
+		std::lock_guard<std::mutex> lock( m_mutex );
+		if ( m_bHasSnapshot ) {
+			snapshot = m_snapshot;
+		}
+	}
+
+	const auto metersDiffer =
+		[]( const EngineTelemetrySnapshot& a,
+			const EngineTelemetrySnapshot& b ) {
+		if ( a.masterPeakL != b.masterPeakL ||
+			 a.masterPeakR != b.masterPeakR ||
+			 a.instPeakCount != b.instPeakCount ) {
+			return true;
+		}
+		// Only the rendered range matters: entries beyond the
+		// instrument count never reach a strip.
+		for ( int ii = 0; ii < a.instPeakCount; ++ii ) {
+			if ( a.peakL[ ii ] != b.peakL[ ii ] ||
+				 a.peakR[ ii ] != b.peakR[ ii ] ) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	if ( ! metersDiffer( snapshot, m_metersDisplayed ) ) {
+		return false;
+	}
+	m_metersDisplayed = snapshot;
+	return true;
+}
+
 } // namespace H2Core

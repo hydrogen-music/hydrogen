@@ -148,6 +148,33 @@ PluginUiLandingModel::drumkits() const
 	return summaries;
 }
 
+EngineInfoSnapshot PluginUiLandingModel::infoSnapshot() const
+{
+	std::lock_guard<std::mutex> lock( m_mutex );
+	return m_infoCache;
+}
+
+void PluginUiLandingModel::acceptInfoSnapshot(
+	const EngineInfoSnapshot& snapshot )
+{
+	std::lock_guard<std::mutex> lock( m_mutex );
+	m_infoCache = snapshot;
+}
+
+bool PluginUiLandingModel::pollInfoChanged()
+{
+	EngineInfoSnapshot cache;
+	{
+		std::lock_guard<std::mutex> lock( m_mutex );
+		cache = m_infoCache;
+	}
+	if ( cache == m_infoDisplayed ) {
+		return false;
+	}
+	m_infoDisplayed = cache;
+	return true;
+}
+
 QString PluginUiLandingModel::editorExecutable() const
 {
 	if ( m_pPlugin == nullptr ) {

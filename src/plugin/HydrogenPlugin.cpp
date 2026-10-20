@@ -484,6 +484,17 @@ void HydrogenPlugin::setEventSink( EngineEventSink* pEventSink ) {
 	}
 }
 
+void HydrogenPlugin::clearEventSink( EngineEventSink* pExpected ) {
+	// Conditional unregister: only the still-registered sink is
+	// cleared — a displaced sink's teardown must not kill its
+	// successor. m_pEventSink is host-thread-only state (like
+	// setEventSink), so the check-then-clear is race-free.
+	if ( m_pEventSink != pExpected ) {
+		return;
+	}
+	setEventSink( nullptr );
+}
+
 bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 	if ( m_bEditorOpen ) {
 		return true;

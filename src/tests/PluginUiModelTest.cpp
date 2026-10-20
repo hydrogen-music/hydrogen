@@ -21,6 +21,9 @@
 
 #include "PluginUiModelTest.h"
 
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/AudioEngine/Transport.h>
+#include <core/Basics/Event.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
@@ -31,12 +34,14 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include <plugin/HydrogenPlugin.h>
+#include <plugin/ui/PluginUiEngineSink.h>
 #include <plugin/ui/PluginUiLandingModel.h>
 #include <plugin/ui/PluginUiMappingModel.h>
 #include <plugin/ui/PluginUiMixerModel.h>
 #include <core/CommonStrings.h>
 
 #include <algorithm>
+#include <optional>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
@@ -398,6 +403,89 @@ void PluginUiModelTest::testHtmlToPlainText()
 	// literal.
 	CPPUNIT_ASSERT( PluginUiLandingModel::htmlToPlainText( "&#0;" ) ==
 					QStringLiteral( "\u0000" ) );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testLandingInfoSnapshot()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiLandingModel model( &plugin );
+
+	// A model without a plugin reports the idle defaults instead of
+	// crashing — and never any snapshot: there is no pipeline without
+	// an engine.
+	PluginUiLandingModel orphanModel( nullptr );
+	const auto orphanInfo = orphanModel.infoSnapshot();
+	CPPUNIT_ASSERT( orphanInfo.mode == Song::Mode::None );
+	CPPUNIT_ASSERT( orphanInfo.sSongName.isEmpty() );
+	CPPUNIT_ASSERT( orphanInfo.sDrumkitName.isEmpty() );
+	CPPUNIT_ASSERT( orphanInfo.nPatternCount == 0 );
+	CPPUNIT_ASSERT( orphanInfo.nColumnCount == 0 );
+	CPPUNIT_ASSERT( orphanInfo.nCurrentColumn == -1 );
+	CPPUNIT_ASSERT( orphanInfo.playingPatterns.empty() );
+	CPPUNIT_ASSERT( orphanInfo.sPatternName.isEmpty() );
+	CPPUNIT_ASSERT( orphanInfo.nPatternLength == 0 );
+	CPPUNIT_ASSERT( orphanInfo.nPatternNoteCount == 0 );
+	CPPUNIT_ASSERT( ! orphanModel.pollInfoChanged() );
+
+	// Before the first delivery the cache holds the same idle defaults
+	// (the dash rows) — a degraded first publish cycle can never blank
+	// the section.
+	const auto emptyInfo = model.infoSnapshot();
+	CPPUNIT_ASSERT( emptyInfo.mode == Song::Mode::None );
+	CPPUNIT_ASSERT( emptyInfo.sSongName.isEmpty() );
+	CPPUNIT_ASSERT( emptyInfo.sDrumkitName.isEmpty() );
+	CPPUNIT_ASSERT( emptyInfo.nPatternCount == 0 );
+	CPPUNIT_ASSERT( emptyInfo.nColumnCount == 0 );
+	CPPUNIT_ASSERT( emptyInfo.nCurrentColumn == -1 );
+	CPPUNIT_ASSERT( emptyInfo.playingPatterns.empty() );
+	CPPUNIT_ASSERT( emptyInfo.sPatternName.isEmpty() );
+	CPPUNIT_ASSERT( emptyInfo.nPatternLength == 0 );
+	CPPUNIT_ASSERT( emptyInfo.nPatternNoteCount == 0 );
+	CPPUNIT_ASSERT( ! model.pollInfoChanged() );
+
+	// The info data is pipeline-fed (ADR 0035 UI-3): the model caches
+	// what the publish cycle delivers and never reads the engine
+	// itself. The builder's field-for-field truth is covered by
+	// EngineEventSinkTest::testInfoSnapshotFanout; here the injected
+	// snapshots stand in for the bridge thread.
+	EngineInfoSnapshot patternMode;
+	patternMode.sSongName = "Empty song";
+	patternMode.sDrumkitName = "GMRockKit";
+	patternMode.mode = Song::Mode::Pattern;
+	patternMode.sPatternName = "Pattern 1";
+	patternMode.nPatternLength = 192;
+	patternMode.nPatternNoteCount = 12;
+	model.acceptInfoSnapshot( patternMode );
+	CPPUNIT_ASSERT( model.infoSnapshot() == patternMode );
+	// The displayed surface is still the idle defaults: one poll sees
+	// the change, the next (nothing moved) does not.
+	CPPUNIT_ASSERT( model.pollInfoChanged() );
+	CPPUNIT_ASSERT( ! model.pollInfoChanged() );
+
+	EngineInfoSnapshot songMode;
+	songMode.sSongName = "Timeline and Time Signatures";
+	songMode.sDrumkitName = "GMRockKit";
+	songMode.mode = Song::Mode::Song;
+	songMode.nPatternCount = 10;
+	songMode.nColumnCount = 6;
+	songMode.nCurrentColumn = 3;
+	songMode.playingPatterns = { "Pattern A", "Pattern B" };
+	model.acceptInfoSnapshot( songMode );
+	CPPUNIT_ASSERT( model.infoSnapshot() == songMode );
+	CPPUNIT_ASSERT( model.pollInfoChanged() );
+	CPPUNIT_ASSERT( ! model.pollInfoChanged() );
+
+	// The publish cycle repeats the identical snapshot every ~50 ms
+	// while nothing changes — that is not a change.
+	model.acceptInfoSnapshot( songMode );
+	CPPUNIT_ASSERT( ! model.pollInfoChanged() );
 
 	___INFOLOG( "passed" );
 }
@@ -788,6 +876,127 @@ void PluginUiModelTest::testMixerModelStripsAndMeters()
 	CPPUNIT_ASSERT( model.instrumentPeakR( 1 ) == 0.4f );
 	// Beyond the snapshot's instrument count — zeroed, not out-of-bounds.
 	CPPUNIT_ASSERT( model.instrumentPeakL( 2 ) == 0.0f );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testMixerMeterPoll()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiMixerModel model( &plugin );
+
+	// No snapshot yet: the displayed meters default to silence —
+	// nothing to request a frame for.
+	CPPUNIT_ASSERT( ! model.pollMetersChanged() );
+
+	// The first snapshot (even an all-silent one) reshapes the strips:
+	// the instrument count is part of the displayed surface.
+	EngineTelemetrySnapshot first;
+	first.instPeakCount = 2;
+	model.acceptMeterSnapshot( first );
+	CPPUNIT_ASSERT( model.pollMetersChanged() );
+	CPPUNIT_ASSERT( ! model.pollMetersChanged() );
+
+	// A meter move is a change; the identical snapshot repeated by the
+	// next publish cycle is not.
+	EngineTelemetrySnapshot moved = first;
+	moved.peakL[ 1 ] = 0.5f;
+	model.acceptMeterSnapshot( moved );
+	CPPUNIT_ASSERT( model.pollMetersChanged() );
+	model.acceptMeterSnapshot( moved );
+	CPPUNIT_ASSERT( ! model.pollMetersChanged() );
+
+	// Non-meter fields (transport position, tempo, process time) do
+	// not re-render the mixer.
+	EngineTelemetrySnapshot transport = moved;
+	transport.frame = 12345;
+	transport.bpm = 150.0;
+	model.acceptMeterSnapshot( transport );
+	CPPUNIT_ASSERT( ! model.pollMetersChanged() );
+
+	// A kit change (instrument count) is a change even when all peaks
+	// are silent.
+	EngineTelemetrySnapshot resized = moved;
+	resized.instPeakCount = 4;
+	model.acceptMeterSnapshot( resized );
+	CPPUNIT_ASSERT( model.pollMetersChanged() );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testEngineSinkAdapter()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+
+	// The window's ownership shape: the plugin (whose session outlives
+	// the UI) is destroyed first, then the sink, then the models it
+	// forwards into — so an assertion failure can never leave a
+	// registered sink pointing at dead models. The optionals are
+	// declared before the plugin to get that destruction order while
+	// still constructing the models with the plugin pointer.
+	std::optional<PluginUiLandingModel> landingModel;
+	std::optional<PluginUiMixerModel> mixerModel;
+	std::optional<PluginUiEngineSink> sink;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	landingModel.emplace( &plugin );
+	mixerModel.emplace( &plugin );
+	sink.emplace( *landingModel, *mixerModel );
+
+	// Direct forwarding (the bridge thread's calls): meter snapshots
+	// land in the mixer model, info snapshots in the landing model.
+	EngineTelemetrySnapshot meters;
+	meters.masterPeakL = 0.5f;
+	meters.masterPeakR = 0.6f;
+	meters.instPeakCount = 2;
+	meters.peakL[ 0 ] = 0.25f;
+	meters.peakR[ 0 ] = 0.3f;
+	meters.peakL[ 1 ] = 0.75f;
+	meters.peakR[ 1 ] = 0.8f;
+	sink->onMeterSnapshot( meters );
+	CPPUNIT_ASSERT( mixerModel->hasMeterSnapshot() );
+	CPPUNIT_ASSERT( mixerModel->masterPeakL() == 0.5f );
+	CPPUNIT_ASSERT( mixerModel->instrumentPeakL( 1 ) == 0.75f );
+
+	EngineInfoSnapshot info;
+	info.sSongName = "Direct";
+	info.mode = Song::Mode::Pattern;
+	sink->onInfoSnapshot( info );
+	CPPUNIT_ASSERT( landingModel->infoSnapshot() == info );
+
+	// Events are not the adapter's channel (pull-rendered UI): a
+	// forwarded event must not disturb either cache.
+	sink->onEvent( Event::Type::Metronome, 7, 0 );
+	CPPUNIT_ASSERT( landingModel->infoSnapshot() == info );
+	CPPUNIT_ASSERT( mixerModel->masterPeakL() == 0.5f );
+
+	// End-to-end over the real pipeline: registered on the plugin, the
+	// session's publish cycle feeds the models the engine's actual
+	// state (the startup song: pattern mode, the default kit).
+	plugin.setEventSink( &*sink );
+	auto pHydrogen = plugin.getHydrogen();
+	CPPUNIT_ASSERT( pHydrogen != nullptr );
+	auto pSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return landingModel->infoSnapshot().mode == Song::Mode::Pattern &&
+			landingModel->infoSnapshot().sSongName == pSong->getName();
+	} ) );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return mixerModel->hasMeterSnapshot(); } ) );
+
+	// The poll sees the pipeline's data as a change (the displayed
+	// surface still holds the injected "Direct" snapshot).
+	CPPUNIT_ASSERT( landingModel->pollInfoChanged() );
+	CPPUNIT_ASSERT( mixerModel->pollMetersChanged() );
 
 	___INFOLOG( "passed" );
 }

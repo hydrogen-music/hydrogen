@@ -29,7 +29,10 @@
 #define H2C_PLUGIN_UI_LANDING_MODEL_H
 
 #include <QString>
+#include <mutex>
 #include <vector>
+
+#include <core/IPC/EngineEventSink.h>
 
 namespace H2Core {
 
@@ -74,6 +77,21 @@ public:
 	 * name (case-insensitive). Empty without a plugin or before the
 	 * database's initial scan finished (waitForInitialScan). */
 	std::vector<DrumkitSummary> drumkits() const;
+	/** The info section's data: the latest #EngineInfoSnapshot the
+	 * engine session's publish cycle delivered (via
+	 * #acceptInfoSnapshot), or the idle defaults before the first
+	 * delivery — a pure cache read, the model never touches the
+	 * engine here (ADR 0035 UI-3). */
+	EngineInfoSnapshot infoSnapshot() const;
+	/** Caches the latest publish-cycle info snapshot (the bridge
+	 * thread's call, via the window's engine-event-sink adapter —
+	 * EngineEventSink's threading contract). */
+	void acceptInfoSnapshot( const EngineInfoSnapshot& snapshot );
+	/** Whether the cached info snapshot moved since the last poll —
+	 * the window's cue that the info section's displayed surface went
+	 * stale and a frame is owed. UI thread only: the poll latches the
+	 * cache into the displayed snapshot. */
+	bool pollInfoChanged();
 	/** The picker's info conversion: rich text (HTML, as drumkit.xml's
 	 * <info> element stores it) to plain text — a pure-QtCore
 	 * reimplementation of the GUI's QtGui path
@@ -97,6 +115,15 @@ public:
 
 private:
 	HydrogenPlugin* m_pPlugin = nullptr;
+
+	// The latest delivered snapshot under a small mutex: the sink
+	// callback fires on the engine session's bridge thread, the reads
+	// on the UI thread.
+	mutable std::mutex m_mutex;
+	EngineInfoSnapshot m_infoCache;
+	// What the last rendered frame showed — the poll's diff base (UI
+	// thread only).
+	EngineInfoSnapshot m_infoDisplayed;
 };
 
 } // namespace H2Core

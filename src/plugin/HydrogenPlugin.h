@@ -145,12 +145,19 @@ public:
 	}
 
 	/** Register an engine-process consumer of this plugin's engine event
-	 * stream and telemetry (ADR 0035 UI-3): forwarded to the engine
-	 * session's sink seam (EngineSession::setEventSink). The plugin
-	 * remembers it and (re-)registers it with any session started later.
-	 * Pass nullptr to unregister; the caller owns the sink and must
-	 * unregister it before destroying it. */
+	 *  stream and telemetry (ADR 0035 UI-3): forwarded to the engine
+	 *  session's sink seam (EngineSession::setEventSink). The plugin
+	 *  remembers it and (re-)registers it with any session started later.
+	 *  Pass nullptr to unregister; the caller owns the sink and must
+	 *  unregister it before destroying it. */
 	void setEventSink( EngineEventSink* pEventSink );
+
+	/** Unregister @a pEventSink, but only if it is still the registered
+	 *  sink: a displaced sink's teardown must not unregister its
+	 *  successor. When it does unregister, the session's in-flight
+	 *  drain completes before this returns — the sink may be destroyed
+	 *  afterwards. */
+	void clearEventSink( EngineEventSink* pExpected );
 
 	// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────
 	/** Open the editor for this instance: mark it open and, when

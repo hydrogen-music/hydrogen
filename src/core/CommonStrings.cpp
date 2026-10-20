@@ -330,7 +330,9 @@ CommonStrings::CommonStrings(){
 	m_sTagsLabel = tr( "Tags" );
 	/*: Label shown in a tab of the Sound Library. */
 	m_sDrumkitsLabel = tr( "Drumkits" );
-	/*: Label shown in a tab of the Sound Library. */
+	/*: Label shown in a tab of the Sound Library. Also the label of the
+	 * info section's pattern count row in the embedded plugin UI's
+	 * landing view. */
 	m_sPatternsLabel = tr( "Patterns" );
 	/*: Label shown in a tab of the Sound Library. */
 	m_sSongsLabel = tr( "Songs" );
@@ -1023,7 +1025,9 @@ CommonStrings::CommonStrings(){
 	/*: Name of note property adjustable in NotePropertiesRuler. */
 	m_sNotePropertyProbability = tr( "Probability" );
 	/*: Name of note property adjustable by right click-dragging in
-	 *  DrumPatternEditor and PianoRollEditor. */
+	 * DrumPatternEditor and PianoRollEditor. Also the label of the
+	 * embedded plugin UI's info section row showing the current
+	 * pattern's length in ticks. */
 	m_sNotePropertyLength = tr( "Length" );
 
 	/*: Displayed in a warning message in case the user tries to read
@@ -1034,9 +1038,12 @@ CommonStrings::CommonStrings(){
 	/*: Indicates a menu section in which behavioural customizations can be
 	 *  done. */
 	m_sSettings = tr( "Settings" );
-	/*: Indicates a menu section which affects patterns. */
+	/*: Indicates a menu section which affects patterns. Also labels the
+	 * pattern tab of the embedded plugin UI as well as its info
+	 * section's current pattern row and pattern mode value. */
 	m_sPattern = tr( "Pattern" );
-	/*: A single song, e.g. as a tab label. */
+	/*: A single song, e.g. as a tab label. Also labels the embedded
+	 * plugin UI's info section song name row and song mode value. */
 	m_sSong = tr( "Song" );
 
 	/*: Presented as an option to always e.g. perform an action. */
@@ -1112,7 +1119,8 @@ CommonStrings::CommonStrings(){
 	/*: Label for the number of musical notes contained in a pattern,
 	 *  shown in the Online Import detail panel. Not to be confused
 	 *  with the 'Notes' label for text annotations in property
-	 *  dialogs. */
+	 *  dialogs. Also the label of the embedded plugin UI's info
+	 *  section row showing the current pattern's note count. */
 	m_sNoteCountLabel = tr( "Notes" );
 
 	// Embedded plugin UI (proposal 0006). Texts the GUI vocabulary
@@ -1185,8 +1193,27 @@ CommonStrings::CommonStrings(){
 	/*: Button resetting a mixer strip in the embedded plugin UI. */
 	m_sResetButton = tr( "Reset" );
 	/*: Checkbox limiting the mixer tab of the embedded plugin UI to
-	 *  the master strip. */
+	 * the master strip. */
 	m_sMasterOnlyLabel = tr( "Master only" );
+	/*: Label of the info section's drumkit row in the embedded plugin
+	 * UI's landing view — the name of the drumkit of the current song. */
+	m_sDrumkitLabel = tr( "Drumkit" );
+	/*: Label of the info section's mode row in the embedded plugin UI's
+	 * landing view — whether the current song is in song or pattern
+	 * mode. */
+	m_sModeLabel = tr( "Mode" );
+	/*: Label of the info section's row in the embedded plugin UI's
+	 * landing view showing the total length of the current song in
+	 * columns. */
+	m_sColumnsLabel = tr( "Columns" );
+	/*: Label of the info section's row in the embedded plugin UI's
+	 * landing view showing the column the playback position is
+	 * currently in. */
+	m_sCurrentColumnLabel = tr( "Current column" );
+	/*: Label of the info section's row in the embedded plugin UI's
+	 * landing view showing the names of the patterns currently being
+	 * played. */
+	m_sPlayingLabel = tr( "Playing" );
 }
 
 QString CommonStrings::getChannelDisplayName( Midi::Channel channel ) const

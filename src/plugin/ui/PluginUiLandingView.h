@@ -46,6 +46,10 @@ public:
 	/** One frame of the landing view's widget tree. */
 	void draw();
 
+	/** The view's model — the window polls it (info diff) to decide
+	 *  frame requests. */
+	PluginUiLandingModel& model() { return m_model; }
+
 private:
 	/** The drumkit picker popup (opened by the load-drumkit button). */
 	void drawDrumkitPicker();

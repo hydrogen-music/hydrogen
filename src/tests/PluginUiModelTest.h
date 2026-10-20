@@ -33,6 +33,9 @@ class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testLandingDrumkitListing );
 	CPPUNIT_TEST( testLandingEditorExecutable );
 	CPPUNIT_TEST( testHtmlToPlainText );
+	CPPUNIT_TEST( testLandingInfoSnapshot );
+	CPPUNIT_TEST( testMixerMeterPoll );
+	CPPUNIT_TEST( testEngineSinkAdapter );
 	CPPUNIT_TEST( testMappingModelRoundTrip );
 	CPPUNIT_TEST( testMappingModelInstrumentReads );
 	CPPUNIT_TEST( testMappingModelInputMappingRead );
@@ -70,6 +73,23 @@ public:
 	 * case-by-case by a reference battery whose expected outputs the
 	 * QtGui template itself produced. */
 	void testHtmlToPlainText();
+	/** TU4.1: the landing view's info section — pipeline-fed data
+	 * (ADR 0035 UI-3): the model caches the engine session's info
+	 * snapshots (never reading the engine itself), serves the latest
+	 * per frame, and its poll diff tells the window the displayed
+	 * surface went stale. Idle defaults before the first delivery. */
+	void testLandingInfoSnapshot();
+	/** The mixer model's meter poll — the diff that turns publish-cycle
+	 * meter snapshots into frame requests: meter fields and the
+	 * instrument count count, repeated identical snapshots and
+	 * non-meter fields (transport) do not. */
+	void testMixerMeterPoll();
+	/** The window's engine-event-sink adapter (ADR 0035 UI-3): meter
+	 * snapshots forward to the mixer model, info snapshots to the
+	 * landing model, events to nobody (pull-rendered UI) — and
+	 * registered on the plugin, the real publish cycle feeds the
+	 * models the engine's actual state. */
+	void testEngineSinkAdapter();
 	/** TU4.b: the mapping model's setters land in the plugin's engine —
 	 * map-wide modes/channels in the live MidiInstrumentMap, per-instrument
 	 * custom input rows resolvable through it, per-instrument output

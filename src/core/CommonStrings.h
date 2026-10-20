@@ -846,6 +846,13 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getBusLabel() const { return m_sBusLabel; }
 	const QString& getResetButton() const { return m_sResetButton; }
 	const QString& getMasterOnlyLabel() const { return m_sMasterOnlyLabel; }
+	const QString& getDrumkitLabel() const { return m_sDrumkitLabel; }
+	const QString& getModeLabel() const { return m_sModeLabel; }
+	const QString& getColumnsLabel() const { return m_sColumnsLabel; }
+	const QString& getCurrentColumnLabel() const {
+		return m_sCurrentColumnLabel;
+	}
+	const QString& getPlayingLabel() const { return m_sPlayingLabel; }
 	/** The display name of @a channel — getAllLabel() for
 	 * #Midi::ChannelAll, getStatusOff() for #Midi::ChannelOff and for
 	 * the invalid -2 of unmapped rows (the GUI disables those widgets
@@ -1239,6 +1246,11 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sBusLabel;
 	QString m_sResetButton;
 	QString m_sMasterOnlyLabel;
+	QString m_sDrumkitLabel;
+	QString m_sModeLabel;
+	QString m_sColumnsLabel;
+	QString m_sCurrentColumnLabel;
+	QString m_sPlayingLabel;
 };
 
 } // namespace H2Core

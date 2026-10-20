@@ -35,6 +35,7 @@
 #include <plugin/HydrogenPlugin.h>
 
 #include <core/config.h>
+#include <core/Hydrogen.h>
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Logger.h>
@@ -408,7 +409,11 @@ int main( int argc, char** argv ) {
 	}
 	// The real views (UI-4): a plugin-backed window must construct the
 	// three views and render frames without crashing — the renderers'
-	// coverage (TU1.3: no logic, so the smoke is their test).
+	// coverage (TU1.3: no logic, so the smoke is their test). On X11 it
+	// also carries the live-data governance checks (round 7): the
+	// publish cycle feeds the models through the window's
+	// engine-event-sink adapter, and the idle poll turns engine data
+	// changes into frame requests.
 	{
 		H2Core::HydrogenPlugin plugin( 44100, 512, 2 );
 		plugin.activate( 44100, 512 );
@@ -419,6 +424,71 @@ int main( int argc, char** argv ) {
 		for ( int i = 0; i < 5; ++i ) {
 			viewWindow.idle();
 		}
+
+		// Live data (round 7): the same governance contract as
+		// input/resize/visibility above, but driven by the engine
+		// alone. The engine's selected pattern is the change driver —
+		// a locked core setter (bNeedsLock) that renames the info
+		// snapshot's "Pattern N" in the next publish cycle.
+		const Window viewChild =
+			static_cast<Window>( viewWindow.nativeHandle() );
+		auto sendViewVisibility = [ pDisplay, viewChild ]( int state ) {
+			if ( viewChild == None ) {
+				return;
+			}
+			XEvent ev = {};
+			ev.xvisibility.type = VisibilityNotify;
+			ev.xvisibility.window = viewChild;
+			ev.xvisibility.state = state;
+			XSendEvent( pDisplay, viewChild, False, 0, &ev );
+			XSync( pDisplay, False );
+		};
+		// Deterministic on a developer box too (see above).
+		sendViewVisibility( VisibilityUnobscured );
+		auto pHydrogen = plugin.getHydrogen();
+		check( pHydrogen != nullptr, "plugin-backed window without engine" );
+
+		// Settle: the first info snapshot (one publish cycle after the
+		// adapter registered, at the latest) is itself a change — let
+		// it arrive and render before counting.
+		std::this_thread::sleep_for( std::chrono::milliseconds( 120 ) );
+		viewWindow.requestFrame();
+		viewWindow.idle();
+		const unsigned nDataFrames = viewWindow.renderedFrameCount();
+		viewWindow.idle();
+		check( viewWindow.renderedFrameCount() == nDataFrames,
+			   "unrequested idle rendered a frame (live data)" );
+
+		// An engine data change requests exactly one frame.
+		pHydrogen->setSelectedPatternNumber( 1 );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 120 ) );
+		viewWindow.idle();
+		check( viewWindow.renderedFrameCount() == nDataFrames + 1,
+			   "engine data change did not render a frame (live data)" );
+		viewWindow.idle();
+		check( viewWindow.renderedFrameCount() == nDataFrames + 1,
+			   "unchanged engine data rendered a frame (live data)" );
+
+		// A change while obscured renders nothing until the reveal —
+		// the poll consumes the diff while hidden, the pending request
+		// survives, and the reveal owes exactly one frame.
+		sendViewVisibility( VisibilityFullyObscured );
+		viewWindow.idle();
+		check( viewWindow.renderedFrameCount() == nDataFrames + 1,
+			   "obscured idle rendered a frame (live data)" );
+		pHydrogen->setSelectedPatternNumber( 2 );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 120 ) );
+		viewWindow.idle();
+		check( viewWindow.renderedFrameCount() == nDataFrames + 1,
+			   "obscured data change rendered a frame (live data)" );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+		sendViewVisibility( VisibilityUnobscured );
+		viewWindow.idle();
+		check( viewWindow.renderedFrameCount() == nDataFrames + 2,
+			   "reveal after a data change did not render one frame (live data)" );
+		viewWindow.idle();
+		check( viewWindow.renderedFrameCount() == nDataFrames + 2,
+			   "unrequested idle after a reveal rendered a frame (live data)" );
 	}
 	// Teardown must leave no child window behind.
 	XSync( pDisplay, false );

@@ -113,6 +113,13 @@ public:
 	float instrumentPeakR( int nInstrument ) const;
 	float masterPeakL() const;
 	float masterPeakR() const;
+	/** Whether the cached meter snapshot moved since the last poll —
+	 *  the window's cue that the mixer's displayed meters went stale
+	 *  and a frame is owed. Compares the fields the view renders: the
+	 *  master peaks, the per-instrument peak arrays, and the
+	 *  instrument count (a kit change re-shapes the strips). UI thread
+	 *  only: the poll latches the cache into the displayed meters. */
+	bool pollMetersChanged();
 
 private:
 	std::shared_ptr<CoreActionController> controller() const;
@@ -128,6 +135,10 @@ private:
 	mutable std::mutex m_mutex;
 	bool m_bHasSnapshot = false;
 	EngineTelemetrySnapshot m_snapshot;
+	// What the last rendered frame showed — the poll's diff base (UI
+	// thread only). Zero-initialized: before the first snapshot the
+	// displayed meters are silence.
+	EngineTelemetrySnapshot m_metersDisplayed{};
 };
 
 } // namespace H2Core

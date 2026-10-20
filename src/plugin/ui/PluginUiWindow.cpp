@@ -26,6 +26,7 @@
 
 #include "PluginUiWindow.h"
 #include "PluginUiBackend.h"
+#include "PluginUiEngineSink.h"
 #include "PluginUiFrameGate.h"
 #include "PluginUiLandingView.h"
 #include "PluginUiMappingView.h"
@@ -87,10 +88,27 @@ public:
 			m_pLandingView = std::make_unique<PluginUiLandingView>( pPlugin );
 			m_pMappingView = std::make_unique<PluginUiMappingView>( pPlugin );
 			m_pMixerView = std::make_unique<PluginUiMixerView>( pPlugin );
+			// The engine-event-sink adapter (ADR 0035 UI-3): the
+			// session's publish cycle feeds the models live data on the
+			// bridge thread; the idle poll below diffs it into frame
+			// requests. The host contract has the plugin (and its
+			// session) outlive the window, so registering here is safe
+			// for as long as ~Impl unregisters first.
+			m_pPlugin = pPlugin;
+			m_pEngineSink = std::make_unique<PluginUiEngineSink>(
+				m_pLandingView->model(), m_pMixerView->model() );
+			pPlugin->setEventSink( m_pEngineSink.get() );
 		}
 	}
 
 	~Impl() {
+		// Unregister the sink adapter before anything it forwards into
+		// goes away: the conditional clear cannot kill a successor a
+		// later window registered, and the session's in-flight drain
+		// completes before this returns (EngineEventSink contract).
+		if ( m_pPlugin != nullptr && m_pEngineSink != nullptr ) {
+			m_pPlugin->clearEventSink( m_pEngineSink.get() );
+		}
 		if ( m_pContext != nullptr ) {
 			ImGui::SetCurrentContext( m_pContext );
 			m_pBackend->shutdownRenderBackend();
@@ -125,6 +143,32 @@ public:
 		m_pBackend->getSize( nWidth, nHeight );
 		if ( nWidth != m_nRenderedWidth || nHeight != m_nRenderedHeight ) {
 			m_frameGate.request();
+		}
+
+		// A frame is also owed when the active tab's displayed data went
+		// stale: the engine keeps moving underneath (playback, editor
+		// edits) with no input event to latch a request. Only the active
+		// tab's model is polled — the frame it would request is the
+		// frame that shows it. Polled before the presentability check:
+		// while obscured the diff is consumed cheaply and the reveal
+		// transition re-requests anyway, so a change that happened
+		// hidden still shows with exactly one render once revealed.
+		if ( m_pLandingView != nullptr ) {
+			switch ( m_activeView ) {
+			case ActiveView::Landing:
+				if ( m_pLandingView->model().pollInfoChanged() ) {
+					m_frameGate.request();
+				}
+				break;
+			case ActiveView::Mixer:
+				if ( m_pMixerView->model().pollMetersChanged() ) {
+					m_frameGate.request();
+				}
+				break;
+			case ActiveView::None:
+			case ActiveView::Mapping:
+				break;
+			}
 		}
 
 		// A window that cannot present (unmapped, fully obscured, hidden
@@ -168,19 +212,25 @@ public:
 					  ImGuiWindowFlags_NoSavedSettings );
 		if ( m_pLandingView != nullptr ) {
 			// The real views (UI-4): the three tabs over their models.
+			// The active tab is tracked for the idle poll above — reset
+			// each frame, set by whichever tab item actually renders.
+			m_activeView = ActiveView::None;
 			if ( ImGui::BeginTabBar( "##tabs" ) ) {
 			if ( ImGui::BeginTabItem( m_pCommonStrings->getTabGeneralDialog()
 							  .toUtf8().constData() ) ) {
+					m_activeView = ActiveView::Landing;
 					m_pLandingView->draw();
 					ImGui::EndTabItem();
 				}
 				if ( ImGui::BeginTabItem( m_pCommonStrings->getMappingTab()
 											  .toUtf8().constData() ) ) {
+					m_activeView = ActiveView::Mapping;
 					m_pMappingView->draw();
 					ImGui::EndTabItem();
 				}
 				if ( ImGui::BeginTabItem( m_pCommonStrings->getMixerTab()
 											  .toUtf8().constData() ) ) {
+					m_activeView = ActiveView::Mixer;
 					m_pMixerView->draw();
 					ImGui::EndTabItem();
 				}
@@ -228,6 +278,14 @@ public:
 	std::unique_ptr<PluginUiLandingView> m_pLandingView;
 	std::unique_ptr<PluginUiMappingView> m_pMappingView;
 	std::unique_ptr<PluginUiMixerView> m_pMixerView;
+	// The engine-event-sink adapter (ADR 0035 UI-3), declared AFTER the
+	// views: reverse destruction order destroys it before the models it
+	// forwards into — and ~Impl unregisters it before any of that.
+	std::unique_ptr<PluginUiEngineSink> m_pEngineSink;
+	// The plugin the views and sink adapter attach to; null on the spike
+	// path. The host contract: the plugin (and its session) outlives
+	// the window.
+	HydrogenPlugin* m_pPlugin = nullptr;
 	// The views' shared string source; null on the spike path, and the
 	// tab labels below only draw under the landing-view guard.
 	std::shared_ptr<CommonStrings> m_pCommonStrings;
@@ -244,6 +302,11 @@ public:
 	// reveal and owes a frame. Starts false so the first presentable
 	// idle counts as a reveal.
 	bool m_bWasPresentable = false;
+	// Which tab the last rendered frame showed — only the active tab's
+	// model is polled for staleness (None until the first render, and
+	// whenever the tab bar itself did not render).
+	enum class ActiveView { None, Landing, Mapping, Mixer };
+	ActiveView m_activeView = ActiveView::None;
 };
 
 PluginUiWindow::PluginUiWindow( std::uintptr_t parentNativeHandle, int width,

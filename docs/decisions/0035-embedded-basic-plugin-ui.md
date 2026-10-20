@@ -327,3 +327,52 @@ after the interval renders exactly one frame, an unrequested idle renders
 nothing, an obscured window renders nothing while its reveal renders
 exactly one frame, and the GL context stays current across a rendered
 frame.
+
+## Amendment (2026-10-20): the engine-event-sink adapter and the data poll
+
+The accepted text mandates an in-process sink for the basic UI ("the basic
+UI through an in-process sink"); this is how it landed, and how engine data
+becomes frame requests.
+
+1. **The adapter is `PluginUiEngineSink`**, owned by the window's Impl and
+   registered with the plugin at construction: `onMeterSnapshot` forwards
+   into the mixer model, `onInfoSnapshot` (ADR 0018's 2026-10-20 amendment)
+   into the landing model. `onEvent` is a deliberate no-op — the UI is
+   pull-rendered, change detection is diffing cached snapshots, not event
+   bookkeeping. The member is declared after the views so reverse
+   destruction order destroys it before the models it forwards into, and
+   `~Impl` unregisters first via `HydrogenPlugin::clearEventSink` (the
+   conditional clear: a late window teardown cannot kill a successor's
+   registration). The host contract — the plugin and its session outlive
+   the window — makes registering at construction safe.
+
+2. **The models cache; the window polls.** Each model keeps the latest
+   delivered snapshot under a small mutex (bridge-thread writes, UI-thread
+   reads). The window's idle polls the *active tab's* model —
+   `pollInfoChanged` (landing) / `pollMetersChanged` (mixer) diff the cache
+   against what the last rendered frame showed and latch it — and a diff
+   requests a frame through the gate. Only the active tab is polled: the
+   frame a poll would request is the frame that shows it. The poll runs
+   before the presentability check, so while obscured the diff is consumed
+   cheaply and the reveal transition re-requests — a change that happened
+   hidden shows with exactly one render on reveal.
+
+3. **This retires the `requestFrame()` "live view" seam** from the
+   2026-10-16 amendment's request-source list: the window's own poll is
+   the live-data request source now (`requestFrame()` stays for hosts and
+   explicit requests). Meters are live — the mixer's meters move with the
+   engine while the mixer tab is active, at the publish cycle's ~50 ms
+   cadence coalesced onto the 30 Hz ceiling.
+
+4. **Known limitation — mixer strip parameters.** Strip names, volumes,
+   and pans are still live Song reads at render time: an editor-side
+   parameter edit while the mixer tab is active stays stale until the next
+   frame request (interaction, tab switch, or a meter move). Riding
+   parameter state on a snapshot is future work if it matters in practice.
+
+Evidence: `PluginUiModelTest` (cache/poll semantics, adapter forwarding,
+end-to-end over the real publish pipeline), `EngineEventSinkTest` (builder
+truth, degraded-skip, unregister quiesce, conditional clear), and the
+PluginUiSmoke live-data assertions — an engine data change renders exactly
+one frame, unchanged data renders nothing, and a change while obscured
+renders nothing until the reveal renders exactly one.

@@ -30,6 +30,7 @@
 #include <deque>
 #include <future>
 #include <memory>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QThread;
@@ -44,6 +45,7 @@ class EngineTelemetryShm;
 class EngineEventSink;
 class Event;
 struct EngineTelemetrySnapshot;
+struct EngineInfoSnapshot;
 
 /**
  * \ingroup docCore
@@ -89,22 +91,30 @@ public:
 	void stop();
 
 	/** Register @a pEventSink as an engine-process consumer of the engine's
-	 * event stream and telemetry (ADR 0035 UI-3): it receives exactly the
-	 * engine-origin events and telemetry snapshots the IPC editor receives
-	 * — on this session's bridge thread, so implementations must be cheap
-	 * and non-blocking. Pass nullptr to unregister. The caller owns the
-	 * sink and must keep it alive until it is unregistered and this session
-	 * is stopped (or destroyed). Error events are additionally retained for
-	 * the editor-attach replay (ADR 0026 point 9); the sink sees them live,
-	 * from registration onward. */
-	void setEventSink( EngineEventSink* pEventSink ) {
-		m_pEventSink.store( pEventSink );
-	}
+	 *  event stream and telemetry (ADR 0035 UI-3): it receives exactly the
+	 *  engine-origin events and telemetry snapshots the IPC editor receives
+	 *  — on this session's bridge thread, so implementations must be cheap
+	 *  and non-blocking. Pass nullptr to unregister. Drains in-flight
+	 *  callbacks before returning: once this returns, no further callback
+	 *  targets the previous sink, so the caller may destroy it (the
+	 *  unregister-before-destroy contract). Error events are additionally
+	 *  retained for the editor-attach replay (ADR 0026 point 9); the sink
+	 *  sees them live, from registration onward. */
+	void setEventSink( EngineEventSink* pEventSink );
 
 	/** Build a full telemetry snapshot (transport / peaks / process time, ADR
-	 * 0018) from @a pEngine. Static so it is unit-testable without a running
-	 * serve loop. */
+	 *  0018) from @a pEngine. Static so it is unit-testable without a running
+	 *  serve loop. */
 	static EngineTelemetrySnapshot buildTelemetrySnapshot( Hydrogen* pEngine );
+
+	/** Build one info snapshot (the song-level state the embedded UI's
+	 *  info section shows, ADR 0035 UI-3) from @a pEngine, under the
+	 *  same small-budget engine lock as the telemetry build. Static so
+	 *  it is unit-testable without a running serve loop. Returns
+	 *  nullopt for a degraded cycle (lock contention): the caller
+	 *  skips delivery rather than showing a blank "no song" snapshot. */
+	static std::optional<EngineInfoSnapshot> buildInfoSnapshot(
+		Hydrogen* pEngine );
 
 private:
 	EngineSession( Hydrogen* pEngine, const QString& sEndpoint );
@@ -141,8 +151,28 @@ private:
 	 * later detached phase replay anew. */
 	void flushPendingErrors( IpcChannel* pConn );
 	/** Publish the engine's current transport into the telemetry block, if
-	 * any, and to the registered sink — the same snapshot, built once. */
+	 *  any, and to the registered sink — the same snapshot, built once. */
 	void publishTelemetry();
+
+	/** RAII in-flight guard: for its lifetime the registered sink may
+	 *  be safely called. The counter is bumped (seq_cst) BEFORE the
+	 *  sink pointer is loaded, so setEventSink()'s store-then-drain
+	 *  observes any call about to happen and waits for it to finish
+	 *  (unregister-before-destroy contract). */
+	struct SinkGuard {
+		explicit SinkGuard( std::atomic<int>& rInFlight )
+			: m_rInFlight( rInFlight ) {
+			m_rInFlight.fetch_add( 1, std::memory_order_seq_cst );
+		}
+		~SinkGuard() {
+			m_rInFlight.fetch_sub( 1, std::memory_order_seq_cst );
+		}
+		SinkGuard( const SinkGuard& ) = delete;
+		SinkGuard& operator=( const SinkGuard& ) = delete;
+
+	private:
+		std::atomic<int>& m_rInFlight;
+	};
 
 	/** Authoritative engine being served; not owned. */
 	Hydrogen* m_pEngine;
@@ -151,11 +181,15 @@ private:
 	/** Bridge thread owning the IpcServer + accepted channel; owned. */
 	QThread* m_pThread;
 	/** Telemetry block written for an attached editor (ADR 0018/0031); created on
-	 * the bridge thread, keyed off the endpoint. Owned. */
+	 *  the bridge thread, keyed off the endpoint. Owned. */
 	std::unique_ptr<EngineTelemetryShm> m_pTelemetry;
 	/** Registered engine-process event/meter consumer (ADR 0035 UI-3); not
-	 * owned. Atomic: stored from any thread, loaded on the bridge thread. */
+	 *  owned. Atomic: stored from any thread, loaded on the bridge thread. */
 	std::atomic<EngineEventSink*> m_pEventSink{ nullptr };
+	/** Sink callbacks currently in flight on the bridge thread: bumped
+	 *  before the sink pointer is loaded (see SinkGuard), drained by
+	 *  setEventSink() so an unregister can not race a live callback. */
+	std::atomic<int> m_nSinkInFlight{ 0 };
 	/** Poll/accept granularity; also bounds stop() latency. */
 	int m_nPollTimeoutMs = 50;
 	/** Upper bound for retained error events; a driver error storm must

@@ -37,8 +37,11 @@ endif()
 # TU4: the view models — pure logic, no imgui types (TU1.3). They form their
 # own library so the unit suite links them headless (no vendored UI sources
 # on its link line); hydrogen-plugin-ui consumes them for its renderers.
-# The frame gate (ADR 0035's amendment) is pure logic too — same seam.
+# The frame gate (ADR 0035's amendment) is pure logic too — same seam, and so
+# is the engine-event-sink adapter (ADR 0035 UI-3): it forwards into the
+# models and never touches imgui.
 set( H2_PLUGIN_UI_MODEL_SOURCES
+    PluginUiEngineSink.cpp
     PluginUiFrameGate.cpp
     PluginUiHtml.cpp
     PluginUiLandingModel.cpp

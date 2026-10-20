@@ -27,6 +27,8 @@
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -41,6 +43,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <thread>
 
 #include <QtCore/QThread>
 
@@ -92,6 +95,19 @@ void EngineSession::stop() {
 	m_bRunning.store( false );
 	if ( m_pThread != nullptr ) {
 		m_pThread->wait();
+	}
+}
+
+void EngineSession::setEventSink( EngineEventSink* pEventSink ) {
+	// Store first, then drain. The bridge bumps the in-flight counter
+	// (seq_cst) BEFORE loading the sink pointer, so any bridge load
+	// that still sees the old pointer is already counted here: the
+	// drain observes it and waits for that call to finish. Once this
+	// returns, no further callback targets the previous sink — the
+	// caller may destroy it (unregister-before-destroy contract).
+	m_pEventSink.store( pEventSink, std::memory_order_seq_cst );
+	while ( m_nSinkInFlight.load( std::memory_order_seq_cst ) > 0 ) {
+		std::this_thread::yield();
 	}
 }
 
@@ -207,8 +223,10 @@ void EngineSession::fanOutToSink( const Event* pEvent ) {
 		return;
 	}
 	// Fresh load per event: an unregister takes effect for every event
-	// popped after it, even mid-burst (setEventSink contract).
-	auto* pSink = m_pEventSink.load();
+	// popped after it, even mid-burst (setEventSink contract). The
+	// guard keeps the sink alive across the call (see SinkGuard).
+	SinkGuard guard( m_nSinkInFlight );
+	auto* pSink = m_pEventSink.load( std::memory_order_seq_cst );
 	if ( pSink != nullptr ) {
 		pSink->onEvent( pEvent->getType(), pEvent->getValue(),
 						pEvent->getId() );
@@ -392,8 +410,101 @@ EngineTelemetrySnapshot EngineSession::buildTelemetrySnapshot( Hydrogen* pEngine
 	return snapshot;
 }
 
+std::optional<EngineInfoSnapshot> EngineSession::buildInfoSnapshot(
+	Hydrogen* pEngine )
+{
+	if ( pEngine == nullptr ) {
+		return std::nullopt;
+	}
+	auto pAudioEngine = pEngine->getAudioEngine();
+	if ( pAudioEngine == nullptr ) {
+		return std::nullopt;
+	}
+
+	// The song's structure is read under the same small-budget try-lock
+	// as the telemetry build (ADR 0018): the lock's invariant — all
+	// song-structural mutations take it — is what makes these reads
+	// safe on this thread, and the budget keeps a contended audio
+	// thread from stalling. On contention the cycle degrades to "skip"
+	// (nullopt): the consumer keeps its last snapshot instead of seeing
+	// a blank one that would read as "no song".
+	const bool bLocked = pAudioEngine->tryLockFor(
+		std::chrono::microseconds( 2000 ), RIGHT_HERE );
+	if ( ! bLocked ) {
+		return std::nullopt;
+	}
+
+	EngineInfoSnapshot info;
+	const auto pSong = pEngine->getSong();
+	if ( pSong != nullptr ) {
+		info.sSongName = pSong->getName();
+		const auto pDrumkit = pSong->getDrumkit();
+		if ( pDrumkit != nullptr ) {
+			info.sDrumkitName = pDrumkit->getName();
+		}
+		info.mode = pSong->getMode();
+
+		if ( info.mode == Song::Mode::Song ) {
+			const auto pPatternList = pSong->getPatternList();
+			if ( pPatternList != nullptr ) {
+				info.nPatternCount = pPatternList->size();
+			}
+			const auto pColumns = pSong->getPatternGroupVector();
+			if ( pColumns != nullptr ) {
+				info.nColumnCount = static_cast<int>( pColumns->size() );
+			}
+			const auto pPlayhead = pAudioEngine->getPlayhead();
+			if ( pPlayhead != nullptr ) {
+				info.nCurrentColumn = pPlayhead->getColumn();
+			}
+			// The transport pre-populates its playing patterns for the
+			// current position even while idle — the row shows what
+			// actually sounds, so only the playing state gates the read.
+			// An export session rolls the transport for a background
+			// render, not for the user: it must not read as playback
+			// (the telemetry build zeroes `playing` for the same
+			// reason).
+			if ( pAudioEngine->getState() == AudioEngine::State::Playing &&
+				 ! pEngine->getIsExportSessionActive() ) {
+				const auto pPlayingPatterns =
+					pAudioEngine->getPlayingPatterns();
+				if ( pPlayingPatterns != nullptr ) {
+					for ( int ii = 0; ii < pPlayingPatterns->size(); ++ii ) {
+						const auto pPattern = pPlayingPatterns->get( ii );
+						if ( pPattern != nullptr ) {
+							info.playingPatterns.push_back(
+								pPattern->getName() );
+						}
+					}
+				}
+			}
+		}
+		else if ( info.mode == Song::Mode::Pattern ) {
+			const auto pPatternList = pSong->getPatternList();
+			const int nPattern = pEngine->getSelectedPatternNumber();
+			if ( pPatternList != nullptr && nPattern >= 0 &&
+				 nPattern < pPatternList->size() ) {
+				const auto pPattern = pPatternList->get( nPattern );
+				if ( pPattern != nullptr ) {
+					info.sPatternName = pPattern->getName();
+					info.nPatternLength = pPattern->getLength();
+					info.nPatternNoteCount = static_cast<int>(
+						pPattern->getNotes()->size() );
+				}
+			}
+		}
+	}
+
+	pAudioEngine->unlock();
+	return info;
+}
+
 void EngineSession::publishTelemetry() {
-	auto* pSink = m_pEventSink.load();
+	// In-flight guard around the whole publish: setEventSink() drains
+	// the counter before returning, so the registered sink outlives
+	// both callbacks (unregister-before-destroy contract).
+	SinkGuard guard( m_nSinkInFlight );
+	auto* pSink = m_pEventSink.load( std::memory_order_seq_cst );
 	if ( pSink == nullptr && m_pTelemetry == nullptr ) {
 		return;
 	}
@@ -411,6 +522,15 @@ void EngineSession::publishTelemetry() {
 	}
 	if ( m_pTelemetry != nullptr ) {
 		m_pTelemetry->store( snapshot );
+	}
+	// The info snapshot rides the same cycle (ADR 0035 UI-3): the
+	// song-level state the embedded UI's info section shows, built
+	// under the same small-budget lock. A degraded cycle skips
+	// delivery — the consumer keeps its last snapshot.
+	if ( pSink != nullptr ) {
+		if ( const auto info = buildInfoSnapshot( m_pEngine ) ) {
+			pSink->onInfoSnapshot( *info );
+		}
 	}
 }
 

@@ -43,6 +43,10 @@ public:
 	/** One frame of the mixer view's widget tree. */
 	void draw();
 
+	/** The view's model — the window polls it (meter diff) to decide
+	 *  frame requests. */
+	PluginUiMixerModel& model() { return m_model; }
+
 private:
 	/** A vertical fader with an L/R meter pair beside it; true when
 	 * moved (the new value in @a fVolume). */

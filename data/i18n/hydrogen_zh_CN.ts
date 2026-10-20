@@ -906,7 +906,7 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Notes</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.
 ----------
-Label for the number of musical notes contained in a pattern, * shown in the Online Import detail panel. Not to be confused * with the &apos;Notes&apos; label for text annotations in property * dialogs.</extracomment>
+Label for the number of musical notes contained in a pattern, * shown in the Online Import detail panel. Not to be confused * with the &apos;Notes&apos; label for text annotations in property * dialogs. Also the label of the embedded plugin UI&apos;s info * section row showing the current pattern&apos;s note count.</extracomment>
         <translation>音符</translation>
     </message>
     <message>
@@ -977,7 +977,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Length</source>
-        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
+        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor. Also the label of the * embedded plugin UI&apos;s info section row showing the current * pattern&apos;s length in ticks.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1326,7 +1326,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Pattern</source>
-        <extracomment>Indicates a menu section which affects patterns.</extracomment>
+        <extracomment>Indicates a menu section which affects patterns. Also labels the * pattern tab of the embedded plugin UI as well as its info * section&apos;s current pattern row and pattern mode value.</extracomment>
         <translation>样式</translation>
     </message>
     <message>
@@ -1451,7 +1451,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Patterns</source>
-        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <extracomment>Label shown in a tab of the Sound Library. Also the label of the * info section&apos;s pattern count row in the embedded plugin UI&apos;s * landing view.</extracomment>
         <translation>样式</translation>
     </message>
     <message>
@@ -2054,12 +2054,37 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Song</source>
-        <extracomment>A single song, e.g. as a tab label.</extracomment>
+        <extracomment>A single song, e.g. as a tab label. Also labels the embedded * plugin UI&apos;s info section song name row and song mode value.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Editor executable</source>
         <extracomment>Label of the line edit holding the path to the editor * executable in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit</source>
+        <extracomment>Label of the info section&apos;s drumkit row in the embedded plugin * UI&apos;s landing view — the name of the drumkit of the current song.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <extracomment>Label of the info section&apos;s mode row in the embedded plugin UI&apos;s * landing view — whether the current song is in song or pattern * mode.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <extracomment>Label of the info section&apos;s row in the embedded plugin UI&apos;s * landing view showing the total length of the current song in * columns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current column</source>
+        <extracomment>Label of the info section&apos;s row in the embedded plugin UI&apos;s * landing view showing the column the playback position is * currently in.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playing</source>
+        <extracomment>Label of the info section&apos;s row in the embedded plugin UI&apos;s * landing view showing the names of the patterns currently being * played.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
