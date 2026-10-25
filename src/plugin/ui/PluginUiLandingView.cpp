@@ -109,55 +109,65 @@ void PluginUiLandingView::draw()
 	// request-driven.
 	const auto info = m_model.infoSnapshot();
 
-	ImGui::Separator();
+	const auto infoTableFlags =
+		ImGuiTableFlags_BordersOuterH |
+		ImGuiTableFlags_BordersOuterV |
+		ImGuiTableFlags_SizingFixedFit;
 
-	// Empty values (no song, nothing playing) show as a dash instead of
-	// a blank.
-	const auto row = []( const QString& sLabel, const QString& sValue ) {
-		ImGui::TextUnformatted( sLabel.toUtf8().constData() );
-		ImGui::SameLine();
-		const QString sShown = sValue.isEmpty() ? QString( "-" ) : sValue;
-		ImGui::TextUnformatted( sShown.toUtf8().constData() );
-	};
+	if ( ImGui::BeginTable( "infoTable", 2, infoTableFlags ) ) {
+		ImGui::TableSetupColumn( "" ); // labels
+		ImGui::TableSetupColumn( "", ImGuiTableColumnFlags_WidthStretch ); // widgets
 
-	QString sMode;
-	if ( info.mode == Song::Mode::Song ) {
-		sMode = m_pCommonStrings->getSong();
-	}
-	else if ( info.mode == Song::Mode::Pattern ) {
-		sMode = m_pCommonStrings->getPattern();
-	}
-	row( m_pCommonStrings->getModeLabel(), sMode );
-	row( m_pCommonStrings->getSong(), info.sSongName );
-	row( m_pCommonStrings->getDrumkitLabel(), info.sDrumkitName );
+		// Empty values (no song, nothing playing) show as a dash instead of
+		// a blank.
+		const auto row = []( const QString& sLabel, const QString& sValue ) {
+			ImGui::TableNextColumn();
+			ImGui::TextUnformatted( ( sLabel + ":" ).toUtf8().constData() );
 
-	if ( info.mode == Song::Mode::Song ) {
-		row( m_pCommonStrings->getPatternsLabel(),
-			 QString::number( info.nPatternCount ) );
-		row( m_pCommonStrings->getColumnsLabel(),
-			 QString::number( info.nColumnCount ) );
-		row( m_pCommonStrings->getCurrentColumnLabel(),
-			 info.nCurrentColumn >= 0
-				 ? QString::number( info.nCurrentColumn )
-				 : QString() );
-		QString sPlaying;
-		for ( const auto& sName : info.playingPatterns ) {
-			if ( ! sPlaying.isEmpty() ) {
-				sPlaying += ", ";
-			}
-			sPlaying += sName;
+			ImGui::TableNextColumn();
+			const QString sShown = sValue.isEmpty() ? QString( "-" ) : sValue;
+			ImGui::TextUnformatted( sShown.toUtf8().constData() );
+		};
+
+		QString sMode;
+		if ( info.mode == Song::Mode::Song ) {
+			sMode = m_pCommonStrings->getSong();
 		}
-		row( m_pCommonStrings->getPlayingLabel(), sPlaying );
-	}
-	else if ( info.mode == Song::Mode::Pattern ) {
-		row( m_pCommonStrings->getPattern(), info.sPatternName );
-		row( m_pCommonStrings->getNotePropertyLength(),
-			 QString::number( info.nPatternLength ) );
-		row( m_pCommonStrings->getNoteCountLabel(),
-			 QString::number( info.nPatternNoteCount ) );
-	}
+		else if ( info.mode == Song::Mode::Pattern ) {
+			sMode = m_pCommonStrings->getPattern();
+		}
+		row( m_pCommonStrings->getModeLabel(), sMode );
+		row( m_pCommonStrings->getSong(), info.sSongName );
+		row( m_pCommonStrings->getDrumkitLabel(), info.sDrumkitName );
 
-	ImGui::Separator();
+		if ( info.mode == Song::Mode::Song ) {
+			row( m_pCommonStrings->getPatternsLabel(),
+				 QString::number( info.nPatternCount ) );
+			row( m_pCommonStrings->getColumnsLabel(),
+				 QString::number( info.nColumnCount ) );
+			row( m_pCommonStrings->getCurrentColumnLabel(),
+				 info.nCurrentColumn >= 0
+					 ? QString::number( info.nCurrentColumn )
+					 : QString() );
+			QString sPlaying;
+			for ( const auto& sName : info.playingPatterns ) {
+				if ( !sPlaying.isEmpty() ) {
+					sPlaying += ", ";
+				}
+				sPlaying += sName;
+			}
+			row( m_pCommonStrings->getPlayingLabel(), sPlaying );
+		}
+		else if ( info.mode == Song::Mode::Pattern ) {
+			row( m_pCommonStrings->getPattern(), info.sPatternName );
+			row( m_pCommonStrings->getNotePropertyLength(),
+				 QString::number( info.nPatternLength ) );
+			row( m_pCommonStrings->getNoteCountLabel(),
+				 QString::number( info.nPatternNoteCount ) );
+		}
+
+		ImGui::EndTable();
+	}
 
 	// Drumkit loading is independent of the tabs — a kit can be swapped
 	// no matter what is loaded next. The picker lists the sound library
