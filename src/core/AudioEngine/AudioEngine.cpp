@@ -72,8 +72,8 @@ namespace H2Core
 	.arg( getDriverNames() ).arg( x ) );
 #define AE_ERRORLOG(x) ERRORLOG( QString( "[%1] %2" ) \
 	.arg( getDriverNames() ).arg( x ) );
-#define AE_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
-		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
+#define AE_DEBUGLOG(x) if ( Logger::currentLogger()->should_log( Logger::Debug ) ) { \
+		Logger::currentLogger()->log( Logger::Debug, _class_name(), __FUNCTION__, \
 					   QString( "%1" ).arg( x ), "\033[34;1m" ); }
 
 thread_local AudioEngine* AudioEngine::tls_pLockedEngine = nullptr;
