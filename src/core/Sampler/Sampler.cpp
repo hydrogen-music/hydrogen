@@ -1109,8 +1109,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 								  "and sample rate [%5]" )
 							 .arg( nCurrentFrame )
 							 .arg( pNote->toQString() )
-							 .arg( pAudioEngine->getTransportPosition()
-                                   ->getTickSize() )
+							 .arg( pAudioEngine->getPlayhead()->getTickSize() )
                          .arg( nLengthInFrames )
 							 .arg( fSampleRate ) );
 #endif
