@@ -50,12 +50,9 @@ public:
 	 * current song (loadSong + setSong). False without touching the
 	 * current song when the path does not load. */
 	bool loadSong( const QString& sPath );
-	/** Loads the .h2pattern at @a sPath and installs it at
-	 * @a nPatternNumber of the current song (loadPattern +
-	 * setPattern). False without touching the song when the path does
-	 * not load. */
-	bool loadPattern( const QString& sPath, int nPatternNumber,
-					  bool bReplace );
+	/** Loads the .h2pattern at @a sPath and installs it into a new and empty
+	 * song */
+	bool loadPattern( const QString& sPath );
 	/** Loads the drumkit folder at @a sPath and installs it into the
 	 * current song (Drumkit::load + setDrumkit). False without touching
 	 * the song when the path does not load. */

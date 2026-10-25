@@ -52,57 +52,6 @@ PluginUiLandingView::PluginUiLandingView( HydrogenPlugin* pPlugin )
 
 void PluginUiLandingView::draw()
 {
-	// Song and pattern loading are mutually exclusive — a tab bar makes
-	// that explicit. Each tab keeps its keyed IGFD browser.
-	if ( ImGui::BeginTabBar( "##load" ) ) {
-		if ( ImGui::BeginTabItem( m_pCommonStrings->getSong().toUtf8()
-									  .constData() ) ) {
-			if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
-									.constData() ) ) {
-				IGFD::FileDialogConfig config;
-				config.path = ".";
-				config.countSelectionMax = 1;
-				m_fileDialog.OpenDialog(
-					"song",
-					m_pCommonStrings->getSongFileDialogTitle().toStdString(),
-					Filesystem::sSongSuffix.toUtf8() + ", " +
-						Filesystem::sProjectSuffix.toUtf8(),
-					config );
-			}
-			ImGui::EndTabItem();
-		}
-		if ( ImGui::BeginTabItem( m_pCommonStrings->getPattern().toUtf8()
-									  .constData() ) ) {
-			if ( ImGui::Button(
-					 m_pCommonStrings->getLoadPatternButton().toUtf8()
-						 .constData() ) ) {
-				IGFD::FileDialogConfig config;
-				config.path = ".";
-				config.countSelectionMax = 1;
-				m_fileDialog.OpenDialog(
-					"pattern",
-					m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
-					Filesystem::sPatternSuffix.toUtf8(), config );
-			}
-
-			// Pattern-load target: the slot the next pattern load installs
-			// into (0-based, like the GUI's pattern spinbox) and whether it
-			// replaces the slot's current pattern.
-			ImGui::SetNextItemWidth( 72.0f );
-			ImGui::InputInt(
-				m_pCommonStrings->getInputCapturePattern().toUtf8()
-					.constData(),
-				&m_nPatternNumber, 0, 0 );
-			m_nPatternNumber = std::max( 0, m_nPatternNumber );
-			ImGui::SameLine();
-			ImGui::Checkbox(
-				m_pCommonStrings->getReplaceLabel().toUtf8().constData(),
-				&m_bReplacePattern );
-			ImGui::EndTabItem();
-		}
-		ImGui::EndTabBar();
-	}
-
 	// The info section: what the engine is doing right now — the loaded
 	// song and drumkit, the mode, and the mode-specific playback state.
 	// One model snapshot per frame; the frame gate keeps the cadence
@@ -169,14 +118,40 @@ void PluginUiLandingView::draw()
 		ImGui::EndTable();
 	}
 
-	// Drumkit loading is independent of the tabs — a kit can be swapped
-	// no matter what is loaded next. The picker lists the sound library
-	// database's kits instead of browsing the filesystem.
+	// The loading row: the info section above shows the current mode,
+	// so the song/pattern mutual exclusivity is visible without a tab
+	// widget — plain buttons suffice. The drumkit picker lists the
+	// sound library database's kits instead of browsing the filesystem;
+	// the song and pattern buttons keep their keyed IGFD browsers.
 	if ( ImGui::Button( m_pCommonStrings->getActionSwitchDrumkit().toUtf8()
 							.constData() ) ) {
 		const QByteArray sTitle =
 			m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
 		ImGui::OpenPopup( sTitle.constData() );
+	}
+	ImGui::SameLine();
+	if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
+							.constData() ) ) {
+		IGFD::FileDialogConfig config;
+		config.path = ".";
+		config.countSelectionMax = 1;
+		m_fileDialog.OpenDialog(
+			"song",
+			m_pCommonStrings->getSongFileDialogTitle().toStdString(),
+			Filesystem::sSongSuffix.toUtf8() + ", " +
+				Filesystem::sProjectSuffix.toUtf8(),
+			config );
+	}
+	ImGui::SameLine();
+	if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
+							.constData() ) ) {
+		IGFD::FileDialogConfig config;
+		config.path = ".";
+		config.countSelectionMax = 1;
+		m_fileDialog.OpenDialog(
+			"pattern",
+			m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
+			Filesystem::sPatternSuffix.toUtf8(), config );
 	}
 	drawDrumkitPicker();
 
@@ -215,8 +190,7 @@ void PluginUiLandingView::draw()
 	if ( m_fileDialog.Display( "pattern", ImGuiWindowFlags_NoCollapse, minSize ) ) {
 		if ( m_fileDialog.IsOk() ) {
 			m_model.loadPattern(
-				QString::fromStdString( m_fileDialog.GetFilePathName() ),
-				m_nPatternNumber, m_bReplacePattern );
+				QString::fromStdString( m_fileDialog.GetFilePathName() ) );
 		}
 		m_fileDialog.Close();
 	}

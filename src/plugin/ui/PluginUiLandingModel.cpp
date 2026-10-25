@@ -64,11 +64,20 @@ bool PluginUiLandingModel::loadSong( const QString& sPath )
 		return false;
 	}
 
-	return pCAC->setSong( pSong );
+	if ( ! pCAC->setSong( pSong ) ) {
+		___ERRORLOG( "Unable to assign song" );
+		return false;
+	}
+
+	if ( ! pCAC->activateSongMode( true ) ) {
+		___ERRORLOG( "Unable to switch to song mode" );
+		return false;
+	}
+
+	return true;
 }
 
-bool PluginUiLandingModel::loadPattern( const QString& sPath,
-										int nPatternNumber, bool bReplace )
+bool PluginUiLandingModel::loadPattern( const QString& sPath )
 {
 	auto pCAC = m_pPlugin != nullptr
 		? m_pPlugin->getHydrogen()->getCoreActionController() : nullptr;
@@ -82,7 +91,41 @@ bool PluginUiLandingModel::loadPattern( const QString& sPath,
 		return false;
 	}
 
-	return pCAC->setPattern( pPattern, nPatternNumber, bReplace );
+	// Within this simple UI we support loading/playing either and entire song
+	// or just a single pattern. For the latter, we add it to an new and empty
+	// song to ensure we neither modify the current previous song nor have its
+	// properties leak into the pattern. We only support selected pattern mode
+	// in here.
+	auto pSong = Song::getEmptySong( m_pPlugin->getHydrogen() );
+	if ( pSong == nullptr ) {
+		___ERRORLOG( "Unable to retrieve empty song" );
+		return false;
+	}
+	if ( ! pCAC->setSong( pSong ) ) {
+		___ERRORLOG( "Unable to assign empty song" );
+		return false;
+	}
+
+	const int nPatternNumber = 0;
+
+	if ( ! pCAC->setPattern( pPattern, nPatternNumber, /*replace*/true ) ) {
+		___ERRORLOG( "Unable to assign loaded pattern" );
+		return false;
+	}
+
+	if ( ! pCAC->activateSongMode( false ) ) {
+		___ERRORLOG( "Unable to switch to pattern mode" );
+		return false;
+	}
+
+	m_pPlugin->getHydrogen()->setPatternMode( Song::PatternMode::Selected );
+
+	if ( ! pCAC->selectPattern( nPatternNumber ) ) {
+		___ERRORLOG( "Unable to select new pattern" );
+		return false;
+	}
+
+	return true;
 }
 
 bool PluginUiLandingModel::loadDrumkit( const QString& sPath )

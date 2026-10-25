@@ -35,6 +35,7 @@
 #include <plugin/HydrogenPlugin.h>
 
 #include <core/config.h>
+#include <core/CommonStrings.h>
 #include <core/Hydrogen.h>
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
@@ -489,6 +490,143 @@ int main( int argc, char** argv ) {
 		viewWindow.idle();
 		check( viewWindow.renderedFrameCount() == nDataFrames + 2,
 			   "unrequested idle after a reveal rendered a frame (live data)" );
+
+		// Tab switching (the REAPER crash class): a tab branch that
+		// forgets its EndTabItem leaves imgui's ID stack non-empty and
+		// the debug assert aborts the HOST process. No gate sees this
+		// unless a frame is rendered with the tab selected — so click
+		// through every tab of the window's tab bar; the survival of
+		// these frames IS the check.
+		//
+		// The click points are measured, not hardcoded: a probe frame
+		// in the window's own imgui context (same style, font, and
+		// display size) replicates the window's tab structure and
+		// reads the tab rects off the items — the points track any
+		// scale factor, font, or translation. The probe runs twice: on
+		// a tab bar's first frame imgui reports empty rects for
+		// appearing tabs, so the second frame carries the layout.
+		const auto pCommonStrings = plugin.commonStrings();
+		const QByteArray sTabGeneral =
+			pCommonStrings->getTabGeneralDialog().toUtf8();
+		const QByteArray sTabMapping = pCommonStrings->getMappingTab().toUtf8();
+		const QByteArray sTabMixer = pCommonStrings->getMixerTab().toUtf8();
+		const auto itemCenter = [] {
+			const ImVec2 mn = ImGui::GetItemRectMin();
+			const ImVec2 mx = ImGui::GetItemRectMax();
+			return ImVec2( ( mn.x + mx.x ) * 0.5f, ( mn.y + mx.y ) * 0.5f );
+		};
+		ImVec2 tabCenters[ 3 ] = {}; // general, mapping, mixer
+		for ( int nProbeFrame = 0; nProbeFrame < 2; ++nProbeFrame ) {
+			ImGui::NewFrame();
+			ImGui::SetNextWindowPos( ImVec2( 0.0f, 0.0f ) );
+			ImGui::SetNextWindowSize( ImGui::GetIO().DisplaySize );
+			ImGui::Begin( "##tabProbe", nullptr,
+						  ImGuiWindowFlags_NoTitleBar |
+							  ImGuiWindowFlags_NoResize |
+							  ImGuiWindowFlags_NoMove |
+							  ImGuiWindowFlags_NoCollapse |
+							  ImGuiWindowFlags_NoSavedSettings |
+							  // The probe window outlives its frames in
+							  // imgui's window list; without this it
+							  // would shadow the real window in the
+							  // mouse hit-test of the next frame and
+							  // swallow the first tab click's hover
+							  // lead-in.
+							  ImGuiWindowFlags_NoMouseInputs );
+			if ( ImGui::BeginTabBar( "##tabs" ) ) {
+				const bool bGeneral =
+					ImGui::BeginTabItem( sTabGeneral.constData() );
+				tabCenters[ 0 ] = itemCenter();
+				if ( bGeneral ) {
+					ImGui::EndTabItem();
+				}
+				const bool bMapping =
+					ImGui::BeginTabItem( sTabMapping.constData() );
+				tabCenters[ 1 ] = itemCenter();
+				if ( bMapping ) {
+					ImGui::EndTabItem();
+				}
+				const bool bMixer =
+					ImGui::BeginTabItem( sTabMixer.constData() );
+				tabCenters[ 2 ] = itemCenter();
+				if ( bMixer ) {
+					ImGui::EndTabItem();
+				}
+				ImGui::EndTabBar();
+			}
+			ImGui::End();
+			ImGui::EndFrame();
+		}
+		const ImVec2 probeDisplaySize = ImGui::GetIO().DisplaySize;
+		for ( const auto& center : tabCenters ) {
+			check( center.x > 0.0f && center.x < probeDisplaySize.x &&
+					   center.y > 0.0f && center.y < probeDisplaySize.y,
+				   "tab probe measured a degenerate rect (tab switch)" );
+		}
+		// The probe's frames are the only ones where the real window is
+		// not submitted, and imgui's mouse hit-test only considers
+		// windows of the previous frame — one plain frame restores the
+		// real window's hoverability before the first click's lead-in.
+		std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+		viewWindow.requestFrame();
+		viewWindow.idle();
+		auto sendViewButton = [ pDisplay, viewChild ]( int type, int x, int y ) {
+			if ( viewChild == None ) {
+				return;
+			}
+			XEvent ev = {};
+			ev.xbutton.type = type;
+			ev.xbutton.window = viewChild;
+			ev.xbutton.x = x;
+			ev.xbutton.y = y;
+			ev.xbutton.button = 1;
+			// The smoke's connection did not create the child, so the
+			// event lands on the backend's connection; sync so it is
+			// queued there before idle() pumps.
+			XSendEvent( pDisplay, viewChild, False, 0, &ev );
+			XSync( pDisplay, False );
+		};
+		auto clickViewTab = [ & ]( const ImVec2& center ) {
+			const int x = static_cast<int>( center.x );
+			const int y = static_cast<int>( center.y );
+			// Tab items carry ImGuiButtonFlags_AllowOverlap, and imgui
+			// defers the hover of such items for one frame after the
+			// mouse arrives (ItemHoverable requires the item to have
+			// been the hovered id of the previous frame). The motion
+			// therefore needs its own rendered frame before the press
+			// lands, or the tab is not hoverable yet and the click is
+			// ignored. The backend only tracks the position from
+			// motion events, and a click is only processed by a
+			// rendered frame — the sleep + request pair guarantees one
+			// past the 30 Hz gate, for the hover lead-in, the press,
+			// and the release each.
+			XEvent ev = {};
+			ev.xmotion.type = MotionNotify;
+			ev.xmotion.window = viewChild;
+			ev.xmotion.x = x;
+			ev.xmotion.y = y;
+			XSendEvent( pDisplay, viewChild, False, 0, &ev );
+			XSync( pDisplay, False );
+			std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+			viewWindow.requestFrame();
+			viewWindow.idle();
+			sendViewButton( ButtonPress, x, y );
+			std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+			viewWindow.requestFrame();
+			viewWindow.idle();
+			sendViewButton( ButtonRelease, x, y );
+			std::this_thread::sleep_for( std::chrono::milliseconds( 40 ) );
+			viewWindow.requestFrame();
+			viewWindow.idle();
+		};
+		const unsigned nTabFrames = viewWindow.renderedFrameCount();
+		// The window tabs: the Mapping and Mixer renderers have never
+		// been drawn by a gate before this; then back to General.
+		clickViewTab( tabCenters[ 1 ] );
+		clickViewTab( tabCenters[ 2 ] );
+		clickViewTab( tabCenters[ 0 ] );
+		check( viewWindow.renderedFrameCount() > nTabFrames,
+			   "tab clicks did not render frames (tab switch)" );
 	}
 	// Teardown must leave no child window behind.
 	XSync( pDisplay, false );

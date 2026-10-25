@@ -80,33 +80,12 @@ void PluginUiModelTest::testLandingLoadCommands()
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( pSong != pSongBefore );
+	CPPUNIT_ASSERT( pHydrogen->getMode() == Song::Mode::Song );
 	ASSERT_SONG( pSong );
 
 	// An unloadable path leaves the current song untouched.
 	CPPUNIT_ASSERT( ! model.loadSong( "/nonexistent/nope.h2song" ) );
 	CPPUNIT_ASSERT( pHydrogen->getSong() == pSong );
-
-	// Pattern: load + install at position 0 of the current song.
-	auto pPatternList = pSong->getPatternList();
-	CPPUNIT_ASSERT( pPatternList != nullptr );
-	const int nPatternsBefore = pPatternList->size();
-	CPPUNIT_ASSERT( model.loadPattern(
-		H2TEST_FILE( "pattern/pattern.h2pattern" ), 0, false ) );
-	CPPUNIT_ASSERT( pPatternList->size() == nPatternsBefore + 1 );
-	CPPUNIT_ASSERT( pPatternList->get( 0 ) != nullptr );
-	CPPUNIT_ASSERT( pPatternList->get( 0 )->getName() == "pat" );
-
-	// A second load replacing position 0 swaps the pattern in place.
-	CPPUNIT_ASSERT( model.loadPattern(
-		H2TEST_FILE( "pattern/empty.h2pattern" ), 0, true ) );
-	CPPUNIT_ASSERT( pPatternList->size() == nPatternsBefore + 1 );
-	CPPUNIT_ASSERT( pPatternList->get( 0 ) != nullptr );
-	CPPUNIT_ASSERT( pPatternList->get( 0 )->getName() == "Pattern" );
-
-	// An unloadable path leaves the pattern list untouched.
-	CPPUNIT_ASSERT( ! model.loadPattern( "/nonexistent/nope.h2pattern",
-										 0, false ) );
-	CPPUNIT_ASSERT( pPatternList->size() == nPatternsBefore + 1 );
 
 	// Drumkit: load + install into the current song.
 	CPPUNIT_ASSERT( model.loadDrumkit(
@@ -118,6 +97,37 @@ void PluginUiModelTest::testLandingLoadCommands()
 	// An unloadable path leaves the current kit untouched.
 	CPPUNIT_ASSERT( ! model.loadDrumkit( "/nonexistent/nope" ) );
 	CPPUNIT_ASSERT( pHydrogen->getSong()->getDrumkit() == pDrumkit );
+
+	// Pattern: load + install it. Note that this also replaces the current song
+	// with a new and empty one.
+	CPPUNIT_ASSERT( model.loadPattern(
+		H2TEST_FILE( "pattern/pattern.h2pattern" ) ) );
+	CPPUNIT_ASSERT( pHydrogen->getMode() == Song::Mode::Pattern );
+	auto pNewSong = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pSong != pNewSong );
+	CPPUNIT_ASSERT( pNewSong != nullptr );
+	auto pPatternList = pNewSong->getPatternList();
+	CPPUNIT_ASSERT( pPatternList != nullptr );
+	CPPUNIT_ASSERT( pPatternList->size() > 0 );
+	CPPUNIT_ASSERT( pPatternList->get( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pPatternList->get( 0 )->getName() == "pat" );
+	CPPUNIT_ASSERT( pHydrogen->getPatternMode() == Song::PatternMode::Selected );
+
+	// A second load replacing the song as well.
+	CPPUNIT_ASSERT( model.loadPattern(
+		H2TEST_FILE( "pattern/empty.h2pattern" ) ) );
+	auto pNewSong2 = pHydrogen->getSong();
+	CPPUNIT_ASSERT( pNewSong2 != pNewSong );
+	CPPUNIT_ASSERT( pNewSong2 != nullptr );
+	auto pPatternList2 = pNewSong2->getPatternList();
+	CPPUNIT_ASSERT( pPatternList2 != nullptr );
+	CPPUNIT_ASSERT( pPatternList2->size() > 0 );
+	CPPUNIT_ASSERT( pPatternList2->get( 0 ) != nullptr );
+	CPPUNIT_ASSERT( pPatternList2->get( 0 )->getName() == "Pattern" );
+
+	// An unloadable path leaves the pattern and song untouched.
+	CPPUNIT_ASSERT( ! model.loadPattern( "/nonexistent/nope.h2pattern" ) );
+	CPPUNIT_ASSERT( pNewSong2 == pHydrogen->getSong() );
 
 	// Editor button: forwards to the plugin's editor seam. No process
 	// spawn in the unit test — the always-on session (UI-3) serves the

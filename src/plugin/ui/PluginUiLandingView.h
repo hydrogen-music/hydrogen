@@ -57,9 +57,6 @@ private:
 	PluginUiLandingModel m_model;
 	std::shared_ptr<CommonStrings> m_pCommonStrings;
 	IGFD::FileDialog m_fileDialog;
-	// Pattern-load target state (the pattern row's widgets).
-	int m_nPatternNumber = 0;
-	bool m_bReplacePattern = false;
 	// The editor executable line edit's content (UTF-8), prefilled with
 	// the resolved default at startup.
 	std::array<char, 4096> m_sEditorExecutableBuffer{};
