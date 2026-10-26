@@ -43,7 +43,10 @@
 #include <core/Preferences/Preferences.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QFile>
 #include <QtCore/QThread>
+#include <QtNetwork/QLocalServer>
+#include <QtNetwork/QLocalSocket>
 
 #include <memory>
 #include <atomic>
@@ -624,6 +627,49 @@ void IpcTransportTest::testTelemetrySharedMemory() {
 
 	reader.detach();
 	writer.detach();
+
+	___INFOLOG( "passed" );
+}
+
+#ifndef WIN32
+void IpcTransportTest::testListenClearsStaleSocketFile() {
+	___INFOLOG( "" );
+
+	// A crashed previous run leaves its socket file behind; Qt reports
+	// AddressInUse for any existing file and never clears it itself, so
+	// listen() must clear it on our behalf.
+	const QString sName = uniqueServerName();
+	QFile stale( "/tmp/" + sName );
+	CPPUNIT_ASSERT( stale.open( QIODevice::WriteOnly ) );
+	stale.close();
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( sName ) );
+
+	___INFOLOG( "passed" );
+}
+#endif
+
+void IpcTransportTest::testListenDoesNotStealLiveEndpoint() {
+	___INFOLOG( "" );
+
+	// A second Hydrogen instance in the same host process computes the same
+	// endpoint name only when their instance ids collide; whatever the
+	// cause, a bind attempt must fail cleanly instead of unlinking the
+	// live server's socket - which would silently kill the first
+	// instance's editor seam.
+	const QString sName = uniqueServerName();
+	QLocalServer live;
+	CPPUNIT_ASSERT( live.listen( sName ) );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( ! server.listen( sName ) );
+
+	// The live server still accepts connections: its endpoint was not
+	// stolen.
+	QLocalSocket client;
+	client.connectToServer( sName );
+	CPPUNIT_ASSERT( client.waitForConnected( 1000 ) );
 
 	___INFOLOG( "passed" );
 }

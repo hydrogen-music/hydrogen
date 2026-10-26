@@ -54,7 +54,7 @@
 #include <core/Logger.h>
 
 #include <atomic>
-#include <QtCore/QCoreApplication>
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <core/Helpers/TimeHelper.h>
 #include <core/IO/AlsaAudioDriver.h>
@@ -92,8 +92,9 @@ namespace H2Core
 //----------------------------------------------------------------------------
 
 // Source for the per-instance ids exposed via Hydrogen::getInstanceId().
-// Deliberately separate from the instance counter used for naming plugin
-// log files (which only counts plugin-hosted instances).
+// Plugin-hosted instances take their id from the exclusively created
+// instance log file (see the constructor); this counter backs the fallback
+// path and all non-plugin instances.
 static std::atomic<int> sInstanceIdCounter { 0 };
 
 Hydrogen::Hydrogen(
@@ -133,15 +134,15 @@ Hydrogen::Hydrogen(
 	m_nInstanceId = sInstanceIdCounter++;
 	m_pEventQueue = new EventQueue( this );
 
-	// Per-instance Logger (ADR 0015, T1.6): its own queue/worker/log file, with
-	// a path made unique per process+instance (pid + counter). Mirrors the
-	// process-default logger's stdout/colour settings so console verbosity is
-	// unchanged; the default logger remains the unscoped/static fallback. The
-	// instance entry points (e.g. the audio process callback) wrap work in a
-	// Logger::Scope( getLogger() ) so logging routes here. The file is opened
-	// append-only: its pid-based name can recur after pid reuse, and
-	// truncating would destroy the previous session's log.
-	static std::atomic<int> nInstanceCounter { 0 };
+	// Per-instance Logger (ADR 0015, T1.6): its own queue/worker/log file,
+	// with a path made unique per instance (an exclusively created suffix
+	// file). Mirrors the process-default logger's stdout/colour settings so
+	// console verbosity is unchanged; the default logger remains the
+	// unscoped/static fallback. The instance entry points (e.g. the audio
+	// process callback) wrap work in a Logger::Scope( getLogger() ) so
+	// logging routes here. The file is opened append-only: the fallback
+	// name can recur, and truncating would destroy the previous session's
+	// log.
 	const QFileInfo defaultLogInfo( Filesystem::logFilePath() );
 	if ( pPref->m_audioDriver == Preferences::AudioDriver::Plugin ) {
 		// Only in case Hydrogen was instantiated by a plugin host, we use a
@@ -152,13 +153,47 @@ Hydrogen::Hydrogen(
 		// designates just that one file, not a dumping ground for every
 		// instance's log. The spawning announcement below carries the full
 		// path, so the shared log still doubles as the index.
-		const QString sInstanceLogPath =
-			Filesystem::tmpDir() + "/" +
-			defaultLogInfo.completeBaseName() +
-			QString( "_%1_%2." )
-				.arg( QCoreApplication::applicationPid() )
-				.arg( nInstanceCounter++ ) +
-			defaultLogInfo.suffix();
+		//
+		// The instance suffix is allocated by exclusively creating the
+		// file: a plugin host links the core statically into every format
+		// module (VST3, CLAP, LV2), so per-module counters cannot see each
+		// other's instances - the filesystem can. The pid is already part
+		// of the process default's base name (the host bootstraps it as
+		// hydrogen_<pid>_plugin.log), so the suffix alone keeps the files
+		// unique within the process.
+		const QString sInstanceLogBase = Filesystem::tmpDir() + "/" +
+			defaultLogInfo.completeBaseName();
+		const QString sInstanceLogSuffix = "." + defaultLogInfo.suffix();
+		QString sInstanceLogPath;
+		for ( int ii = 0; ii < 1000; ++ii ) {
+			QFile instanceLog( sInstanceLogBase + QString( "_%1" ).arg( ii ) +
+							   sInstanceLogSuffix );
+			if ( ! instanceLog.open( QIODevice::WriteOnly |
+									 QIODevice::NewOnly ) ) {
+				if ( ! instanceLog.exists() ) {
+					// Not a taken suffix but a real error (permissions, a
+					// full disk): fall back to the per-module id below.
+					break;
+				}
+				continue;
+			}
+			instanceLog.close();
+			// The winning suffix is the process-wide instance id: the
+			// editor endpoint and the plugin state cache key are keyed on
+			// it and must not collide with the instances holding the
+			// other suffixes.
+			m_nInstanceId = ii;
+			sInstanceLogPath = instanceLog.fileName();
+			break;
+		}
+		if ( sInstanceLogPath.isEmpty() ) {
+			sInstanceLogPath = sInstanceLogBase + QString( "_%1" )
+				.arg( m_nInstanceId ) + sInstanceLogSuffix;
+			WARNINGLOG( QString( "Unable to allocate an instance log file "
+								 "in [%1]; falling back to [%2]" )
+						 .arg( Filesystem::tmpDir() )
+						 .arg( sInstanceLogPath ) );
+		}
 		// No Scope is active during construction, so currentLogger() resolves
 		// to the process-default logger — read its settings to mirror them
 		// (console verbosity, timestamps).

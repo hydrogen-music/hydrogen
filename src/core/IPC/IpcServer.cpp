@@ -26,6 +26,17 @@
 
 namespace H2Core {
 
+namespace {
+
+// Whether anything currently accepts connections on the endpoint.
+bool isEndpointLive( const QString& sName ) {
+	QLocalSocket probe;
+	probe.connectToServer( sName );
+	return probe.waitForConnected( 100 );
+}
+
+} // namespace
+
 IpcServer::IpcServer( QObject* pParent )
 	: QObject( pParent )
 	, m_pServer( new QLocalServer( this ) ) {
@@ -39,8 +50,14 @@ IpcServer::IpcServer( QObject* pParent )
 IpcServer::~IpcServer() = default;
 
 bool IpcServer::listen( const QString& sName ) {
-	// Clear any stale socket file left by a crashed previous run.
-	QLocalServer::removeServer( sName );
+	// Clear any socket file left behind by a crashed previous run: Qt
+	// reports AddressInUse for any existing file and never clears it
+	// itself. Only when nothing accepts on the name - a live endpoint's
+	// socket file must not be unlinked, as stealing it would silently kill
+	// the first instance's editor seam.
+	if ( ! isEndpointLive( sName ) ) {
+		QLocalServer::removeServer( sName );
+	}
 
 	IPCLOG( QString( "Listening to [%1]" ).arg( sName ) );
 

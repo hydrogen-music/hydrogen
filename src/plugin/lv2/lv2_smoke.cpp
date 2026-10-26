@@ -404,9 +404,10 @@ int main( int argc, char** argv ) {
 	// starts with the plugin instance and serves for its whole lifetime),
 	// binding a QLocalServer named "hydrogen-editor-<pid>-<instance id>"
 	// (HydrogenPlugin.cpp). This process hosts exactly one engine instance,
-	// and the per-instance counter starts at 0 (Hydrogen.cpp), so the id is
-	// 0. The editor PROCESS is only ever spawned by the landing view's Open
-	// editor button (UI-5, TU5.7) — show() must not spawn it.
+	// and its instance log file suffix is allocated first in this fresh
+	// process (Hydrogen.cpp), so the id is 0. The editor PROCESS is only
+	// ever spawned by the landing view's Open editor button (UI-5, TU5.7)
+	// — show() must not spawn it.
 	const QString sEndpoint = QString( "hydrogen-editor-%1-%2" )
 		.arg( QCoreApplication::applicationPid() ).arg( 0 );
 

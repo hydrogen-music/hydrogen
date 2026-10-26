@@ -30,7 +30,6 @@
 #include <memory>
 #include <thread>
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -306,13 +305,10 @@ void LoggerInstanceTest::testConstructionRoutesToInstanceLogger() {
 	___INFOLOG( "" );
 
 	const QFileInfo logInfo( Filesystem::logFilePath() );
-	// The instance files live in the tmp dir, named after the process
-	// default's log file (its base name + pid + instance counter).
 	const QDir logDir( Filesystem::tmpDir() );
 	// The instance files derive their names from the process default's log
-	// file (its base name + pid + instance counter).
-	const QString sPattern = logInfo.completeBaseName() + "_" +
-		QString::number( QCoreApplication::applicationPid() ) + "_*.log";
+	// file (its base name + the instance's log file suffix).
+	const QString sPattern = logInfo.completeBaseName() + "_*.log";
 
 	// Other fixtures spawn Plugin-driver instances too; only files that
 	// appear while this test runs count as ours.
@@ -349,13 +345,10 @@ void LoggerInstanceTest::testDestructionRoutesToInstanceLogger() {
 	___INFOLOG( "" );
 
 	const QFileInfo logInfo( Filesystem::logFilePath() );
-	// The instance files live in the tmp dir, named after the process
-	// default's log file (its base name + pid + instance counter).
 	const QDir logDir( Filesystem::tmpDir() );
 	// The instance files derive their names from the process default's log
-	// file (its base name + pid + instance counter).
-	const QString sPattern = logInfo.completeBaseName() + "_" +
-		QString::number( QCoreApplication::applicationPid() ) + "_*.log";
+	// file (its base name + the instance's log file suffix).
+	const QString sPattern = logInfo.completeBaseName() + "_*.log";
 
 	// Other fixtures spawn Plugin-driver instances too; only files that
 	// appear while this test runs count as ours.
@@ -394,8 +387,7 @@ void LoggerInstanceTest::testInstanceFilesStayInTmpDir() {
 	// the instance files must not follow it there).
 	const QFileInfo processLogInfo( Logger::get_instance()->getLogFile() );
 	const QDir instanceDir( Filesystem::tmpDir() );
-	const QString sPattern = processLogInfo.completeBaseName() + "_" +
-		QString::number( QCoreApplication::applicationPid() ) + "_*.log";
+	const QString sPattern = processLogInfo.completeBaseName() + "_*.log";
 
 	// Other fixtures spawn Plugin-driver instances too; only files that
 	// appear while this test runs count as ours.
