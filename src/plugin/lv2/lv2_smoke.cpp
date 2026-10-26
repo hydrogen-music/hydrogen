@@ -29,9 +29,13 @@
 
 #include <lv2/core/lv2.h>
 #include <lv2/atom/atom.h>
+#include <lv2/atom/forge.h>
 #include <lv2/urid/urid.h>
 #include <lv2/ui/ui.h>
 #include <lv2/instance-access/instance-access.h>
+#include <lv2/time/time.h>
+
+#include <plugin/lv2/Lv2Transport.h>
 
 #include <algorithm>
 #include <chrono>
@@ -158,19 +162,27 @@ int main( int argc, char** argv ) {
 	}
 
 	const uint32_t nFrames = 256;
-	// 1 MIDI in + 2 master + 2 * H2_PLUGIN_OUTPUT_BUSES; query indices from the
-	// descriptor is overkill - we connect a generous, fixed count.
-	const uint32_t nPorts = 1 + 2 + 2 * 32;
+	// 1 control + 1 MIDI in + 2 master + 2 * H2_PLUGIN_OUTPUT_BUSES; query
+	// indices from the descriptor is overkill - we connect a generous, fixed
+	// count.
+	const uint32_t nPorts = 2 + 2 + 2 * 32;
 
-	// An empty MIDI sequence on port 0 (no events).
+	// Empty atom sequences on the two input ports (no events, no transport
+	// published this block).
+	LV2_Atom_Sequence control;
+	std::memset( &control, 0, sizeof( control ) );
+	control.atom.size = sizeof( LV2_Atom_Sequence_Body );
+	control.atom.type = mapUri( nullptr, LV2_ATOM__Sequence );
+	d->connect_port( inst, 0, &control );
+
 	LV2_Atom_Sequence midi;
 	std::memset( &midi, 0, sizeof( midi ) );
 	midi.atom.size = sizeof( LV2_Atom_Sequence_Body );
-	midi.atom.type = mapUri( nullptr, "http://lv2plug.in/ns/ext/atom#Sequence" );
-	d->connect_port( inst, 0, &midi );
+	midi.atom.type = mapUri( nullptr, LV2_ATOM__Sequence );
+	d->connect_port( inst, 1, &midi );
 
 	std::vector<std::vector<float>> audio( nPorts );
-	for ( uint32_t p = 1; p < nPorts; ++p ) {
+	for ( uint32_t p = 2; p < nPorts; ++p ) {
 		audio[p].assign( nFrames, 0.0f );
 		d->connect_port( inst, p, audio[p].data() );
 	}
@@ -181,6 +193,136 @@ int main( int argc, char** argv ) {
 	for ( int b = 0; b < 8; ++b ) {
 		d->run( inst, nFrames );
 	}
+
+	// ── Transport checks (time:Position, ADR 0013) ─────────────────────────
+	// The latch (Lv2Transport.h) is the module's transport parser, shared
+	// source with this smoke: forge host atom sequences and check the parse
+	// directly. The engine's following of the published values is covered by
+	// the FakePluginHost transport tests; here the end-to-end part only
+	// proves the module digests a published transport without disturbing the
+	// render.
+	bool bTransportOk = true;
+	{
+		H2Core::Lv2TransportLatch latch;
+		latch.mapUrids( &map );
+
+		// Forge a control sequence carrying one time:Position object with
+		// the given properties (flags skip frame / bpm, modeling a host
+		// that publishes only what it knows).
+		uint8_t controlBuf[ 512 ];
+		auto forgePosition = [ & ]( float fSpeed, bool bWithFrame,
+									long long nFrameArg, bool bWithBpm,
+									float fBpmArg ) -> LV2_Atom_Sequence* {
+			LV2_Atom_Forge forge;
+			lv2_atom_forge_init( &forge, &map );
+			lv2_atom_forge_set_buffer( &forge, controlBuf,
+									   sizeof( controlBuf ) );
+			LV2_Atom_Forge_Frame seq;
+			lv2_atom_forge_sequence_head( &forge, &seq, 0 );
+			lv2_atom_forge_frame_time( &forge, 0 );
+			LV2_Atom_Forge_Frame obj;
+			lv2_atom_forge_object( &forge, &obj, 0,
+								   mapUri( nullptr, LV2_TIME__Position ) );
+			lv2_atom_forge_key( &forge, mapUri( nullptr, LV2_TIME__speed ) );
+			lv2_atom_forge_float( &forge, fSpeed );
+			if ( bWithFrame ) {
+				lv2_atom_forge_key( &forge, mapUri( nullptr, LV2_TIME__frame ) );
+				lv2_atom_forge_long( &forge, nFrameArg );
+			}
+			if ( bWithBpm ) {
+				lv2_atom_forge_key( &forge,
+									mapUri( nullptr, LV2_TIME__beatsPerMinute ) );
+				lv2_atom_forge_float( &forge, fBpmArg );
+			}
+			lv2_atom_forge_pop( &forge, &obj );
+			lv2_atom_forge_pop( &forge, &seq );
+			return reinterpret_cast<LV2_Atom_Sequence*>( controlBuf );
+		};
+
+		// Rolling at 132 BPM from frame 44100: all three latch.
+		latch.read( forgePosition( 1.0f, true, 44100, true, 132.0f ) );
+		if ( ! latch.bRolling || latch.fBpm != 132.0 || latch.nFrame != 44100 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not adopt a rolling position\n" );
+		}
+
+		// An empty control sequence (a host that writes only on change): the
+		// latched state stands, and advance() moves the frame while rolling.
+		latch.read( &control );
+		latch.advance( nFrames );
+		if ( ! latch.bRolling || latch.fBpm != 132.0 ||
+			 latch.nFrame != 44100 + 256 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not hold its state over an empty block\n" );
+		}
+
+		// Stopped (speed 0) at a new frame: rolling clears and the frame
+		// relocates; the unresent tempo latches on. advance() stands while
+		// stopped.
+		latch.read( forgePosition( 0.0f, true, 88200, false, 0.0f ) );
+		latch.advance( nFrames );
+		if ( latch.bRolling || latch.nFrame != 88200 || latch.fBpm != 132.0 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not follow a stop\n" );
+		}
+
+		// Reverse (speed -1) cannot be rendered: latches as stopped.
+		latch.read( forgePosition( -1.0f, false, 0, false, 0.0f ) );
+		if ( latch.bRolling ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: reverse transport latched as rolling\n" );
+		}
+
+		// A wrong-typed property (frame as Float instead of Long) is
+		// skipped: the latched frame survives.
+		{
+			LV2_Atom_Forge forge;
+			lv2_atom_forge_init( &forge, &map );
+			lv2_atom_forge_set_buffer( &forge, controlBuf,
+									   sizeof( controlBuf ) );
+			LV2_Atom_Forge_Frame seq;
+			lv2_atom_forge_sequence_head( &forge, &seq, 0 );
+			lv2_atom_forge_frame_time( &forge, 0 );
+			LV2_Atom_Forge_Frame obj;
+			lv2_atom_forge_object( &forge, &obj, 0,
+								   mapUri( nullptr, LV2_TIME__Position ) );
+			lv2_atom_forge_key( &forge, mapUri( nullptr, LV2_TIME__frame ) );
+			lv2_atom_forge_float( &forge, 123.0f ); // spec says Long
+			lv2_atom_forge_pop( &forge, &obj );
+			lv2_atom_forge_pop( &forge, &seq );
+			latch.read( reinterpret_cast<LV2_Atom_Sequence*>( controlBuf ) );
+		}
+		if ( latch.nFrame != 88200 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: wrong-typed frame property was not skipped\n" );
+		}
+
+		// End-to-end: the module's run() must digest a published transport
+		// (rolling, then stopped) without disturbing the render.
+		d->connect_port( inst, 0,
+			forgePosition( 1.0f, true, 44100, true, 132.0f ) );
+		for ( int b = 0; b < 4; ++b ) {
+			d->run( inst, nFrames );
+		}
+		d->connect_port( inst, 0,
+			forgePosition( 0.0f, true, 88200, false, 0.0f ) );
+		for ( int b = 0; b < 2; ++b ) {
+			d->run( inst, nFrames );
+		}
+		for ( uint32_t p = 2; p <= 3; ++p ) {
+			for ( float v : audio[ p ] ) {
+				if ( ! std::isfinite( v ) ) {
+					bTransportOk = false;
+				}
+			}
+		}
+	}
+
 	if ( d->deactivate != nullptr ) {
 		d->deactivate( inst );
 	}
@@ -561,7 +703,7 @@ int main( int argc, char** argv ) {
 	}
 
 	bool bOk = true;
-	for ( uint32_t p = 1; p <= 2; ++p ) {
+	for ( uint32_t p = 2; p <= 3; ++p ) {
 		for ( float v : audio[p] ) {
 			if ( ! std::isfinite( v ) ) {
 				bOk = false;
@@ -570,7 +712,7 @@ int main( int argc, char** argv ) {
 	}
 	dlClose( h );
 
-	const bool bPassed = bOk && bUiOk;
+	const bool bPassed = bOk && bUiOk && bTransportOk;
 	std::printf( bPassed ? "LV2 SMOKE: PASSED\n" : "LV2 SMOKE: FAILED\n" );
 	return bPassed ? 0 : 1;
 }

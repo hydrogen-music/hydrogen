@@ -21,9 +21,10 @@
 
 // Native LV2 plugin (ADR 0014). A thin C-ABI shim over the format-agnostic
 // HydrogenPlugin engine wrapper. Ports (must match the generated hydrogen.ttl):
-//   0           : MIDI in       (atom sequence input)
-//   1, 2        : master out    L, R
-//   3, 4        : bus 0 out      L, R
+//   0           : control in    (atom sequence input, time:Position)
+//   1           : MIDI in       (atom sequence input)
+//   2, 3        : master out    L, R
+//   4, 5        : bus 0 out      L, R
 //   ...         : bus i out      L, R   (for i in 0 .. H2_PLUGIN_OUTPUT_BUSES-1)
 
 #include <lv2/core/lv2.h>
@@ -35,6 +36,7 @@
 #include <lv2/instance-access/instance-access.h>
 
 #include <plugin/HydrogenPlugin.h>
+#include <plugin/lv2/Lv2Transport.h>
 #include <plugin/ui/PluginUiWindow.h>
 
 #include <cstdint>
@@ -59,20 +61,25 @@ constexpr int kNumBuses = H2_PLUGIN_OUTPUT_BUSES;
 constexpr uint32_t kMaxBlock = 8192;
 
 // Port indices.
-constexpr uint32_t kPortMidiIn = 0;
-constexpr uint32_t kPortMasterL = 1;
-constexpr uint32_t kPortMasterR = 2;
-constexpr uint32_t kPortBusBase = 3; // bus i: base + 2*i (L), +1 (R)
+constexpr uint32_t kPortControlIn = 0; // time:Position (transport) atom input
+constexpr uint32_t kPortMidiIn = 1;
+constexpr uint32_t kPortMasterL = 2;
+constexpr uint32_t kPortMasterR = 3;
+constexpr uint32_t kPortBusBase = 4; // bus i: base + 2*i (L), +1 (R)
 
 int toH2Channel( int nMidiChannel ) { return nMidiChannel + 1; }
 
 struct H2Lv2 {
 	HydrogenPlugin* engine = nullptr;
 	double sampleRate = 44100.0;
-	long long nFrame = 0;
+
+	// Host transport latch (time:Position, ADR 0013): the last published
+	// state, self-advancing while rolling.
+	H2Core::Lv2TransportLatch transport;
 
 	LV2_URID midiEventType = 0;
 
+	const LV2_Atom_Sequence* controlIn = nullptr;
 	const LV2_Atom_Sequence* midiIn = nullptr;
 	float* masterL = nullptr;
 	float* masterR = nullptr;
@@ -99,6 +106,7 @@ LV2_Handle instantiate( const LV2_Descriptor*, double sample_rate,
 	}
 	p->sampleRate = sample_rate;
 	p->midiEventType = map->map( map->handle, LV2_MIDI__MidiEvent );
+	p->transport.mapUrids( map );
 	p->busL.assign( kNumBuses, nullptr );
 	p->busR.assign( kNumBuses, nullptr );
 	p->engine = new ( std::nothrow )
@@ -117,7 +125,9 @@ LV2_Handle instantiate( const LV2_Descriptor*, double sample_rate,
 
 void connect_port( LV2_Handle instance, uint32_t port, void* data ) {
 	auto* p = static_cast<H2Lv2*>( instance );
-	if ( port == kPortMidiIn ) {
+	if ( port == kPortControlIn ) {
+		p->controlIn = static_cast<const LV2_Atom_Sequence*>( data );
+	} else if ( port == kPortMidiIn ) {
 		p->midiIn = static_cast<const LV2_Atom_Sequence*>( data );
 	} else if ( port == kPortMasterL ) {
 		p->masterL = static_cast<float*>( data );
@@ -172,11 +182,16 @@ void run( LV2_Handle instance, uint32_t sample_count ) {
 		}
 	}
 
-	// LV2 transport (time:Position) sync is a follow-up; notes trigger
-	// regardless of transport, which is the primary drum-machine use.
+	// LV2 transport (time:Position, ADR 0013): the host publishes its
+	// position on the control port; the latch keeps the last known state
+	// between updates and self-advances the frame while rolling. The engine
+	// follows the published transport; notes trigger regardless of
+	// transport, which is the primary drum-machine use.
+	p->transport.read( p->controlIn );
 	p->engine->process( sample_count, p->masterL, p->masterR, p->busL, p->busR,
-						/*bRolling=*/false, /*fBpm=*/0.0, p->nFrame );
-	p->nFrame += sample_count;
+						p->transport.bRolling, p->transport.fBpm,
+						p->transport.nFrame );
+	p->transport.advance( sample_count );
 }
 
 void deactivate( LV2_Handle instance ) {

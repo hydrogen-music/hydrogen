@@ -3,6 +3,7 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix time: <http://lv2plug.in/ns/ext/time#> .
 @prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
 @prefix urid: <http://lv2plug.in/ns/ext/urid#> .
 
@@ -28,10 +29,19 @@
     lv2:requiredFeature urid:map ;
     ui:ui <https://hydrogen-music.org/lv2/hydrogen#ui> ;
     lv2:port [
+        # Host transport (time:Position objects; ADR 0013): the host writes
+        # its position here and the engine follows it.
+        a lv2:InputPort , atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports time:Position ;
+        lv2:index 0 ;
+        lv2:symbol "control_in" ;
+        lv2:name "Control In"
+    ] , [
         a lv2:InputPort , atom:AtomPort ;
         atom:bufferType atom:Sequence ;
         atom:supports midi:MidiEvent ;
-        lv2:index 0 ;
+        lv2:index 1 ;
         lv2:symbol "midi_in" ;
         lv2:name "MIDI In"
     ] , [
