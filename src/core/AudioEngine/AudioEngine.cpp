@@ -558,6 +558,24 @@ void AudioEngine::followHostTransport() {
 		return;
 	}
 
+	// The host owns the transport (ADR 0013): its rolling state drives the
+	// engine's play state, the way the JACK transport does via
+	// JackDriver::updateTransport(). While the host rolls, playback is on -
+	// also over a user-initiated stop() queued in between blocks, which would
+	// otherwise cost a block of silence. While it is stopped, the engine is
+	// parked - including over a user play() queued against the host's
+	// stationary clock, which would free-run and fight the relocate below. A
+	// count-in is Hydrogen-internal, not coupled to the host transport (as
+	// under JACK), and keeps running.
+	if ( host.bRolling ) {
+		if ( m_nextState != State::Playing ) {
+			setNextState( State::Playing );
+		}
+	}
+	else if ( getState() != State::CountIn ) {
+		setNextState( State::Ready );
+	}
+
 	// Follow host relocates and host loops. When the host rolls contiguously its
 	// frame equals the position incrementPlayhead() already advanced us to, so
 	// the common case costs nothing. Any divergence - a relocate while stopped,

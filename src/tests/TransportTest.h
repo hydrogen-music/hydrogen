@@ -53,6 +53,7 @@ class TransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPluginHostRelocate );
 	CPPUNIT_TEST( testPluginHostLoop );
 	CPPUNIT_TEST( testPluginHostTempoWinsOverTimeline );
+	CPPUNIT_TEST( testPluginHostRollingDrivesEngineState );
 	CPPUNIT_TEST_SUITE_END();
 private:
 	void perform( std::function<void()> func );
@@ -98,4 +99,6 @@ public:
 	void testPluginHostLoop();
 	/** With a Timeline present, the host tempo still wins (ADR 0013). */
 	void testPluginHostTempoWinsOverTimeline();
+	/** The host's rolling state alone drives the engine's play state. */
+	void testPluginHostRollingDrivesEngineState();
 };
