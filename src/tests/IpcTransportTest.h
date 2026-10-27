@@ -40,6 +40,7 @@ class IpcTransportTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testTelemetrySharedMemory );
 #ifndef WIN32
 	CPPUNIT_TEST( testListenClearsStaleSocketFile );
+	CPPUNIT_TEST( testListenDoesNotStealBusyEndpoint );
 #endif
 	CPPUNIT_TEST( testListenDoesNotStealLiveEndpoint );
 	CPPUNIT_TEST_SUITE_END();
@@ -59,6 +60,7 @@ public:
 	void testTelemetrySharedMemory();
 #ifndef WIN32
 	void testListenClearsStaleSocketFile();
+	void testListenDoesNotStealBusyEndpoint();
 #endif
 	void testListenDoesNotStealLiveEndpoint();
 };

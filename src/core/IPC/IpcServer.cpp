@@ -29,10 +29,29 @@ namespace H2Core {
 namespace {
 
 // Whether anything currently accepts connections on the endpoint.
+//
+// A failed connect alone does not prove the endpoint is dead: a live
+// server whose accept backlog is momentarily full leaves the probe
+// connecting without any error set (Unix EAGAIN) or reports a pipe error
+// (Windows: all instances busy, access denied). Only a provably absent
+// endpoint - no socket file (ServerNotFound) or a stale file nothing
+// accepts on (ConnectionRefused) - may be treated as not live; anything
+// else must count as live, or listen() below would unlink a busy
+// endpoint's socket file.
 bool isEndpointLive( const QString& sName ) {
 	QLocalSocket probe;
 	probe.connectToServer( sName );
-	return probe.waitForConnected( 100 );
+	if ( probe.waitForConnected( 100 ) ) {
+		return true;
+	}
+
+	switch ( probe.error() ) {
+	case QLocalSocket::ServerNotFoundError:
+	case QLocalSocket::ConnectionRefusedError:
+		return false;
+	default:
+		return true;
+	}
 }
 
 } // namespace
@@ -50,14 +69,21 @@ IpcServer::IpcServer( QObject* pParent )
 IpcServer::~IpcServer() = default;
 
 bool IpcServer::listen( const QString& sName ) {
+	// Never bind over a live endpoint. On Linux QLocalServer::listen()
+	// fails with AddressInUse on its own, but Windows named pipes are
+	// multi-instance: a second listen() on a live name silently succeeds
+	// and both servers would race for the same endpoint. Refusing
+	// explicitly keeps the no-steal contract on every platform.
+	if ( isEndpointLive( sName ) ) {
+		IPCLOG( QString( "Endpoint [%1] is already live; not binding over it" )
+				.arg( sName ) );
+		return false;
+	}
+
 	// Clear any socket file left behind by a crashed previous run: Qt
 	// reports AddressInUse for any existing file and never clears it
-	// itself. Only when nothing accepts on the name - a live endpoint's
-	// socket file must not be unlinked, as stealing it would silently kill
-	// the first instance's editor seam.
-	if ( ! isEndpointLive( sName ) ) {
-		QLocalServer::removeServer( sName );
-	}
+	// itself. (On Windows removeServer() is a no-op.)
+	QLocalServer::removeServer( sName );
 
 	IPCLOG( QString( "Listening to [%1]" ).arg( sName ) );
 

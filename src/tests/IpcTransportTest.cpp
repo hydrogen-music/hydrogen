@@ -49,6 +49,7 @@
 #include <QtNetwork/QLocalSocket>
 
 #include <memory>
+#include <vector>
 #include <atomic>
 
 using namespace H2Core;
@@ -645,6 +646,43 @@ void IpcTransportTest::testListenClearsStaleSocketFile() {
 
 	IpcServer server;
 	CPPUNIT_ASSERT( server.listen( sName ) );
+
+	___INFOLOG( "passed" );
+}
+
+// A live endpoint whose accept backlog is momentarily full refuses the
+// probe's connect without being dead (Unix: EAGAIN; Windows: all pipe
+// instances busy). listen() must still refuse to bind: treating a busy
+// endpoint as stale would unlink the live server's socket file and
+// silently kill the first instance's editor seam.
+void IpcTransportTest::testListenDoesNotStealBusyEndpoint() {
+	___INFOLOG( "" );
+
+	const QString sName = uniqueServerName();
+	QLocalServer live;
+	live.setMaxPendingConnections( 1 );
+	CPPUNIT_ASSERT( live.listen( sName ) );
+
+	// Saturate the accept backlog with never-accepted clients.
+	std::vector<std::unique_ptr<QLocalSocket>> clients;
+	bool bSaturated = false;
+	for ( int i = 0; i < 200; ++i ) {
+		auto pClient = std::make_unique<QLocalSocket>();
+		pClient->connectToServer( sName );
+		const bool bConnected = pClient->waitForConnected( 50 );
+		clients.push_back( std::move( pClient ) );
+		if ( ! bConnected ) {
+			bSaturated = true;
+			break;
+		}
+	}
+	CPPUNIT_ASSERT( bSaturated );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( ! server.listen( sName ) );
+
+	// The live endpoint's socket file was not unlinked behind its back.
+	CPPUNIT_ASSERT( QFile::exists( "/tmp/" + sName ) );
 
 	___INFOLOG( "passed" );
 }
