@@ -30,6 +30,7 @@
 class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginUiModelTest );
 	CPPUNIT_TEST( testLandingLoadCommands );
+	CPPUNIT_TEST( testLandingDialogDirectories );
 	CPPUNIT_TEST( testLandingDrumkitListing );
 	CPPUNIT_TEST( testLandingEditorExecutable );
 	CPPUNIT_TEST( testHtmlToPlainText );
@@ -55,6 +56,13 @@ public:
 	 * the current state untouched on unloadable paths; the editor button
 	 * forwards to the plugin's editor seam. */
 	void testLandingLoadCommands();
+	/** TU4.1: the file browsers' remembered folders — a load command
+	 * (the dialog's OK intent) moves exactly its own last-open
+	 * directory to the picked file's folder, even when the path does
+	 * not load; the default-path accessors serve the remembered
+	 * folder while it stays readable and fall back to the user dirs
+	 * otherwise. */
+	void testLandingDialogDirectories();
 	/** TU4.1: the drumkit picker's listing — the sound library
 	 * database's kits as name-sorted summaries carrying the
 	 * drumkit.xml metadata (author, license, version, plain-text

@@ -29,6 +29,7 @@
 #define H2C_PLUGIN_UI_LANDING_MODEL_H
 
 #include <QString>
+#include <memory>
 #include <mutex>
 #include <vector>
 
@@ -37,6 +38,7 @@
 namespace H2Core {
 
 class HydrogenPlugin;
+class Preferences;
 
 class PluginUiLandingModel {
 public:
@@ -48,11 +50,23 @@ public:
 
 	/** Loads the .h2song at @a sPath and installs it as the engine's
 	 * current song (loadSong + setSong). False without touching the
-	 * current song when the path does not load. */
+	 * current song when the path does not load. The file's folder is
+	 * remembered as the last-open song directory either way — the
+	 * dialog's OK intent counts even when the load fails. */
 	bool loadSong( const QString& sPath );
 	/** Loads the .h2pattern at @a sPath and installs it into a new and empty
-	 * song */
+	 * song. The file's folder is remembered as the last-open pattern
+	 * directory either way — the dialog's OK intent counts even when
+	 * the load fails. */
 	bool loadPattern( const QString& sPath );
+	/** Where the song browser opens by default: the remembered
+	 * last-open song directory if still readable, else the user
+	 * songs dir (also the answer without a plugin). */
+	QString songDialogDefaultPath() const;
+	/** Where the pattern browser opens by default: the remembered
+	 * last-open pattern directory if still readable, else the user
+	 * patterns dir (also the answer without a plugin). */
+	QString patternDialogDefaultPath() const;
 	/** Loads the drumkit folder at @a sPath and installs it into the
 	 * current song (Drumkit::load + setDrumkit). False without touching
 	 * the song when the path does not load. */
@@ -111,6 +125,8 @@ public:
 	bool openEditor( bool bLaunchProcess = true );
 
 private:
+	std::shared_ptr<Preferences> preferences() const;
+
 	HydrogenPlugin* m_pPlugin = nullptr;
 
 	// The latest delivered snapshot under a small mutex: the sink

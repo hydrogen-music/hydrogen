@@ -24,12 +24,16 @@
 
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/License.h>
+#include <core/Preferences/Preferences.h>
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
 #include <plugin/HydrogenPlugin.h>
+
+#include <QtCore/QFileInfo>
 
 #include <algorithm>
 #include <utility>
@@ -45,6 +49,12 @@ PluginUiLandingModel::~PluginUiLandingModel()
 {
 }
 
+std::shared_ptr<Preferences> PluginUiLandingModel::preferences() const
+{
+	return m_pPlugin != nullptr && m_pPlugin->getHydrogen() != nullptr
+		? m_pPlugin->getHydrogen()->getPreferences() : nullptr;
+}
+
 // The load commands follow the engine's two-step shape: the load* commands
 // only parse, the set* companions install into the engine. A path that does
 // not load fails the first step and leaves the engine's current state
@@ -58,6 +68,14 @@ bool PluginUiLandingModel::loadSong( const QString& sPath )
 		return false;
 	}
 	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	// The dialog's OK counts as load intent even when the load below
+	// fails — the next dialog opens in the picked file's folder.
+	auto pPreferences = preferences();
+	if ( pPreferences != nullptr ) {
+		pPreferences->setLastOpenSongDirectory(
+			QFileInfo( sPath ).absolutePath() );
+	}
 
 	auto pSong = pCAC->loadSong( sPath );
 	if ( pSong == nullptr ) {
@@ -85,6 +103,14 @@ bool PluginUiLandingModel::loadPattern( const QString& sPath )
 		return false;
 	}
 	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	// The dialog's OK counts as load intent even when the load below
+	// fails — the next dialog opens in the picked file's folder.
+	auto pPreferences = preferences();
+	if ( pPreferences != nullptr ) {
+		pPreferences->setLastOpenPatternDirectory(
+			QFileInfo( sPath ).absolutePath() );
+	}
 
 	auto pPattern = pCAC->loadPattern( sPath );
 	if ( pPattern == nullptr ) {
@@ -126,6 +152,38 @@ bool PluginUiLandingModel::loadPattern( const QString& sPath )
 	}
 
 	return true;
+}
+
+QString PluginUiLandingModel::songDialogDefaultPath() const
+{
+	auto pPreferences = preferences();
+	if ( pPreferences == nullptr ) {
+		return Filesystem::userSongsDir();
+	}
+	const QString sRemembered = pPreferences->getLastOpenSongDirectory();
+	// A remembered folder can vanish between sessions (removable
+	// drive, relocated user dir); the browser then falls back to the
+	// stock user dir instead of opening nowhere.
+	if ( ! Filesystem::dirReadable( sRemembered, /*bSilent=*/false ) ) {
+		return Filesystem::userSongsDir();
+	}
+	return sRemembered;
+}
+
+QString PluginUiLandingModel::patternDialogDefaultPath() const
+{
+	auto pPreferences = preferences();
+	if ( pPreferences == nullptr ) {
+		return Filesystem::userPatternsDir();
+	}
+	const QString sRemembered = pPreferences->getLastOpenPatternDirectory();
+	// A remembered folder can vanish between sessions (removable
+	// drive, relocated user dir); the browser then falls back to the
+	// stock user dir instead of opening nowhere.
+	if ( ! Filesystem::dirReadable( sRemembered, /*bSilent=*/false ) ) {
+		return Filesystem::userPatternsDir();
+	}
+	return sRemembered;
 }
 
 bool PluginUiLandingModel::loadDrumkit( const QString& sPath )

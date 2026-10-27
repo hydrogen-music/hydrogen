@@ -45,6 +45,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QTranslator>
 
 #include "TestHelper.h"
@@ -134,6 +135,79 @@ void PluginUiModelTest::testLandingLoadCommands()
 	// endpoint already.
 	CPPUNIT_ASSERT( model.openEditor( /*bLaunchProcess=*/false ) );
 	CPPUNIT_ASSERT( ! plugin.getEditorEndpoint().isEmpty() );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testLandingDialogDirectories()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiLandingModel model( &plugin );
+
+	auto pPreferences = plugin.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pPreferences != nullptr );
+
+	// Preferences are process-wide: pin both members so loads issued
+	// by earlier tests can't leak into the assertions below.
+	pPreferences->setLastOpenSongDirectory( Filesystem::userPatternsDir() );
+	pPreferences->setLastOpenPatternDirectory( Filesystem::userSongsDir() );
+
+	// A song load moves exactly the song member — to the picked
+	// file's folder.
+	CPPUNIT_ASSERT( model.loadSong(
+		H2TEST_FILE( "functional/test_adsr.h2song" ) ) );
+	CPPUNIT_ASSERT( pPreferences->getLastOpenSongDirectory() ==
+		QFileInfo( H2TEST_FILE( "functional/test_adsr.h2song" ) )
+			.absolutePath() );
+	CPPUNIT_ASSERT( pPreferences->getLastOpenPatternDirectory() ==
+		Filesystem::userSongsDir() );
+
+	// The OK intent counts even when the load fails: the user picked
+	// this folder, so the next dialog opens there.
+	CPPUNIT_ASSERT( ! model.loadSong( "/nonexistent/nope.h2song" ) );
+	CPPUNIT_ASSERT( pPreferences->getLastOpenSongDirectory() ==
+		QFileInfo( "/nonexistent/nope.h2song" ).absolutePath() );
+
+	// Pattern loads are symmetric and touch only the pattern member.
+	CPPUNIT_ASSERT( model.loadPattern(
+		H2TEST_FILE( "pattern/pattern.h2pattern" ) ) );
+	CPPUNIT_ASSERT( pPreferences->getLastOpenPatternDirectory() ==
+		QFileInfo( H2TEST_FILE( "pattern/pattern.h2pattern" ) )
+			.absolutePath() );
+	CPPUNIT_ASSERT( pPreferences->getLastOpenSongDirectory() ==
+		QFileInfo( "/nonexistent/nope.h2song" ).absolutePath() );
+
+	CPPUNIT_ASSERT( ! model.loadPattern( "/nonexistent/nope.h2pattern" ) );
+	CPPUNIT_ASSERT( pPreferences->getLastOpenPatternDirectory() ==
+		QFileInfo( "/nonexistent/nope.h2pattern" ).absolutePath() );
+
+	// The default-path accessors: a readable remembered folder wins,
+	// an unreadable one falls back to the user dir.
+	pPreferences->setLastOpenSongDirectory( Filesystem::userPatternsDir() );
+	CPPUNIT_ASSERT( model.songDialogDefaultPath() ==
+		Filesystem::userPatternsDir() );
+	pPreferences->setLastOpenSongDirectory( "/nonexistent/dir" );
+	CPPUNIT_ASSERT( model.songDialogDefaultPath() ==
+		Filesystem::userSongsDir() );
+
+	pPreferences->setLastOpenPatternDirectory( Filesystem::userSongsDir() );
+	CPPUNIT_ASSERT( model.patternDialogDefaultPath() ==
+		Filesystem::userSongsDir() );
+	pPreferences->setLastOpenPatternDirectory( "/nonexistent/dir" );
+	CPPUNIT_ASSERT( model.patternDialogDefaultPath() ==
+		Filesystem::userPatternsDir() );
+
+	// Without a plugin the accessors answer the stock user dirs.
+	PluginUiLandingModel orphanModel( nullptr );
+	CPPUNIT_ASSERT( orphanModel.songDialogDefaultPath() ==
+		Filesystem::userSongsDir() );
+	CPPUNIT_ASSERT( orphanModel.patternDialogDefaultPath() ==
+		Filesystem::userPatternsDir() );
 
 	___INFOLOG( "passed" );
 }

@@ -133,7 +133,7 @@ void PluginUiLandingView::draw()
 	if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
-		config.path = ".";
+		config.path = m_model.songDialogDefaultPath().toStdString();
 		config.countSelectionMax = 1;
 		m_fileDialog.OpenDialog(
 			"song",
@@ -146,7 +146,7 @@ void PluginUiLandingView::draw()
 	if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
-		config.path = ".";
+		config.path = m_model.patternDialogDefaultPath().toStdString();
 		config.countSelectionMax = 1;
 		m_fileDialog.OpenDialog(
 			"pattern",
