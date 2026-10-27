@@ -23,6 +23,8 @@
 
 #include "TestHelper.h"
 
+#include <cppunit/Exception.h>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
@@ -42,6 +44,7 @@
 #include <plugin/HydrogenPlugin.h>
 
 #include <atomic>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -164,6 +167,58 @@ private:
 	std::atomic<bool>& m_rRelease;
 };
 
+/** Unwind-safe teardown for the session-based sink tests: a failed
+ *  assert unwinds through this destructor, so the sink seam is torn
+ *  down in the contract's order on EVERY exit path — unregister (which
+ *  drains any in-flight callback), stop (which joins the serve loop),
+ *  then delete the engine — instead of the raw sink dying first while
+ *  the serve thread still calls it (pure virtual call → abort,
+ *  shadowing the assert failure). Declare it after the sink
+ *  registration so it destructs before both the sink and the
+ *  session. */
+struct SinkTestTeardown {
+	EngineSession* pServer = nullptr;
+	Hydrogen* pEngine = nullptr;
+
+	~SinkTestTeardown() {
+		if ( pServer != nullptr ) {
+			pServer->setEventSink( nullptr );
+			pServer->stop();
+		}
+		delete pEngine;
+	}
+};
+
+/** The body of a session-based sink test in miniature — engine,
+ *  session, registered sink, teardown guard — ending in a deliberate
+ *  assertion failure with events in flight. Throwing from this helper
+ *  unwinds ITS locals: the exact path a failed assert takes in a real
+ *  sink test. */
+void sinkTestBodyEndingInFailedAssert() {
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	RecordingSink sink;
+	pServer->setEventSink( &sink );
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
+
+	// The seam is live and events are still in flight when the failure
+	// unwinds: the serve thread must be mid-drain calling the sink —
+	// the conditions the crash was seen under.
+	pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, 0 );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return sink.sawEvent( Event::Type::Metronome, 0 ); } ) );
+	for ( int ii = 1; ii <= 16; ++ii ) {
+		pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, ii );
+	}
+
+	CPPUNIT_FAIL( "deliberate failure: exercises the unwind path" );
+}
+
 } // namespace
 
 // TU3.1 (editor case): one drained event fans out to BOTH the attached
@@ -182,9 +237,12 @@ void EngineEventSinkTest::testFanoutToEditorAndSink() {
 
 	RecordingSink sink;
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
-	auto* pMirror = TestHelper::makeMirror();
-	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	auto pMirror = std::unique_ptr<Hydrogen>( TestHelper::makeMirror() );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror.get() );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 
 	// Let the initial handshake/state settle first.
@@ -193,7 +251,7 @@ void EngineEventSinkTest::testFanoutToEditorAndSink() {
 	// One engine event surfaces on the editor's mirror AND the sink.
 	pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, 7 );
 	CPPUNIT_ASSERT(
-		TestHelper::pumpUntilEvent( pMirror, Event::Type::Metronome, 7 ) );
+		TestHelper::pumpUntilEvent( pMirror.get(), Event::Type::Metronome, 7 ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return sink.sawEvent( Event::Type::Metronome, 7 ); } ) );
 
@@ -235,9 +293,6 @@ void EngineEventSinkTest::testFanoutToEditorAndSink() {
 	} ) );
 
 	pEditor.reset();
-	pServer->stop();
-	delete pMirror;
-	delete pEngine;
 
 	___INFOLOG( "passed" );
 }
@@ -259,6 +314,9 @@ void EngineEventSinkTest::testFanoutWithoutEditor() {
 
 	RecordingSink sink;
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
 	// No editor is attached (nor will be, in this first phase).
 	pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, 7 );
@@ -272,16 +330,13 @@ void EngineEventSinkTest::testFanoutWithoutEditor() {
 
 	// A late editor still gets the retained error replayed (ADR 0026
 	// point 9).
-	auto* pMirror = TestHelper::makeMirror();
-	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	auto pMirror = std::unique_ptr<Hydrogen>( TestHelper::makeMirror() );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror.get() );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 	CPPUNIT_ASSERT(
-		TestHelper::pumpUntilEvent( pMirror, Event::Type::Error, 42 ) );
+		TestHelper::pumpUntilEvent( pMirror.get(), Event::Type::Error, 42 ) );
 
 	pEditor.reset();
-	pServer->stop();
-	delete pMirror;
-	delete pEngine;
 
 	___INFOLOG( "passed" );
 }
@@ -302,6 +357,9 @@ void EngineEventSinkTest::testSinkQueueDrainedByIdle() {
 
 	RecordingSink sink;
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
 	// A burst well below the EventQueue cap (nMaxEvents): the idle session
 	// must drain it to the sink completely and in order.
@@ -333,10 +391,9 @@ void EngineEventSinkTest::testSinkQueueDrainedByIdle() {
 	TestHelper::pumpUntil( []() { return false; }, 200 );
 	CPPUNIT_ASSERT( sink.drainEvents().empty() );
 
-	// The unregister-before-destroy contract: stop the session (joining
-	// the bridge thread) before the sink goes out of scope.
-	pServer->stop();
-	delete pEngine;
+	// The unregister-before-destroy contract is honored by the teardown
+	// guard on every exit path: the session is stopped (joining the
+	// bridge thread) before the sink goes out of scope.
 
 	___INFOLOG( "passed" );
 }
@@ -386,6 +443,9 @@ void EngineEventSinkTest::testInfoSnapshotFanout() {
 
 	RecordingSink sink;
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
 	// No editor attached: the publish cycle alone feeds the sink.
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
@@ -411,9 +471,6 @@ void EngineEventSinkTest::testInfoSnapshotFanout() {
 		pEngine->getAudioEngine()->getPlayhead()->getColumn();
 	pEngine->getAudioEngine()->unlock();
 	CPPUNIT_ASSERT( info.nCurrentColumn == nPlayheadColumn );
-
-	pServer->stop();
-	delete pEngine;
 
 	___INFOLOG( "passed" );
 }
@@ -490,6 +547,9 @@ void EngineEventSinkTest::testUnregisterQuiescesInFlight() {
 	std::atomic<bool> bRelease{ false };
 	BlockingSink sink( nInside, bRelease );
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
 	// Park the bridge thread inside the sink's meter callback.
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
@@ -513,9 +573,6 @@ void EngineEventSinkTest::testUnregisterQuiescesInFlight() {
 	unregisterer.join();
 	CPPUNIT_ASSERT( bReturned.load() );
 	CPPUNIT_ASSERT( nInside.load() > 0 );
-
-	pServer->stop();
-	delete pEngine;
 
 	___INFOLOG( "passed" );
 }
@@ -551,6 +608,32 @@ void EngineEventSinkTest::testClearEventSinkKeepsSuccessor() {
 		Event::Type::Metronome, 8 );
 	TestHelper::pumpUntil( []() { return false; }, 200 );
 	CPPUNIT_ASSERT( ! sinkB.sawEvent( Event::Type::Metronome, 8 ) );
+
+	___INFOLOG( "passed" );
+}
+
+// A failed assertion in a session-based sink test must not be shadowed
+// by a crash: the unwind has to tear the sink seam down (unregister,
+// stop, engine delete) instead of destroying the raw sink while the
+// serve loop still calls it. Exercise exactly that path — a deliberate
+// failure with events in flight — and catch CppUnit's exception:
+// reaching the catch means the unwind was survived.
+void EngineEventSinkTest::testTeardownOnFailedAssert() {
+	___INFOLOG( "" );
+
+	bool bUnwound = false;
+	try {
+		sinkTestBodyEndingInFailedAssert();
+	}
+	catch ( const CppUnit::Exception& e ) {
+		// Only the deliberate failure may be caught here — a setup
+		// failure (null session, pump timeout) must still fail this
+		// test instead of passing it.
+		CPPUNIT_ASSERT(
+			QString( e.what() ).contains( "deliberate failure" ) );
+		bUnwound = true;
+	}
+	CPPUNIT_ASSERT( bUnwound );
 
 	___INFOLOG( "passed" );
 }

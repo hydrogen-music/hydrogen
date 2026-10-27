@@ -38,6 +38,7 @@ class EngineEventSinkTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testBuildInfoSnapshotDegradedSkips );
 	CPPUNIT_TEST( testUnregisterQuiescesInFlight );
 	CPPUNIT_TEST( testClearEventSinkKeepsSuccessor );
+	CPPUNIT_TEST( testTeardownOnFailedAssert );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -76,6 +77,11 @@ public:
 	 * only the sink still registered — a displaced sink's teardown
 	 * must not kill its successor. */
 	void testClearEventSinkKeepsSuccessor();
+	/** A failed assertion in a session-based sink test must not be
+	 * shadowed by a crash: the unwind tears the sink seam down
+	 * (unregister, stop, engine delete) instead of destroying the raw
+	 * sink while the serve loop still calls it. */
+	void testTeardownOnFailedAssert();
 };
 
 #endif
