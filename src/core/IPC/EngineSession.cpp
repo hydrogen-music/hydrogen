@@ -447,7 +447,14 @@ std::optional<EngineInfoSnapshot> EngineSession::buildInfoSnapshot(
 		if ( info.mode == Song::Mode::Song ) {
 			const auto pPatternList = pSong->getPatternList();
 			if ( pPatternList != nullptr ) {
-				info.nPatternCount = pPatternList->size();
+				int nPatterns = 0;
+				for ( const auto& ppPattern : *pPatternList ) {
+					if ( ppPattern != nullptr &&
+						 ppPattern->getNotes()->size() > 0 ) {
+						++nPatterns;
+					}
+				}
+				info.nPatternCount = nPatterns;
 			}
 			const auto pColumns = pSong->getPatternGroupVector();
 			if ( pColumns != nullptr ) {

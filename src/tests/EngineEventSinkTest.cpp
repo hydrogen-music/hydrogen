@@ -463,7 +463,7 @@ void EngineEventSinkTest::testInfoSnapshotFanout() {
 		CPPUNIT_ASSERT( info.sDrumkitName.isEmpty() );
 	}
 	CPPUNIT_ASSERT( info.mode == Song::Mode::Song );
-	CPPUNIT_ASSERT_EQUAL( 10, info.nPatternCount );
+	CPPUNIT_ASSERT_EQUAL( 3, info.nPatternCount );
 	CPPUNIT_ASSERT_EQUAL( 6, info.nColumnCount );
 	CPPUNIT_ASSERT( info.playingPatterns.empty() );
 	pEngine->getAudioEngine()->lock( RIGHT_HERE );
