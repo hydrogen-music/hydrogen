@@ -496,7 +496,13 @@ QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
 }
 
 QString HydrogenPlugin::editorBinary() const {
-	return resolveEditorBinary( m_sEditorBinary, m_sEditorSearchDir );
+	return resolveEditorBinary(
+		m_pHydrogen->getPreferences()->getPluginEditorBinary(),
+		m_sEditorSearchDir );
+}
+
+void HydrogenPlugin::setEditorBinary( const QString& sPath ) {
+	m_pHydrogen->getPreferences()->setPluginEditorBinary( sPath );
 }
 
 void HydrogenPlugin::setEventSink( EngineEventSink* pEventSink ) {

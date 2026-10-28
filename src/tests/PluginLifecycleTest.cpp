@@ -252,6 +252,9 @@ void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
 	pTypedInstrument->setType( "Kick" );
 	pSaverMap->insertCustomInputMapping(
 		pTypedInstrument, Midi::noteFromInt( 60 ), Midi::channelFromInt( 5 ) );
+	// The editor-binary override (landing UI) is a base-layer preference
+	// too — it must ride along.
+	saver.setEditorBinary( "/opt/hydrogen-editor" );
 
 	const auto state = saver.saveState( /*bEmbedSamples=*/true );
 	CPPUNIT_ASSERT( ! state.empty() );
@@ -272,6 +275,8 @@ void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
 					Filesystem::userPatternsDir() );
 	CPPUNIT_ASSERT( pOtherPref->getMidiInstrumentMap()->toXmlBuffer() ==
 					pSaverMap->toXmlBuffer() );
+	CPPUNIT_ASSERT( pOtherPref->getPluginEditorBinary() ==
+					"/opt/hydrogen-editor" );
 
 	// Override layer stays the restoring host's own (ADR 0022: the host
 	// owns the audio geometry; it is not part of the plugin's config).

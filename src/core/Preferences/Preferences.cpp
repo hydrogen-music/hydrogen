@@ -939,6 +939,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 							 .arg( sPrefix )
 							 .arg( s )
 							 .arg( m_sDefaultEditor ) )
+				.append( QString( "%1%2m_sPluginEditorBinary: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( m_sPluginEditorBinary ) )
 				.append( QString( "%1%2m_sPreferredLanguage: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1374,6 +1378,10 @@ QString Preferences::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_bCountIn: %1" ).arg( m_bCountIn ) )
 				.append(
 					QString( ", m_sDefaultEditor: %1" ).arg( m_sDefaultEditor )
+				)
+				.append(
+					QString( ", m_sPluginEditorBinary: %1" )
+						.arg( m_sPluginEditorBinary )
 				)
 				.append( QString( ", m_sPreferredLanguage: %1" )
 							 .arg( m_sPreferredLanguage ) )

@@ -33,6 +33,7 @@ class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testLandingDialogDirectories );
 	CPPUNIT_TEST( testLandingDrumkitListing );
 	CPPUNIT_TEST( testLandingEditorExecutable );
+	CPPUNIT_TEST( testLandingEditorExecutablePersistence );
 	CPPUNIT_TEST( testHtmlToPlainText );
 	CPPUNIT_TEST( testLandingInfoSnapshot );
 	CPPUNIT_TEST( testMixerMeterPoll );
@@ -74,6 +75,11 @@ public:
 	 * prefill, an override wins, and clearing it restores the
 	 * default. */
 	void testLandingEditorExecutable();
+	/** TU4.1: the editor override persists — setEditorExecutable lands in
+	 * the instance's Preferences (base layer, ADR 0022), survives a
+	 * config save/load cycle, and clearing persists as automatic
+	 * resolution. */
+	void testLandingEditorExecutablePersistence();
 	/** TU4.1: the picker's info conversion — htmlToPlainText, the
 	 * pure-QtCore reimplementation of QtGui's
 	 * QTextDocumentFragment::fromHtml().toPlainText() (the GUI

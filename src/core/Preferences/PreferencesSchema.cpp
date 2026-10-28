@@ -2281,6 +2281,15 @@ const PreferencesSchema::FieldRow PreferencesSchema::kSchemaRows[] = {
 	  &scalarWrite<&PreferencesData::m_sDefaultEditor>,
 	  &scalarRead<&PreferencesData::m_sDefaultEditor> },
 	{ { PreferencesKeys::Files, nullptr, nullptr },
+	  "pluginEditorBinary",
+	  Layer::Base,
+	  Owner::Gui,
+	  false,
+	  true,
+	  FieldRow::KeyMatch::Exact,
+	  &scalarWrite<&PreferencesData::m_sPluginEditorBinary>,
+	  &scalarRead<&PreferencesData::m_sPluginEditorBinary> },
+	{ { PreferencesKeys::Files, nullptr, nullptr },
 	  "customSoundLibraryDirs",
 	  Layer::Base,
 	  Owner::Core,
@@ -2319,7 +2328,7 @@ const PreferencesSchema::FieldRow PreferencesSchema::kSchemaRows[] = {
 	  &shortcutsRead },
 };
 
-const int PreferencesSchema::kSchemaRowCount = 135;
+const int PreferencesSchema::kSchemaRowCount = 136;
 
 // Compile-time enforcement of the single source of truth: the loop bound
 // above must match the actual table size, and every member tied by
@@ -2408,16 +2417,16 @@ inline void preferencesDataCanary( PreferencesData& data ) {
 		m_bpmTap, m_beatCounter, m_nBeatCounterDriftCompensation,
 		m_nBeatCounterStartOffset, m_bPlaySamplesOnClicking,
 		m_nAutosavesPerHour, m_sLastSongPath, m_sLastPlaylistPath,
-		m_sDefaultEditor, m_customSoundLibraryDirs, m_pMidiEventMap,
-		m_pMidiInstrumentMap, m_pShortcuts, m_pTheme
+		m_sDefaultEditor, m_sPluginEditorBinary, m_customSoundLibraryDirs,
+		m_pMidiEventMap, m_pMidiInstrumentMap, m_pShortcuts, m_pTheme
 	] = data;
 }
 
-// 121 canary-named members - m_pTheme itself (tied through 15 sub-object
+// 122 canary-named members - m_pTheme itself (tied through 15 sub-object
 // entries: 10 InterfaceTheme + 4 FontTheme + the opaque ColorTheme row)
-// + the 120 directly tied members = the 135 schema rows.
+// + the 121 directly tied members = the 136 schema rows.
 static_assert(
-	121 - 1 + 10 + 4 + 1 == PreferencesSchema::kSchemaRowCount,
+	122 - 1 + 10 + 4 + 1 == PreferencesSchema::kSchemaRowCount,
 	"The schema row count drifted from the tied members. When adding a "
 	"member, extend the canary binding above, tieAllMembers(), and "
 	"kSchemaRows together" );

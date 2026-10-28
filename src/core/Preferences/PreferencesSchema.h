@@ -286,7 +286,8 @@ public:
 			data.m_pTheme->m_pInterface->m_bIndicateEffectiveNoteLength,
 			// ── files ──
 			data.m_sLastSongPath, data.m_sLastPlaylistPath,
-			data.m_sDefaultEditor, data.m_customSoundLibraryDirs,
+			data.m_sDefaultEditor, data.m_sPluginEditorBinary,
+			data.m_customSoundLibraryDirs,
 			// ── root subtrees ──
 			data.m_pMidiEventMap, data.m_pMidiInstrumentMap,
 			data.m_pShortcuts );

@@ -295,7 +295,9 @@ void PluginUiModelTest::testLandingEditorExecutable()
 		! orphanModel.setEditorExecutable( "/nonexistent/hydrogen" ) );
 
 	// Default: the resolved binary — never empty (the PATH fallback
-	// names the bare executable).
+	// names the bare executable). Clear whatever override the ambient
+	// user config carries first, so this is the automatic resolution.
+	CPPUNIT_ASSERT( model.setEditorExecutable( "" ) );
 	const QString sDefault = model.editorExecutable();
 	CPPUNIT_ASSERT( ! sDefault.isEmpty() );
 
@@ -310,6 +312,40 @@ void PluginUiModelTest::testLandingEditorExecutable()
 	CPPUNIT_ASSERT( model.setEditorExecutable( "/nonexistent/hydrogen" ) );
 	CPPUNIT_ASSERT( model.openEditor( /*bLaunchProcess=*/false ) );
 	CPPUNIT_ASSERT( ! plugin.getEditorEndpoint().isEmpty() );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testLandingEditorExecutablePersistence()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	PluginUiLandingModel model( &plugin );
+	auto pPreferences = plugin.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pPreferences != nullptr );
+
+	// The override is a preference, not session state: it lands in the
+	// instance's Preferences (base layer, ADR 0022) and survives a config
+	// save/load cycle.
+	CPPUNIT_ASSERT( model.setEditorExecutable( "/opt/hydrogen-editor" ) );
+	CPPUNIT_ASSERT( pPreferences->getPluginEditorBinary() ==
+					"/opt/hydrogen-editor" );
+
+	const QString sCopyPath =
+		Filesystem::tmpDir().append( "pluginEditorBinary.conf" );
+	CPPUNIT_ASSERT( pPreferences->saveCopyAs( sCopyPath, true ) );
+	auto pLoaded = Preferences::load( sCopyPath, true, nullptr );
+	CPPUNIT_ASSERT( pLoaded != nullptr );
+	CPPUNIT_ASSERT( pLoaded->getPluginEditorBinary() ==
+					"/opt/hydrogen-editor" );
+	Filesystem::rm( sCopyPath, false, true );
+
+	// Clearing the override persists as well (automatic resolution again).
+	CPPUNIT_ASSERT( model.setEditorExecutable( "" ) );
+	CPPUNIT_ASSERT( pPreferences->getPluginEditorBinary().isEmpty() );
 
 	___INFOLOG( "passed" );
 }

@@ -310,6 +310,11 @@ struct PreferencesData {
 	/** Default text editor (used by Playlisteditor) */
 	QString m_sDefaultEditor = "";
 
+	/** Binary of the out-of-process plugin editor (ADR 0016). Empty means
+	 *  automatic resolution (install dir, `$HYDROGEN_EDITOR_PATH`, `PATH`);
+	 *  a value is the highest-precedence override. */
+	QString m_sPluginEditorBinary = "";
+
 	QString m_sPreferredLanguage = "";
 
 	bool m_bUseRelativeFileNamesForPlaylists = false;
@@ -651,6 +656,9 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 
 	const QString& getDefaultEditor() const;
 	void setDefaultEditor( const QString& editor );
+
+	const QString& getPluginEditorBinary() const;
+	void setPluginEditorBinary( const QString& sPath );
 
 	// General
 	const QString& getPreferredLanguage() const;
@@ -1205,6 +1213,16 @@ inline const QString& Preferences::getDefaultEditor() const
 inline void Preferences::setDefaultEditor( const QString& editor )
 {
 	m_sDefaultEditor = editor;
+}
+
+inline const QString& Preferences::getPluginEditorBinary() const
+{
+	return m_sPluginEditorBinary;
+}
+
+inline void Preferences::setPluginEditorBinary( const QString& sPath )
+{
+	m_sPluginEditorBinary = sPath;
 }
 
 // General

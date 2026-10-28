@@ -186,8 +186,11 @@ public:
 	/** The IPC endpoint the editor attaches to (empty only while the
 	 * session could not bind). */
 	const QString& getEditorEndpoint() const { return m_sEditorEndpoint; }
-	/** Override the editor binary outright (highest precedence). */
-	void setEditorBinary( const QString& sPath ) { m_sEditorBinary = sPath; }
+	/** Override the editor binary outright (highest precedence). The
+	 * override is a base-layer preference (ADR 0022): it persists to the
+	 * shared user config and rides the plugin state, so it survives
+	 * sessions. An empty path restores automatic resolution. */
+	void setEditorBinary( const QString& sPath );
 	/** Directory to look in for the bundled editor binary — the plugin's own
 	 * install location, supplied by the format shim (CLAP `init(plugin_path)`,
 	 * LV2 `instantiate(bundle_path)`). */
@@ -201,8 +204,8 @@ public:
 										const QString& sSearchDir );
 
 	/** The editor binary this instance would launch right now: the
-	 * #setEditorBinary override if set, else resolveEditorBinary with
-	 * the instance's search dir. Exposed so the landing view can
+	 * persisted #setEditorBinary override if set, else resolveEditorBinary
+	 * with the instance's search dir. Exposed so the landing view can
 	 * prefill its executable line edit. */
 	QString editorBinary() const;
 
@@ -228,7 +231,6 @@ private:
 	/** The spawned editor process; owned (null when not launched). */
 	std::unique_ptr<QProcess> m_pEditorProcess;
 	QString m_sEditorEndpoint;
-	QString m_sEditorBinary;
 	QString m_sEditorSearchDir;
 	bool m_bEditorOpen = false;
 	/** Set during closeEditor() so the process-exit handler does not respawn. */
