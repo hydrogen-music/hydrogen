@@ -155,3 +155,46 @@ void PluginStateTest::testEmbedOff() {
 
 	___INFOLOG( "passed" );
 }
+
+// The instruments' output bus is set from the plugin UI (mixer strips,
+// ADR 0019) and must survive a plugin-state round-trip in both embed
+// modes. The embedded bundle serializes the song with the Project flags
+// - without the dedicated Plugin flag the bus would be lost there.
+void PluginStateTest::testOutputBusRoundTrip() {
+	___INFOLOG( "" );
+
+	auto pSong = makeLoadedSong();
+	CPPUNIT_ASSERT( pSong != nullptr );
+	auto pInstruments = pSong->getDrumkit()->getInstruments();
+	CPPUNIT_ASSERT( pInstruments->size() > 0 );
+	auto pInstrument = pInstruments->get( 0 );
+	CPPUNIT_ASSERT( pInstrument != nullptr );
+
+	// An explicit custom routing; the implicit -1 default is not
+	// persisted (ADR 0019).
+	pInstrument->setOutputBus( 2 );
+	CPPUNIT_ASSERT( pInstrument->getOutputBus() == 2 );
+
+	for ( const bool bEmbed : { true, false } ) {
+		const auto state = H2Project::toState( pSong, bEmbed, true );
+		CPPUNIT_ASSERT( ! state.empty() );
+
+		auto pBack = H2Project::fromState( state, pTestHydrogen(), true );
+		CPPUNIT_ASSERT( pBack != nullptr );
+		auto pBackInstrument = pBack->getDrumkit()->getInstruments()->get( 0 );
+		CPPUNIT_ASSERT( pBackInstrument != nullptr );
+		CPPUNIT_ASSERT( pBackInstrument->getOutputBus() == 2 );
+	}
+
+	// The implicit 1-to-1 routing (-1) is not written and loads back as
+	// the default.
+	pInstrument->setOutputBus( -1 );
+	const auto state = H2Project::toState( pSong, /*bEmbedSamples=*/true, true );
+	CPPUNIT_ASSERT( ! state.empty() );
+	auto pBack = H2Project::fromState( state, pTestHydrogen(), true );
+	CPPUNIT_ASSERT( pBack != nullptr );
+	CPPUNIT_ASSERT(
+		pBack->getDrumkit()->getInstruments()->get( 0 )->getOutputBus() == -1 );
+
+	___INFOLOG( "passed" );
+}

@@ -60,6 +60,9 @@ QString Xml::flagToQString( const Flag& flags )
 	if ( flags & Flag::Project ) {
 		strings << "Project";
 	}
+	if ( flags & Flag::Plugin ) {
+		strings << "Plugin";
+	}
 	if ( strings.isEmpty() ) {
 		return "None";
 	}

@@ -315,7 +315,7 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 
 std::shared_ptr<Song> H2Project::fromBuffer(
 	const std::vector<unsigned char>& data, const QString& sCacheKey,
-	Hydrogen* pHydrogen, bool bSilent ) {
+	Hydrogen* pHydrogen, bool bSilent, Xml::Flag flags ) {
 #ifndef H2CORE_HAVE_LIBARCHIVE
 	___ERRORLOG( "libarchive not available; cannot read .h2project" );
 	return nullptr;
@@ -360,7 +360,7 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 	songFile.close();
 
 	auto pSong = Song::fromXmlBuffer(
-		songXml, Xml::Flag::Project, bSilent, pHydrogen
+		songXml, flags, bSilent, pHydrogen
 	);
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to reconstruct song from .h2project" );
@@ -514,7 +514,8 @@ std::vector<unsigned char> H2Project::toState(
 							  &manifestLines );
 
 		entries.emplace_back( SONG_ENTRY, pSong->toXmlBuffer(
-			Xml::Flag::KeepMissingSamples | Xml::Flag::Project, bSilent,
+			Xml::Flag::KeepMissingSamples | Xml::Flag::Project |
+			Xml::Flag::Plugin, bSilent,
 			&pathToEntry ) );
 		if ( pPreferences != nullptr ) {
 			entries.emplace_back( PREFS_ENTRY, pPreferences->toXmlBuffer() );
@@ -528,7 +529,8 @@ std::vector<unsigned char> H2Project::toState(
 	else {
 		// Song-only: the .h2song XML; the kit must be installed to reload.
 		entries.emplace_back( SONG_ENTRY, pSong->toXmlBuffer(
-			Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, bSilent ) );
+			Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc |
+			Xml::Flag::Plugin, bSilent ) );
 		if ( pPreferences != nullptr ) {
 			entries.emplace_back( PREFS_ENTRY, pPreferences->toXmlBuffer() );
 		}
@@ -551,7 +553,8 @@ std::shared_ptr<Song> H2Project::fromState(
 
 	if ( looksLikeArchive( data ) ) {
 		const QString sCacheKey = pluginCacheKey( pHydrogen );
-		auto pSong = fromBuffer( data, sCacheKey, pHydrogen, bSilent );
+		auto pSong = fromBuffer( data, sCacheKey, pHydrogen, bSilent,
+								 Xml::Flag::Project | Xml::Flag::Plugin );
 		if ( pSong == nullptr ) {
 			return nullptr;
 		}
@@ -573,7 +576,8 @@ std::shared_ptr<Song> H2Project::fromState(
 	const QByteArray xml(
 		reinterpret_cast<const char*>( data.data() ),
 		static_cast<int>( data.size() ) );
-	return Song::fromXmlBuffer( xml, Xml::Flag::Ipc, bSilent, pHydrogen );
+	return Song::fromXmlBuffer(
+		xml, Xml::Flag::Ipc | Xml::Flag::Plugin, bSilent, pHydrogen );
 }
 
 bool H2Project::looksLikeArchive( const std::vector<unsigned char>& data ) {

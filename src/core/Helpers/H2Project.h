@@ -23,6 +23,7 @@
 #define H2C_H2PROJECT_H
 
 #include <core/Object.h>
+#include <core/Helpers/Xml.h>
 
 #include <QByteArray>
 #include <QString>
@@ -73,10 +74,14 @@ public:
 	 * \param sCacheKey Key identifying the origin of the bundle, e.g. the
 	 *   path of the `.h2project` file or a plugin-state identifier. It
 	 *   determines the extraction folder below Filesystem::cacheDir() and
-	 *   has to be stable across reloads of the same origin. */
+	 *   has to be stable across reloads of the same origin.
+	 * \param flags XML flags for the song load. The plugin state adds
+	 *   Xml::Flag::Plugin so UI-set members like the instruments' output
+	 *   bus round-trip; standalone project files keep the default. */
 	static std::shared_ptr<Song> fromBuffer(
 		const std::vector<unsigned char>& data, const QString& sCacheKey,
-		Hydrogen* pHydrogen, bool bSilent = false );
+		Hydrogen* pHydrogen, bool bSilent = false,
+		Xml::Flag flags = Xml::Flag::Project );
 
 	/** Write a `.h2project` bundle for @a pSong to @a sPath. */
 	static bool save( std::shared_ptr<Song> pSong, const QString& sPath,

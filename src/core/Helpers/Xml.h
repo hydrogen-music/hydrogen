@@ -72,7 +72,9 @@ namespace Xml
 		/** Whether the object is serialized as part of a H2Project. This does
 		 * not use sample data from installed drumkits but bundles them directly
 		 * into a tar archive along with the song. */
-		Project = 0x010
+		Project = 0x010,
+		/** The object is serialized and stored as part of a plugin state. */
+		Plugin = 0x020
 	};
 
 	constexpr Flag operator|( Flag flag1, Flag flag2 ) {
