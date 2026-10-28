@@ -43,6 +43,7 @@
 #include <core/Preferences/Preferences.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QThread>
 #include <QtNetwork/QLocalServer>
@@ -638,9 +639,12 @@ void IpcTransportTest::testListenClearsStaleSocketFile() {
 
 	// A crashed previous run leaves its socket file behind; Qt reports
 	// AddressInUse for any existing file and never clears it itself, so
-	// listen() must clear it on our behalf.
+	// listen() must clear it on our behalf. Qt binds relative names
+	// under QDir::tempPath() - not a hardcoded /tmp (on macOS that is a
+	// per-user directory).
 	const QString sName = uniqueServerName();
-	QFile stale( "/tmp/" + sName );
+	const QString sSocketPath = QDir::tempPath() + QLatin1Char( '/' ) + sName;
+	QFile stale( sSocketPath );
 	CPPUNIT_ASSERT( stale.open( QIODevice::WriteOnly ) );
 	stale.close();
 
@@ -659,6 +663,7 @@ void IpcTransportTest::testListenDoesNotStealBusyEndpoint() {
 	___INFOLOG( "" );
 
 	const QString sName = uniqueServerName();
+	const QString sSocketPath = QDir::tempPath() + QLatin1Char( '/' ) + sName;
 	QLocalServer live;
 	live.setMaxPendingConnections( 1 );
 	CPPUNIT_ASSERT( live.listen( sName ) );
@@ -682,7 +687,7 @@ void IpcTransportTest::testListenDoesNotStealBusyEndpoint() {
 	CPPUNIT_ASSERT( ! server.listen( sName ) );
 
 	// The live endpoint's socket file was not unlinked behind its back.
-	CPPUNIT_ASSERT( QFile::exists( "/tmp/" + sName ) );
+	CPPUNIT_ASSERT( QFile::exists( sSocketPath ) );
 
 	___INFOLOG( "passed" );
 }
