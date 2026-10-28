@@ -127,11 +127,15 @@ public:
 
 	int getBusCount() const;
 
-	/** Serialize the current song to a plugin-state buffer (ADR 0017/0020/0025).
-	 * @param bEmbedSamples ON → portable `.h2project`; OFF → song-only. */
+	/** Serialize the current song — and the plugin's own base-layer
+	 * preferences (ADR 0017 amendment/0022) — to a plugin-state buffer. The
+	 * buffer is always the `.h2project` archive container;
+	 * @param bEmbedSamples ON → portable bundle (sample audio embedded);
+	 *   OFF → song-only (the kit must be installed to reload). */
 	std::vector<unsigned char> saveState( bool bEmbedSamples );
-	/** Replace the current song from a plugin-state buffer (embedded or
-	 * song-only, auto-detected). */
+	/** Replace the current song from a plugin-state buffer (container
+	 * auto-detected), adopting the stored plugin preferences where the
+	 * state carries them. */
 	bool loadState( const std::vector<unsigned char>& data );
 
 	Hydrogen* getHydrogen() const { return m_pHydrogen; }

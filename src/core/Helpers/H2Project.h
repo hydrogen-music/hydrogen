@@ -24,6 +24,7 @@
 
 #include <core/Object.h>
 
+#include <QByteArray>
 #include <QString>
 
 #include <memory>
@@ -33,6 +34,7 @@ namespace H2Core {
 
 class Song;
 class Hydrogen;
+class Preferences;
 
 /**
  * Codec for the self-contained `.h2project` bundle (ADR 0025).
@@ -92,18 +94,30 @@ public:
 											bool bSilent = false );
 
 	/** Serialize a song to a plugin-state buffer (ADR 0017/0020/0025/T4b.5).
-	 * @param bEmbedSamples ON → a portable `.h2project` bundle (samples
-	 *   embedded); OFF → song-only state (the `.h2song` XML; the kit must be
-	 *   installed to reload). */
+	 * The buffer is always the `.h2project` archive container (ADR 0017
+	 * amendment): @a bEmbedSamples only decides whether the sample audio
+	 * rides along, while the plugin's own preferences always do when
+	 * given.
+	 * @param bEmbedSamples ON → portable bundle (samples embedded); OFF →
+	 *   song-only (the kit must be installed to reload).
+	 * @param pPreferences The plugin instance's preferences; their
+	 *   ownership-eligible rows (ADR 0022) are stored as a preferences.xml
+	 *   entry. */
 	static std::vector<unsigned char> toState( std::shared_ptr<Song> pSong,
 												bool bEmbedSamples,
-												bool bSilent = false );
+												bool bSilent = false,
+												std::shared_ptr<Preferences>
+													pPreferences = nullptr );
 
 	/** Reconstruct a song from a plugin-state buffer, accepting both embedded
-	 * (`.h2project`) and song-only states (detected by container). */
+	 * (`.h2project`) and song-only states (detected by container).
+	 * @param pPreferencesXml If not null: cleared, then - for archive
+	 *   states carrying a preferences entry - filled with the stored
+	 *   preferences document. Absent entries and song-only states leave
+	 *   it empty, so the caller keeps its current preferences. */
 	static std::shared_ptr<Song> fromState(
 		const std::vector<unsigned char>& data, Hydrogen* pHydrogen,
-		bool bSilent = false );
+		bool bSilent = false, QByteArray* pPreferencesXml = nullptr );
 
 	/** Heuristic: does this buffer look like a `.h2project` archive (vs a plain
 	 * `.h2song` XML document)? Used by the unified open path (T4b.3). */

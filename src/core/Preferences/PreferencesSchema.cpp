@@ -2422,10 +2422,29 @@ static_assert(
 	"member, extend the canary binding above, tieAllMembers(), and "
 	"kSchemaRows together" );
 
+namespace {
+
+// Whether ownership permits this instance to write the row (ADR 0022/0023).
+bool rowEligible( const FieldRow& row, Preferences::FieldOwnership ownership )
+{
+	switch ( ownership ) {
+	case Preferences::FieldOwnership::All:
+		return true;
+	case Preferences::FieldOwnership::BaseLayer:
+		return row.layer == Layer::Base;
+	case Preferences::FieldOwnership::GuiOwned:
+		return row.layer == Layer::Base && row.owner == Owner::Gui;
+	}
+	return false;
+}
+
+} // namespace
+
 void PreferencesSchema::writeRows(
 	XMLNode& rootNode,
 	const PreferencesData& data,
 	std::optional<Owner> ownerFilter,
+	std::optional<Preferences::FieldOwnership> ownershipFilter,
 	const WriteContext& context
 )
 {
@@ -2433,6 +2452,10 @@ void PreferencesSchema::writeRows(
 	for ( int ii = 0; ii < kSchemaRowCount; ++ii ) {
 		const FieldRow& row = kSchemaRows[ii];
 		if ( ownerFilter.has_value() && row.owner != *ownerFilter ) {
+			continue;
+		}
+		if ( ownershipFilter.has_value() &&
+			 ! rowEligible( row, *ownershipFilter ) ) {
 			continue;
 		}
 
@@ -2456,20 +2479,6 @@ void PreferencesSchema::writeRows(
 }
 
 namespace {
-
-// Whether ownership permits this instance to write the row (ADR 0022/0023).
-bool rowEligible( const FieldRow& row, Preferences::FieldOwnership ownership )
-{
-	switch ( ownership ) {
-	case Preferences::FieldOwnership::All:
-		return true;
-	case Preferences::FieldOwnership::BaseLayer:
-		return row.layer == Layer::Base;
-	case Preferences::FieldOwnership::GuiOwned:
-		return row.layer == Layer::Base && row.owner == Owner::Gui;
-	}
-	return false;
-}
 
 // Whether a child element of a parent belongs to the row: an exact (or
 // opaque-subtree) name match, or a formatted-container name prefix.
@@ -2718,6 +2727,7 @@ void PreferencesSchema::readRows(
 	const XMLNode& rootNode,
 	PreferencesData& data,
 	std::optional<Owner> ownerFilter,
+	std::optional<Preferences::FieldOwnership> ownershipFilter,
 	const ReadContext& context
 )
 {
@@ -2725,6 +2735,10 @@ void PreferencesSchema::readRows(
 	for ( int ii = 0; ii < kSchemaRowCount; ++ii ) {
 		const FieldRow& row = kSchemaRows[ii];
 		if ( ownerFilter.has_value() && row.owner != *ownerFilter ) {
+			continue;
+		}
+		if ( ownershipFilter.has_value() &&
+			 ! rowEligible( row, *ownershipFilter ) ) {
 			continue;
 		}
 

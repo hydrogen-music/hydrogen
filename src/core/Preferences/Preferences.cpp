@@ -272,7 +272,8 @@ std::shared_ptr<Preferences> Preferences::load(
 	context.bLegacyPlaySelectedInstrument = bPlaySelectedInstrument;
 	context.bApplyLegacyMidiInput = true;
 
-	PreferencesSchema::readRows( rootNode, *pPref, std::nullopt, context );
+	PreferencesSchema::readRows(
+		rootNode, *pPref, std::nullopt, std::nullopt, context );
 
 	// Surface config drift (typos, stale or foreign elements) instead of
 	// silently dropping it (ADR 0023 amendment).
@@ -300,7 +301,8 @@ bool Preferences::saveCopyAs( const QString& sPath, const bool bSilent ) const
 
 	PreferencesSchema::WriteContext context;
 	context.bSilent = bSilent;
-	PreferencesSchema::writeRows( rootNode, *this, std::nullopt, context );
+	PreferencesSchema::writeRows(
+		rootNode, *this, std::nullopt, std::nullopt, context );
 
 	return doc.write( sPath );
 }
@@ -1555,7 +1557,7 @@ QByteArray Preferences::corePropsToXml() const
 	PreferencesSchema::WriteContext context;
 	context.bSilent = true;
 	PreferencesSchema::writeRows(
-		rootNode, *this, PreferencesSchema::Owner::Core, context
+		rootNode, *this, PreferencesSchema::Owner::Core, std::nullopt, context
 	);
 
 	return doc.toString().toUtf8();
@@ -1584,8 +1586,56 @@ void Preferences::applyCorePropsFromXml( const QByteArray& xml )
 	context.bApplyLegacyMidiInput = false;
 
 	PreferencesSchema::readRows(
-		rootNode, *this, PreferencesSchema::Owner::Core, context
+		rootNode, *this, PreferencesSchema::Owner::Core, std::nullopt, context
 	);
+}
+
+QByteArray Preferences::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode rootNode = doc.set_root( PreferencesKeys::Root );
+
+	// A full document, not an IPC fragment: it is persisted inside the host
+	// project state, so future readers must be able to migrate it.
+	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
+	rootNode.write_string( "version", QString( get_version().c_str() ) );
+
+	// Only the rows this instance's ownership may write (ADR 0022): a
+	// plugin guest serializes its base layer, never the host-owned
+	// override layer.
+	PreferencesSchema::WriteContext context;
+	context.bSilent = true;
+	PreferencesSchema::writeRows(
+		rootNode, *this, std::nullopt, m_fieldOwnership, context );
+
+	return doc.toString().toUtf8();
+}
+
+void Preferences::applyFromXmlBuffer( const QByteArray& xml )
+{
+	XMLDoc doc;
+	if ( !doc.setContent( xml ) ) {
+		ERRORLOG( "Unable to parse preferences XML" );
+		return;
+	}
+	const XMLNode rootNode = doc.firstChildElement( PreferencesKeys::Root );
+	if ( rootNode.isNull() ) {
+		ERRORLOG( "Preferences XML: no root node found" );
+		return;
+	}
+
+	// An overlay: rows the document does not carry keep their current
+	// values, and only the rows this instance's ownership may write are
+	// applied (ADR 0022) — a restoring plugin guest never adopts the
+	// host-owned override layer.
+	PreferencesSchema::ReadContext context;
+	context.bSilent = true;
+	context.bSearchForRubberband = m_bSearchForRubberbandOnLoad;
+	context.bEmitStructuralWarnings = false;
+	context.bApplyLegacyMidiInput = false;
+
+	PreferencesSchema::readRows(
+		rootNode, *this, std::nullopt, m_fieldOwnership, context );
 }
 
 QString Preferences::ChangesToQString( Preferences::Changes changes )

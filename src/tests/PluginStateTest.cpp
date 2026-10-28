@@ -30,6 +30,7 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/H2Project.h>
 #include <core/Hydrogen.h>
 #include <core/Preferences/Preferences.h>
@@ -95,32 +96,62 @@ void PluginStateTest::testEmbedOn() {
 	// Samples came back decoded straight from the embedded bundle.
 	CPPUNIT_ASSERT( hasLoadedSample( pBack ) );
 
+	// Without a preferences argument the archive carries no preferences
+	// entry: the out-param stays empty and the caller keeps its own.
+	QByteArray prefsXmlAbsent;
+	auto pBackNoPrefs = H2Project::fromState(
+		state, pTestHydrogen(), true, &prefsXmlAbsent );
+	CPPUNIT_ASSERT( pBackNoPrefs != nullptr );
+	CPPUNIT_ASSERT( prefsXmlAbsent.isEmpty() );
+
+	// With one, the entry round-trips byte-identically: fromState hands
+	// back exactly the blob toState embedded (ADR 0022/0025).
+	auto pPreferences = std::make_shared<Preferences>();
+	pPreferences->setFieldOwnership( Preferences::FieldOwnership::BaseLayer );
+	pPreferences->setLastOpenSongDirectory( Filesystem::userPatternsDir() );
+	const auto withPrefs = H2Project::toState(
+		pSong, /*bEmbedSamples=*/true, true, pPreferences );
+	CPPUNIT_ASSERT( ! withPrefs.empty() );
+
+	QByteArray prefsXml;
+	auto pBackPrefs = H2Project::fromState(
+		withPrefs, pTestHydrogen(), true, &prefsXml );
+	CPPUNIT_ASSERT( pBackPrefs != nullptr );
+	CPPUNIT_ASSERT( ! prefsXml.isEmpty() );
+	CPPUNIT_ASSERT( prefsXml == pPreferences->toXmlBuffer() );
+
 	___INFOLOG( "passed" );
 }
 
-// Embed OFF → the plugin state is song-only (the `.h2song` XML), much smaller
-// than the embedded bundle and not an archive; it still reconstructs the song.
+// Embed OFF → the plugin state is still the `.h2project` archive container,
+// just without the `samples/*` entries: much smaller than the embedded
+// bundle, and it still reconstructs the song (ADR 0025).
 void PluginStateTest::testEmbedOff() {
 	___INFOLOG( "" );
 
 	auto pSong = makeLoadedSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	const auto songOnly = H2Project::toState( pSong, /*bEmbedSamples=*/false, true );
-	CPPUNIT_ASSERT( ! songOnly.empty() );
-	CPPUNIT_ASSERT( ! H2Project::looksLikeArchive( songOnly ) );
+	const auto sampleFree =
+		H2Project::toState( pSong, /*bEmbedSamples=*/false, true );
+	CPPUNIT_ASSERT( ! sampleFree.empty() );
+	CPPUNIT_ASSERT( H2Project::looksLikeArchive( sampleFree ) );
 
-	auto pBack = H2Project::fromState( songOnly, pTestHydrogen(), true );
+	QByteArray prefsXml;
+	auto pBack = H2Project::fromState(
+		sampleFree, pTestHydrogen(), true, &prefsXml );
 	CPPUNIT_ASSERT( pBack != nullptr );
+	// Created without a preferences argument: no entry, empty out-param.
+	CPPUNIT_ASSERT( prefsXml.isEmpty() );
 	CPPUNIT_ASSERT_EQUAL(
 		pSong->getDrumkit()->getInstruments()->size(),
 		pBack->getDrumkit()->getInstruments()->size() );
 
-	// Song-only state carries no sample audio, so it is far smaller than the
-	// embedded bundle.
+	// The embed-off state carries no sample audio, so it is far smaller
+	// than the embedded bundle.
 	const auto embedded = H2Project::toState( pSong, /*bEmbedSamples=*/true, true );
 	CPPUNIT_ASSERT( ! embedded.empty() );
-	CPPUNIT_ASSERT( songOnly.size() < embedded.size() );
+	CPPUNIT_ASSERT( sampleFree.size() < embedded.size() );
 
 	___INFOLOG( "passed" );
 }

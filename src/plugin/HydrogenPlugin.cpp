@@ -26,6 +26,7 @@
 #include <core/Basics/Song.h>
 #include <core/CommonStrings.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/H2Project.h>
 #include <core/Helpers/Translations.h>
@@ -402,8 +403,8 @@ std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
 	// able to glitch.
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto state =
-		H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples, true );
+	const auto state = H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples,
+										  true, m_pHydrogen->getPreferences() );
 	pAudioEngine->unlock();
 	return state;
 }
@@ -414,11 +415,34 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 		return false;
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
-	auto pSong = H2Project::fromState( data, m_pHydrogen, true );
+	QByteArray prefsXml;
+	auto pSong = H2Project::fromState( data, m_pHydrogen, true, &prefsXml );
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to load state" );
 		return false;
 	}
+
+	// The plugin's own base-layer config (ADR 0022) rides in the state:
+	// apply it as an overlay before the song takes the stage. The
+	// host-owned override layer (sample rate, buffer size, drivers) is not
+	// part of the blob and stays this instance's own.
+	if ( ! prefsXml.isEmpty() ) {
+		auto pPreferences = m_pHydrogen->getPreferences();
+		pPreferences->applyFromXmlBuffer( prefsXml );
+
+		// The light-path side effects of a preferences change (mirroring
+		// CoreActionController::setPreferences): the metronome follows its
+		// volume, and an operational engine is told to re-sync. Driver
+		// restarts are deliberately skipped - mid-loadState the host owns
+		// the audio geometry, not the stored config.
+		m_pHydrogen->getAudioEngine()->getMetronomeInstrument()->setVolume(
+			pPreferences->m_fMetronomeVolume );
+		if ( m_pHydrogen->isFullyOperational() ) {
+			m_pHydrogen->getEventQueue()->pushEvent(
+				H2Core::Event::Type::UpdatePreferences, 1 );
+		}
+	}
+
 	return m_pHydrogen->getCoreActionController()->setSong( pSong );
 }
 

@@ -254,6 +254,22 @@ QString describe( const T& value )
 	}
 }
 
+template <typename Elem>
+bool elementsEqual( const Elem& ea, const Elem& eb )
+{
+	if constexpr ( is_shared_ptr<Elem>::value ) {
+		// Pointer equality would always fail: loadFrom() hands back a
+		// fresh object. Compare the serialized form instead.
+		return serializeShared( ea ) == serializeShared( eb );
+	}
+	else if constexpr ( std::is_same_v<Elem, WindowProperties> ) {
+		return equal( ea, eb );
+	}
+	else {
+		return ea == eb;
+	}
+}
+
 template <std::size_t I = 0, typename Tuple>
 void compareTuple(
 	const Tuple& a,
@@ -264,28 +280,47 @@ void compareTuple(
 {
 	if constexpr ( I < std::tuple_size_v<Tuple> ) {
 		using Elem = std::remove_reference_t<decltype( std::get<I>( a ) )>;
-		const Elem& ea = std::get<I>( a );
-		const Elem& eb = std::get<I>( b );
-		bool bEqual = false;
-		if constexpr ( is_shared_ptr<Elem>::value ) {
-			// Pointer equality would always fail: loadFrom() hands back a
-			// fresh object. Compare the serialized form instead.
-			bEqual = serializeShared( ea ) == serializeShared( eb );
-		}
-		else if constexpr ( std::is_same_v<Elem, WindowProperties> ) {
-			bEqual = equal( ea, eb );
-		}
-		else {
-			bEqual = ( ea == eb );
-		}
-		if ( !bEqual ) {
+		if ( ! elementsEqual<Elem>( std::get<I>( a ), std::get<I>( b ) ) ) {
 			++nFailures;
 			sReport += QString( "  [%1] %2 != %3\n" )
 						   .arg( static_cast<int>( I ) )
-						   .arg( describe( ea ) )
-						   .arg( describe( eb ) );
+						   .arg( describe( std::get<I>( a ) ) )
+						   .arg( describe( std::get<I>( b ) ) );
 		}
 		compareTuple<I + 1>( a, b, sReport, nFailures );
+	}
+}
+
+// Row-by-row oracle for ownership-filtered cycles: tuple element i
+// corresponds to schema row i (tieAllMembers contract), so the row's layer
+// decides what must have happened — a base row must carry source's value,
+// an override row must leave the target's own (default) value untouched.
+template <std::size_t I = 0, typename Tuple>
+void compareOwnershipFiltered(
+	const Tuple& source,
+	const Tuple& target,
+	const Tuple& defaults,
+	QString& sReport,
+	int& nFailures
+)
+{
+	if constexpr ( I < std::tuple_size_v<Tuple> ) {
+		using Elem = std::remove_reference_t<
+			decltype( std::get<I>( source ) )>;
+		const auto& row = PreferencesSchema::kSchemaRows[ I ];
+		const bool bBase = row.layer == PreferencesSchema::Layer::Base;
+		const Elem& eExpected =
+			bBase ? std::get<I>( source ) : std::get<I>( defaults );
+		if ( ! elementsEqual<Elem>( std::get<I>( target ), eExpected ) ) {
+			++nFailures;
+			sReport += QString( "  [%1] %2 row: %3 != %4\n" )
+						   .arg( static_cast<int>( I ) )
+						   .arg( bBase ? "base" : "override" )
+						   .arg( describe( std::get<I>( target ) ) )
+						   .arg( describe( eExpected ) );
+		}
+		compareOwnershipFiltered<I + 1>(
+			source, target, defaults, sReport, nFailures );
 	}
 }
 
@@ -315,14 +350,16 @@ void PreferencesSchemaTest::testSchemaRoundTrip()
 	XMLNode root = doc.set_root( "hydrogen_preferences" );
 	PreferencesSchema::WriteContext writeContext;
 	writeContext.bSilent = true;
-	PreferencesSchema::writeRows( root, source, std::nullopt, writeContext );
+	PreferencesSchema::writeRows(
+		root, source, std::nullopt, std::nullopt, writeContext );
 
 	PreferencesData loaded;
 	PreferencesSchema::ReadContext readContext;
 	readContext.bSilent = true;
 	readContext.bEmitStructuralWarnings = false;
 	readContext.bSearchForRubberband = true;
-	PreferencesSchema::readRows( root, loaded, std::nullopt, readContext );
+	PreferencesSchema::readRows(
+		root, loaded, std::nullopt, std::nullopt, readContext );
 
 	auto a = PreferencesSchema::tieAllMembers( source );
 	auto b = PreferencesSchema::tieAllMembers( loaded );
@@ -334,6 +371,72 @@ void PreferencesSchemaTest::testSchemaRoundTrip()
 		QString( "%1 of %2 schema rows lost data:\n%3" )
 			.arg( nFailures )
 			.arg( static_cast<int>( std::tuple_size_v<decltype( a )> ) )
+			.arg( sReport )
+			.toStdString(),
+		nFailures == 0
+	);
+
+	___INFOLOG( "passed" );
+}
+
+void PreferencesSchemaTest::testOwnershipFilteredRoundTrip()
+{
+	___INFOLOG( "" );
+
+	// The plugin-state slice (ADR 0022): a BaseLayer-filtered write/read
+	// cycle must carry every base row and drop every override row. Tuple
+	// element i corresponds to schema row i, so the row's layer tells
+	// exactly which members must transfer and which must keep the target's
+	// own values.
+
+	PreferencesData source;
+	perturbAll( source );
+
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "hydrogen_preferences" );
+	PreferencesSchema::WriteContext writeContext;
+	writeContext.bSilent = true;
+	PreferencesSchema::writeRows(
+		root, source, std::nullopt,
+		Preferences::FieldOwnership::BaseLayer, writeContext );
+
+	PreferencesSchema::ReadContext readContext;
+	readContext.bSilent = true;
+	readContext.bEmitStructuralWarnings = false;
+	readContext.bSearchForRubberband = true;
+
+	// Read filter: a filtered read onto fresh data adopts the base rows
+	// and leaves every override member at its default.
+	PreferencesData target;
+	PreferencesSchema::readRows(
+		root, target, std::nullopt,
+		Preferences::FieldOwnership::BaseLayer, readContext );
+
+	// Write filter: an unfiltered read of the same document must find
+	// every base row with source's value and no override element at all
+	// (the override members stay at their defaults).
+	PreferencesData unfiltered;
+	PreferencesSchema::readRows(
+		root, unfiltered, std::nullopt, std::nullopt, readContext );
+
+	PreferencesData defaults;
+	auto a = PreferencesSchema::tieAllMembers( source );
+	auto b = PreferencesSchema::tieAllMembers( target );
+	auto c = PreferencesSchema::tieAllMembers( unfiltered );
+	auto d = PreferencesSchema::tieAllMembers( defaults );
+
+	CPPUNIT_ASSERT_EQUAL(
+		PreferencesSchema::kSchemaRowCount,
+		static_cast<int>( std::tuple_size_v<decltype( a )> ) );
+
+	QString sReport;
+	int nFailures = 0;
+	compareOwnershipFiltered( a, b, d, sReport, nFailures );
+	compareOwnershipFiltered( a, c, d, sReport, nFailures );
+
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "%1 ownership-filter checks failed:\n%2" )
+			.arg( nFailures )
 			.arg( sReport )
 			.toStdString(),
 		nFailures == 0

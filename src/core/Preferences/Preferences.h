@@ -578,6 +578,20 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	 * fields (window geometry, theme, shortcuts, recent files) are preserved. */
 	void applyCorePropsFromXml( const QByteArray& xml );
 
+	/** Serialize this instance's ownership-eligible rows (ADR 0022 layering)
+	 * to a self-contained XML document — the plugin's own config slice
+	 * carried inside the host project state (ADR 0017 amendment). Unlike the
+	 * IPC core fragment this is a full document with formatVersion, so
+	 * future readers can migrate it. */
+	QByteArray toXmlBuffer() const;
+
+	/** Apply an XML document produced by toXmlBuffer() onto this instance:
+	 * an overlay — only rows the document actually carries overwrite their
+	 * values, missing rows keep the current ones. Restricted to the rows
+	 * this instance's ownership may write, so a restoring plugin guest
+	 * never adopts the host-owned override layer. */
+	void applyFromXmlBuffer( const QByteArray& xml );
+
 	static std::vector<AudioDriver> getSupportedAudioDrivers();
 
 	/**

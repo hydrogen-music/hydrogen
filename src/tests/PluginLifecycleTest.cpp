@@ -30,16 +30,20 @@
 #include <vector>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Instrument.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/H2Project.h>
+#include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/Logger.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -195,11 +199,110 @@ void PluginLifecycleTest::testPluginStateRoundTrip() {
 	CPPUNIT_ASSERT( other.loadState( state ) );
 	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
 
-	// Song-only state round-trips too.
+	// Song-only state round-trips too. It is the same archive container,
+	// just without the sample entries (ADR 0017 amendment).
 	const auto songOnly = plugin.saveState( /*bEmbedSamples=*/false );
 	CPPUNIT_ASSERT( ! songOnly.empty() );
-	CPPUNIT_ASSERT( ! H2Project::looksLikeArchive( songOnly ) );
+	CPPUNIT_ASSERT( H2Project::looksLikeArchive( songOnly ) );
 	CPPUNIT_ASSERT( other.loadState( songOnly ) );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
+	___INFOLOG( "" );
+
+	// The plugin's own base-layer config (ADR 0022) rides in the state
+	// blob: a restoring instance adopts the saving instance's last-used
+	// directories and MIDI instrument map, while its host-owned override
+	// layer (sample rate, buffer size) stays its own. The shared user
+	// config file is never written.
+
+	HydrogenPlugin saver( 44100, 512, 2 );
+	auto pSaverPref = saver.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pSaverPref != nullptr );
+
+	// The plugin never persists its runtime config: whatever the state
+	// round-trip applies, the user config file must stay byte-identical
+	// (or stay absent). Snapshot after construction so bootstrap noise
+	// cannot mask the pin.
+	const QString sConfigPath = Filesystem::userConfigPath();
+	QByteArray configBefore;
+	bool bConfigExists = false;
+	{
+		QFile file( sConfigPath );
+		if ( file.exists() ) {
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			configBefore = file.readAll();
+			file.close();
+			bConfigExists = true;
+		}
+	}
+
+	// Distinctive base-layer values — several differ from the defaults,
+	// so adoption cannot pass vacuously.
+	pSaverPref->setLastOpenSongDirectory( Filesystem::userPatternsDir() );
+	auto pSaverMap = pSaverPref->getMidiInstrumentMap();
+	CPPUNIT_ASSERT( pSaverMap != nullptr );
+	pSaverMap->setInput( MidiInstrumentMap::Input::Custom );
+	pSaverMap->setOutput( MidiInstrumentMap::Output::Constant );
+	pSaverMap->setUseGlobalInputChannel( true );
+	pSaverMap->setGlobalInputChannel( Midi::channelFromInt( 3 ) );
+	auto pTypedInstrument = std::make_shared<Instrument>();
+	pTypedInstrument->setType( "Kick" );
+	pSaverMap->insertCustomInputMapping(
+		pTypedInstrument, Midi::noteFromInt( 60 ), Midi::channelFromInt( 5 ) );
+
+	const auto state = saver.saveState( /*bEmbedSamples=*/true );
+	CPPUNIT_ASSERT( ! state.empty() );
+
+	// A fresh instance at a different host geometry restores it.
+	HydrogenPlugin other( 48000, 256, 2 );
+	auto pOtherPref = other.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pOtherPref != nullptr );
+	// A known sentinel, so the restore cannot pass vacuously whatever
+	// the shared user config happens to contain.
+	pOtherPref->setLastOpenSongDirectory( QDir::homePath() );
+
+	CPPUNIT_ASSERT( other.loadState( state ) );
+	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
+
+	// Base layer restored from the saving instance.
+	CPPUNIT_ASSERT( pOtherPref->getLastOpenSongDirectory() ==
+					Filesystem::userPatternsDir() );
+	CPPUNIT_ASSERT( pOtherPref->getMidiInstrumentMap()->toXmlBuffer() ==
+					pSaverMap->toXmlBuffer() );
+
+	// Override layer stays the restoring host's own (ADR 0022: the host
+	// owns the audio geometry; it is not part of the plugin's config).
+	CPPUNIT_ASSERT( pOtherPref->m_nSampleRate == 48000 );
+	CPPUNIT_ASSERT( pOtherPref->m_nBufferSize == 256 );
+
+	// Legacy bare-XML song blobs (state from before the always-archive
+	// form) still load and leave the current preferences untouched.
+	pOtherPref->setLastOpenSongDirectory( QDir::tempPath() );
+	const QByteArray legacyXml = saver.getHydrogen()->getSong()->toXmlBuffer(
+		Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, true );
+	const std::vector<unsigned char> legacyState(
+		legacyXml.constData(), legacyXml.constData() + legacyXml.size() );
+	CPPUNIT_ASSERT( other.loadState( legacyState ) );
+	CPPUNIT_ASSERT( pOtherPref->getLastOpenSongDirectory() ==
+					QDir::tempPath() );
+
+	// The shared user config was never written.
+	{
+		QFile file( sConfigPath );
+		if ( bConfigExists ) {
+			CPPUNIT_ASSERT( file.exists() );
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			const QByteArray configAfter = file.readAll();
+			file.close();
+			CPPUNIT_ASSERT( configAfter == configBefore );
+		}
+		else {
+			CPPUNIT_ASSERT( ! file.exists() );
+		}
+	}
 
 	___INFOLOG( "passed" );
 }

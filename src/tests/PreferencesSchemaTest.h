@@ -38,6 +38,7 @@ class PreferencesSchemaTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testLegacyDefaultConfigClean );
 	CPPUNIT_TEST( testShippedDefaultConfigLoadsWarningFree );
 	CPPUNIT_TEST( testOverrideLayerMembership );
+	CPPUNIT_TEST( testOwnershipFilteredRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -54,6 +55,11 @@ public:
 	 * defaults must not warn. */
 	void testShippedDefaultConfigLoadsWarningFree();
 	void testOverrideLayerMembership();
+	/** The BaseLayer ownership filter (the plugin-state slice, ADR 0022):
+	 * a filtered write/read cycle must carry every base row and drop every
+	 * override row — pinned row by row via the tieAllMembers index
+	 * correspondence. */
+	void testOwnershipFilteredRoundTrip();
 
 private:
 	unsigned m_nPreviousBitMask = 0;
