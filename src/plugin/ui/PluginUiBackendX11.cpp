@@ -590,19 +590,25 @@ private:
 		ImGuiIO& io = ImGui::GetIO();
 		const bool bPressed = ( key.type == KeyPress );
 		KeySym keySym = NoSymbol;
-		if ( m_inputContext != nullptr ) {
+		if ( m_inputContext != nullptr && bPressed ) {
 			// XIM (TU6.2): UTF-8 composition — IME input and non-ASCII
 			// locales. The IM's filtered events never reach here; the
-			// composed result arrives as a KeyPress (keycode 0).
+			// composed result arrives as a KeyPress (keycode 0). The IM
+			// lookup is defined for KeyPress events only — a release
+			// comes back keysym-less and would be dropped as
+			// ImGuiKey_None, sticking the key down — so releases take
+			// the plain resolution below.
 			std::string sText;
 			lookupUtf8( key, keySym, sText );
-			if ( bPressed && ! sText.empty() ) {
+			if ( ! sText.empty() ) {
 				io.AddInputCharactersUTF8( sText.c_str() );
 			}
 		}
 		else {
-			// No input method (headless Xvfb, bare hosts): keysym and
-			// locale-encoded text in one pass. The basic UI's entry is
+			// No input method (headless Xvfb, bare hosts) or a key
+			// release: keysym and locale-encoded text in one plain
+			// pass — XLookupString resolves the keycode's keysym for
+			// presses and releases alike. The basic UI's entry is
 			// ASCII (digits, minus), where byte == codepoint.
 			char sRaw[ 32 ] = {};
 			const int nText = XLookupString( &key, sRaw,

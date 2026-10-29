@@ -145,6 +145,42 @@ public:
 			m_frameGate.request();
 		}
 
+		// Input liveness vs. the trickle queue: imgui spreads a quick
+		// tap's press+release over two frames
+		// (io.ConfigInputTrickleEventQueue, default on), and the
+		// deferred release only processes in a LATER frame. This gate's
+		// frames are request-driven and the release's arrival already
+		// spent its request — without this, the release strands and the
+		// key sticks down, its auto-repeat (io.KeyRepeatDelay) running
+		// away inside an active InputText. So: while imgui still holds a
+		// key or button down, or a text field wants input (which also
+		// drains trickle-deferred text events), keep frames coming at
+		// the gate's ceiling until the state settles.
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			if ( io.WantTextInput ) {
+				m_frameGate.request();
+			}
+			else {
+				for ( ImGuiKey key = ImGuiKey_NamedKey_BEGIN;
+					  key < ImGuiKey_NamedKey_END;
+					  key = static_cast<ImGuiKey>( key + 1 ) ) {
+					if ( io.KeysData[ key - ImGuiKey_NamedKey_BEGIN ]
+							 .Down ) {
+						m_frameGate.request();
+						break;
+					}
+				}
+			}
+			for ( int button = 0; button < ImGuiMouseButton_COUNT;
+				  ++button ) {
+				if ( io.MouseDown[ button ] ) {
+					m_frameGate.request();
+					break;
+				}
+			}
+		}
+
 		// A frame is also owed when the active tab's displayed data went
 		// stale: the engine keeps moving underneath (playback, editor
 		// edits) with no input event to latch a request. Only the active

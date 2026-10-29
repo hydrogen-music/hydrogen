@@ -328,6 +328,45 @@ int main( int argc, char** argv ) {
 			window.mouseState( fX, fY, nButtons );
 			check( fX < 0.0f && fY < 0.0f && nButtons == 0,
 				   "release/leave not translated (UI-4)" );
+
+			// The trickle queue vs. the on-demand gate: a quick tap's
+			// press+release land in one pump batch, and imgui's event
+			// trickling (io.ConfigInputTrickleEventQueue, default on)
+			// processes the press while deferring the release to a
+			// later frame. That frame must actually happen — the gate's
+			// frames are request-driven, and the release's arrival
+			// already spent its request on the frame that ate the
+			// press. A stranded release leaves the key stuck down in
+			// io.KeysData, and its auto-repeat (io.KeyRepeatDelay) runs
+			// away inside an active InputText — the caret drifts on its
+			// own and every later edit lands at the moving position.
+			ev = {};
+			ev.xkey.type = KeyPress;
+			ev.xkey.window = child;
+			ev.xkey.keycode = XKeysymToKeycode( pDisplay, XK_Left );
+			sendEvent( ev );
+			ev.xkey.type = KeyRelease;
+			sendEvent( ev );
+			// Idles past the gate's interval: whatever frames the
+			// pending state deserves get every chance to render.
+			for ( int i = 0; i < 6; ++i ) {
+				std::this_thread::sleep_for(
+					std::chrono::milliseconds( 35 ) );
+				window.idle();
+			}
+			bool bAnyKeyDown = false;
+			ImGuiIO& io = ImGui::GetIO();
+			for ( ImGuiKey key = ImGuiKey_NamedKey_BEGIN;
+				  key < ImGuiKey_NamedKey_END;
+				  key = static_cast<ImGuiKey>( key + 1 ) ) {
+				if ( io.KeysData[ key - ImGuiKey_NamedKey_BEGIN ].Down ) {
+					bAnyKeyDown = true;
+					break;
+				}
+			}
+			check( ! bAnyKeyDown,
+				   "quick key tap leaves the key stuck down (trickle "
+				   "release stranded by the on-demand gate)" );
 		}
 		// getSize/setSize (UI-5, TU5.3): the host sizes the embedded child
 		// (CLAP guiSetSize); the tracked size must follow — the immediate
