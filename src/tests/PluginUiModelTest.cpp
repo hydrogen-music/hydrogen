@@ -358,6 +358,54 @@ void PluginUiModelTest::testLandingEditorExecutablePersistence()
 	___INFOLOG( "passed" );
 }
 
+void PluginUiModelTest::testLandingEmbedSamplesPreference()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	PluginUiLandingModel model( &plugin );
+	auto pPreferences = plugin.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pPreferences != nullptr );
+
+	// The checkbox is a preference, not session state: the model serves
+	// the instance's base-layer value and the toggle writes it — the
+	// same seam the CLAP/LV2 state saves read.
+	CPPUNIT_ASSERT( model.setPluginStateEmbedSamples( false ) );
+	CPPUNIT_ASSERT( ! model.pluginStateEmbedSamples() );
+	CPPUNIT_ASSERT( pPreferences->getPluginStateEmbedSamples() == false );
+	CPPUNIT_ASSERT( model.setPluginStateEmbedSamples( true ) );
+	CPPUNIT_ASSERT( model.pluginStateEmbedSamples() );
+	CPPUNIT_ASSERT( pPreferences->getPluginStateEmbedSamples() == true );
+
+	// A model without a plugin has nothing to toggle; its read serves
+	// the default behavior.
+	PluginUiLandingModel orphanModel( nullptr );
+	CPPUNIT_ASSERT( ! orphanModel.setPluginStateEmbedSamples( false ) );
+	CPPUNIT_ASSERT( orphanModel.pluginStateEmbedSamples() );
+
+	// The value survives a config save/load cycle — the regular config
+	// files carry it, not just the plugin state.
+	CPPUNIT_ASSERT( model.setPluginStateEmbedSamples( false ) );
+	const QString sCopyPath =
+		Filesystem::tmpDir().append( "pluginStateEmbedSamples.conf" );
+	CPPUNIT_ASSERT( pPreferences->saveCopyAs( sCopyPath, true ) );
+	auto pLoaded = Preferences::load( sCopyPath, true, nullptr );
+	CPPUNIT_ASSERT( pLoaded != nullptr );
+	CPPUNIT_ASSERT( pLoaded->getPluginStateEmbedSamples() == false );
+	Filesystem::rm( sCopyPath, false, true );
+
+	// A config from before the row existed: the constructor default
+	// applies — old configs keep embedding.
+	auto pLegacy = Preferences::load(
+		H2TEST_FILE( "preferences/legacy-1.2.conf" ), true, nullptr );
+	CPPUNIT_ASSERT( pLegacy != nullptr );
+	CPPUNIT_ASSERT( pLegacy->getPluginStateEmbedSamples() == true );
+
+	___INFOLOG( "passed" );
+}
+
 void PluginUiModelTest::testHtmlToPlainText()
 {
 	___INFOLOG( "" );

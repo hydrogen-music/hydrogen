@@ -255,6 +255,9 @@ void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
 	// The editor-binary override (landing UI) is a base-layer preference
 	// too — it must ride along.
 	saver.setEditorBinary( "/opt/hydrogen-editor" );
+	// The embed-samples toggle (the landing UI's configuration section)
+	// is a base-layer preference as well — it must ride along too.
+	pSaverPref->setPluginStateEmbedSamples( false );
 
 	const auto state = saver.saveState( /*bEmbedSamples=*/true );
 	CPPUNIT_ASSERT( ! state.empty() );
@@ -266,6 +269,7 @@ void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
 	// A known sentinel, so the restore cannot pass vacuously whatever
 	// the shared user config happens to contain.
 	pOtherPref->setLastOpenSongDirectory( QDir::homePath() );
+	pOtherPref->setPluginStateEmbedSamples( true );
 
 	CPPUNIT_ASSERT( other.loadState( state ) );
 	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
@@ -277,6 +281,7 @@ void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
 					pSaverMap->toXmlBuffer() );
 	CPPUNIT_ASSERT( pOtherPref->getPluginEditorBinary() ==
 					"/opt/hydrogen-editor" );
+	CPPUNIT_ASSERT( pOtherPref->getPluginStateEmbedSamples() == false );
 
 	// Override layer stays the restoring host's own (ADR 0022: the host
 	// owns the audio geometry; it is not part of the plugin's config).

@@ -181,6 +181,23 @@ void PluginUiLandingView::draw()
 		m_model.openEditor();
 	}
 
+	// The configuration section: the save-behavior toggle. The value is
+	// live-read each frame — a state restore or config change shows up
+	// without extra plumbing — and the checkbox writes on toggle.
+	const QByteArray sConfigurationHeader =
+		m_pCommonStrings->getConfigurationHeader().toUtf8();
+	ImGui::Separator();
+	if ( ImGui::CollapsingHeader( sConfigurationHeader.constData(),
+								  ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		const QByteArray sIncludeSamplesLabel =
+			m_pCommonStrings->getIncludeSamplesInStateLabel().toUtf8();
+		bool bEmbedSamples = m_model.pluginStateEmbedSamples();
+		if ( ImGui::Checkbox( sIncludeSamplesLabel.constData(),
+							  &bEmbedSamples ) ) {
+			m_model.setPluginStateEmbedSamples( bEmbedSamples );
+		}
+	}
+
 	// The keyed browsers — one IGFD instance, at most one dialog open.
 	// Drawn unconditionally so an open browser survives tab switches.
 	//

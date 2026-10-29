@@ -29,7 +29,9 @@
 #include <plugin/HydrogenPlugin.h>
 #include <plugin/ui/PluginUiWindow.h>
 
+#include <core/Hydrogen.h>
 #include <core/Midi/Midi.h>
+#include <core/Preferences/Preferences.h>
 
 #include <cmath>
 #include <cstdio>
@@ -189,7 +191,13 @@ bool CLAP_ABI stateSave( const clap_plugin_t* plugin, const clap_ostream_t* stre
 	if ( p->engine == nullptr ) {
 		return false;
 	}
-	const auto data = p->engine->saveState( /*bEmbedSamples=*/true );
+	// The embed choice is the user's — the landing UI's configuration
+	// checkbox, persisted as a base-layer preference: with the samples
+	// the state is self-contained, without it the restoring machine
+	// needs the drumkit installed.
+	const bool bEmbedSamples = p->engine->getHydrogen()
+		->getPreferences()->getPluginStateEmbedSamples();
+	const auto data = p->engine->saveState( bEmbedSamples );
 	uint64_t nOffset = 0;
 	while ( nOffset < data.size() ) {
 		const int64_t nWritten = stream->write(

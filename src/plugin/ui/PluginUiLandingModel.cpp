@@ -333,4 +333,25 @@ bool PluginUiLandingModel::openEditor( bool bLaunchProcess )
 	return m_pPlugin->openEditor( bLaunchProcess );
 }
 
+bool PluginUiLandingModel::pluginStateEmbedSamples() const
+{
+	auto pPreferences = preferences();
+	if ( pPreferences == nullptr ) {
+		// Without a plugin (or preferences) the default behavior
+		// applies: a saved state embeds its samples.
+		return true;
+	}
+	return pPreferences->getPluginStateEmbedSamples();
+}
+
+bool PluginUiLandingModel::setPluginStateEmbedSamples( bool bEmbedSamples )
+{
+	auto pPreferences = preferences();
+	if ( pPreferences == nullptr ) {
+		return false;
+	}
+	pPreferences->setPluginStateEmbedSamples( bEmbedSamples );
+	return true;
+}
+
 } // namespace H2Core

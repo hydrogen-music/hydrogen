@@ -1211,9 +1211,16 @@ CommonStrings::CommonStrings(){
 	 * currently in. */
 	m_sCurrentColumnLabel = tr( "Current column" );
 	/*: Label of the info section's row in the embedded plugin UI's
-	 * landing view showing the names of the patterns currently being
-	 * played. */
+	 *  landing view showing the names of the patterns currently being
+	 *  played. */
 	m_sPlayingLabel = tr( "Playing" );
+	/*: Section header above the save-behavior settings in the embedded
+	 *  plugin UI's landing view. */
+	m_sConfigurationHeader = tr( "Configuration" );
+	/*: Checkbox in the embedded plugin UI's landing view; when checked,
+	 *  the state a host saves contains the drumkit's sample audio, so
+	 *  it survives on machines without the drumkit installed. */
+	m_sIncludeSamplesInStateLabel = tr( "Include samples in plugin state" );
 }
 
 QString CommonStrings::getChannelDisplayName( Midi::Channel channel ) const

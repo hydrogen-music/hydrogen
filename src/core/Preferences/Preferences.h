@@ -315,6 +315,11 @@ struct PreferencesData {
 	 *  a value is the highest-precedence override. */
 	QString m_sPluginEditorBinary = "";
 
+	/** Whether a host-saved plugin state contains the drumkit's sample
+	 *  audio (the landing UI's configuration checkbox; the CLAP/LV2
+	 *  state saves read it). */
+	bool m_bPluginStateEmbedSamples = true;
+
 	QString m_sPreferredLanguage = "";
 
 	bool m_bUseRelativeFileNamesForPlaylists = false;
@@ -659,6 +664,9 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 
 	const QString& getPluginEditorBinary() const;
 	void setPluginEditorBinary( const QString& sPath );
+
+	bool getPluginStateEmbedSamples() const;
+	void setPluginStateEmbedSamples( bool bEmbedSamples );
 
 	// General
 	const QString& getPreferredLanguage() const;
@@ -1223,6 +1231,16 @@ inline const QString& Preferences::getPluginEditorBinary() const
 inline void Preferences::setPluginEditorBinary( const QString& sPath )
 {
 	m_sPluginEditorBinary = sPath;
+}
+
+inline bool Preferences::getPluginStateEmbedSamples() const
+{
+	return m_bPluginStateEmbedSamples;
+}
+
+inline void Preferences::setPluginStateEmbedSamples( bool bEmbedSamples )
+{
+	m_bPluginStateEmbedSamples = bEmbedSamples;
 }
 
 // General

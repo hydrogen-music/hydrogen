@@ -2086,6 +2086,16 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Label of the info section&apos;s row in the embedded plugin UI&apos;s * landing view showing the names of the patterns currently being * played.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Configuration</source>
+        <extracomment>Section header above the save-behavior settings in the embedded * plugin UI&apos;s landing view.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include samples in plugin state</source>
+        <extracomment>Checkbox in the embedded plugin UI&apos;s landing view; when checked, * the state a host saves contains the drumkit&apos;s sample audio, so * it survives on machines without the drumkit installed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

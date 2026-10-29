@@ -328,11 +328,11 @@ int main( int argc, char** argv ) {
 
 	// ── Plugin state checks (LV2 state extension) ──────────────────────────
 	// The state interface must persist the `.h2project` blob as exactly one
-	// atom:Chunk property (POD|PORTABLE — the blob embeds its samples, so it
-	// is self-contained) and restore it back. Host-side store/retrieve
-	// stand-ins record what save() hands over; a second instance proves the
-	// restore path in the host order that matters (instantiate → restore →
-	// activate → run, Ardour's sequence).
+	// atom:Chunk property (POD|PORTABLE — the default configuration embeds
+	// the samples, so the blob is self-contained) and restore it back.
+	// Host-side store/retrieve stand-ins record what save() hands over; a
+	// second instance proves the restore path in the host order that
+	// matters (instantiate → restore → activate → run, Ardour's sequence).
 	bool bStateOk = true;
 	const LV2_State_Interface* st = static_cast<const LV2_State_Interface*>(
 		d->extension_data( LV2_STATE__interface ) );
@@ -403,7 +403,9 @@ int main( int argc, char** argv ) {
 				 ( LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE ) ) {
 				bStateOk = false;
 				std::fprintf( stderr,
-					"LV2 SMOKE: state property is not flagged POD|PORTABLE\n" );
+					"LV2 SMOKE: state property is not flagged POD|PORTABLE "
+					"(pluginStateEmbedSamples disabled in the ambient "
+					"config?)\n" );
 			}
 			// The gzip magic proves the payload is the `.h2project`
 			// container, not some other serialization.

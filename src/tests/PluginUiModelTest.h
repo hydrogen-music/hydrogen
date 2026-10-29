@@ -34,6 +34,7 @@ class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testLandingDrumkitListing );
 	CPPUNIT_TEST( testLandingEditorExecutable );
 	CPPUNIT_TEST( testLandingEditorExecutablePersistence );
+	CPPUNIT_TEST( testLandingEmbedSamplesPreference );
 	CPPUNIT_TEST( testHtmlToPlainText );
 	CPPUNIT_TEST( testLandingInfoSnapshot );
 	CPPUNIT_TEST( testMixerMeterPoll );
@@ -80,6 +81,12 @@ public:
 	 * config save/load cycle, and clearing persists as automatic
 	 * resolution. */
 	void testLandingEditorExecutablePersistence();
+	/** TU4.1: the configuration section's embed-samples toggle — the
+	 * checkbox's value is the instance's base-layer preference (the
+	 * same one the CLAP/LV2 state saves read), writes land in it, and
+	 * it persists through a config save/load cycle; a config from
+	 * before the row existed keeps the embed-by-default behavior. */
+	void testLandingEmbedSamplesPreference();
 	/** TU4.1: the picker's info conversion — htmlToPlainText, the
 	 * pure-QtCore reimplementation of QtGui's
 	 * QTextDocumentFragment::fromHtml().toPlainText() (the GUI

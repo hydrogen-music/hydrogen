@@ -40,6 +40,9 @@
 #include <plugin/lv2/Lv2Transport.h>
 #include <plugin/ui/PluginUiWindow.h>
 
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -217,12 +220,15 @@ void cleanup( LV2_Handle instance ) {
 
 // ── State interface (LV2 state extension) ──────────────────────────────────
 // One inline property carries the whole plugin state: the `.h2project` blob
-// (song + base-layer preferences, samples embedded) as an atom:Chunk.
-// Inline properties are the spec-preferred state model ("plugins are
-// strongly encouraged to avoid creating files"), and the embedded blob is
-// self-contained, so the state is POD and portable — a session moves
-// between machines. A future UI toggle to shrink the state (song-only,
-// kit must be installed) would drop PORTABLE with the embedding.
+// (song + base-layer preferences) as an atom:Chunk. Inline properties are
+// the spec-preferred state model ("plugins are strongly encouraged to
+// avoid creating files"). Whether the samples are embedded is the user's
+// choice — the landing UI's configuration checkbox, persisted as the
+// pluginStateEmbedSamples base-layer preference (the default embeds, so
+// the blob is self-contained and the state is POD and portable — a
+// session moves between machines; disabling it shrinks the state to
+// song-only, the restoring machine needs the kit installed, and the
+// PORTABLE flag drops with the embedding).
 //
 // Threading: save() may run concurrently with run(); the engine lock
 // inside HydrogenPlugin::saveState keeps the snapshot consistent (the
@@ -237,10 +243,11 @@ LV2_State_Status stateSave( LV2_Handle instance,
 	if ( p->engine == nullptr ) {
 		return LV2_STATE_ERR_UNKNOWN;
 	}
-	// Embedding the sample audio makes the blob self-contained — the same
-	// choice the CLAP wrapper makes (HydrogenClap.cpp) — so the state
-	// survives on machines without the drumkit installed.
-	const bool bEmbedSamples = true;
+	// The embed choice is the user's (the landing UI's configuration
+	// checkbox, persisted as a base-layer preference) — the same
+	// preference the CLAP wrapper reads (HydrogenClap.cpp).
+	const bool bEmbedSamples = p->engine->getHydrogen()
+		->getPreferences()->getPluginStateEmbedSamples();
 	const auto data = p->engine->saveState( bEmbedSamples );
 	if ( data.empty() ) {
 		// store() requires size > 0; an empty blob means the save failed.

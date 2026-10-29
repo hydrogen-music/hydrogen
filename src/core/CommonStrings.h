@@ -853,6 +853,12 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 		return m_sCurrentColumnLabel;
 	}
 	const QString& getPlayingLabel() const { return m_sPlayingLabel; }
+	const QString& getConfigurationHeader() const {
+		return m_sConfigurationHeader;
+	}
+	const QString& getIncludeSamplesInStateLabel() const {
+		return m_sIncludeSamplesInStateLabel;
+	}
 	/** The display name of @a channel — getAllLabel() for
 	 * #Midi::ChannelAll, getStatusOff() for #Midi::ChannelOff and for
 	 * the invalid -2 of unmapped rows (the GUI disables those widgets
@@ -1251,6 +1257,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sColumnsLabel;
 	QString m_sCurrentColumnLabel;
 	QString m_sPlayingLabel;
+	QString m_sConfigurationHeader;
+	QString m_sIncludeSamplesInStateLabel;
 };
 
 } // namespace H2Core

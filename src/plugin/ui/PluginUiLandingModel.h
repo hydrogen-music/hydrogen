@@ -125,8 +125,16 @@ public:
 	 * plugin. */
 	bool setEditorExecutable( const QString& sPath );
 	/** Opens the external editor — the landing view's button owns this
-	 * (UI-5 retires the hosts' direct `show` path). */
+	 *  (UI-5 retires the hosts' direct `show` path). */
 	bool openEditor( bool bLaunchProcess = true );
+	/** Whether a host-saved plugin state contains the drumkit's sample
+	 *  audio — the landing view's configuration checkbox, the same
+	 *  preference the CLAP/LV2 state saves read. True without a plugin
+	 *  (the default behavior). */
+	bool pluginStateEmbedSamples() const;
+	/** Sets whether the plugin state includes the sample audio — the
+	 *  checkbox's write. False without a plugin. */
+	bool setPluginStateEmbedSamples( bool bEmbedSamples );
 
 private:
 	std::shared_ptr<Preferences> preferences() const;

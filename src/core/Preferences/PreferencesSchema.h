@@ -287,6 +287,7 @@ public:
 			// ── files ──
 			data.m_sLastSongPath, data.m_sLastPlaylistPath,
 			data.m_sDefaultEditor, data.m_sPluginEditorBinary,
+			data.m_bPluginStateEmbedSamples,
 			data.m_customSoundLibraryDirs,
 			// ── root subtrees ──
 			data.m_pMidiEventMap, data.m_pMidiInstrumentMap,
