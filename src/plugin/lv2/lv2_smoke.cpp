@@ -21,8 +21,10 @@
 
 // Minimal LV2 host smoke test (ADR 0014): dlopen the built plugin, drive its
 // full lifecycle (instantiate → connect → activate → run silence → deactivate →
-// cleanup) and assert the master output stays finite, then drive the UI
-// descriptor through its show/hide/idle semantics (proposal 0006, phase UI-0).
+// cleanup) and assert the master output stays finite, exercise the state
+// interface (save → restore round-trip through a second instance), then drive
+// the UI descriptor through its show/hide/idle semantics (proposal 0006,
+// phase UI-0).
 // This stands in for the per-format "instantiate, activate, process silence,
 // no crash" CI check where a full LV2 host / lv2lint is not available.
 // Usage: lv2_smoke <hydrogen.so>
@@ -33,6 +35,7 @@
 #include <lv2/urid/urid.h>
 #include <lv2/ui/ui.h>
 #include <lv2/instance-access/instance-access.h>
+#include <lv2/state/state.h>
 #include <lv2/time/time.h>
 
 #include <plugin/lv2/Lv2Transport.h>
@@ -323,6 +326,191 @@ int main( int argc, char** argv ) {
 		}
 	}
 
+	// ── Plugin state checks (LV2 state extension) ──────────────────────────
+	// The state interface must persist the `.h2project` blob as exactly one
+	// atom:Chunk property (POD|PORTABLE — the blob embeds its samples, so it
+	// is self-contained) and restore it back. Host-side store/retrieve
+	// stand-ins record what save() hands over; a second instance proves the
+	// restore path in the host order that matters (instantiate → restore →
+	// activate → run, Ardour's sequence).
+	bool bStateOk = true;
+	const LV2_State_Interface* st = static_cast<const LV2_State_Interface*>(
+		d->extension_data( LV2_STATE__interface ) );
+	if ( st == nullptr || st->save == nullptr || st->restore == nullptr ) {
+		bStateOk = false;
+		std::fprintf( stderr, "LV2 SMOKE: no state interface\n" );
+	}
+
+	// A host's state map: key URID → stored property.
+	struct StoredProperty {
+		std::vector<unsigned char> data;
+		uint32_t type = 0;
+		uint32_t flags = 0;
+	};
+	using StateMap = std::map<uint32_t, StoredProperty>;
+	const auto hostStore = []( LV2_State_Handle handle, uint32_t key,
+							   const void* value, size_t size, uint32_t type,
+							   uint32_t flags ) -> LV2_State_Status {
+		auto& m = *static_cast<StateMap*>( handle );
+		const auto* bytes = static_cast<const unsigned char*>( value );
+		m[ key ] = { { bytes, bytes + size }, type, flags };
+		return LV2_STATE_SUCCESS;
+	};
+	const auto hostRetrieve = []( LV2_State_Handle handle, uint32_t key,
+								  size_t* size, uint32_t* type,
+								  uint32_t* flags ) -> const void* {
+		const auto& m = *static_cast<const StateMap*>( handle );
+		const auto it = m.find( key );
+		if ( it == m.end() ) {
+			// An absent key: the plugin must fall back to its defaults.
+			return nullptr;
+		}
+		if ( size != nullptr ) { *size = it->second.data.size(); }
+		if ( type != nullptr ) { *type = it->second.type; }
+		if ( flags != nullptr ) { *flags = it->second.flags; }
+		return it->second.data.data();
+	};
+
+	// The one property save() must store: the state blob under the plugin's
+	// #state key (H2_LV2_URI in HydrogenLv2.cpp).
+	const uint32_t stateKey =
+		mapUri( nullptr, "https://hydrogen-music.org/lv2/hydrogen#state" );
+	const uint32_t chunkType = mapUri( nullptr, LV2_ATOM__Chunk );
+
+	// save() on the live instance: LV2 permits it concurrent with run();
+	// the engine lock keeps the snapshot consistent.
+	StateMap savedFromA;
+	if ( bStateOk ) {
+		if ( st->save( inst, hostStore, &savedFromA, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr, "LV2 SMOKE: state save() failed\n" );
+		}
+	}
+	if ( bStateOk ) {
+		const auto it = savedFromA.find( stateKey );
+		if ( savedFromA.size() != 1 || it == savedFromA.end() ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: save() did not store exactly the #state property\n" );
+		} else {
+			if ( it->second.type != chunkType ) {
+				bStateOk = false;
+				std::fprintf( stderr,
+					"LV2 SMOKE: state property is not an atom:Chunk\n" );
+			}
+			if ( it->second.flags !=
+				 ( LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE ) ) {
+				bStateOk = false;
+				std::fprintf( stderr,
+					"LV2 SMOKE: state property is not flagged POD|PORTABLE\n" );
+			}
+			// The gzip magic proves the payload is the `.h2project`
+			// container, not some other serialization.
+			if ( it->second.data.size() < 2 ||
+				 it->second.data[ 0 ] != 0x1f || it->second.data[ 1 ] != 0x8b ) {
+				bStateOk = false;
+				std::fprintf( stderr,
+					"LV2 SMOKE: state property is not the gzip'd container\n" );
+			}
+		}
+	}
+
+	// A second instance walks the restore path end to end.
+	LV2_Handle instB = nullptr;
+	if ( bStateOk ) {
+		instB = d->instantiate( d, 44100.0, "/tmp/", features );
+		if ( instB == nullptr ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: second instantiate returned null\n" );
+		}
+	}
+	if ( bStateOk ) {
+		// An empty state map (a host resetting to defaults): retrieve finds
+		// nothing; restore must succeed without touching the engine.
+		StateMap empty;
+		if ( st->restore( instB, hostRetrieve, &empty, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() of an empty map failed\n" );
+		}
+		// The real thing: A's blob into the fresh instance, before
+		// activate() — the restored state must survive activation.
+		if ( st->restore( instB, hostRetrieve, &savedFromA, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() of the saved state failed\n" );
+		}
+	}
+	if ( bStateOk ) {
+		d->connect_port( instB, 0, &control );
+		d->connect_port( instB, 1, &midi );
+		for ( uint32_t p = 2; p < nPorts; ++p ) {
+			d->connect_port( instB, p, audio[ p ].data() );
+		}
+		if ( d->activate != nullptr ) {
+			d->activate( instB );
+		}
+		for ( int b = 0; b < 4; ++b ) {
+			d->run( instB, nFrames );
+		}
+	}
+
+	// The restored instance must save the same state back: byte-stable
+	// (the archive writer is deterministic — no mtimes, fixed entry order)
+	// and equal, proving the round-trip neither lost nor altered it.
+	StateMap savedFromB;
+	if ( bStateOk ) {
+		if ( st->save( instB, hostStore, &savedFromB, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: state save() on the restored instance failed\n" );
+		}
+	}
+	if ( bStateOk ) {
+		const auto a = savedFromA.find( stateKey );
+		const auto b = savedFromB.find( stateKey );
+		if ( a == savedFromA.end() || b == savedFromB.end() ||
+			 a->second.data != b->second.data ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: state blob not stable across save → restore → save\n" );
+		}
+	}
+
+	// A wrong-typed property must be rejected without touching the engine.
+	if ( bStateOk ) {
+		StateMap wrongType = savedFromB;
+		wrongType[ stateKey ].type = mapUri( nullptr, LV2_ATOM__String );
+		if ( st->restore( instB, hostRetrieve, &wrongType, 0, nullptr ) !=
+			 LV2_STATE_ERR_BAD_TYPE ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() accepted a non-Chunk property\n" );
+		}
+	}
+
+	// Hosts also restore into live instances (between run() calls).
+	if ( bStateOk ) {
+		if ( st->restore( inst, hostRetrieve, &savedFromB, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() into the live instance failed\n" );
+		}
+	}
+
+	if ( instB != nullptr ) {
+		if ( d->deactivate != nullptr ) {
+			d->deactivate( instB );
+		}
+		d->cleanup( instB );
+	}
+
 	if ( d->deactivate != nullptr ) {
 		d->deactivate( inst );
 	}
@@ -403,9 +591,11 @@ int main( int argc, char** argv ) {
 	// Editor-session observation: the engine session is always-on (UI-3: it
 	// starts with the plugin instance and serves for its whole lifetime),
 	// binding a QLocalServer named "hydrogen-editor-<pid>-<instance id>"
-	// (HydrogenPlugin.cpp). This process hosts exactly one engine instance,
-	// and its instance log file suffix is allocated first in this fresh
-	// process (Hydrogen.cpp), so the id is 0. The editor PROCESS is only
+	// (HydrogenPlugin.cpp). By the time the UI checks run this process hosts
+	// exactly one engine instance again (the state section's second instance
+	// is cleaned up before them), and its instance log file suffix was
+	// allocated first in this fresh process (Hydrogen.cpp), so the id is 0.
+	// The editor PROCESS is only
 	// ever spawned by the landing view's Open editor button (UI-5, TU5.7)
 	// — show() must not spawn it.
 	const QString sEndpoint = QString( "hydrogen-editor-%1-%2" )
@@ -713,7 +903,7 @@ int main( int argc, char** argv ) {
 	}
 	dlClose( h );
 
-	const bool bPassed = bOk && bUiOk && bTransportOk;
+	const bool bPassed = bOk && bUiOk && bTransportOk && bStateOk;
 	std::printf( bPassed ? "LV2 SMOKE: PASSED\n" : "LV2 SMOKE: FAILED\n" );
 	return bPassed ? 0 : 1;
 }

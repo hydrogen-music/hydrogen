@@ -3,6 +3,7 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .
+@prefix state: <http://lv2plug.in/ns/ext/state#> .
 @prefix time: <http://lv2plug.in/ns/ext/time#> .
 @prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
 @prefix urid: <http://lv2plug.in/ns/ext/urid#> .
@@ -27,6 +28,10 @@
         ]
     ] ;
     lv2:requiredFeature urid:map ;
+    # The state interface (the .h2project blob as one atom:Chunk property).
+    # lv2lint requires the ttl to declare every interface the binary serves
+    # from extension_data().
+    lv2:extensionData state:interface ;
     ui:ui <https://hydrogen-music.org/lv2/hydrogen#ui> ;
     lv2:port [
         # Host transport (time:Position objects; ADR 0013): the host writes

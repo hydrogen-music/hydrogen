@@ -34,6 +34,7 @@
 #include <lv2/midi/midi.h>
 #include <lv2/ui/ui.h>
 #include <lv2/instance-access/instance-access.h>
+#include <lv2/state/state.h>
 
 #include <plugin/HydrogenPlugin.h>
 #include <plugin/lv2/Lv2Transport.h>
@@ -79,6 +80,11 @@ struct H2Lv2 {
 
 	LV2_URID midiEventType = 0;
 
+	// State interface (LV2 state extension): the property key and the
+	// atom:Chunk value type, mapped once at instantiate.
+	LV2_URID stateKey = 0;
+	LV2_URID chunkType = 0;
+
 	const LV2_Atom_Sequence* controlIn = nullptr;
 	const LV2_Atom_Sequence* midiIn = nullptr;
 	float* masterL = nullptr;
@@ -106,6 +112,8 @@ LV2_Handle instantiate( const LV2_Descriptor*, double sample_rate,
 	}
 	p->sampleRate = sample_rate;
 	p->midiEventType = map->map( map->handle, LV2_MIDI__MidiEvent );
+	p->stateKey = map->map( map->handle, H2_LV2_URI "#state" );
+	p->chunkType = map->map( map->handle, LV2_ATOM__Chunk );
 	p->transport.mapUrids( map );
 	p->busL.assign( kNumBuses, nullptr );
 	p->busR.assign( kNumBuses, nullptr );
@@ -207,7 +215,84 @@ void cleanup( LV2_Handle instance ) {
 	delete p;
 }
 
-const void* extension_data( const char* ) { return nullptr; }
+// ── State interface (LV2 state extension) ──────────────────────────────────
+// One inline property carries the whole plugin state: the `.h2project` blob
+// (song + base-layer preferences, samples embedded) as an atom:Chunk.
+// Inline properties are the spec-preferred state model ("plugins are
+// strongly encouraged to avoid creating files"), and the embedded blob is
+// self-contained, so the state is POD and portable — a session moves
+// between machines. A future UI toggle to shrink the state (song-only,
+// kit must be installed) would drop PORTABLE with the embedding.
+//
+// Threading: save() may run concurrently with run(); the engine lock
+// inside HydrogenPlugin::saveState keeps the snapshot consistent (the
+// process cycle skips buffers while it is held). restore() is in the
+// Instantiation class — the host guarantees no concurrent run() — so the
+// synchronous loadState() is safe; no state:threadSafeRestore is offered.
+LV2_State_Status stateSave( LV2_Handle instance,
+							LV2_State_Store_Function store,
+							LV2_State_Handle handle_to_host_map,
+							uint32_t, const LV2_Feature* const* ) {
+	auto* p = static_cast<H2Lv2*>( instance );
+	if ( p->engine == nullptr ) {
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	// Embedding the sample audio makes the blob self-contained — the same
+	// choice the CLAP wrapper makes (HydrogenClap.cpp) — so the state
+	// survives on machines without the drumkit installed.
+	const bool bEmbedSamples = true;
+	const auto data = p->engine->saveState( bEmbedSamples );
+	if ( data.empty() ) {
+		// store() requires size > 0; an empty blob means the save failed.
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	const uint32_t flags = LV2_STATE_IS_POD |
+		( bEmbedSamples ? LV2_STATE_IS_PORTABLE : 0 );
+	// The host's store status (e.g. NO_SPACE) propagates verbatim.
+	return store( handle_to_host_map, p->stateKey, data.data(), data.size(),
+				  p->chunkType, flags );
+}
+
+LV2_State_Status stateRestore( LV2_Handle instance,
+							   LV2_State_Retrieve_Function retrieve,
+							   LV2_State_Handle handle_to_host_map,
+							   uint32_t, const LV2_Feature* const* ) {
+	auto* p = static_cast<H2Lv2*>( instance );
+	if ( p->engine == nullptr ) {
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	size_t size = 0;
+	uint32_t type = 0;
+	uint32_t flags = 0;
+	const void* value =
+		retrieve( handle_to_host_map, p->stateKey, &size, &type, &flags );
+	if ( value == nullptr ) {
+		// No stored state (a host resetting to defaults): the instance
+		// keeps its current state, successfully.
+		return LV2_STATE_SUCCESS;
+	}
+	if ( type != p->chunkType ) {
+		return LV2_STATE_ERR_BAD_TYPE;
+	}
+	// The retrieved pointer is only valid until restore() returns; copy
+	// the blob before handing it to the engine.
+	const std::vector<unsigned char> data(
+		static_cast<const unsigned char*>( value ),
+		static_cast<const unsigned char*>( value ) + size );
+	if ( ! p->engine->loadState( data ) ) {
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	return LV2_STATE_SUCCESS;
+}
+
+const LV2_State_Interface kStateInterface = { stateSave, stateRestore };
+
+const void* extension_data( const char* uri ) {
+	if ( std::strcmp( uri, LV2_STATE__interface ) == 0 ) {
+		return &kStateInterface;
+	}
+	return nullptr;
+}
 
 const LV2_Descriptor kDescriptor = {
 	H2_LV2_URI, instantiate, connect_port, activate,
