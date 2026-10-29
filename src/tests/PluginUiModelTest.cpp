@@ -80,6 +80,7 @@ void PluginUiModelTest::testLandingLoadCommands()
 		H2TEST_FILE( "functional/test_adsr.h2song" ) ) );
 	auto pSong = pHydrogen->getSong();
 	CPPUNIT_ASSERT( pSong != nullptr );
+	CPPUNIT_ASSERT( pSong->getAllNotes().size() > 0 );
 	CPPUNIT_ASSERT( pSong != pSongBefore );
 	CPPUNIT_ASSERT( pHydrogen->getMode() == Song::Mode::Song );
 	ASSERT_SONG( pSong );
@@ -87,6 +88,13 @@ void PluginUiModelTest::testLandingLoadCommands()
 	// An unloadable path leaves the current song untouched.
 	CPPUNIT_ASSERT( ! model.loadSong( "/nonexistent/nope.h2song" ) );
 	CPPUNIT_ASSERT( pHydrogen->getSong() == pSong );
+
+	// Clearing the song installs an empty one
+	CPPUNIT_ASSERT( model.clearSong() );
+	CPPUNIT_ASSERT( pHydrogen->getSong() != nullptr );
+	CPPUNIT_ASSERT( pHydrogen->getSong() != pSong );
+	CPPUNIT_ASSERT( pHydrogen->getSong()->getAllNotes().size() == 0 );
+	CPPUNIT_ASSERT( pHydrogen->getMode() == Song::Mode::Song );
 
 	// Drumkit: load + install into the current song.
 	CPPUNIT_ASSERT( model.loadDrumkit(

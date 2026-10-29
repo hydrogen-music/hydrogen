@@ -118,18 +118,11 @@ void PluginUiLandingView::draw()
 		ImGui::EndTable();
 	}
 
-	// The loading row: the info section above shows the current mode,
+	// The loading: the info section above shows the current mode,
 	// so the song/pattern mutual exclusivity is visible without a tab
 	// widget — plain buttons suffice. The drumkit picker lists the
 	// sound library database's kits instead of browsing the filesystem;
 	// the song and pattern buttons keep their keyed IGFD browsers.
-	if ( ImGui::Button( m_pCommonStrings->getActionSwitchDrumkit().toUtf8()
-							.constData() ) ) {
-		const QByteArray sTitle =
-			m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
-		ImGui::OpenPopup( sTitle.constData() );
-	}
-	ImGui::SameLine();
 	if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
 							.constData() ) ) {
 		IGFD::FileDialogConfig config;
@@ -153,9 +146,23 @@ void PluginUiLandingView::draw()
 			m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
 			Filesystem::sPatternSuffix.toUtf8(), config );
 	}
-	drawDrumkitPicker();
+	ImGui::SameLine();
+	if ( ImGui::Button( m_pCommonStrings->getClearButton().toUtf8()
+						.constData() ) ) {
+		m_model.clearSong();
+	}
 
 	ImGui::Separator();
+
+	if ( ImGui::Button( m_pCommonStrings->getActionSwitchDrumkit().toUtf8()
+							.constData() ) ) {
+		const QByteArray sTitle =
+			m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
+		ImGui::OpenPopup( sTitle.constData() );
+	}
+	ImGui::SameLine();
+
+	drawDrumkitPicker();
 
 	// Editor line: the executable the button launches — prefilled with
 	// the resolved default, editable to point elsewhere.

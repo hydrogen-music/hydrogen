@@ -59,6 +59,10 @@ public:
 	 * directory either way — the dialog's OK intent counts even when
 	 * the load fails. */
 	bool loadPattern( const QString& sPath );
+	/** Discards the current song and replaces it with an empty one. This is
+	 * targeting users who want to drive the plugin with MIDI input
+	 * exclusively. */
+	bool clearSong();
 	/** Where the song browser opens by default: the remembered
 	 * last-open song directory if still readable, else the user
 	 * songs dir (also the answer without a plugin). */

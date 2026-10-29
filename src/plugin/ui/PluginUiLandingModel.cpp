@@ -154,6 +154,36 @@ bool PluginUiLandingModel::loadPattern( const QString& sPath )
 	return true;
 }
 
+bool PluginUiLandingModel::clearSong()
+{
+	auto pCAC = m_pPlugin != nullptr
+		? m_pPlugin->getHydrogen()->getCoreActionController() : nullptr;
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	auto pSong = Song::getEmptySong( m_pPlugin->getHydrogen() );
+	if ( pSong == nullptr ) {
+		return false;
+	}
+
+	if ( ! pCAC->setSong( pSong ) ) {
+		___ERRORLOG( "Unable to assign empty song" );
+		return false;
+	}
+
+	if ( ! pCAC->activateSongMode( true ) ) {
+		// It doesn't matter whether we in song or pattern mode since there are
+		// no notes to play back. But it might be more intuitive for users to
+		// read "Mode: Song" within the info section after clearing the song.
+		___ERRORLOG( "Unable to switch to song mode" );
+		return false;
+	}
+
+	return true;
+}
+
 QString PluginUiLandingModel::songDialogDefaultPath() const
 {
 	auto pPreferences = preferences();
