@@ -95,6 +95,15 @@ namespace Xml
 	constexpr bool operator&( Flag flag1, Flag flag2 ) {
 		return ( static_cast<int>(flag1) & static_cast<int>(flag2) ) != 0;
 	}
+	/**
+	 * \param flags Combination of options to trim.
+	 * \param drop Single option (or combination of options) to remove.
+	 * \return @a flags with every option in @a drop removed.
+	 */
+	constexpr Flag withoutFlag( Flag flags, Flag drop ) {
+		return static_cast<Flag>(
+			static_cast<int>( flags ) & ~static_cast<int>( drop ) );
+	}
 
 	QString flagToQString( const Flag& flags );
 }

@@ -371,6 +371,18 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 	const QByteArray songXml = songFile.readAll();
 	songFile.close();
 
+	// The manifest is the dialect discriminator of the container: the
+	// embedded writer always emits it alongside the sample entries, the
+	// song-only one never does. Without it the song XML references the
+	// installed drumkit's sample files, so the Project read mode - which
+	// blanks sample paths for later assignment from the bundle below -
+	// must not engage.
+	const QString sManifestPath = sExtractDir + "/" + MANIFEST_ENTRY;
+	const bool bManifestPresent = QFileInfo( sManifestPath ).exists();
+	if ( ! bManifestPresent && ( flags & Xml::Flag::Project ) ) {
+		flags = Xml::withoutFlag( flags, Xml::Flag::Project );
+	}
+
 	auto pSong = Song::fromXmlBuffer(
 		songXml, flags, bSilent, pHydrogen
 	);
@@ -381,42 +393,46 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 
 	// Parse the manifest: "inst comp layer entry" per line.
 	std::map<QString, QString> slotToEntry; // "i/c/l" -> entry name
-	const QString sManifestPath = sExtractDir + "/" + MANIFEST_ENTRY;
-	QFile manifestFile( sManifestPath );
-	if ( manifestFile.open( QIODevice::ReadOnly ) ) {
-		const QStringList lines =
-			QString::fromUtf8( manifestFile.readAll() ).split(
-				'\n', Qt::SkipEmptyParts );
-		manifestFile.close();
-		for ( const auto& sLine : lines ) {
-			const QStringList parts = sLine.split( ' ' );
-			if ( parts.size() >= 4 ) {
-				const QString sKey = QString( "%1/%2/%3" )
-										  .arg( parts[0] ).arg( parts[1] )
-										  .arg( parts[2] );
-				slotToEntry[ sKey ] = parts[3];
+	if ( bManifestPresent ) {
+		QFile manifestFile( sManifestPath );
+		if ( manifestFile.open( QIODevice::ReadOnly ) ) {
+			const QStringList lines =
+				QString::fromUtf8( manifestFile.readAll() ).split(
+					'\n', Qt::SkipEmptyParts );
+			manifestFile.close();
+			for ( const auto& sLine : lines ) {
+				const QStringList parts = sLine.split( ' ' );
+				if ( parts.size() >= 4 ) {
+					const QString sKey = QString( "%1/%2/%3" )
+											  .arg( parts[0] ).arg( parts[1] )
+											  .arg( parts[2] );
+					slotToEntry[ sKey ] = parts[3];
+				}
 			}
 		}
 	}
 
 	// Assign the extracted sample files to their slots. The actual decoding
 	// happens through the regular file-based loading below.
-	forEachSample( pSong, [&]( int ii, int cc, int ll,
-							   std::shared_ptr<Sample> pSample ) {
-		const QString sKey = QString( "%1/%2/%3" ).arg( ii ).arg( cc ).arg( ll );
-		auto itSlot = slotToEntry.find( sKey );
-		if ( itSlot == slotToEntry.end() ) {
-			ERRORLOG( QString( "Couldn't find slot [%1]" ).arg( sKey ) );
-			return;
-		}
-		const QString sSamplePath = sExtractDir + "/" + itSlot->second;
-		if ( ! QFileInfo( sSamplePath ).exists() ) {
-			ERRORLOG( QString( "Couldn't find extracted sample [%1]" )
-					  .arg( sSamplePath ) );
-			return;
-		}
-		pSample->setFilePath( sSamplePath );
-	} );
+	if ( bManifestPresent ) {
+		forEachSample( pSong, [&]( int ii, int cc, int ll,
+								   std::shared_ptr<Sample> pSample ) {
+			const QString sKey =
+				QString( "%1/%2/%3" ).arg( ii ).arg( cc ).arg( ll );
+			auto itSlot = slotToEntry.find( sKey );
+			if ( itSlot == slotToEntry.end() ) {
+				ERRORLOG( QString( "Couldn't find slot [%1]" ).arg( sKey ) );
+				return;
+			}
+			const QString sSamplePath = sExtractDir + "/" + itSlot->second;
+			if ( ! QFileInfo( sSamplePath ).exists() ) {
+				ERRORLOG( QString( "Couldn't find extracted sample [%1]" )
+							  .arg( sSamplePath ) );
+				return;
+			}
+			pSample->setFilePath( sSamplePath );
+		} );
+	}
 
 	// Decode the samples via the standard, synchronous file-based code path.
 	pSong->getDrumkit()->loadSamples( 120, pHydrogen->getPreferences().get() );
