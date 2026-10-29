@@ -244,6 +244,18 @@ static std::vector<unsigned char> writeArchive(
 	}
 	archive_write_add_filter_gzip( a );
 	archive_write_set_format_pax_restricted( a );
+	// Deterministic output: libarchive stamps the gzip header with the
+	// current wall clock by default, so identical state would serialize
+	// to different bytes on every save. Hosts like Ardour compare whole
+	// state blobs and rewrite the entire stored state whenever the bytes
+	// differ. The value must be NULL — any string ("0"/"false") ENABLES
+	// the timestamp (libarchive treats a non-NULL value as "on").
+	if ( archive_write_set_filter_option( a, "gzip", "timestamp", nullptr )
+		 != ARCHIVE_OK ) {
+		___ERRORLOG( "Unable to disable the gzip header timestamp" );
+		archive_write_free( a );
+		return {};
+	}
 	if ( archive_write_open( a, &out, memOpenCloseCb, memWriteCb,
 							 memOpenCloseCb ) != ARCHIVE_OK ) {
 		___ERRORLOG( QString( "Unable to open archive for writing: %1" )
