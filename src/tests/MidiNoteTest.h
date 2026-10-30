@@ -38,6 +38,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testMidiInstrumentInputMapping );
 	CPPUNIT_TEST( testMidiInstrumentOutputMapping );
 	CPPUNIT_TEST( testMidiInstrumentGlobalMapping );
+	CPPUNIT_TEST( testMidiInstrumentInputChannelPrecedence );
 	CPPUNIT_TEST( testSendNoteOff );
 	CPPUNIT_TEST( testSendNoteOffNoRender );
 	CPPUNIT_TEST( testMidiOutRoundTrip );
@@ -49,6 +50,12 @@ class MidiNoteTest : public CppUnit::TestCase {
 	void testMidiInstrumentInputMapping();
 	void testMidiInstrumentOutputMapping();
 	void testMidiInstrumentGlobalMapping();
+	// Which channel an incoming event must carry per input mode: the
+	// individual one (custom mapping, output channel fallback) in
+	// Custom and Order, the forced global input channel in
+	// SelectedInstrument, and the global output channel only in
+	// AsOutput.
+	void testMidiInstrumentInputChannelPrecedence();
 	void testSendNoteOff();
 	// Silent-render parity (ADR 0031): the MIDI Note-On/Off stream produced for a
 	// note must be identical whether the audio is rendered or skipped (headless

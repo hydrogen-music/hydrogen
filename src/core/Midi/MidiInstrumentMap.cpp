@@ -143,7 +143,10 @@ void MidiInstrumentMap::saveTo( XMLNode& node ) const {
 	auto mapNode = node.createNode( "midiInstrumentMap" );
 	mapNode.write_int( "input", static_cast<int>(getInput()) );
 	mapNode.write_int( "output", static_cast<int>(getOutput()) );
-	mapNode.write_bool( "useGlobalInputChannel", getUseGlobalInputChannel() );
+	// The raw preference, not the effective value: Input::SelectedInstrument
+	// forces the global input channel on for its runtime, but must not
+	// overwrite what the user stored for the other modes.
+	mapNode.write_bool( "useGlobalInputChannel", m_bUseGlobalInputChannel );
 	// The file-based representation of the MIDI channel is zero-based (for
 	// historical reasons) while we start with 1 within the application (since
 	// version 2.0).
@@ -337,15 +340,20 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		return instruments;
 	}
 
-	// The global output channel has more weight as the per instrument
-	// channel. But for inputs the global input channel always wins.
-	auto getMappedChannel = [&]( std::shared_ptr<Instrument> pInstrument ) {
-		auto channelMapped = m_bUseGlobalInputChannel ?
-			m_globalInputChannel : pInstrument->getMidiOutChannel();
-		if ( m_bUseGlobalOutputChannel && ! m_bUseGlobalInputChannel ) {
-			channelMapped = m_globalOutputChannel;
+	// The channel an incoming event must carry to reach the given
+	// instrument: the global input channel always wins; the instrument's
+	// output channel otherwise. The global output channel only feeds the
+	// input in Input::AsOutput (the legacy passthrough of the output
+	// configuration) — never in the other modes.
+	auto getMappedChannel = [&]( std::shared_ptr<Instrument> pInstrument,
+								 bool bApplyGlobalOutput ) {
+		if ( m_bUseGlobalInputChannel ) {
+			return m_globalInputChannel;
 		}
-		return channelMapped;
+		if ( bApplyGlobalOutput && m_bUseGlobalOutputChannel ) {
+			return m_globalOutputChannel;
+		}
+		return pInstrument->getMidiOutChannel();
 	};
 
 	switch( m_input ) {
@@ -354,7 +362,8 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 			if ( ppInstrument == nullptr ) {
 				continue;
 			}
-			const auto channelMapped = getMappedChannel( ppInstrument );
+			const auto channelMapped =
+				getMappedChannel( ppInstrument, /*bApplyGlobalOutput=*/true );
 
 			if ( ppInstrument->getMidiOutNote() == note &&
 				 ( channelMapped == channel ||
@@ -413,7 +422,10 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		auto pInstrument = pDrumkit->getInstruments()->get(
 			pHydrogen->getSelectedInstrumentNumber() );
 		if ( pInstrument != nullptr ) {
-			const auto channelMapped = getMappedChannel( pInstrument );
+			// Every incoming note maps to the selected instrument — there
+			// is no per-instrument input channel — so the global input
+			// channel is forced on (see getUseGlobalInputChannel()).
+			const auto channelMapped = m_globalInputChannel;
 			if ( channelMapped == channel ||
 				 channelMapped == Midi::ChannelAll ||
 				 channel == Midi::ChannelAll ) {
@@ -430,7 +442,17 @@ std::vector< std::shared_ptr<Instrument> > MidiInstrumentMap::mapInput(
 		if ( nIndex >= 0 && nIndex < pDrumkit->getInstruments()->size() ) {
 			auto pInstrument = pDrumkit->getInstruments()->get( nIndex );
 			if ( pInstrument != nullptr ) {
-				const auto channelMapped = getMappedChannel( pInstrument );
+				// The note is derived from the instrument's position; the
+				// channel is the individual one — the custom input
+				// mapping's channel if the instrument has one, its output
+				// channel otherwise. The global input channel (if enabled)
+				// overrides both.
+				const auto channelCustom =
+					getCustomInputChannel( pInstrument );
+				const auto channelMapped = m_bUseGlobalInputChannel ?
+					m_globalInputChannel :
+					( channelCustom != Midi::ChannelInvalid ?
+					  channelCustom : pInstrument->getMidiOutChannel() );
 				if ( channelMapped == channel ||
 					 channelMapped == Midi::ChannelAll ||
 					 channel == Midi::ChannelAll ) {
@@ -511,7 +533,10 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	case Input::SelectedInstrument: {
 		if ( pHydrogen->getSelectedInstrumentNumber() ==
 			 pDrumkit->getInstruments()->index( pInstrument ) ) {
-			noteRef.channel = channelUsed;
+			// Every incoming note maps to the selected instrument — there
+			// is no per-instrument input channel — so the global input
+			// channel is forced on (see getUseGlobalInputChannel()).
+			noteRef.channel = m_globalInputChannel;
 			// The note information is not handled by the UI
 			noteRef.note = pInstrument->getMidiOutNote();
 		}
@@ -523,7 +548,20 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 	}
 
 	case Input::Order: {
-		noteRef.channel = channelUsed;
+		// The note is derived from the instrument's position; the channel
+		// is the individual one — the custom input mapping's channel if
+		// the instrument has one, its output channel otherwise. The global
+		// input channel (if enabled) overrides both.
+		const auto channelCustom = getCustomInputChannel( pInstrument );
+		if ( m_bUseGlobalInputChannel ) {
+			noteRef.channel = m_globalInputChannel;
+		}
+		else if ( channelCustom != Midi::ChannelInvalid ) {
+			noteRef.channel = channelCustom;
+		}
+		else {
+			noteRef.channel = pInstrument->getMidiOutChannel();
+		}
 		const int nIndex = pDrumkit->getInstruments()->index( pInstrument );
 		if ( nIndex != -1 ) {
 			noteRef.note = Midi::noteFromIntClamp(
@@ -654,26 +692,44 @@ MidiInstrumentMap::createFallbackMap( Hydrogen* pHydrogen ) const
 
 		// No mapping yet. Create fallback.
 
-		const auto channelUsed = m_bUseGlobalInputChannel
-									 ? m_globalInputChannel
-									 : ppInstrument->getMidiOutChannel();
-
 		NoteRef noteRef;
-
-		// The global output channel has more weight as the per
-		// instrument channel. But for inputs the global input channel
-		// always wins.
-		if ( m_bUseGlobalOutputChannel && !m_bUseGlobalInputChannel ) {
-			noteRef.channel = m_globalOutputChannel;
-		}
-		else {
-			noteRef.channel = channelUsed;
-		}
+		// The instrument's own output settings — the global output channel
+		// does not feed the input outside Input::AsOutput.
+		noteRef.channel = m_bUseGlobalInputChannel
+			? m_globalInputChannel
+			: ppInstrument->getMidiOutChannel();
 		noteRef.note = ppInstrument->getMidiOutNote();
 
 		fallbackMap[noteRef] = ppInstrument;
 	}
 	return fallbackMap;
+}
+
+Midi::Channel MidiInstrumentMap::getCustomInputChannel(
+	std::shared_ptr<Instrument> pInstrument ) const
+{
+	if ( pInstrument == nullptr ) {
+		return Midi::ChannelInvalid;
+	}
+
+	// The same lookup convention as the Custom mode in getInputMapping()
+	// and insertCustomInputMapping(): typed instruments are keyed by
+	// type, typeless ones by id.
+	const auto sType = pInstrument->getType();
+	if ( ! sType.isEmpty() ) {
+		const auto it = m_customInputMappingsType.find( sType );
+		if ( it != m_customInputMappingsType.end() ) {
+			return it->second.channel;
+		}
+	}
+	else {
+		const auto it = m_customInputMappingsId.find( pInstrument->getId() );
+		if ( it != m_customInputMappingsId.end() ) {
+			return it->second.channel;
+		}
+	}
+
+	return Midi::ChannelInvalid;
 }
 
 QString MidiInstrumentMap::toQString( const QString& sPrefix, bool bShort ) const {

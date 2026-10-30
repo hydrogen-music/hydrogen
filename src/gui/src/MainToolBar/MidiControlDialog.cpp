@@ -44,6 +44,7 @@ https://www.gnu.org/licenses
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 #include <qevent.h>
+#include <QSignalBlocker>
 
 using namespace H2Core;
 
@@ -461,6 +462,18 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 			pMidiInstrumentMap->setInput( input );
 			updateInstrumentTable();
 			persistMidiInstrumentMap();
+
+			// Input::SelectedInstrument forces the global input channel
+			// on — reflect it in the checkbox (checked and locked) and
+			// the spinbox. Signals are blocked: the state mirrors the
+			// map, it must not write back to it.
+			const QSignalBlocker blocker( m_pGlobalInputChannelCheckBox );
+			m_pGlobalInputChannelCheckBox->setChecked(
+				pMidiInstrumentMap->getUseGlobalInputChannel() );
+			m_pGlobalInputChannelCheckBox->setEnabled(
+				input != MidiInstrumentMap::Input::SelectedInstrument );
+			m_pGlobalInputChannelSpinBox->setEnabled(
+				pMidiInstrumentMap->getUseGlobalInputChannel() );
 		}
 	} );
 
@@ -549,6 +562,11 @@ font-size: %1px;" )
 	m_pGlobalInputChannelCheckBox = new QCheckBox( pMappingTab );
 	m_pGlobalInputChannelCheckBox->setChecked(
 		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	// Input::SelectedInstrument forces the global input channel on —
+	// the checkbox renders checked and is locked.
+	m_pGlobalInputChannelCheckBox->setEnabled(
+		pMidiInstrumentMap->getInput() !=
+		MidiInstrumentMap::Input::SelectedInstrument );
 	connect( m_pGlobalInputChannelCheckBox, &QAbstractButton::toggled, [=]() {
 		HydrogenApp::pPreferences()->getMidiInstrumentMap()
 			->setUseGlobalInputChannel(
@@ -1111,16 +1129,18 @@ void MidiControlDialog::updateInstrumentTableRow(
 			);
 		}
 
-		if ( pMidiInstrumentMap->getInput() !=
-			 MidiInstrumentMap::Input::Custom ) {
-			pInputNoteSpinBox->setEnabled( false );
-			pInputChannelSpinBox->setEnabled( false );
-		}
-		else {
-			pInputNoteSpinBox->setEnabled( true );
-			pInputChannelSpinBox->setEnabled(
-				! pMidiInstrumentMap->getUseGlobalInputChannel() );
-		}
+		// The note is editable only in Custom mode; the channel in
+		// Custom and Order as well (Order derives the note from the
+		// instrument's position but keeps the individual channel). The
+		// global input channel — forced on in SelectedInstrument —
+		// overrides every individual channel.
+		const auto input = pMidiInstrumentMap->getInput();
+		pInputNoteSpinBox->setEnabled(
+			input == MidiInstrumentMap::Input::Custom );
+		pInputChannelSpinBox->setEnabled(
+			( input == MidiInstrumentMap::Input::Custom ||
+			  input == MidiInstrumentMap::Input::Order ) &&
+			! pMidiInstrumentMap->getUseGlobalInputChannel() );
 
 		connect(
 			pInputChannelSpinBox,

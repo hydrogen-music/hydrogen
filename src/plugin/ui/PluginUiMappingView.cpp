@@ -191,10 +191,17 @@ void PluginUiMappingView::draw()
 										   getUseGlobalChannelLabel() +
 									   "##input" ).toUtf8();
 		bool bUseGlobalInput = pMap->getUseGlobalInputChannel();
+		// Input::SelectedInstrument forces the global input channel on
+		// (every incoming note maps to the selected instrument) — the
+		// checkbox renders checked and is locked.
+		const bool bSelectedInstrument = pMap->getInput() ==
+			MidiInstrumentMap::Input::SelectedInstrument;
+		ImGui::BeginDisabled( bSelectedInstrument );
 		if ( ImGui::Checkbox( sUseGlobalInput.constData(),
 							  &bUseGlobalInput ) ) {
 			m_model.setUseGlobalInputChannel( bUseGlobalInput );
 		}
+		ImGui::EndDisabled();
 		const auto sGlobalInputChannel = ( m_pCommonStrings->
 												getGlobalChannelLabel() +
 											"##input" ).toUtf8();
@@ -212,9 +219,12 @@ void PluginUiMappingView::draw()
 		ImGui::EndDisabled();
 
 		// The per-instrument input rows: the effective incoming
-		// note/channel, editable only in Custom mode (the only mode
-		// with per-instrument rows). No standalone "Input" label — the
-		// section header carries it.
+		// note/channel. The note is editable only in Custom mode; the
+		// channel in Custom and Order as well (Order derives the note
+		// from the instrument's position but keeps the individual
+		// channel) — unless the global input channel is enabled, which
+		// overrides all individual channels. No standalone "Input"
+		// label — the section header carries it.
 		ImGui::PushID( "input" );
 		if ( ImGui::BeginTable( "##table", 3,
 								ImGuiTableFlags_Borders |
@@ -230,6 +240,12 @@ void PluginUiMappingView::draw()
 
 			const bool bCustom = pMap->getInput() ==
 				MidiInstrumentMap::Input::Custom;
+			const bool bOrder = pMap->getInput() ==
+				MidiInstrumentMap::Input::Order;
+			// The global input channel (forced on in SelectedInstrument)
+			// overrides every individual channel — grey the combos out.
+			const bool bChannelEditable =
+				( bCustom || bOrder ) && ! bUseGlobalInput;
 			for ( int n = 0; n < nInstruments; ++n ) {
 				ImGui::TableNextRow();
 				ImGui::PushID( n );
@@ -264,11 +280,14 @@ void PluginUiMappingView::draw()
 					ImGui::Text( "%d", nNote );
 				}
 				ImGui::TableNextColumn();
-				if ( bCustom ) {
+				if ( bChannelEditable ) {
 					int nChannel = static_cast<int>( mapping.channel ) + 1;
 					ImGui::SetNextItemWidth( 52.0f );
 					if ( ImGui::Combo( "##channel", &nChannel,
 									   sChannelEntryPtrs, 18 ) ) {
+						// In Order mode the note column is read-only —
+						// mapping.note carries the order-derived note,
+						// so the custom mapping keeps it.
 						m_model.insertCustomInputMapping(
 							n, mapping.note,
 							Midi::channelFromInt( nChannel - 1 ) );
