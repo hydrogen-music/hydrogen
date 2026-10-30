@@ -352,6 +352,10 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
+#if AUDIO_ENGINE_DEBUG
+		AE_DEBUGLOG( "" );
+#endif
+
 	if ( getState() == State::CountIn ) {
 		setState( State::Ready );
 	}
@@ -506,6 +510,10 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 }
 
 void AudioEngine::resetOffsets() {
+#if AUDIO_ENGINE_DEBUG
+		AE_DEBUGLOG( "" );
+#endif
+
 	clearNoteQueues();
 
 	m_fLastTickEnd = 0;
@@ -2932,7 +2940,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		pPos->getTickOffsetQueuing();
 
 #if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pPlayhead->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pPlayhead: %10, m_pQueuing: %11,_bLookaheadApplied: %12, m_nCountInFrameOffset: %13" )
+	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pPlayhead->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pPlayhead: %10, m_pQueuing: %11, m_bLookaheadApplied: %12, m_state: %13, m_nCountInFrameOffset: %14" )
 			 .arg( nFrameStart )
 			 .arg( nFrameEnd )
 			 .arg( *fTickStart, 0, 'f' )
@@ -2944,7 +2952,8 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 			 .arg( nIntervalLengthInFrames )
 			 .arg( pPos->toQString() )
 			 .arg( m_pQueuing->toQString() )
-			 .arg( m_bLookaheadApplied )
+				 .arg( m_bLookaheadApplied )
+				 .arg( StateToQString( m_state ) )
 				 .arg( m_nCountInFrameOffset )
 			 );
 #endif
