@@ -66,19 +66,6 @@ public:
 	bool setMasterVolume( float fVolume );
 	bool setMasterIsMuted( bool bMuted );
 
-	/** Bus routing (ADR 0019): sets the instrument's explicit output
-	 * bus; a negative @a nBus resets it to the implicit 1-to-1 default
-	 * (bus = position in the kit). */
-	bool setInstrumentOutputBus( int nInstrument, int nBus );
-	/** The instrument's stored output bus, or -1 for the implicit 1-to-1
-	 * default (0 when the engine is unavailable). */
-	int instrumentOutputBus( int nInstrument ) const;
-	/** The bus the instrument actually feeds: the stored custom mapping
-	 * if set, else the implicit 1-to-1 by kit position; -1 when the
-	 * instrument gets no individual bus (beyond @a nBusCount — master
-	 * only). */
-	int effectiveOutputBus( int nInstrument, int nBusCount ) const;
-
 	// The read side for populating the strips. Each returns the
 	// engine's current value, or the documented degenerate value when
 	// the engine is unavailable.

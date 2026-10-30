@@ -21,7 +21,9 @@
 
 // The mixer view's renderer (proposal 0006 TU4.3/TU4.4): thin imgui draw
 // calls over PluginUiMixerModel — no logic grows here (TU1.3); the
-// window smoke covers it.
+// window smoke covers it. Master and instrument strips (fader, pan
+// knob, mute/solo, meters); the bus routing lives in the mapping
+// view's "Bus Output" section.
 
 #ifndef H2C_PLUGIN_UI_MIXER_VIEW_H
 #define H2C_PLUGIN_UI_MIXER_VIEW_H

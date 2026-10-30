@@ -2105,6 +2105,11 @@ Ställ in systemets språkinställning på UTF-8!</translation>
         <extracomment>Displayed if a selected song could not be loaded, e.g. in the GUI&apos;s open-file error box and the plugin UI&apos;s status line.</extracomment>
         <translation>Kunde inte ladda sång.</translation>
     </message>
+    <message>
+        <source>Bus Output</source>
+        <extracomment>Section header of the instrument-to-bus routing in the embedded * plugin UI&apos;s mapping view.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

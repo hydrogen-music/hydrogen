@@ -49,7 +49,7 @@ class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testCreatePitchLabel );
 	CPPUNIT_TEST( testMixerModelStripsAndMeters );
 	CPPUNIT_TEST( testMixerModelStripReads );
-	CPPUNIT_TEST( testMixerModelBusCommands );
+	CPPUNIT_TEST( testMappingModelBusCommands );
 	CPPUNIT_TEST( testTranslatorInstallation );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -158,10 +158,11 @@ public:
 	 * the strip/master values follow the commands and the engine state;
 	 * the bus count mirrors the host context. */
 	void testMixerModelStripReads();
-	/** TU4.4: the mixer model's bus commands — explicit mapping lands on
+	/** TU4.4: the mapping model's bus commands — explicit mapping lands on
 	 * the engine's instrument and round-trips in the embedded song state
-	 * (ADR 0019); -1 resets to the implicit 1-to-1 default. */
-	void testMixerModelBusCommands();
+	 * (ADR 0019); -1 resets to the implicit 1-to-1 default and -2 indicates
+	 * no mapping */
+	void testMappingModelBusCommands();
 	/** TU6.1: the plugin process installs the hydrogen catalog translator
 	 * for the user's languages on the process's QCoreApplication, so the
 	 * embedded UI's CommonStrings resolve through the shared data/i18n

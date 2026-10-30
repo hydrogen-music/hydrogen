@@ -857,6 +857,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getBusLabel() const { return m_sBusLabel; }
 	const QString& getResetButton() const { return m_sResetButton; }
 	const QString& getMasterOnlyLabel() const { return m_sMasterOnlyLabel; }
+	const QString& getBusOutputHeader() const {
+		return m_sBusOutputHeader;
+	}
 	const QString& getDrumkitLabel() const { return m_sDrumkitLabel; }
 	const QString& getModeLabel() const { return m_sModeLabel; }
 	const QString& getColumnsLabel() const { return m_sColumnsLabel; }
@@ -1262,6 +1265,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sBusLabel;
 	QString m_sResetButton;
 	QString m_sMasterOnlyLabel;
+	QString m_sBusOutputHeader;
 	QString m_sDrumkitLabel;
 	QString m_sModeLabel;
 	QString m_sColumnsLabel;

@@ -108,36 +108,6 @@ bool PluginUiMixerModel::setMasterIsMuted( bool bMuted )
 	return pCAC->setMasterIsMuted( bMuted );
 }
 
-bool PluginUiMixerModel::setInstrumentOutputBus( int nInstrument, int nBus )
-{
-	auto pCAC = controller();
-	if ( pCAC == nullptr ) {
-		return false;
-	}
-	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
-	return pCAC->setInstrumentOutputBus( nInstrument, nBus );
-}
-
-int PluginUiMixerModel::instrumentOutputBus( int nInstrument ) const
-{
-	const auto pInstrument = instrument( nInstrument );
-	return pInstrument != nullptr ? pInstrument->getOutputBus() : 0;
-}
-
-int PluginUiMixerModel::effectiveOutputBus( int nInstrument,
-											int nBusCount ) const
-{
-	const int nStored = instrumentOutputBus( nInstrument );
-	// Implicit 1-to-1 default (ADR 0019): the bus matching the kit
-	// position.
-	const int nCandidate = nStored >= 0 ? nStored : nInstrument;
-	if ( nCandidate >= 0 && nCandidate < nBusCount ) {
-		return nCandidate;
-	}
-	// Beyond the available buses the instrument feeds the master only.
-	return -1;
-}
-
 int PluginUiMixerModel::stripCount() const
 {
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {

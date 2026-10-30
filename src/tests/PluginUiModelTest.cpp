@@ -1301,7 +1301,7 @@ void PluginUiModelTest::testMixerModelStripReads()
 	___INFOLOG( "passed" );
 }
 
-void PluginUiModelTest::testMixerModelBusCommands()
+void PluginUiModelTest::testMappingModelBusCommands()
 {
 	___INFOLOG( "" );
 
@@ -1309,11 +1309,16 @@ void PluginUiModelTest::testMixerModelBusCommands()
 	const unsigned nBlock = 512;
 	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
 	plugin.activate( nSampleRate, nBlock );
-	PluginUiMixerModel model( &plugin );
+	PluginUiMappingModel model( &plugin );
 
 	// A model without a plugin refuses every command instead of crashing.
-	PluginUiMixerModel orphanModel( nullptr );
+	PluginUiMappingModel orphanModel( nullptr );
 	CPPUNIT_ASSERT( ! orphanModel.setInstrumentOutputBus( 0, 2 ) );
+	CPPUNIT_ASSERT( orphanModel.busCount() == 0 );
+	CPPUNIT_ASSERT( orphanModel.effectiveOutputBus( 0, 4 ) == -1 );
+
+	// The host context: two buses (ADR 0019).
+	CPPUNIT_ASSERT( model.busCount() == 2 );
 
 	auto pHydrogen = plugin.getHydrogen();
 	CPPUNIT_ASSERT( pHydrogen != nullptr );
@@ -1325,13 +1330,11 @@ void PluginUiModelTest::testMixerModelBusCommands()
 	// Implicit default: no custom mapping stored, the effective bus is
 	// the kit position (ADR 0019 1-to-1).
 	CPPUNIT_ASSERT( pInstrument->getOutputBus() == -1 );
-	CPPUNIT_ASSERT( model.instrumentOutputBus( 0 ) == -1 );
 	CPPUNIT_ASSERT( model.effectiveOutputBus( 0, 4 ) == 0 );
 
 	// Explicit custom mapping lands on the engine's instrument.
 	CPPUNIT_ASSERT( model.setInstrumentOutputBus( 0, 2 ) );
 	CPPUNIT_ASSERT( pInstrument->getOutputBus() == 2 );
-	CPPUNIT_ASSERT( model.instrumentOutputBus( 0 ) == 2 );
 	CPPUNIT_ASSERT( model.effectiveOutputBus( 0, 4 ) == 2 );
 
 	// Beyond the host's bus count: no individual bus (master only).

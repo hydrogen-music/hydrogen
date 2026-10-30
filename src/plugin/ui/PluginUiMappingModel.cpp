@@ -198,6 +198,41 @@ bool PluginUiMappingModel::setInstrumentMidiOutChannel( int nInstrument,
 	return pCAC->setInstrumentMidiOutChannel( nInstrument, channel, 0 );
 }
 
+bool PluginUiMappingModel::setInstrumentOutputBus( int nInstrument,
+												   int nBus )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	return pCAC->setInstrumentOutputBus( nInstrument, nBus );
+}
+
+int PluginUiMappingModel::effectiveOutputBus( int nInstrument,
+											  int nBusCount ) const
+{
+	const auto pInstrument = instrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		// No engine or out of range: nothing feeds anywhere.
+		return -1;
+	}
+	const int nStored = pInstrument->getOutputBus();
+	// Implicit 1-to-1 default (ADR 0019): the bus matching the kit
+	// position.
+	const int nCandidate = nStored >= 0 ? nStored : nInstrument;
+	if ( nCandidate >= 0 && nCandidate < nBusCount ) {
+		return nCandidate;
+	}
+	// Beyond the available buses the instrument feeds the master only.
+	return -1;
+}
+
+int PluginUiMappingModel::busCount() const
+{
+	return m_pPlugin != nullptr ? m_pPlugin->getBusCount() : 0;
+}
+
 // The MIDI config applies go through the engine's granular install commands
 // (ADR 0030/0022): the plugin's engine preferences adopt them live. Neither
 // command persists — and the plugin never calls a preferences save on top —

@@ -20,11 +20,10 @@
  */
 
 // The mixer view's renderer (proposal 0006 TU4.3/TU4.4): master and
-// instrument strips (fader, pan knob, mute/solo, meters) and the bus
-// row with drag&drop routing (ADR 0019): dragging a strip onto a bus
-// slot (or Master) sets its explicit output bus, the béziers visualize
-// the routings. Thin draw calls only (TU1.3): every decision is the
-// model's.
+// instrument strips (fader, pan knob, mute/solo, meters). The bus
+// routing (ADR 0019) lives in the mapping view's "Bus Output" section
+// — its béziers overwhelmed the strips here. Thin draw calls only
+// (TU1.3): every decision is the model's.
 
 #include "PluginUiMixerView.h"
 
@@ -32,7 +31,6 @@
 #include <imgui-knobs.h>
 
 #include <algorithm>
-#include <vector>
 
 #include <QString>
 
@@ -40,9 +38,6 @@
 #include <plugin/HydrogenPlugin.h>
 
 namespace {
-
-// Drag&drop payload type of a strip's bus routing (TU4.4).
-const char* s_sStripBusPayload = "H2_STRIP_BUS";
 
 // The strips' shared geometry — every strip is a fixed-width column,
 // so the strips align and each name clips to its column.
@@ -119,7 +114,6 @@ bool PluginUiMixerView::drawFaderWithMeter( const char* sId,
 void PluginUiMixerView::draw()
 {
 	const int nStrips = m_model.stripCount();
-	const int nBusCount = m_model.busCount();
 
 	// Shared button width so the strips' control columns align.
 	const auto sMute = m_pCommonStrings->getBigMuteButton().toUtf8();
@@ -129,21 +123,12 @@ void PluginUiMixerView::draw()
 				  ImGui::CalcTextSize( sSolo.constData() ).x ) +
 		ImGui::GetStyle().FramePadding.x * 2.0f;
 
-	// Strip routing state, recorded while drawing for the béziers: each
-	// strip's bus-indicator rect and effective bus.
-	std::vector<ImVec2> stripOrigins;
-	std::vector<int> stripBuses;
-	stripOrigins.reserve( nStrips );
-	stripBuses.reserve( nStrips );
-
 	// The master strip: the same column geometry, no pan/solo/routing.
 	const auto highlight = []() {
 		ImGui::PushStyleColor( ImGuiCol_Text,
 							   ImGui::GetColorU32(
 								   ImGuiCol_ButtonActive ) );
 	};
-	const auto sMasterOnly = m_pCommonStrings->getMasterOnlyLabel().toUtf8();
-	const auto sReset = m_pCommonStrings->getResetButton().toUtf8();
 	ImGui::BeginGroup();
 	ImGui::TextUnformatted( m_pCommonStrings->getMasterLabel().toUtf8()
 								.constData() );
@@ -168,8 +153,8 @@ void PluginUiMixerView::draw()
 	ImGui::SameLine();
 
 	// One group per strip: a fixed-width column — name, fader with
-	// meters, pan, mute, solo, bus indicator, reset — so the strips
-	// align and each name clips to its column.
+	// meters, pan, mute, solo — so the strips align and each name clips
+	// to its column.
 	for ( int n = 0; n < nStrips; ++n ) {
 		ImGui::PushID( n );
 		ImGui::BeginGroup();
@@ -210,87 +195,11 @@ void PluginUiMixerView::draw()
 		if ( bSoloed ) {
 			ImGui::PopStyleColor();
 		}
-		// The strip's routing state — the indicator is the drag
-		// source. Text() items carry no ID, so imgui requires an
-		// explicit opt-in for them to act as drag sources.
-		const int nBus = m_model.effectiveOutputBus( n, nBusCount );
-		const auto sBus = nBus >= 0
-			? ( m_pCommonStrings->getBusLabel() + " " +
-				QString::number( nBus + 1 ) ).toUtf8()
-			: QByteArray( sMasterOnly );
-		ImGui::TextUnformatted( sBus.constData(),
-								sBus.constData() + sBus.size() );
-		const ImVec2 stripOrigin = ImGui::GetItemRectMin();
-		if ( ImGui::BeginDragDropSource(
-				 ImGuiDragDropFlags_SourceAllowNullID ) ) {
-			ImGui::SetDragDropPayload( s_sStripBusPayload, &n,
-									   sizeof( int ) );
-			ImGui::TextUnformatted( sBus.constData(),
-									sBus.constData() + sBus.size() );
-			ImGui::EndDragDropSource();
-		}
-		if ( ImGui::SmallButton( sReset.constData() ) ) {
-			// Back to the implicit 1-to-1 default (ADR 0019).
-			m_model.setInstrumentOutputBus( n, -1 );
-		}
 		ImGui::Dummy( ImVec2( s_nStripWidth, 0.0f ) );
 		ImGui::EndGroup();
 		ImGui::PopID();
 		if ( n + 1 < nStrips ) {
 			ImGui::SameLine();
-		}
-		stripOrigins.push_back( stripOrigin );
-		stripBuses.push_back( nBus );
-	}
-
-	ImGui::Separator();
-
-	// The bus row: one slot per host bus plus Master. Dropping a strip
-	// sets its explicit output bus; Master resets it to the master
-	// feed.
-	std::vector<ImVec2> busOrigins;
-	for ( int nBus = 0; nBus < nBusCount; ++nBus ) {
-		const auto sBus = ( m_pCommonStrings->getBusLabel() + " " +
-							QString::number( nBus + 1 ) ).toUtf8();
-		ImGui::Button( sBus.constData() );
-		if ( ImGui::BeginDragDropTarget() ) {
-			if ( const ImGuiPayload* pPayload =
-					 ImGui::AcceptDragDropPayload( s_sStripBusPayload ) ) {
-				const int nStrip =
-					*static_cast<const int*>( pPayload->Data );
-				m_model.setInstrumentOutputBus( nStrip, nBus );
-			}
-			ImGui::EndDragDropTarget();
-		}
-		busOrigins.push_back( ImGui::GetItemRectMin() );
-		ImGui::SameLine();
-	}
-	ImGui::Button( m_pCommonStrings->getMasterLabel().toUtf8().constData() );
-	if ( ImGui::BeginDragDropTarget() ) {
-		if ( const ImGuiPayload* pPayload =
-				 ImGui::AcceptDragDropPayload( s_sStripBusPayload ) ) {
-			const int nStrip = *static_cast<const int*>( pPayload->Data );
-			m_model.setInstrumentOutputBus( nStrip, -1 );
-		}
-		ImGui::EndDragDropTarget();
-	}
-	busOrigins.push_back( ImGui::GetItemRectMin() );
-
-	// The routing béziers (TU4.4): each strip to its effective bus —
-	// the Master slot for the master-only strips. Full text alpha:
-	// the routings are the point of the bus row, not a watermark.
-	if ( ! busOrigins.empty() ) {
-		ImDrawList* pDraw = ImGui::GetWindowDrawList();
-		const ImU32 nCurveColor = ImGui::GetColorU32( ImGuiCol_Text );
-		for ( int n = 0; n < nStrips; ++n ) {
-			const int nBus = stripBuses[ n ];
-			const ImVec2 from = stripOrigins[ n ];
-			const ImVec2 to = busOrigins[ nBus >= 0 ? nBus : nBusCount ];
-			const float nDip = std::max( ( to.y - from.y ) * 0.5f, 8.0f );
-			pDraw->AddBezierCubic( from,
-								  ImVec2( from.x, from.y + nDip ),
-								  ImVec2( to.x, to.y - nDip ), to,
-								  nCurveColor, 2.0f );
 		}
 	}
 }

@@ -1192,6 +1192,9 @@ CommonStrings::CommonStrings(){
 	/*: Checkbox limiting the mixer tab of the embedded plugin UI to
 	 * the master strip. */
 	m_sMasterOnlyLabel = tr( "Master only" );
+	/*: Section header of the instrument-to-bus routing in the embedded
+	 * plugin UI's mapping view. */
+	m_sBusOutputHeader = tr( "Bus Output" );
 	/*: Label of the info section's drumkit row in the embedded plugin
 	 * UI's landing view — the name of the drumkit of the current song. */
 	m_sDrumkitLabel = tr( "Drumkit" );

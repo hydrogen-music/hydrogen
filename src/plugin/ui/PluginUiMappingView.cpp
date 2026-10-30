@@ -24,17 +24,38 @@
 // transport stay engine-side, settable via the editor) and the note mapping as
 // two foldable sections — "Input" (input mode, global input channel, the
 // per-instrument input rows) and "Output" (output mode, global output channel,
-// the per-instrument output rows). Every widget — the MIDI config ones
-// included — applies its change the moment it is made, with one model command
-// (the model's atomic-command design); nothing is held locally, so nothing can
-// drift. Thin draw calls only (TU1.3): every decision is the model's.
+// the per-instrument output rows) — plus the "Bus Output" section: the
+// instruments in a left column, the numbered output busses in a right
+// one, drag&drop routing and béziers visualizing the effective feeds. Every
+// widget — the MIDI config ones included — applies its change the moment it
+// is made, with one model command (the model's atomic-command design);
+// nothing is held locally, so nothing can drift. Thin draw calls only
+// (TU1.3): every decision is the model's.
 
 #include "PluginUiMappingView.h"
 
 #include <imgui.h>
 
+#include <algorithm>
+#include <vector>
+
 #include <core/CommonStrings.h>
 #include <plugin/HydrogenPlugin.h>
+
+namespace {
+
+// Drag&drop payload type of an instrument's bus routing (ADR 0019).
+const char* s_sInstrumentBusPayload = "H2_INSTRUMENT_BUS";
+
+// The bus output section's column geometry: the floors of the columns'
+// uniform button widths (the trailing Dummy of each column keeps them
+// when a column has no buttons at all) and the corridor between the
+// columns the béziers travel through.
+constexpr float s_nInstrumentColumnWidth = 150.0f;
+constexpr float s_nBusColumnWidth = 90.0f;
+constexpr float s_nBusColumnGap = 40.0f;
+
+} // namespace
 
 namespace H2Core {
 
@@ -426,6 +447,125 @@ void PluginUiMappingView::draw()
 			ImGui::EndTable();
 		}
 		ImGui::PopID();
+	}
+
+	ImGui::Dummy( ImVec2( 0.0f, PluginUiMappingView::nSpacing ) );
+	ImGui::Separator();
+
+	// The instrument-to-bus routing (ADR 0019): the instruments in a left
+	// column, the numbered output busses in a right one, the béziers
+	// visualizing the effective feeds. Dragging an instrument onto a bus
+	// sets its explicit routing — instruments are only mapped to
+	// numbered busses; the ones beyond the bus count (master only)
+	// carry no curve.
+	if ( ImGui::CollapsingHeader(
+			 m_pCommonStrings->getBusOutputHeader().toUtf8().constData(),
+			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		const int nBusCount = m_model.busCount();
+
+		// Uniform widget sizes: every button of a column shares its
+		// width — at least the column floor, growing with the widest
+		// (clipped) label — and the auto height, so the two columns'
+		// widgets are indistinguishable in size and styling.
+		float nInstrumentButtonWidth = s_nInstrumentColumnWidth;
+		for ( int n = 0; n < nInstruments; ++n ) {
+			nInstrumentButtonWidth = std::max(
+				nInstrumentButtonWidth,
+				ImGui::CalcTextSize(
+					m_model.instrumentName( n ).left( 24 ).toUtf8()
+						.constData() )
+					.x +
+					ImGui::GetStyle().FramePadding.x * 2.0f );
+		}
+		float nBusButtonWidth = s_nBusColumnWidth;
+		if ( nBusCount > 0 ) {
+			// "Bus <nBusCount>" is the widest label of the column.
+			nBusButtonWidth = std::max(
+				nBusButtonWidth,
+				ImGui::CalcTextSize(
+					( m_pCommonStrings->getBusLabel() + " " +
+					  QString::number( nBusCount ) ).toUtf8()
+						.constData() )
+					.x +
+					ImGui::GetStyle().FramePadding.x * 2.0f );
+		}
+
+		// The left column: every instrument of the kit, each the drag
+		// source of its routing.
+		std::vector<ImVec2> instrumentOrigins;
+		instrumentOrigins.reserve( nInstruments );
+		ImGui::BeginGroup();
+		for ( int n = 0; n < nInstruments; ++n ) {
+			ImGui::PushID( n );
+			const auto sName =
+				m_model.instrumentName( n ).left( 24 ).toUtf8();
+			ImGui::Button( sName.constData(),
+						   ImVec2( nInstrumentButtonWidth, 0.0f ) );
+			const ImVec2 rectMin = ImGui::GetItemRectMin();
+			const ImVec2 rectMax = ImGui::GetItemRectMax();
+			instrumentOrigins.push_back( ImVec2(
+				rectMax.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
+			if ( ImGui::BeginDragDropSource() ) {
+				ImGui::SetDragDropPayload( s_sInstrumentBusPayload, &n,
+										   sizeof( int ) );
+				ImGui::TextUnformatted( sName.constData(),
+										sName.constData() + sName.size() );
+				ImGui::EndDragDropSource();
+			}
+			ImGui::PopID();
+		}
+		ImGui::Dummy( ImVec2( s_nInstrumentColumnWidth, 0.0f ) );
+		ImGui::EndGroup();
+		// The corridor the béziers travel through.
+		ImGui::SameLine( 0.0f, s_nBusColumnGap );
+
+		// The right column: one slot per numbered host bus. Dropping an
+		// instrument sets its explicit output bus.
+		std::vector<ImVec2> busOrigins;
+		busOrigins.reserve( nBusCount );
+		ImGui::BeginGroup();
+		for ( int nBus = 0; nBus < nBusCount; ++nBus ) {
+			const auto sBus = ( m_pCommonStrings->getBusLabel() + " " +
+								QString::number( nBus + 1 ) ).toUtf8();
+			ImGui::Button( sBus.constData(),
+						   ImVec2( nBusButtonWidth, 0.0f ) );
+			if ( ImGui::BeginDragDropTarget() ) {
+				if ( const ImGuiPayload* pPayload =
+						 ImGui::AcceptDragDropPayload(
+							 s_sInstrumentBusPayload ) ) {
+					const int nInstrument =
+						*static_cast<const int*>( pPayload->Data );
+					m_model.setInstrumentOutputBus( nInstrument, nBus );
+				}
+				ImGui::EndDragDropTarget();
+			}
+			const ImVec2 rectMin = ImGui::GetItemRectMin();
+			const ImVec2 rectMax = ImGui::GetItemRectMax();
+			busOrigins.push_back( ImVec2(
+				rectMin.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
+		}
+		ImGui::Dummy( ImVec2( s_nBusColumnWidth, 0.0f ) );
+		ImGui::EndGroup();
+
+		// The routing béziers: each instrument to its effective
+		// numbered bus.
+		ImDrawList* pDraw = ImGui::GetWindowDrawList();
+		const ImU32 nCurveColor = ImGui::GetColorU32( ImGuiCol_Text );
+		for ( int n = 0; n < nInstruments; ++n ) {
+			const int nBus = m_model.effectiveOutputBus( n, nBusCount );
+			if ( nBus < 0 ) {
+				// Master only — not part of the visualization.
+				continue;
+			}
+			const ImVec2 from = instrumentOrigins[ n ];
+			const ImVec2 to = busOrigins[ nBus ];
+			const float nDip =
+				std::max( ( to.x - from.x ) * 0.5f, 8.0f );
+			pDraw->AddBezierCubic( from,
+								   ImVec2( from.x + nDip, from.y ),
+								   ImVec2( to.x - nDip, to.y ), to,
+								   nCurveColor, 2.0f );
+		}
 	}
 }
 

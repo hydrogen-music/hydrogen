@@ -19,13 +19,14 @@
  *
  */
 
-// The MIDI mapping view's renderer (proposal 0006 TU4.2): thin imgui
-// draw calls over PluginUiMappingModel — no logic grows here (TU1.3);
-// the window smoke covers it. Draws the exposed MIDI configuration
-// foldable section (moved from the landing view) and the note mapping
-// as two foldable sections — Input (mode, global channel, the
-// per-instrument rows) and Output (mode, global channel, the
-// per-instrument rows).
+// The MIDI mapping view's renderer (proposal 0006 TU4.2): thin imgui draw calls
+// over PluginUiMappingModel — no logic grows here (TU1.3); the window smoke
+// covers it. Draws the exposed MIDI configuration foldable section (moved from
+// the landing view), the note mapping as two foldable sections — Input (mode,
+// global channel, the per-instrument rows) and Output (mode, global channel,
+// the per-instrument rows) — and the Bus Output section: the instruments in
+// a left column, the numbered output busses in a right one, drag&drop
+// routing with béziers.
 
 #ifndef H2C_PLUGIN_UI_MAPPING_VIEW_H
 #define H2C_PLUGIN_UI_MAPPING_VIEW_H
