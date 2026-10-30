@@ -160,9 +160,10 @@ void PluginUiLandingView::draw()
 			m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
 		ImGui::OpenPopup( sTitle.constData() );
 	}
-	ImGui::SameLine();
 
 	drawDrumkitPicker();
+
+	ImGui::Separator();
 
 	// Editor line: the executable the button launches — prefilled with
 	// the resolved default, editable to point elsewhere.
