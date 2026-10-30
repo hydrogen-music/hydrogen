@@ -1185,12 +1185,6 @@ CommonStrings::CommonStrings(){
 	/*: Checkbox making an instrument follow the global input channel
 	 *  in the embedded plugin UI. */
 	m_sUseGlobalChannelLabel = tr( "Use global channel" );
-	/*: Column header of the note mapping table's event source side in
-	 *  the embedded plugin UI. */
-	m_sInputHeader = tr( "Input" );
-	/*: Column header of the note mapping table's event target side in
-	 *  the embedded plugin UI. */
-	m_sOutputHeader = tr( "Output" );
 	/*: Label of the output bus selector in the embedded plugin UI. */
 	m_sBusLabel = tr( "Bus" );
 	/*: Button resetting a mixer strip in the embedded plugin UI. */

@@ -854,8 +854,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getUseGlobalChannelLabel() const {
 		return m_sUseGlobalChannelLabel;
 	}
-	const QString& getInputHeader() const { return m_sInputHeader; }
-	const QString& getOutputHeader() const { return m_sOutputHeader; }
 	const QString& getBusLabel() const { return m_sBusLabel; }
 	const QString& getResetButton() const { return m_sResetButton; }
 	const QString& getMasterOnlyLabel() const { return m_sMasterOnlyLabel; }
@@ -1261,8 +1259,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sNoteMappingHeader;
 	QString m_sGlobalChannelLabel;
 	QString m_sUseGlobalChannelLabel;
-	QString m_sInputHeader;
-	QString m_sOutputHeader;
 	QString m_sBusLabel;
 	QString m_sResetButton;
 	QString m_sMasterOnlyLabel;

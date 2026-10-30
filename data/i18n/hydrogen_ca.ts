@@ -2028,16 +2028,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Input</source>
-        <extracomment>Column header of the note mapping table&apos;s event source side in * the embedded plugin UI.</extracomment>
-        <translation>Entrada</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <extracomment>Column header of the note mapping table&apos;s event target side in * the embedded plugin UI.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Bus</source>
         <extracomment>Label of the output bus selector in the embedded plugin UI.</extracomment>
         <translation type="unfinished"></translation>

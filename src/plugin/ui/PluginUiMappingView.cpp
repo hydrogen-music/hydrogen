@@ -155,7 +155,7 @@ void PluginUiMappingView::draw()
 	// (the "##" suffixes keep the twice-used label's imgui IDs apart) —
 	// no new translatable strings.
 	if ( ImGui::CollapsingHeader(
-			 m_pCommonStrings->getInputHeader().toUtf8().constData(),
+			 m_pCommonStrings->getMidiInputLabel().toUtf8().constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
 		// The map-wide input setting, applied on change. The combo
 		// entries must outlive the Combo call — held locals, not
@@ -324,7 +324,7 @@ void PluginUiMappingView::draw()
 	ImGui::Separator();
 
 	if ( ImGui::CollapsingHeader(
-			 m_pCommonStrings->getOutputHeader().toUtf8().constData(),
+			 m_pCommonStrings->getMidiOutLabel().toUtf8().constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
 		// The map-wide output setting, applied on change. The combo
 		// entries must outlive the Combo call — held locals, not
