@@ -128,17 +128,21 @@ void PluginUiMappingView::draw()
 		return;
 	}
 
-	// The channel dropdowns' entries — All / Off / 1..16, one per
-	// selectable channel: index 0 is "All" (-1), 1 is "Off" (0), 2..17
-	// are the channels, the same shift every channel combo below
-	// applies. The QByteArrays must outlive the combo calls, so they
-	// are held next to the pointers into them.
+	// The channel dropdowns' entries — All / Off / 1..16, one per selectable
+	// channel: index 0 is "All" (-1), 1 is "Off" (0), 2..17 are the channels,
+	// the same shift every channel combo below applies. The output counterpart
+	// does not have the "All" value. The QByteArrays must outlive the combo
+	// calls, so they are held next to the pointers into them.
 	QByteArray sChannelEntries[ 18 ];
-	const char* sChannelEntryPtrs[ 18 ];
+	const char* sInputChannelEntryPtrs[ 18 ];
+	const char* sOutputChannelEntryPtrs[ 17 ];
 	for ( int n = 0; n < 18; ++n ) {
 		sChannelEntries[ n ] = m_pCommonStrings->getChannelDisplayName(
 			Midi::channelFromInt( n - 1 ) ).toUtf8();
-		sChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
+		sInputChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
+		if ( n > 0 ) {
+			sOutputChannelEntryPtrs[ n - 1 ] = sChannelEntries[ n ].constData();
+		}
 	}
 
 	const int nInstruments = m_model.instrumentCount();
@@ -212,7 +216,7 @@ void PluginUiMappingView::draw()
 		// enables it — grey the dropdown out otherwise.
 		ImGui::BeginDisabled( ! bUseGlobalInput );
 		if ( ImGui::Combo( sGlobalInputChannel.constData(),
-						   &nGlobalInputChannel, sChannelEntryPtrs, 18 ) ) {
+						   &nGlobalInputChannel, sInputChannelEntryPtrs, 18 ) ) {
 			m_model.setGlobalInputChannel(
 				Midi::channelFromInt( nGlobalInputChannel - 1 ) );
 		}
@@ -292,7 +296,7 @@ void PluginUiMappingView::draw()
 					int nChannel = static_cast<int>( mapping.channel ) + 1;
 					ImGui::SetNextItemWidth( 52.0f );
 					if ( ImGui::Combo( "##channel", &nChannel,
-									   sChannelEntryPtrs, 18 ) ) {
+									   sInputChannelEntryPtrs, 18 ) ) {
 						// In Order mode the note column is read-only —
 						// mapping.note carries the order-derived note,
 						// so the custom mapping keeps it.
@@ -368,7 +372,7 @@ void PluginUiMappingView::draw()
 		// channel is enabled above.
 		ImGui::BeginDisabled( ! bUseGlobalOutput );
 		if ( ImGui::Combo( sGlobalOutputChannel.constData(),
-						   &nGlobalOutputChannel, sChannelEntryPtrs, 18 ) ) {
+						   &nGlobalOutputChannel, sOutputChannelEntryPtrs, 17 ) ) {
 			m_model.setGlobalOutputChannel(
 				Midi::channelFromInt( nGlobalOutputChannel - 1 ) );
 		}
@@ -413,7 +417,7 @@ void PluginUiMappingView::draw()
 					m_model.instrumentMidiOutChannel( n ) ) + 1;
 				ImGui::SetNextItemWidth( 52.0f );
 				if ( ImGui::Combo( "##channel", &nChannel,
-								   sChannelEntryPtrs, 18 ) ) {
+								   sOutputChannelEntryPtrs, 17 ) ) {
 					m_model.setInstrumentMidiOutChannel(
 						n, Midi::channelFromInt( nChannel - 1 ) );
 				}
