@@ -210,7 +210,12 @@ public:
 	QString editorBinary() const;
 
 private:
-	void launchEditorProcess();
+	/** Launch the editor process against the served endpoint. Returns
+	 * false — without spawning — when the resolved binary is not
+	 * launchable, so callers (openEditor, the respawn path) can report
+	 * the failure synchronously; QProcess would only surface it
+	 * asynchronously (FailedToStart via the event loop). */
+	bool launchEditorProcess();
 	/** Process-exit handler. Respawns only on a crash (bounded); a clean exit
 	 * (the user closed the editor window) leaves it closed. */
 	void onEditorProcessFinished( bool bCrashed );

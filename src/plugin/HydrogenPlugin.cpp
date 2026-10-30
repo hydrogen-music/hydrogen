@@ -47,6 +47,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
+#include <QtCore/QStandardPaths>
 #include <QtCore/QStringList>
 
 namespace H2Core {
@@ -565,14 +566,42 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 	m_bEditorOpen = true;
 	m_bEditorClosing = false;
 	m_nEditorRespawns = 0;
-	if ( bLaunchProcess ) {
-		launchEditorProcess();
+	if ( bLaunchProcess && ! launchEditorProcess() ) {
+		// Surface the launch failure (landing-view status line); the
+		// session stays up so a corrected binary can retry.
+		m_bEditorOpen = false;
+		return false;
 	}
 	return true;
 }
 
-void HydrogenPlugin::launchEditorProcess() {
+namespace {
+/** Whether the resolved editor binary can actually be exec'd: a path
+ * (contains a separator) must be an executable file, a bare name must
+ * resolve through PATH. */
+bool isLaunchableBinary( const QString& sBinary ) {
+	if ( sBinary.isEmpty() ) {
+		return false;
+	}
+	if ( sBinary.contains( '/' )
+#if defined( _WIN32 )
+		 || sBinary.contains( '\\' )
+#endif
+	) {
+		const QFileInfo info( sBinary );
+		return info.isFile() && info.isExecutable();
+	}
+	return ! QStandardPaths::findExecutable( sBinary ).isEmpty();
+}
+}
+
+bool HydrogenPlugin::launchEditorProcess() {
 	const auto sEditorBinary = editorBinary();
+	if ( ! isLaunchableBinary( sEditorBinary ) ) {
+		___ERRORLOG( QString( "Editor binary [%1] is not launchable" )
+					 .arg( sEditorBinary ) );
+		return false;
+	}
 	___INFOLOG( QString( "Starting editor [%1]" ).arg( sEditorBinary ) );
 
 	m_pEditorProcess = std::make_unique<QProcess>();
@@ -582,9 +611,22 @@ void HydrogenPlugin::launchEditorProcess() {
 		[this]( int, QProcess::ExitStatus status ) {
 			onEditorProcessFinished( status == QProcess::CrashExit );
 		} );
+	// A binary passing the launchability check can still fail at exec
+	// time (e.g. a +x file the kernel refuses). That arrives
+	// asynchronously; treat it as closed instead of crash-respawning a
+	// binary that would fail identically every time.
+	QObject::connect(
+		m_pEditorProcess.get(), &QProcess::errorOccurred,
+		[this]( QProcess::ProcessError error ) {
+			if ( error == QProcess::FailedToStart ) {
+				___ERRORLOG( "Editor process failed to start" );
+				m_bEditorOpen = false;
+			}
+		} );
 	m_pEditorProcess->start(
 		sEditorBinary,
 		QStringList() << QStringLiteral( "--connect-via-ipc" ) << m_sEditorEndpoint );
+	return true;
 }
 
 void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
@@ -608,7 +650,9 @@ void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
 	// crashing editor can't loop forever.
 	if ( m_nEditorRespawns < knMaxEditorRespawns ) {
 		++m_nEditorRespawns;
-		launchEditorProcess();
+		if ( ! launchEditorProcess() ) {
+			m_bEditorOpen = false;
+		}
 	}
 	else {
 		m_bEditorOpen = false;

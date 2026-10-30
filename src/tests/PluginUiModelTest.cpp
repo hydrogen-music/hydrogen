@@ -390,6 +390,20 @@ void PluginUiModelTest::testLandingEditorExecutable()
 	CPPUNIT_ASSERT( model.openEditor( /*bLaunchProcess=*/false ) );
 	CPPUNIT_ASSERT( ! plugin.getEditorEndpoint().isEmpty() );
 
+	// A nonsense binary must fail the launch synchronously — surfacing
+	// the failure (status line) instead of silently never starting —
+	// and leave the editor closed so a corrected binary can retry.
+	plugin.closeEditor();
+	CPPUNIT_ASSERT( ! model.openEditor( /*bLaunchProcess=*/true ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::OpenEditor );
+	CPPUNIT_ASSERT( ! plugin.isEditorOpen() );
+	// Recovery: a later open without spawning succeeds and clears the
+	// failure.
+	CPPUNIT_ASSERT( model.openEditor( /*bLaunchProcess=*/false ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::None );
+
 	___INFOLOG( "passed" );
 }
 
