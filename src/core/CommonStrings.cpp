@@ -407,6 +407,12 @@ CommonStrings::CommonStrings(){
 	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
 
 	m_sPatternLoadError = tr( "Unable to load pattern" );
+	/*: Displayed in the plugin UI's status line if the selected
+	   drumkit could not be loaded. */
+	m_sDrumkitLoadError = tr( "Unable to load drumkit" );
+	/*: Displayed in the plugin UI's status line if the external
+	   editor could not be opened. */
+	m_sEditorOpenError = tr( "Unable to open editor" );
 	m_sInstrumentLoadError = tr( "Unable to load instrument" );
 
 	/*: Error message shown when attempt to export a song, pattern,
@@ -544,9 +550,6 @@ CommonStrings::CommonStrings(){
 	m_sPathDialog = tr( "Path" );
 	
 	// Not used yet.
-	/*: Displayed in the Open dialog window if the selected song could
-	  not be loaded.*/
-	// m_sDialogSongLoadError = tr( "Error loading song." );
 	/*: Heading displayed in the info box asking the user to recover
 	  unsaved changes from an earlier session.*/
 	// m_sDialogUnsavedChangedH1 = tr( "There are unsaved changes." );

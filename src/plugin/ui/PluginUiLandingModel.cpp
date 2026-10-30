@@ -62,6 +62,9 @@ std::shared_ptr<Preferences> PluginUiLandingModel::preferences() const
 
 bool PluginUiLandingModel::loadSong( const QString& sPath )
 {
+	// The failure is recorded up front so every early return below
+	// reports this action; the success path clears it.
+	m_failedAction = FailedAction::LoadSong;
 	auto pCAC = m_pPlugin != nullptr
 		? m_pPlugin->getHydrogen()->getCoreActionController() : nullptr;
 	if ( pCAC == nullptr ) {
@@ -92,11 +95,13 @@ bool PluginUiLandingModel::loadSong( const QString& sPath )
 		return false;
 	}
 
+	m_failedAction = FailedAction::None;
 	return true;
 }
 
 bool PluginUiLandingModel::loadPattern( const QString& sPath )
 {
+	m_failedAction = FailedAction::LoadPattern;
 	auto pCAC = m_pPlugin != nullptr
 		? m_pPlugin->getHydrogen()->getCoreActionController() : nullptr;
 	if ( pCAC == nullptr ) {
@@ -151,11 +156,16 @@ bool PluginUiLandingModel::loadPattern( const QString& sPath )
 		return false;
 	}
 
+	m_failedAction = FailedAction::None;
 	return true;
 }
 
 bool PluginUiLandingModel::clearSong()
 {
+	// Not status-worthy: the line resets either way (a rare internal
+	// failure stays log-only; the info section shows the unchanged
+	// song).
+	m_failedAction = FailedAction::None;
 	auto pCAC = m_pPlugin != nullptr
 		? m_pPlugin->getHydrogen()->getCoreActionController() : nullptr;
 	if ( pCAC == nullptr ) {
@@ -218,6 +228,7 @@ QString PluginUiLandingModel::patternDialogDefaultPath() const
 
 bool PluginUiLandingModel::loadDrumkit( const QString& sPath )
 {
+	m_failedAction = FailedAction::LoadDrumkit;
 	auto pHydrogen = m_pPlugin != nullptr ? m_pPlugin->getHydrogen()
 										  : nullptr;
 	auto pCAC = pHydrogen != nullptr
@@ -239,7 +250,12 @@ bool PluginUiLandingModel::loadDrumkit( const QString& sPath )
 		return false;
 	}
 
-	return pCAC->setDrumkit( std::make_shared<Drumkit>( pDrumkit ) );
+	if ( ! pCAC->setDrumkit( std::make_shared<Drumkit>( pDrumkit ) ) ) {
+		return false;
+	}
+
+	m_failedAction = FailedAction::None;
+	return true;
 }
 
 QString PluginUiLandingModel::htmlToPlainText( const QString& sHtml )
@@ -325,12 +341,18 @@ bool PluginUiLandingModel::setEditorExecutable( const QString& sPath )
 
 bool PluginUiLandingModel::openEditor( bool bLaunchProcess )
 {
+	m_failedAction = FailedAction::OpenEditor;
 	if ( m_pPlugin == nullptr ) {
 		return false;
 	}
 	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 
-	return m_pPlugin->openEditor( bLaunchProcess );
+	if ( ! m_pPlugin->openEditor( bLaunchProcess ) ) {
+		return false;
+	}
+
+	m_failedAction = FailedAction::None;
+	return true;
 }
 
 bool PluginUiLandingModel::pluginStateEmbedSamples() const

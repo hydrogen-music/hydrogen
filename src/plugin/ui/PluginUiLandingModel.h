@@ -75,6 +75,14 @@ public:
 	 * current song (Drumkit::load + setDrumkit). False without touching
 	 * the song when the path does not load. */
 	bool loadDrumkit( const QString& sPath );
+	/** Which command failed last — the landing view's status line's
+	 *  data (errors only: a successful command clears the line, its
+	 *  outcome is visible in the info section; clearing the song is
+	 *  not status-worthy and resets the line). UI thread only, like
+	 *  the commands that write it. */
+	enum class FailedAction { None, LoadSong, LoadPattern, LoadDrumkit,
+							  OpenEditor };
+	FailedAction lastFailedAction() const { return m_failedAction; }
 	/** One row of the drumkit picker: the metadata shown in the table
 	 * (name, author, license, version) and on hover (info, HTML tags
 	 * stripped for plain-text display), plus the path that identifies
@@ -140,6 +148,10 @@ private:
 	std::shared_ptr<Preferences> preferences() const;
 
 	HydrogenPlugin* m_pPlugin = nullptr;
+
+	// The status line's data — which command failed last (UI thread
+	// only, written by the commands above).
+	FailedAction m_failedAction = FailedAction::None;
 
 	// The latest delivered snapshot under a small mutex: the sink
 	// callback fires on the engine session's bridge thread, the reads

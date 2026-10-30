@@ -692,7 +692,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>License String</source>
-        <extracomment>Displayed in the Open dialog window if the selected song could not be loaded.Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
+        <extracomment>Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
         <translation>Licenssträng</translation>
     </message>
     <message>
@@ -1945,7 +1945,7 @@ Ställ in systemets språkinställning på UTF-8!</translation>
     <message>
         <source>Mapping</source>
         <extracomment>Tab of the embedded plugin UI listing song, pattern and drumkit * loading as well as the MIDI configuration.</extracomment>
-        <translation type="unfinished">Taggtext</translation>
+        <translation>Taggtext</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -2099,6 +2099,21 @@ Ställ in systemets språkinställning på UTF-8!</translation>
         <source>Include samples in plugin state</source>
         <extracomment>Checkbox in the embedded plugin UI&apos;s landing view; when checked, * the state a host saves contains the drumkit&apos;s sample audio, so * it survives on machines without the drumkit installed.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load drumkit</source>
+        <extracomment>Displayed in the plugin UI&apos;s status line if the selected drumkit could not be loaded.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open editor</source>
+        <extracomment>Displayed in the plugin UI&apos;s status line if the external editor could not be opened.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <extracomment>Displayed if a selected song could not be loaded, e.g. in the GUI&apos;s open-file error box and the plugin UI&apos;s status line.</extracomment>
+        <translation>Kunde inte ladda sång.</translation>
     </message>
 </context>
 <context>
@@ -2555,10 +2570,6 @@ Skriva över den befintliga filen?</translation>
     <message>
         <source>Instrument + Pattern</source>
         <translation>Instrument + mönster</translation>
-    </message>
-    <message>
-        <source>Error loading song.</source>
-        <translation>Kunde inte ladda sång.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>

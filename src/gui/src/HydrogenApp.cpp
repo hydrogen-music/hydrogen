@@ -1021,7 +1021,7 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 	QString sText;
 	switch( type ) {
 	case Filesystem::Artifact::Song:
-		sText = tr( "Error loading song." );
+		sText = CommonStrings::getDialogSongLoadError();
 		break;
 
 	case Filesystem::Artifact::Project:
@@ -1097,9 +1097,7 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
 	if ( ! pEngine()->getCoreActionController()->setSong( pSong ) ) {
 		QMessageBox msgBox;
-		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading song." ) );
+		msgBox.setText( CommonStrings::getDialogSongLoadError() );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();

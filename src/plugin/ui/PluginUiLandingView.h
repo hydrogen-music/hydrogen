@@ -51,6 +51,13 @@ public:
 	PluginUiLandingModel& model() { return m_model; }
 
 private:
+	/** The view's flowing content — everything above the status
+	 *  line, drawn inside the pinning child region. */
+	void drawContent();
+	/** The pinned status line at the view's bottom edge: the last
+	 *  failed command's message in the style's attention color, or
+	 *  nothing after a successful command. */
+	void drawStatusLine();
 	/** The drumkit picker popup (opened by the load-drumkit button). */
 	void drawDrumkitPicker();
 

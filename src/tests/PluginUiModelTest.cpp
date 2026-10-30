@@ -147,6 +147,75 @@ void PluginUiModelTest::testLandingLoadCommands()
 	___INFOLOG( "passed" );
 }
 
+void PluginUiModelTest::testLandingActionStatus()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiLandingModel model( &plugin );
+
+	// A fresh model has no failure to report.
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::None );
+
+	// A model without a plugin refuses every command — each records
+	// which action failed.
+	PluginUiLandingModel orphanModel( nullptr );
+	CPPUNIT_ASSERT( ! orphanModel.loadSong( "/nonexistent/nope.h2song" ) );
+	CPPUNIT_ASSERT( orphanModel.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::LoadSong );
+	CPPUNIT_ASSERT( ! orphanModel.loadPattern(
+						"/nonexistent/nope.h2pattern" ) );
+	CPPUNIT_ASSERT( orphanModel.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::LoadPattern );
+	CPPUNIT_ASSERT( ! orphanModel.loadDrumkit( "/nonexistent/nope" ) );
+	CPPUNIT_ASSERT( orphanModel.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::LoadDrumkit );
+	CPPUNIT_ASSERT( ! orphanModel.openEditor( /*bLaunchProcess=*/false ) );
+	CPPUNIT_ASSERT( orphanModel.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::OpenEditor );
+
+	// Successful commands clear the line.
+	CPPUNIT_ASSERT( model.loadSong(
+		H2TEST_FILE( "functional/test_adsr.h2song" ) ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::None );
+
+	// A failing load records its action...
+	CPPUNIT_ASSERT( ! model.loadSong( "/nonexistent/nope.h2song" ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::LoadSong );
+
+	// ...and the next successful command clears it again.
+	CPPUNIT_ASSERT( model.loadDrumkit(
+		TestHelper::get_instance()->getDataDir() + "/drumkits/GMRockKit" ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::None );
+	CPPUNIT_ASSERT( ! model.loadDrumkit( "/nonexistent/nope" ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::LoadDrumkit );
+
+	CPPUNIT_ASSERT( model.loadPattern(
+		H2TEST_FILE( "pattern/pattern.h2pattern" ) ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::None );
+	CPPUNIT_ASSERT( ! model.loadPattern( "/nonexistent/nope.h2pattern" ) );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::LoadPattern );
+
+	// Clearing the song is not status-worthy: it resets the line (its
+	// rare internal failures stay log-only; the info section shows
+	// the unchanged song).
+	CPPUNIT_ASSERT( model.clearSong() );
+	CPPUNIT_ASSERT( model.lastFailedAction() ==
+					PluginUiLandingModel::FailedAction::None );
+
+	___INFOLOG( "passed" );
+}
+
 void PluginUiModelTest::testLandingDialogDirectories()
 {
 	___INFOLOG( "" );

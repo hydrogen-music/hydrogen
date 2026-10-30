@@ -52,6 +52,23 @@ PluginUiLandingView::PluginUiLandingView( HydrogenPlugin* pPlugin )
 
 void PluginUiLandingView::draw()
 {
+	// The pinned status line: the content flows in a child region
+	// reserving the line's height at the bottom edge, so the line
+	// sits at the same spot whether or not a message is set — no
+	// layout jump when one appears.
+	const float footerHeight = ImGui::GetTextLineHeightWithSpacing() +
+		ImGui::GetStyle().ItemSpacing.y + 2.0f;
+	if ( ImGui::BeginChild( "##landingContent",
+							ImVec2( 0.0f, -footerHeight ) ) ) {
+		drawContent();
+	}
+	ImGui::EndChild();
+
+	drawStatusLine();
+}
+
+void PluginUiLandingView::drawContent()
+{
 	// The info section: what the engine is doing right now — the loaded
 	// song and drumkit, the mode, and the mode-specific playback state.
 	// One model snapshot per frame; the frame gate keeps the cadence
@@ -219,6 +236,36 @@ void PluginUiLandingView::draw()
 		}
 		m_fileDialog.Close();
 	}
+}
+
+void PluginUiLandingView::drawStatusLine()
+{
+	QString sMessage;
+	switch ( m_model.lastFailedAction() ) {
+	case PluginUiLandingModel::FailedAction::None:
+		return;
+	case PluginUiLandingModel::FailedAction::LoadSong:
+		sMessage = CommonStrings::getDialogSongLoadError();
+		break;
+	case PluginUiLandingModel::FailedAction::LoadPattern:
+		sMessage = m_pCommonStrings->getPatternLoadError();
+		break;
+	case PluginUiLandingModel::FailedAction::LoadDrumkit:
+		sMessage = m_pCommonStrings->getDrumkitLoadError();
+		break;
+	case PluginUiLandingModel::FailedAction::OpenEditor:
+		sMessage = m_pCommonStrings->getEditorOpenError();
+		break;
+	}
+
+	ImGui::Separator();
+	// The mixer's highlight convention: the active-button color is
+	// the style's attention color.
+	ImGui::PushStyleColor( ImGuiCol_Text,
+						   ImGui::GetColorU32( ImGuiCol_ButtonActive ) );
+	const QByteArray sText = sMessage.toUtf8();
+	ImGui::TextWrapped( "%s", sText.constData() );
+	ImGui::PopStyleColor();
 }
 
 void PluginUiLandingView::drawDrumkitPicker()

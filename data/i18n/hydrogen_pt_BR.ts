@@ -686,7 +686,7 @@ Displayed in the tooltip of input widgets. General heading of the part associati
     </message>
     <message>
         <source>License String</source>
-        <extracomment>Displayed in the Open dialog window if the selected song could not be loaded.Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
+        <extracomment>Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
         <translation>Texto da Licença</translation>
     </message>
     <message>
@@ -2096,6 +2096,21 @@ Please set your system&apos;s locale to UTF-8!</source>
         <extracomment>Checkbox in the embedded plugin UI&apos;s landing view; when checked, * the state a host saves contains the drumkit&apos;s sample audio, so * it survives on machines without the drumkit installed.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to load drumkit</source>
+        <extracomment>Displayed in the plugin UI&apos;s status line if the selected drumkit could not be loaded.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open editor</source>
+        <extracomment>Displayed in the plugin UI&apos;s status line if the external editor could not be opened.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <extracomment>Displayed if a selected song could not be loaded, e.g. in the GUI&apos;s open-file error box and the plugin UI&apos;s status line.</extracomment>
+        <translation>Erro ao carregar música.</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>
@@ -2550,10 +2565,6 @@ Sobrescrever o arquivo existente?</translation>
     <message>
         <source>Instrument + Pattern</source>
         <translation>Instrumento + Padrão</translation>
-    </message>
-    <message>
-        <source>Error loading song.</source>
-        <translation>Erro ao carregar música.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>

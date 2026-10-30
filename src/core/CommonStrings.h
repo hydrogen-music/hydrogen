@@ -230,6 +230,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	}
 
 	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
+	const QString& getDrumkitLoadError() const { return m_sDrumkitLoadError; }
+	const QString& getEditorOpenError() const { return m_sEditorOpenError; }
 	const QString& getInstrumentLoadError() const
 	{
 		return m_sInstrumentLoadError;
@@ -315,10 +317,21 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
 	const QString& getNotesDialog() const { return m_sNotesDialog; }
 	const QString& getPathDialog() const { return m_sPathDialog; }
+	/** The song-load error message. Static — unlike the instance
+	 *  getters above — because the GUI's startup song load
+	 *  (MainForm's constructor) reports it before HydrogenApp, and
+	 *  with it this class's instance, exists; Q_DECLARE_TR_FUNCTIONS
+	 *  provides the translation context without an instance. */
+	static QString getDialogSongLoadError() {
+		/*: Displayed if a selected song could not be loaded, e.g. in
+		  the GUI's open-file error box and the plugin UI's status
+		  line. */
+		return tr( "Error loading song." );
+	}
 
-	// const QString& getDialogSongLoadError() const { return
-	// m_sDialogSongLoadError; } const QString& getDialogUnsavedChangesH1()
-	// const { return m_sDialogUnsavedChangedH1; } const QString&
+	// Not used yet.
+	// const QString& getDialogUnsavedChangesH1() const { return
+	// m_sDialogUnsavedChangedH1; } const QString&
 	// getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
 
 	const QString& getLicenseStringLbl() const { return m_sLicenseStringLbl; }
@@ -957,6 +970,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sMidiSenseUnavailable;
 
 	QString m_sPatternLoadError;
+	QString m_sDrumkitLoadError;
+	QString m_sEditorOpenError;
 	QString m_sInstrumentLoadError;
 
 	QString m_sFileDialogMissingWritePermissions;
@@ -1006,7 +1021,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was
 	// created.
-	// QString m_sDialogSongLoadError;
 	// QString m_sDialogUnsavedChangedH1;
 	// QString m_sDialogUnsavedChangedH2;
 
