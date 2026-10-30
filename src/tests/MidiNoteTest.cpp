@@ -223,7 +223,8 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 		const auto noteRef =
 			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit, pTestHydrogen() );
 		if ( ppInstrument == pSelectedInstrument ) {
-			CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
+			// Every incoming note maps to the selected instrument.
+			CPPUNIT_ASSERT( noteRef.note == Midi::NoteAll );
 			// The global input channel is forced on in this mode.
 			CPPUNIT_ASSERT(
 				noteRef.channel == pMidiInstrumentMap->getGlobalInputChannel()
@@ -670,6 +671,8 @@ void MidiNoteTest::testMidiInstrumentInputChannelPrecedence()
 		const auto noteRef = pMidiInstrumentMap->getInputMapping(
 			pSelectedInstrument, pNewDrumkit, pTestHydrogen() );
 		CPPUNIT_ASSERT( ! noteRef.isNull() );
+		// Every incoming note maps to the selected instrument.
+		CPPUNIT_ASSERT( noteRef.note == Midi::NoteAll );
 		CPPUNIT_ASSERT( noteRef.channel == globalInputChannel );
 
 		// Leaving the mode restores the stored preference.

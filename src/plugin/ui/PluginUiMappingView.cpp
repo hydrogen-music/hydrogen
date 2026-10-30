@@ -276,6 +276,14 @@ void PluginUiMappingView::draw()
 					ImGui::TextUnformatted( sOff.constData(),
 											sOff.constData() + sOff.size() );
 				}
+				else if ( mapping.note == Midi::NoteAll ) {
+					// Input::SelectedInstrument: every incoming note
+					// maps to the selected instrument.
+					const auto sAll =
+						m_pCommonStrings->getAllLabel().toUtf8();
+					ImGui::TextUnformatted( sAll.constData(),
+											sAll.constData() + sAll.size() );
+				}
 				else {
 					ImGui::Text( "%d", nNote );
 				}

@@ -252,6 +252,10 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 		 fValue == -1.0 ) {
 		result = pCommonStrings->getCurrentlySelectedLabel();
 	}
+	else if ( m_type == Type::Int && ( m_flag & Flag::MinusTwoAsAll ) &&
+		 fValue == -2.0 ) {
+		result = pCommonStrings->getAllLabel();
+	}
 	else if ( m_flag & Flag::ShowMidiNote ) {
         // We do not rely on Note::Pitch in here because the pitch offset does
         // not adhere to the defined ranges for pitch/key/octave we use

@@ -537,8 +537,9 @@ MidiInstrumentMap::NoteRef MidiInstrumentMap::getInputMapping(
 			// is no per-instrument input channel — so the global input
 			// channel is forced on (see getUseGlobalInputChannel()).
 			noteRef.channel = m_globalInputChannel;
-			// The note information is not handled by the UI
-			noteRef.note = pInstrument->getMidiOutNote();
+			// There is no per-instrument input note either — any note
+			// matches.
+			noteRef.note = Midi::NoteAll;
 		}
 		else {
 			// Invalid mapping

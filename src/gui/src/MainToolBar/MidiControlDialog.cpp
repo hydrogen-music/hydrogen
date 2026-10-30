@@ -1119,14 +1119,53 @@ void MidiControlDialog::updateInstrumentTableRow(
 				static_cast<int>( inputMapping.channel ),
 				Event::Trigger::Suppress
 			);
-			pInputNoteSpinBox->setValue(
-				static_cast<int>( inputMapping.note ), Event::Trigger::Suppress
-			);
+			if ( inputMapping.note == Midi::NoteAll ) {
+				// Input::SelectedInstrument: every incoming note maps to
+				// the instrument — display "All". The spinbox is disabled
+				// in this mode; the plain configuration is restored by
+				// the branches below whenever the table is updated
+				// again.
+				pInputNoteSpinBox->setFlag(
+					LCDSpinBox::Flag::MinusTwoAsAll );
+				pInputNoteSpinBox->setRange(
+					static_cast<double>( Midi::NoteAll ),
+					static_cast<double>( Midi::NoteMaximum ) );
+				pInputNoteSpinBox->setValue(
+					static_cast<double>( Midi::NoteAll ),
+					Event::Trigger::Suppress
+				);
+			}
+			else {
+				pInputNoteSpinBox->setFlag(
+					LCDSpinBox::Flag::ShowMidiNote );
+				// The value first, then the range: shrinking the range
+				// would clamp an out-of-range value (e.g. "All") with an
+				// unsuppressed change notification.
+				pInputNoteSpinBox->setValue(
+					static_cast<int>( inputMapping.note ),
+					Event::Trigger::Suppress
+				);
+				pInputNoteSpinBox->setRange(
+					static_cast<double>( Midi::NoteMinimum ),
+					static_cast<double>( Midi::NoteMaximum ) );
+			}
 		}
 		else {
 			pInputChannelSpinBox->setValue(
 				static_cast<int>( Midi::ChannelOff ), Event::Trigger::Suppress
 			);
+			// No input mapping in this mode. Reset the note spinbox to
+			// its plain configuration — a previous
+			// Input::SelectedInstrument pass may have left "All" in
+			// place, which must not leak into other modes.
+			pInputNoteSpinBox->setFlag( LCDSpinBox::Flag::ShowMidiNote );
+			pInputNoteSpinBox->setValue(
+				static_cast<double>( Midi::NoteMinimum ),
+				Event::Trigger::Suppress
+			);
+			pInputNoteSpinBox->setRange(
+				static_cast<double>( Midi::NoteMinimum ),
+				static_cast<double>( Midi::NoteMaximum ) );
 		}
 
 		// The note is editable only in Custom mode; the channel in
