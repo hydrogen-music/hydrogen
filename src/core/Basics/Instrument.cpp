@@ -442,7 +442,23 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	}
 	else {
 		sInstrumentDrumkitPath = sDrumkitPath;
-		sInstrumentDrumkitName = sDrumkitName;
+		// Round-trip identity for .h2project states: the save side
+		// writes the instrument's own kit name verbatim - empty for a
+		// freshly added instrument - so a load must keep it instead of
+		// substituting the containing kit's name. read_string() maps an
+		// empty element to its default value, so the element's presence
+		// has to be checked explicitly; songs without it (legacy
+		// format) fall back to the containing kit.
+		if ( ! node.firstChildElement( "drumkit" ).isNull() ) {
+			sInstrumentDrumkitName =
+				node.read_string( "drumkit", "", false, true, bSilent );
+			if ( sInstrumentDrumkitName.isNull() ) {
+				sInstrumentDrumkitName = "";
+			}
+		}
+		else {
+			sInstrumentDrumkitName = sDrumkitName;
+		}
 	}
 
 	if ( flags & Xml::Flag::Project ) {
