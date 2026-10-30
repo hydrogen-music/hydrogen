@@ -24,11 +24,10 @@
 // transport stay engine-side, settable via the editor) and the note mapping as
 // two foldable sections — "Input" (input mode, global input channel, the
 // per-instrument input rows) and "Output" (output mode, global output channel,
-// the per-instrument output rows). The map widgets apply their change with one
-// model command (apply-on-change — the model's atomic-command design); nothing
-// is held locally, so nothing can drift — except the MIDI config widgets, whose
-// values are held locally and applied on the section's Apply button. Thin draw
-// calls only (TU1.3): every decision is the model's.
+// the per-instrument output rows). Every widget — the MIDI config ones
+// included — applies its change the moment it is made, with one model command
+// (the model's atomic-command design); nothing is held locally, so nothing can
+// drift. Thin draw calls only (TU1.3): every decision is the model's.
 
 #include "PluginUiMappingView.h"
 
@@ -52,6 +51,21 @@ void PluginUiMappingView::refreshMidiConfigWidgets()
 	m_nSendNoteOff = static_cast<int>( m_model.midiSendNoteOff() );
 }
 
+void PluginUiMappingView::applyMidiConfigWidgets()
+{
+	// The atomic command takes the whole triple; the widgets not being
+	// changed carry the engine's current values.
+	m_model.applyExposedMidiControlSettings(
+		m_bNoteOffIgnore,
+		Midi::channelFromInt( m_nActionChannel ),
+		static_cast<Preferences::MidiSendNoteOff>( m_nSendNoteOff ) );
+	// Resync regardless of the outcome: the engine may have normalized
+	// a value — or refused the change outright (no engine) — and the
+	// widgets must mirror the engine, never hold an unapplied edit.
+	// Never per frame (snap-back).
+	refreshMidiConfigWidgets();
+}
+
 void PluginUiMappingView::draw()
 {
 	// The exposed MIDI configuration — drawn before the engine guard so
@@ -61,9 +75,12 @@ void PluginUiMappingView::draw()
 			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
 					.constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
-		ImGui::Checkbox(
-			m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8().constData(),
-			&m_bNoteOffIgnore );
+		if ( ImGui::Checkbox(
+				 m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8()
+					 .constData(),
+				 &m_bNoteOffIgnore ) ) {
+			applyMidiConfigWidgets();
+		}
 
 		// The action channel dropdown — the GUI spinbox's range and
 		// texts (all channels, Off, 1..16), the same +1 index shift as
@@ -85,6 +102,7 @@ void PluginUiMappingView::draw()
 					 .constData(),
 				 &nActionChannel, sActionChannelEntryPtrs, 18 ) ) {
 			m_nActionChannel = nActionChannel - 1;
+			applyMidiConfigWidgets();
 		}
 
 		// The combo entries must outlive the Combo call — held locals,
@@ -97,21 +115,10 @@ void PluginUiMappingView::draw()
 			sAlways.constData(), sOnCustomNoteLengths.constData(),
 			sNever.constData()
 		};
-		ImGui::Combo( m_pCommonStrings->getSendNoteOffLabel().toUtf8()
-							.constData(),
-					 &m_nSendNoteOff, sSendNoteOffEntries, 3 );
-
-		if ( ImGui::Button( m_pCommonStrings->getApplyButton().toUtf8()
-								.constData() ) ) {
-			if ( m_model.applyExposedMidiControlSettings(
-					 m_bNoteOffIgnore,
-					 Midi::channelFromInt( m_nActionChannel ),
-					 static_cast<Preferences::MidiSendNoteOff>(
-						 m_nSendNoteOff ) ) ) {
-				// The engine may have normalized a value — resync the
-				// widgets, but never per frame (snap-back).
-				refreshMidiConfigWidgets();
-			}
+		if ( ImGui::Combo( m_pCommonStrings->getSendNoteOffLabel().toUtf8()
+							   .constData(),
+						   &m_nSendNoteOff, sSendNoteOffEntries, 3 ) ) {
+			applyMidiConfigWidgets();
 		}
 	}
 
@@ -137,6 +144,7 @@ void PluginUiMappingView::draw()
 	const int nInstruments = m_model.instrumentCount();
 
 	ImGui::Dummy( ImVec2( 0.0f, PluginUiMappingView::nSpacing ) );
+	ImGui::Separator();
 
 	// The sections reuse the existing "Input"/"Output" strings as
 	// headers and the "Note mapping" string as the mode combos' label
@@ -278,6 +286,7 @@ void PluginUiMappingView::draw()
 	}
 
 	ImGui::Dummy( ImVec2( 0.0f, PluginUiMappingView::nSpacing ) );
+	ImGui::Separator();
 
 	if ( ImGui::CollapsingHeader(
 			 m_pCommonStrings->getOutputHeader().toUtf8().constData(),

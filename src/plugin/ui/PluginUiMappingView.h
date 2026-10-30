@@ -54,6 +54,10 @@ private:
 	 * state — on construction and after every apply, never per frame
 	 * (typing into a widget must not snap back mid-edit). */
 	void refreshMidiConfigWidgets();
+	/** Applies the MIDI config widgets' current values with the model's
+	 * atomic command and resyncs them to the engine afterwards — the
+	 * per-widget apply-on-change path, matching the rest of the tab. */
+	void applyMidiConfigWidgets();
 
 	PluginUiMappingModel m_model;
 	std::shared_ptr<CommonStrings> m_pCommonStrings;
