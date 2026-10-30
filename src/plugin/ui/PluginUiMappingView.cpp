@@ -201,11 +201,15 @@ void PluginUiMappingView::draw()
 		int nGlobalInputChannel =
 			static_cast<int>( pMap->getGlobalInputChannel() ) + 1;
 		ImGui::SetNextItemWidth( 60.0f );
+		// The global channel only takes effect when the checkbox above
+		// enables it — grey the dropdown out otherwise.
+		ImGui::BeginDisabled( ! bUseGlobalInput );
 		if ( ImGui::Combo( sGlobalInputChannel.constData(),
 						   &nGlobalInputChannel, sChannelEntryPtrs, 18 ) ) {
 			m_model.setGlobalInputChannel(
 				Midi::channelFromInt( nGlobalInputChannel - 1 ) );
 		}
+		ImGui::EndDisabled();
 
 		// The per-instrument input rows: the effective incoming
 		// note/channel, editable only in Custom mode (the only mode
@@ -328,16 +332,20 @@ void PluginUiMappingView::draw()
 			m_model.setUseGlobalOutputChannel( bUseGlobalOutput );
 		}
 		const auto sGlobalOutputChannel = ( m_pCommonStrings->
-												  getGlobalChannelLabel() +
-											  "##output" ).toUtf8();
+													getGlobalChannelLabel() +
+												"##output" ).toUtf8();
 		int nGlobalOutputChannel =
 			static_cast<int>( pMap->getGlobalOutputChannel() ) + 1;
 		ImGui::SetNextItemWidth( 60.0f );
+		// The input section's twin: greyed out unless the global
+		// channel is enabled above.
+		ImGui::BeginDisabled( ! bUseGlobalOutput );
 		if ( ImGui::Combo( sGlobalOutputChannel.constData(),
 						   &nGlobalOutputChannel, sChannelEntryPtrs, 18 ) ) {
 			m_model.setGlobalOutputChannel(
 				Midi::channelFromInt( nGlobalOutputChannel - 1 ) );
 		}
+		ImGui::EndDisabled();
 
 		// The per-instrument output rows: the instrument's outgoing
 		// note/channel. No standalone "Output" label — the section
