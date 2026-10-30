@@ -434,9 +434,17 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 		// CoreActionController::setPreferences): the metronome follows its
 		// volume, and an operational engine is told to re-sync. Driver
 		// restarts are deliberately skipped - mid-loadState the host owns
-		// the audio geometry, not the stored config.
-		m_pHydrogen->getAudioEngine()->getMetronomeInstrument()->setVolume(
-			pPreferences->m_fMetronomeVolume );
+		// the audio geometry, not the stored config. The metronome is
+		// built from the click sample: a data-less host (bare CI, a
+		// stripped install) runs without one, and the side effect is
+		// skipped rather than fatal - setMetronomeVolume guards the
+		// same way.
+		auto pMetronomeInstrument =
+			m_pHydrogen->getAudioEngine()->getMetronomeInstrument();
+		if ( pMetronomeInstrument != nullptr ) {
+			pMetronomeInstrument->setVolume(
+				pPreferences->m_fMetronomeVolume );
+		}
 		if ( m_pHydrogen->isFullyOperational() ) {
 			m_pHydrogen->getEventQueue()->pushEvent(
 				H2Core::Event::Type::UpdatePreferences, 1 );

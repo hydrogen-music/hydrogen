@@ -1799,9 +1799,15 @@ bool CoreActionController::setPreferences(
 
 	m_pHydrogen->setPreferences( pPreferences );
 
-	pAudioEngine->getMetronomeInstrument()->setVolume(
-		pPreferences->m_fMetronomeVolume
-	);
+	// The metronome is built from the click sample: a data-less host
+	// runs without one, and the volume side effect is skipped rather
+	// than fatal - setMetronomeVolume guards the same way.
+	auto pMetronomeInstrument = pAudioEngine != nullptr ?
+		pAudioEngine->getMetronomeInstrument() : nullptr;
+	if ( pMetronomeInstrument != nullptr ) {
+		pMetronomeInstrument->setVolume(
+			pPreferences->m_fMetronomeVolume );
+	}
 
 	// In editor mode this controller runs on the mirror, which owns no
 	// audio/MIDI/OSC endpoints (ADR 0016): the restarts would be no-ops
