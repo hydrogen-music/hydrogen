@@ -259,9 +259,6 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 	case IpcOpcode::SetDrumkit:
 		sOpcode = "SET_DRUMKIT";
 		break;
-	case IpcOpcode::LoadState:
-		sOpcode = "LOAD_STATE";
-		break;
 	case IpcOpcode::SetPreferences:
 		sOpcode = "SET_PREFERENCES";
 		break;

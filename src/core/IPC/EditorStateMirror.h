@@ -51,8 +51,8 @@ class IpcChannel;
  *
  * - **Events** (engine → editor) are re-posted onto the mirror's #EventQueue, so
  *   the GUI reacts exactly as it would to a local engine.
- * - **Song / state snapshots** (#IpcOpcode::SetSong / ::LoadState) replace the
- *   mirror's song, so structural edits made engine-side appear in the editor.
+ * - **Song** (#IpcOpcode::SetSong) replace the mirror's song, so structural
+ *   edits made engine-side appear in the editor.
  * - **Telemetry** snapshots (transport position / BPM / peaks / process time)
  *   are read from the lock-free QSharedMemory block (not the socket) and used
  *   at two cadences (ADR 0018): the meter half (master / per-instrument /
