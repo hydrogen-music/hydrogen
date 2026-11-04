@@ -553,7 +553,7 @@ void PluginUiMappingView::draw()
 		const ImU32 nCurveColor = ImGui::GetColorU32( ImGuiCol_Text );
 		for ( int n = 0; n < nInstruments; ++n ) {
 			const int nBus = m_model.effectiveOutputBus( n, nBusCount );
-			if ( nBus < 0 ) {
+			if ( nBus == Instrument::nNoOutputBusMapping ) {
 				// Master only — not part of the visualization.
 				continue;
 			}

@@ -96,10 +96,11 @@ public:
 	 * instrument's explicit output bus; a negative @a nBus resets it to
 	 * the implicit 1-to-1 default (bus = position in the kit). */
 	bool setInstrumentOutputBus( int nInstrument, int nBus );
-	/** The bus the instrument actually feeds: the stored mapping if
-	 * set, else the implicit 1-to-1 by kit position; -1 when the engine
-	 * is unavailable, @a nInstrument is out of range, or the instrument
-	 * gets no individual bus (beyond @a nBusCount — master only). */
+	/** The bus the instrument actually feeds: the stored mapping if set, else
+	 * the implicit 1-to-1 by kit position;
+	 * #H2Core::Instrument::nNoOutputBusMapping when the engine is unavailable,
+	 * @a nInstrument is out of range, or the instrument gets no individual bus
+	 * (beyond @a nBusCount — master only). */
 	int effectiveOutputBus( int nInstrument, int nBusCount ) const;
 	/** The host-provided bus count (ADR 0019; 0 when the plugin is
 	 * unavailable). */

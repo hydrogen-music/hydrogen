@@ -198,34 +198,52 @@ bool PluginUiMappingModel::setInstrumentMidiOutChannel( int nInstrument,
 	return pCAC->setInstrumentMidiOutChannel( nInstrument, channel, 0 );
 }
 
-bool PluginUiMappingModel::setInstrumentOutputBus( int nInstrument,
-												   int nBus )
+bool PluginUiMappingModel::setInstrumentOutputBus( int nInstrument, int nBus )
 {
 	auto pCAC = controller();
 	if ( pCAC == nullptr ) {
 		return false;
 	}
 	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
-	return pCAC->setInstrumentOutputBus( nInstrument, nBus );
+
+	// In case the mapping was already present, we remove it.
+	auto pInstrument = instrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		___ERRORLOG(
+			QString( "Instrument [%1] could not be found" ).arg( nInstrument )
+		);
+		return false;
+	}
+	const int nTargetBus = pInstrument->getOutputBus() != nBus
+							   ? nBus
+							   : Instrument::nNoOutputBusMapping;
+
+	return pCAC->setInstrumentOutputBus( nInstrument, nTargetBus );
 }
 
-int PluginUiMappingModel::effectiveOutputBus( int nInstrument,
-											  int nBusCount ) const
+int PluginUiMappingModel::effectiveOutputBus( int nInstrument, int nBusCount )
+	const
 {
 	const auto pInstrument = instrument( nInstrument );
 	if ( pInstrument == nullptr ) {
 		// No engine or out of range: nothing feeds anywhere.
-		return -1;
+		return Instrument::nNoOutputBusMapping;
 	}
 	const int nStored = pInstrument->getOutputBus();
+	if ( nStored <= Instrument::nNoOutputBusMapping ) {
+		return Instrument::nNoOutputBusMapping;
+	}
+
 	// Implicit 1-to-1 default (ADR 0019): the bus matching the kit
 	// position.
-	const int nCandidate = nStored >= 0 ? nStored : nInstrument;
+	const int nCandidate =
+		nStored != Instrument::nDefaultOutputBusMapping ? nStored : nInstrument;
 	if ( nCandidate >= 0 && nCandidate < nBusCount ) {
 		return nCandidate;
 	}
+
 	// Beyond the available buses the instrument feeds the master only.
-	return -1;
+	return Instrument::nNoOutputBusMapping;
 }
 
 int PluginUiMappingModel::busCount() const

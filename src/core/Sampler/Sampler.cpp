@@ -1760,7 +1760,8 @@ bool Sampler::renderNote(
 	float* pBusOutR = nullptr;
 	float fBusGain_L = 0.0f;
 	float fBusGain_R = 0.0f;
-	if ( m_pHydrogen->isUnderPluginHost() ) {
+	if ( m_pHydrogen->isUnderPluginHost() &&
+		 pInstrument->getOutputBus() != Instrument::nNoOutputBusMapping ) {
 		auto pPluginDriver =
 			std::dynamic_pointer_cast<PluginAudioDriver>( pAudioDriver );
 		if ( pPluginDriver != nullptr && pSong->getDrumkit() != nullptr ) {

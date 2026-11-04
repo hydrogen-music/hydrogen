@@ -1315,7 +1315,10 @@ void PluginUiModelTest::testMappingModelBusCommands()
 	PluginUiMappingModel orphanModel( nullptr );
 	CPPUNIT_ASSERT( ! orphanModel.setInstrumentOutputBus( 0, 2 ) );
 	CPPUNIT_ASSERT( orphanModel.busCount() == 0 );
-	CPPUNIT_ASSERT( orphanModel.effectiveOutputBus( 0, 4 ) == -1 );
+	CPPUNIT_ASSERT(
+		orphanModel.effectiveOutputBus( 0, 4 ) ==
+		Instrument::nNoOutputBusMapping
+	);
 
 	// The host context: two buses (ADR 0019).
 	CPPUNIT_ASSERT( model.busCount() == 2 );
@@ -1329,7 +1332,9 @@ void PluginUiModelTest::testMappingModelBusCommands()
 
 	// Implicit default: no custom mapping stored, the effective bus is
 	// the kit position (ADR 0019 1-to-1).
-	CPPUNIT_ASSERT( pInstrument->getOutputBus() == -1 );
+	CPPUNIT_ASSERT(
+		pInstrument->getOutputBus() == Instrument::nDefaultOutputBusMapping
+	);
 	CPPUNIT_ASSERT( model.effectiveOutputBus( 0, 4 ) == 0 );
 
 	// Explicit custom mapping lands on the engine's instrument.
@@ -1338,11 +1343,17 @@ void PluginUiModelTest::testMappingModelBusCommands()
 	CPPUNIT_ASSERT( model.effectiveOutputBus( 0, 4 ) == 2 );
 
 	// Beyond the host's bus count: no individual bus (master only).
-	CPPUNIT_ASSERT( model.effectiveOutputBus( 0, 2 ) == -1 );
+	CPPUNIT_ASSERT(
+		model.effectiveOutputBus( 0, 2 ) == Instrument::nNoOutputBusMapping
+	);
 
 	// Reset to the implicit 1-to-1 default.
-	CPPUNIT_ASSERT( model.setInstrumentOutputBus( 0, -1 ) );
-	CPPUNIT_ASSERT( pInstrument->getOutputBus() == -1 );
+	CPPUNIT_ASSERT(
+		model.setInstrumentOutputBus( 0, Instrument::nDefaultOutputBusMapping )
+	);
+	CPPUNIT_ASSERT(
+		pInstrument->getOutputBus() == Instrument::nDefaultOutputBusMapping
+	);
 	CPPUNIT_ASSERT( model.effectiveOutputBus( 0, 4 ) == 0 );
 
 	___INFOLOG( "passed" );

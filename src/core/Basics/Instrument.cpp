@@ -71,7 +71,7 @@ Instrument::Instrument(
 	  m_bSoloed( false ),
 	  m_bMuted( false ),
 	  m_nMuteGroup( -1 ),
-	  m_nOutputBus( -1 ),
+	  m_nOutputBus( Instrument::nDefaultOutputBusMapping ),
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( -1 ),
@@ -671,9 +671,10 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	if ( flags & ( Xml::Flag::Ipc | Xml::Flag::Plugin ) ) {
 		// The output bus is set from the plugin UI and has to survive a
 		// plugin state round-trip as well - not just the IPC wire.
-		pInstrument->setOutputBus(
-			node.read_int( "ipc-outputBus", -1, true, false, bSilent )
-		);
+		pInstrument->setOutputBus( node.read_int(
+			"ipc-outputBus", Instrument::nDefaultOutputBusMapping, true, false,
+			bSilent
+		) );
 	}
 
 	if ( flags & Xml::Flag::Ipc ) {
@@ -818,7 +819,7 @@ void Instrument::saveTo(
 	// ipc-* members below, the output bus is not only required on the IPC
 	// wire but also set from the plugin UI and has to survive a plugin
 	// state round-trip.
-	if ( m_nOutputBus >= 0 &&
+	if ( m_nOutputBus != Instrument::nDefaultOutputBusMapping &&
 		 flags & ( Xml::Flag::Ipc | Xml::Flag::Plugin ) ) {
 		InstrumentNode.write_int( "ipc-outputBus", m_nOutputBus );
 	}
