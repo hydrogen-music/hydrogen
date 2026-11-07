@@ -50,6 +50,15 @@
 #include <QtCore/QStandardPaths>
 #include <QtCore/QStringList>
 
+// Per-block logging in the audio path is compiled out by default, like
+// the engine's AUDIO_ENGINE_DEBUG in AudioEngine.cpp: the plugin's
+// debug-build logger level (see the constructor bootstrap) has Debug
+// enabled, so a runtime-gated ___DEBUGLOG here would take the logger
+// lock and drive log-file writes from the realtime thread on every
+// block - exactly what lv2lint's syscall gate rejects. Flip to 1 to
+// trace host/presented transport while debugging.
+#define PLUGIN_TRANSPORT_DEBUG 0
+
 namespace H2Core {
 
 namespace {
@@ -307,6 +316,9 @@ void HydrogenPlugin::activate( double fSampleRate, unsigned /*nMaxBlockSize*/ ) 
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
+		// A new sample rate rescales the timeline: latched frame
+		// expectations from the previous activation are void.
+		m_hostTransportLatch.reset();
 	}
 	else {
 		___ERRORLOG( "Invalid audio driver" );
@@ -320,7 +332,7 @@ void HydrogenPlugin::deactivate() {
 void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR,
 							  const std::vector<float*>& busOut_L,
 							  const std::vector<float*>& busOut_R,
-							  bool bRolling, double fBpm, long long nFrame ) {
+							  const HostTransportReading& hostTransport ) {
 	if ( m_pHydrogen == nullptr || m_pAudioDriver == nullptr ) {
 		___ERRORLOG( "Invalid setup" );
 		return;
@@ -328,8 +340,34 @@ void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR
 
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 
+	// Raw host readings jitter at the frame level (lossy sectime
+	// round-trip, ADR 0013); publishing them as-is made the engine treat
+	// every other block as a relocate, resetting the tick lookahead and
+	// enqueuing notes a second time on top of the still-playing first
+	// ones. The latch turns them back into the contiguous clock the
+	// engine contract requires.
+	const HostTransportReading presented =
+		m_hostTransportLatch.next( hostTransport, nFrames );
+
+#if PLUGIN_TRANSPORT_DEBUG
+	___DEBUGLOG( QString( "nFrames: %1, host: [%2,%3,%4], presented: [%5,%6,%7]" )
+				 .arg( nFrames )
+				 .arg( hostTransport.bValid ? "valid" : "invalid" )
+				 .arg( hostTransport.bRolling ? "rolling" : "parked" )
+				 .arg( hostTransport.nFrame )
+				 .arg( presented.bValid ? "valid" : "invalid" )
+				 .arg( presented.bRolling ? "rolling" : "parked" )
+				 .arg( presented.nFrame ) );
+#endif
+
 	m_pAudioDriver->setHostBuffers( pMasterL, pMasterR, nFrames );
-	m_pAudioDriver->setHostTransport( bRolling, fBpm, nFrame );
+	if ( presented.bValid ) {
+		m_pAudioDriver->setHostTransport( presented.bRolling, presented.fBpm,
+										  presented.nFrame );
+	}
+	// An invalid presentation (the host never offered transport) is not
+	// published at all: the driver's transport stays invalid and the
+	// engine free-runs from its own state.
 	m_pAudioDriver->setBusBuffers( busOut_L, busOut_R );
 
 	if ( m_pMidiDriver != nullptr ) {

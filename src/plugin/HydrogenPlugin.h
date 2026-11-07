@@ -26,6 +26,8 @@
 #include <memory>
 #include <vector>
 
+#include <plugin/HostTransportLatch.h>
+
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
@@ -105,14 +107,18 @@ public:
 	 * @param pMasterR  Master right output.
 	 * @param busOut_L  Per-bus left buffers (size getBusCount() or empty).
 	 * @param busOut_R  Per-bus right buffers.
-	 * @param bRolling  Host transport rolling this block.
-	 * @param fBpm      Host tempo (<= 0 keeps the engine tempo).
-	 * @param nFrame    Host transport frame at the start of the block.
+	 * @param hostTransport  Raw host transport for this block as parsed by
+	 *                       the format shim. It is sanitized through the
+	 *                       host transport latch (ADR 0013) before reaching
+	 *                       the engine: raw readings jitter at the frame
+	 *                       level and must not be published as relocations.
+	 *                       An invalid reading (host without transport)
+	 *                       leaves the engine free-running.
 	 */
 	void process( uint32_t nFrames, float* pMasterL, float* pMasterR,
 				  const std::vector<float*>& busOut_L,
 				  const std::vector<float*>& busOut_R,
-				  bool bRolling, double fBpm, long long nFrame );
+				  const HostTransportReading& hostTransport );
 
 	// Host MIDI for the upcoming block (queued, dispatched at process()).
 	// Threading contract (ADR 0013): the queue is plain storage, not
@@ -225,6 +231,9 @@ private:
 	std::shared_ptr<PluginAudioDriver> m_pAudioDriver;
 	std::shared_ptr<PluginMidiDriver> m_pMidiDriver;
 	int m_nBuses;
+	/** Sanitizes raw host transport readings into the contiguous clock
+	 *  the engine contract requires (ADR 0013); see HostTransportLatch. */
+	HostTransportLatch m_hostTransportLatch;
 
 	/** Engine-side serve loop, running for the plugin's whole lifetime
 	 * (always-on drain/fan-out, ADR 0035 UI-3); owned. */

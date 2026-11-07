@@ -63,6 +63,11 @@ struct Lv2TransportLatch {
 	double fBpm = 0.0;
 	/** Transport frame (time:frame) at the start of the current block. */
 	long long nFrame = 0;
+	/** Whether the host ever published a time:Position object. Hosts
+	 *  without transport never do; the reading handed to the engine then
+	 *  stays invalid and the engine free-runs instead of following a
+	 *  phantom position 0. */
+	bool bHavePosition = false;
 
 	void mapUrids( LV2_URID_Map* map ) {
 		atomObject = map->map( map->handle, LV2_ATOM__Object );
@@ -90,6 +95,10 @@ struct Lv2TransportLatch {
 			if ( obj->body.otype != timePosition ) {
 				continue;
 			}
+			// A position object - even a partial one (absent properties
+			// keep their latched values): from now on the reading counts
+			// as valid.
+			bHavePosition = true;
 			LV2_ATOM_OBJECT_FOREACH( obj, prop ) {
 				if ( prop->key == timeSpeed && prop->value.type == atomFloat ) {
 					const float fSpeed =

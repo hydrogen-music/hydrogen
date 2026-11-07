@@ -572,20 +572,36 @@ clap_process_status CLAP_ABI pluginProcess( const clap_plugin_t* plugin,
 		}
 	}
 
-	// Transport.
-	bool bRolling = false;
-	double fBpm = 0.0;
-	long long nFrame = 0;
+	// Transport (ADR 0013): the host position arrives as clap_sectime
+	// whose round-trip to frames is lossy at the frame level, so raw
+	// readings jitter around the true position. The latch inside the
+	// engine wrapper absorbs that; this shim only parses.
+	H2Core::HostTransportReading hostTransport;
 	if ( process->transport != nullptr ) {
 		const auto* t = process->transport;
-		bRolling = ( t->flags & CLAP_TRANSPORT_IS_PLAYING ) != 0;
-		fBpm = t->tempo;
-		const double fSeconds =
-			static_cast<double>( t->song_pos_seconds ) / CLAP_SECTIME_FACTOR;
-		nFrame = static_cast<long long>( fSeconds * p->sampleRate );
-	} else if ( process->steady_time >= 0 ) {
-		// free running host
-		nFrame = process->steady_time;
+		hostTransport.bRolling =
+			( t->flags & CLAP_TRANSPORT_IS_PLAYING ) != 0;
+		if ( ( t->flags & CLAP_TRANSPORT_HAS_TEMPO ) != 0 ) {
+			hostTransport.fBpm = t->tempo;
+		}
+		bool bHasSecondsTimeline = false;
+#if defined( H2_CLAP_FOR_VST3 )
+		// clap-wrapper fills song_pos_seconds from the VST3 project time
+		// but cannot forward the CLAP flags, so trust the value.
+		bHasSecondsTimeline = true;
+#else
+		bHasSecondsTimeline =
+			( t->flags & CLAP_TRANSPORT_HAS_SECONDS_TIMELINE ) != 0;
+#endif
+		if ( bHasSecondsTimeline ) {
+			const double fSeconds =
+				static_cast<double>( t->song_pos_seconds ) / CLAP_SECTIME_FACTOR;
+			hostTransport.nFrame = static_cast<long long>(
+				std::llround( fSeconds * p->sampleRate ) );
+			hostTransport.bValid = true;
+		}
+		// Without a seconds timeline the reading stays invalid and the engine
+		// free-runs.
 	}
 
 	// Map output ports: port 0 = master, ports 1.. = buses.
@@ -614,7 +630,7 @@ clap_process_status CLAP_ABI pluginProcess( const clap_plugin_t* plugin,
 	}
 
 	p->engine->process( process->frames_count, pMasterL, pMasterR, busL, busR,
-						bRolling, fBpm, nFrame );
+						hostTransport );
 
 	return CLAP_PROCESS_CONTINUE;
 }

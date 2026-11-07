@@ -198,7 +198,7 @@ void PluginLifecycleTest::testPluginProcess() {
 	for ( int b = 0; b < 4; ++b ) {
 		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/false, 120.0, 0 );
+						HostTransportReading{ true, false, 120.0, 0 } );
 		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
 		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
 	}
@@ -209,7 +209,7 @@ void PluginLifecycleTest::testPluginProcess() {
 	for ( int b = 0; b < 8; ++b ) {
 		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/true, 130.0, nFrame );
+						HostTransportReading{ true, true, 130.0, nFrame } );
 		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
 		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
 		for ( int bus = 0; bus < nBuses; ++bus ) {
@@ -375,7 +375,8 @@ void PluginLifecycleTest::testPluginRepeatedLifecycle() {
 		auto* pPlugin = new HydrogenPlugin( 44100, 256, 2 );
 		PluginBuffers buf( 256, 2 );
 		pPlugin->process( 256, buf.masterL.data(), buf.masterR.data(),
-						  buf.busLPtr, buf.busRPtr, false, 120.0, 0 );
+						  buf.busLPtr, buf.busRPtr,
+						  HostTransportReading{ true, false, 120.0, 0 } );
 		delete pPlugin;
 		CPPUNIT_ASSERT_EQUAL( nBaseline, Base::getAliveObjectCount() );
 	}
@@ -601,10 +602,10 @@ void PluginLifecycleTest::testProcessDefaultAuditSurface() {
 		plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
 		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/true, 120.0, 0 );
+						HostTransportReading{ true, true, 120.0, 0 } );
 		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/true, 120.0, 512 );
+						HostTransportReading{ true, true, 120.0, 512 } );
 		plugin.deactivate();
 	}
 

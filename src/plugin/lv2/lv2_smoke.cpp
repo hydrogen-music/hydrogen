@@ -209,6 +209,14 @@ int main( int argc, char** argv ) {
 		H2Core::Lv2TransportLatch latch;
 		latch.mapUrids( &map );
 
+		// A fresh latch has seen no position: the reading it hands the
+		// engine stays invalid (free-run) - not a phantom parked 0.
+		if ( latch.bHavePosition ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: fresh latch claimed a position\n" );
+		}
+
 		// Forge a control sequence carrying one time:Position object with
 		// the given properties (flags skip frame / bpm, modeling a host
 		// that publishes only what it knows).
@@ -248,6 +256,11 @@ int main( int argc, char** argv ) {
 			bTransportOk = false;
 			std::fprintf( stderr,
 				"LV2 SMOKE: latch did not adopt a rolling position\n" );
+		}
+		if ( ! latch.bHavePosition ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not register the published position\n" );
 		}
 
 		// An empty control sequence (a host that writes only on change): the

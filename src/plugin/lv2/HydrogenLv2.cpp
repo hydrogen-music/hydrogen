@@ -195,13 +195,17 @@ void run( LV2_Handle instance, uint32_t sample_count ) {
 
 	// LV2 transport (time:Position, ADR 0013): the host publishes its
 	// position on the control port; the latch keeps the last known state
-	// between updates and self-advances the frame while rolling. The engine
-	// follows the published transport; notes trigger regardless of
-	// transport, which is the primary drum-machine use.
+	// between updates and self-advances the frame while rolling. Only a
+	// host that ever published a position makes the reading valid —
+	// without one the engine free-runs (notes trigger regardless of
+	// transport, which is the primary drum-machine use). The engine-side
+	// latch absorbs the residual frame jitter.
 	p->transport.read( p->controlIn );
+	const H2Core::HostTransportReading hostTransport{
+		p->transport.bHavePosition, p->transport.bRolling,
+		p->transport.fBpm, p->transport.nFrame };
 	p->engine->process( sample_count, p->masterL, p->masterR, p->busL, p->busR,
-						p->transport.bRolling, p->transport.fBpm,
-						p->transport.nFrame );
+						hostTransport );
 	p->transport.advance( sample_count );
 }
 

@@ -71,6 +71,7 @@
 #include "PluginMidiTest.h"
 #include "PluginProcessTest.h"
 #include "PluginStateTest.h"
+#include "PluginTransportTest.h"
 #include "PluginUiFrameGateTest.h"
 #include "PluginUiModelTest.h"
 #include "PreferencesInstanceTest.h"
@@ -143,6 +144,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( PluginLifecycleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginMidiTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginProcessTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginStateTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( PluginTransportTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginUiFrameGateTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PluginUiModelTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( PreferencesInstanceTest );
