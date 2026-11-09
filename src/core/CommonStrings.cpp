@@ -126,6 +126,14 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button for muting an instrument strip in
 	  the mixer. Its size is designed for a single character.*/
 	m_sSmallMuteButton = tr( "M" );
+	/*: Text displayed at the left margin of the pan knob in the mixer
+	  marking the left end of the pan scale. Its size is designed to
+	  hold a single character.*/
+	m_sPanScaleLeft = tr( "L" );
+	/*: Text displayed at the right margin of the pan knob in the mixer
+	  marking the right end of the pan scale. Its size is designed to
+	  hold a single character.*/
+	m_sPanScaleRight = tr( "R" );
 	/*: Text displayed on the button for muting the master strip as well as
 	  other places. */
 	m_sBigMuteButton = tr( "Mute" );

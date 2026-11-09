@@ -35,6 +35,7 @@ namespace H2Core {
 class CoreActionController;
 class HydrogenPlugin;
 class Instrument;
+class Preferences;
 
 /** Headless state + command model behind the mixer view of the plugin
  * UI (#PluginUiWindow).
@@ -88,6 +89,11 @@ public:
 	/** The host-provided bus count (ADR 0019; 0 when the plugin is
 	 *  unavailable). */
 	int busCount() const;
+
+	/** The engine's preferences (nullptr when the engine is
+	 *  unavailable) — the view reads the theme's mute/solo palette
+	 *  from them at draw time. */
+	std::shared_ptr<Preferences> preferences() const;
 
 	/** Latest telemetry snapshot, as forwarded by the engine event
 	 * sink. Cheap and non-blocking (EngineEventSink contract). */

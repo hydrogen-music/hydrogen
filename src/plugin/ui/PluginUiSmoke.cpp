@@ -46,9 +46,16 @@
 #include <QTemporaryDir>
 
 #include <imgui.h>
+// The mixer probes below walk the window list (FindWindowByName) and
+// read lane/tooltip window state directly — the smoke's job is
+// white-box: the interesting mixer facts (the strip lane's scrollbar,
+// the name tooltip) are not items, so no public query reaches them.
+#include <imgui_internal.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <thread>
 
 #if defined( _WIN32 )
@@ -782,11 +789,7 @@ int main( int argc, char** argv ) {
 		H2Core::PluginUiLandingView landingView( &plugin );
 		H2Core::PluginUiMappingView mappingView( &plugin );
 		H2Core::PluginUiMixerView mixerView( &plugin );
-		// The scroll range of the last drawn frame — captured inside
-		// the frame (GetScrollMaxX needs its window current) for the
-		// mixer's scrollability check below.
-		float nFrameScrollMaxX = -1.0f;
-		const auto runFrame = [ &io, &nFrameScrollMaxX ]( auto&& draw ) {
+		const auto runFrame = [ &io ]( auto&& draw ) {
 			ImGui::NewFrame();
 			ImGui::SetNextWindowPos( ImVec2( 0.0f, 0.0f ) );
 			ImGui::SetNextWindowSize( io.DisplaySize );
@@ -795,7 +798,6 @@ int main( int argc, char** argv ) {
 							  ImGuiWindowFlags_NoResize |
 							  ImGuiWindowFlags_NoMove );
 			draw();
-			nFrameScrollMaxX = ImGui::GetScrollMaxX();
 			ImGui::End();
 			ImGui::Render();
 		};
@@ -831,17 +833,130 @@ int main( int argc, char** argv ) {
 		sweep( [ & ]() { landingView.draw(); } );
 		sweep( [ & ]() { mappingView.draw(); } );
 		sweep( [ & ]() { mixerView.draw(); } );
-		// The mixer's bus row must stack below the strips, not chain
-		// onto their line: the last item of its draw is the Master
-		// bus slot, and it has to sit inside the window's width. The
-		// height overflow is the vertical scrollbar's domain.
-		check( ImGui::GetItemRectMax().x <= io.DisplaySize.x,
-			   "mixer bus row beyond the window (UI-4)" );
-		// The strips overflow any sane window width — the overflow
-		// must stay reachable: once the mixer drew, the window has to
-		// be horizontally scrollable.
-		check( nFrameScrollMaxX > 0.0f,
-			   "mixer overflow not horizontally scrollable (UI-4)" );
+		// Release the sweep's held button: an active id suppresses
+		// hovering of other items, and the probes below need plain
+		// hovers.
+		io.AddMouseButtonEvent( 0, false );
+		runFrame( [ & ]() { mixerView.draw(); } );
+
+		// The mixer's strips live in a horizontally scrollable lane
+		// (UI-4): imgui only shows a horizontal scrollbar when the
+		// window asks for one, so probe the lane window directly. It
+		// must exist (the strips moved off the outer window's line),
+		// show the scrollbar, and have a scroll range — the GMRockKit's
+		// 18 strips overflow the 400px window. ScrollbarX settles one
+		// frame after the lane's content exists; the sweep's frames
+		// cover that. A child window's name is decorated with its
+		// parent's name and an id hash ("##directViews/##strips_…"),
+		// so the probe scans the window pool for the lane's name
+		// prefix instead of a full-name lookup.
+		ImGuiWindow* pLane = nullptr;
+		for ( ImGuiWindow* pWindow : ImGui::GetCurrentContext()->Windows ) {
+			if ( strncmp( pWindow->Name, "##directViews/##strips_",
+						  sizeof( "##directViews/##strips_" ) - 1 ) == 0 ) {
+				pLane = pWindow;
+				break;
+			}
+		}
+		check( pLane != nullptr, "mixer has no strip lane window (UI-4)" );
+		if ( pLane != nullptr ) {
+			check( pLane->ScrollbarX,
+				   "strip lane without a horizontal scrollbar (UI-4)" );
+			check( pLane->ScrollMax.x > 0.0f,
+				   "strip lane not horizontally scrollable (UI-4)" );
+			// The lane hugs its strips vertically (AutoResizeY): a
+			// vertical scroll range would mean the horizontal
+			// scrollbar eats the bottom row instead of sitting below
+			// it.
+			check( pLane->ScrollMax.y == 0.0f,
+				   "strip lane's scrollbar covers the strips (UI-4)" );
+
+			// Hovering a strip's (elided) name shows the full
+			// instrument name in a tooltip: park the mouse on the
+			// first strip's name — the lane's top-left, where the name
+			// row starts — and check the tooltip window is live THIS
+			// frame. Active alone would not do: it survives from
+			// earlier frames (the landing view tooltips too), while
+			// LastFrameActive pins the frame the tooltip was begun in.
+			io.AddMousePosEvent( pLane->Pos.x + 2.0f, pLane->Pos.y + 6.0f );
+			runFrame( [ & ]() { mixerView.draw(); } );
+			ImGuiWindow* pTooltip =
+				ImGui::FindWindowByName( "##Tooltip_00" );
+			check( pTooltip != nullptr &&
+					   pTooltip->LastFrameActive ==
+						   ImGui::GetFrameCount(),
+				   "no full-name tooltip on strip name hover (UI-4)" );
+		}
+
+		// The strip layout's geometry (round 8): the mute/solo pair
+		// shares one line and touches at the strip's center axis,
+		// the master mute spans the master column's boundaries, the
+		// L/R scale tucks against the pan knob (one widget, not a
+		// detached row), and an overflowing name truncates without
+		// an ellipsis. The view records its key rects (imgui items
+		// are not queryable after the frame); the smoke asserts the
+		// relations.
+		runFrame( [ & ]() { mixerView.draw(); } );
+		const auto& layout = mixerView.layout();
+		check( layout.bValid, "mixer layout not recorded (UI-4)" );
+		if ( layout.bValid ) {
+			const float eps = 0.5f;
+			check( layout.muteMin.y == layout.soloMin.y,
+				   "mute/solo not on one line (UI-4)" );
+			// Borderless imgui buttons fuse into one block when they
+			// touch — the pair keeps a visible seam.
+			check( layout.soloMin.x - layout.muteMax.x >= 1.0f,
+				   "mute/solo buttons fuse (no seam) (UI-4)" );
+			const float nStripCenter =
+				( layout.stripMin.x + layout.stripMax.x ) * 0.5f;
+			check( std::abs( ( layout.muteMax.x + layout.soloMin.x ) *
+								 0.5f -
+							 nStripCenter ) <= eps,
+				   "mute/solo seam not centered on the strip (UI-4)" );
+			check( std::abs( ( layout.muteMin.x + layout.soloMax.x ) *
+								 0.5f -
+							 nStripCenter ) <= eps,
+				   "mute/solo pair not centered in the strip (UI-4)" );
+			check( std::abs( layout.masterMuteMin.x -
+							 layout.masterStripMin.x ) <= eps &&
+					   std::abs( layout.masterMuteMax.x -
+							 layout.masterStripMax.x ) <= eps,
+				   "master mute does not span the master strip (UI-4)" );
+			const float nKnobCenterX =
+				( layout.knobMin.x + layout.knobMax.x ) * 0.5f;
+			// The scale labels ride up into the knob's row (its
+			// bottom corners are empty beside the circle) — part of
+			// the knob, not a row below it.
+			check( layout.labelLMin.y < layout.knobMax.y &&
+					   layout.labelLMin.y > layout.knobMin.y &&
+					   layout.labelLMin.x > layout.knobMin.x + eps &&
+					   layout.labelLMax.x < nKnobCenterX,
+				   "L label not tucked against the pan knob (UI-4)" );
+			check( layout.labelRMin.y < layout.knobMax.y &&
+					   layout.labelRMin.y > layout.knobMin.y &&
+					   layout.labelRMax.x < layout.knobMax.x - eps &&
+					   layout.labelRMin.x > nKnobCenterX,
+				   "R label not tucked against the pan knob (UI-4)" );
+			// The label row reserves only its part below the knob's
+			// row: the mute/solo pair follows at the normal item
+			// spacing, without the tuck's slack.
+			check( std::abs( layout.muteMin.y - layout.labelLMax.y -
+							 ImGui::GetStyle().ItemSpacing.y ) <= eps,
+				   "gap between the pan scale and the mute/solo row "
+				   "(UI-4)" );
+			// The GMRockKit ships names wider than the column ("Snare
+			// Rimshot"), so the truncation case is real, not vacuous.
+			check( ! layout.sNameShown.isEmpty(),
+				   "no overflowing strip name recorded (UI-4)" );
+			check( ! layout.sNameShown.contains( "..." ),
+				   "strip name shows an ellipsis (UI-4)" );
+			check( ImGui::CalcTextSize(
+					   layout.sNameShown.toUtf8().constData() ).x <=
+					   ( layout.stripMax.x - layout.stripMin.x ) + eps,
+				   "truncated name overflows the strip (UI-4)" );
+			check( layout.sNameFull.startsWith( layout.sNameShown ),
+				   "shown name not a prefix of the full name (UI-4)" );
+		}
 		ImGui::DestroyContext();
 	}
 

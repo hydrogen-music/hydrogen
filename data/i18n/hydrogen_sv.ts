@@ -2110,6 +2110,16 @@ Ställ in systemets språkinställning på UTF-8!</translation>
         <extracomment>Section header of the instrument-to-bus routing in the embedded * plugin UI&apos;s mapping view.</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>L</source>
+        <extracomment>Text displayed at the left margin of the pan knob in the mixer marking the left end of the pan scale. Its size is designed to hold a single character.</extracomment>
+        <translation type="unfinished">L</translation>
+    </message>
+    <message>
+        <source>R</source>
+        <extracomment>Text displayed at the right margin of the pan knob in the mixer marking the right end of the pan scale. Its size is designed to hold a single character.</extracomment>
+        <translation type="unfinished">R</translation>
+    </message>
 </context>
 <context>
     <name>ComponentEditor</name>

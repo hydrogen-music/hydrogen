@@ -28,6 +28,7 @@
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #include <plugin/HydrogenPlugin.h>
 
@@ -175,6 +176,12 @@ bool PluginUiMixerModel::masterIsMuted() const
 int PluginUiMixerModel::busCount() const
 {
 	return m_pPlugin != nullptr ? m_pPlugin->getBusCount() : 0;
+}
+
+std::shared_ptr<Preferences> PluginUiMixerModel::preferences() const
+{
+	return m_pPlugin != nullptr && m_pPlugin->getHydrogen() != nullptr
+		? m_pPlugin->getHydrogen()->getPreferences() : nullptr;
 }
 
 std::shared_ptr<Instrument> PluginUiMixerModel::instrument(
