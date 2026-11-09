@@ -31,6 +31,7 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginLifecycleTest );
 	CPPUNIT_TEST( testRepeatedLifecycle );
 	CPPUNIT_TEST( testPluginProcess );
+	CPPUNIT_TEST( testPluginReset );
 	CPPUNIT_TEST( testPluginStateRoundTrip );
 	CPPUNIT_TEST( testPluginStatePreferencesRoundTrip );
 	CPPUNIT_TEST( testPluginRepeatedLifecycle );
@@ -51,6 +52,11 @@ public:
 	 * activates, processes silence and notes into host master + bus buffers
 	 * without NaNs, then deactivates (ADR 0014). */
 	void testPluginProcess();
+	/** The host reset hook (CLAP `reset`, [audio-thread & active]) maps to
+	 * CoreActionController::panic(): a live note still sounding after its
+	 * block is killed — the sampler holds no playing notes afterwards and
+	 * picks up none over subsequent blocks. */
+	void testPluginReset();
 	/** HydrogenPlugin state save → load round-trips through the `.h2project`
 	 * codec. */
 	void testPluginStateRoundTrip();

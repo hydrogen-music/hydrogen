@@ -100,6 +100,15 @@ public:
 	void activate( double fSampleRate, unsigned nMaxBlockSize );
 	void deactivate();
 
+	/** The host's reset hook (CLAP `reset`: clear the processing state
+	 * and kill all voices, [audio-thread & active]) mapped onto the
+	 * engine's panic action: stop the sequencer, stop all playing
+	 * notes, all notes off. Called between process blocks, where the
+	 * engine lock is free (audioEngine_process only try-locks), so the
+	 * lock panic() takes can only ever wait for a rare main-thread
+	 * holder (state save, editor command) — no circular waits. */
+	void reset();
+
 	/**
 	 * Render one block into the host buffers.
 	 * @param nFrames   Frames to render (<= max block size).

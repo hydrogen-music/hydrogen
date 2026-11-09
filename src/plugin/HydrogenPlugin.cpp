@@ -329,6 +329,21 @@ void HydrogenPlugin::deactivate() {
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 }
 
+void HydrogenPlugin::reset() {
+	if ( m_pHydrogen == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
+		return;
+	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+
+	// A host reset (e.g. on a transport jump) maps to Hydrogen's panic:
+	// all sounding voices and queued notes are killed. Neither the
+	// loaded kit nor the plugin parameters are touched, and the
+	// transport follows the host again on the next block (ADR 0013) -
+	// a stop parked in here cannot outroll the host's clock.
+	m_pHydrogen->getCoreActionController()->panic();
+}
+
 void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR,
 							  const std::vector<float*>& busOut_L,
 							  const std::vector<float*>& busOut_R,

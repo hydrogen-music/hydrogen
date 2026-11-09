@@ -503,7 +503,12 @@ void CLAP_ABI pluginDeactivate( const clap_plugin_t* plugin ) {
 }
 bool CLAP_ABI pluginStartProcessing( const clap_plugin_t* ) { return true; }
 void CLAP_ABI pluginStopProcessing( const clap_plugin_t* ) {}
-void CLAP_ABI pluginReset( const clap_plugin_t* ) {}
+void CLAP_ABI pluginReset( const clap_plugin_t* plugin ) {
+	auto* p = self( plugin );
+	if ( p->engine != nullptr ) {
+		p->engine->reset();
+	}
+}
 
 void handleEvent( H2ClapPlugin* p, const clap_event_header_t* hdr ) {
 	if ( hdr->space_id != CLAP_CORE_EVENT_SPACE_ID ) {

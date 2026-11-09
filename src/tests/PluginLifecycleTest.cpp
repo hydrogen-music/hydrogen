@@ -224,6 +224,55 @@ void PluginLifecycleTest::testPluginProcess() {
 	___INFOLOG( "passed" );
 }
 
+void PluginLifecycleTest::testPluginReset() {
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+
+	HydrogenPlugin plugin( nSampleRate, nBlock, 0 );
+	plugin.activate( nSampleRate, nBlock );
+
+	PluginBuffers buf( nBlock, 0 );
+
+	auto pSampler = plugin.getHydrogen()->getAudioEngine()->getSampler();
+	CPPUNIT_ASSERT( pSampler != nullptr );
+
+	// A live note, dispatched and sounding. The engine needs a couple of
+	// blocks on the presented transport before it consumes the queued
+	// note, so probe until the sampler actually holds it.
+	plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
+	bool bSounding = false;
+	long long nFrame = 0;
+	for ( int b = 0; b < 8 && ! bSounding; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, nFrame } );
+		nFrame += nBlock;
+		bSounding = pSampler->getPlayingNotesNumber() > 0;
+	}
+	CPPUNIT_ASSERT( bSounding );
+
+	// The host reset (e.g. on a transport jump) maps to panic.
+	plugin.reset();
+	CPPUNIT_ASSERT_EQUAL( 0, pSampler->getPlayingNotesNumber() );
+
+	// The engine stays voiceless over the following blocks.
+	for ( int b = 0; b < 2; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, nFrame } );
+		CPPUNIT_ASSERT_EQUAL( 0, pSampler->getPlayingNotesNumber() );
+		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
+		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
+		nFrame += nBlock;
+	}
+
+	plugin.deactivate();
+
+	___INFOLOG( "passed" );
+}
+
 void PluginLifecycleTest::testPluginStateRoundTrip() {
 	___INFOLOG( "" );
 
