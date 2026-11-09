@@ -860,15 +860,25 @@ void PluginUiModelTest::testMappingModelInputMappingRead()
 
 	// Custom mode + a custom row for instrument 0, inserted by index —
 	// the read resolves the effective incoming note/channel through
-	// the engine's live map.
+	// the engine's live map. The row's own channel only applies while
+	// the global input channel is disengaged.
 	CPPUNIT_ASSERT( model.setInputMode( MidiInstrumentMap::Input::Custom ) );
 	CPPUNIT_ASSERT( model.instrumentCount() > 0 );
+	CPPUNIT_ASSERT( model.setUseGlobalInputChannel( false ) );
 	CPPUNIT_ASSERT( model.insertCustomInputMapping(
 		0, Midi::Note( 42 ), Midi::Channel( 3 ) ) );
 
 	const auto mapping = model.inputMapping( 0 );
 	CPPUNIT_ASSERT( mapping.note == Midi::Note( 42 ) );
 	CPPUNIT_ASSERT( mapping.channel == Midi::Channel( 3 ) );
+
+	// The global input channel always wins for inputs: engaged, it
+	// overrides the channel of the custom row (the note still applies).
+	CPPUNIT_ASSERT( model.setGlobalInputChannel( Midi::Channel( 5 ) ) );
+	CPPUNIT_ASSERT( model.setUseGlobalInputChannel( true ) );
+	const auto mappingGlobal = model.inputMapping( 0 );
+	CPPUNIT_ASSERT( mappingGlobal.note == Midi::Note( 42 ) );
+	CPPUNIT_ASSERT( mappingGlobal.channel == Midi::Channel( 5 ) );
 
 	// Out of range — invalid read, refused insert, no garbage.
 	CPPUNIT_ASSERT( model.inputMapping( model.instrumentCount() ).isNull() );

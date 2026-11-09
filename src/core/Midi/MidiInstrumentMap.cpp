@@ -113,10 +113,14 @@ QString MidiInstrumentMap::NoteRef::toQString(
 }
 
 MidiInstrumentMap::MidiInstrumentMap()
-	: m_input( Input::AsOutput )
+	// The defaults continue the pre-2.0 behavior: notes map by instrument
+	// order and no channel is required. The legacy kits carry no output
+	// channels, so a channel-constraining default would leave their MIDI
+	// input dead.
+	: m_input( Input::Order )
 	, m_output( Output::Offset )
 	, m_bUseGlobalInputChannel( true )
-	, m_globalInputChannel( Midi::ChannelDefault )
+	, m_globalInputChannel( Midi::ChannelAll )
 	, m_bUseGlobalOutputChannel( false )
 	, m_globalOutputChannel( Midi::ChannelDefault ) {
 }

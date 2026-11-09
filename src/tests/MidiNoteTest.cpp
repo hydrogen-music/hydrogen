@@ -36,6 +36,7 @@
 #include <core/CoreActionController.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/SoftwareDriver.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Time.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -84,6 +85,32 @@ void MidiNoteTest::testLoadNewSong()
 	checkInstrumentMidiNote(
 		"Ride Rock", Midi::noteFromInt( 59 ), pInstrumentList->get( 3 )
 	);
+	___INFOLOG( "passed" );
+}
+
+void MidiNoteTest::testMidiInstrumentMapDefaults()
+{
+	___INFOLOG( "" );
+
+	// The shipped defaults continue the pre-2.0 behavior: incoming notes
+	// map by instrument order (list position + NoteOffset) and no channel
+	// is required. The legacy default kit carries no output channels, so
+	// a channel-constraining default would leave its MIDI input dead.
+	const MidiInstrumentMap freshMap;
+	CPPUNIT_ASSERT( freshMap.getInput() == MidiInstrumentMap::Input::Order );
+	CPPUNIT_ASSERT( freshMap.getUseGlobalInputChannel() );
+	CPPUNIT_ASSERT( freshMap.getGlobalInputChannel() == Midi::ChannelAll );
+
+	// The shipped default config materializes the same state.
+	const auto pDefaultPreferences = Preferences::load(
+		Filesystem::systemConfigPath(), true, nullptr );
+	CPPUNIT_ASSERT( pDefaultPreferences != nullptr );
+	const auto pDefaultMap = pDefaultPreferences->getMidiInstrumentMap();
+	CPPUNIT_ASSERT( pDefaultMap != nullptr );
+	CPPUNIT_ASSERT( pDefaultMap->getInput() == MidiInstrumentMap::Input::Order );
+	CPPUNIT_ASSERT( pDefaultMap->getUseGlobalInputChannel() );
+	CPPUNIT_ASSERT( pDefaultMap->getGlobalInputChannel() == Midi::ChannelAll );
+
 	___INFOLOG( "passed" );
 }
 
