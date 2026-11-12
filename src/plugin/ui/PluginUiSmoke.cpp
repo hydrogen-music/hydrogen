@@ -30,6 +30,7 @@
 #include "PluginUiLandingView.h"
 #include "PluginUiMappingView.h"
 #include "PluginUiMixerView.h"
+#include "PluginUiStyle.h"
 #include "PluginUiWindow.h"
 
 #include <plugin/HydrogenPlugin.h>
@@ -40,6 +41,7 @@
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Logger.h>
+#include <core/Preferences/Theme.h>
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -786,6 +788,13 @@ int main( int argc, char** argv ) {
 		// backend NewFrame — build the default bitmap font headless.
 		io.Fonts->AddFontDefault();
 		io.Fonts->Build();
+		// The views paint with the default theme's palette, the style
+		// applied as the window applies it, so the sweeps cover the
+		// themed widgets (panels, the Rotary knob face, scoped pushes).
+		const auto pColorTheme = std::make_shared<H2Core::ColorTheme>();
+		const auto palette = H2Core::PluginUiPalette::fromTheme( *pColorTheme );
+		H2Core::PluginUiStyle::applyMetrics( ImGui::GetStyle() );
+		H2Core::PluginUiStyle::applyColors( palette, ImGui::GetStyle() );
 		H2Core::PluginUiLandingView landingView( &plugin );
 		H2Core::PluginUiMappingView mappingView( &plugin );
 		H2Core::PluginUiMixerView mixerView( &plugin );
@@ -822,7 +831,7 @@ int main( int argc, char** argv ) {
 		// across the sweeps, the state imgui asserts drag sources
 		// under.
 		io.AddMousePosEvent( 20.0f, 15.0f );
-		runFrame( [ & ]() { landingView.draw(); } );
+		runFrame( [ & ]() { landingView.draw( palette ); } );
 		// Held, never released: no widget fires (imgui triggers on
 		// release), so the sweep only drags — the state it moves belongs
 		// to this throwaway plugin instance. A 2D grid: the strip rows
@@ -830,14 +839,14 @@ int main( int argc, char** argv ) {
 		// past them, and the y stride stays under the bus indicator
 		// row's height so the sweep cannot jump over it.
 		io.AddMouseButtonEvent( 0, true );
-		sweep( [ & ]() { landingView.draw(); } );
-		sweep( [ & ]() { mappingView.draw(); } );
-		sweep( [ & ]() { mixerView.draw(); } );
+		sweep( [ & ]() { landingView.draw( palette ); } );
+		sweep( [ & ]() { mappingView.draw( palette ); } );
+		sweep( [ & ]() { mixerView.draw( palette ); } );
 		// Release the sweep's held button: an active id suppresses
 		// hovering of other items, and the probes below need plain
 		// hovers.
 		io.AddMouseButtonEvent( 0, false );
-		runFrame( [ & ]() { mixerView.draw(); } );
+		runFrame( [ & ]() { mixerView.draw( palette ); } );
 
 		// The mixer's strips live in a horizontally scrollable lane
 		// (UI-4): imgui only shows a horizontal scrollbar when the
@@ -873,19 +882,31 @@ int main( int argc, char** argv ) {
 
 			// Hovering a strip's (elided) name shows the full
 			// instrument name in a tooltip: park the mouse on the
-			// first strip's name — the lane's top-left, where the name
-			// row starts — and check the tooltip window is live THIS
+			// first strip's name — the rect the view recorded in
+			// the last frame, measured rather than assumed: the
+			// lane's window padding (the strip panels' backdrop)
+			// offsets the name row from the lane's top-left, so a
+			// hardcoded offset from Pos lands on the backdrop, not
+			// the text. Check the tooltip window is live THIS
 			// frame. Active alone would not do: it survives from
 			// earlier frames (the landing view tooltips too), while
-			// LastFrameActive pins the frame the tooltip was begun in.
-			io.AddMousePosEvent( pLane->Pos.x + 2.0f, pLane->Pos.y + 6.0f );
-			runFrame( [ & ]() { mixerView.draw(); } );
-			ImGuiWindow* pTooltip =
-				ImGui::FindWindowByName( "##Tooltip_00" );
-			check( pTooltip != nullptr &&
-					   pTooltip->LastFrameActive ==
-						   ImGui::GetFrameCount(),
-				   "no full-name tooltip on strip name hover (UI-4)" );
+			// LastFrameActive pins the frame the tooltip was begun
+			// in.
+			const auto& hoverLayout = mixerView.layout();
+			if ( hoverLayout.bValid ) {
+				io.AddMousePosEvent(
+					( hoverLayout.nameMin.x + hoverLayout.nameMax.x ) *
+						0.5f,
+					( hoverLayout.nameMin.y + hoverLayout.nameMax.y ) *
+						0.5f );
+				runFrame( [ & ]() { mixerView.draw( palette ); } );
+				ImGuiWindow* pTooltip =
+					ImGui::FindWindowByName( "##Tooltip_00" );
+				check( pTooltip != nullptr &&
+						   pTooltip->LastFrameActive ==
+							   ImGui::GetFrameCount(),
+					   "no full-name tooltip on strip name hover (UI-4)" );
+			}
 		}
 
 		// The strip layout's geometry (round 8): the mute/solo pair
@@ -896,7 +917,7 @@ int main( int argc, char** argv ) {
 		// an ellipsis. The view records its key rects (imgui items
 		// are not queryable after the frame); the smoke asserts the
 		// relations.
-		runFrame( [ & ]() { mixerView.draw(); } );
+		runFrame( [ & ]() { mixerView.draw( palette ); } );
 		const auto& layout = mixerView.layout();
 		check( layout.bValid, "mixer layout not recorded (UI-4)" );
 		if ( layout.bValid ) {

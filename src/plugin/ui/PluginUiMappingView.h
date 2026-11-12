@@ -39,6 +39,7 @@ namespace H2Core {
 
 class CommonStrings;
 class HydrogenPlugin;
+struct PluginUiPalette;
 
 class PluginUiMappingView
 {
@@ -47,8 +48,9 @@ public:
 
 	explicit PluginUiMappingView( HydrogenPlugin* pPlugin );
 
-	/** One frame of the mapping view's widget tree. */
-	void draw();
+	/** One frame of the mapping view's widget tree, painted with
+	 *  @a palette. */
+	void draw( const PluginUiPalette& palette );
 
 private:
 	/** Re-reads the exposed MIDI config from the engine into the widget

@@ -25,6 +25,7 @@
 // model's.
 
 #include "PluginUiLandingView.h"
+#include "PluginUiStyle.h"
 
 #include <imgui.h>
 
@@ -50,7 +51,7 @@ PluginUiLandingView::PluginUiLandingView( HydrogenPlugin* pPlugin )
 	m_sEditorExecutableBuffer[ nCopy ] = '\0';
 }
 
-void PluginUiLandingView::draw()
+void PluginUiLandingView::draw( const PluginUiPalette& palette )
 {
 	// The pinned status line: the content flows in a child region
 	// reserving the line's height at the bottom edge, so the line
@@ -60,14 +61,14 @@ void PluginUiLandingView::draw()
 		ImGui::GetStyle().ItemSpacing.y + 2.0f;
 	if ( ImGui::BeginChild( "##landingContent",
 							ImVec2( 0.0f, -footerHeight ) ) ) {
-		drawContent();
+		drawContent( palette );
 	}
 	ImGui::EndChild();
 
-	drawStatusLine();
+	drawStatusLine( palette );
 }
 
-void PluginUiLandingView::drawContent()
+void PluginUiLandingView::drawContent( const PluginUiPalette& palette )
 {
 	// The info section: what the engine is doing right now — the loaded
 	// song and drumkit, the mode, and the mode-specific playback state.
@@ -140,45 +141,48 @@ void PluginUiLandingView::drawContent()
 	// widget — plain buttons suffice. The drumkit picker lists the
 	// sound library database's kits instead of browsing the filesystem;
 	// the song and pattern buttons keep their keyed IGFD browsers.
-	if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
+	{
+		PluginUiStyle::ScopedPushButton pushButtons( palette );
+		if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
+								.constData() ) ) {
+			IGFD::FileDialogConfig config;
+			config.path = m_model.songDialogDefaultPath().toStdString();
+			config.countSelectionMax = 1;
+			m_fileDialog.OpenDialog(
+				"song",
+				m_pCommonStrings->getSongFileDialogTitle().toStdString(),
+				Filesystem::sSongSuffix.toUtf8() + ", " +
+					Filesystem::sProjectSuffix.toUtf8(),
+				config );
+		}
+		ImGui::SameLine();
+		if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
+								.constData() ) ) {
+			IGFD::FileDialogConfig config;
+			config.path = m_model.patternDialogDefaultPath().toStdString();
+			config.countSelectionMax = 1;
+			m_fileDialog.OpenDialog(
+				"pattern",
+				m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
+				Filesystem::sPatternSuffix.toUtf8(), config );
+		}
+		ImGui::SameLine();
+		if ( ImGui::Button( m_pCommonStrings->getClearButton().toUtf8()
 							.constData() ) ) {
-		IGFD::FileDialogConfig config;
-		config.path = m_model.songDialogDefaultPath().toStdString();
-		config.countSelectionMax = 1;
-		m_fileDialog.OpenDialog(
-			"song",
-			m_pCommonStrings->getSongFileDialogTitle().toStdString(),
-			Filesystem::sSongSuffix.toUtf8() + ", " +
-				Filesystem::sProjectSuffix.toUtf8(),
-			config );
-	}
-	ImGui::SameLine();
-	if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
-							.constData() ) ) {
-		IGFD::FileDialogConfig config;
-		config.path = m_model.patternDialogDefaultPath().toStdString();
-		config.countSelectionMax = 1;
-		m_fileDialog.OpenDialog(
-			"pattern",
-			m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
-			Filesystem::sPatternSuffix.toUtf8(), config );
-	}
-	ImGui::SameLine();
-	if ( ImGui::Button( m_pCommonStrings->getClearButton().toUtf8()
-						.constData() ) ) {
-		m_model.clearSong();
+			m_model.clearSong();
+		}
+
+		ImGui::Separator();
+
+		if ( ImGui::Button( m_pCommonStrings->getActionSwitchDrumkit().toUtf8()
+								.constData() ) ) {
+			const QByteArray sTitle =
+				m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
+			ImGui::OpenPopup( sTitle.constData() );
+		}
 	}
 
-	ImGui::Separator();
-
-	if ( ImGui::Button( m_pCommonStrings->getActionSwitchDrumkit().toUtf8()
-							.constData() ) ) {
-		const QByteArray sTitle =
-			m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
-		ImGui::OpenPopup( sTitle.constData() );
-	}
-
-	drawDrumkitPicker();
+	drawDrumkitPicker( palette );
 
 	ImGui::Separator();
 
@@ -190,13 +194,16 @@ void PluginUiLandingView::drawContent()
 					  m_sEditorExecutableBuffer.data(),
 					  m_sEditorExecutableBuffer.size() );
 	ImGui::SameLine();
-	if ( ImGui::Button( m_pCommonStrings->getOpenEditorButton().toUtf8()
-							.constData() ) ) {
-		// The line edit's content is what launches; an empty field
-		// restores the default resolution.
-		m_model.setEditorExecutable(
-			QString::fromUtf8( m_sEditorExecutableBuffer.data() ) );
-		m_model.openEditor();
+	{
+		PluginUiStyle::ScopedPushButton pushButton( palette );
+		if ( ImGui::Button( m_pCommonStrings->getOpenEditorButton().toUtf8()
+								.constData() ) ) {
+			// The line edit's content is what launches; an empty field
+			// restores the default resolution.
+			m_model.setEditorExecutable(
+				QString::fromUtf8( m_sEditorExecutableBuffer.data() ) );
+			m_model.openEditor();
+		}
 	}
 
 	// The configuration section: the save-behavior toggle. The value is
@@ -210,6 +217,7 @@ void PluginUiLandingView::drawContent()
 		const QByteArray sIncludeSamplesLabel =
 			m_pCommonStrings->getIncludeSamplesInStateLabel().toUtf8();
 		bool bEmbedSamples = m_model.pluginStateEmbedSamples();
+		PluginUiStyle::ScopedCheckBox checkBox( palette );
 		if ( ImGui::Checkbox( sIncludeSamplesLabel.constData(),
 							  &bEmbedSamples ) ) {
 			m_model.setPluginStateEmbedSamples( bEmbedSamples );
@@ -238,7 +246,7 @@ void PluginUiLandingView::drawContent()
 	}
 }
 
-void PluginUiLandingView::drawStatusLine()
+void PluginUiLandingView::drawStatusLine( const PluginUiPalette& palette )
 {
 	QString sMessage;
 	switch ( m_model.lastFailedAction() ) {
@@ -259,16 +267,14 @@ void PluginUiLandingView::drawStatusLine()
 	}
 
 	ImGui::Separator();
-	// The mixer's highlight convention: the active-button color is
-	// the style's attention color.
 	ImGui::PushStyleColor( ImGuiCol_Text,
-						   ImGui::GetColorU32( ImGuiCol_ButtonActive ) );
+						   PluginUiColor::toImVec4( palette.error ) );
 	const QByteArray sText = sMessage.toUtf8();
 	ImGui::TextWrapped( "%s", sText.constData() );
 	ImGui::PopStyleColor();
 }
 
-void PluginUiLandingView::drawDrumkitPicker()
+void PluginUiLandingView::drawDrumkitPicker( const PluginUiPalette& palette )
 {
 	// The picker reuses the load button's string as its title — no extra
 	// translatable. Sized like the file browser it replaces.
@@ -331,9 +337,12 @@ void PluginUiLandingView::drawDrumkitPicker()
 		ImGui::EndTable();
 	}
 
-	if ( ImGui::Button( m_pCommonStrings->getButtonClose().toUtf8()
-							.constData() ) ) {
-		ImGui::CloseCurrentPopup();
+	{
+		PluginUiStyle::ScopedPushButton pushButton( palette );
+		if ( ImGui::Button( m_pCommonStrings->getButtonClose().toUtf8()
+								.constData() ) ) {
+			ImGui::CloseCurrentPopup();
+		}
 	}
 	ImGui::EndPopup();
 }

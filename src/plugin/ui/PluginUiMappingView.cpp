@@ -33,6 +33,7 @@
 // (TU1.3): every decision is the model's.
 
 #include "PluginUiMappingView.h"
+#include "PluginUiStyle.h"
 
 #include <imgui.h>
 
@@ -87,7 +88,7 @@ void PluginUiMappingView::applyMidiConfigWidgets()
 	refreshMidiConfigWidgets();
 }
 
-void PluginUiMappingView::draw()
+void PluginUiMappingView::draw( const PluginUiPalette& palette )
 {
 	// The exposed MIDI configuration — drawn before the engine guard so
 	// the section renders (with the engine defaults) even without an
@@ -96,11 +97,14 @@ void PluginUiMappingView::draw()
 			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
 					.constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
-		if ( ImGui::Checkbox(
-				 m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8()
-					 .constData(),
-				 &m_bNoteOffIgnore ) ) {
-			applyMidiConfigWidgets();
+		{
+			PluginUiStyle::ScopedCheckBox checkBox( palette );
+			if ( ImGui::Checkbox(
+					 m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8()
+						 .constData(),
+					 &m_bNoteOffIgnore ) ) {
+				applyMidiConfigWidgets();
+			}
 		}
 
 		// The action channel dropdown — the GUI spinbox's range and
@@ -222,9 +226,12 @@ void PluginUiMappingView::draw()
 		const bool bSelectedInstrument = pMap->getInput() ==
 			MidiInstrumentMap::Input::SelectedInstrument;
 		ImGui::BeginDisabled( bSelectedInstrument );
-		if ( ImGui::Checkbox( sUseGlobalInput.constData(),
-							  &bUseGlobalInput ) ) {
-			m_model.setUseGlobalInputChannel( bUseGlobalInput );
+		{
+			PluginUiStyle::ScopedCheckBox checkBox( palette );
+			if ( ImGui::Checkbox( sUseGlobalInput.constData(),
+								  &bUseGlobalInput ) ) {
+				m_model.setUseGlobalInputChannel( bUseGlobalInput );
+			}
 		}
 		ImGui::EndDisabled();
 		const auto sGlobalInputChannel = ( m_pCommonStrings->
@@ -379,9 +386,12 @@ void PluginUiMappingView::draw()
 											getUseGlobalChannelLabel() +
 										"##output" ).toUtf8();
 		bool bUseGlobalOutput = pMap->getUseGlobalOutputChannel();
-		if ( ImGui::Checkbox( sUseGlobalOutput.constData(),
-							  &bUseGlobalOutput ) ) {
-			m_model.setUseGlobalOutputChannel( bUseGlobalOutput );
+		{
+			PluginUiStyle::ScopedCheckBox checkBox( palette );
+			if ( ImGui::Checkbox( sUseGlobalOutput.constData(),
+								  &bUseGlobalOutput ) ) {
+				m_model.setUseGlobalOutputChannel( bUseGlobalOutput );
+			}
 		}
 		const auto sGlobalOutputChannel = ( m_pCommonStrings->
 													getGlobalChannelLabel() +
@@ -490,67 +500,72 @@ void PluginUiMappingView::draw()
 					ImGui::GetStyle().FramePadding.x * 2.0f );
 		}
 
-		// The left column: every instrument of the kit, each the drag
-		// source of its routing.
+		// Both columns are push buttons in the GUI's style; the scope
+		// ends before the béziers, which use the plain text color.
 		std::vector<ImVec2> instrumentOrigins;
-		instrumentOrigins.reserve( nInstruments );
-		ImGui::BeginGroup();
-		for ( int n = 0; n < nInstruments; ++n ) {
-			ImGui::PushID( n );
-			const auto sName =
-				m_model.instrumentName( n ).left( 24 ).toUtf8();
-			ImGui::Button( sName.constData(),
-						   ImVec2( nInstrumentButtonWidth, 0.0f ) );
-			const ImVec2 rectMin = ImGui::GetItemRectMin();
-			const ImVec2 rectMax = ImGui::GetItemRectMax();
-			instrumentOrigins.push_back( ImVec2(
-				rectMax.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
-			if ( ImGui::BeginDragDropSource() ) {
-				ImGui::SetDragDropPayload( s_sInstrumentBusPayload, &n,
-										   sizeof( int ) );
-				ImGui::TextUnformatted( sName.constData(),
-										sName.constData() + sName.size() );
-				ImGui::EndDragDropSource();
-			}
-			ImGui::PopID();
-		}
-		ImGui::Dummy( ImVec2( s_nInstrumentColumnWidth, 0.0f ) );
-		ImGui::EndGroup();
-		// The corridor the béziers travel through.
-		ImGui::SameLine( 0.0f, s_nBusColumnGap );
-
-		// The right column: one slot per numbered host bus. Dropping an
-		// instrument sets its explicit output bus.
 		std::vector<ImVec2> busOrigins;
-		busOrigins.reserve( nBusCount );
-		ImGui::BeginGroup();
-		for ( int nBus = 0; nBus < nBusCount; ++nBus ) {
-			const auto sBus = ( m_pCommonStrings->getBusLabel() + " " +
-								QString::number( nBus + 1 ) ).toUtf8();
-			ImGui::Button( sBus.constData(),
-						   ImVec2( nBusButtonWidth, 0.0f ) );
-			if ( ImGui::BeginDragDropTarget() ) {
-				if ( const ImGuiPayload* pPayload =
-						 ImGui::AcceptDragDropPayload(
-							 s_sInstrumentBusPayload ) ) {
-					const int nInstrument =
-						*static_cast<const int*>( pPayload->Data );
-					m_model.setInstrumentOutputBus( nInstrument, nBus );
+		{
+			PluginUiStyle::ScopedPushButton pushButtons( palette );
+			// The left column: every instrument of the kit, each the
+			// drag source of its routing.
+			instrumentOrigins.reserve( nInstruments );
+			ImGui::BeginGroup();
+			for ( int n = 0; n < nInstruments; ++n ) {
+				ImGui::PushID( n );
+				const auto sName =
+					m_model.instrumentName( n ).left( 24 ).toUtf8();
+				ImGui::Button( sName.constData(),
+							   ImVec2( nInstrumentButtonWidth, 0.0f ) );
+				const ImVec2 rectMin = ImGui::GetItemRectMin();
+				const ImVec2 rectMax = ImGui::GetItemRectMax();
+				instrumentOrigins.push_back( ImVec2(
+					rectMax.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
+				if ( ImGui::BeginDragDropSource() ) {
+					ImGui::SetDragDropPayload( s_sInstrumentBusPayload, &n,
+											   sizeof( int ) );
+					ImGui::TextUnformatted( sName.constData(),
+											sName.constData() + sName.size() );
+					ImGui::EndDragDropSource();
 				}
-				ImGui::EndDragDropTarget();
+				ImGui::PopID();
 			}
-			const ImVec2 rectMin = ImGui::GetItemRectMin();
-			const ImVec2 rectMax = ImGui::GetItemRectMax();
-			busOrigins.push_back( ImVec2(
-				rectMin.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
+			ImGui::Dummy( ImVec2( s_nInstrumentColumnWidth, 0.0f ) );
+			ImGui::EndGroup();
+			// The corridor the béziers travel through.
+			ImGui::SameLine( 0.0f, s_nBusColumnGap );
+
+			// The right column: one slot per numbered host bus. Dropping an
+			// instrument sets its explicit output bus.
+			busOrigins.reserve( nBusCount );
+			ImGui::BeginGroup();
+			for ( int nBus = 0; nBus < nBusCount; ++nBus ) {
+				const auto sBus = ( m_pCommonStrings->getBusLabel() + " " +
+									QString::number( nBus + 1 ) ).toUtf8();
+				ImGui::Button( sBus.constData(),
+							   ImVec2( nBusButtonWidth, 0.0f ) );
+				if ( ImGui::BeginDragDropTarget() ) {
+					if ( const ImGuiPayload* pPayload =
+							 ImGui::AcceptDragDropPayload(
+								 s_sInstrumentBusPayload ) ) {
+						const int nInstrument =
+							*static_cast<const int*>( pPayload->Data );
+						m_model.setInstrumentOutputBus( nInstrument, nBus );
+					}
+					ImGui::EndDragDropTarget();
+				}
+				const ImVec2 rectMin = ImGui::GetItemRectMin();
+				const ImVec2 rectMax = ImGui::GetItemRectMax();
+				busOrigins.push_back( ImVec2(
+					rectMin.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
+			}
+			ImGui::Dummy( ImVec2( s_nBusColumnWidth, 0.0f ) );
+			ImGui::EndGroup();
 		}
-		ImGui::Dummy( ImVec2( s_nBusColumnWidth, 0.0f ) );
-		ImGui::EndGroup();
 
 		// The routing béziers: each instrument to its effective
 		// numbered bus.
 		ImDrawList* pDraw = ImGui::GetWindowDrawList();
-		const ImU32 nCurveColor = ImGui::GetColorU32( ImGuiCol_Text );
+		const ImU32 nCurveColor = IM_COL32( 0, 0, 0, 255 );
 		for ( int n = 0; n < nInstruments; ++n ) {
 			const int nBus = m_model.effectiveOutputBus( n, nBusCount );
 			if ( nBus == Instrument::nNoOutputBusMapping ) {

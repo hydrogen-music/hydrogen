@@ -37,14 +37,16 @@ namespace H2Core {
 
 class CommonStrings;
 class HydrogenPlugin;
+struct PluginUiPalette;
 
 class PluginUiLandingView
 {
 public:
 	explicit PluginUiLandingView( HydrogenPlugin* pPlugin );
 
-	/** One frame of the landing view's widget tree. */
-	void draw();
+	/** One frame of the landing view's widget tree, painted with
+	 *  @a palette. */
+	void draw( const PluginUiPalette& palette );
 
 	/** The view's model — the window polls it (info diff) to decide
 	 *  frame requests. */
@@ -53,13 +55,13 @@ public:
 private:
 	/** The view's flowing content — everything above the status
 	 *  line, drawn inside the pinning child region. */
-	void drawContent();
+	void drawContent( const PluginUiPalette& palette );
 	/** The pinned status line at the view's bottom edge: the last
-	 *  failed command's message in the style's attention color, or
+	 *  failed command's message in the palette's error color, or
 	 *  nothing after a successful command. */
-	void drawStatusLine();
+	void drawStatusLine( const PluginUiPalette& palette );
 	/** The drumkit picker popup (opened by the load-drumkit button). */
-	void drawDrumkitPicker();
+	void drawDrumkitPicker( const PluginUiPalette& palette );
 
 	PluginUiLandingModel m_model;
 	std::shared_ptr<CommonStrings> m_pCommonStrings;

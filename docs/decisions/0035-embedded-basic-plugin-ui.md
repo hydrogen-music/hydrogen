@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-10-05
-amended: 2026-10-16
+amended: 2026-11-10
 deciders: phil (theGreatWhiteShark)
 ---
 
@@ -376,3 +376,48 @@ truth, degraded-skip, unregister quiesce, conditional clear), and the
 PluginUiSmoke live-data assertions — an engine data change renders exactly
 one frame, unchanged data renders nothing, and a change while obscured
 renders nothing until the reveal renders exactly one.
+
+## Amendment (2026-11-10): the GUI's color theme as the plugin UI's look
+
+The views shipped on imgui's stock dark style, which reads nothing like the
+Qt GUI next to it. The plugin UI now paints with the user's `ColorTheme`.
+
+1. **One palette, resolved per frame.** `PluginUiPalette::fromTheme()`
+   (`src/plugin/ui/PluginUiStyle.*`) turns the theme into every color the
+   UI paints with; `PluginUiStyle::applyColors()` maps it onto imgui's
+   slots. The window resolves it from the live preferences at the start of
+   each rendered frame (the default theme stands in without an engine) and
+   hands it to the views' `draw()` explicitly — no view reads the theme, so
+   each derivation lives in exactly one place, and a theme edit in the full
+   editor shows on the next frame.
+
+2. **The GUI's derivations are mirrored, not shared.** `Skin` (stylesheet
+   shades), `MixerLine` (mute/solo face) and `Rotary` (knob face) live in
+   `src/gui`, which the plugin UI must not include (`tools/check_plugin_ui`),
+   and the core's `Color` deliberately has no HSV. So `PluginUiColor`
+   ports `QColor::lighter()`/`darker()` and `Skin::makeTextColorInactive()`
+   — with exact integer rounding of QColor's 16-bit HSV intermediates, since
+   8-bit inputs hit exact .5 ties that a float port rounds unlike Qt. A
+   fuzz run against Qt 6 (3M calls) differs in 14 results by one step in
+   one channel, from float noise in Qt's own conversion; the test pins the
+   shades the palette actually uses to Qt's output.
+
+3. **Where the OS style, not the theme, decides a shade** (the dialogs'
+   tab pane, the unselected tabs, the mixer strip panel), the shade was
+   measured off the Qt GUI and expressed as a lighter()/darker() of a theme
+   color, so it still follows a customized theme. Colors the GUI hardcodes
+   (the push buttons' black border, Rotary's red/green/gray arc) are
+   mirrored as constants.
+
+4. **Widget-level differences are scoped, not global.** imgui draws button
+   labels and check boxes with the global text/frame colors, where the GUI
+   uses dark text on light push buttons and the palette's base under check
+   boxes; `ScopedPushButton` / `ScopedCheckBox` push those around the
+   affected widgets. The mixer's pan knob keeps imgui-knobs' interaction but
+   draws Rotary's face (center marker, offset arc, handle dot, hover bar)
+   over a transparent knob.
+
+Evidence: `PluginUiStyleTest` (headless, runs where the window smoke skips):
+QColor parity on Qt-produced reference values, the default theme's full
+palette, a customized theme flowing through, the imgui slot mapping, the
+metrics, and the scopes' push/restore.

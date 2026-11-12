@@ -73,7 +73,8 @@ endif()
 set( H2_PLUGIN_UI_VIEW_SOURCES
     PluginUiLandingView.cpp
     PluginUiMappingView.cpp
-    PluginUiMixerView.cpp )
+    PluginUiMixerView.cpp
+    PluginUiStyle.cpp )
 
 add_library( hydrogen-plugin-ui STATIC
     ${H2_PLUGIN_UI_WINDOW_SOURCES}
@@ -133,6 +134,14 @@ elseif(NOT WIN32)
     target_link_libraries( hydrogen-plugin-ui-smoke PRIVATE X11::X11 )
 endif()
 add_test( NAME PluginUiSmoke COMMAND hydrogen-plugin-ui-smoke )
+
+# Theme mapping (PluginUiStyle): headless — no window, no GPU — so it runs
+# where the window smoke skips. Pins the QColor lighter()/darker() port and
+# the ColorTheme-to-imgui mapping.
+add_executable( hydrogen-plugin-ui-style-test PluginUiStyleTest.cpp )
+target_link_libraries( hydrogen-plugin-ui-style-test PRIVATE hydrogen-plugin-ui )
+set_target_properties( hydrogen-plugin-ui-style-test PROPERTIES CXX_STANDARD 17 )
+add_test( NAME PluginUiStyle COMMAND hydrogen-plugin-ui-style-test )
 
 # Plugin-UI dependency guard (ADR 0035, proposal 0006 TU1.3): static source
 # check that the plugin UI layer never depends on the Qt-Widgets GUI

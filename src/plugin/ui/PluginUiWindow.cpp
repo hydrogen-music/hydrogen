@@ -31,7 +31,10 @@
 #include "PluginUiLandingView.h"
 #include "PluginUiMappingView.h"
 #include "PluginUiMixerView.h"
+#include "PluginUiStyle.h"
 #include <core/CommonStrings.h>
+#include <core/Preferences/Preferences.h>
+#include <core/Preferences/Theme.h>
 #include <plugin/HydrogenPlugin.h>
 
 #include <imgui.h>
@@ -67,6 +70,10 @@ public:
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 		ImGuiStyle& style = ImGui::GetStyle();
+		// The Qt GUI's metrics, unscaled — before the DPI scaling below.
+		// Colors follow per frame (idle()), so a theme change shows
+		// without reopening the window.
+		PluginUiStyle::applyMetrics( style );
 		style.ScaleAllSizes( m_pBackend->scaleFactor() );
 
 		// The built-in bitmap font until the embedded TTF lands with the
@@ -236,6 +243,24 @@ public:
 		io.DisplaySize = ImVec2( static_cast<float>( nWidth ),
 								 static_cast<float>( nHeight ) );
 
+		// The palette from the live color theme — cheap, and an edit
+		// in the full editor shows on the next frame. Without an engine
+		// (spike path, engine not up yet) the default theme stands in.
+		{
+			std::shared_ptr<const ColorTheme> pTheme;
+			if ( m_pMixerView != nullptr ) {
+				const auto pPreferences = m_pMixerView->model().preferences();
+				if ( pPreferences != nullptr ) {
+					pTheme = pPreferences->getColorTheme();
+				}
+			}
+			if ( pTheme == nullptr ) {
+				pTheme = m_pDefaultColorTheme;
+			}
+			m_palette = PluginUiPalette::fromTheme( *pTheme );
+			PluginUiStyle::applyColors( m_palette, ImGui::GetStyle() );
+		}
+
 		m_pBackend->beginFrame();
 		ImGui::NewFrame();
 
@@ -251,23 +276,33 @@ public:
 			// The active tab is tracked for the idle poll above — reset
 			// each frame, set by whichever tab item actually renders.
 			m_activeView = ActiveView::None;
+			// The tab bar sits on the window color; each tab's content
+			// on the lighter page the selected tab merges into — the
+			// GUI dialogs' tab pane.
+			const auto drawPage = []( auto&& draw ) {
+				if ( ImGui::BeginChild( "##page", ImVec2( 0.0f, 0.0f ),
+										ImGuiChildFlags_AlwaysUseWindowPadding ) ) {
+					draw();
+				}
+				ImGui::EndChild();
+			};
 			if ( ImGui::BeginTabBar( "##tabs" ) ) {
-			if ( ImGui::BeginTabItem( m_pCommonStrings->getTabGeneralDialog()
-							  .toUtf8().constData() ) ) {
+				if ( ImGui::BeginTabItem( m_pCommonStrings->getTabGeneralDialog()
+											  .toUtf8().constData() ) ) {
 					m_activeView = ActiveView::Landing;
-					m_pLandingView->draw();
+					drawPage( [ & ]() { m_pLandingView->draw( m_palette ); } );
 					ImGui::EndTabItem();
 				}
 				if ( ImGui::BeginTabItem( m_pCommonStrings->getMappingTab()
 											  .toUtf8().constData() ) ) {
 					m_activeView = ActiveView::Mapping;
-					m_pMappingView->draw();
+					drawPage( [ & ]() { m_pMappingView->draw( m_palette ); } );
 					ImGui::EndTabItem();
 				}
 				if ( ImGui::BeginTabItem( m_pCommonStrings->getMixerTab()
 											  .toUtf8().constData() ) ) {
 					m_activeView = ActiveView::Mixer;
-					m_pMixerView->draw();
+					drawPage( [ & ]() { m_pMixerView->draw( m_palette ); } );
 					ImGui::EndTabItem();
 				}
 				ImGui::EndTabBar();
@@ -325,6 +360,12 @@ public:
 	// The views' shared string source; null on the spike path, and the
 	// tab labels below only draw under the landing-view guard.
 	std::shared_ptr<CommonStrings> m_pCommonStrings;
+	// The palette of the frame being drawn, resolved from the live
+	// color theme at its start.
+	PluginUiPalette m_palette;
+	// The theme painted with while no engine provides one.
+	std::shared_ptr<const ColorTheme> m_pDefaultColorTheme =
+		std::make_shared<const ColorTheme>();
 	unsigned m_nFrames = 0;
 	// The frame gate (ADR 0035's amendment): 27 ms is the 30 Hz target
 	// (33 ms) minus slack — a 33 ms gate would beat against the hosts'

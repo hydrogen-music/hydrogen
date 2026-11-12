@@ -40,6 +40,7 @@ namespace H2Core {
 
 class CommonStrings;
 class HydrogenPlugin;
+struct PluginUiPalette;
 
 /** The last drawn frame's key mixer geometry, in screen space. The
  *  window smoke's white-box hook: imgui items are not queryable by
@@ -53,6 +54,8 @@ struct PluginUiMixerLayout
 	bool bValid = false;
 	/** Strip 0's column extent (its full-width spacer row). */
 	ImVec2 stripMin{}, stripMax{};
+	/** Strip 0's name text. */
+	ImVec2 nameMin{}, nameMax{};
 	/** Strip 0's mute and solo buttons. */
 	ImVec2 muteMin{}, muteMax{}, soloMin{}, soloMax{};
 	/** The master strip's column extent and its mute button. */
@@ -72,8 +75,9 @@ class PluginUiMixerView
 public:
 	explicit PluginUiMixerView( HydrogenPlugin* pPlugin );
 
-	/** One frame of the mixer view's widget tree. */
-	void draw();
+	/** One frame of the mixer view's widget tree, painted with
+	 *  @a palette. */
+	void draw( const PluginUiPalette& palette );
 
 	/** The view's model — the window polls it (meter diff) to decide
 	 *  frame requests. */
@@ -86,7 +90,11 @@ private:
 	/** A vertical fader with an L/R meter pair beside it; true when
 	 * moved (the new value in @a fVolume). */
 	bool drawFaderWithMeter( const char* sId, float& fVolume, float fPeakL,
-							 float fPeakR );
+							 float fPeakR, const PluginUiPalette& palette );
+	/** The pan knob in the GUI's Rotary look (center marker, offset
+	 * arc, handle dot); true when turned (the new value in @a fPan). */
+	bool drawPanKnob( const char* sId, float& fPan,
+					  const PluginUiPalette& palette );
 
 	PluginUiMixerModel m_model;
 	std::shared_ptr<CommonStrings> m_pCommonStrings;
