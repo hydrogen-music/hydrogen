@@ -3364,6 +3364,64 @@ bool MainForm::handleKeyEvent( QObject* pQObject, QKeyEvent* pKeyEvent ) {
 	return false;
 }
 
+// ADR 0026: under a plugin-host engine the host owns transport, tempo,
+// playhead, timeline, and loop state, and the beat counter, tap tempo,
+// and count-in features are deactivated. The shortcuts below would poke
+// that state through the IPC command surface, so they are deactivated in
+// the editor just like the transport buttons already are.
+static bool isShortcutGatedUnderPluginHost(
+	H2Core::Shortcuts::Action action )
+{
+	switch ( action ) {
+	// Transport
+	case Shortcuts::Action::Play:
+	case Shortcuts::Action::Pause:
+	case Shortcuts::Action::Stop:
+	case Shortcuts::Action::PlayPauseToggle:
+	case Shortcuts::Action::PlayStopToggle:
+	case Shortcuts::Action::PlayPauseToggleAtCursor:
+	// Playhead
+	case Shortcuts::Action::JumpToStart:
+	case Shortcuts::Action::JumpBarForward:
+	case Shortcuts::Action::JumpBarBackward:
+	case Shortcuts::Action::JumpToBar:
+	// Tempo
+	case Shortcuts::Action::BPMIncreaseCoarse:
+	case Shortcuts::Action::BPMDecreaseCoarse:
+	case Shortcuts::Action::BPMIncreaseFine:
+	case Shortcuts::Action::BPMDecreaseFine:
+	case Shortcuts::Action::BPM:
+	// Deactivated features
+	case Shortcuts::Action::BeatCounter:
+	case Shortcuts::Action::TapTempo:
+	// Playlist transport — already rejected engine-side; gated here too
+	// so the editor stays consistent and skips the round trip
+	case Shortcuts::Action::PlaylistNextSong:
+	case Shortcuts::Action::PlaylistPrevSong:
+	case Shortcuts::Action::PlaylistSong:
+	// Timeline — deactivated under a plugin host
+	case Shortcuts::Action::TimelineToggle:
+	case Shortcuts::Action::TimelineAddMarker:
+	case Shortcuts::Action::TimelineAddTag:
+	case Shortcuts::Action::TimelineDeleteMarker:
+	case Shortcuts::Action::TimelineDeleteTag:
+	// JACK — bypassed in plugin mode
+	case Shortcuts::Action::JackTransportToggle:
+	case Shortcuts::Action::JackTimebaseToggle:
+	// Loop mode — forced on by the host
+	case Shortcuts::Action::LoopModeToggle:
+	// Count-in — starts playback
+	case Shortcuts::Action::CountIn:
+	case Shortcuts::Action::CountInPauseToggle:
+	case Shortcuts::Action::CountInStopToggle:
+	// Compound select-and-play — the play half is transport
+	case Shortcuts::Action::SelectAndPlayPattern:
+		return true;
+	default:
+		return false;
+	}
+}
+
 void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 								 const ShortcutArgs& args,
 								 QObject* pQObject ) {
@@ -3374,6 +3432,15 @@ void MainForm::executeShortcut( H2Core::Shortcuts::Action action,
 	auto pHydrogenApp = HydrogenApp::get_instance();
 	auto pCommonStrings = pHydrogenApp->getCommonStrings();
 	const auto pSoundLibraryDataBase = pHydrogen->getSoundLibraryDatabase();
+
+	// ADR 0026: gated shortcuts must not poke the host's engine through
+	// the IPC command surface.
+	if ( pHydrogen->isUnderPluginHost() &&
+		 isShortcutGatedUnderPluginHost( action ) ) {
+		INFOLOG( QString( "Shortcut [%1] is deactivated under a plugin host" )
+				 .arg( static_cast<int>( action ) ) );
+		return;
+	}
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( "no song" );

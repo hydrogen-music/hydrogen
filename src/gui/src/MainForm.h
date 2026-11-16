@@ -377,6 +377,7 @@ class MainForm :  public QMainWindow,
 						  QObject* pQObject = nullptr );
 
 	friend class EditorPathExerciser;
+	friend class PluginTransportGatingVerifier;
 };
 inline void MainForm::setPreviousAutoSavePlaylistFile( const QString& sFile ) {
 	m_sPreviousAutoSavePlaylistFile = sFile;

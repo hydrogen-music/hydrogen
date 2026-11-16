@@ -486,3 +486,26 @@ are the host's rather than a re-arranged UI.
    flag, so the buttons stay gated while the editor is detached from a
    plugin-host engine — conservative (the host still owns transport for
    the arrangement being edited); a reconnect re-applies the sync.
+7. **Shortcut gating.** The buttons above had a sibling leak: the same
+   actions stayed reachable through the customizable keyboard shortcuts
+   (`MainForm::executeShortcut`). A single choke point at the top of the
+   dispatch now deactivates them under the same `isUnderPluginHost()`
+   predicate: transport (play/pause/stop and the three play toggles),
+   playhead (jump to start, bar forward/backward, to bar), tempo (BPM set
+   and ±coarse/±fine), the deactivated beat counter and tap tempo,
+   playlist transport (next/prev/song — already rejected engine-side per
+   table A, gated editor-side too so the round trip is skipped and the
+   editor stays consistent), timeline editing (toggle, add/delete
+   marker/tag), the JACK toggles, the loop-mode toggle (forced on), all
+   three count-in variants, and the compound select-and-play pattern
+   action. Deliberately *not* gated — mirroring the button scope of
+   point 1 and the B table: panic, record, master mute/volume,
+   metronome, song-mode toggle, drumkit loads, and all selection/editing
+   actions. A gated shortcut is a silent no-op with an `INFOLOG` trace
+   (no user-facing string was added). The verifier of point 5 dispatches
+   the observable subset through `executeShortcut` (a `MainForm` friend,
+   like the `EditorPathExerciser`) and asserts the mirrored engine state
+   — transport state, tempo, playhead — stays untouched; shortcuts that
+   are already inert engine-side (playlist transport, taps under a
+   remote tempo source) or that need a valid focus object
+   (`PlayPauseToggleAtCursor`) are covered by the gate listing alone.

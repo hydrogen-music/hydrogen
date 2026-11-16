@@ -36,6 +36,12 @@
  * the PlaylistEditor play button remains active as the song selector (it
  * selects without starting playback).
  *
+ * The same ownership applies to the keyboard shortcuts dispatched
+ * through MainForm::executeShortcut: the ones backed by host-owned state
+ * (transport, tempo, playhead, timeline, loop, JACK, playlist transport)
+ * or by deactivated features (beat counter, tap tempo, count-in) must
+ * not reach the engine either.
+ *
  * The harness (plugin_editor_smoke --verify-transport-gating) spawns the
  * GUI with --verify-plugin-transport-gating against a HydrogenPlugin
  * engine; once the GUI is up, this verifier inspects the button states and
@@ -59,6 +65,13 @@ private:
 	/** Assert-by-exit-code helpers for the two widgets. */
 	bool verifyMainToolBar();
 	bool verifyPlaylistEditor();
+
+	/** Dispatch the gated shortcuts through MainForm::executeShortcut
+	 * and assert the mirrored engine state (transport state, tempo,
+	 * playhead) stays untouched. Only the observable subset is
+	 * dispatched; gated shortcuts that are inert engine-side under a
+	 * plugin host are covered by the gate itself. */
+	bool verifyShortcutGating();
 };
 
 #endif // H2C_PLUGIN_TRANSPORT_GATING_VERIFIER_H
