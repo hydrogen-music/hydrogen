@@ -119,17 +119,49 @@ bool IpcMessage::toMidiNoteFields(
 	return true;
 }
 
-IpcMessage IpcMessage::hello( quint16 nProtocolVersion ) {
+QString IpcHelloVersion::toQString( const QString& sPrefix,
+									bool bShort ) const {
+	QString sApp = QString( "%1.%2.%3" )
+		.arg( nAppMajor ).arg( nAppMinor ).arg( nAppPatch );
+	if ( ! sAppSuffix.isEmpty() ) {
+		sApp += QString( "-%1" ).arg( sAppSuffix );
+	}
+	if ( bShort ) {
+		return QString( "%1IpcHelloVersion: protocol [%2] app [%3] valid [%4]" )
+			.arg( sPrefix ).arg( nProtocolVersion ).arg( sApp )
+			.arg( isValid() );
+	}
+	return QString( "%1IpcHelloVersion:\n%1  protocol: %2\n%1  app: %3\n"
+					"%1  valid: %4" )
+		.arg( sPrefix ).arg( nProtocolVersion ).arg( sApp ).arg( isValid() );
+}
+
+IpcMessage IpcMessage::hello( const IpcHelloVersion& version ) {
+	// Arg layout is wire: a peer speaking the same wire protocol must be
+	// able to parse it (pinned by IpcProtocolTest's
+	// testHelloHandshake/testOpcodeWireStability).
 	IpcMessage msg( IpcOpcode::Hello );
-	msg.arg( static_cast<int>( nProtocolVersion ) );
+	msg.arg( static_cast<int>( version.nProtocolVersion ) );
+	msg.arg( version.nAppMajor );
+	msg.arg( version.nAppMinor );
+	msg.arg( version.nAppPatch );
+	msg.arg( version.sAppSuffix );
 	return msg;
 }
 
-quint16 IpcMessage::helloProtocolVersion() const {
-	if ( m_opcode != IpcOpcode::Hello || m_args.isEmpty() ) {
-		return 0;
+IpcHelloVersion IpcMessage::helloVersion() const {
+	IpcHelloVersion version;  // default-constructed → invalid
+	if ( m_opcode != IpcOpcode::Hello || m_args.size() != 5 ) {
+		// Not a Hello, or a legacy/garbled one (the pre-2.0 shape carried a
+		// single protocol int): no identity to compare, never compatible.
+		return version;
 	}
-	return static_cast<quint16>( m_args[0].toInt() );
+	version.nProtocolVersion = static_cast<quint16>( m_args[0].toInt() );
+	version.nAppMajor = m_args[1].toInt();
+	version.nAppMinor = m_args[2].toInt();
+	version.nAppPatch = m_args[3].toInt();
+	version.sAppSuffix = m_args[4].toString();
+	return version;
 }
 
 bool IpcFrameReader::next( IpcMessage& out ) {
@@ -183,6 +215,9 @@ QString IpcOpcodeToQString( quint16 nOpcode ) {
 		break;
 	case IpcOpcode::Event:
 		sOpcode = "EVENT";
+		break;
+	case IpcOpcode::MidiNoteRecorded:
+		sOpcode = "MIDI_NOTE_RECORDED";
 		break;
 	case IpcOpcode::Reply:
 		sOpcode = "REPLY";

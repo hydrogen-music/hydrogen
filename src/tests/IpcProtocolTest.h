@@ -30,6 +30,8 @@ class IpcProtocolTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEventRoundTrip );
 	CPPUNIT_TEST( testStreamingFraming );
 	CPPUNIT_TEST( testHelloHandshake );
+	CPPUNIT_TEST( testHelloVersionCompatibility );
+	CPPUNIT_TEST( testOpcodeWireStability );
 	CPPUNIT_TEST( testEventClassification );
 	CPPUNIT_TEST( testTelemetryRoundTrip );
 	CPPUNIT_TEST( testTelemetryTearFree );
@@ -41,6 +43,8 @@ public:
 	void testEventRoundTrip();
 	void testStreamingFraming();
 	void testHelloHandshake();
+	void testHelloVersionCompatibility();
+	void testOpcodeWireStability();
 	void testEventClassification();
 	void testTelemetryRoundTrip();
 	void testTelemetryTearFree();

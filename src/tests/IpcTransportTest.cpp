@@ -113,19 +113,51 @@ void IpcTransportTest::testHelloHandshakeOverSocket() {
 	IpcChannel* conn = server.waitForChannel();
 	CPPUNIT_ASSERT( conn != nullptr );
 
-	// Editor → engine hello, engine → editor hello reply, both over the wire.
-	CPPUNIT_ASSERT( client->send( IpcMessage::hello() ) );
-	IpcMessage received;
-	CPPUNIT_ASSERT( conn->receive( received ) );
-	CPPUNIT_ASSERT( received.getOpcode() == IpcOpcode::Hello );
-	CPPUNIT_ASSERT_EQUAL( IPC_PROTOCOL_VERSION,
-						  received.helloProtocolVersion() );
+	// The editor announces a wildly differing app version — a major ahead,
+	// on a custom-suffix build. Only the wire protocol gates (ADR 0018),
+	// so this must pass.
+	IpcHelloVersion editorVersion = IpcHelloVersion::local();
+	editorVersion.nAppMajor += 1;
+	editorVersion.nAppPatch += 3;
+	editorVersion.sAppSuffix = "transport-test";
 
-	CPPUNIT_ASSERT( conn->send( IpcMessage::hello() ) );
+	// Engine side (this test plays the engine): accept the hello, validate
+	// it, and answer with a *correlated* hello echoing the request id — the
+	// shape EngineSession::handleMessage() produces.
+	auto pSeenHello = std::make_shared<IpcMessage>();
+	QThread* pResponder = startResponderThread(
+		conn, [conn, pSeenHello]() {
+			IpcMessage helloReq;
+			if ( ! conn->receive( helloReq, 5000 ) ) {
+				return;
+			}
+			*pSeenHello = helloReq;
+			IpcMessage reply = IpcMessage::hello();
+			reply.setRequestId( helloReq.getRequestId() );
+			conn->send( reply );
+		} );
+
+	// Editor side: the handshake rides the request/response tier —
+	// request() correlates the engine's hello reply by id.
 	IpcMessage reply;
-	CPPUNIT_ASSERT( client->receive( reply ) );
-	CPPUNIT_ASSERT_EQUAL( IPC_PROTOCOL_VERSION, reply.helloProtocolVersion() );
+	CPPUNIT_ASSERT( client->request(
+		IpcMessage::hello( editorVersion ), reply, 5000 ) );
+	pResponder->wait();
+	delete pResponder;
 
+	CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Hello );
+	CPPUNIT_ASSERT( reply.getRequestId() != 0 );  // correlation survived
+	CPPUNIT_ASSERT( reply.helloVersion() == IpcHelloVersion::local() );
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible(
+		reply.helloVersion(), IpcHelloVersion::local() ) );
+
+	// The engine saw the editor's full version, and it passed the gate.
+	CPPUNIT_ASSERT( pSeenHello->getOpcode() == IpcOpcode::Hello );
+	CPPUNIT_ASSERT( pSeenHello->helloVersion() == editorVersion );
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible(
+		pSeenHello->helloVersion(), IpcHelloVersion::local() ) );
+
+	delete conn;
 	delete client;
 
 	___INFOLOG( "passed" );

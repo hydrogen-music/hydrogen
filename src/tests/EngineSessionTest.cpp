@@ -93,6 +93,102 @@ void EngineSessionTest::testRejectsInvalidArguments() {
 	___INFOLOG( "passed" );
 }
 
+// The hello handshake gate, engine side (ADR 0018): an editor announcing a
+// different wire protocol is refused — the engine closes the connection
+// without answering — and the refusal must not take the engine down: the
+// serve loop returns to accepting and a compatible editor connects right
+// after.
+void EngineSessionTest::testRefusesIncompatibleEditorVersion() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	// A raw channel plays an editor speaking a different wire protocol: its
+	// hello carries a well-formed but incompatible identity.
+	IpcHelloVersion incompatible = IpcHelloVersion::local();
+	incompatible.nProtocolVersion = IPC_PROTOCOL_VERSION + 1;
+	IpcChannel* pClient = IpcChannel::connectToServer( sEndpoint );
+	CPPUNIT_ASSERT( pClient != nullptr );
+
+	// No reply ever comes — the request fails and the socket is down (an
+	// engine that merely ignored the hello would leave it connected).
+	IpcMessage reply;
+	CPPUNIT_ASSERT( ! pClient->request(
+		IpcMessage::hello( incompatible ), reply, 2000 ) );
+	CPPUNIT_ASSERT( ! pClient->isConnected() );
+	delete pClient;
+
+	// The engine survived the refusal and is accepting again.
+	auto* pMirror = TestHelper::makeMirror();
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSong() != nullptr;
+	} ) );
+
+	pEditor.reset();
+	pServer->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The application version never gates (ADR 0018): an editor one major,
+// minor, or patch ahead — on an rc build, no less — passes as long as the
+// wire protocol matches. The engine answers with its own identity,
+// correlated to the editor's request id (the request/response tier the
+// editor's handshake rides on, ADR 0030).
+void EngineSessionTest::testAcceptsDifferingAppVersionEditor() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	QVector<IpcHelloVersion> variants;
+	IpcHelloVersion majorBump = IpcHelloVersion::local();
+	majorBump.nAppMajor += 1;
+	majorBump.sAppSuffix = "rc1";
+	variants << majorBump;
+	IpcHelloVersion minorBump = IpcHelloVersion::local();
+	minorBump.nAppMinor += 1;
+	variants << minorBump;
+	IpcHelloVersion patchBump = IpcHelloVersion::local();
+	patchBump.nAppPatch += 1;
+	patchBump.sAppSuffix = "";
+	variants << patchBump;
+
+	for ( const auto& editorVersion : variants ) {
+		IpcChannel* pClient = IpcChannel::connectToServer( sEndpoint );
+		CPPUNIT_ASSERT( pClient != nullptr );
+
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pClient->request(
+			IpcMessage::hello( editorVersion ), reply, 2000 ) );
+		CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Hello );
+		CPPUNIT_ASSERT( reply.getRequestId() != 0 );  // correlation survived
+		CPPUNIT_ASSERT( reply.helloVersion() == IpcHelloVersion::local() );
+		CPPUNIT_ASSERT( ipcHelloVersionsCompatible(
+			reply.helloVersion(), editorVersion ) );
+
+		delete pClient;
+	}
+
+	pServer->stop();
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
 // A command issued on the editor side reaches the engine and is applied there.
 void EngineSessionTest::testCommandDispatchedToEngine() {
 	___INFOLOG( "" );

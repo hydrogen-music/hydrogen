@@ -66,8 +66,9 @@ public:
 		std::shared_ptr<Preferences> pPreferences );
 
 	/** Connect to @a sEndpoint and wire the editor stack around @a pMirror.
-	 * Returns nullptr if @a pMirror is null, @a sEndpoint is empty, or the socket
-	 * connection fails within @a nTimeoutMs. */
+	 * Returns nullptr if @a pMirror is null, @a sEndpoint is empty, the socket
+	 * connection fails within @a nTimeoutMs, or the engine fails/refuses the
+	 * hello handshake (wire-protocol mismatch, ADR 0018). */
 	static std::unique_ptr<EditorSession> connect(
 		const QString& sEndpoint, Hydrogen* pMirror, int nTimeoutMs = 3000 );
 

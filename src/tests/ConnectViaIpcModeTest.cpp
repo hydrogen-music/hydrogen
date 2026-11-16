@@ -61,11 +61,17 @@
 #include <core/Sampler/Sampler.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QElapsedTimer>
+#include <QtCore/QThread>
 
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <deque>
+#include <future>
 #include <memory>
+#include <mutex>
 #include <thread>
 
 using namespace H2Core;
@@ -87,30 +93,218 @@ std::unique_ptr<QUdpSocket> bindEphemeralUdpPort() {
 	}
 	return pSocket;
 }
+
+// Test-local engine stand-in: a real IpcServer plus a serve loop on its own
+// QThread, speaking just enough of the engine's wire protocol for
+// EditorSession::connect() to complete its handshake — it answers the
+// editor's hello with a correlated hello announcing a configurable version
+// (the compatibility gate, ADR 0018). Everything the editor sends is
+// recorded for inspection; the test can push frames back
+// (#sendToEditor) or drop the connection (#closeEditorConnection) from the
+// main thread. Mirrors EngineSession::serve's ownership shape: the server
+// and its channels live (and are pumped) on the serve thread only — a
+// QLocalSocket is thread-affine, so the main thread must never touch them.
+class FakeEngineEndpoint : public QThread {
+public:
+	explicit FakeEngineEndpoint(
+		const IpcHelloVersion& helloVersion = IpcHelloVersion::local() )
+		: QThread()
+		, m_helloVersion( helloVersion ) {}
+	~FakeEngineEndpoint() override { stop(); }
+
+	// Bind a fresh unique endpoint and serve on it. Blocks until the
+	// listener is up, so a subsequent connect() cannot race the bind.
+	bool start() {
+		m_sEndpoint = TestHelper::uniqueEndpoint();
+		m_bRunning = true;
+		QThread::start();
+		return m_ready.get_future().get();
+	}
+	void stop() {
+		if ( ! isRunning() ) {
+			return;
+		}
+		m_bRunning = false;
+		QThread::wait();
+	}
+	const QString& endpoint() const { return m_sEndpoint; }
+
+	// Pop the oldest inbound frame the editor sent (its hello included).
+	bool receiveRecorded( IpcMessage& msg, int nTimeoutMs = 2000 ) {
+		QElapsedTimer timer;
+		timer.start();
+		while ( timer.elapsed() < nTimeoutMs ) {
+			{
+				std::lock_guard<std::mutex> lock( m_mutex );
+				if ( ! m_recorded.empty() ) {
+					msg = m_recorded.front();
+					m_recorded.pop_front();
+					return true;
+				}
+			}
+			msleep( 5 );
+		}
+		return false;
+	}
+
+	// Push a frame to the connected editor (applied on the serve thread).
+	void sendToEditor( const IpcMessage& msg ) {
+		std::lock_guard<std::mutex> lock( m_mutex );
+		m_outbound.push_back( msg );
+	}
+	// Drop the editor connection (applied on the serve thread); the loop
+	// re-accepts a reconnecting editor.
+	void closeEditorConnection() {
+		std::lock_guard<std::mutex> lock( m_mutex );
+		m_bCloseRequested = true;
+	}
+
+	void run() override {
+		IpcServer server;
+		if ( ! server.listen( m_sEndpoint ) ) {
+			m_ready.set_value( false );
+			return;
+		}
+		m_ready.set_value( true );
+
+		IpcChannel* pConn = nullptr;
+		while ( m_bRunning.load() ) {
+			if ( pConn == nullptr ) {
+				pConn = server.waitForChannel( 10 );
+				continue;
+			}
+			IpcMessage msg;
+			if ( pConn->receive( msg, 10, false ) ) {
+				if ( msg.getOpcode() == IpcOpcode::Hello ) {
+					// The gate's engine side: answer with this stand-in's
+					// (possibly incompatible) version, correlated to the
+					// request so the editor's request() finds the reply.
+					IpcMessage reply = IpcMessage::hello( m_helloVersion );
+					reply.setRequestId( msg.getRequestId() );
+					pConn->send( reply );
+				}
+				std::lock_guard<std::mutex> lock( m_mutex );
+				m_recorded.push_back( msg );
+			}
+			{
+				std::lock_guard<std::mutex> lock( m_mutex );
+				while ( ! m_outbound.empty() ) {
+					pConn->send( m_outbound.front() );
+					m_outbound.pop_front();
+				}
+				if ( m_bCloseRequested ) {
+					m_bCloseRequested = false;
+					pConn->close();
+				}
+			}
+			if ( ! pConn->isConnected() ) {
+				delete pConn;
+				pConn = nullptr;
+			}
+		}
+		delete pConn;
+	}
+
+private:
+	// Set before the thread starts; read-only on the serve thread.
+	IpcHelloVersion m_helloVersion;
+	QString m_sEndpoint;
+	std::atomic<bool> m_bRunning{ false };
+	std::promise<bool> m_ready;
+	std::mutex m_mutex;
+	std::deque<IpcMessage> m_recorded;  // inbound, guarded by m_mutex
+	std::deque<IpcMessage> m_outbound;  // main → serve thread, guarded
+	bool m_bCloseRequested = false;     // guarded by m_mutex
+};
 } // namespace
 
-// --connect-via-ipc <endpoint>: the editor attaches to the engine's control socket
-// and announces itself with a hello (ADR 0016/0018).
+// --connect-via-ipc <endpoint>: the editor attaches to the engine's control
+// socket and announces itself with a hello carrying its full version
+// identity (ADR 0016/0018).
 void ConnectViaIpcModeTest::testAttachesToEngineEndpoint() {
 	___INFOLOG( "" );
 
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+	FakeEngineEndpoint engine;
+	CPPUNIT_ASSERT( engine.start() );
 
 	auto* pMirror = TestHelper::makeMirror();
-	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	CPPUNIT_ASSERT( pSession->isConnected() );
 
-	// Engine side accepts the editor and sees its hello.
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
+	// Engine side accepted the editor and saw its hello: the full version
+	// identity this build announces.
 	IpcMessage hello;
-	CPPUNIT_ASSERT( conn->receive( hello ) );
+	CPPUNIT_ASSERT( engine.receiveRecorded( hello ) );
 	CPPUNIT_ASSERT( hello.getOpcode() == IpcOpcode::Hello );
-	CPPUNIT_ASSERT_EQUAL( IPC_PROTOCOL_VERSION, hello.helloProtocolVersion() );
+	CPPUNIT_ASSERT( hello.helloVersion() == IpcHelloVersion::local() );
 
 	pSession.reset();
+	delete pMirror;
+	engine.stop();
+
+	___INFOLOG( "passed" );
+}
+
+// The hello handshake gate, editor side (ADR 0018): an engine announcing a
+// different wire protocol is refused — connect() returns nullptr
+// instead of wiring a GUI around a peer it cannot talk to — and the engine
+// did see the editor's hello: the refusal is a decision, not a handshake
+// that never happened.
+void ConnectViaIpcModeTest::testRefusesIncompatibleEngineVersion() {
+	___INFOLOG( "" );
+
+	// The engine plays a peer speaking a different wire protocol.
+	IpcHelloVersion incompatible = IpcHelloVersion::local();
+	incompatible.nProtocolVersion = IPC_PROTOCOL_VERSION + 1;
+	FakeEngineEndpoint engine( incompatible );
+	CPPUNIT_ASSERT( engine.start() );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
+	CPPUNIT_ASSERT( pSession == nullptr );
+
+	IpcMessage hello;
+	CPPUNIT_ASSERT( engine.receiveRecorded( hello ) );
+	CPPUNIT_ASSERT( hello.getOpcode() == IpcOpcode::Hello );
+	CPPUNIT_ASSERT( hello.helloVersion() == IpcHelloVersion::local() );
+
+	delete pMirror;
+	engine.stop();
+
+	___INFOLOG( "passed" );
+}
+
+// The application version never gates on the editor side either (ADR 0018):
+// an engine one major, minor, or patch ahead — on an rc build — is wired up
+// as long as the wire protocol matches.
+void ConnectViaIpcModeTest::testAcceptsDifferingAppVersionEngine() {
+	___INFOLOG( "" );
+
+	QVector<IpcHelloVersion> variants;
+	IpcHelloVersion majorBump = IpcHelloVersion::local();
+	majorBump.nAppMajor += 1;
+	variants << majorBump;
+	IpcHelloVersion minorBump = IpcHelloVersion::local();
+	minorBump.nAppMinor += 1;
+	variants << minorBump;
+	IpcHelloVersion patchBump = IpcHelloVersion::local();
+	patchBump.nAppPatch += 2;
+	patchBump.sAppSuffix = "rc2";
+	variants << patchBump;
+
+	auto* pMirror = TestHelper::makeMirror();
+	for ( const auto& engineVersion : variants ) {
+		FakeEngineEndpoint engine( engineVersion );
+		CPPUNIT_ASSERT( engine.start() );
+
+		auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
+		CPPUNIT_ASSERT( pSession != nullptr );
+		CPPUNIT_ASSERT( pSession->isConnected() );
+
+		pSession.reset();
+		engine.stop();
+	}
 	delete pMirror;
 
 	___INFOLOG( "passed" );
@@ -161,32 +355,33 @@ void ConnectViaIpcModeTest::testMirrorUsesHeadlessDriver() {
 }
 
 // The GUI's engine-access handle forwards commands over the channel to the
-// engine (here, the server end).
+// engine (here, the fake engine end).
 void ConnectViaIpcModeTest::testIssuesCommands() {
 	___INFOLOG( "" );
 
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+	FakeEngineEndpoint engine;
+	CPPUNIT_ASSERT( engine.start() );
 
 	auto* pMirror = TestHelper::makeMirror();
-	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
-	IpcMessage hello;
-	CPPUNIT_ASSERT( conn->receive( hello ) ); // consume the handshake first
 
 	auto pAccess = pSession->createEngineAccess();
 	CPPUNIT_ASSERT( pAccess != nullptr );
 	pAccess->sequencerStop();
 
+	// The handshake hello is recorded first, then the command.
+	IpcMessage hello;
+	CPPUNIT_ASSERT( engine.receiveRecorded( hello ) );
+	CPPUNIT_ASSERT( hello.getOpcode() == IpcOpcode::Hello );
 	IpcMessage cmd;
-	CPPUNIT_ASSERT( conn->receive( cmd ) );
+	CPPUNIT_ASSERT( engine.receiveRecorded( cmd ) );
 	CPPUNIT_ASSERT( cmd.getOpcode() == IpcOpcode::Stop );
 
 	pAccess.reset();
 	pSession.reset();
 	delete pMirror;
+	engine.stop();
 
 	___INFOLOG( "passed" );
 }
@@ -196,30 +391,27 @@ void ConnectViaIpcModeTest::testIssuesCommands() {
 void ConnectViaIpcModeTest::testEngineSurvivesEditorDisconnect() {
 	___INFOLOG( "" );
 
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+	FakeEngineEndpoint engine;
+	CPPUNIT_ASSERT( engine.start() );
 
 	auto* pMirror = TestHelper::makeMirror();
-	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
 
 	// Editor goes away (process exit / crash) → its session is destroyed.
 	pSession.reset();
 	delete pMirror;
 
-	// The engine side is untouched: the server still listens and can hand out a
-	// fresh connection to a reattaching editor.
-	CPPUNIT_ASSERT( ! server.serverName().isEmpty() );
+	// The engine side is untouched: it re-accepts and completes the
+	// handshake for a reattaching editor.
 	auto* pMirror2 = TestHelper::makeMirror();
-	auto pSession2 = EditorSession::connect( server.serverName(), pMirror2 );
+	auto pSession2 = EditorSession::connect( engine.endpoint(), pMirror2 );
 	CPPUNIT_ASSERT( pSession2 != nullptr );
-	IpcChannel* conn2 = server.waitForChannel();
-	CPPUNIT_ASSERT( conn2 != nullptr );
+	CPPUNIT_ASSERT( pSession2->isConnected() );
 
 	pSession2.reset();
 	delete pMirror2;
+	engine.stop();
 
 	___INFOLOG( "passed" );
 }
@@ -617,23 +809,19 @@ void ConnectViaIpcModeTest::testTelemetryMetersFlowEngineToEditor() {
 void ConnectViaIpcModeTest::testTelemetryLateAttach() {
 	___INFOLOG( "" );
 
-	// Engine stand-in WITHOUT a telemetry block: a plain IpcServer, standing
+	// Engine stand-in WITHOUT a telemetry block: FakeEngineEndpoint stands
 	// for the window between listen() and block creation in serve().
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+	FakeEngineEndpoint engine;
+	CPPUNIT_ASSERT( engine.start() );
 
 	auto* pMirror = TestHelper::makeMirror();
-	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
-	IpcMessage hello;
-	CPPUNIT_ASSERT( conn->receive( hello ) ); // drain the handshake
 
 	// The block appears late.
 	EngineTelemetryShm engineBlock;
 	CPPUNIT_ASSERT( engineBlock.create(
-		EngineTelemetryShm::keyForEndpoint( server.serverName() ) ) );
+		EngineTelemetryShm::keyForEndpoint( engine.endpoint() ) ) );
 
 	EngineTelemetrySnapshot snapshot;
 	snapshot.masterPeakL = 0.6f;
@@ -657,6 +845,7 @@ void ConnectViaIpcModeTest::testTelemetryLateAttach() {
 
 	pSession.reset();
 	delete pMirror;
+	engine.stop();
 
 	___INFOLOG( "passed" );
 }
@@ -1040,19 +1229,16 @@ void ConnectViaIpcModeTest::testEditorSelectionReachesEngine() {
 void ConnectViaIpcModeTest::testEditorChannelDeliversViaSignalNotQueue() {
 	___INFOLOG( "" );
 
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+	FakeEngineEndpoint engine;
+	CPPUNIT_ASSERT( engine.start() );
 
 	auto* pMirror = TestHelper::makeMirror();
-	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
 	CPPUNIT_ASSERT( pSession->isConnected() );
 
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
-
 	// The engine forwards an event ...
-	conn->send( IpcMessage::fromEvent(
+	engine.sendToEditor( IpcMessage::fromEvent(
 		Event::Type::SelectedPatternChanged, 1, 0 ) );
 
 	// ... the editor's mirror applies it via the signal path ...
@@ -1066,6 +1252,7 @@ void ConnectViaIpcModeTest::testEditorChannelDeliversViaSignalNotQueue() {
 
 	pSession.reset();
 	delete pMirror;
+	engine.stop();
 
 	___INFOLOG( "passed" );
 }
@@ -1079,16 +1266,12 @@ void ConnectViaIpcModeTest::testEditorChannelDeliversViaSignalNotQueue() {
 void ConnectViaIpcModeTest::testEngineAccessFallsBackToLocal() {
 	___INFOLOG( "" );
 
-	IpcServer server;
-	CPPUNIT_ASSERT( server.listen( TestHelper::uniqueEndpoint() ) );
+	FakeEngineEndpoint engine;
+	CPPUNIT_ASSERT( engine.start() );
 
 	auto* pMirror = TestHelper::makeMirror();
-	auto pSession = EditorSession::connect( server.serverName(), pMirror );
+	auto pSession = EditorSession::connect( engine.endpoint(), pMirror );
 	CPPUNIT_ASSERT( pSession != nullptr );
-	IpcChannel* conn = server.waitForChannel();
-	CPPUNIT_ASSERT( conn != nullptr );
-	IpcMessage hello;
-	CPPUNIT_ASSERT( conn->receive( hello ) ); // consume handshake
 
 	// IPC-backed access works while connected.
 	auto pIpcAccess = pSession->createEngineAccess();
@@ -1097,7 +1280,7 @@ void ConnectViaIpcModeTest::testEngineAccessFallsBackToLocal() {
 
 	// Simulate connection loss: the engine closes its end, then
 	// onIpcConnectionLost() drops the IPC handle.
-	conn->close();
+	engine.closeEditorConnection();
 	pIpcAccess.reset();
 
 	// The fallback: LocalEngineAccess wrapping the same mirror. pEngine()
@@ -1113,6 +1296,7 @@ void ConnectViaIpcModeTest::testEngineAccessFallsBackToLocal() {
 
 	pSession.reset();
 	delete pMirror;
+	engine.stop();
 
 	___INFOLOG( "passed" );
 }

@@ -26,6 +26,8 @@
 #include <core/EventQueue.h>
 #include <core/Object.h>
 
+#include <core/config.h>
+
 #include <QtCore/QByteArray>
 #include <QtCore/QDataStream>
 #include <QtCore/QVariant>
@@ -40,6 +42,57 @@ constexpr quint16 IPC_PROTOCOL_VERSION = 1;
 /** Pinned QDataStream version so the wire format is stable for a given build
  * (both ends are the same Hydrogen binary). */
 constexpr int IPC_DATASTREAM_VERSION = QDataStream::Qt_5_15;
+
+/** Full version identity announced in the `hello` handshake (ADR 0018): the
+ * wire-protocol tag plus the application's semantic version. Only the
+ * protocol tag is a compatibility concern (#ipcHelloVersionsCompatible);
+ * the app version fields ride along purely as diagnostics (logged on
+ * connect and on refusal), so any two builds speaking the same wire
+ * protocol interoperate. */
+struct IpcHelloVersion {
+	quint16 nProtocolVersion = 0;
+	int nAppMajor = 0;
+	int nAppMinor = 0;
+	int nAppPatch = 0;
+	QString sAppSuffix;
+
+	/** This build's identity (from config.h). */
+	static IpcHelloVersion local() {
+		return { IPC_PROTOCOL_VERSION, H2CORE_VERSION_MAJOR,
+				 H2CORE_VERSION_MINOR, H2CORE_VERSION_PATCH,
+				 H2CORE_VERSION_SUFFIX };
+	}
+	/** False for a non-Hello or a legacy/garbled hello: a protocol tag of 0
+	 * or a negative version component can never pass the gate. */
+	bool isValid() const {
+		return nProtocolVersion != 0 && nAppMajor >= 0 && nAppMinor >= 0 &&
+			nAppPatch >= 0;
+	}
+	bool operator==( const IpcHelloVersion& other ) const {
+		return nProtocolVersion == other.nProtocolVersion &&
+			nAppMajor == other.nAppMajor && nAppMinor == other.nAppMinor &&
+			nAppPatch == other.nAppPatch && sAppSuffix == other.sAppSuffix;
+	}
+	bool operator!=( const IpcHelloVersion& other ) const {
+		return ! ( *this == other );
+	}
+	/** Formatted string version for debugging purposes (see
+	 * H2Core::Object::toQString for the parameters). */
+	QString toQString( const QString& sPrefix = "",
+					   bool bShort = true ) const;
+};
+
+/** The hello compatibility gate (ADR 0018): both identities must be valid
+ * and agree on the wire-protocol tag — nothing else. The application
+ * version is deliberately not compared: the protocol tag is the precise,
+ * manually-bumped signal for wire changes (with the opcode vocabulary
+ * pinned by IpcProtocolTest::testOpcodeWireStability), while the app
+ * version would block harmless version mixes. */
+inline bool ipcHelloVersionsCompatible( const IpcHelloVersion& lhs,
+										const IpcHelloVersion& rhs ) {
+	return lhs.isValid() && rhs.isValid() &&
+		lhs.nProtocolVersion == rhs.nProtocolVersion;
+}
 
 /**
  * Message opcodes (ADR 0018): the `hello` handshake, forwarded engine events,
@@ -470,10 +523,15 @@ public:
 	 * message. */
 	bool toMidiNoteFields( EventQueue::AddMidiNoteVector& noteAction ) const;
 
-	/** Hello handshake message carrying the protocol version. */
-	static IpcMessage hello( quint16 nProtocolVersion = IPC_PROTOCOL_VERSION );
-	/** Protocol version from a Hello message (0 if not a Hello). */
-	quint16 helloProtocolVersion() const;
+	/** Hello handshake message announcing @a version. Wire args:
+	 * [int protocol, int major, int minor, int patch, QString suffix]. */
+	static IpcMessage hello( const IpcHelloVersion& version );
+	/** Hello handshake message announcing this build's identity. */
+	static IpcMessage hello() { return hello( IpcHelloVersion::local() ); }
+	/** Version identity from a Hello message. Invalid for any other opcode
+	 * or a legacy/garbled hello (missing or malformed args) — such a peer
+	 * can never pass the compatibility gate. */
+	IpcHelloVersion helloVersion() const;
 
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of

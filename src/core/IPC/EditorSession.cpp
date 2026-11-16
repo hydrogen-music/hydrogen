@@ -84,7 +84,30 @@ std::unique_ptr<EditorSession> EditorSession::connect(
 	// reply and its initial song snapshot then flow straight onto the mirror.
 	std::unique_ptr<EditorSession> pSession(
 		new EditorSession( pMirror, pChannel, sEndpoint ) );
-	pChannel->send( IpcMessage::hello() );
+
+	// The compatibility gate (ADR 0018): the handshake rides the
+	// request/response tier — a compatible engine answers our hello with
+	// its own identity, correlated to our request id. A missing answer
+	// (engine closed on us, or a pre-2.0 engine that never correlates) or
+	// a protocol-mismatched one means we cannot talk to this engine: fail
+	// the connect so main()/HydrogenApp report it instead of wiring a GUI
+	// around a peer that speaks another dialect.
+	IpcMessage engineHello;
+	if ( ! pChannel->request( IpcMessage::hello(), engineHello,
+							  nTimeoutMs ) ) {
+		WARNINGLOG( QString( "Engine at [%1] did not complete the hello "
+							 "handshake" ).arg( sEndpoint ) );
+		return nullptr;
+	}
+	const IpcHelloVersion engineVersion = engineHello.helloVersion();
+	if ( ! ipcHelloVersionsCompatible( engineVersion,
+									   IpcHelloVersion::local() ) ) {
+		WARNINGLOG( QString( "Refusing engine with incompatible IPC protocol "
+							 "[%1]; this editor announces [%2]" )
+					 .arg( engineVersion.toQString() )
+					 .arg( IpcHelloVersion::local().toQString() ) );
+		return nullptr;
+	}
 	return pSession;
 }
 

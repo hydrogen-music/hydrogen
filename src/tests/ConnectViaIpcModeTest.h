@@ -29,6 +29,8 @@
 class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( ConnectViaIpcModeTest );
 	CPPUNIT_TEST( testAttachesToEngineEndpoint );
+	CPPUNIT_TEST( testRefusesIncompatibleEngineVersion );
+	CPPUNIT_TEST( testAcceptsDifferingAppVersionEngine );
 	CPPUNIT_TEST( testFailedConnectionReported );
 	CPPUNIT_TEST( testMirrorUsesHeadlessDriver );
 	CPPUNIT_TEST( testIssuesCommands );
@@ -83,6 +85,15 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 
 public:
 	void testAttachesToEngineEndpoint();
+	/** The hello handshake gate, editor side (ADR 0018): an engine
+	 * announcing a different wire protocol is refused — connect()
+	 * returns nullptr instead of wiring a GUI around a peer it cannot
+	 * talk to. */
+	void testRefusesIncompatibleEngineVersion();
+	/** The application version never gates (ADR 0018): major, minor, patch,
+	 * and suffix differences all pass — the editor wires itself around an
+	 * engine from any build speaking the same wire protocol. */
+	void testAcceptsDifferingAppVersionEngine();
 	void testFailedConnectionReported();
 	void testMirrorUsesHeadlessDriver();
 	void testIssuesCommands();

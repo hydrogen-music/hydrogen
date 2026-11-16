@@ -201,7 +201,28 @@ void EngineSession::handleMessage( IpcChannel* pConn, const IpcMessage& msg ) {
 		return;
 	}
 	if ( msg.getOpcode() == IpcOpcode::Hello ) {
-		pConn->send( IpcMessage::hello() );
+		// The compatibility gate (ADR 0018): the editor's hello carries its
+		// version identity, but only the wire-protocol tag decides. A
+		// mismatched — or legacy/garbled — hello is refused: close without
+		// answering. The serve loop then returns to accepting; the engine
+		// itself keeps running.
+		const IpcHelloVersion editorVersion = msg.helloVersion();
+		if ( ! ipcHelloVersionsCompatible( editorVersion,
+										   IpcHelloVersion::local() ) ) {
+			WARNINGLOG( QString( "Refusing editor with incompatible IPC "
+								 "protocol [%1]; this engine announces "
+								 "[%2]" )
+						 .arg( editorVersion.toQString() )
+						 .arg( IpcHelloVersion::local().toQString() ) );
+			pConn->close();
+			return;
+		}
+		// Compatible: answer with our own identity, correlated to the
+		// request id so the editor's request()-based handshake finds the
+		// reply (ADR 0030).
+		IpcMessage reply = IpcMessage::hello();
+		reply.setRequestId( msg.getRequestId() );
+		pConn->send( reply );
 	}
 	else if ( msg.getRequestId() != 0 ) {
 		// Request/response tier (ADR 0030): answer with a correlated Reply.

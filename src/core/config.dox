@@ -52,6 +52,13 @@
  */
 #define H2CORE_VERSION_PATCH @VERSION_PATCH@
 /**
+ * Will contain the release suffix of Hydrogen's version (e.g. "pre-alpha";
+ * empty for stable releases) and is set by __cmake__. It is part of the
+ * version identity announced in the IPC hello handshake (ADR 0018), where
+ * it is explicitly allowed to differ between engine and editor.
+ */
+#define H2CORE_VERSION_SUFFIX "@VERSION_SUFFIX@"
+/**
  * Will contain the current git revision version number suffix of
  * Hydrogen and is set by __cmake__.
  */
