@@ -193,6 +193,24 @@ set_tests_properties( EditorAttach PROPERTIES
 	TIMEOUT 120
 )
 
+# Plugin-host transport gating integration test (ADR 0026): the same live
+# plugin-host engine as EditorAttach, but the spawned editor runs
+# --verify-plugin-transport-gating instead of a plain quit. Once the GUI is up
+# it asserts the transport buttons are deactivated (the host owns transport)
+# while record and the playlist song selector stay available, then quits with
+# the verdict. Exit 0 = gating correct; any non-zero (including the verifier's
+# 1) fails the test.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-transport-gating-test-home)
+add_test(
+	NAME EditorTransportGating
+	COMMAND plugin_editor_smoke $<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+			--verify-transport-gating
+)
+set_tests_properties( EditorTransportGating PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-transport-gating-test-home"
+	TIMEOUT 120
+)
+
 # Version-gate integration test (ADR 0018): the refusal counterpart to
 # EditorAttach. A minimal host harness serves a *fake* engine whose hello
 # announces a different wire-protocol tag, then launches the real GUI

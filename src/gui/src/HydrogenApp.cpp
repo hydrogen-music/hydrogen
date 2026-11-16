@@ -492,7 +492,19 @@ void HydrogenApp::syncViaIpc() {
 	// works in editor mode (ADR 0029).
 	ipcSyncPluginHostState( pChannel );
 
-	// 13. Update Audio and Midi Driver-related widgets
+	// 13. Transport-control gating — with the plugin-host predicate cached
+	// in step 12, deactivate the transport controls the host owns
+	// (ADR 0026). This is the authoritative refresh point: the widgets are
+	// constructed before the initial sync runs, and reconnects re-run this
+	// function.
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updatePluginHostGating();
+	}
+	if ( m_pPlaylistEditor != nullptr ) {
+		m_pPlaylistEditor->updatePluginHostGating();
+	}
+
+	// 14. Update Audio and Midi Driver-related widgets
 	ipcSyncDriverWidgets();
 
 	INFOLOG( "State synced from headless engine via IPC." );

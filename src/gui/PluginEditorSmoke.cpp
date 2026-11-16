@@ -43,6 +43,12 @@
 // production serve path (openEditor(false) starts EngineSession on its bridge
 // thread without spawning).
 //
+// In --verify-transport-gating mode the spawned editor runs the ADR 0026
+// transport-gating verifier instead of a plain quit: it asserts the transport
+// buttons are deactivated under the plugin host while record and the playlist
+// song selector stay available, then quits with the verdict (0 = correct,
+// 1 = mismatch — the exit-code checks below apply unchanged).
+//
 // Usage: plugin_editor_smoke <hydrogen-binary> <data-dir>
 
 #include <plugin/HydrogenPlugin.h>
@@ -72,18 +78,26 @@ static int fail( const QString& sMsg ) {
 int main( int argc, char** argv ) {
 	if ( argc < 3 ) {
 		std::cerr << "usage: " << argv[0]
-				  << " <hydrogen-binary> <data-dir> [--plugin-launch]\n"
-				  << "  (default)        host serves + we spawn the editor with "
-					 "--quit-after-startup (the EditorAttach CTest)\n"
-				  << "  --plugin-launch  drive the plugin's OWN spawn path "
-					 "(launchEditorProcess), as a DAW does — diagnostic only"
+				  << " <hydrogen-binary> <data-dir> "
+					 "[--plugin-launch|--verify-transport-gating]\n"
+				  << "  (default)                  host serves + we spawn the "
+					 "editor with --quit-after-startup (the EditorAttach "
+					 "CTest)\n"
+				  << "  --plugin-launch            drive the plugin's OWN "
+					 "spawn path (launchEditorProcess), as a DAW does — "
+					 "diagnostic only\n"
+				  << "  --verify-transport-gating  spawn the editor with "
+					 "--verify-plugin-transport-gating: it checks the ADR "
+					 "0026 transport gating and quits with the verdict (the "
+					 "EditorTransportGating CTest)"
 				  << std::endl;
 		return 2;
 	}
 	const QString sEditorBinary = QString::fromLocal8Bit( argv[1] );
 	const QString sDataDir = QString::fromLocal8Bit( argv[2] );
-	const bool bPluginLaunch =
-		argc >= 4 && QString::fromLocal8Bit( argv[3] ) == "--plugin-launch";
+	const QString sMode = argc >= 4 ? QString::fromLocal8Bit( argv[3] ) : "";
+	const bool bPluginLaunch = sMode == "--plugin-launch";
+	const bool bVerifyGating = sMode == "--verify-transport-gating";
 
 	// QProcess and the IPC local sockets both need a QCoreApplication in the
 	// process. We never run its event loop: the EngineSession serve loop lives on
@@ -156,18 +170,26 @@ int main( int argc, char** argv ) {
 
 	// ── Editor role ────────────────────────────────────────────────────────
 	// Launch the real GUI in editor mode against the live endpoint. --child skips
-	// the crash Reporter wrapper; --quit-after-startup shows the window then quits
-	// cleanly (and suppresses the development-build warning dialog that would
-	// otherwise block headless). The platform is forced offscreen via the
-	// environment (set by CTest).
+	// the crash Reporter wrapper; the platform is forced offscreen via the
+	// environment (set by CTest). In gating-verification mode the GUI runs the
+	// verifier instead of a plain quit: it checks the transport controls against
+	// the plugin-host predicate and quits with the verdict (0/1). No
+	// --quit-after-startup there — the verifier owns the quit; if it never runs,
+	// the timeout below fails the test, as it should.
+	QStringList editorArgs;
+	editorArgs << QStringLiteral( "--nosplash" )
+			   << QStringLiteral( "--child" )
+			   << QStringLiteral( "--connect-via-ipc" ) << sEndpoint
+			   << QStringLiteral( "-P" ) << sDataDir;
+	if ( bVerifyGating ) {
+		editorArgs << QStringLiteral( "--verify-plugin-transport-gating" );
+	}
+	else {
+		editorArgs << QStringLiteral( "--quit-after-startup" );
+	}
 	QProcess editor;
 	editor.setProcessChannelMode( QProcess::ForwardedChannels );
-	editor.start( sEditorBinary, QStringList()
-				  << QStringLiteral( "--nosplash" )
-				  << QStringLiteral( "--child" )
-				  << QStringLiteral( "--quit-after-startup" )
-				  << QStringLiteral( "--connect-via-ipc" ) << sEndpoint
-				  << QStringLiteral( "-P" ) << sDataDir );
+	editor.start( sEditorBinary, editorArgs );
 
 	if ( ! editor.waitForStarted( 15000 ) ) {
 		return fail( QString( "could not start editor process [%1]: %2" )

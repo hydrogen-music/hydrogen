@@ -109,6 +109,9 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Rewind button
 	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	// Stable lookup handles for the transport-gating verification (and
+	// any future widget-level tests).
+	m_pRwdButton->setObjectName( "PlaylistEditorRewindButton" );
 	connect( m_pRwdButton, &QToolButton::clicked, [=]() {
 		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( std::max(
 			HydrogenApp::pHydrogen()
@@ -130,6 +133,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	// Play button
 	m_pPlayButton = new MidiLearnableToolButton(
 		m_pToolBar, tr( "Play/ Pause/ Load selected song" ) );
+	m_pPlayButton->setObjectName( "PlaylistEditorPlayButton" );
 	m_pPlayButton->setFixedSize(
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
@@ -140,6 +144,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Stop button
 	m_pStopButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	m_pStopButton->setObjectName( "PlaylistEditorStopButton" );
 	m_pStopButton->setFixedSize(
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
@@ -153,6 +158,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Fast forward button
 	m_pFfwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	m_pFfwdButton->setObjectName( "PlaylistEditorForwardButton" );
 	m_pFfwdButton->setFixedSize(
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
@@ -950,6 +956,15 @@ void PlaylistEditor::playButtonClicked()
 		HydrogenApp::pEngine()->getCoreActionController()->activatePlaylistSong( nIndex );
 	}
 
+	// Under a plugin host the host owns transport (ADR 0026): the button
+	// only selects the song (loaded above) and must not start or stop
+	// playback. Reset the checked state so the button does not pretend
+	// playback control it will not exercise.
+	if ( pHydrogen->isUnderPluginHost() ) {
+		m_pPlayButton->setChecked( false );
+		return;
+	}
+
 	if ( m_pPlayButton->isChecked() ) {
 		HydrogenApp::pEngine()->sequencerPlay();
 	}
@@ -957,6 +972,20 @@ void PlaylistEditor::playButtonClicked()
 		HydrogenApp::pEngine()->sequencerStop();
 		pH2App->showStatusBarMessage( tr("Pause.") );
 	}
+}
+
+void PlaylistEditor::updatePluginHostGating()
+{
+	// ADR 0026: under a plugin host the host owns transport — seeking and
+	// stopping are deactivated. The play button stays available as the
+	// song selector (playButtonClicked() selects without starting
+	// playback). Called whenever the plugin-host predicate may have
+	// changed (HydrogenApp::syncViaIpc).
+	const bool bTransportControl =
+		! HydrogenApp::pHydrogen()->isUnderPluginHost();
+	m_pRwdButton->setEnabled( bTransportControl );
+	m_pStopButton->setEnabled( bTransportControl );
+	m_pFfwdButton->setEnabled( bTransportControl );
 }
 
 bool PlaylistEditor::eventFilter( QObject *o, QEvent *e )

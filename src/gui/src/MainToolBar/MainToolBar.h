@@ -84,6 +84,9 @@ class MainToolBar : public QToolBar,
 	void updateActions();
 	void updateInput();
 	void updateIpcConnectionState();
+	/** Deactivates the transport controls the host owns when the editor
+	 * is attached to a plugin-host engine (ADR 0026). */
+	void updatePluginHostGating();
 
 	Editor::Input getInput() const;
 	void setInput( Editor::Input input );

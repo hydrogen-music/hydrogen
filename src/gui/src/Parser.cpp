@@ -124,6 +124,13 @@ bool Parser::parse( int argc, char* argv[] ) {
 		"(ASSERT_NO_EDITOR_MODE integration test; ADR 0033)" );
 	exerciseEditorPathsOption.setFlags( QCommandLineOption::HiddenFromHelp );
 
+	QCommandLineOption verifyPluginTransportGatingOption(
+		QStringList() << "verify-plugin-transport-gating",
+		"Verify the plugin-host transport-control gating after startup "
+		"(ADR 0026 integration test)" );
+	verifyPluginTransportGatingOption.setFlags(
+		QCommandLineOption::HiddenFromHelp );
+
 	QCommandLineOption connectViaIpcOption(
 		QStringList() << "c" << "connect-via-ipc",
 		"Connect to a headless engine at the given IPC endpoint instead of "
@@ -161,6 +168,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addOption( quitAfterStartupOption );
 
 	parser.addOption( exerciseEditorPathsOption );
+
+	parser.addOption( verifyPluginTransportGatingOption );
 
 	parser.addOption( connectViaIpcOption );
 
@@ -230,6 +239,9 @@ bool Parser::parse( int argc, char* argv[] ) {
 	m_bQuitAfterStartup = parser.isSet( quitAfterStartupOption );
 
 	m_bExerciseEditorPaths = parser.isSet( exerciseEditorPathsOption );
+
+	m_bVerifyPluginTransportGating =
+		parser.isSet( verifyPluginTransportGatingOption );
 
 	m_sConnectViaIpcEndpoint = parser.value( connectViaIpcOption );
 

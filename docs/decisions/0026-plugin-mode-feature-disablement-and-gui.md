@@ -438,3 +438,51 @@ closed by this amendment as well:
       not store one), so File > Open of the same file still resets
       (fresh-start semantics preserved). Harness-covered
       (`CoreActionControllerTest::testSetSongPatternSelectionPreservation`).
+
+## Amendment (2026-11-16): transport-control gating in the plugin-host editor
+
+The B table above left the toolbar's transport buttons untouched (its
+main-toolbar row only hides BPM/tap-tempo/beat-counter) and removed the
+PlaylistEditor outright. The shipped integration refines both rows: the
+editor **deactivates** — does not hide — the transport controls the host
+owns, so the toolbar layout stays stable and the user sees *which* controls
+are the host's rather than a re-arranged UI.
+
+1. **MainToolBar.** `updatePluginHostGating()` deactivates play, stop,
+   rewind, and fast-forward under a plugin host; record stays available
+   (the editor still drives the record state). `updateSongMode()` AND-gates
+   the seek buttons with the same predicate — it runs on song-mode events
+   and would otherwise re-enable them.
+2. **PlaylistEditor as song selector.** The editor is not hidden: rewind,
+   stop, and fast-forward are deactivated, while the play button stays
+   enabled but *select-only* — `playButtonClicked()` loads the selected
+   song and activates it in the playlist (`activatePlaylistSong`, which
+   never touches transport), resets its checked state, and returns before
+   the play/stop branch. This deliberately differs from the MIDI surface,
+   where playlist actions are rejected outright (table row A): the GUI
+   selection is a document operation (which song the editor edits), not a
+   transport command.
+3. **Predicate and refresh point.** Gating reads the mirror's
+   `isUnderPluginHost()` — the engine-side driver check served over IPC
+   (`GetIsUnderPluginHost`) — not the IPC connection mode, so an editor
+   attached to `h2player` keeps full transport. `HydrogenApp::syncViaIpc()`
+   step 13 is the single authoritative refresh: the widgets are constructed
+   before the initial sync (a ctor-time gate would read a stale flag), and
+   reconnects re-run the sync.
+4. **Scope.** The song-loop button, the metronome, and the main-menu
+   transport actions (read-only indicators per the B table) are unchanged
+   by this amendment. Engine-side behavior is untouched — the MIDI/OSC
+   gating of table A stands as-is.
+5. **Testing.** The `EditorTransportGating` CTest spawns the real editor
+   against a live plugin-host engine with
+   `--verify-plugin-transport-gating`: an in-process verifier checks every
+   gated button's enablement by object name and quits with the verdict as
+   the exit code (this required `main.cpp` to propagate `exec()`'s return
+   code, which it previously discarded — regular `quit()` shutdowns still
+   exit 0). `PluginFeatureGateTest::testPluginHostStateServedOverIpc` pins
+   the predicate's IPC contract in both directions (plugin engine → true,
+   standard engine → false).
+6. **Known residual.** A disconnect does not clear the cached plugin-host
+   flag, so the buttons stay gated while the editor is detached from a
+   plugin-host engine — conservative (the host still owns transport for
+   the arrangement being edited); a reconnect re-applies the sync.
