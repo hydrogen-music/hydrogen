@@ -965,7 +965,8 @@ void IpcRoundTripTest::testMidiInstrumentMapRoundTrip()
 	CPPUNIT_ASSERT( pController != nullptr );
 
 	auto pMap = makeMidiInstrumentMap();
-	CPPUNIT_ASSERT( pController->setMidiInstrumentMap( pMap ) );
+	CPPUNIT_ASSERT( pController->setMidiInstrumentMap(
+		pMap, Event::nInvalidId ) );
 
 	// The engine boots with a default map of its own (loaded from the
 	// test preferences) — wait for content equality, not just presence.

@@ -1557,6 +1557,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->midiClockActivationEvent();
 				break;
 
+			case Event::Type::MidiControlSettingsChanged:
+				ppEventListener->midiControlSettingsChangedEvent();
+				break;
+
 			case Event::Type::MidiDriverChanged:
 				ppEventListener->midiDriverChangedEvent();
 				break;
@@ -1567,6 +1571,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::MidiEventMapChanged:
 				ppEventListener->midiMapChangedEvent();
+				break;
+
+			case Event::Type::MidiInstrumentMapChanged:
+				ppEventListener->midiInstrumentMapChangedEvent();
 				break;
 
 			case Event::Type::MidiOutput:
@@ -1928,6 +1936,21 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		// The authoritative engine changed core preferences — pull fresh state.
 		ipcSyncCorePreferences( pChannel );
 		return true;
+	}
+
+	case Event::Type::MidiControlSettingsChanged:
+	case Event::Type::MidiInstrumentMapChanged: {
+		// The authoritative engine's MIDI configuration changed — e.g.
+		// through the plugin UI's in-process commands. Pull the fresh
+		// core preferences (the scalar settings and the instrument map
+		// are part of them) before the event fans out, so listeners
+		// reloading their cache from the mirror — like the MIDI
+		// control dialog — see the new state. Unlike UpdatePreferences
+		// the event is not consumed: it carries no
+		// full-preferences-reload semantics, and the dedicated
+		// listeners are the whole point of the fan-out.
+		ipcSyncCorePreferences( pChannel );
+		return false;
 	}
 
 	case Event::Type::AudioDriverChanged:

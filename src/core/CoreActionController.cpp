@@ -1851,7 +1851,7 @@ bool CoreActionController::setMidiEventMap(
 }
 
 bool CoreActionController::setMidiInstrumentMap(
-	std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap )
+	std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap, long nEventId )
 {
 	if ( pMidiInstrumentMap == nullptr ) {
 		ERRORLOG( "Invalid MIDI instrument map" );
@@ -1861,10 +1861,14 @@ bool CoreActionController::setMidiInstrumentMap(
 	// Granular install: the engine's MIDI I/O and Sampler read the map
 	// live (incoming note mapping, outgoing note/channel selection), so
 	// — unlike setPreferences() — no driver restarts and no
-	// UpdatePreferences event are needed. There is no dedicated
-	// MidiInstrumentMapChanged event; the GUI refreshes its MIDI widgets
-	// locally via changePreferences() (ADR 0030).
+	// UpdatePreferences event are needed. The dedicated
+	// MidiInstrumentMapChanged event tells GUI parts holding a local
+	// copy of the map — like the editor's MIDI control dialog — to
+	// discard and reload it; the caller-supplied id lets them blacklist
+	// their own echo (ADR 0030).
 	m_pHydrogen->getPreferences()->setMidiInstrumentMap( pMidiInstrumentMap );
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::MidiInstrumentMapChanged, 0, nEventId );
 
 	return true;
 }
@@ -1872,13 +1876,18 @@ bool CoreActionController::setMidiInstrumentMap(
 bool CoreActionController::setMidiControlSettings(
 	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
 	bool bTransportInputHandling, bool bTransportOutputSend,
-	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff )
+	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff,
+	long nEventId )
 {
 	// Granular install: the engine's MIDI I/O reads all of these live
 	// (note-off handling and the action dispatch channel in MidiInput,
 	// feedback and transport sends in MidiOutput/AudioEngine, note-off
 	// sending in Sampler), so — unlike setPreferences() — no driver
-	// restarts and no UpdatePreferences event are needed (ADR 0030).
+	// restarts and no UpdatePreferences event are needed. The dedicated
+	// MidiControlSettingsChanged event tells GUI parts holding a local
+	// copy of the settings — like the editor's MIDI control dialog — to
+	// discard and reload it; the caller-supplied id lets them blacklist
+	// their own echo (ADR 0030).
 	auto pPref = m_pHydrogen->getPreferences();
 	pPref->m_bMidiNoteOffIgnore = bNoteOffIgnore;
 	pPref->m_midiActionChannel = actionChannel;
@@ -1887,6 +1896,8 @@ bool CoreActionController::setMidiControlSettings(
 	pPref->setMidiTransportOutputSend( bTransportOutputSend );
 	pPref->setMidiFeedbackChannel( feedbackChannel );
 	pPref->setMidiSendNoteOff( sendNoteOff );
+	m_pHydrogen->getEventQueue()->pushEvent(
+		Event::Type::MidiControlSettingsChanged, 0, nEventId );
 
 	return true;
 }

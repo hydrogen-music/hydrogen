@@ -68,8 +68,10 @@ class MidiControlDialog : public QDialog,
 	// EventListerer
 	void drumkitLoadedEvent() override;
 	void instrumentParametersChangedEvent( int ) override;
+	void midiControlSettingsChangedEvent() override;
 	void midiDriverChangedEvent() override;
 	void midiInputEvent() override;
+	void midiInstrumentMapChangedEvent() override;
 	void midiOutputEvent() override;
 	void updatePreferencesEvent( int ) override;
 	void updateSongEvent( int ) override;
@@ -100,6 +102,17 @@ class MidiControlDialog : public QDialog,
 	 * engine's MIDI/Sampler dispatch applies it live, and writes it to disk
 	 * like the scalar settings (ADR 0030 + ADR 0027 bucket C). */
 	void persistMidiInstrumentMap();
+
+	/** Discards the cached widget state of the scalar MIDI settings and
+	 * re-reads them from the current Preferences. Signal-blocked: the
+	 * widget state mirrors the core, it must not write back. */
+	void reloadMidiControlSettings();
+	/** Discards the cached widget state of the MIDI instrument map —
+	 * mapping combos, global channel widgets and the per-instrument
+	 * table — and re-reads it from the current Preferences.
+	 * Signal-blocked: the widget state mirrors the core, it must not
+	 * write back. */
+	void reloadMidiInstrumentMap();
 
 	void updateInstrumentTable();
 	/** @returns the row number corresponding to the objects just added. */

@@ -54,8 +54,10 @@ class EventListener
 		virtual void loopModeActivationEvent(){}
 		virtual void metronomeEvent( int nValue ) { UNUSED( nValue ); }
 		virtual void midiClockActivationEvent(){}
+		virtual void midiControlSettingsChangedEvent(){}
 		virtual void midiDriverChangedEvent(){}
 		virtual void midiInputEvent() {}
+		virtual void midiInstrumentMapChangedEvent(){}
 		virtual void midiMapChangedEvent(){}
 		virtual void midiOutputEvent() {}
 		virtual void mixerSettingsChangedEvent(){}

@@ -52,6 +52,7 @@
 #include <core/IPC/IpcServer.h>
 #include <core/IPC/EngineTelemetry.h>
 #include <core/IPC/EngineTelemetryShm.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/LocalEngineAccess.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiMessage.h>
@@ -1645,6 +1646,95 @@ void ConnectViaIpcModeTest::testSetPreferencesRestartsEngineDrivers() {
 	// ... and the editor can observe the restart.
 	CPPUNIT_ASSERT( TestHelper::pumpUntilEvent(
 		pMirror, Event::Type::MidiDriverChanged, 0 ) );
+
+	pIpcAccess.reset();
+	pSession.reset();
+	pEngineSession->stop();
+	delete pMirror;
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// Pumps the event loop until the mirror queue produced both echoes of a
+// MIDI config change — the local mirror apply (origin Editor) and the
+// forwarded engine echo (origin Headless) — asserting both carry the
+// caller-supplied id. TestHelper::pumpUntilEvent() can not be reused
+// here: it stops at the first match and discards the rest of the queue.
+static bool pumpUntilBothMidiEchoes( H2Core::Hydrogen* pMirror,
+									 Event::Type type, long nExpectedId ) {
+	bool bSawLocalEcho = false;
+	bool bSawEngineEcho = false;
+	QElapsedTimer timer;
+	timer.start();
+	while ( ( ! bSawLocalEcho || ! bSawEngineEcho ) &&
+			timer.elapsed() < 5000 ) {
+		std::unique_ptr<Event> pEvent;
+		while ( ( pEvent = pMirror->getEventQueue()->popEvent() ) !=
+				nullptr ) {
+			if ( pEvent->getType() == type ) {
+				CPPUNIT_ASSERT( pEvent->getId() == nExpectedId );
+				if ( pEvent->getOrigin() == H2Core::ProcessMode::Editor ) {
+					bSawLocalEcho = true;
+				}
+				else if ( pEvent->getOrigin() ==
+						  H2Core::ProcessMode::Headless ) {
+					bSawEngineEcho = true;
+				}
+			}
+		}
+		if ( ! bSawLocalEcho || ! bSawEngineEcho ) {
+			QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
+			QThread::msleep( 5 );
+		}
+	}
+	return bSawLocalEcho && bSawEngineEcho;
+}
+
+// The MIDI config commands queue their dedicated events with the
+// caller-supplied id: in the editor split both the local mirror apply
+// and the forwarded engine echo carry it, so a GUI funneling its own
+// change through the command can blacklist the id once and skip both
+// echoes.
+void ConnectViaIpcModeTest::testMidiConfigEventsCarryIdAcrossIpc() {
+	___INFOLOG( "" );
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto* pEngine = TestHelper::makeEngine();
+
+	auto pEngineSession = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pEngineSession != nullptr );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pSession = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pSession != nullptr );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil(
+		[&]() { return pMirror->getSong() != nullptr; } ) );
+
+	auto pIpcAccess = pSession->createEngineAccess();
+	CPPUNIT_ASSERT( pIpcAccess != nullptr );
+	auto pController = pIpcAccess->getCoreActionController();
+
+	// Drain the mirror queue of the initial-sync events.
+	while ( pMirror->getEventQueue()->popEvent() != nullptr ) {}
+
+	auto pMap = std::make_shared<MidiInstrumentMap>();
+	pMap->setOutput( MidiInstrumentMap::Output::Constant );
+	CPPUNIT_ASSERT( pController->setMidiInstrumentMap( pMap, 4242 ) );
+	CPPUNIT_ASSERT( pumpUntilBothMidiEchoes(
+		pMirror, Event::Type::MidiInstrumentMapChanged, 4242 ) );
+
+	// Same contract for the scalar settings. The values are the
+	// currently installed ones, so the install is a no-op mutation.
+	auto pPref = pMirror->getPreferences();
+	CPPUNIT_ASSERT( pController->setMidiControlSettings(
+		pPref->m_bMidiNoteOffIgnore, pPref->m_midiActionChannel,
+		pPref->m_bEnableMidiFeedback,
+		pPref->getMidiTransportInputHandling(),
+		pPref->getMidiTransportOutputSend(),
+		pPref->getMidiFeedbackChannel(), pPref->getMidiSendNoteOff(),
+		4243 ) );
+	CPPUNIT_ASSERT( pumpUntilBothMidiEchoes(
+		pMirror, Event::Type::MidiControlSettingsChanged, 4243 ) );
 
 	pIpcAccess.reset();
 	pSession.reset();

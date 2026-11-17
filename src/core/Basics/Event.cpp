@@ -62,12 +62,16 @@ QString Event::TypeToQString( Event::Type type ) {
 		return "Metronome";
 	case Event::Type::MidiClockActivation:
 		return "MidiClockActivation";
+	case Event::Type::MidiControlSettingsChanged:
+		return "MidiControlSettingsChanged";
 	case Event::Type::MidiDriverChanged:
 		return "MidiDriverChanged";
 	case Event::Type::MidiInput:
 		return "MidiInput";
 	case Event::Type::MidiEventMapChanged:
 		return "MidiEventMapChanged";
+	case Event::Type::MidiInstrumentMapChanged:
+		return "MidiInstrumentMapChanged";
 	case Event::Type::MidiOutput:
 		return "MidiOutput";
 	case Event::Type::MixerSettingsChanged:

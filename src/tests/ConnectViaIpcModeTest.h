@@ -55,6 +55,7 @@ class ConnectViaIpcModeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testHandledMidiLogClearOrdering );
 	CPPUNIT_TEST( testSetPreferencesSkipsMirrorRestarts );
 	CPPUNIT_TEST( testSetPreferencesRestartsEngineDrivers );
+	CPPUNIT_TEST( testMidiConfigEventsCarryIdAcrossIpc );
 	CPPUNIT_TEST( testAudioDeviceQueriesRoundTrip );
 	CPPUNIT_TEST( testMirrorHoldsNoOscOrNsmObjects );
 	CPPUNIT_TEST( testMirrorSetSongDoesNotPinPathUnderNsm );
@@ -118,6 +119,13 @@ public:
 	void testHandledMidiLogClearOrdering();
 	void testSetPreferencesSkipsMirrorRestarts();
 	void testSetPreferencesRestartsEngineDrivers();
+
+	// The MIDI config commands queue their dedicated events with the
+	// caller-supplied id: in the editor split both the local mirror
+	// apply and the forwarded engine echo carry it, so a GUI funneling
+	// its own change through the command can blacklist the id once and
+	// skip both echoes.
+	void testMidiConfigEventsCarryIdAcrossIpc();
 	void testAudioDeviceQueriesRoundTrip();
 	void testMirrorHoldsNoOscOrNsmObjects();
 	void testMirrorSetSongDoesNotPinPathUnderNsm();

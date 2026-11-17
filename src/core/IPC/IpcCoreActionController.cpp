@@ -836,7 +836,8 @@ bool IpcCoreActionController::setPunchArea( int nPunchInPos, int nPunchOutPos ) 
 bool IpcCoreActionController::setMidiControlSettings(
 	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
 	bool bTransportInputHandling, bool bTransportOutputSend,
-	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff ) {
+	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff,
+	long nEventId ) {
 	if ( m_pChannel != nullptr ) {
 		m_pChannel->send(
 			IpcMessage( IpcOpcode::SetMidiControlSettings )
@@ -846,12 +847,16 @@ bool IpcCoreActionController::setMidiControlSettings(
 				.arg( bTransportInputHandling )
 				.arg( bTransportOutputSend )
 				.arg( static_cast<int>( feedbackChannel ) )
-				.arg( static_cast<int>( sendNoteOff ) ) );
+				.arg( static_cast<int>( sendNoteOff ) )
+				// The id crosses so the engine's echo of the install
+				// carries the same one as the local mirror apply — a
+				// caller blacklisting the id skips both.
+				.arg( QVariant::fromValue( nEventId ) ) );
 	}
 	return CoreActionController::setMidiControlSettings(
 		bNoteOffIgnore, actionChannel, bEnableFeedback,
 		bTransportInputHandling, bTransportOutputSend,
-		feedbackChannel, sendNoteOff );
+		feedbackChannel, sendNoteOff, nEventId );
 }
 
 bool IpcCoreActionController::moveAutomationPoint(
@@ -1157,13 +1162,18 @@ bool IpcCoreActionController::setMidiEventMap(
 // ── ADR 0030 batch 2i — MIDI instrument map ──
 
 bool IpcCoreActionController::setMidiInstrumentMap(
-	std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) {
+	std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap, long nEventId ) {
 	if ( m_pChannel != nullptr && pMidiInstrumentMap != nullptr ) {
 		IpcMessage msg( IpcOpcode::SetMidiInstrumentMap );
 		msg.setPayload( pMidiInstrumentMap->toXmlBuffer() );
+		// The id crosses so the engine's echo of the install carries
+		// the same one as the local mirror apply — a caller blacklisting
+		// the id skips both.
+		msg.arg( QVariant::fromValue( nEventId ) );
 		m_pChannel->send( msg );
 	}
-	return CoreActionController::setMidiInstrumentMap( pMidiInstrumentMap );
+	return CoreActionController::setMidiInstrumentMap(
+		pMidiInstrumentMap, nEventId );
 }
 
 // ── ADR 0030 batch 2j — MIDI-learn channel ──

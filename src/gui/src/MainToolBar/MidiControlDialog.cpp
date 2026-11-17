@@ -839,31 +839,117 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
 	// new preferences loaded within the core
 	const auto pPref = HydrogenApp::pPreferences();
 
-	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	reloadMidiControlSettings();
+
+	// The MIDI clock handling is driver-level state (setPreferences
+	// territory), not part of the scalar MIDI control settings.
+	const QSignalBlocker inputClockBlocker( m_pInputMidiClockCheckBox );
 	m_pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
+	const QSignalBlocker outputClockBlocker( m_pOutputMidiClockCheckBox );
+	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+
+	m_pMidiActionTable->resetTable();
+}
+
+void MidiControlDialog::midiControlSettingsChangedEvent()
+{
+	// An external change — the plugin UI or the engine side of the
+	// editor split — replaced the scalar MIDI settings. Our widget
+	// cache is stale: discard and reload. Our own edits are excluded
+	// via the id blacklist in persistMidiSettings().
+	reloadMidiControlSettings();
+}
+
+void MidiControlDialog::midiInstrumentMapChangedEvent()
+{
+	// An external change — the plugin UI or the engine side of the
+	// editor split — replaced the MIDI instrument map. Our widget
+	// cache is stale: discard and reload. Our own edits are excluded
+	// via the id blacklist in persistMidiInstrumentMap().
+	reloadMidiInstrumentMap();
+}
+
+void MidiControlDialog::reloadMidiControlSettings()
+{
+	const auto pPref = HydrogenApp::pPreferences();
+
+	const QSignalBlocker noteOffBlocker( m_pInputIgnoreNoteOffCheckBox );
+	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	const QSignalBlocker transportInBlocker( m_pInputMidiTransportCheckBox );
 	m_pInputMidiTransportCheckBox->setChecked(
 		pPref->getMidiTransportInputHandling()
 	);
+	const QSignalBlocker actionChannelBlocker( m_pInputActionChannelSpinBox );
 	m_pInputActionChannelSpinBox->setValue(
-		static_cast<int>( pPref->m_midiActionChannel ), Event::Trigger::Suppress
+		static_cast<int>( pPref->m_midiActionChannel ),
+		Event::Trigger::Suppress
 	);
 
+	const QSignalBlocker feedbackBlocker( m_pOutputEnableMidiFeedbackCheckBox );
 	m_pOutputEnableMidiFeedbackCheckBox->setChecked(
 		pPref->m_bEnableMidiFeedback
 	);
-	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+	const QSignalBlocker transportOutBlocker( m_pOutputMidiTransportCheckBox );
 	m_pOutputMidiTransportCheckBox->setChecked(
 		pPref->getMidiTransportOutputSend()
 	);
+	const QSignalBlocker feedbackChannelBlocker(
+		m_pOutputFeedbackChannelSpinBox );
 	m_pOutputFeedbackChannelSpinBox->setValue(
 		static_cast<int>( pPref->getMidiFeedbackChannel() ),
 		Event::Trigger::Suppress
 	);
+	const QSignalBlocker sendNoteOffBlocker( m_pOutputSendNoteOffComboBox );
 	m_pOutputSendNoteOffComboBox->setCurrentIndex(
 		static_cast<int>( pPref->getMidiSendNoteOff() )
 	);
+}
 
-	m_pMidiActionTable->resetTable();
+void MidiControlDialog::reloadMidiInstrumentMap()
+{
+	const auto pMidiInstrumentMap =
+		HydrogenApp::pPreferences()->getMidiInstrumentMap();
+
+	const QSignalBlocker inputMappingBlocker( m_pInputNoteMappingComboBox );
+	m_pInputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pMidiInstrumentMap->getInput() ) );
+	const QSignalBlocker outputMappingBlocker( m_pOutputNoteMappingComboBox );
+	m_pOutputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pMidiInstrumentMap->getOutput() ) );
+
+	const QSignalBlocker globalInputChannelBlocker(
+		m_pGlobalInputChannelSpinBox );
+	m_pGlobalInputChannelSpinBox->setValue(
+		static_cast<int>( pMidiInstrumentMap->getGlobalInputChannel() ),
+		Event::Trigger::Suppress
+	);
+	m_pGlobalInputChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	const QSignalBlocker globalInputCheckBoxBlocker(
+		m_pGlobalInputChannelCheckBox );
+	m_pGlobalInputChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	m_pGlobalInputChannelCheckBox->setEnabled(
+		pMidiInstrumentMap->getInput() !=
+			MidiInstrumentMap::Input::SelectedInstrument );
+
+	const QSignalBlocker globalOutputChannelBlocker(
+		m_pGlobalOutputChannelSpinBox );
+	m_pGlobalOutputChannelSpinBox->setValue(
+		static_cast<int>( pMidiInstrumentMap->getGlobalOutputChannel() ),
+		Event::Trigger::Suppress
+	);
+	m_pGlobalOutputChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+	const QSignalBlocker globalOutputCheckBoxBlocker(
+		m_pGlobalOutputChannelCheckBox );
+	m_pGlobalOutputChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+
+	// The per-instrument rows are re-created from the fresh map — their
+	// widgets are disconnected before the value writes and reconnected
+	// after (updateInstrumentTableRow), so no extra blocking is needed.
+	updateInstrumentTable();
 }
 
 void MidiControlDialog::updateSongEvent( int nValue ) {
@@ -955,6 +1041,7 @@ void MidiControlDialog::persistMidiSettings()
 	// memory until shutdown (ADR 0030 + ADR 0027 bucket C). Standalone the
 	// command is a local install of the very same values — a no-op beyond the
 	// write.
+	const long nEventId = HydrogenApp::pEventQueue()->createEventId();
 	HydrogenApp::pEngine()->getCoreActionController()->setMidiControlSettings(
 		m_pInputIgnoreNoteOffCheckBox->isChecked(),
 		Midi::channelFromInt( static_cast<int>(
@@ -965,7 +1052,11 @@ void MidiControlDialog::persistMidiSettings()
 		Midi::channelFromInt( static_cast<int>(
 			m_pOutputFeedbackChannelSpinBox->value() ) ),
 		static_cast<Preferences::MidiSendNoteOff>(
-			m_pOutputSendNoteOffComboBox->currentIndex() ) );
+			m_pOutputSendNoteOffComboBox->currentIndex() ),
+		nEventId );
+	// Ensure we do not act on the queued event ourselves — in editor mode
+	// both the local mirror apply and the engine echo carry the id.
+	blacklistEventId( nEventId );
 	HydrogenApp::pPreferences()->save( false );
 }
 
@@ -976,8 +1067,12 @@ void MidiControlDialog::persistMidiInstrumentMap()
 	// map so the authoritative engine's MIDI I/O and Sampler apply it live
 	// instead of only on the next config reload (ADR 0030), then persist it
 	// like the scalar settings above (ADR 0027 bucket C).
+	const long nEventId = HydrogenApp::pEventQueue()->createEventId();
 	HydrogenApp::pEngine()->getCoreActionController()->setMidiInstrumentMap(
-		HydrogenApp::pPreferences()->getMidiInstrumentMap() );
+		HydrogenApp::pPreferences()->getMidiInstrumentMap(), nEventId );
+	// Ensure we do not act on the queued event ourselves — in editor mode
+	// both the local mirror apply and the engine echo carry the id.
+	blacklistEventId( nEventId );
 	HydrogenApp::pPreferences()->save( false );
 }
 
