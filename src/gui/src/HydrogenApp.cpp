@@ -2200,6 +2200,12 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 			m_pUndoStack->clear();
 		}
 
+		// Ensure we show the read-only popup only once per song.
+		if ( m_sLastSongPath != pSong->getPath() ) {
+			m_bReadOnlySongPopupShown = false;
+			m_sLastSongPath = pSong->getPath();
+		}
+
 		// Update GUI components
 		updateWindowTitle();
 		
@@ -2209,10 +2215,18 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		
 	}
 	else if ( nValue == 2 ) {
-		QMessageBox::information(
-			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
-			.arg( tr("Song is read-only." ) )
-			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
+		// Fired on every song (re-)install of a non-writable song: in the
+		// editor split each debounced dirty-echo resync funnels the pulled song
+		// through the mirror's setSong (ipcSyncSong) and thus pushes this event
+		// again. The information does not change for this song within a session
+		// — show the popup once, not on every edit.
+		if ( ! m_bReadOnlySongPopupShown ) {
+			m_bReadOnlySongPopupShown = true;
+			QMessageBox::information(
+				m_pMainForm, "Hydrogen", QString( "%1\n%2" )
+				.arg( tr("Song is read-only." ) )
+				.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
+		}
 	}
 }
 
@@ -2235,7 +2249,20 @@ void HydrogenApp::midiDriverChangedEvent() {
 }
 
 void HydrogenApp::playlistChangedEvent( int nValue ) {
-	if ( nValue == 2 ) {
+	auto pHydrogen = m_pHydrogen;
+	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		return;
+	}
+
+	if ( nValue == 0 ) {
+		// Ensure we show the read-only popup only once per playlist.
+		if ( m_sLastPlaylistPath != pPlaylist->getPath() ) {
+			m_bReadOnlyPlaylistPopupShown = false;
+			m_sLastPlaylistPath = pPlaylist->getPath();
+		}
+	}
+	else if ( nValue == 2 ) {
 		QMessageBox::information(
 			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
 			.arg( tr("Playlist is read-only." ) )
