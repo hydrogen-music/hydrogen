@@ -61,6 +61,17 @@ struct PluginUiMappingLayout
 	bool bNoteOffIgnore = false;
 	int nActionChannel = -1;
 	int nSendNoteOff = 0;
+	/** The input/output map sections drew this frame (headers open). */
+	bool bInputSectionValid = false;
+	bool bOutputSectionValid = false;
+	/** The global channel combos' displayed entry indices. The input
+	 *  list leads with "All" (index = channel + 1); the output list
+	 *  starts at "Off" (index = channel). -1 when not drawn. */
+	int nGlobalInputChannelIndex = -1;
+	int nGlobalOutputChannelIndex = -1;
+	/** The first instrument row's output channel combo index (the
+	 *  output list); -1 when no row drew. */
+	int nRowOutputChannelIndex = -1;
 };
 
 class PluginUiMappingView

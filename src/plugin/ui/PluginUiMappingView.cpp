@@ -125,8 +125,9 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 
 		// The action channel dropdown — the GUI spinbox's range and
 		// texts (all channels, Off, 1..16), the same +1 index shift as
-		// the channel dropdowns below. The QByteArrays must outlive
-		// the Combo call — held locals, not chained temporaries.
+		// the input channel dropdowns below. The QByteArrays must
+		// outlive the Combo call — held locals, not chained
+		// temporaries.
 		QByteArray sActionChannelEntries[ 18 ];
 		const char* sActionChannelEntryPtrs[ 18 ];
 		for ( int n = 0; n < 18; ++n ) {
@@ -181,10 +182,12 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 	}
 
 	// The channel dropdowns' entries — All / Off / 1..16, one per selectable
-	// channel: index 0 is "All" (-1), 1 is "Off" (0), 2..17 are the channels,
-	// the same shift every channel combo below applies. The output counterpart
-	// does not have the "All" value. The QByteArrays must outlive the combo
-	// calls, so they are held next to the pointers into them.
+	// channel: the input list leads with "All" (index 0 is "All" (-1), 1 is
+	// "Off" (0), 2..17 are the channels), so every input combo shifts the
+	// raw channel by one. The output counterpart has no "All" value — it
+	// starts at "Off", and the raw channel IS the index. The QByteArrays
+	// must outlive the combo calls, so they are held next to the pointers
+	// into them.
 	QByteArray sChannelEntries[ 18 ];
 	const char* sInputChannelEntryPtrs[ 18 ];
 	const char* sOutputChannelEntryPtrs[ 17 ];
@@ -206,9 +209,12 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 	// headers and the "Note mapping" string as the mode combos' label
 	// (the "##" suffixes keep the twice-used label's imgui IDs apart) —
 	// no new translatable strings.
+	m_layout.bInputSectionValid = false;
+	m_layout.nGlobalInputChannelIndex = -1;
 	if ( ImGui::CollapsingHeader(
 			 m_pCommonStrings->getMidiInputLabel().toUtf8().constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		m_layout.bInputSectionValid = true;
 		// The map-wide input setting, applied on change. The combo
 		// entries must outlive the Combo call — held locals, not
 		// chained temporaries.
@@ -276,6 +282,7 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 				Midi::channelFromInt( nGlobalInputChannel - 1 ) );
 		}
 		ImGui::EndDisabled();
+		m_layout.nGlobalInputChannelIndex = nGlobalInputChannel;
 
 		// The per-instrument input rows: the effective incoming
 		// note/channel. The note is editable only in Custom mode; the
@@ -378,9 +385,13 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 	ImGui::Dummy( ImVec2( 0.0f, PluginUiMappingView::nSpacing ) );
 	ImGui::Separator();
 
+	m_layout.bOutputSectionValid = false;
+	m_layout.nGlobalOutputChannelIndex = -1;
+	m_layout.nRowOutputChannelIndex = -1;
 	if ( ImGui::CollapsingHeader(
 			 m_pCommonStrings->getMidiOutLabel().toUtf8().constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		m_layout.bOutputSectionValid = true;
 		// The map-wide output setting, applied on change. The combo
 		// entries must outlive the Combo call — held locals, not
 		// chained temporaries.
@@ -423,8 +434,10 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 		const auto sGlobalOutputChannel = ( m_pCommonStrings->
 													getGlobalChannelLabel() +
 												"##output" ).toUtf8();
+		// The output list starts at "Off" — the raw channel is the
+		// index (no "All" shift, unlike the input twin above).
 		int nGlobalOutputChannel =
-			static_cast<int>( pMap->getGlobalOutputChannel() ) + 1;
+			static_cast<int>( pMap->getGlobalOutputChannel() );
 		ImGui::SetNextItemWidth( 60.0f );
 		// The input section's twin: greyed out unless the global
 		// channel is enabled above.
@@ -432,9 +445,10 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 		if ( ImGui::Combo( sGlobalOutputChannel.constData(),
 						   &nGlobalOutputChannel, sOutputChannelEntryPtrs, 17 ) ) {
 			m_model.setGlobalOutputChannel(
-				Midi::channelFromInt( nGlobalOutputChannel - 1 ) );
+				Midi::channelFromInt( nGlobalOutputChannel ) );
 		}
 		ImGui::EndDisabled();
+		m_layout.nGlobalOutputChannelIndex = nGlobalOutputChannel;
 
 		// The per-instrument output rows: the instrument's outgoing
 		// note/channel. No standalone "Output" label — the section
@@ -470,15 +484,20 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 					m_model.setInstrumentMidiOutNote(
 						n, Midi::noteFromIntClamp( nNote ) );
 				}
-				ImGui::TableNextColumn();
-				int nChannel = static_cast<int>(
-					m_model.instrumentMidiOutChannel( n ) ) + 1;
-				ImGui::SetNextItemWidth( 52.0f );
-				if ( ImGui::Combo( "##channel", &nChannel,
-								   sOutputChannelEntryPtrs, 17 ) ) {
-					m_model.setInstrumentMidiOutChannel(
-						n, Midi::channelFromInt( nChannel - 1 ) );
-				}
+			ImGui::TableNextColumn();
+			// The output list starts at "Off" — the raw channel is
+			// the index (no "All" shift, unlike the input rows).
+			int nChannel = static_cast<int>(
+				m_model.instrumentMidiOutChannel( n ) );
+			ImGui::SetNextItemWidth( 52.0f );
+			if ( ImGui::Combo( "##channel", &nChannel,
+							   sOutputChannelEntryPtrs, 17 ) ) {
+				m_model.setInstrumentMidiOutChannel(
+					n, Midi::channelFromInt( nChannel ) );
+			}
+			if ( n == 0 ) {
+				m_layout.nRowOutputChannelIndex = nChannel;
+			}
 				ImGui::PopID();
 			}
 			ImGui::EndTable();

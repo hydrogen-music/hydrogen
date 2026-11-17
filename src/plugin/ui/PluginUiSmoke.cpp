@@ -1058,6 +1058,57 @@ int main( int argc, char** argv ) {
 					   held.bNoteOffIgnore,
 				   "held checkbox did not toggle on release" );
 		}
+
+		// The channel combos must mirror the editor's raw channels: the
+		// output lists start at "Off" (no "All" entry), so the displayed
+		// index IS the channel; the input list leads with "All" and
+		// shifts by one. A shift on an output list displays "Off" as
+		// "1", drops channel 16 — and writes the channel below the
+		// label the user picked.
+		if ( pCAC != nullptr && pPref != nullptr ) {
+			const auto pMapLive = pPref->getMidiInstrumentMap();
+			check( pMapLive != nullptr,
+				   "no map for the channel display probe" );
+			if ( pMapLive != nullptr ) {
+				auto pMapProbe = std::make_shared<
+					H2Core::MidiInstrumentMap >( pMapLive );
+				pMapProbe->setUseGlobalOutputChannel( true );
+				pMapProbe->setGlobalOutputChannel(
+					H2Core::Midi::ChannelOff );
+				pMapProbe->setGlobalInputChannel(
+					H2Core::Midi::ChannelOff );
+				check( pCAC->setMidiInstrumentMap( pMapProbe ),
+					   "engine refused the map install (channel probe)" );
+				runFrame( [ & ]() { mappingView.draw( palette ); } );
+				const auto channelsOff = mappingView.layout();
+				check( channelsOff.bInputSectionValid &&
+						   channelsOff.bOutputSectionValid,
+					   "map sections not drawn (channel probe)" );
+				check( channelsOff.nGlobalOutputChannelIndex == 0,
+					   "global output channel Off did not display as Off" );
+				check( channelsOff.nGlobalInputChannelIndex == 1,
+					   "global input channel Off did not display as Off" );
+
+				pMapProbe = std::make_shared<
+					H2Core::MidiInstrumentMap >( pMapLive );
+				pMapProbe->setUseGlobalOutputChannel( true );
+				pMapProbe->setGlobalOutputChannel(
+					H2Core::Midi::ChannelMaximum );
+				check( pCAC->setMidiInstrumentMap( pMapProbe ),
+					   "engine refused the map install (channel probe)" );
+				runFrame( [ & ]() { mappingView.draw( palette ); } );
+				check( mappingView.layout().nGlobalOutputChannelIndex == 16,
+					   "global output channel 16 did not display as 16" );
+
+				// The per-instrument rows share the output list.
+				check( pCAC->setInstrumentMidiOutChannel(
+						   0, H2Core::Midi::Channel( 5 ), 0 ),
+					   "engine refused the instrument channel change" );
+				runFrame( [ & ]() { mappingView.draw( palette ); } );
+				check( mappingView.layout().nRowOutputChannelIndex == 5,
+					   "instrument output channel 5 did not display as 5" );
+			}
+		}
 		ImGui::DestroyContext();
 	}
 
