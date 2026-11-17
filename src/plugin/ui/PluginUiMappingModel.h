@@ -24,6 +24,7 @@
 #define H2C_PLUGIN_UI_MAPPING_MODEL_H
 
 #include <memory>
+#include <vector>
 
 #include <QString>
 
@@ -40,7 +41,9 @@ class HydrogenPlugin;
 /** Headless state + command model behind the Instrument Mapping tab of
  * the plugin UI (#PluginUiWindow).
  *
- * The model owns no state of its own. Instead every setter reads the
+ * The model owns no state of its own (the sole exception: the
+ * frame-governance poll's last fingerprint — window bookkeeping,
+ * never displayed). Instead every setter reads the
  * live #MidiInstrumentMap of the plugin's engine, applies a single
  * change to a copy of it, and installs that copy with one
  * CoreActionController command — the same read-modify-persist flow the
@@ -135,6 +138,16 @@ public:
 	Midi::Channel midiActionChannel() const;
 	Preferences::MidiSendNoteOff midiSendNoteOff() const;
 
+	/** The mapping tab's frame-governance poll (ADR 0035's
+	 *  amendment): true exactly once for each change to the tab's
+	 *  displayed surface since the previous poll — the exposed MIDI
+	 *  config triple, the map-wide settings, the per-instrument rows,
+	 *  the bus count — so the window can request the frame that
+	 *  shows it. Reads the engine live, the same reads the view's
+	 *  draws issue; the engine moving something the tab does not
+	 *  display is not a change. */
+	bool pollMappingChanged();
+
 	// The read side for populating the per-instrument rows. Each
 	// returns the engine's current value, or the documented degenerate
 	// value when the engine is unavailable.
@@ -175,6 +188,45 @@ private:
 	/** The plugin engine's preferences (nullptr when the plugin or the
 	 * engine is unavailable). */
 	std::shared_ptr<Preferences> preferences() const;
+
+	/** Everything the mapping tab displays, as one comparable value —
+	 *  #pollMappingChanged's diff basis. Displayed values only: engine
+	 *  state the tab does not show never enters it, so it cannot
+	 *  request a frame. The member defaults are the no-engine reads'
+	 *  values, so a model without a plugin never reports a change. */
+	struct Fingerprint {
+		/** The exposed MIDI config triple. */
+		bool bNoteOffIgnore = true;
+		int nActionChannel = -1;
+		int nSendNoteOff = 0;
+		/** The map-wide settings (the section headers' widgets). */
+		int nInputMode = 0;
+		int nOutputMode = 0;
+		bool bUseGlobalInputChannel = false;
+		int nGlobalInputChannel = 0;
+		bool bUseGlobalOutputChannel = false;
+		int nGlobalOutputChannel = 0;
+		/** The per-instrument rows. */
+		struct Row {
+			QString sName;
+			int nInNote = 0;
+			int nInChannel = 0;
+			int nOutNote = 0;
+			int nOutChannel = 0;
+			int nEffectiveBus = 0;
+		};
+		std::vector<Row> rows;
+		/** The Bus Output section's right column. */
+		int nBusCount = 0;
+
+		bool operator==( const Fingerprint& other ) const;
+	};
+
+	/** Reads the tab's displayed surface out of the engine — the same
+	 *  reads the view's draws issue. */
+	Fingerprint buildFingerprint() const;
+
+	Fingerprint m_polledFingerprint;
 };
 
 } // namespace H2Core

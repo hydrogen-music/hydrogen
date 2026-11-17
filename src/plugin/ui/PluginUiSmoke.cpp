@@ -37,10 +37,13 @@
 
 #include <core/config.h>
 #include <core/CommonStrings.h>
+#include <core/CoreActionController.h>
 #include <core/Hydrogen.h>
+#include <core/Midi/Midi.h>
 #include <core/Object.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Logger.h>
+#include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 
 #include <QCoreApplication>
@@ -977,6 +980,83 @@ int main( int argc, char** argv ) {
 				   "truncated name overflows the strip (UI-4)" );
 			check( layout.sNameFull.startsWith( layout.sNameShown ),
 				   "shown name not a prefix of the full name (UI-4)" );
+		}
+
+		// The MIDI config triple must adopt engine-side changes: the
+		// editor's IPC applies land in this process's engine
+		// preferences (the bridge's SetMidiControlSettings handler
+		// calls the same command) — the next drawn frame must show
+		// them, not the values cached at construction.
+		runFrame( [ & ]() { mappingView.draw( palette ); } );
+		const auto midiBefore = mappingView.layout();
+		auto pHydrogen = plugin.getHydrogen();
+		auto pCAC = pHydrogen != nullptr
+			? pHydrogen->getCoreActionController() : nullptr;
+		auto pPref = pHydrogen != nullptr
+			? pHydrogen->getPreferences() : nullptr;
+		check( midiBefore.bValid,
+			   "MIDI config section not drawn (adoption probe)" );
+		check( pCAC != nullptr && pPref != nullptr,
+			   "no engine for the MIDI config adoption probe" );
+		if ( midiBefore.bValid && pCAC != nullptr && pPref != nullptr ) {
+			const bool bNoteOffIgnore = ! midiBefore.bNoteOffIgnore;
+			const int nActionChannel =
+				midiBefore.nActionChannel == 9 ? 5 : 9;
+			const auto sendNoteOff =
+				static_cast<H2Core::Preferences::MidiSendNoteOff>(
+					( midiBefore.nSendNoteOff + 1 ) % 3 );
+			check( pCAC->setMidiControlSettings(
+					   bNoteOffIgnore,
+					   H2Core::Midi::Channel( nActionChannel ),
+					   pPref->m_bEnableMidiFeedback,
+					   pPref->getMidiTransportInputHandling(),
+					   pPref->getMidiTransportOutputSend(),
+					   pPref->getMidiFeedbackChannel(), sendNoteOff ),
+				   "engine refused the MIDI config change" );
+			runFrame( [ & ]() { mappingView.draw( palette ); } );
+			const auto midiAfter = mappingView.layout();
+			check( midiAfter.bNoteOffIgnore == bNoteOffIgnore &&
+					   midiAfter.nActionChannel == nActionChannel &&
+					   midiAfter.nSendNoteOff ==
+						   static_cast<int>( sendNoteOff ),
+				   "MIDI config widgets did not adopt the engine's "
+				   "change" );
+
+			// The adoption must not snap back mid-interaction: while
+			// the ignore-note-off checkbox is held (an open dropdown
+			// behaves the same), an engine-side change waits for the
+			// release — and the release's own toggle is the user's
+			// edit: it applies and wins over the external change.
+			io.AddMousePosEvent(
+				( midiAfter.noteOffIgnoreMin.x +
+				  midiAfter.noteOffIgnoreMax.x ) *
+					0.5f,
+				( midiAfter.noteOffIgnoreMin.y +
+				  midiAfter.noteOffIgnoreMax.y ) *
+					0.5f );
+			runFrame( [ & ]() { mappingView.draw( palette ); } );
+			io.AddMouseButtonEvent( 0, true );
+			runFrame( [ & ]() { mappingView.draw( palette ); } );
+			const auto held = mappingView.layout();
+			check( pCAC->setMidiControlSettings(
+					   ! held.bNoteOffIgnore,
+					   H2Core::Midi::Channel( held.nActionChannel ),
+					   pPref->m_bEnableMidiFeedback,
+					   pPref->getMidiTransportInputHandling(),
+					   pPref->getMidiTransportOutputSend(),
+					   pPref->getMidiFeedbackChannel(),
+					   static_cast<H2Core::Preferences::MidiSendNoteOff>(
+						   held.nSendNoteOff ) ),
+				   "engine refused the held-edit change" );
+			runFrame( [ & ]() { mappingView.draw( palette ); } );
+			check( mappingView.layout().bNoteOffIgnore ==
+					   held.bNoteOffIgnore,
+				   "MIDI config snapped back during a held edit" );
+			io.AddMouseButtonEvent( 0, false );
+			runFrame( [ & ]() { mappingView.draw( palette ); } );
+			check( mappingView.layout().bNoteOffIgnore !=
+					   held.bNoteOffIgnore,
+				   "held checkbox did not toggle on release" );
 		}
 		ImGui::DestroyContext();
 	}

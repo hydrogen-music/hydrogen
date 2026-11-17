@@ -196,6 +196,10 @@ public:
 		// while obscured the diff is consumed cheaply and the reveal
 		// transition re-requests anyway, so a change that happened
 		// hidden still shows with exactly one render once revealed.
+		// The mapping tab's poll reads the engine live — the same reads
+		// its frame draws — diffing the tab's displayed surface into a
+		// fingerprint (the landing and mixer tabs diff pipeline-fed
+		// snapshots instead, ADR 0035 UI-3).
 		if ( m_pLandingView != nullptr ) {
 			switch ( m_activeView ) {
 			case ActiveView::Landing:
@@ -208,8 +212,12 @@ public:
 					m_frameGate.request();
 				}
 				break;
-			case ActiveView::None:
 			case ActiveView::Mapping:
+				if ( m_pMappingView->model().pollMappingChanged() ) {
+					m_frameGate.request();
+				}
+				break;
+			case ActiveView::None:
 				break;
 			}
 		}

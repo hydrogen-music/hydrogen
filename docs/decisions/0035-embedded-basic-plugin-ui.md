@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-10-05
-amended: 2026-11-10
+amended: 2026-11-17
 deciders: phil (theGreatWhiteShark)
 ---
 
@@ -421,3 +421,49 @@ Evidence: `PluginUiStyleTest` (headless, runs where the window smoke skips):
 QColor parity on Qt-produced reference values, the default theme's full
 palette, a customized theme flowing through, the imgui slot mapping, the
 metrics, and the scopes' push/restore.
+
+## Amendment (2026-11-17): the mapping tab joins the frame-governance poll
+
+The 2026-10-20 amendment's poll covered the landing and mixer tabs — the two
+pipeline-fed models. The mapping tab had no poll at all: its widgets cached
+the engine's MIDI configuration on construction and after their own applies,
+so a change made in the editor GUI (the MIDI config dialog, the map dialog,
+the instrument editor) never rendered. This is how the third tab joined.
+
+1. **The mapping model's poll is a live-read fingerprint, not a snapshot
+   diff.** `pollMappingChanged()` builds a value fingerprint of the tab's
+   *displayed surface* — the exposed MIDI config triple (ignore note off,
+   action channel, send note off), the map-wide settings, one row per
+   instrument (name, resolved input mapping, output note/channel, effective
+   bus), and the bus count — and diffs it against the fingerprint the last
+   rendered frame showed. No mutex and no pipeline: the poll and the reads
+   it guards run UI-thread-only, the same reads the view's draws issue.
+   The fingerprint member is the poll's own latch — the sole exception to
+   the model's otherwise stateless reads, mirroring the other models'
+   "diff against what the last frame showed".
+
+2. **Displayed-surface-only semantics.** Engine state the tab does not
+   display cannot request a frame: the MIDI feedback settings are pinned
+   no-false-positive by design. Map identity is likewise dropped — two
+   different map objects with identical displayed values are the same
+   picture, and a re-installed map that changes nothing renders nothing.
+
+3. **The view refreshes per frame, gated on interaction.** The three MIDI
+   config widgets re-read the engine every frame while the user is not
+   interacting with them — an open dropdown or a held checkbox must not
+   snap back mid-edit; the user's edit wins until it is applied or
+   released. The interaction flag is accumulated from imgui's
+   `IsItemActive()` after each widget and recomputed every frame, so a
+   collapsed section cannot strand it.
+
+4. **This is the candidate shape for the mixer's known limitation.** The
+   2026-10-20 amendment left mixer strip parameters as live reads without
+   a poll; the mapping tab's fingerprint poll is the pattern that would
+   retire it, should it matter in practice.
+
+Evidence: `PluginUiModelTest::testMappingPollChanged` (orphan polls never
+report; the prime poll; each displayed-surface change — config triple, map
+mode, global input switch, custom input row, output note — reports exactly
+once; a feedback-only change does not), and the PluginUiSmoke probes: an
+engine-side config change adopts on the next frame, a held checkbox does
+not snap back, and releasing applies the user's edit.

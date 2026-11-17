@@ -84,7 +84,8 @@ void PluginUiMappingView::applyMidiConfigWidgets()
 	// Resync regardless of the outcome: the engine may have normalized
 	// a value — or refused the change outright (no engine) — and the
 	// widgets must mirror the engine, never hold an unapplied edit.
-	// Never per frame (snap-back).
+	// (The per-frame refresh in draw() is interaction-gated; this
+	// resync follows the user's own apply immediately.)
 	refreshMidiConfigWidgets();
 }
 
@@ -93,10 +94,22 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 	// The exposed MIDI configuration — drawn before the engine guard so
 	// the section renders (with the engine defaults) even without an
 	// engine, exactly as it did on the landing view.
+	m_layout.bValid = false;
+	bool bMidiConfigInteraction = false;
 	if ( ImGui::CollapsingHeader(
 			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
 					.constData(),
 			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		m_layout.bValid = true;
+		// Engine-side changes (the editor's IPC applies) adopt with
+		// the next frame — unless the user is mid-interaction with
+		// one of the three widgets: an open dropdown or a held
+		// checkbox must not snap back under the user's hand. The
+		// flag is recomputed every frame, collapsed section or not,
+		// so a collapsed section cannot strand it.
+		if ( ! m_bMidiConfigInteraction ) {
+			refreshMidiConfigWidgets();
+		}
 		{
 			PluginUiStyle::ScopedCheckBox checkBox( palette );
 			if ( ImGui::Checkbox(
@@ -106,6 +119,9 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 				applyMidiConfigWidgets();
 			}
 		}
+		m_layout.noteOffIgnoreMin = ImGui::GetItemRectMin();
+		m_layout.noteOffIgnoreMax = ImGui::GetItemRectMax();
+		bMidiConfigInteraction |= ImGui::IsItemActive();
 
 		// The action channel dropdown — the GUI spinbox's range and
 		// texts (all channels, Off, 1..16), the same +1 index shift as
@@ -129,6 +145,9 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 			m_nActionChannel = nActionChannel - 1;
 			applyMidiConfigWidgets();
 		}
+		m_layout.actionChannelMin = ImGui::GetItemRectMin();
+		m_layout.actionChannelMax = ImGui::GetItemRectMax();
+		bMidiConfigInteraction |= ImGui::IsItemActive();
 
 		// The combo entries must outlive the Combo call — held locals,
 		// not chained temporaries.
@@ -145,7 +164,15 @@ void PluginUiMappingView::draw( const PluginUiPalette& palette )
 						   &m_nSendNoteOff, sSendNoteOffEntries, 3 ) ) {
 			applyMidiConfigWidgets();
 		}
+		m_layout.sendNoteOffMin = ImGui::GetItemRectMin();
+		m_layout.sendNoteOffMax = ImGui::GetItemRectMax();
+		bMidiConfigInteraction |= ImGui::IsItemActive();
+
+		m_layout.bNoteOffIgnore = m_bNoteOffIgnore;
+		m_layout.nActionChannel = m_nActionChannel;
+		m_layout.nSendNoteOff = m_nSendNoteOff;
 	}
+	m_bMidiConfigInteraction = bMidiConfigInteraction;
 
 	auto pMap = m_model.liveMap();
 	if ( pMap == nullptr ) {

@@ -45,6 +45,7 @@ class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testMappingModelInputMappingRead );
 	CPPUNIT_TEST( testMappingMidiConfigNoWriteBack );
 	CPPUNIT_TEST( testMappingMidiConfigExposedReadApply );
+	CPPUNIT_TEST( testMappingPollChanged );
 	CPPUNIT_TEST( testChannelDisplayName );
 	CPPUNIT_TEST( testCreatePitchLabel );
 	CPPUNIT_TEST( testMixerModelStripsAndMeters );
@@ -135,11 +136,18 @@ public:
 	 * user config file. */
 	void testMappingMidiConfigNoWriteBack();
 	/** TU4.2: the read side populates the three exposed MIDI config
-	 * widgets from the engine, and the narrow apply changes exactly
-	 * those three while preserving the four settings the plugin UI does
-	 * not expose (feedback, transport — engine-side, settable via the
-	 * editor). */
+	 *  widgets from the engine, and the narrow apply changes exactly
+	 *  those three while preserving the four settings the plugin UI does
+	 *  not expose (feedback, transport — engine-side, settable via the
+	 *  editor). */
 	void testMappingMidiConfigExposedReadApply();
+	/** The mapping tab's frame-governance poll — the diff that turns
+	 *  engine-side changes (the editor's IPC applies, map installs,
+	 *  instrument edits) into frame requests: every change to the
+	 *  tab's displayed surface reports exactly once, repeated
+	 *  unchanged state and engine state the tab does not display do
+	 *  not. */
+	void testMappingPollChanged();
 	/** UI-4: the channel dropdowns' display convention — "All" for
 	 * -1, "Off" for 0 and for the invalid -2 (unmapped rows), the
 	 * number itself for 1..16. */

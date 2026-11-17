@@ -33,6 +33,8 @@
 
 #include <memory>
 
+#include <imgui.h>
+
 #include "PluginUiMappingModel.h"
 
 namespace H2Core {
@@ -40,6 +42,26 @@ namespace H2Core {
 class CommonStrings;
 class HydrogenPlugin;
 struct PluginUiPalette;
+
+/** The last drawn frame's MIDI config widget geometry and values, in
+ *  screen space. The window smoke's white-box hook: imgui items are
+ *  not queryable by id once the frame is over, so the view records
+ *  what its section drew and the smoke asserts on it — the rects are
+ *  the interaction probe's targets, the values pin the engine-change
+ *  adoption (mirroring the mixer view's layout()). */
+struct PluginUiMappingLayout
+{
+	/** The MIDI config section drew this frame (header open). */
+	bool bValid = false;
+	/** The section's three widgets' rects. */
+	ImVec2 noteOffIgnoreMin{}, noteOffIgnoreMax{};
+	ImVec2 actionChannelMin{}, actionChannelMax{};
+	ImVec2 sendNoteOffMin{}, sendNoteOffMax{};
+	/** The values the three widgets displayed. */
+	bool bNoteOffIgnore = false;
+	int nActionChannel = -1;
+	int nSendNoteOff = 0;
+};
 
 class PluginUiMappingView
 {
@@ -52,10 +74,19 @@ public:
 	 *  @a palette. */
 	void draw( const PluginUiPalette& palette );
 
+	/** The view's model — the window polls it (mapping diff) to
+	 *  decide frame requests. */
+	PluginUiMappingModel& model() { return m_model; }
+
+	/** The last frame's recorded layout — the smoke test's hook. */
+	const PluginUiMappingLayout& layout() const { return m_layout; }
+
 private:
 	/** Re-reads the exposed MIDI config from the engine into the widget
-	 * state — on construction and after every apply, never per frame
-	 * (typing into a widget must not snap back mid-edit). */
+	 *  state — on construction, after every apply, and once per frame
+	 *  while the user is not interacting with the widgets (external
+	 *  changes adopt; an open dropdown or held edit must not snap
+	 *  back mid-edit). */
 	void refreshMidiConfigWidgets();
 	/** Applies the MIDI config widgets' current values with the model's
 	 * atomic command and resyncs them to the engine afterwards — the
@@ -68,6 +99,11 @@ private:
 	bool m_bNoteOffIgnore = false;
 	int m_nActionChannel = -1;
 	int m_nSendNoteOff = 0;
+	/** True while the user is interacting with one of the MIDI config
+	 *  widgets (held checkbox, open dropdown) — engine-side changes
+	 *  wait it out instead of snapping the widget back. */
+	bool m_bMidiConfigInteraction = false;
+	PluginUiMappingLayout m_layout;
 };
 
 } // namespace H2Core

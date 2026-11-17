@@ -27,6 +27,7 @@
 #include <core/Basics/Pattern.h>
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -1021,6 +1022,91 @@ void PluginUiModelTest::testMappingMidiConfigExposedReadApply()
 	CPPUNIT_ASSERT( model.midiActionChannel() == Midi::Channel( 9 ) );
 	CPPUNIT_ASSERT( model.midiSendNoteOff() ==
 					Preferences::MidiSendNoteOff::OnCustomLengths );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginUiModelTest::testMappingPollChanged()
+{
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	HydrogenPlugin plugin( nSampleRate, nBlock, 2 );
+	plugin.activate( nSampleRate, nBlock );
+	PluginUiMappingModel model( &plugin );
+
+	// A model without a plugin polls the degenerate surface — nothing
+	// behind it can move, so never a change.
+	PluginUiMappingModel orphanModel( nullptr );
+	CPPUNIT_ASSERT( ! orphanModel.pollMappingChanged() );
+	CPPUNIT_ASSERT( ! orphanModel.pollMappingChanged() );
+
+	auto pHydrogen = plugin.getHydrogen();
+	CPPUNIT_ASSERT( pHydrogen != nullptr );
+	auto pPref = pHydrogen->getPreferences();
+	auto pCAC = pHydrogen->getCoreActionController();
+	CPPUNIT_ASSERT( pPref != nullptr );
+	CPPUNIT_ASSERT( pCAC != nullptr );
+
+	// The first poll primes the fingerprint from the live engine —
+	// the one frame request when the tab activates — and an unchanged
+	// engine reports no further change.
+	CPPUNIT_ASSERT( model.pollMappingChanged() );
+	CPPUNIT_ASSERT( ! model.pollMappingChanged() );
+
+	// The editor's MIDI config dialog reaches the engine through
+	// IpcCoreActionController::setMidiControlSettings, whose
+	// engine-side handler calls this same command — the poll must see
+	// the exposed triple move.
+	CPPUNIT_ASSERT( pCAC->setMidiControlSettings(
+		! pPref->m_bMidiNoteOffIgnore, Midi::Channel( 9 ),
+		pPref->m_bEnableMidiFeedback,
+		pPref->getMidiTransportInputHandling(),
+		pPref->getMidiTransportOutputSend(),
+		pPref->getMidiFeedbackChannel(),
+		Preferences::MidiSendNoteOff::Never ) );
+	CPPUNIT_ASSERT( model.pollMappingChanged() );
+	CPPUNIT_ASSERT( ! model.pollMappingChanged() );
+
+	// Engine state the tab does not display is not a change: the
+	// feedback settings are engine-side only (settable via the
+	// editor, not exposed in the plugin UI).
+	CPPUNIT_ASSERT( pCAC->setMidiControlSettings(
+		pPref->m_bMidiNoteOffIgnore, pPref->m_midiActionChannel,
+		! pPref->m_bEnableMidiFeedback,
+		pPref->getMidiTransportInputHandling(),
+		pPref->getMidiTransportOutputSend(),
+		pPref->getMidiFeedbackChannel(),
+		pPref->getMidiSendNoteOff() ) );
+	CPPUNIT_ASSERT( ! model.pollMappingChanged() );
+
+	// A map install (the editor's map dialog) moves the map-wide
+	// settings — the section headers' widgets.
+	CPPUNIT_ASSERT( model.setInputMode(
+		MidiInstrumentMap::Input::Custom ) );
+	CPPUNIT_ASSERT( model.pollMappingChanged() );
+	CPPUNIT_ASSERT( ! model.pollMappingChanged() );
+
+	// The global input channel switch — its checkbox and the rows'
+	// channel override. The default map is engaged (the pre-2.0
+	// behavior), so disengaging is the change.
+	CPPUNIT_ASSERT( model.setUseGlobalInputChannel( false ) );
+	CPPUNIT_ASSERT( model.pollMappingChanged() );
+	CPPUNIT_ASSERT( ! model.pollMappingChanged() );
+
+	// A custom input row — the per-instrument input cells. With the
+	// global channel disengaged, the row's own note and channel show.
+	CPPUNIT_ASSERT( model.insertCustomInputMapping(
+		0, Midi::Note( 42 ), Midi::Channel( 3 ) ) );
+	CPPUNIT_ASSERT( model.pollMappingChanged() );
+	CPPUNIT_ASSERT( ! model.pollMappingChanged() );
+
+	// An in-place instrument edit (output note) is a change too — the
+	// kit neither shrinks nor is the map re-installed.
+	CPPUNIT_ASSERT( model.setInstrumentMidiOutNote( 0, Midi::Note( 60 ) ) );
+	CPPUNIT_ASSERT( model.pollMappingChanged() );
+	CPPUNIT_ASSERT( ! model.pollMappingChanged() );
 
 	___INFOLOG( "passed" );
 }

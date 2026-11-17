@@ -325,6 +325,85 @@ Preferences::MidiSendNoteOff PluginUiMappingModel::midiSendNoteOff() const
 							: Preferences::MidiSendNoteOff::Always;
 }
 
+bool PluginUiMappingModel::pollMappingChanged()
+{
+	const Fingerprint current = buildFingerprint();
+	if ( current == m_polledFingerprint ) {
+		return false;
+	}
+	m_polledFingerprint = std::move( current );
+	return true;
+}
+
+PluginUiMappingModel::Fingerprint PluginUiMappingModel::buildFingerprint()
+	const
+{
+	Fingerprint fingerprint;
+	fingerprint.bNoteOffIgnore = midiNoteOffIgnore();
+	fingerprint.nActionChannel = static_cast<int>( midiActionChannel() );
+	fingerprint.nSendNoteOff = static_cast<int>( midiSendNoteOff() );
+	fingerprint.nBusCount = busCount();
+
+	const auto pMap = liveMap();
+	if ( pMap != nullptr ) {
+		fingerprint.nInputMode = static_cast<int>( pMap->getInput() );
+		fingerprint.nOutputMode = static_cast<int>( pMap->getOutput() );
+		fingerprint.bUseGlobalInputChannel =
+			pMap->getUseGlobalInputChannel();
+		fingerprint.nGlobalInputChannel =
+			static_cast<int>( pMap->getGlobalInputChannel() );
+		fingerprint.bUseGlobalOutputChannel =
+			pMap->getUseGlobalOutputChannel();
+		fingerprint.nGlobalOutputChannel =
+			static_cast<int>( pMap->getGlobalOutputChannel() );
+	}
+
+	const int nInstruments = instrumentCount();
+	fingerprint.rows.reserve( nInstruments );
+	for ( int ii = 0; ii < nInstruments; ++ii ) {
+		Fingerprint::Row row;
+		row.sName = instrumentName( ii );
+		const auto input = inputMapping( ii );
+		row.nInNote = static_cast<int>( input.note );
+		row.nInChannel = static_cast<int>( input.channel );
+		row.nOutNote = static_cast<int>( instrumentMidiOutNote( ii ) );
+		row.nOutChannel = static_cast<int>( instrumentMidiOutChannel( ii ) );
+		row.nEffectiveBus = effectiveOutputBus( ii, fingerprint.nBusCount );
+		fingerprint.rows.push_back( std::move( row ) );
+	}
+
+	return fingerprint;
+}
+
+bool PluginUiMappingModel::Fingerprint::operator==(
+	const Fingerprint& other ) const
+{
+	if ( bNoteOffIgnore != other.bNoteOffIgnore ||
+		 nActionChannel != other.nActionChannel ||
+		 nSendNoteOff != other.nSendNoteOff ||
+		 nInputMode != other.nInputMode ||
+		 nOutputMode != other.nOutputMode ||
+		 bUseGlobalInputChannel != other.bUseGlobalInputChannel ||
+		 nGlobalInputChannel != other.nGlobalInputChannel ||
+		 bUseGlobalOutputChannel != other.bUseGlobalOutputChannel ||
+		 nGlobalOutputChannel != other.nGlobalOutputChannel ||
+		 nBusCount != other.nBusCount ||
+		 rows.size() != other.rows.size() ) {
+		return false;
+	}
+	for ( std::size_t ii = 0; ii < rows.size(); ++ii ) {
+		const Row& a = rows[ ii ];
+		const Row& b = other.rows[ ii ];
+		if ( a.sName != b.sName || a.nInNote != b.nInNote ||
+			 a.nInChannel != b.nInChannel || a.nOutNote != b.nOutNote ||
+			 a.nOutChannel != b.nOutChannel ||
+			 a.nEffectiveBus != b.nEffectiveBus ) {
+			return false;
+		}
+	}
+	return true;
+}
+
 int PluginUiMappingModel::instrumentCount() const
 {
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
