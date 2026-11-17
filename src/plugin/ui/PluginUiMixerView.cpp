@@ -72,6 +72,13 @@ constexpr const char* s_sStripLaneId = "##strips";
 // How far a strip's panel reaches beyond its widgets — the GUI's strips
 // are framed panels, not bare widget columns.
 constexpr float s_nStripPanelPadding = 3.0f;
+// The randomization wells reach this far beyond their content — inset
+// within the strip panel's padding, so a rim of the panel stays
+// visible around the well.
+constexpr float s_nWellPadding = 2.0f;
+// Extra lead before a randomization well: the gap sets the well apart
+// from the mute controls above it.
+constexpr float s_nRandomSectionGap = 4.0f;
 
 // The GUI Rotary's geometry (src/gui/src/Widgets/Rotary.cpp), in its
 // 26px-high widget's pixels; the plugin's knob scales it to its own size.
@@ -89,6 +96,11 @@ constexpr float s_fRotaryCenterMarkSpan = -3.0f;
 constexpr float s_fRotaryArcGap = 18.0f;
 constexpr float s_fRotaryArcSweep = 200.0f;
 constexpr float s_fRotaryHandleSweep = 255.0f;
+// Rotary Type::Normal's value arc (Rotary.cpp): it starts at the
+// lower left (210°) and sweeps clockwise around the top, 239° at the
+// maximum value.
+constexpr float s_fRotaryNormalArcStart = 210.0f;
+constexpr float s_fRotaryNormalArcSweep = 239.0f;
 // M_PI is not standard C++ (MSVC hides it).
 constexpr float s_fPi = 3.14159265358979f;
 // Rotary dims its focus highlight while it lacks keyboard focus.
@@ -164,22 +176,24 @@ bool PluginUiMixerView::drawFaderWithMeter( const char* sId,
 	return bMoved;
 }
 
-bool PluginUiMixerView::drawPanKnob( const char* sId, float& fPan,
-									 const PluginUiPalette& palette )
+bool PluginUiMixerView::drawRotary( const char* sId, float& fValue,
+									float fMin, float fMax, bool bCenter,
+									float fSize,
+									const PluginUiPalette& palette )
 {
 	// imgui-knobs keeps the interaction (drag, wheel, item id); its own
 	// face is pushed fully transparent — its secondary colors scale RGB
 	// only, so zero alpha hides every part — and Rotary's face is drawn
-	// over the item rect instead. No title (the L/R scale replaces it)
-	// and no internal drag input — the knob's DragScalar renders an
-	// empty frame below itself.
+	// over the item rect instead. No title (the L/R scale or the label
+	// below replaces it) and no internal drag input — the knob's
+	// DragScalar renders an empty frame below itself.
 	const ImVec4 transparent( 0.0f, 0.0f, 0.0f, 0.0f );
 	ImGui::PushStyleColor( ImGuiCol_Button, transparent );
 	ImGui::PushStyleColor( ImGuiCol_ButtonHovered, transparent );
 	ImGui::PushStyleColor( ImGuiCol_ButtonActive, transparent );
 	const bool bMoved = ImGuiKnobs::Knob(
-		sId, &fPan, -1.0f, 1.0f, 0, "%.2f", ImGuiKnobVariant_Tick,
-		s_nKnobSize, ImGuiKnobFlags_NoTitle | ImGuiKnobFlags_NoInput );
+		sId, &fValue, fMin, fMax, 0, "%.2f", ImGuiKnobVariant_Tick,
+		fSize, ImGuiKnobFlags_NoTitle | ImGuiKnobFlags_NoInput );
 	ImGui::PopStyleColor( 3 );
 	const bool bHot = ImGui::IsItemHovered() || ImGui::IsItemActive();
 
@@ -215,29 +229,43 @@ bool PluginUiMixerView::drawPanKnob( const char* sId, float& fPan,
 			ImGui::GetColorU32( PluginUiColor::toImVec4( color ) ),
 			ImDrawFlags_None, fWidth );
 	};
-	// Pan is centered at 0 over [-1, 1]: Rotary's Type::Center.
-	const float fOffset = fPan * 0.5f; // ( value - mid ) / range
-	if ( fPan == 0.0f ) {
-		arc( s_fRotaryCenterMarkStart, s_fRotaryCenterMarkSpan,
-			 palette.knobCenterSet, fArcWidth * 1.25f );
+	// Both Rotary types place the handle by the same normalized offset
+	// from the range's center (Qt's Center and Normal formulas both
+	// reduce to norm - 0.5).
+	const float fNorm = std::clamp( ( fValue - fMin ) / ( fMax - fMin ),
+									0.0f, 1.0f );
+	const float fHandleOffset = fNorm - 0.5f;
+	if ( bCenter ) {
+		if ( fHandleOffset == 0.0f ) {
+			arc( s_fRotaryCenterMarkStart, s_fRotaryCenterMarkSpan,
+				 palette.knobCenterSet, fArcWidth * 1.25f );
+		}
+		else {
+			arc( s_fRotaryCenterMarkStart, s_fRotaryCenterMarkSpan,
+				 palette.knobCenterUnset, fArcWidth * 1.25f );
+			// Right of center the arc starts 18° clockwise off the top
+			// and sweeps clockwise; left of center 16° counter-clockwise
+			// off it (Rotary's extra 2° to clear the marker) and sweeps
+			// that way.
+			const float fStart = fHandleOffset > 0.0f
+				? 90.0f - s_fRotaryArcGap
+				: 90.0f + s_fRotaryArcGap - 2.0f;
+			arc( fStart, -s_fRotaryArcSweep * fHandleOffset, palette.knobArc,
+				 fArcWidth );
+		}
 	}
-	else {
-		arc( s_fRotaryCenterMarkStart, s_fRotaryCenterMarkSpan,
-			 palette.knobCenterUnset, fArcWidth * 1.25f );
-		// Right of center the arc starts 18° clockwise off the top and
-		// sweeps clockwise; left of center 16° counter-clockwise off it
-		// (Rotary's extra 2° to clear the marker) and sweeps that way.
-		const float fStart = fOffset > 0.0f
-			? 90.0f - s_fRotaryArcGap
-			: 90.0f + s_fRotaryArcGap - 2.0f;
-		arc( fStart, -s_fRotaryArcSweep * fOffset, palette.knobArc,
-			 fArcWidth );
+	else if ( fNorm > 0.0f ) {
+		// Type::Normal: the value arc starts at the lower left (210°)
+		// and sweeps clockwise around the top, 239° at the maximum —
+		// nothing at zero (Qt's zero-span drawArc paints nothing).
+		arc( s_fRotaryNormalArcStart, -s_fRotaryNormalArcSweep * fNorm,
+			 palette.knobArc, fArcWidth );
 	}
 
 	// The handle dot: 255° of travel over the range, straight up at the
-	// center (screen angles here — y points down).
+	// range's center (screen angles here — y points down).
 	const float fHandleAngle =
-		( -90.0f + s_fRotaryHandleSweep * fOffset ) *
+		( -90.0f + s_fRotaryHandleSweep * fHandleOffset ) *
 		s_fPi / 180.0f;
 	const float fHandleDistance = s_fRotaryHandleDistance * fScale;
 	pDraw->AddCircleFilled(
@@ -271,12 +299,52 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 	const float nFaderBlockWidth = s_nFaderWidth + s_nFaderMeterGap +
 		s_nMeterBarWidth * 2.0f + s_nMeterGap;
 
-	// Centers the next item in the strip column: at a line start the
+	// The master section's strings, hoisted: the column width below
+	// and the section itself (drawn after the strip lane) share them.
+	const auto sMasterTitle = m_pCommonStrings->getMasterLabel().toUtf8();
+	const auto sHumanize = m_pCommonStrings->getHumanizeLabel().toUtf8();
+	const auto sVelocity = m_pCommonStrings->getNotePropertyVelocity()
+							   .toUtf8();
+	const auto sTiming = m_pCommonStrings->getTimingLabel().toUtf8();
+	const auto sSwing = m_pCommonStrings->getSwingLabel().toUtf8();
+	// The smaller companion font for the scale labels; null when the
+	// atlas lacks it (the labels then render in the base font).
+	ImFont* pSmallFont = PluginUiStyle::smallFont();
+	// The header row's height: the master's "Humanize" line. The
+	// strips reserve the same room above their pitch knobs, so the
+	// wells — and their seams — align across the band.
+	const float nHeaderHeight =
+		ImGui::CalcTextSize( sHumanize.constData() ).y;
+	// The knob labels render in the smaller font, so their width
+	// decides the column at that size — measured so translations
+	// cannot clip — plus the well's inset on both sides.
+	if ( pSmallFont != nullptr ) {
+		ImGui::PushFont( pSmallFont );
+	}
+	const float nKnobLabelWidth =
+		std::max( { ImGui::CalcTextSize( sVelocity.constData() ).x,
+					ImGui::CalcTextSize( sTiming.constData() ).x,
+					ImGui::CalcTextSize( sSwing.constData() ).x } );
+	if ( pSmallFont != nullptr ) {
+		ImGui::PopFont();
+	}
+	const float nMasterWidth =
+		std::max( { ImGui::CalcTextSize( sMasterTitle.constData() ).x,
+					ImGui::CalcTextSize( sHumanize.constData() ).x,
+					nKnobLabelWidth, s_nKnobSize } ) +
+		2.0f * s_nWellPadding;
+	// The gap between the master column and the strip lane: clear of
+	// both panels' padding.
+	const float nColumnGap = ImGui::GetStyle().ItemSpacing.x +
+		s_nStripPanelPadding * 2.0f;
+
+	// Centers the next item in its strip column: at a line start the
 	// cursor sits at the column's left edge (a group indents its
 	// following lines to its start).
-	const auto centerInStrip = []( float nItemWidth ) {
+	const auto centerInStrip = []( float nColumnWidth,
+								   float nItemWidth ) {
 		ImGui::SetCursorPosX( ImGui::GetCursorPosX() +
-							  ( s_nStripWidth - nItemWidth ) * 0.5f );
+							  ( nColumnWidth - nItemWidth ) * 0.5f );
 	};
 	// A mute/solo button's full palette: engaged — the state color as
 	// the button face (hover and active included, the engaged state
@@ -310,6 +378,14 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 	// panel, the foreground one the widgets.
 	const ImU32 nPanelColor = ImGui::GetColorU32(
 		PluginUiColor::toImVec4( palette.stripPanel ) );
+	// The randomization wells' fill and the 1px seam capping them.
+	// The palette's separator color equals the well's fill (both the
+	// theme's dark color), so the seam takes the meter well's black —
+	// the palette's deepest recess tone.
+	const ImU32 nWellColor = ImGui::GetColorU32(
+		PluginUiColor::toImVec4( palette.stripLane ) );
+	const ImU32 nSeamColor = ImGui::GetColorU32(
+		PluginUiColor::toImVec4( palette.meterWell ) );
 	const auto drawPanel = [ nPanelColor ]( ImDrawList* pDraw,
 											ImDrawListSplitter& splitter ) {
 		splitter.SetCurrentChannel( pDraw, 0 );
@@ -323,16 +399,19 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 	};
 
 	// The master strip: fixed beside the strip lane (the Qt mixer's
-	// layout) — it never scrolls away while the strips pan.
+	// layout) — it never scrolls away while the strips pan. Its
+	// randomization section is drawn after the lane (below), once the
+	// strips' knob positions are known; the splitter stays open until
+	// then.
 	ImDrawList* pMasterDraw = ImGui::GetWindowDrawList();
 	ImDrawListSplitter masterSplitter;
 	masterSplitter.Split( pMasterDraw, 2 );
 	masterSplitter.SetCurrentChannel( pMasterDraw, 1 );
+	const float nMasterColumnLeft = ImGui::GetCursorScreenPos().x;
 	ImGui::BeginGroup();
-	ImGui::TextUnformatted( m_pCommonStrings->getMasterLabel().toUtf8()
-								.constData() );
+	ImGui::TextUnformatted( sMasterTitle.constData() );
 	float fMasterVolume = m_model.masterVolume();
-	centerInStrip( nFaderBlockWidth );
+	centerInStrip( nMasterWidth, nFaderBlockWidth );
 	if ( drawFaderWithMeter( "##masterVolume", fMasterVolume,
 							 m_model.masterPeakL(),
 							 m_model.masterPeakR(), palette ) ) {
@@ -340,23 +419,21 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 	}
 	const bool bMasterMuted = m_model.masterIsMuted();
 	pushState( bMasterMuted, palette.mute, palette.muteText );
-	// The full column width: the master mute shares the strip's
+	// The full column width: the master mute shares the column's
 	// horizontal boundaries.
-	if ( ImGui::Button( sMute.constData(), ImVec2( s_nStripWidth, 0 ) ) ) {
+	if ( ImGui::Button( sMute.constData(), ImVec2( nMasterWidth, 0 ) ) ) {
 		m_model.setMasterIsMuted( ! bMasterMuted );
 	}
 	ImGui::PopStyleColor( nStateColors );
 	m_layout.masterMuteMin = ImGui::GetItemRectMin();
 	m_layout.masterMuteMax = ImGui::GetItemRectMax();
-	ImGui::Dummy( ImVec2( s_nStripWidth, 0.0f ) );
-	m_layout.masterStripMin = ImGui::GetItemRectMin();
-	m_layout.masterStripMax = ImGui::GetItemRectMax();
 	ImGui::EndGroup();
-	drawPanel( pMasterDraw, masterSplitter );
-	masterSplitter.Merge( pMasterDraw );
+	const ImVec2 masterGroupMin = ImGui::GetItemRectMin();
+	// The panel, well and seam follow below, once the randomization
+	// section — drawn after the strip lane, when the strips' knob
+	// positions are known — has extended the column.
 	// Clear of the master panel's padding on both sides of the gap.
-	ImGui::SameLine( 0.0f, ImGui::GetStyle().ItemSpacing.x +
-						   s_nStripPanelPadding * 2.0f );
+	ImGui::SameLine( 0.0f, nColumnGap );
 
 	// The strip lane: the strips scroll horizontally when the window
 	// is too narrow (imgui hides the horizontal scrollbar unless the
@@ -405,18 +482,19 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 				ImGui::SetTooltip( "%s", sFull.constData() );
 			}
 			float fVolume = m_model.stripVolume( n );
-			centerInStrip( nFaderBlockWidth );
+			centerInStrip( s_nStripWidth, nFaderBlockWidth );
 			if ( drawFaderWithMeter( "##volume", fVolume,
 									 m_model.instrumentPeakL( n ),
 									 m_model.instrumentPeakR( n ),
 									 palette ) ) {
 				m_model.setStripVolume( n, fVolume );
 			}
-			float fPan = m_model.stripPan( n );
-			centerInStrip( s_nKnobSize );
-			if ( drawPanKnob( "##pan", fPan, palette ) ) {
-				m_model.setStripPan( n, fPan );
-			}
+		float fPan = m_model.stripPan( n );
+		centerInStrip( s_nStripWidth, s_nKnobSize );
+		if ( drawRotary( "##pan", fPan, -1.0f, 1.0f, true, s_nKnobSize,
+						 palette ) ) {
+			m_model.setStripPan( n, fPan );
+		}
 			// The pan scale: "L" and "R" tucked into the knob's bottom
 			// corners — draw-list text (nothing to hover); the row
 			// reserves only the label part below the knob's row.
@@ -429,9 +507,14 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 				}
 				const auto sL = m_pCommonStrings->getPanScaleLeft()
 									.toUtf8();
-				const auto sR = m_pCommonStrings->getPanScaleRight()
-									.toUtf8();
-				const ImVec2 nLSize =
+			const auto sR = m_pCommonStrings->getPanScaleRight()
+								.toUtf8();
+			// The scale labels render in the smaller font; the draw
+			// list's AddText picks up the pushed font too.
+			if ( pSmallFont != nullptr ) {
+				ImGui::PushFont( pSmallFont );
+			}
+			const ImVec2 nLSize =
 					ImGui::CalcTextSize( sL.constData() );
 				const ImVec2 nRSize =
 					ImGui::CalcTextSize( sR.constData() );
@@ -456,15 +539,19 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 					m_layout.labelRMax =
 						ImVec2( nRPos.x + nRSize.x, nRPos.y + nRSize.y );
 				}
-				pDraw->AddText( nLPos, nTextColor, sL.constData() );
-				pDraw->AddText( nRPos, nTextColor, sR.constData() );
+			pDraw->AddText( nLPos, nTextColor, sL.constData() );
+			pDraw->AddText( nRPos, nTextColor, sR.constData() );
+			if ( pSmallFont != nullptr ) {
+				ImGui::PopFont();
 			}
+		}
 			// The mute/solo pair on one line: equal-width buttons
 			// centered as a pair around a one-pixel seam on the
 			// strip's center axis.
 			const bool bMuted = m_model.stripIsMuted( n );
 			pushState( bMuted, palette.mute, palette.muteText );
-			centerInStrip( nButtonWidth * 2.0f + s_nMuteSoloGap );
+			centerInStrip( s_nStripWidth,
+						   nButtonWidth * 2.0f + s_nMuteSoloGap );
 			if ( ImGui::Button( sMute.constData(),
 								ImVec2( nButtonWidth, 0 ) ) ) {
 				m_model.setStripIsMuted( n, ! bMuted );
@@ -486,6 +573,63 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 				m_layout.soloMin = ImGui::GetItemRectMin();
 				m_layout.soloMax = ImGui::GetItemRectMax();
 			}
+
+			// The strip's randomization section: the instrument's
+			// random pitch (the InstrumentEditor's rotary) in the same
+			// recessed well treatment as the master's humanize triple —
+			// the shared look groups all randomization controls
+			// together.
+			ImGui::Dummy( ImVec2( 0.0f, s_nRandomSectionGap ) );
+			// The column's left edge in screen space — the well rect
+			// must live in the same space as the item rects it wraps
+			// (GetCursorPosX() would be window-relative and misplace
+			// the well inside the lane's child window).
+			const float nColumnLeft = ImGui::GetCursorScreenPos().x;
+			// The header row the master's "Humanize" header occupies:
+			// reserving it above the pitch knob too aligns the wells'
+			// tops — and their seams — across the band, with all knobs
+			// on one line below.
+			ImGui::Dummy( ImVec2( 0.0f, nHeaderHeight ) );
+			ImVec2 randomMin{}, randomMax{};
+			{
+				// The spacer above is the well's content top.
+				randomMin = ImGui::GetItemRectMin();
+				float fRandomPitch = m_model.stripRandomPitch( n );
+				centerInStrip( s_nStripWidth, s_nKnobSize );
+				if ( drawRotary( "##randomPitch", fRandomPitch, 0.0f, 1.0f,
+								 false, s_nKnobSize, palette ) ) {
+					m_model.setStripRandomPitch( n, fRandomPitch );
+				}
+				if ( n == 0 ) {
+					m_layout.randomKnobMin = ImGui::GetItemRectMin();
+					m_layout.randomKnobMax = ImGui::GetItemRectMax();
+					m_layout.fRandomPitchShown = fRandomPitch;
+				}
+				if ( ImGui::IsItemHovered() ) {
+					const auto sTip =
+						m_pCommonStrings->getActionSetRandomPitch()
+							.toUtf8();
+					ImGui::SetTooltip( "%s", sTip.constData() );
+				}
+				if ( pSmallFont != nullptr ) {
+					ImGui::PushFont( pSmallFont );
+				}
+				const auto sPitch = m_pCommonStrings->getPitchLabel()
+									 .toUtf8();
+				centerInStrip(
+					s_nStripWidth,
+					ImGui::CalcTextSize( sPitch.constData() ).x );
+				ImGui::TextUnformatted( sPitch.constData() );
+				randomMax = ImGui::GetItemRectMax();
+				if ( n == 0 ) {
+					m_layout.pitchLabelMin = ImGui::GetItemRectMin();
+					m_layout.pitchLabelMax = randomMax;
+				}
+				if ( pSmallFont != nullptr ) {
+					ImGui::PopFont();
+				}
+			}
+
 			ImGui::Dummy( ImVec2( s_nStripWidth, 0.0f ) );
 			if ( n == 0 ) {
 				m_layout.stripMin = ImGui::GetItemRectMin();
@@ -493,7 +637,34 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 				m_layout.bValid = true;
 			}
 			ImGui::EndGroup();
+			// The well's bottom ties to the group's rect, which is
+			// queryable only while the group is the last item.
+			const ImVec2 nGroupMax = ImGui::GetItemRectMax();
 			drawPanel( pLaneDraw, laneSplitter );
+			// The randomization well above the panel, capped by the
+			// 1px seam: channel 0 draws in submission order, so the
+			// panel (drawn first) stays below both. The well fills
+			// the panel's lower section down to its bottom border,
+			// framed by the same 1px panel rim as on its sides.
+			const ImVec2 nWellMin( nColumnLeft - s_nWellPadding,
+								   randomMin.y - s_nWellPadding );
+			const ImVec2 nWellMax(
+				nColumnLeft + s_nStripWidth + s_nWellPadding,
+				nGroupMax.y + s_nWellPadding );
+			laneSplitter.SetCurrentChannel( pLaneDraw, 0 );
+			pLaneDraw->AddRectFilled( nWellMin, nWellMax, nWellColor,
+									  ImGui::GetStyle().FrameRounding );
+			pLaneDraw->AddRectFilled(
+				nWellMin, ImVec2( nWellMax.x, nWellMin.y + 1.0f ),
+				nSeamColor );
+			laneSplitter.SetCurrentChannel( pLaneDraw, 1 );
+			if ( n == 0 ) {
+				m_layout.randomMin = nWellMin;
+				m_layout.randomMax = nWellMax;
+				m_layout.seamMin = nWellMin;
+				m_layout.seamMax =
+					ImVec2( nWellMax.x, nWellMin.y + 1.0f );
+			}
 			ImGui::PopID();
 			if ( n + 1 < nStrips ) {
 				// Clear of both neighbors' panel padding.
@@ -506,6 +677,157 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
+
+	// The master's randomization section: the song-global humanize
+	// triple (velocity, timing, swing) — the Qt mixer's MasterLine
+	// rotaries — in a recessed well below the mute button. It is
+	// placed after the strip lane, absolutely at the master's column,
+	// so its knobs can sit at the strips' random-pitch height: the
+	// "Humanize" header then reads as the heading of the whole
+	// randomization band.
+	{
+		// The absolute placement below must not move the window's
+		// flow cursor for whatever follows the mixer.
+		const ImVec2 nAfterLane = ImGui::GetCursorPos();
+		// The header line and its spacing sit between the section's
+		// top and the first knob: land the knob at the strips'
+		// random-pitch height. Without strips (an empty kit) the
+			// section simply follows the mute button.
+			const float nSectionTop =
+			m_layout.randomKnobMin.y > 0.0f
+				? m_layout.randomKnobMin.y -
+					  ImGui::GetStyle().ItemSpacing.y - nHeaderHeight
+				: m_layout.masterMuteMax.y +
+					  ImGui::GetStyle().ItemSpacing.y +
+					  s_nRandomSectionGap;
+		ImGui::SetCursorScreenPos(
+			ImVec2( nMasterColumnLeft, nSectionTop ) );
+		ImGui::BeginGroup();
+		ImVec2 masterRandomMin{}, masterRandomMax{};
+		{
+			centerInStrip( nMasterWidth,
+						   ImGui::CalcTextSize( sHumanize.constData() )
+							   .x );
+			ImGui::TextUnformatted( sHumanize.constData() );
+			masterRandomMin = ImGui::GetItemRectMin();
+			m_layout.masterHeaderMin = masterRandomMin;
+			m_layout.masterHeaderMax = ImGui::GetItemRectMax();
+
+			float fHumanizeVelocity = m_model.humanizeVelocity();
+			centerInStrip( nMasterWidth, s_nKnobSize );
+			if ( drawRotary( "##humanizeVelocity", fHumanizeVelocity,
+							 0.0f, 1.0f, false, s_nKnobSize,
+							 palette ) ) {
+				m_model.setHumanizeVelocity( fHumanizeVelocity );
+			}
+			m_layout.masterRandomKnobMin = ImGui::GetItemRectMin();
+			m_layout.masterRandomKnobMax = ImGui::GetItemRectMax();
+			m_layout.fHumanizeVelocityShown = fHumanizeVelocity;
+			if ( ImGui::IsItemHovered() ) {
+				const auto sTip = m_pCommonStrings
+									   ->getActionSetHumanizeVelocity()
+									   .toUtf8();
+				ImGui::SetTooltip( "%s", sTip.constData() );
+			}
+			if ( pSmallFont != nullptr ) {
+				ImGui::PushFont( pSmallFont );
+			}
+			centerInStrip( nMasterWidth,
+						   ImGui::CalcTextSize( sVelocity.constData() )
+							   .x );
+			ImGui::TextUnformatted( sVelocity.constData() );
+			m_layout.masterVelocityLabelMin = ImGui::GetItemRectMin();
+			m_layout.masterVelocityLabelMax = ImGui::GetItemRectMax();
+			if ( pSmallFont != nullptr ) {
+				ImGui::PopFont();
+			}
+
+			float fHumanizeTime = m_model.humanizeTime();
+			centerInStrip( nMasterWidth, s_nKnobSize );
+			if ( drawRotary( "##humanizeTime", fHumanizeTime, 0.0f, 1.0f,
+							 false, s_nKnobSize, palette ) ) {
+				m_model.setHumanizeTime( fHumanizeTime );
+			}
+			if ( ImGui::IsItemHovered() ) {
+				const auto sTip = m_pCommonStrings
+									   ->getActionSetHumanizeTime()
+									   .toUtf8();
+				ImGui::SetTooltip( "%s", sTip.constData() );
+			}
+			if ( pSmallFont != nullptr ) {
+				ImGui::PushFont( pSmallFont );
+			}
+			centerInStrip( nMasterWidth,
+						   ImGui::CalcTextSize( sTiming.constData() ).x );
+			ImGui::TextUnformatted( sTiming.constData() );
+			if ( pSmallFont != nullptr ) {
+				ImGui::PopFont();
+			}
+
+			float fSwing = m_model.swingFactor();
+			centerInStrip( nMasterWidth, s_nKnobSize );
+			if ( drawRotary( "##swing", fSwing, 0.0f, 1.0f, false,
+							 s_nKnobSize, palette ) ) {
+				m_model.setSwing( fSwing );
+			}
+			if ( ImGui::IsItemHovered() ) {
+				const auto sTip = m_pCommonStrings->getActionSetSwing()
+									   .toUtf8();
+				ImGui::SetTooltip( "%s", sTip.constData() );
+			}
+			if ( pSmallFont != nullptr ) {
+				ImGui::PushFont( pSmallFont );
+			}
+			centerInStrip( nMasterWidth,
+						   ImGui::CalcTextSize( sSwing.constData() ).x );
+			ImGui::TextUnformatted( sSwing.constData() );
+			masterRandomMax = ImGui::GetItemRectMax();
+			if ( pSmallFont != nullptr ) {
+				ImGui::PopFont();
+			}
+		}
+		ImGui::EndGroup();
+
+		// One panel behind the whole master column: the group above
+		// and the absolutely placed section share it, so the column
+		// reads as one strip. Channel 0 renders below the widgets
+		// whatever the submission order.
+		masterSplitter.SetCurrentChannel( pMasterDraw, 0 );
+		pMasterDraw->AddRectFilled(
+			ImVec2( masterGroupMin.x - s_nStripPanelPadding,
+					masterGroupMin.y - s_nStripPanelPadding ),
+			ImVec2( nMasterColumnLeft + nMasterWidth +
+						s_nStripPanelPadding,
+					masterRandomMax.y + s_nStripPanelPadding ),
+			nPanelColor, ImGui::GetStyle().FrameRounding );
+		// The randomization well and its 1px seam, in the same
+		// treatment as every strip's.
+		const ImVec2 nMasterWellMin(
+			nMasterColumnLeft - s_nWellPadding,
+			masterRandomMin.y - s_nWellPadding );
+		const ImVec2 nMasterWellMax(
+			nMasterColumnLeft + nMasterWidth + s_nWellPadding,
+			masterRandomMax.y + s_nWellPadding );
+		pMasterDraw->AddRectFilled( nMasterWellMin, nMasterWellMax,
+									nWellColor,
+									ImGui::GetStyle().FrameRounding );
+		pMasterDraw->AddRectFilled(
+			nMasterWellMin,
+			ImVec2( nMasterWellMax.x, nMasterWellMin.y + 1.0f ),
+			nSeamColor );
+		masterSplitter.SetCurrentChannel( pMasterDraw, 1 );
+		m_layout.masterStripMin = masterGroupMin;
+		m_layout.masterStripMax =
+			ImVec2( nMasterColumnLeft + nMasterWidth,
+					masterRandomMax.y );
+		m_layout.masterRandomMin = nMasterWellMin;
+		m_layout.masterRandomMax = nMasterWellMax;
+		m_layout.masterSeamMin = nMasterWellMin;
+		m_layout.masterSeamMax =
+			ImVec2( nMasterWellMax.x, nMasterWellMin.y + 1.0f );
+		masterSplitter.Merge( pMasterDraw );
+		ImGui::SetCursorPos( nAfterLane );
+	}
 }
 
 } // namespace H2Core

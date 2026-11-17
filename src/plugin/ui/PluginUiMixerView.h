@@ -24,7 +24,18 @@
 // window smoke covers it. Master and instrument strips (fader, pan
 // knob, mute/solo, meters) — the master fixed beside the strips'
 // horizontally scrollable lane; the bus routing lives in the mapping
-// view's "Bus Output" section.
+// view's "Bus Output" section. Below the mute controls every strip
+// carries a randomization section in its own recessed well — the
+// strips the instrument's random pitch, the master the song-global
+// humanize triple (velocity, timing, swing) — the shared well look
+// sets the randomization controls apart from the level/pan/mute
+// zone. The master column is wide enough for its labels, its knobs
+// align with the strips' random-pitch knobs (the "Humanize" header
+// heads the whole band), a 1px seam caps every well — the seams
+// share one height across the band — the wells fill their panels'
+// lower sections down to the bottom border (the same 1px panel rim
+// as on their sides), and the scale labels render in
+// the smaller companion font.
 
 #ifndef H2C_PLUGIN_UI_MIXER_VIEW_H
 #define H2C_PLUGIN_UI_MIXER_VIEW_H
@@ -64,10 +75,30 @@ struct PluginUiMixerLayout
 	/** Strip 0's pan knob and the L/R scale labels beside it. */
 	ImVec2 knobMin{}, knobMax{}, labelLMin{}, labelLMax{}, labelRMin{},
 		labelRMax{};
+	/** Strip 0's randomization well, the random-pitch knob in it and
+	 *  the "Pitch" label below. */
+	ImVec2 randomMin{}, randomMax{}, randomKnobMin{}, randomKnobMax{},
+		pitchLabelMin{}, pitchLabelMax{};
+	/** The master's randomization well and its first knob (the
+	 *  humanize velocity one). */
+	ImVec2 masterRandomMin{}, masterRandomMax{}, masterRandomKnobMin{},
+		masterRandomKnobMax{};
+	/** The 1px seam capping each randomization well (strip 0's and
+	 *  the master's). */
+	ImVec2 seamMin{}, seamMax{}, masterSeamMin{}, masterSeamMax{};
+	/** The master's "Humanize" header and the "Velocity" label — the
+	 *  smoke asserts the widened master column fits them. */
+	ImVec2 masterHeaderMin{}, masterHeaderMax{},
+		masterVelocityLabelMin{}, masterVelocityLabelMax{};
 	/** The first strip name wider than its column: the truncated
 	 *  form shown and the full name (both empty when no name
 	 *  overflows). */
 	QString sNameShown, sNameFull;
+	/** The randomization values the last frame showed — the smoke's
+	 *  adoption probe diff base (engine-side changes must surface in
+	 *  the next frame). */
+	float fHumanizeVelocityShown = -1.0f;
+	float fRandomPitchShown = -1.0f;
 };
 
 class PluginUiMixerView
@@ -91,10 +122,14 @@ private:
 	 * moved (the new value in @a fVolume). */
 	bool drawFaderWithMeter( const char* sId, float& fVolume, float fPeakL,
 							 float fPeakR, const PluginUiPalette& palette );
-	/** The pan knob in the GUI's Rotary look (center marker, offset
-	 * arc, handle dot); true when turned (the new value in @a fPan). */
-	bool drawPanKnob( const char* sId, float& fPan,
-					  const PluginUiPalette& palette );
+	/** A knob in the GUI Rotary's look (src/gui/src/Widgets/Rotary.cpp):
+	 *  @a bCenter selects Type::Center (center marker, offset arc —
+	 *  the pan knob) over Type::Normal (value arc from the lower
+	 *  left), @a fSize the knob's diameter; true when turned (the new
+	 *  value in @a fValue). */
+	bool drawRotary( const char* sId, float& fValue, float fMin, float fMax,
+					 bool bCenter, float fSize,
+					 const PluginUiPalette& palette );
 
 	PluginUiMixerModel m_model;
 	std::shared_ptr<CommonStrings> m_pCommonStrings;

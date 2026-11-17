@@ -788,8 +788,8 @@ int main( int argc, char** argv ) {
 		io.LogFilename = nullptr;
 		io.DisplaySize = ImVec2( 400.0f, 300.0f );
 		// No render backend here, so the atlas never builds via a
-		// backend NewFrame — build the default bitmap font headless.
-		io.Fonts->AddFontDefault();
+		// backend NewFrame — build the fonts headless.
+		H2Core::PluginUiStyle::buildFontAtlas();
 		io.Fonts->Build();
 		// The views paint with the default theme's palette, the style
 		// applied as the window applies it, so the sweeps cover the
@@ -980,6 +980,158 @@ int main( int argc, char** argv ) {
 				   "truncated name overflows the strip (UI-4)" );
 			check( layout.sNameFull.startsWith( layout.sNameShown ),
 				   "shown name not a prefix of the full name (UI-4)" );
+			// The randomization sections: every strip carries its
+			// random-pitch knob and the master the humanize triple,
+			// each in a recessed well below the mute controls — the
+			// well sets the randomization zone apart from the
+			// level/pan/mute zone above it.
+			check( layout.randomMin.y > layout.soloMax.y,
+				   "strip randomization well not below mute/solo (UI-4)" );
+			check( layout.randomKnobMin.x >= layout.randomMin.x &&
+					   layout.randomKnobMax.x <= layout.randomMax.x &&
+					   layout.randomKnobMin.y >= layout.randomMin.y &&
+					   layout.randomKnobMax.y <= layout.randomMax.y,
+				   "random-pitch knob not inside the strip's well (UI-4)" );
+			check( std::abs( ( layout.randomKnobMin.x +
+							   layout.randomKnobMax.x ) * 0.5f -
+							 nStripCenter ) <= eps,
+				   "random-pitch knob not centered on the strip (UI-4)" );
+			check( layout.masterRandomMin.y > layout.masterMuteMax.y,
+				   "master randomization well not below the master mute "
+				   "(UI-4)" );
+			check( layout.masterRandomKnobMin.x >=
+					   layout.masterRandomMin.x &&
+					   layout.masterRandomKnobMax.x <=
+						   layout.masterRandomMax.x &&
+					   layout.masterRandomKnobMin.y >=
+						   layout.masterRandomMin.y &&
+					   layout.masterRandomKnobMax.y <=
+						   layout.masterRandomMax.y,
+				   "humanize knob not inside the master's well (UI-4)" );
+			// The master's knobs sit at the strips' random-pitch
+			// height, so the "Humanize" header reads as the heading
+			// of the whole randomization band.
+			check( std::abs( layout.masterRandomKnobMin.y -
+							 layout.randomKnobMin.y ) <= eps,
+				   "master humanize knob not aligned with the strips' "
+				   "random-pitch knob (UI-4)" );
+			// The 1px seam caps each well: below the controls above,
+			// above the knobs, one pixel tall, spanning the well.
+			check( layout.seamMin.y >= layout.soloMax.y &&
+					   layout.seamMax.y <= layout.randomKnobMin.y &&
+					   layout.seamMax.y - layout.seamMin.y <= 1.5f &&
+					   layout.seamMin.x <= layout.randomMin.x &&
+					   layout.seamMax.x >= layout.randomMax.x,
+				   "strip randomization seam misplaced (UI-4)" );
+			check( layout.masterSeamMin.y >= layout.masterMuteMax.y &&
+					   layout.masterSeamMax.y <=
+						   layout.masterRandomKnobMin.y &&
+					   layout.masterSeamMax.y - layout.masterSeamMin.y <=
+						   1.5f,
+				   "master randomization seam misplaced (UI-4)" );
+			// The widened master column fits its widest labels.
+			check( layout.masterHeaderMin.x >= layout.masterStripMin.x &&
+					   layout.masterHeaderMax.x <= layout.masterStripMax.x,
+				   "master column too narrow for the Humanize header "
+				   "(UI-4)" );
+			check( layout.masterVelocityLabelMin.x >=
+					   layout.masterStripMin.x &&
+					   layout.masterVelocityLabelMax.x <=
+						   layout.masterStripMax.x,
+				   "master column too narrow for the Velocity label "
+				   "(UI-4)" );
+			// The scale labels render in the smaller font: their
+			// line height undercuts the normal font's (the header's,
+			// the strip name's).
+			check( layout.masterVelocityLabelMax.y -
+						   layout.masterVelocityLabelMin.y <
+					   layout.masterHeaderMax.y -
+						   layout.masterHeaderMin.y,
+				   "Velocity label not in the smaller font (UI-4)" );
+			check( layout.pitchLabelMax.y - layout.pitchLabelMin.y >
+					   0.0f &&
+					   layout.pitchLabelMax.y - layout.pitchLabelMin.y <
+						   layout.nameMax.y - layout.nameMin.y,
+				   "Pitch label not in the smaller font (UI-4)" );
+			check( layout.labelLMax.y - layout.labelLMin.y <
+					   layout.nameMax.y - layout.nameMin.y,
+				   "pan L label not in the smaller font (UI-4)" );
+			// The wells' seams share one height: the strips reserve
+			// the header row the master's "Humanize" occupies above
+			// their pitch knobs.
+			check( std::abs( layout.seamMin.y -
+							 layout.masterSeamMin.y ) <= eps,
+				   "strip and master randomization seams not aligned "
+				   "(UI-4)" );
+			// Only the scale labels are smaller — the randomization
+			// rotaries match the pan rotary's size.
+			check( layout.randomKnobMax.x - layout.randomKnobMin.x ==
+						   layout.knobMax.x - layout.knobMin.x &&
+					   layout.randomKnobMax.y - layout.randomKnobMin.y ==
+						   layout.knobMax.y - layout.knobMin.y,
+				   "random-pitch rotary smaller than the pan rotary "
+				   "(UI-4)" );
+			check( layout.masterRandomKnobMax.x -
+						   layout.masterRandomKnobMin.x ==
+					   layout.knobMax.x - layout.knobMin.x &&
+					   layout.masterRandomKnobMax.y -
+						   layout.masterRandomKnobMin.y ==
+						   layout.knobMax.y - layout.knobMin.y,
+				   "master randomization rotary smaller than the pan "
+				   "rotary (UI-4)" );
+			// The randomization wells fill their panels' lower
+			// sections down to the bottom border — the same 1px
+			// panel rim (panel padding 3, well padding 2) that
+			// frames the wells' sides.
+			check( std::abs( layout.randomMax.y -
+							 ( layout.stripMax.y + 2.0f ) ) <= eps,
+				   "randomization well not reaching the strip's "
+				   "bottom border (UI-4)" );
+			check( std::abs( layout.masterRandomMax.y -
+							 ( layout.masterStripMax.y + 2.0f ) ) <=
+					   eps,
+				   "master randomization well not reaching the "
+				   "master's bottom border (UI-4)" );
+		}
+
+		// The randomization knobs must adopt engine-side changes: the
+		// commands the Qt GUI routes through (setHumanizeVelocity,
+		// setInstrumentRandomPitch) land in this process's engine —
+		// the next drawn frame must show them, not the values cached
+		// at construction.
+		{
+			const auto randomBefore = mixerView.layout();
+			auto pRandomCAC = plugin.getHydrogen() != nullptr
+				? plugin.getHydrogen()->getCoreActionController() : nullptr;
+			check( randomBefore.fHumanizeVelocityShown >= 0.0f &&
+					   randomBefore.fRandomPitchShown >= 0.0f,
+				   "randomization knobs not drawn (adoption probe)" );
+			check( pRandomCAC != nullptr,
+				   "no engine for the randomization adoption probe" );
+			if ( randomBefore.fHumanizeVelocityShown >= 0.0f &&
+				 randomBefore.fRandomPitchShown >= 0.0f &&
+				 pRandomCAC != nullptr ) {
+				const float fNewVelocity =
+					randomBefore.fHumanizeVelocityShown < 0.5f
+					? randomBefore.fHumanizeVelocityShown + 0.25f
+					: randomBefore.fHumanizeVelocityShown - 0.25f;
+				const float fNewPitch =
+					randomBefore.fRandomPitchShown < 0.5f
+					? randomBefore.fRandomPitchShown + 0.25f
+					: randomBefore.fRandomPitchShown - 0.25f;
+				check( pRandomCAC->setHumanizeVelocity( fNewVelocity ),
+					   "engine refused the humanize velocity change" );
+				check( pRandomCAC->setInstrumentRandomPitch( 0, fNewPitch ),
+					   "engine refused the random pitch change" );
+				runFrame( [ & ]() { mixerView.draw( palette ); } );
+				const auto randomAfter = mixerView.layout();
+				check( std::abs( randomAfter.fHumanizeVelocityShown -
+								 fNewVelocity ) < 0.001f &&
+						   std::abs( randomAfter.fRandomPitchShown -
+									 fNewPitch ) < 0.001f,
+					   "randomization knobs did not adopt the engine's "
+					   "change" );
+			}
 		}
 
 		// The MIDI config triple must adopt engine-side changes: the

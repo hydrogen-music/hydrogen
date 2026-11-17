@@ -43,8 +43,12 @@ class Preferences;
  * Strip and master controls forward to one CoreActionController command
  * each — the same commands the GUI mixer's undo actions route through —
  * so the engine validates, applies, and emits the parameter events.
- * Strip selection is not driven: the plugin mixer has no selected-strip
- * concept, so every command passes #bSelectStrip = false.
+ * The randomization controls follow the same scheme: the strips'
+ * random pitch and the master's humanize triple (velocity, timing,
+ * swing) are the GUI's MasterLine rotaries and InstrumentEditor's
+ * random-pitch rotary. Strip selection is not driven: the plugin
+ * mixer has no selected-strip concept, so every command passes
+ * #bSelectStrip = false.
  *
  * Meter values come from the engine's telemetry snapshots (ADR 0018):
  * #acceptMeterSnapshot() is the seam the window's engine-event-sink
@@ -66,6 +70,14 @@ public:
 	bool setStripIsSoloed( int nStrip, bool bSoloed );
 	bool setMasterVolume( float fVolume );
 	bool setMasterIsMuted( bool bMuted );
+	/** The song-global randomization controls (the master strip's
+	 *  humanize section). */
+	bool setHumanizeVelocity( float fValue );
+	bool setHumanizeTime( float fValue );
+	bool setSwing( float fValue );
+	/** The strip's random pitch factor (its randomization
+	 *  section). */
+	bool setStripRandomPitch( int nStrip, float fValue );
 
 	// The read side for populating the strips. Each returns the
 	// engine's current value, or the documented degenerate value when
@@ -86,6 +98,18 @@ public:
 	/** The master volume (0.0 when the engine is unavailable). */
 	float masterVolume() const;
 	bool masterIsMuted() const;
+	/** The song-global humanize velocity (0.0 when the engine is
+	 *  unavailable). */
+	float humanizeVelocity() const;
+	/** The song-global humanize timing (0.0 when the engine is
+	 *  unavailable). */
+	float humanizeTime() const;
+	/** The song-global 16th-note swing factor (0.0 when the engine
+	 *  is unavailable). */
+	float swingFactor() const;
+	/** The strip's random pitch factor (0.0 when unavailable or out
+	 *  of range). */
+	float stripRandomPitch( int nStrip ) const;
 	/** The host-provided bus count (ADR 0019; 0 when the plugin is
 	 *  unavailable). */
 	int busCount() const;

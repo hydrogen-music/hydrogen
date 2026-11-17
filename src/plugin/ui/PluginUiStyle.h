@@ -134,6 +134,16 @@ void applyMetrics( ImGuiStyle& style );
 /** Maps @a palette onto every imgui color slot the plugin UI uses. */
 void applyColors( const PluginUiPalette& palette, ImGuiStyle& style );
 
+/** Adds the plugin UI's fonts to the current context's atlas: the
+ *  base font and a slightly smaller companion for the mixer's scale
+ *  labels. Call before the atlas is built. */
+void buildFontAtlas();
+
+/** The smaller scale-label font — null before buildFontAtlas() or
+ *  when the atlas lacks it; callers fall back to the current
+ *  font. */
+ImFont* smallFont();
+
 /** Scope guard for Qt-style push buttons: imgui draws button labels with
  *  the global text color, but the GUI's buttons carry dark text on a
  *  light face. Pushes the text color and the 1px border for the buttons

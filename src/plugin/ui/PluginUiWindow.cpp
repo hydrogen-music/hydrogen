@@ -76,10 +76,12 @@ public:
 		PluginUiStyle::applyMetrics( style );
 		style.ScaleAllSizes( m_pBackend->scaleFactor() );
 
-		// The built-in bitmap font until the embedded TTF lands with the
-		// real views (UI-4); it does not scale, so DPI is style-only for
-		// now and the spike panel reports the detected factor.
-		io.Fonts->AddFontDefault();
+		// The built-in bitmap fonts until the embedded TTF lands with
+		// the real views (UI-4); they do not scale, so DPI is
+		// style-only for now and the spike panel reports the detected
+		// factor. The smaller companion carries the mixer's scale
+		// labels.
+		PluginUiStyle::buildFontAtlas();
 
 		if ( ! m_pBackend->initRenderBackend() ) {
 			ImGui::DestroyContext( m_pContext );

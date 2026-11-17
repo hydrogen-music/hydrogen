@@ -422,6 +422,29 @@ void applyColors( const PluginUiPalette& palette, ImGuiStyle& style ) {
 	colors[ ImGuiCol_NavCursor ] = toImVec4( palette.highlight );
 }
 
+// "Slightly smaller" than the 13px base: one modest step down for
+// the scale labels.
+constexpr float s_nSmallFontSize = 11.0f;
+
+void buildFontAtlas()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontDefault();
+	ImFontConfig config;
+	config.SizePixels = s_nSmallFontSize;
+	// Match the base font's crispness at the smaller size.
+	config.PixelSnapH = true;
+	io.Fonts->AddFontDefault( &config );
+}
+
+ImFont* smallFont()
+{
+	// buildFontAtlas() adds the small font second; later atlas
+	// additions must not disturb that order.
+	ImFontAtlas* pFonts = ImGui::GetIO().Fonts;
+	return pFonts->Fonts.Size > 1 ? pFonts->Fonts[1] : nullptr;
+}
+
 ScopedPushButton::ScopedPushButton( const PluginUiPalette& palette ) {
 	ImGui::PushStyleColor( ImGuiCol_Text,
 						   PluginUiColor::toImVec4( palette.buttonText ) );

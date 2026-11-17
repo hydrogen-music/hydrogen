@@ -109,6 +109,46 @@ bool PluginUiMixerModel::setMasterIsMuted( bool bMuted )
 	return pCAC->setMasterIsMuted( bMuted );
 }
 
+bool PluginUiMixerModel::setHumanizeVelocity( float fValue )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	return pCAC->setHumanizeVelocity( fValue );
+}
+
+bool PluginUiMixerModel::setHumanizeTime( float fValue )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	return pCAC->setHumanizeTime( fValue );
+}
+
+bool PluginUiMixerModel::setSwing( float fValue )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	return pCAC->setSwing( fValue );
+}
+
+bool PluginUiMixerModel::setStripRandomPitch( int nStrip, float fValue )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	return pCAC->setInstrumentRandomPitch( nStrip, fValue );
+}
+
 int PluginUiMixerModel::stripCount() const
 {
 	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
@@ -171,6 +211,43 @@ bool PluginUiMixerModel::masterIsMuted() const
 	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
 	const auto pSong = m_pPlugin->getHydrogen()->getSong();
 	return pSong != nullptr ? pSong->getIsMuted() : false;
+}
+
+float PluginUiMixerModel::humanizeVelocity() const
+{
+	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
+		return 0.0f;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	const auto pSong = m_pPlugin->getHydrogen()->getSong();
+	return pSong != nullptr ? pSong->getHumanizeVelocityValue() : 0.0f;
+}
+
+float PluginUiMixerModel::humanizeTime() const
+{
+	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
+		return 0.0f;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	const auto pSong = m_pPlugin->getHydrogen()->getSong();
+	return pSong != nullptr ? pSong->getHumanizeTimeValue() : 0.0f;
+}
+
+float PluginUiMixerModel::swingFactor() const
+{
+	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
+		return 0.0f;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	const auto pSong = m_pPlugin->getHydrogen()->getSong();
+	return pSong != nullptr ? pSong->getSwingFactor() : 0.0f;
+}
+
+float PluginUiMixerModel::stripRandomPitch( int nStrip ) const
+{
+	const auto pInstrument = instrument( nStrip );
+	return pInstrument != nullptr ? pInstrument->getRandomPitchFactor()
+								  : 0.0f;
 }
 
 int PluginUiMixerModel::busCount() const
