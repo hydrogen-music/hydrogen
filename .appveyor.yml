@@ -733,8 +733,14 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-liblo
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5-tools
 
+          REM *** mingw-w64-x86_64-qt5-tools was dropped from the MSYS2 repos. ***
+          REM *** Install its last archived version from repo.msys2.org via a ***
+          REM *** local file install instead (pacman's default ***
+          REM *** LocalFileSigLevel=Optional applies to local -U packages, so ***
+          REM *** no signature download is required). ***
+          curl -L -f -o %TEMP%\mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm -U %TEMP%\mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst
           ccache -M 256M
           ccache -s
 
