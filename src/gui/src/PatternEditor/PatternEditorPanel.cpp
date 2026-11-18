@@ -2724,7 +2724,7 @@ void PatternEditorPanel::addOrRemoveNotes(
 					);
 				}
 
-				HydrogenApp::pHydrogen()
+				HydrogenApp::pEngine()
 					->getCoreActionController()
 					->noteOn( pNotePreview );
 			}

@@ -529,7 +529,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 						VELOCITY_MAX
 					);
 					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity );
-					HydrogenApp::pHydrogen()
+					HydrogenApp::pEngine()
 						->getCoreActionController()
 						->noteOn( pNote );
 				}
