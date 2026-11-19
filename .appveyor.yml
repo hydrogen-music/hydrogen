@@ -808,8 +808,12 @@ for:
           %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-%TARGET_VERSION%.dll
 
           REM *** libcrypto and libssl are not picked up by the Python script above and needs to be copied manually ***
-          copy %MSYS%\bin\libssl-3-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
-          copy %MSYS%\bin\libcrypto-3-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          REM *** The wildcard is on purpose: the OpenSSL major version ***
+          REM *** shipped by MSYS2 drifts (gdb-multiarch already pulls in ***
+          REM *** OpenSSL 4 while the openssl package is still at 3.x) and ***
+          REM *** the DLL names embed that major version. ***
+          copy %MSYS%\bin\libssl-*-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          copy %MSYS%\bin\libcrypto-*-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Build installer ***
           cpack -G NSIS -v
