@@ -492,7 +492,19 @@ void HydrogenApp::syncViaIpc() {
 	// works in editor mode (ADR 0029).
 	ipcSyncPluginHostState( pChannel );
 
-	// 13. Update Audio and Midi Driver-related widgets
+	// 13. Transport-control gating — with the plugin-host predicate cached
+	// in step 12, deactivate the transport controls the host owns
+	// (ADR 0026). This is the authoritative refresh point: the widgets are
+	// constructed before the initial sync runs, and reconnects re-run this
+	// function.
+	if ( m_pMainToolBar != nullptr ) {
+		m_pMainToolBar->updatePluginHostGating();
+	}
+	if ( m_pPlaylistEditor != nullptr ) {
+		m_pPlaylistEditor->updatePluginHostGating();
+	}
+
+	// 14. Update Audio and Midi Driver-related widgets
 	ipcSyncDriverWidgets();
 
 	INFOLOG( "State synced from headless engine via IPC." );
@@ -1021,7 +1033,7 @@ bool HydrogenApp::openFile( const Filesystem::Artifact& type, const QString& sFi
 	QString sText;
 	switch( type ) {
 	case Filesystem::Artifact::Song:
-		sText = tr( "Error loading song." );
+		sText = CommonStrings::getDialogSongLoadError();
 		break;
 
 	case Filesystem::Artifact::Project:
@@ -1097,9 +1109,7 @@ bool HydrogenApp::openSong( std::shared_ptr<Song> pSong ) {
 
 	if ( ! pEngine()->getCoreActionController()->setSong( pSong ) ) {
 		QMessageBox msgBox;
-		// Not commonized in CommmonStrings as it is required before
-		// HydrogenApp was instantiated.
-		msgBox.setText( tr( "Error loading song." ) );
+		msgBox.setText( CommonStrings::getDialogSongLoadError() );
 		msgBox.setWindowTitle( "Hydrogen" );
 		msgBox.setIcon( QMessageBox::Warning );
 		msgBox.exec();
@@ -1547,6 +1557,10 @@ void HydrogenApp::onEventQueueTimer()
 				ppEventListener->midiClockActivationEvent();
 				break;
 
+			case Event::Type::MidiControlSettingsChanged:
+				ppEventListener->midiControlSettingsChangedEvent();
+				break;
+
 			case Event::Type::MidiDriverChanged:
 				ppEventListener->midiDriverChangedEvent();
 				break;
@@ -1557,6 +1571,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case Event::Type::MidiEventMapChanged:
 				ppEventListener->midiMapChangedEvent();
+				break;
+
+			case Event::Type::MidiInstrumentMapChanged:
+				ppEventListener->midiInstrumentMapChangedEvent();
 				break;
 
 			case Event::Type::MidiOutput:
@@ -1920,6 +1938,21 @@ bool HydrogenApp::handleRemoteEvent( const H2Core::Event* pEvent ) {
 		return true;
 	}
 
+	case Event::Type::MidiControlSettingsChanged:
+	case Event::Type::MidiInstrumentMapChanged: {
+		// The authoritative engine's MIDI configuration changed — e.g.
+		// through the plugin UI's in-process commands. Pull the fresh
+		// core preferences (the scalar settings and the instrument map
+		// are part of them) before the event fans out, so listeners
+		// reloading their cache from the mirror — like the MIDI
+		// control dialog — see the new state. Unlike UpdatePreferences
+		// the event is not consumed: it carries no
+		// full-preferences-reload semantics, and the dedicated
+		// listeners are the whole point of the fan-out.
+		ipcSyncCorePreferences( pChannel );
+		return false;
+	}
+
 	case Event::Type::AudioDriverChanged:
 	case Event::Type::JackTimebaseStateChanged: {
 		refreshCachedAudioDriverInfo();
@@ -2167,6 +2200,12 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 			m_pUndoStack->clear();
 		}
 
+		// Ensure we show the read-only popup only once per song.
+		if ( m_sLastSongPath != pSong->getPath() ) {
+			m_bReadOnlySongPopupShown = false;
+			m_sLastSongPath = pSong->getPath();
+		}
+
 		// Update GUI components
 		updateWindowTitle();
 		
@@ -2176,10 +2215,18 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		
 	}
 	else if ( nValue == 2 ) {
-		QMessageBox::information(
-			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
-			.arg( tr("Song is read-only." ) )
-			.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
+		// Fired on every song (re-)install of a non-writable song: in the
+		// editor split each debounced dirty-echo resync funnels the pulled song
+		// through the mirror's setSong (ipcSyncSong) and thus pushes this event
+		// again. The information does not change for this song within a session
+		// — show the popup once, not on every edit.
+		if ( ! m_bReadOnlySongPopupShown ) {
+			m_bReadOnlySongPopupShown = true;
+			QMessageBox::information(
+				m_pMainForm, "Hydrogen", QString( "%1\n%2" )
+				.arg( tr("Song is read-only." ) )
+				.arg( m_pCommonStrings->getReadOnlyAdvice() ) );
+		}
 	}
 }
 
@@ -2202,7 +2249,20 @@ void HydrogenApp::midiDriverChangedEvent() {
 }
 
 void HydrogenApp::playlistChangedEvent( int nValue ) {
-	if ( nValue == 2 ) {
+	auto pHydrogen = m_pHydrogen;
+	auto pPlaylist = pHydrogen->getPlaylist();
+	if ( pPlaylist == nullptr ) {
+		return;
+	}
+
+	if ( nValue == 0 ) {
+		// Ensure we show the read-only popup only once per playlist.
+		if ( m_sLastPlaylistPath != pPlaylist->getPath() ) {
+			m_bReadOnlyPlaylistPopupShown = false;
+			m_sLastPlaylistPath = pPlaylist->getPath();
+		}
+	}
+	else if ( nValue == 2 ) {
 		QMessageBox::information(
 			m_pMainForm, "Hydrogen", QString( "%1\n%2" )
 			.arg( tr("Playlist is read-only." ) )

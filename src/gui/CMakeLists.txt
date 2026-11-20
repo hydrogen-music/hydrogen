@@ -193,6 +193,52 @@ set_tests_properties( EditorAttach PROPERTIES
 	TIMEOUT 120
 )
 
+# Plugin-host transport gating integration test (ADR 0026): the same live
+# plugin-host engine as EditorAttach, but the spawned editor runs
+# --verify-plugin-transport-gating instead of a plain quit. Once the GUI is up
+# it asserts the transport buttons are deactivated (the host owns transport)
+# while record and the playlist song selector stay available, then quits with
+# the verdict. Exit 0 = gating correct; any non-zero (including the verifier's
+# 1) fails the test.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-transport-gating-test-home)
+add_test(
+	NAME EditorTransportGating
+	COMMAND plugin_editor_smoke $<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+			--verify-transport-gating
+)
+set_tests_properties( EditorTransportGating PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-transport-gating-test-home"
+	TIMEOUT 120
+)
+
+# Version-gate integration test (ADR 0018): the refusal counterpart to
+# EditorAttach. A minimal host harness serves a *fake* engine whose hello
+# announces a different wire-protocol tag, then launches the real GUI
+# with --connect-via-ipc against it. The editor must refuse the handshake
+# and abort cleanly with Reporter::EXIT_CODE_CLEAN_FAILURE (3) — the same
+# clean path as a dead endpoint (EditorBadEndpoint) — proving the refusal is
+# graceful end to end. An exit 0 (editor wired itself around an incompatible
+# engine) fails the test.
+add_executable( editor_version_mismatch EditorVersionMismatch.cpp )
+set_property( TARGET editor_version_mismatch PROPERTY CXX_STANDARD 17 )
+target_link_libraries( editor_version_mismatch
+	hydrogen-core-${VERSION}
+	Qt${QT_VERSION_MAJOR}::Core
+	Qt${QT_VERSION_MAJOR}::Network
+)
+# Needs the GUI binary present (it is the editor that gets spawned).
+add_dependencies( editor_version_mismatch hydrogen )
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-version-mismatch-test-home)
+add_test(
+	NAME EditorVersionMismatch
+	COMMAND editor_version_mismatch $<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( EditorVersionMismatch PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-version-mismatch-test-home"
+	TIMEOUT 120
+)
+
 # Editor-mode assert guard integration test (ADR 0033): spawns the GUI in
 # editor mode with --exercise-editor-paths, which dispatches every safe
 # Shortcuts::Action through MainForm::executeShortcut. If any action reaches

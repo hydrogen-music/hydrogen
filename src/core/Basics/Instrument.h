@@ -67,6 +67,14 @@ class Instrument : public H2Core::Object<Instrument> {
 
 	typedef QString Type;
 
+	/** To ease usability, the first instrument will be connected to the first
+	 * output bus (of a plugin), the second to the second, and so forth. This
+	 * will be the default value the user can overwrite explicitly. */
+	static constexpr int nDefaultOutputBusMapping = -1;
+	/** This value indicates that the instrument is not mapped to any plugin
+	 * output bus at all. */
+	static constexpr int nNoOutputBusMapping = -2;
+
 	/**
 	 * constructor
 	 * \param id the id of this instrument
@@ -196,13 +204,13 @@ class Instrument : public H2Core::Object<Instrument> {
 
 	/** Sets the plugin output bus the instrument feeds (ADR 0019).
 	 *
-	 * A negative value resets the instrument to the implicit 1-to-1
-	 * default (bus = position in the kit); a value beyond the host's
-	 * bus count routes the instrument to the master only (the sampler
-	 * clamps at mix time). */
+	 * A value of #nDefaultOutputBusMapping resets the instrument to the
+	 * implicit 1-to-1 default (bus = position in the kit), #nNoOutputBusMapping
+	 * prevents any mapping, and a value beyond the host's bus count routes the
+	 * instrument to the master only (the sampler clamps at mix time). */
 	void setOutputBus( int nBus );
-	/** The plugin output bus the instrument feeds, or -1 for the
-	 * implicit 1-to-1 default (ADR 0019). */
+	/** The plugin output bus the instrument feeds, #nNoOutputBusMapping, or
+	 * #nDefaultOutputBusMapping for the implicit 1-to-1 default (ADR 0019). */
 	int getOutputBus() const;
 
 	/** set the midi out channel of the instrument */
@@ -449,10 +457,10 @@ class Instrument : public H2Core::Object<Instrument> {
 	bool m_bSoloed;			///< is the instrument in solo mode?
 	bool m_bMuted;			///< is the instrument muted?
 	int m_nMuteGroup;		///< mute group of the instrument
-	/** Plugin output bus the instrument feeds (ADR 0019). -1 = the
-	 * implicit 1-to-1 default (bus = position in the kit); >= 0 an
-	 * explicit custom mapping (persisted, may be shared between
-	 * instruments). */
+	/** Plugin output bus the instrument feeds (ADR 0019).
+	 * #nDefaultOutputBusMapping => the implicit 1-to-1 default (bus = position
+	 * in the kit); #nNoOutputBusMapping => for no mapping; >= 0 an explicit
+	 * custom mapping (persisted, may be shared between instruments). */
 	int m_nOutputBus;
 	int m_nQueued;			///< count the number of notes queued within
 					///< Sampler::m_playingNotesQueue or std::priority_queue
@@ -519,7 +527,10 @@ inline int Instrument::getMuteGroup() const
 
 inline void Instrument::setOutputBus( int nBus )
 {
-	m_nOutputBus = ( nBus < -1 ? -1 : nBus );
+	m_nOutputBus =
+		( nBus < Instrument::nNoOutputBusMapping
+			  ? Instrument::nNoOutputBusMapping
+			  : nBus );
 }
 
 inline int Instrument::getOutputBus() const

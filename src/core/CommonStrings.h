@@ -59,6 +59,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	const QString& getSmallSoloButton() const { return m_sSmallSoloButton; }
 	const QString& getSmallMuteButton() const { return m_sSmallMuteButton; }
+	const QString& getPanScaleLeft() const { return m_sPanScaleLeft; }
+	const QString& getPanScaleRight() const { return m_sPanScaleRight; }
 	const QString& getBigMuteButton() const { return m_sBigMuteButton; }
 	const QString& getBigSoloButton() const { return m_sBigSoloButton; }
 	const QString& getBypassButton() const { return m_sBypassButton; }
@@ -230,6 +232,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	}
 
 	const QString& getPatternLoadError() const { return m_sPatternLoadError; }
+	const QString& getDrumkitLoadError() const { return m_sDrumkitLoadError; }
+	const QString& getEditorOpenError() const { return m_sEditorOpenError; }
 	const QString& getInstrumentLoadError() const
 	{
 		return m_sInstrumentLoadError;
@@ -315,10 +319,21 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getAuthorDialog() const { return m_sAuthorDialog; }
 	const QString& getNotesDialog() const { return m_sNotesDialog; }
 	const QString& getPathDialog() const { return m_sPathDialog; }
+	/** The song-load error message. Static — unlike the instance
+	 *  getters above — because the GUI's startup song load
+	 *  (MainForm's constructor) reports it before HydrogenApp, and
+	 *  with it this class's instance, exists; Q_DECLARE_TR_FUNCTIONS
+	 *  provides the translation context without an instance. */
+	static QString getDialogSongLoadError() {
+		/*: Displayed if a selected song could not be loaded, e.g. in
+		  the GUI's open-file error box and the plugin UI's status
+		  line. */
+		return tr( "Error loading song." );
+	}
 
-	// const QString& getDialogSongLoadError() const { return
-	// m_sDialogSongLoadError; } const QString& getDialogUnsavedChangesH1()
-	// const { return m_sDialogUnsavedChangedH1; } const QString&
+	// Not used yet.
+	// const QString& getDialogUnsavedChangesH1() const { return
+	// m_sDialogUnsavedChangedH1; } const QString&
 	// getDialogUnsavedChangesH2() const { return m_sDialogUnsavedChangedH2; }
 
 	const QString& getLicenseStringLbl() const { return m_sLicenseStringLbl; }
@@ -760,6 +775,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	const QString& getSettings() const { return m_sSettings; }
 	const QString& getPattern() const { return m_sPattern; }
+	const QString& getSong() const { return m_sSong; }
 
 	const QString& getOptionAlways() const { return m_sOptionAlways; }
 	const QString& getOptionNever() const { return m_sOptionNever; }
@@ -802,6 +818,9 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getOpenEditorButton() const {
 		return m_sOpenEditorButton;
 	}
+	const QString& getEditorExecutableLabel() const {
+		return m_sEditorExecutableLabel;
+	}
 	const QString& getSongFileDialogTitle() const {
 		return m_sSongFileDialogTitle;
 	}
@@ -837,11 +856,25 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	const QString& getUseGlobalChannelLabel() const {
 		return m_sUseGlobalChannelLabel;
 	}
-	const QString& getInputHeader() const { return m_sInputHeader; }
-	const QString& getOutputHeader() const { return m_sOutputHeader; }
 	const QString& getBusLabel() const { return m_sBusLabel; }
 	const QString& getResetButton() const { return m_sResetButton; }
 	const QString& getMasterOnlyLabel() const { return m_sMasterOnlyLabel; }
+	const QString& getBusOutputHeader() const {
+		return m_sBusOutputHeader;
+	}
+	const QString& getDrumkitLabel() const { return m_sDrumkitLabel; }
+	const QString& getModeLabel() const { return m_sModeLabel; }
+	const QString& getColumnsLabel() const { return m_sColumnsLabel; }
+	const QString& getCurrentColumnLabel() const {
+		return m_sCurrentColumnLabel;
+	}
+	const QString& getPlayingLabel() const { return m_sPlayingLabel; }
+	const QString& getConfigurationHeader() const {
+		return m_sConfigurationHeader;
+	}
+	const QString& getIncludeSamplesInStateLabel() const {
+		return m_sIncludeSamplesInStateLabel;
+	}
 	/** The display name of @a channel — getAllLabel() for
 	 * #Midi::ChannelAll, getStatusOff() for #Midi::ChannelOff and for
 	 * the invalid -2 of unmapped rows (the GUI disables those widgets
@@ -853,6 +886,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
     private:
 	QString m_sSmallSoloButton;
 	QString m_sSmallMuteButton;
+	QString m_sPanScaleLeft;
+	QString m_sPanScaleRight;
 	QString m_sBigMuteButton;
 	QString m_sBigSoloButton;
 	QString m_sBypassButton;
@@ -940,6 +975,8 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sMidiSenseUnavailable;
 
 	QString m_sPatternLoadError;
+	QString m_sDrumkitLoadError;
+	QString m_sEditorOpenError;
 	QString m_sInstrumentLoadError;
 
 	QString m_sFileDialogMissingWritePermissions;
@@ -989,7 +1026,6 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	// Not used yet. A redesign of the GUI startup is required first
 	// since these strings are required _before_ HydrogenApp was
 	// created.
-	// QString m_sDialogSongLoadError;
 	// QString m_sDialogUnsavedChangedH1;
 	// QString m_sDialogUnsavedChangedH2;
 
@@ -1183,6 +1219,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 
 	QString m_sSettings;
 	QString m_sPattern;
+	QString m_sSong;
 
 	QString m_sOptionAlways;
 	QString m_sOptionNever;
@@ -1215,6 +1252,7 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sLoadSongButton;
 	QString m_sLoadPatternButton;
 	QString m_sOpenEditorButton;
+	QString m_sEditorExecutableLabel;
 	QString m_sSongFileDialogTitle;
 	QString m_sPatternFileDialogTitle;
 	QString m_sDrumkitFileDialogTitle;
@@ -1228,11 +1266,17 @@ class CommonStrings : public H2Core::Object<CommonStrings> {
 	QString m_sNoteMappingHeader;
 	QString m_sGlobalChannelLabel;
 	QString m_sUseGlobalChannelLabel;
-	QString m_sInputHeader;
-	QString m_sOutputHeader;
 	QString m_sBusLabel;
 	QString m_sResetButton;
 	QString m_sMasterOnlyLabel;
+	QString m_sBusOutputHeader;
+	QString m_sDrumkitLabel;
+	QString m_sModeLabel;
+	QString m_sColumnsLabel;
+	QString m_sCurrentColumnLabel;
+	QString m_sPlayingLabel;
+	QString m_sConfigurationHeader;
+	QString m_sIncludeSamplesInStateLabel;
 };
 
 } // namespace H2Core

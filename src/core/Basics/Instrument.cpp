@@ -71,7 +71,7 @@ Instrument::Instrument(
 	  m_bSoloed( false ),
 	  m_bMuted( false ),
 	  m_nMuteGroup( -1 ),
-	  m_nOutputBus( -1 ),
+	  m_nOutputBus( Instrument::nDefaultOutputBusMapping ),
 	  m_nQueued( 0 ),
 	  m_enqueuedBy( QStringList() ),
 	  m_nHihatGrp( -1 ),
@@ -442,7 +442,23 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 	}
 	else {
 		sInstrumentDrumkitPath = sDrumkitPath;
-		sInstrumentDrumkitName = sDrumkitName;
+		// Round-trip identity for .h2project states: the save side
+		// writes the instrument's own kit name verbatim - empty for a
+		// freshly added instrument - so a load must keep it instead of
+		// substituting the containing kit's name. read_string() maps an
+		// empty element to its default value, so the element's presence
+		// has to be checked explicitly; songs without it (legacy
+		// format) fall back to the containing kit.
+		if ( ! node.firstChildElement( "drumkit" ).isNull() ) {
+			sInstrumentDrumkitName =
+				node.read_string( "drumkit", "", false, true, bSilent );
+			if ( sInstrumentDrumkitName.isNull() ) {
+				sInstrumentDrumkitName = "";
+			}
+		}
+		else {
+			sInstrumentDrumkitName = sDrumkitName;
+		}
 	}
 
 	if ( flags & Xml::Flag::Project ) {
@@ -652,13 +668,19 @@ std::shared_ptr<Instrument> Instrument::loadFrom(
 			Event::Trigger::Suppress, pHydrogen );
 	}
 
+	if ( flags & ( Xml::Flag::Ipc | Xml::Flag::Plugin ) ) {
+		// The output bus is set from the plugin UI and has to survive a
+		// plugin state round-trip as well - not just the IPC wire.
+		pInstrument->setOutputBus( node.read_int(
+			"ipc-outputBus", Instrument::nDefaultOutputBusMapping, true, false,
+			bSilent
+		) );
+	}
+
 	if ( flags & Xml::Flag::Ipc ) {
 		// Additional members not present in files written to disk but required
 		// for IPC.
 		pInstrument->setUuid( node.read_uuid( "ipc-uuid", false, false, false ) );
-		pInstrument->setOutputBus(
-			node.read_int( "ipc-outputBus", -1, true, false, bSilent )
-		);
 		pInstrument->setIsPreviewInstrument( node.read_bool(
 			"ipc-isPreviewInstrument", false, false, false, false
 		) );
@@ -792,15 +814,20 @@ void Instrument::saveTo(
 		checkForMissingSamples( Event::Trigger::Suppress, nullptr );
 	}
 
+	// The implicit 1-to-1 routing (ADR 0019) is the default and must not be
+	// persisted; only an explicit custom mapping round-trips. Unlike the
+	// ipc-* members below, the output bus is not only required on the IPC
+	// wire but also set from the plugin UI and has to survive a plugin
+	// state round-trip.
+	if ( m_nOutputBus != Instrument::nDefaultOutputBusMapping &&
+		 flags & ( Xml::Flag::Ipc | Xml::Flag::Plugin ) ) {
+		InstrumentNode.write_int( "ipc-outputBus", m_nOutputBus );
+	}
+
 	// Additional members not present in files written to disk but required for
 	// IPC.
 	if ( flags & Xml::Flag::Ipc ) {
 		InstrumentNode.write_uuid( "ipc-uuid", getUuid() );
-		// The implicit 1-to-1 routing (ADR 0019) is the default and must not be
-		// persisted; only an explicit custom mapping round-trips.
-		if ( m_nOutputBus >= 0 ) {
-			InstrumentNode.write_int( "ipc-outputBus", m_nOutputBus );
-		}
 		InstrumentNode.write_bool( "ipc-isPreviewInstrument", m_bIsPreviewInstrument );
 		bool bSamplesLoaded = false;
 		for ( auto& ppComponent : *m_pComponents ) {

@@ -30,16 +30,24 @@
 #include <vector>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Sample.h>
 #include <core/Basics/Song.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/H2Project.h>
+#include <core/Helpers/Xml.h>
 #include <core/Hydrogen.h>
 #include <core/IEngineAccess.h>
 #include <core/IPC/EditorSession.h>
 #include <core/IPC/IpcEngineAccess.h>
 #include <core/Logger.h>
 #include <core/Midi/Midi.h>
+#include <core/Midi/MidiInstrumentMap.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
 
@@ -80,6 +88,42 @@ bool allFinite( const std::vector<float>& buf, unsigned n ) {
 	for ( unsigned i = 0; i < n; ++i ) {
 		if ( ! std::isfinite( buf[i] ) ) {
 			return false;
+		}
+	}
+	return true;
+}
+
+// The restore contract of both state dialects: every layer of the song's
+// kit must hold a decoded sample afterwards - embedded states decode from
+// the extraction cache, song-only ones from the installed drumkit - or
+// the restored instance would come up silent.
+bool allKitSamplesLoaded( std::shared_ptr<Song> pSong ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 pSong->getDrumkit()->getInstruments() == nullptr ) {
+		return false;
+	}
+	for ( auto ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+		auto pComponents = ppInstrument->getComponents();
+		for ( int cc = 0; cc < static_cast<int>( pComponents->size() );
+			  ++cc ) {
+			auto ppComponent = ( *pComponents )[ cc ];
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+			const auto layers = ppComponent->getLayers();
+			for ( int ll = 0; ll < static_cast<int>( layers.size() ); ++ll ) {
+				auto ppLayer = layers[ ll ];
+				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ) {
+					return false;
+				}
+				if ( ! ppLayer->getSample()->isLoaded() ||
+					 ppLayer->getSample()->getFrames() <= 0 ) {
+					return false;
+				}
+			}
 		}
 	}
 	return true;
@@ -154,7 +198,7 @@ void PluginLifecycleTest::testPluginProcess() {
 	for ( int b = 0; b < 4; ++b ) {
 		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/false, 120.0, 0 );
+						HostTransportReading{ true, false, 120.0, 0 } );
 		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
 		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
 	}
@@ -165,13 +209,62 @@ void PluginLifecycleTest::testPluginProcess() {
 	for ( int b = 0; b < 8; ++b ) {
 		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/true, 130.0, nFrame );
+						HostTransportReading{ true, true, 130.0, nFrame } );
 		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
 		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
 		for ( int bus = 0; bus < nBuses; ++bus ) {
 			CPPUNIT_ASSERT( allFinite( buf.busL[ bus ], nBlock ) );
 			CPPUNIT_ASSERT( allFinite( buf.busR[ bus ], nBlock ) );
 		}
+		nFrame += nBlock;
+	}
+
+	plugin.deactivate();
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginReset() {
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+
+	HydrogenPlugin plugin( nSampleRate, nBlock, 0 );
+	plugin.activate( nSampleRate, nBlock );
+
+	PluginBuffers buf( nBlock, 0 );
+
+	auto pSampler = plugin.getHydrogen()->getAudioEngine()->getSampler();
+	CPPUNIT_ASSERT( pSampler != nullptr );
+
+	// A live note, dispatched and sounding. The engine needs a couple of
+	// blocks on the presented transport before it consumes the queued
+	// note, so probe until the sampler actually holds it.
+	plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
+	bool bSounding = false;
+	long long nFrame = 0;
+	for ( int b = 0; b < 8 && ! bSounding; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, nFrame } );
+		nFrame += nBlock;
+		bSounding = pSampler->getPlayingNotesNumber() > 0;
+	}
+	CPPUNIT_ASSERT( bSounding );
+
+	// The host reset (e.g. on a transport jump) maps to panic.
+	plugin.reset();
+	CPPUNIT_ASSERT_EQUAL( 0, pSampler->getPlayingNotesNumber() );
+
+	// The engine stays voiceless over the following blocks.
+	for ( int b = 0; b < 2; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, nFrame } );
+		CPPUNIT_ASSERT_EQUAL( 0, pSampler->getPlayingNotesNumber() );
+		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
+		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
 		nFrame += nBlock;
 	}
 
@@ -194,12 +287,128 @@ void PluginLifecycleTest::testPluginStateRoundTrip() {
 	HydrogenPlugin other( 48000, 256, 2 );
 	CPPUNIT_ASSERT( other.loadState( state ) );
 	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
+	// The kit's samples ride in the bundle: the restored instance must
+	// come up with every one of them decoded, ready to play.
+	CPPUNIT_ASSERT( allKitSamplesLoaded( other.getHydrogen()->getSong() ) );
 
-	// Song-only state round-trips too.
+	// Song-only state round-trips too. It is the same archive container,
+	// just without the sample entries (ADR 0017 amendment). Its song XML
+	// references the installed drumkit - the repo's GMRockKit the plugin
+	// boots with - so a restore must resolve and decode every sample from
+	// there instead of from bundle entries.
 	const auto songOnly = plugin.saveState( /*bEmbedSamples=*/false );
 	CPPUNIT_ASSERT( ! songOnly.empty() );
-	CPPUNIT_ASSERT( ! H2Project::looksLikeArchive( songOnly ) );
+	CPPUNIT_ASSERT( H2Project::looksLikeArchive( songOnly ) );
 	CPPUNIT_ASSERT( other.loadState( songOnly ) );
+	CPPUNIT_ASSERT( allKitSamplesLoaded( other.getHydrogen()->getSong() ) );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
+	___INFOLOG( "" );
+
+	// The plugin's own base-layer config (ADR 0022) rides in the state
+	// blob: a restoring instance adopts the saving instance's last-used
+	// directories and MIDI instrument map, while its host-owned override
+	// layer (sample rate, buffer size) stays its own. The shared user
+	// config file is never written.
+
+	HydrogenPlugin saver( 44100, 512, 2 );
+	auto pSaverPref = saver.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pSaverPref != nullptr );
+
+	// The plugin never persists its runtime config: whatever the state
+	// round-trip applies, the user config file must stay byte-identical
+	// (or stay absent). Snapshot after construction so bootstrap noise
+	// cannot mask the pin.
+	const QString sConfigPath = Filesystem::userConfigPath();
+	QByteArray configBefore;
+	bool bConfigExists = false;
+	{
+		QFile file( sConfigPath );
+		if ( file.exists() ) {
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			configBefore = file.readAll();
+			file.close();
+			bConfigExists = true;
+		}
+	}
+
+	// Distinctive base-layer values — several differ from the defaults,
+	// so adoption cannot pass vacuously.
+	pSaverPref->setLastOpenSongDirectory( Filesystem::userPatternsDir() );
+	auto pSaverMap = pSaverPref->getMidiInstrumentMap();
+	CPPUNIT_ASSERT( pSaverMap != nullptr );
+	pSaverMap->setInput( MidiInstrumentMap::Input::Custom );
+	pSaverMap->setOutput( MidiInstrumentMap::Output::Constant );
+	pSaverMap->setUseGlobalInputChannel( true );
+	pSaverMap->setGlobalInputChannel( Midi::channelFromInt( 3 ) );
+	auto pTypedInstrument = std::make_shared<Instrument>();
+	pTypedInstrument->setType( "Kick" );
+	pSaverMap->insertCustomInputMapping(
+		pTypedInstrument, Midi::noteFromInt( 60 ), Midi::channelFromInt( 5 ) );
+	// The editor-binary override (landing UI) is a base-layer preference
+	// too — it must ride along.
+	saver.setEditorBinary( "/opt/hydrogen-editor" );
+	// The embed-samples toggle (the landing UI's configuration section)
+	// is a base-layer preference as well — it must ride along too.
+	pSaverPref->setPluginStateEmbedSamples( false );
+
+	const auto state = saver.saveState( /*bEmbedSamples=*/true );
+	CPPUNIT_ASSERT( ! state.empty() );
+
+	// A fresh instance at a different host geometry restores it.
+	HydrogenPlugin other( 48000, 256, 2 );
+	auto pOtherPref = other.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pOtherPref != nullptr );
+	// A known sentinel, so the restore cannot pass vacuously whatever
+	// the shared user config happens to contain.
+	pOtherPref->setLastOpenSongDirectory( QDir::homePath() );
+	pOtherPref->setPluginStateEmbedSamples( true );
+
+	CPPUNIT_ASSERT( other.loadState( state ) );
+	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
+
+	// Base layer restored from the saving instance.
+	CPPUNIT_ASSERT( pOtherPref->getLastOpenSongDirectory() ==
+					Filesystem::userPatternsDir() );
+	CPPUNIT_ASSERT( pOtherPref->getMidiInstrumentMap()->toXmlBuffer() ==
+					pSaverMap->toXmlBuffer() );
+	CPPUNIT_ASSERT( pOtherPref->getPluginEditorBinary() ==
+					"/opt/hydrogen-editor" );
+	CPPUNIT_ASSERT( pOtherPref->getPluginStateEmbedSamples() == false );
+
+	// Override layer stays the restoring host's own (ADR 0022: the host
+	// owns the audio geometry; it is not part of the plugin's config).
+	CPPUNIT_ASSERT( pOtherPref->m_nSampleRate == 48000 );
+	CPPUNIT_ASSERT( pOtherPref->m_nBufferSize == 256 );
+
+	// Legacy bare-XML song blobs (state from before the always-archive
+	// form) still load and leave the current preferences untouched.
+	pOtherPref->setLastOpenSongDirectory( QDir::tempPath() );
+	const QByteArray legacyXml = saver.getHydrogen()->getSong()->toXmlBuffer(
+		Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, true );
+	const std::vector<unsigned char> legacyState(
+		legacyXml.constData(), legacyXml.constData() + legacyXml.size() );
+	CPPUNIT_ASSERT( other.loadState( legacyState ) );
+	CPPUNIT_ASSERT( pOtherPref->getLastOpenSongDirectory() ==
+					QDir::tempPath() );
+
+	// The shared user config was never written.
+	{
+		QFile file( sConfigPath );
+		if ( bConfigExists ) {
+			CPPUNIT_ASSERT( file.exists() );
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			const QByteArray configAfter = file.readAll();
+			file.close();
+			CPPUNIT_ASSERT( configAfter == configBefore );
+		}
+		else {
+			CPPUNIT_ASSERT( ! file.exists() );
+		}
+	}
 
 	___INFOLOG( "passed" );
 }
@@ -215,7 +424,8 @@ void PluginLifecycleTest::testPluginRepeatedLifecycle() {
 		auto* pPlugin = new HydrogenPlugin( 44100, 256, 2 );
 		PluginBuffers buf( 256, 2 );
 		pPlugin->process( 256, buf.masterL.data(), buf.masterR.data(),
-						  buf.busLPtr, buf.busRPtr, false, 120.0, 0 );
+						  buf.busLPtr, buf.busRPtr,
+						  HostTransportReading{ true, false, 120.0, 0 } );
 		delete pPlugin;
 		CPPUNIT_ASSERT_EQUAL( nBaseline, Base::getAliveObjectCount() );
 	}
@@ -441,10 +651,10 @@ void PluginLifecycleTest::testProcessDefaultAuditSurface() {
 		plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
 		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/true, 120.0, 0 );
+						HostTransportReading{ true, true, 120.0, 0 } );
 		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
 						buf.busLPtr, buf.busRPtr,
-						/*bRolling=*/true, 120.0, 512 );
+						HostTransportReading{ true, true, 120.0, 512 } );
 		plugin.deactivate();
 	}
 

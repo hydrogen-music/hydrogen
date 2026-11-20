@@ -286,7 +286,9 @@ public:
 			data.m_pTheme->m_pInterface->m_bIndicateEffectiveNoteLength,
 			// ── files ──
 			data.m_sLastSongPath, data.m_sLastPlaylistPath,
-			data.m_sDefaultEditor, data.m_customSoundLibraryDirs,
+			data.m_sDefaultEditor, data.m_sPluginEditorBinary,
+			data.m_bPluginStateEmbedSamples,
+			data.m_customSoundLibraryDirs,
 			// ── root subtrees ──
 			data.m_pMidiEventMap, data.m_pMidiInstrumentMap,
 			data.m_pShortcuts );
@@ -294,9 +296,12 @@ public:
 
 	/** Serializes all rows — or only those owned by ownerFilter when given —
 	 *  into the document rooted at rootNode, creating parent elements on
-	 *  demand. */
+	 *  demand. An ownershipFilter restricts the output further to the
+	 *  rows that ownership may write (ADR 0022 layering). */
 	static void writeRows( XMLNode& rootNode, const PreferencesData& data,
 						   std::optional<Owner> ownerFilter,
+						   std::optional<Preferences::FieldOwnership>
+							   ownershipFilter,
 						   const WriteContext& context );
 
 	/** Merges this instance's own changes into the document rooted at rootNode
@@ -323,9 +328,12 @@ public:
 	/** Applies all rows — or only those owned by ownerFilter when given — from
 	 *  the document rooted at rootNode onto data. Rows whose parent path is
 	 *  missing are skipped (reported via WARNINGLOG depending on
-	 *  ReadContext). */
+	 *  ReadContext). An ownershipFilter restricts the apply further to
+	 *  the rows that ownership may write (ADR 0022 layering). */
 	static void readRows( const XMLNode& rootNode, PreferencesData& data,
 						  std::optional<Owner> ownerFilter,
+						  std::optional<Preferences::FieldOwnership>
+							  ownershipFilter,
 						  const ReadContext& context );
 
 	/** ERRORLOGs every element in the document that no schema row covers, so

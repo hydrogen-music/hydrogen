@@ -156,18 +156,11 @@ unsigned FakePluginHost::getBlockSize() const {
 }
 
 void FakePluginHost::setPlaying(bool bPlaying) {
+	// The host owns the transport (ADR 0013): its rolling state is published
+	// on the driver each block (see process()) and the engine follows it. A
+	// real host never triggers Hydrogen user actions (sequencerPlay and
+	// friends) when its transport rolls - so neither do we.
 	m_bPlaying = bPlaying;
-	if ( m_pHydrogen == nullptr ) {
-		return;
-	}
-	// Engine calls on the host's thread route to the instance logger, like a
-	// real host's scoped entry points (ADR 0015, T1.6).
-	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
-	if ( bPlaying ) {
-		m_pHydrogen->sequencerPlay();
-	} else {
-		m_pHydrogen->sequencerStop();
-	}
 }
 
 bool FakePluginHost::isPlaying() const {

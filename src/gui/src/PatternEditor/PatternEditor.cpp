@@ -907,7 +907,7 @@ void PatternEditor::paintEvent( QPaintEvent* ev ) {
 	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() &&
 		 m_pPatternEditorPanel->hasPatternEditorFocus() &&
 		 pPattern != nullptr ) {
-		QColor cursorColor( pPref->getColorTheme()->m_cursorColor );
+		QColor cursorColor( Skin::toQColor( pPref->getColorTheme()->m_cursorColor ) );
 		if ( ! hasFocus() ) {
 			cursorColor.setAlpha( Skin::nInactiveCursorAlpha );
 		}
@@ -2841,7 +2841,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	if ( ! pNote->getNoteOff() ) {
 		noteFillColor = PatternEditor::computeNoteColor( pNote->getVelocity() );
 	} else {
-		noteFillColor = pColorTheme->m_patternEditor_noteOffColor;
+		noteFillColor = Skin::toQColor( pColorTheme->m_patternEditor_noteOffColor );
 	}
 
 	// color base note will be filled with
@@ -2872,7 +2872,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 		// Use a more subtle version of the note off color. As this color is
 		// surrounded by the note outline - which is always black - we do not
 		// have to check the value but can always go for a more lighter color.
-		QColor effectiveLengthColor( pColorTheme->m_patternEditor_noteOffColor );
+		QColor effectiveLengthColor( Skin::toQColor( pColorTheme->m_patternEditor_noteOffColor ) );
 		effectiveLengthColor = effectiveLengthColor.lighter( 125 );
 		pNoteTailBrush->setColor( effectiveLengthColor );
 	}
@@ -2884,10 +2884,10 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	// Highlight color
 	QColor selectionColor;
 	if ( m_pPatternEditorPanel->hasPatternEditorFocus() ) {
-		selectionColor = pColorTheme->m_selectionHighlightColor;
+		selectionColor = Skin::toQColor( pColorTheme->m_selectionHighlightColor );
 	}
 	else {
-		selectionColor = pColorTheme->m_selectionInactiveColor;
+		selectionColor = Skin::toQColor( pColorTheme->m_selectionInactiveColor );
 	}
 
 	QColor highlightColor;
@@ -2897,7 +2897,7 @@ void PatternEditor::applyColor( std::shared_ptr<H2Core::Note> pNote,
 	}
 	else if ( noteStyle & NoteStyle::NoPlayback ) {
 		// Notes that won't be played back maintain their special color.
-		highlightColor = pColorTheme->m_muteColor;
+		highlightColor = Skin::toQColor( pColorTheme->m_muteColor );
 
 		// The color of the mute button itself would be too flash and draw too
 		// much attention to the note which are probably the ones the user does
@@ -2973,10 +2973,10 @@ QColor PatternEditor::computeNoteColor( float fVelocity ) {
 	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor fullColor = pColorTheme->m_patternEditor_noteVelocityFullColor;
-	QColor defaultColor = pColorTheme->m_patternEditor_noteVelocityDefaultColor;
-	QColor halfColor = pColorTheme->m_patternEditor_noteVelocityHalfColor;
-	QColor zeroColor = pColorTheme->m_patternEditor_noteVelocityZeroColor;
+	QColor fullColor = Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityFullColor );
+	QColor defaultColor = Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityDefaultColor );
+	QColor halfColor = Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityHalfColor );
+	QColor zeroColor = Skin::toQColor( pColorTheme->m_patternEditor_noteVelocityZeroColor );
 
 	// The colors defined in the Preferences correspond to fixed
 	// velocity values. In case the velocity lies between two of those
@@ -3021,9 +3021,9 @@ void PatternEditor::drawBorders( QPainter& p ) {
 	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	const QColor borderColor( pColorTheme->m_patternEditor_lineColor );
+	const QColor borderColor( Skin::toQColor( pColorTheme->m_patternEditor_lineColor ) );
 	const QColor borderInactiveColor(
-		pColorTheme->m_windowTextColor.darker( 170 ) );
+		Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 170 ) );
 
 	p.setPen( borderColor );
 	p.drawLine( 0, 0, m_nActiveWidth, 0 );
@@ -3052,7 +3052,7 @@ void PatternEditor::drawFocus( QPainter& p ) {
 
 	const auto pPref = HydrogenApp::pPreferences();
 
-	QColor color = pPref->getColorTheme()->m_highlightColor;
+	QColor color = Skin::toQColor( pPref->getColorTheme()->m_highlightColor );
 
 	// If the mouse is placed on the widget but the user hasn't clicked it yet,
 	// the highlight will be done more transparent to indicate that keyboard
@@ -3139,18 +3139,18 @@ void PatternEditor::drawGridLines( QPainter &p, const Qt::PenStyle& style ) cons
 	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const std::vector<QColor> colorsActive = {
-		QColor( pColorTheme->m_patternEditor_line1Color ),
-		QColor( pColorTheme->m_patternEditor_line2Color ),
-		QColor( pColorTheme->m_patternEditor_line3Color ),
-		QColor( pColorTheme->m_patternEditor_line4Color ),
-		QColor( pColorTheme->m_patternEditor_line5Color ),
+		QColor( Skin::toQColor( pColorTheme->m_patternEditor_line1Color ) ),
+		QColor( Skin::toQColor( pColorTheme->m_patternEditor_line2Color ) ),
+		QColor( Skin::toQColor( pColorTheme->m_patternEditor_line3Color ) ),
+		QColor( Skin::toQColor( pColorTheme->m_patternEditor_line4Color ) ),
+		QColor( Skin::toQColor( pColorTheme->m_patternEditor_line5Color ) ),
 	};
 	const std::vector<QColor> colorsInactive = {
-		QColor( pColorTheme->m_windowTextColor.darker( 170 ) ),
-		QColor( pColorTheme->m_windowTextColor.darker( 190 ) ),
-		QColor( pColorTheme->m_windowTextColor.darker( 210 ) ),
-		QColor( pColorTheme->m_windowTextColor.darker( 230 ) ),
-		QColor( pColorTheme->m_windowTextColor.darker( 250 ) ),
+		QColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 170 ) ),
+		QColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 190 ) ),
+		QColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 210 ) ),
+		QColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 230 ) ),
+		QColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 250 ) ),
 	};
 
 	// In case quantization as turned off, notes can be moved at all possible
@@ -3525,7 +3525,7 @@ void PatternEditor::drawPattern() {
 	const QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 					  getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	const QColor textColor(
-		pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor );
+		Skin::toQColor( pPref->getColorTheme()->m_patternEditor_noteVelocityDefaultColor ) );
 	QColor textBackgroundColor( textColor );
 	textBackgroundColor.setAlpha( 150 );
 

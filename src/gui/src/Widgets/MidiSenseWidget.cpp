@@ -244,8 +244,8 @@ void MidiSenseWidget::updateStyleSheet()
 	const auto pColorTheme =
 		HydrogenApp::pPreferences()->getColorTheme();
 
-	const auto backgroundColor = pColorTheme->m_windowColor;
-	const auto textColor = pColorTheme->m_windowTextColor;
+	const auto backgroundColor = Skin::toQColor( pColorTheme->m_windowColor );
+	const auto textColor = Skin::toQColor( pColorTheme->m_windowTextColor );
 
 	setStyleSheet( QString( "\
 QWidget {\

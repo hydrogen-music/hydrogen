@@ -30,7 +30,7 @@
 
 #include <QString>
 #include <QStringList>
-#include <QColor>
+#include <core/Preferences/Color.h>
 
 namespace H2Core
 {
@@ -55,114 +55,114 @@ public:
 	QString toQString( const QString& sPrefix = "",
 					   bool bShort = true ) const override;
 
-	QColor m_songEditor_backgroundColor;
-	QColor m_songEditor_alternateRowColor;
-	QColor m_songEditor_virtualRowColor;
-	QColor m_songEditor_selectedRowColor;
-	QColor m_songEditor_selectedRowTextColor;
-	QColor m_songEditor_lineColor;
-	QColor m_songEditor_textColor;
-	QColor m_songEditor_automationBackgroundColor;
-	QColor m_songEditor_automationLineColor;
-	QColor m_songEditor_automationNodeColor;
-	QColor m_songEditor_stackedModeOnColor;
-	QColor m_songEditor_stackedModeOnNextColor;
-	QColor m_songEditor_stackedModeOffNextColor;
+	Color m_songEditor_backgroundColor;
+	Color m_songEditor_alternateRowColor;
+	Color m_songEditor_virtualRowColor;
+	Color m_songEditor_selectedRowColor;
+	Color m_songEditor_selectedRowTextColor;
+	Color m_songEditor_lineColor;
+	Color m_songEditor_textColor;
+	Color m_songEditor_automationBackgroundColor;
+	Color m_songEditor_automationLineColor;
+	Color m_songEditor_automationNodeColor;
+	Color m_songEditor_stackedModeOnColor;
+	Color m_songEditor_stackedModeOnNextColor;
+	Color m_songEditor_stackedModeOffNextColor;
 
-	QColor m_patternEditor_backgroundColor;
-	QColor m_patternEditor_alternateRowColor;
-	QColor m_patternEditor_selectedRowColor;
-	QColor m_patternEditor_selectedRowTextColor;
-	QColor m_patternEditor_octaveRowColor;
-	QColor m_patternEditor_textColor;
-	QColor m_patternEditor_noteVelocityFullColor;
-	QColor m_patternEditor_noteVelocityDefaultColor;
-	QColor m_patternEditor_noteVelocityHalfColor;
-	QColor m_patternEditor_noteVelocityZeroColor;
-	QColor m_patternEditor_noteOffColor;
-	QColor m_patternEditor_lineColor;
-	QColor m_patternEditor_line1Color;
-	QColor m_patternEditor_line2Color;
-	QColor m_patternEditor_line3Color;
-	QColor m_patternEditor_line4Color;
-	QColor m_patternEditor_line5Color;
-	QColor m_patternEditor_instrumentRowColor;
-	QColor m_patternEditor_instrumentRowTextColor;
-	QColor m_patternEditor_instrumentAlternateRowColor;
-	QColor m_patternEditor_instrumentSelectedRowColor;
-	QColor m_patternEditor_instrumentSelectedRowTextColor;
+	Color m_patternEditor_backgroundColor;
+	Color m_patternEditor_alternateRowColor;
+	Color m_patternEditor_selectedRowColor;
+	Color m_patternEditor_selectedRowTextColor;
+	Color m_patternEditor_octaveRowColor;
+	Color m_patternEditor_textColor;
+	Color m_patternEditor_noteVelocityFullColor;
+	Color m_patternEditor_noteVelocityDefaultColor;
+	Color m_patternEditor_noteVelocityHalfColor;
+	Color m_patternEditor_noteVelocityZeroColor;
+	Color m_patternEditor_noteOffColor;
+	Color m_patternEditor_lineColor;
+	Color m_patternEditor_line1Color;
+	Color m_patternEditor_line2Color;
+	Color m_patternEditor_line3Color;
+	Color m_patternEditor_line4Color;
+	Color m_patternEditor_line5Color;
+	Color m_patternEditor_instrumentRowColor;
+	Color m_patternEditor_instrumentRowTextColor;
+	Color m_patternEditor_instrumentAlternateRowColor;
+	Color m_patternEditor_instrumentSelectedRowColor;
+	Color m_patternEditor_instrumentSelectedRowTextColor;
 
-	QColor m_componentEditor_componentColor;
-	QColor m_componentEditor_componentTextColor;
-	QColor m_componentEditor_layerColor;
-	QColor m_componentEditor_layerTextColor;
+	Color m_componentEditor_componentColor;
+	Color m_componentEditor_componentTextColor;
+	Color m_componentEditor_layerColor;
+	Color m_componentEditor_layerTextColor;
 
-	QColor m_sampleEditor_backgroundColor;
-	QColor m_sampleEditor_textColor;
-	QColor m_sampleEditor_playheadColor;
-	QColor m_sampleEditor_startSliderColor;
-	QColor m_sampleEditor_loopSliderColor;
-	QColor m_sampleEditor_endSliderColor;
-	QColor m_sampleEditor_velocityEnvelopeColor;
-	QColor m_sampleEditor_panEnvelopeColor;
+	Color m_sampleEditor_backgroundColor;
+	Color m_sampleEditor_textColor;
+	Color m_sampleEditor_playheadColor;
+	Color m_sampleEditor_startSliderColor;
+	Color m_sampleEditor_loopSliderColor;
+	Color m_sampleEditor_endSliderColor;
+	Color m_sampleEditor_velocityEnvelopeColor;
+	Color m_sampleEditor_panEnvelopeColor;
 
-	QColor m_selectionHighlightColor;
-	QColor m_selectionInactiveColor;
+	Color m_selectionHighlightColor;
+	Color m_selectionInactiveColor;
 
 	// QWidget palette stuff
 	/** A general background color.*/
-	QColor m_windowColor;
+	Color m_windowColor;
 	/** A general foreground color.*/
-	QColor m_windowTextColor;
+	Color m_windowTextColor;
 	/** Used as the background color for text entry widgets; usually white or
 	 * another light color.*/
-	QColor m_baseColor;
+	Color m_baseColor;
 	/** Used as the alternate background color in views with alternating row
 	 * colors.*/
-	QColor m_alternateBaseColor;
+	Color m_alternateBaseColor;
 	/** The foreground color used with Base. This is usually the same as the
 	 * Foreground, in which case it must provide good contrast with Background
 	 * and Base.*/
-	QColor m_textColor;
+	Color m_textColor;
 	/** The general button background color. This background can be different
 	 * from Background as some styles require a different background color for
 	 * buttons.*/
-	QColor m_buttonColor;
+	Color m_buttonColor;
 	/** A foreground color used with the Button color.*/
-	QColor m_buttonTextColor;
+	Color m_buttonTextColor;
 	/** Lighter than Button color.*/
-	QColor m_lightColor;
+	Color m_lightColor;
 	/** Between Button and Light.*/
-	QColor m_midLightColor;
+	Color m_midLightColor;
 	/** Darker than Button.*/
-	QColor m_midColor;
+	Color m_midColor;
 	/** Between Button and Dark.*/
-	QColor m_darkColor;
+	Color m_darkColor;
 	/** A very dark color. By delete, the shadow color is Qt::black.*/
-	QColor m_shadowTextColor;
+	Color m_shadowTextColor;
 	/** A color to indicate a selected item or the current item.*/
-	QColor m_highlightColor;
+	Color m_highlightColor;
 	/** A text color that contrasts with Highlight.*/
-	QColor m_highlightedTextColor;
-	QColor m_toolTipBaseColor;
-	QColor m_toolTipTextColor;
+	Color m_highlightedTextColor;
+	Color m_toolTipBaseColor;
+	Color m_toolTipTextColor;
 
 	// General widget stuff
-	QColor m_accentColor;
-	QColor m_accentTextColor;
-	QColor m_widgetColor;
-	QColor m_widgetTextColor;
-	QColor m_buttonRedColor;
-	QColor m_buttonRedTextColor;
-	QColor m_spinBoxColor;
-	QColor m_spinBoxTextColor;
-	QColor m_playheadColor;
-	QColor m_cursorColor;
-	QColor m_muteColor;
-	QColor m_muteTextColor;
-	QColor m_soloColor;
-	QColor m_soloTextColor;
-	QColor m_waveFormColor;
+	Color m_accentColor;
+	Color m_accentTextColor;
+	Color m_widgetColor;
+	Color m_widgetTextColor;
+	Color m_buttonRedColor;
+	Color m_buttonRedTextColor;
+	Color m_spinBoxColor;
+	Color m_spinBoxTextColor;
+	Color m_playheadColor;
+	Color m_cursorColor;
+	Color m_muteColor;
+	Color m_muteTextColor;
+	Color m_soloColor;
+	Color m_soloTextColor;
+	Color m_waveFormColor;
 };
 
 	
@@ -213,7 +213,7 @@ public:
 	ScalingPolicy m_uiScalingPolicy;
 	IconColor m_iconColor;
 	ColoringMethod m_coloringMethod;
-	std::vector<QColor> m_patternColors;
+	std::vector<Color> m_patternColors;
 	int	m_nVisiblePatternColors;
 	/** Not read from/written to disk */
 	static constexpr int nMaxPatternColors = 50;

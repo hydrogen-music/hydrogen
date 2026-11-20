@@ -109,6 +109,15 @@ class Parser {
 		bool getExerciseEditorPaths() const {
 			return m_bExerciseEditorPaths; }
 
+		/** When set, the GUI — after connecting to a plugin-host engine via
+		 * IPC — verifies that the transport controls are gated as ADR 0026
+		 * prescribes (transport buttons deactivated, record and the playlist
+		 * song selector still available) and quits with the verdict:
+		 * 0 = gating correct, 1 = mismatch. Integration-test hook for the
+		 * EditorTransportGating CTest. */
+		bool getVerifyPluginTransportGating() const {
+			return m_bVerifyPluginTransportGating; }
+
 	private:
 		QString  m_sAudioDriver;
 		QString  m_sPlaylistFileName;
@@ -138,6 +147,8 @@ class Parser {
 		bool     m_bQuitAfterStartup;
 
 		bool     m_bExerciseEditorPaths;
-};
+
+		bool     m_bVerifyPluginTransportGating;
+	};
 
 #endif

@@ -91,7 +91,11 @@ public:
 		ShowMidiNote = 0x008,
 		/** Used to indicate that the selected value is associated to the
 		 * currently selected instrument. */
-		MinusOneAsCurrentlySelected = 0x010
+		MinusOneAsCurrentlySelected = 0x010,
+		/** Used for MIDI note spin boxes to indicate that all MIDI input notes
+		 * will be accepted once the value is equal to #Midi::NoteAll */
+		MinusTwoAsAll = 0x011,
+
 	};
 
 	LCDSpinBox( QWidget *pParent, QSize size = QSize(), Type type = Type::Int,

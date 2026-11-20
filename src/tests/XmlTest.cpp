@@ -1443,6 +1443,58 @@ void XmlTest::testUuidSerialization() {
 	___INFOLOG( "passed" );
 }
 
+void XmlTest::testColorSerialization() {
+	___INFOLOG( "" );
+
+	// The "r,g,b" wire format is frozen: decimal components, comma
+	// separated, written by write_color and parsed by read_color.
+	XMLDoc doc;
+	XMLNode rootNode = doc.set_root( "test" );
+	rootNode.write_color( "color", Color( 12, 34, 56 ) );
+
+	const auto serialized = doc.toByteArray();
+
+	// Byte-level pin of the wire format.
+	CPPUNIT_ASSERT( serialized.contains( "<color>12,34,56</color>" ) );
+
+	XMLDoc docIn;
+	CPPUNIT_ASSERT( docIn.setContent( serialized ) );
+	XMLNode rootNodeIn = docIn.firstChildElement( "test" );
+	const Color color =
+		rootNodeIn.read_color( "color", Color(), false, false, false );
+	CPPUNIT_ASSERT( color == Color( 12, 34, 56 ) );
+
+	// Quirk pin: a failed toInt() yields 0 instead of invalidating the
+	// color, so "12,,56" reads back as (12,0,56).
+	XMLDoc docQuirk;
+	CPPUNIT_ASSERT( docQuirk.setContent(
+		QString( "<test><color>12,,56</color></test>" ) ) );
+	XMLNode rootQuirk = docQuirk.firstChildElement( "test" );
+	const Color quirkColor =
+		rootQuirk.read_color( "color", Color(), false, false, false );
+	CPPUNIT_ASSERT( quirkColor == Color( 12, 0, 56 ) );
+
+	// Out-of-range components fall back to the default value.
+	XMLDoc docRange;
+	CPPUNIT_ASSERT( docRange.setContent(
+		QString( "<test><color>300,0,0</color></test>" ) ) );
+	XMLNode rootRange = docRange.firstChildElement( "test" );
+	const Color rangeColor = rootRange.read_color(
+		"color", Color( 97, 167, 251 ), false, false, false );
+	CPPUNIT_ASSERT( rangeColor == Color( 97, 167, 251 ) );
+
+	// Wrong part count falls back to the default value.
+	XMLDoc docParts;
+	CPPUNIT_ASSERT( docParts.setContent(
+		QString( "<test><color>1,2</color></test>" ) ) );
+	XMLNode rootParts = docParts.firstChildElement( "test" );
+	const Color partsColor = rootParts.read_color(
+		"color", Color( 97, 167, 251 ), false, false, false );
+	CPPUNIT_ASSERT( partsColor == Color( 97, 167, 251 ) );
+
+	___INFOLOG( "passed" );
+}
+
 bool XmlTest::checkSampleData(
 	std::shared_ptr<H2Core::Drumkit> pKit,
 	bool bLoaded

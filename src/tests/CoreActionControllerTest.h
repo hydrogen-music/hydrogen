@@ -38,6 +38,7 @@ class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testSetSongPatternSelectionPreservation );
 	CPPUNIT_TEST( testSetMidiEventMap );
 	CPPUNIT_TEST( testSetMidiInstrumentMap );
+	CPPUNIT_TEST( testMidiConfigEvents );
 	CPPUNIT_TEST( testSetLastMidiEvent );
 	CPPUNIT_TEST( testAddRemoveCustomSoundLibraryDir );
 	CPPUNIT_TEST( testExportSong );
@@ -73,6 +74,12 @@ public:
 		/** setMidiInstrumentMap() installs the provided map as the live
 		 * map of the current Preferences (ADR 0030). */
 		void testSetMidiInstrumentMap();
+
+	/** setMidiInstrumentMap()/setMidiControlSettings() queue their
+	 * dedicated events — carrying the caller-supplied id for echo
+	 * dedup — and never UpdatePreferences, which the granular installs
+	 * must not masquerade as (ADR 0030). */
+	void testMidiConfigEvents();
 
 	/** setLastMidiEvent() sets the engine's MIDI-learn channel —
 	 * type and parameter as one pair (ADR 0030). */

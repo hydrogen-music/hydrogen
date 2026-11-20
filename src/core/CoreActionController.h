@@ -499,9 +499,19 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * engine applies the same map (ADR 0030). Like setMidiEventMap()
 	 * this is a granular install — no driver restarts, no
 	 * UpdatePreferences event; the engine's MIDI I/O and Sampler read
-	 * the map live. */
+	 * the map live.
+	 *
+	 * A MidiInstrumentMapChanged event is queued so GUI parts holding
+	 * a local copy of the map can discard and reload it. A caller
+	 * funneling its own change can pass @a nEventId and blacklist it
+	 * (EventListener::blacklistEventId) to skip its own echo — in the
+	 * editor split both the local mirror apply and the engine echo
+	 * carry the id.
+	 *
+	 * \param nEventId Id for the queued event, for echo dedup. */
 	virtual bool setMidiInstrumentMap(
-		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap );
+		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap,
+		long nEventId = Event::nInvalidId );
 	/**
 	 * Sets the scalar MIDI control settings of the current
 	 * #H2Core::Preferences: note-off handling, the action dispatch
@@ -513,7 +523,16 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 	 * (MidiInput/MidiOutput/Sampler/AudioEngine). In the editor split
 	 * the MIDI control dialog funnels every change through this
 	 * command so the authoritative engine applies the same settings
-	 * (ADR 0030). */
+	 * (ADR 0030).
+	 *
+	 * A MidiControlSettingsChanged event is queued so GUI parts
+	 * holding a local copy of the settings can discard and reload it.
+	 * A caller funneling its own change can pass @a nEventId and
+	 * blacklist it (EventListener::blacklistEventId) to skip its own
+	 * echo — in the editor split both the local mirror apply and the
+	 * engine echo carry the id.
+	 *
+	 * \param nEventId Id for the queued event, for echo dedup. */
 	virtual bool setMidiControlSettings(
 		bool bNoteOffIgnore,
 		Midi::Channel actionChannel,
@@ -521,7 +540,8 @@ class CoreActionController : public H2Core::Object<CoreActionController> {
 		bool bTransportInputHandling,
 		bool bTransportOutputSend,
 		Midi::Channel feedbackChannel,
-		Preferences::MidiSendNoteOff sendNoteOff );
+		Preferences::MidiSendNoteOff sendNoteOff,
+		long nEventId = Event::nInvalidId );
 	/**
 	 * Sets whether rubberband batch recalculation is active in the
 	 * current #H2Core::Preferences.

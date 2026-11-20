@@ -237,15 +237,15 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	const auto pColorTheme = pPref->getColorTheme();
 	const auto pFontTheme = pPref->getFontTheme();
 
-	const auto gradientDefault = createGradient( pColorTheme->m_accentColor );
-	const auto gradientMute = createGradient( pColorTheme->m_muteColor );
-	const auto gradientSolo = createGradient( pColorTheme->m_soloColor );
+	const auto gradientDefault = createGradient( Skin::toQColor( pColorTheme->m_accentColor ) );
+	const auto gradientMute = createGradient( Skin::toQColor( pColorTheme->m_muteColor ) );
+	const auto gradientSolo = createGradient( Skin::toQColor( pColorTheme->m_soloColor ) );
 
 	p.setFont( QFont(
 		pFontTheme->m_sLevel2FontFamily, getPointSize( pFontTheme->m_fontSize )
 	) );
 
-	p.fillRect( ev->rect(), pColorTheme->m_windowColor );
+	p.fillRect( ev->rect(), Skin::toQColor( pColorTheme->m_windowColor ) );
 
 	const auto pComponent = m_pComponentView->getComponent();
 	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
@@ -259,16 +259,16 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
     // layer. It will be used for the middle section. The further left, the
     // lighter the other segments will be (derived from this color) and the
     // further right, the darker.
-    const QColor headerBaseColor = pColorTheme->m_windowColor;
+    const QColor headerBaseColor = Skin::toQColor( pColorTheme->m_windowColor );
 	QColor highlightColor;
 	QLinearGradient segmentGradient;
 	if ( pComponent != nullptr ) {
-		highlightColor = pColorTheme->m_highlightColor;
+		highlightColor = Skin::toQColor( pColorTheme->m_highlightColor );
 	}
 	else {
-		highlightColor = pColorTheme->m_lightColor;
+		highlightColor = Skin::toQColor( pColorTheme->m_lightColor );
 	}
-	const QColor missingLayerColor = pColorTheme->m_buttonRedColor;
+	const QColor missingLayerColor = Skin::toQColor( pColorTheme->m_buttonRedColor );
 
 	auto pickHeaderColor = [&]( int nLayer ) {
 		if ( nLayers <= 1 ) {
@@ -293,7 +293,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		// Background
 		p.fillRect(
 			0, info.nStartY, width(), LayerPreview::nLayerHeight,
-			pColorTheme->m_windowColor
+			Skin::toQColor( pColorTheme->m_windowColor )
 		);
 
 		if ( pGradient != nullptr ) {
@@ -306,12 +306,12 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		if ( pColor != nullptr ) {
 			p.fillRect(
 				info.nStartX, info.nStartY, info.nEndX - info.nStartX,
-				LayerPreview::nLayerHeight, pColorTheme->m_buttonRedColor
+				LayerPreview::nLayerHeight, Skin::toQColor( pColorTheme->m_buttonRedColor )
 			);
 		}
 
 		// Label
-		QColor layerTextColor = pColorTheme->m_windowTextColor;
+		QColor layerTextColor = Skin::toQColor( pColorTheme->m_windowTextColor );
 		layerTextColor.setAlpha( 155 );
 		p.setPen( layerTextColor );
 		p.drawText(
@@ -390,7 +390,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
 			LayerPreview::nHeader - LayerPreview::nBorder, headerBaseColor
 		);
-		p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+		p.setPen( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 145 ) );
 		p.drawRect(
 			LayerPreview::nBorder, LayerPreview::nBorder, width() - 3 * LayerPreview::nBorder,
 			LayerPreview::nHeader - 2 * LayerPreview::nBorder
@@ -441,7 +441,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			}
 			QPen pen;
 			pen.setStyle( Qt::DashLine );
-			pen.setColor( pColorTheme->m_windowTextColor.darker( 145 ) );
+			pen.setColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 145 ) );
 			p.setPen( pen );
 			p.drawLine(
 				iinfoOther.nEndX, LayerPreview::nBorder, iinfoOther.nEndX,
@@ -460,7 +460,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			p.setPen( highlightColor );
 		}
 		else {
-			p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+			p.setPen( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 145 ) );
 		}
 		p.drawLine(
 			nVisibleStart, LayerPreview::nBorder, nVisibleStart,
@@ -490,7 +490,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	// The number indicating the layer in the header should always win and be
 	// visible. That's why render them in another swipe.
 	p.setFont( QFont( pFontTheme->m_sLevel2FontFamily, getPointSizeButton() ) );
-	p.setPen( pColorTheme->m_windowTextColor );
+	p.setPen( Skin::toQColor( pColorTheme->m_windowTextColor ) );
 	for ( const auto& iinfo : m_layerInfos ) {
 		if ( iinfo.bSelected ) {
 			continue;

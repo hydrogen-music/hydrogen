@@ -36,6 +36,7 @@
 #include <core/CoreActionController.h>
 #include <core/IO/LoopBackMidiDriver.h>
 #include <core/IO/SoftwareDriver.h>
+#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Time.h>
 #include <core/Hydrogen.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -84,6 +85,32 @@ void MidiNoteTest::testLoadNewSong()
 	checkInstrumentMidiNote(
 		"Ride Rock", Midi::noteFromInt( 59 ), pInstrumentList->get( 3 )
 	);
+	___INFOLOG( "passed" );
+}
+
+void MidiNoteTest::testMidiInstrumentMapDefaults()
+{
+	___INFOLOG( "" );
+
+	// The shipped defaults continue the pre-2.0 behavior: incoming notes
+	// map by instrument order (list position + NoteOffset) and no channel
+	// is required. The legacy default kit carries no output channels, so
+	// a channel-constraining default would leave its MIDI input dead.
+	const MidiInstrumentMap freshMap;
+	CPPUNIT_ASSERT( freshMap.getInput() == MidiInstrumentMap::Input::Order );
+	CPPUNIT_ASSERT( freshMap.getUseGlobalInputChannel() );
+	CPPUNIT_ASSERT( freshMap.getGlobalInputChannel() == Midi::ChannelAll );
+
+	// The shipped default config materializes the same state.
+	const auto pDefaultPreferences = Preferences::load(
+		Filesystem::systemConfigPath(), true, nullptr );
+	CPPUNIT_ASSERT( pDefaultPreferences != nullptr );
+	const auto pDefaultMap = pDefaultPreferences->getMidiInstrumentMap();
+	CPPUNIT_ASSERT( pDefaultMap != nullptr );
+	CPPUNIT_ASSERT( pDefaultMap->getInput() == MidiInstrumentMap::Input::Order );
+	CPPUNIT_ASSERT( pDefaultMap->getUseGlobalInputChannel() );
+	CPPUNIT_ASSERT( pDefaultMap->getGlobalInputChannel() == Midi::ChannelAll );
+
 	___INFOLOG( "passed" );
 }
 
@@ -223,9 +250,11 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 		const auto noteRef =
 			pMidiInstrumentMap->getInputMapping( ppInstrument, pNewDrumkit, pTestHydrogen() );
 		if ( ppInstrument == pSelectedInstrument ) {
-			CPPUNIT_ASSERT( noteRef.note == ppInstrument->getMidiOutNote() );
+			// Every incoming note maps to the selected instrument.
+			CPPUNIT_ASSERT( noteRef.note == Midi::NoteAll );
+			// The global input channel is forced on in this mode.
 			CPPUNIT_ASSERT(
-				noteRef.channel == ppInstrument->getMidiOutChannel()
+				noteRef.channel == pMidiInstrumentMap->getGlobalInputChannel()
 			);
 		}
 		else {
@@ -245,8 +274,9 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 					CPPUNIT_ASSERT( mapped.size() == 1 );
 					CPPUNIT_ASSERT( mapped[0] != nullptr );
 					CPPUNIT_ASSERT( mapped[0] == pSelectedInstrument );
+					// The global input channel is forced on in this mode.
 					CPPUNIT_ASSERT(
-						pSelectedInstrument->getMidiOutChannel() ==
+						pMidiInstrumentMap->getGlobalInputChannel() ==
 						Midi::channelFromInt( nnChannel )
 					);
 				}
@@ -265,7 +295,11 @@ void MidiNoteTest::testMidiInstrumentInputMapping()
 								static_cast<int>( Midi::NoteOffset )
 							)
 		);
-		CPPUNIT_ASSERT( noteRef.channel == ppInstrument->getMidiOutChannel() );
+		// The channel is the individual one — the custom mapping's.
+		CPPUNIT_ASSERT(
+			noteRef.channel ==
+			customMappings.at( ppInstrument->getType() ).channel
+		);
 	}
 	{
 		int nMappedInstruments = 0;
@@ -520,7 +554,181 @@ void MidiNoteTest::testMidiInstrumentGlobalMapping()
 	pMidiInstrumentMap->setUseGlobalInputChannel( false );
 	testInput( true, globalOutputChannel );
 	pMidiInstrumentMap->setUseGlobalOutputChannel( false );
-	testInput( false, globalOutputChannel );
+	testInput( false, Midi::ChannelDefault );
+
+	___INFOLOG( "passed" );
+}
+
+void MidiNoteTest::testMidiInstrumentInputChannelPrecedence()
+{
+	___INFOLOG( "" );
+
+	auto pHydrogen = pTestHydrogen();
+
+	auto pNewPreferences = pTestHydrogen()->getCoreActionController()->loadPreferences(
+		H2TEST_FILE( "preferences/midi-instrument-mapping.conf" )
+	);
+	CPPUNIT_ASSERT( pNewPreferences != nullptr );
+
+	const auto pNewDrumkit = Drumkit::load(
+		H2TEST_FILE( "drumkits/midi-instrument-mapping/drumkit.xml" ),
+		/* bUpgrade */ true, /* pLegacy */ nullptr, /*bSilent*/ false
+	, pTestHydrogen() );
+	CPPUNIT_ASSERT( pNewDrumkit != nullptr );
+	CPPUNIT_ASSERT( pTestHydrogen()->getCoreActionController()->setDrumkit( pNewDrumkit ) );
+
+	auto pMidiInstrumentMap = pNewPreferences->getMidiInstrumentMap();
+	auto pInstrumentList = pNewDrumkit->getInstruments();
+	const auto customMappings =
+		pMidiInstrumentMap->getCustomInputMappingsType();
+
+	// Every instrument of the fixture kit has a custom mapping whose
+	// channel differs from its output one — so the channel source is
+	// observable.
+	for ( const auto& ppInstrument : *pInstrumentList ) {
+		CPPUNIT_ASSERT( ppInstrument != nullptr );
+		const auto it = customMappings.find( ppInstrument->getType() );
+		CPPUNIT_ASSERT( it != customMappings.end() );
+		CPPUNIT_ASSERT(
+			it->second.channel != ppInstrument->getMidiOutChannel()
+		);
+	}
+
+	const auto globalInputChannel = Midi::channelFromInt( 8 );
+	const auto globalOutputChannel = Midi::channelFromInt( 11 );
+	pMidiInstrumentMap->setGlobalInputChannel( globalInputChannel );
+	pMidiInstrumentMap->setGlobalOutputChannel( globalOutputChannel );
+	pMidiInstrumentMap->setUseGlobalInputChannel( false );
+	pMidiInstrumentMap->setUseGlobalOutputChannel( false );
+
+	////////////////////////////////////////////////////////////////////////////
+	// Input::Order — the note comes from the instrument's position, the
+	// channel is the individual one: the custom mapping's channel, the
+	// instrument's output channel as fallback.
+	{
+		pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::Order );
+
+		for ( const auto& ppInstrument : *pInstrumentList ) {
+			const auto noteRef = pMidiInstrumentMap->getInputMapping(
+				ppInstrument, pNewDrumkit, pTestHydrogen() );
+			CPPUNIT_ASSERT(
+				noteRef.note == Midi::noteFromInt(
+					pInstrumentList->index( ppInstrument ) +
+					static_cast<int>( Midi::NoteOffset ) ) );
+			CPPUNIT_ASSERT(
+				noteRef.channel ==
+				customMappings.at( ppInstrument->getType() ).channel
+			);
+		}
+
+		const auto pInstrument = pInstrumentList->get( 0 );
+		const auto note = Midi::noteFromInt(
+			static_cast<int>( Midi::NoteOffset ) );
+		const auto channelCustom =
+			customMappings.at( pInstrument->getType() ).channel;
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, channelCustom, pNewDrumkit, pTestHydrogen() ).size() == 1 );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, pInstrument->getMidiOutChannel(), pNewDrumkit,
+			pTestHydrogen() ).size() == 0 );
+
+		// The global output channel must not leak into the input.
+		pMidiInstrumentMap->setUseGlobalOutputChannel( true );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, channelCustom, pNewDrumkit, pTestHydrogen() ).size() == 1 );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, globalOutputChannel, pNewDrumkit,
+			pTestHydrogen() ).size() == 0 );
+		pMidiInstrumentMap->setUseGlobalOutputChannel( false );
+
+		// The global input channel overrides the individual ones.
+		pMidiInstrumentMap->setUseGlobalInputChannel( true );
+		for ( const auto& ppInstrument : *pInstrumentList ) {
+			const auto noteRef = pMidiInstrumentMap->getInputMapping(
+				ppInstrument, pNewDrumkit, pTestHydrogen() );
+			CPPUNIT_ASSERT( noteRef.channel == globalInputChannel );
+		}
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, globalInputChannel, pNewDrumkit, pTestHydrogen() ).size() == 1 );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, channelCustom, pNewDrumkit, pTestHydrogen() ).size() == 0 );
+		pMidiInstrumentMap->setUseGlobalInputChannel( false );
+
+		// Without custom mappings the output channel is the fallback.
+		MidiInstrumentMap freshMap;
+		freshMap.setInput( MidiInstrumentMap::Input::Order );
+		freshMap.setUseGlobalInputChannel( false );
+		for ( const auto& ppInstrument : *pInstrumentList ) {
+			const auto noteRef = freshMap.getInputMapping(
+				ppInstrument, pNewDrumkit, pTestHydrogen() );
+			CPPUNIT_ASSERT(
+				noteRef.channel == ppInstrument->getMidiOutChannel() );
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Input::SelectedInstrument — the global input channel is forced on
+	// (the stored preference stays untouched for the other modes).
+	{
+		pMidiInstrumentMap->setInput(
+			MidiInstrumentMap::Input::SelectedInstrument );
+		pHydrogen->setSelectedInstrumentNumber( 1 );
+		const auto pSelectedInstrument = pHydrogen->getSelectedInstrument();
+		CPPUNIT_ASSERT( pSelectedInstrument != nullptr );
+
+		// Forced on — even though the stored preference is off.
+		CPPUNIT_ASSERT( pMidiInstrumentMap->getUseGlobalInputChannel() );
+
+		const auto note = pSelectedInstrument->getMidiOutNote();
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, globalInputChannel, pNewDrumkit, pTestHydrogen() ).size() == 1 );
+		// Neither the selected instrument's output channel ...
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, pSelectedInstrument->getMidiOutChannel(), pNewDrumkit,
+			pTestHydrogen() ).size() == 0 );
+		// ... nor the global output channel reaches it.
+		pMidiInstrumentMap->setUseGlobalOutputChannel( true );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, globalOutputChannel, pNewDrumkit,
+			pTestHydrogen() ).size() == 0 );
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, globalInputChannel, pNewDrumkit, pTestHydrogen() ).size() == 1 );
+		pMidiInstrumentMap->setUseGlobalOutputChannel( false );
+
+		const auto noteRef = pMidiInstrumentMap->getInputMapping(
+			pSelectedInstrument, pNewDrumkit, pTestHydrogen() );
+		CPPUNIT_ASSERT( ! noteRef.isNull() );
+		// Every incoming note maps to the selected instrument.
+		CPPUNIT_ASSERT( noteRef.note == Midi::NoteAll );
+		CPPUNIT_ASSERT( noteRef.channel == globalInputChannel );
+
+		// Leaving the mode restores the stored preference.
+		pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::Custom );
+		CPPUNIT_ASSERT( ! pMidiInstrumentMap->getUseGlobalInputChannel() );
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Input::AsOutput — the only mode in which the global output channel
+	// feeds the input.
+	{
+		pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::AsOutput );
+		pMidiInstrumentMap->setUseGlobalOutputChannel( true );
+		const auto pInstrument = pInstrumentList->get( 0 );
+		const auto note = pInstrument->getMidiOutNote();
+		CPPUNIT_ASSERT( pMidiInstrumentMap->mapInput(
+			note, globalOutputChannel, pNewDrumkit,
+			pTestHydrogen() ).size() == 1 );
+		const auto noteRef = pMidiInstrumentMap->getInputMapping(
+			pInstrument, pNewDrumkit, pTestHydrogen() );
+		CPPUNIT_ASSERT( noteRef.channel == globalOutputChannel );
+		pMidiInstrumentMap->setUseGlobalOutputChannel( false );
+	}
+
+	// Restore the fixture defaults for the tests that follow.
+	pMidiInstrumentMap->setInput( MidiInstrumentMap::Input::AsOutput );
+	pMidiInstrumentMap->setUseGlobalInputChannel( false );
+	pMidiInstrumentMap->setGlobalInputChannel( Midi::channelFromInt( 9 ) );
+	pMidiInstrumentMap->setGlobalOutputChannel( Midi::channelFromInt( 9 ) );
 
 	___INFOLOG( "passed" );
 }

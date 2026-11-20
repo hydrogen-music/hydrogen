@@ -23,6 +23,7 @@
 #include "PreferencesInstanceTest.h"
 #include "TestHelper.h"
 
+#include <core/Preferences/Color.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiEventMap.h>
 #include <core/Midi/MidiInstrumentMap.h>
@@ -68,13 +69,14 @@ void PreferencesInstanceTest::testCopyConstructorIsDeep() {
 	auto pSource = std::make_shared<Preferences>();
 
 	pSource->m_pShortcuts->insertShortcut(
-		QKeySequence( "Ctrl+Alt+Shift+P" ), Shortcuts::Action::Play );
+		KeySequence::fromPortableText( "Ctrl+Alt+Shift+P" ),
+		Shortcuts::Action::Play );
 	pSource->m_pMidiEventMap->registerEvent(
 		MidiEvent::Type::CC, Midi::parameterFromInt( 0 ),
 		std::make_shared<MidiAction>( MidiAction::Type::BeatCounter ),
 		Event::Trigger::Suppress, pTestHydrogen() );
 	pSource->m_pMidiInstrumentMap->setGlobalInputChannel( Midi::Channel( 9 ) );
-	pSource->m_pTheme->m_pInterface->m_patternColors[ 0 ] = QColor( 1, 2, 3 );
+	pSource->m_pTheme->m_pInterface->m_patternColors[ 0 ] = Color( 1, 2, 3 );
 
 	auto pCopy = std::make_shared<Preferences>( pSource );
 
@@ -90,14 +92,15 @@ void PreferencesInstanceTest::testCopyConstructorIsDeep() {
 	const auto copySequences =
 		pCopy->m_pShortcuts->getKeySequences( Shortcuts::Action::Play );
 	CPPUNIT_ASSERT( std::find( copySequences.begin(), copySequences.end(),
-							   QKeySequence( "Ctrl+Alt+Shift+P" ) ) !=
+							   KeySequence::fromPortableText(
+								   "Ctrl+Alt+Shift+P" ) ) !=
 					copySequences.end() );
 	CPPUNIT_ASSERT_EQUAL(
 		1, static_cast<int>( pCopy->m_pMidiEventMap->getMidiEvents().size() ) );
 	CPPUNIT_ASSERT( pCopy->m_pMidiInstrumentMap->getGlobalInputChannel() ==
 					Midi::Channel( 9 ) );
 	CPPUNIT_ASSERT( pCopy->m_pTheme->m_pInterface->m_patternColors.at( 0 ) ==
-					QColor( 1, 2, 3 ) );
+					Color( 1, 2, 3 ) );
 
 	// The deep copy chains: the copied event's action is a fresh object
 	// too, not shared with the source.
@@ -112,7 +115,8 @@ void PreferencesInstanceTest::testCopyConstructorIsDeep() {
 
 	// Mutating the copy never leaks into the source.
 	pCopy->m_pShortcuts->insertShortcut(
-		QKeySequence( "Ctrl+Alt+Shift+O" ), Shortcuts::Action::Play );
+		KeySequence::fromPortableText( "Ctrl+Alt+Shift+O" ),
+		Shortcuts::Action::Play );
 	CPPUNIT_ASSERT_EQUAL(
 		1, static_cast<int>(
 			   pSource->m_pShortcuts->getKeySequences( Shortcuts::Action::Play )
@@ -129,9 +133,9 @@ void PreferencesInstanceTest::testCopyConstructorIsDeep() {
 	CPPUNIT_ASSERT( pSource->m_pMidiInstrumentMap->getGlobalInputChannel() ==
 					Midi::Channel( 9 ) );
 
-	pCopy->m_pTheme->m_pInterface->m_patternColors[ 0 ] = QColor( 4, 5, 6 );
+	pCopy->m_pTheme->m_pInterface->m_patternColors[ 0 ] = Color( 4, 5, 6 );
 	CPPUNIT_ASSERT( pSource->m_pTheme->m_pInterface->m_patternColors.at( 0 ) ==
-					QColor( 1, 2, 3 ) );
+					Color( 1, 2, 3 ) );
 
 	___INFOLOG( "passed" );
 }

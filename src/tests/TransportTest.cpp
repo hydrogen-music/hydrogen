@@ -514,3 +514,34 @@ void TransportTest::testPluginHostTempoWinsOverTimeline() {
 
 	___INFOLOG( "passed" );
 }
+
+// A real host never triggers Hydrogen user actions when its transport rolls -
+// it just publishes bRolling per block. That alone must drive the engine's
+// play state (ADR 0013): rolling starts playback, stopped parks the engine,
+// and a user-initiated play queued against a stopped host loses to the host.
+void TransportTest::testPluginHostRollingDrivesEngineState() {
+	___INFOLOG( "" );
+
+	FakePluginHost host( 44100, 256 );
+	auto pAudioEngine = host.getHydrogen()->getAudioEngine();
+
+	// A user play (e.g. an editor session's play button) while the host is
+	// stopped must not start the engine: the host owns the transport and its
+	// clock is stationary.
+	host.getHydrogen()->sequencerPlay();
+	host.process( 256 );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+
+	// The host rolls - no user action involved - and the engine follows into
+	// State::Playing.
+	host.setPlaying( true );
+	host.process( 256 );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Playing );
+
+	// The host stops again: the engine parks.
+	host.setPlaying( false );
+	host.process( 256 );
+	CPPUNIT_ASSERT( pAudioEngine->getState() == AudioEngine::State::Ready );
+
+	___INFOLOG( "passed" );
+}

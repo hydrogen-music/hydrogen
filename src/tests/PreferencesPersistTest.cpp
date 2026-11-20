@@ -22,6 +22,7 @@
 #include "PreferencesPersistTest.h"
 #include "TestHelper.h"
 
+#include <core/Preferences/Color.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -584,7 +585,8 @@ void PreferencesPersistTest::testShortcutsRowReplacedWholesale() {
 	// replaces the whole container - the on-disk list must end up exactly
 	// one entry longer, never appended-to or duplicated.
 	pPref->m_pShortcuts->insertShortcut(
-		QKeySequence( "Ctrl+Alt+Shift+P" ), Shortcuts::Action::Play );
+		KeySequence::fromPortableText( "Ctrl+Alt+Shift+P" ),
+		Shortcuts::Action::Play );
 
 	CPPUNIT_ASSERT( pPref->save( true ) );
 
@@ -597,7 +599,8 @@ void PreferencesPersistTest::testShortcutsRowReplacedWholesale() {
 	const auto sequences = pReloaded->m_pShortcuts->getKeySequences(
 		Shortcuts::Action::Play );
 	CPPUNIT_ASSERT( std::find( sequences.begin(), sequences.end(),
-							   QKeySequence( "Ctrl+Alt+Shift+P" ) )
+							   KeySequence::fromPortableText(
+								   "Ctrl+Alt+Shift+P" ) )
 					!= sequences.end() );
 
 	___INFOLOG( "passed" );
@@ -618,12 +621,12 @@ void PreferencesPersistTest::testPatternColorRowPersisted() {
 
 	auto& colors = pPref->m_pTheme->m_pInterface->m_patternColors;
 	CPPUNIT_ASSERT( colors.size() >= 2 );
-	const QColor originalSecond = colors.at( 1 );
+	const Color originalSecond = colors.at( 1 );
 	const int nSeedColors = colors.size();
 
 	// Pattern colors are prefix-matched rows: changing one color rewrites
 	// the row wholesale; sibling colors and the cardinality are preserved.
-	colors[ 0 ] = QColor( 1, 2, 3 );
+	colors[ 0 ] = Color( 1, 2, 3 );
 
 	CPPUNIT_ASSERT( pPref->save( true ) );
 
@@ -633,7 +636,7 @@ void PreferencesPersistTest::testPatternColorRowPersisted() {
 		pReloaded->m_pTheme->m_pInterface->m_patternColors;
 	CPPUNIT_ASSERT_EQUAL( nSeedColors,
 						  static_cast<int>( reloadedColors.size() ) );
-	CPPUNIT_ASSERT( reloadedColors.at( 0 ) == QColor( 1, 2, 3 ) );
+	CPPUNIT_ASSERT( reloadedColors.at( 0 ) == Color( 1, 2, 3 ) );
 	CPPUNIT_ASSERT( reloadedColors.at( 1 ) == originalSecond );
 
 	___INFOLOG( "passed" );
@@ -653,9 +656,10 @@ void PreferencesPersistTest::testMissingShortcutsElementDefersDefaults() {
 	Filesystem::setPreferencesOverwritePath( sPath );
 
 	// Headless context: a QCoreApplication (the test runner) but no
-	// QGuiApplication - Qt standard keys have no platform theme here.
-	// Loading must defer default creation instead of crashing in
-	// QKeySequence::keyBindings (Shortcuts::createDefaultShortcuts).
+	// QGuiApplication - Qt standard keys have no platform theme
+	// here. Loading must defer default creation (the GUI injects the
+	// platform-dependent Undo/Redo sequences after its bootstrap)
+	// instead of crashing in QKeySequence::keyBindings.
 	auto pPref = Preferences::load( sPath, true, pTestHydrogen() );
 	CPPUNIT_ASSERT( pPref != nullptr );
 	CPPUNIT_ASSERT( pPref->m_pShortcuts->requiresDefaults() );

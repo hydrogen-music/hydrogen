@@ -29,8 +29,10 @@ $env:PATH="$msys\bin;$env:PATH"
 $env:PKG_CONFIG_PATH="$msys\lib\pkgconfig"
 $build_type='Debug'
 $msys_repo='mingw64/mingw-w64-x86_64'
-$libssl='libssl-3-x64.dll'
-$libcrypto='libcrypto-3-x64.dll'
+# Wildcards on purpose: the OpenSSL major version (and with it the DLL names)
+# drifts with the MSYS2 repos; copy whichever version is actually installed.
+$libssl='libssl-*-x64.dll'
+$libcrypto='libcrypto-*-x64.dll'
 
 if($installdeps)
 {

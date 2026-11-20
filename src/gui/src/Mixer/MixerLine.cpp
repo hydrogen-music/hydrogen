@@ -35,6 +35,7 @@
 #include <core/Preferences/Theme.h>
 
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 #include <core/CommonStrings.h>
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
@@ -101,9 +102,9 @@ MixerLine::MixerLine(QWidget* pParent, std::shared_ptr<Instrument> pInstrument )
 	m_pSelectionLED->setObjectName( "SelectionLED" );
 
 	// Pick a background color which works nicely with our mute color.
-	const auto buttonBackgroundColor = HydrogenApp::pPreferences()
-										   ->getColorTheme()
-										   ->m_widgetColor.darker( 130 );
+	const auto buttonBackgroundColor = Skin::toQColor(
+		HydrogenApp::pPreferences()->getColorTheme()->m_widgetColor
+	).darker( 130 );
 
 	// Mute button
 	m_pMuteBtn = new MuteButton(
@@ -214,12 +215,12 @@ MixerLine::~MixerLine() {
 void MixerLine::updateColors() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_muteColor ) );
 	m_pMuteBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor );
-	m_pSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
+		Skin::toQColor( pColorTheme->m_muteTextColor ) );
+	m_pSoloBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_soloColor ) );
 	m_pSoloBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_soloTextColor );
+		Skin::toQColor( pColorTheme->m_soloTextColor ) );
 }
 
 void MixerLine::updateLine() {

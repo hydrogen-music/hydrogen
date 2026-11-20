@@ -31,7 +31,9 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginLifecycleTest );
 	CPPUNIT_TEST( testRepeatedLifecycle );
 	CPPUNIT_TEST( testPluginProcess );
+	CPPUNIT_TEST( testPluginReset );
 	CPPUNIT_TEST( testPluginStateRoundTrip );
+	CPPUNIT_TEST( testPluginStatePreferencesRoundTrip );
 	CPPUNIT_TEST( testPluginRepeatedLifecycle );
 	CPPUNIT_TEST( testEditorOpenServesEngine );
 	CPPUNIT_TEST( testEditorCommandReachesEngine );
@@ -50,9 +52,21 @@ public:
 	 * activates, processes silence and notes into host master + bus buffers
 	 * without NaNs, then deactivates (ADR 0014). */
 	void testPluginProcess();
+	/** The host reset hook (CLAP `reset`, [audio-thread & active]) maps to
+	 * CoreActionController::panic(): a live note still sounding after its
+	 * block is killed — the sampler holds no playing notes afterwards and
+	 * picks up none over subsequent blocks. */
+	void testPluginReset();
 	/** HydrogenPlugin state save → load round-trips through the `.h2project`
 	 * codec. */
 	void testPluginStateRoundTrip();
+	/** The plugin's base-layer preferences (last-used directories, MIDI
+	 * instrument map) ride in the state blob: a restoring instance adopts
+	 * them while its host-owned override layer (sample rate, buffer size)
+	 * stays its own, and the shared user config file is never written.
+	 * Legacy bare-XML song blobs still load and leave the current
+	 * preferences untouched. */
+	void testPluginStatePreferencesRoundTrip();
 	/** Repeated construct/destroy of HydrogenPlugin leaves no residual objects. */
 	void testPluginRepeatedLifecycle();
 	/** openEditor() serves the instance's engine over IPC; an editor (here an

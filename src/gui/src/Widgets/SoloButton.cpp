@@ -24,6 +24,7 @@
 
 #include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
@@ -47,8 +48,8 @@ SoloButton::SoloButton(
 	}
 
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	setBaseColor( pColorTheme->m_soloColor );
-	setBaseTextColor( pColorTheme->m_soloTextColor );
+	setBaseColor( Skin::toQColor( pColorTheme->m_soloColor ) );
+	setBaseTextColor( Skin::toQColor( pColorTheme->m_soloTextColor ) );
 }
 
 SoloButton::~SoloButton()
@@ -63,7 +64,7 @@ void SoloButton::onPreferencesChanged(
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
 		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-		setBaseColor( pColorTheme->m_soloColor );
-		setBaseTextColor( pColorTheme->m_soloTextColor );
+		setBaseColor( Skin::toQColor( pColorTheme->m_soloColor ) );
+		setBaseTextColor( Skin::toQColor( pColorTheme->m_soloTextColor ) );
 	}
 }

@@ -585,7 +585,10 @@ private:
 	/**
 	 * Follow the plugin host's transport for the current process block (ADR
 	 * 0013, T3.3). Reads the HostTransport published on the PluginAudioDriver
-	 * and relocates the playhead to the host's frame whenever it diverges from
+	 * and maps its rolling state onto #m_nextState - a rolling host starts
+	 * playback, a stopped one parks the engine (the host owns the transport,
+	 * like the JACK server does via JackDriver::updateTransport()). It also
+	 * relocates the playhead to the host's frame whenever it diverges from
 	 * the engine's own position - i.e. on a host relocate or host loop wrap.
 	 * While the host rolls contiguously, incrementPlayhead() already advances
 	 * by exactly nframes (matching the host's per-block advance), so this is a

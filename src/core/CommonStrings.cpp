@@ -126,6 +126,14 @@ CommonStrings::CommonStrings(){
 	/*: Text displayed on the button for muting an instrument strip in
 	  the mixer. Its size is designed for a single character.*/
 	m_sSmallMuteButton = tr( "M" );
+	/*: Text displayed at the left margin of the pan knob in the mixer
+	  marking the left end of the pan scale. Its size is designed to
+	  hold a single character.*/
+	m_sPanScaleLeft = tr( "L" );
+	/*: Text displayed at the right margin of the pan knob in the mixer
+	  marking the right end of the pan scale. Its size is designed to
+	  hold a single character.*/
+	m_sPanScaleRight = tr( "R" );
 	/*: Text displayed on the button for muting the master strip as well as
 	  other places. */
 	m_sBigMuteButton = tr( "Mute" );
@@ -330,7 +338,9 @@ CommonStrings::CommonStrings(){
 	m_sTagsLabel = tr( "Tags" );
 	/*: Label shown in a tab of the Sound Library. */
 	m_sDrumkitsLabel = tr( "Drumkits" );
-	/*: Label shown in a tab of the Sound Library. */
+	/*: Label shown in a tab of the Sound Library. Also the label of the
+	 * info section's pattern count row in the embedded plugin UI's
+	 * landing view. */
 	m_sPatternsLabel = tr( "Patterns" );
 	/*: Label shown in a tab of the Sound Library. */
 	m_sSongsLabel = tr( "Songs" );
@@ -405,6 +415,12 @@ CommonStrings::CommonStrings(){
 	m_sMidiSenseUnavailable = tr( "This element is not MIDI operable." );
 
 	m_sPatternLoadError = tr( "Unable to load pattern" );
+	/*: Displayed in the plugin UI's status line if the selected
+	   drumkit could not be loaded. */
+	m_sDrumkitLoadError = tr( "Unable to load drumkit" );
+	/*: Displayed in the plugin UI's status line if the external
+	   editor could not be opened. */
+	m_sEditorOpenError = tr( "Unable to open editor" );
 	m_sInstrumentLoadError = tr( "Unable to load instrument" );
 
 	/*: Error message shown when attempt to export a song, pattern,
@@ -542,9 +558,6 @@ CommonStrings::CommonStrings(){
 	m_sPathDialog = tr( "Path" );
 	
 	// Not used yet.
-	/*: Displayed in the Open dialog window if the selected song could
-	  not be loaded.*/
-	// m_sDialogSongLoadError = tr( "Error loading song." );
 	/*: Heading displayed in the info box asking the user to recover
 	  unsaved changes from an earlier session.*/
 	// m_sDialogUnsavedChangedH1 = tr( "There are unsaved changes." );
@@ -1023,7 +1036,9 @@ CommonStrings::CommonStrings(){
 	/*: Name of note property adjustable in NotePropertiesRuler. */
 	m_sNotePropertyProbability = tr( "Probability" );
 	/*: Name of note property adjustable by right click-dragging in
-	 *  DrumPatternEditor and PianoRollEditor. */
+	 * DrumPatternEditor and PianoRollEditor. Also the label of the
+	 * embedded plugin UI's info section row showing the current
+	 * pattern's length in ticks. */
 	m_sNotePropertyLength = tr( "Length" );
 
 	/*: Displayed in a warning message in case the user tries to read
@@ -1034,8 +1049,13 @@ CommonStrings::CommonStrings(){
 	/*: Indicates a menu section in which behavioural customizations can be
 	 *  done. */
 	m_sSettings = tr( "Settings" );
-	/*: Indicates a menu section which affects patterns. */
+	/*: Indicates a menu section which affects patterns. Also labels the
+	 * pattern tab of the embedded plugin UI as well as its info
+	 * section's current pattern row and pattern mode value. */
 	m_sPattern = tr( "Pattern" );
+	/*: A single song, e.g. as a tab label. Also labels the embedded
+	 * plugin UI's info section song name row and song mode value. */
+	m_sSong = tr( "Song" );
 
 	/*: Presented as an option to always e.g. perform an action. */
 	m_sOptionAlways = tr( "Always" );
@@ -1110,7 +1130,8 @@ CommonStrings::CommonStrings(){
 	/*: Label for the number of musical notes contained in a pattern,
 	 *  shown in the Online Import detail panel. Not to be confused
 	 *  with the 'Notes' label for text annotations in property
-	 *  dialogs. */
+	 *  dialogs. Also the label of the embedded plugin UI's info
+	 *  section row showing the current pattern's note count. */
 	m_sNoteCountLabel = tr( "Notes" );
 
 	// Embedded plugin UI (proposal 0006). Texts the GUI vocabulary
@@ -1129,6 +1150,9 @@ CommonStrings::CommonStrings(){
 	/*: Button in the embedded plugin UI opening the full graphical
 	 *  editor. */
 	m_sOpenEditorButton = tr( "Open editor" );
+	/*: Label of the line edit holding the path to the editor
+	 *  executable in the embedded plugin UI. */
+	m_sEditorExecutableLabel = tr( "Editor executable" );
 	/*: Title of the file browser for songs in the embedded plugin
 	 *  UI. */
 	m_sSongFileDialogTitle = tr( "Choose a song file" );
@@ -1169,19 +1193,42 @@ CommonStrings::CommonStrings(){
 	/*: Checkbox making an instrument follow the global input channel
 	 *  in the embedded plugin UI. */
 	m_sUseGlobalChannelLabel = tr( "Use global channel" );
-	/*: Column header of the note mapping table's event source side in
-	 *  the embedded plugin UI. */
-	m_sInputHeader = tr( "Input" );
-	/*: Column header of the note mapping table's event target side in
-	 *  the embedded plugin UI. */
-	m_sOutputHeader = tr( "Output" );
 	/*: Label of the output bus selector in the embedded plugin UI. */
 	m_sBusLabel = tr( "Bus" );
 	/*: Button resetting a mixer strip in the embedded plugin UI. */
 	m_sResetButton = tr( "Reset" );
 	/*: Checkbox limiting the mixer tab of the embedded plugin UI to
-	 *  the master strip. */
+	 * the master strip. */
 	m_sMasterOnlyLabel = tr( "Master only" );
+	/*: Section header of the instrument-to-bus routing in the embedded
+	 * plugin UI's mapping view. */
+	m_sBusOutputHeader = tr( "Bus Output" );
+	/*: Label of the info section's drumkit row in the embedded plugin
+	 * UI's landing view — the name of the drumkit of the current song. */
+	m_sDrumkitLabel = tr( "Drumkit" );
+	/*: Label of the info section's mode row in the embedded plugin UI's
+	 * landing view — whether the current song is in song or pattern
+	 * mode. */
+	m_sModeLabel = tr( "Mode" );
+	/*: Label of the info section's row in the embedded plugin UI's
+	 * landing view showing the total length of the current song in
+	 * columns. */
+	m_sColumnsLabel = tr( "Columns" );
+	/*: Label of the info section's row in the embedded plugin UI's
+	 * landing view showing the column the playback position is
+	 * currently in. */
+	m_sCurrentColumnLabel = tr( "Current column" );
+	/*: Label of the info section's row in the embedded plugin UI's
+	 *  landing view showing the names of the patterns currently being
+	 *  played. */
+	m_sPlayingLabel = tr( "Playing" );
+	/*: Section header above the save-behavior settings in the embedded
+	 *  plugin UI's landing view. */
+	m_sConfigurationHeader = tr( "Configuration" );
+	/*: Checkbox in the embedded plugin UI's landing view; when checked,
+	 *  the state a host saves contains the drumkit's sample audio, so
+	 *  it survives on machines without the drumkit installed. */
+	m_sIncludeSamplesInStateLabel = tr( "Include samples in plugin state" );
 }
 
 QString CommonStrings::getChannelDisplayName( Midi::Channel channel ) const

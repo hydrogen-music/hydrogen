@@ -57,8 +57,8 @@ PitchLabel::PitchLabel( QWidget* pParent, const QString& sText, int nHeight )
 	setIndent( 2 );
 
 	updateFont();
-	setBackgroundColor( HydrogenApp::pPreferences()->getColorTheme()->
-		m_patternEditor_backgroundColor );
+	setBackgroundColor( Skin::toQColor( HydrogenApp::pPreferences()->getColorTheme()->
+		m_patternEditor_backgroundColor ) );
 	updateStyleSheet();
 }
 
@@ -81,11 +81,11 @@ void PitchLabel::updateStyleSheet() {
 
 	QColor textColor;
 	if ( m_bSelected ) {
-		textColor = pColorTheme->m_patternEditor_selectedRowTextColor;
+		textColor = Skin::toQColor( pColorTheme->m_patternEditor_selectedRowTextColor );
 	} else {
-		textColor = pColorTheme->m_patternEditor_textColor;
+		textColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
 	}
-	const auto cursorColor = pColorTheme->m_cursorColor;
+	const auto cursorColor = Skin::toQColor( pColorTheme->m_cursorColor );
 
 	if ( m_textColor == textColor && m_cursorColor == cursorColor ) {
 		return;
@@ -153,7 +153,7 @@ void PitchLabel::paintEvent( QPaintEvent* ev )
 	}
 
     // border
-    p.setPen( pColorTheme->m_windowColor );
+    p.setPen( Skin::toQColor( pColorTheme->m_windowColor ) );
     p.drawLine( 0, 0,  width(), 0 );
 
 	QLabel::paintEvent( ev );
@@ -611,25 +611,25 @@ void PianoRollEditor::createBackground()
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
-	QColor backgroundColor( pColorTheme->m_patternEditor_backgroundColor );
-	QColor alternateRowColor( pColorTheme->m_patternEditor_alternateRowColor );
-	QColor octaveColor = pColorTheme->m_patternEditor_octaveRowColor;
-	QColor lineColor( pColorTheme->m_patternEditor_lineColor );
+	QColor backgroundColor( Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ) );
+	QColor alternateRowColor( Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ) );
+	QColor octaveColor = Skin::toQColor( pColorTheme->m_patternEditor_octaveRowColor );
+	QColor lineColor( Skin::toQColor( pColorTheme->m_patternEditor_lineColor ) );
 	// Row clicked by the user.
-	QColor selectedRowColor( pColorTheme->m_patternEditor_selectedRowColor );
+	QColor selectedRowColor( Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ) );
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
 	const QColor lineInactiveColor(
-		pColorTheme->m_windowTextColor.darker( 170 ) );
+		Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 170 ) );
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor ).lighter(
 			Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	if ( ! hasFocus() ) {

@@ -43,9 +43,14 @@
 #include <core/Preferences/Preferences.h>
 
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QThread>
+#include <QtNetwork/QLocalServer>
+#include <QtNetwork/QLocalSocket>
 
 #include <memory>
+#include <vector>
 #include <atomic>
 
 using namespace H2Core;
@@ -108,19 +113,51 @@ void IpcTransportTest::testHelloHandshakeOverSocket() {
 	IpcChannel* conn = server.waitForChannel();
 	CPPUNIT_ASSERT( conn != nullptr );
 
-	// Editor → engine hello, engine → editor hello reply, both over the wire.
-	CPPUNIT_ASSERT( client->send( IpcMessage::hello() ) );
-	IpcMessage received;
-	CPPUNIT_ASSERT( conn->receive( received ) );
-	CPPUNIT_ASSERT( received.getOpcode() == IpcOpcode::Hello );
-	CPPUNIT_ASSERT_EQUAL( IPC_PROTOCOL_VERSION,
-						  received.helloProtocolVersion() );
+	// The editor announces a wildly differing app version — a major ahead,
+	// on a custom-suffix build. Only the wire protocol gates (ADR 0018),
+	// so this must pass.
+	IpcHelloVersion editorVersion = IpcHelloVersion::local();
+	editorVersion.nAppMajor += 1;
+	editorVersion.nAppPatch += 3;
+	editorVersion.sAppSuffix = "transport-test";
 
-	CPPUNIT_ASSERT( conn->send( IpcMessage::hello() ) );
+	// Engine side (this test plays the engine): accept the hello, validate
+	// it, and answer with a *correlated* hello echoing the request id — the
+	// shape EngineSession::handleMessage() produces.
+	auto pSeenHello = std::make_shared<IpcMessage>();
+	QThread* pResponder = startResponderThread(
+		conn, [conn, pSeenHello]() {
+			IpcMessage helloReq;
+			if ( ! conn->receive( helloReq, 5000 ) ) {
+				return;
+			}
+			*pSeenHello = helloReq;
+			IpcMessage reply = IpcMessage::hello();
+			reply.setRequestId( helloReq.getRequestId() );
+			conn->send( reply );
+		} );
+
+	// Editor side: the handshake rides the request/response tier —
+	// request() correlates the engine's hello reply by id.
 	IpcMessage reply;
-	CPPUNIT_ASSERT( client->receive( reply ) );
-	CPPUNIT_ASSERT_EQUAL( IPC_PROTOCOL_VERSION, reply.helloProtocolVersion() );
+	CPPUNIT_ASSERT( client->request(
+		IpcMessage::hello( editorVersion ), reply, 5000 ) );
+	pResponder->wait();
+	delete pResponder;
 
+	CPPUNIT_ASSERT( reply.getOpcode() == IpcOpcode::Hello );
+	CPPUNIT_ASSERT( reply.getRequestId() != 0 );  // correlation survived
+	CPPUNIT_ASSERT( reply.helloVersion() == IpcHelloVersion::local() );
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible(
+		reply.helloVersion(), IpcHelloVersion::local() ) );
+
+	// The engine saw the editor's full version, and it passed the gate.
+	CPPUNIT_ASSERT( pSeenHello->getOpcode() == IpcOpcode::Hello );
+	CPPUNIT_ASSERT( pSeenHello->helloVersion() == editorVersion );
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible(
+		pSeenHello->helloVersion(), IpcHelloVersion::local() ) );
+
+	delete conn;
 	delete client;
 
 	___INFOLOG( "passed" );
@@ -624,6 +661,90 @@ void IpcTransportTest::testTelemetrySharedMemory() {
 
 	reader.detach();
 	writer.detach();
+
+	___INFOLOG( "passed" );
+}
+
+#ifndef WIN32
+void IpcTransportTest::testListenClearsStaleSocketFile() {
+	___INFOLOG( "" );
+
+	// A crashed previous run leaves its socket file behind; Qt reports
+	// AddressInUse for any existing file and never clears it itself, so
+	// listen() must clear it on our behalf. Qt binds relative names
+	// under QDir::tempPath() - not a hardcoded /tmp (on macOS that is a
+	// per-user directory).
+	const QString sName = uniqueServerName();
+	const QString sSocketPath = QDir::tempPath() + QLatin1Char( '/' ) + sName;
+	QFile stale( sSocketPath );
+	CPPUNIT_ASSERT( stale.open( QIODevice::WriteOnly ) );
+	stale.close();
+
+	IpcServer server;
+	CPPUNIT_ASSERT( server.listen( sName ) );
+
+	___INFOLOG( "passed" );
+}
+
+// A live endpoint whose accept backlog is momentarily full refuses the
+// probe's connect without being dead (Unix: EAGAIN; Windows: all pipe
+// instances busy). listen() must still refuse to bind: treating a busy
+// endpoint as stale would unlink the live server's socket file and
+// silently kill the first instance's editor seam.
+void IpcTransportTest::testListenDoesNotStealBusyEndpoint() {
+	___INFOLOG( "" );
+
+	const QString sName = uniqueServerName();
+	const QString sSocketPath = QDir::tempPath() + QLatin1Char( '/' ) + sName;
+	QLocalServer live;
+	live.setMaxPendingConnections( 1 );
+	CPPUNIT_ASSERT( live.listen( sName ) );
+
+	// Saturate the accept backlog with never-accepted clients.
+	std::vector<std::unique_ptr<QLocalSocket>> clients;
+	bool bSaturated = false;
+	for ( int i = 0; i < 200; ++i ) {
+		auto pClient = std::make_unique<QLocalSocket>();
+		pClient->connectToServer( sName );
+		const bool bConnected = pClient->waitForConnected( 50 );
+		clients.push_back( std::move( pClient ) );
+		if ( ! bConnected ) {
+			bSaturated = true;
+			break;
+		}
+	}
+	CPPUNIT_ASSERT( bSaturated );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( ! server.listen( sName ) );
+
+	// The live endpoint's socket file was not unlinked behind its back.
+	CPPUNIT_ASSERT( QFile::exists( sSocketPath ) );
+
+	___INFOLOG( "passed" );
+}
+#endif
+
+void IpcTransportTest::testListenDoesNotStealLiveEndpoint() {
+	___INFOLOG( "" );
+
+	// A second Hydrogen instance in the same host process computes the same
+	// endpoint name only when their instance ids collide; whatever the
+	// cause, a bind attempt must fail cleanly instead of unlinking the
+	// live server's socket - which would silently kill the first
+	// instance's editor seam.
+	const QString sName = uniqueServerName();
+	QLocalServer live;
+	CPPUNIT_ASSERT( live.listen( sName ) );
+
+	IpcServer server;
+	CPPUNIT_ASSERT( ! server.listen( sName ) );
+
+	// The live server still accepts connections: its endpoint was not
+	// stolen.
+	QLocalSocket client;
+	client.connectToServer( sName );
+	CPPUNIT_ASSERT( client.waitForConnected( 1000 ) );
 
 	___INFOLOG( "passed" );
 }

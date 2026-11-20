@@ -198,32 +198,32 @@ void DrumPatternEditor::createBackground() {
 	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
-	QColor lineColor( pColorTheme->m_patternEditor_lineColor );
+	QColor lineColor( Skin::toQColor( pColorTheme->m_patternEditor_lineColor ) );
 	// Row clicked by the user.
 	QColor selectedRowColor(
-		pColorTheme->m_patternEditor_selectedRowColor );
+		Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ) );
 
 	// Rows for which there is a corresponding instrument in the current
 	// drumkit.
 	QColor backgroundColor(
-		pColorTheme->m_patternEditor_backgroundColor );
+		Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ) );
 	QColor alternateRowColor(
-		pColorTheme->m_patternEditor_alternateRowColor );
+		Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ) );
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
 	const QColor lineInactiveColor(
-		pColorTheme->m_windowTextColor.darker( 170 ) );
+		Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 170 ) );
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
 	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
-			pColorTheme->m_windowColor.lighter(
+			Skin::toQColor( pColorTheme->m_windowColor ).lighter(
 				Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	if ( ! hasFocus() ) {

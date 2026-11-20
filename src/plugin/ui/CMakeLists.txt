@@ -37,7 +37,13 @@ endif()
 # TU4: the view models — pure logic, no imgui types (TU1.3). They form their
 # own library so the unit suite links them headless (no vendored UI sources
 # on its link line); hydrogen-plugin-ui consumes them for its renderers.
+# The frame gate (ADR 0035's amendment) is pure logic too — same seam, and so
+# is the engine-event-sink adapter (ADR 0035 UI-3): it forwards into the
+# models and never touches imgui.
 set( H2_PLUGIN_UI_MODEL_SOURCES
+    PluginUiEngineSink.cpp
+    PluginUiFrameGate.cpp
+    PluginUiHtml.cpp
     PluginUiLandingModel.cpp
     PluginUiMappingModel.cpp
     PluginUiMixerModel.cpp )
@@ -67,7 +73,8 @@ endif()
 set( H2_PLUGIN_UI_VIEW_SOURCES
     PluginUiLandingView.cpp
     PluginUiMappingView.cpp
-    PluginUiMixerView.cpp )
+    PluginUiMixerView.cpp
+    PluginUiStyle.cpp )
 
 add_library( hydrogen-plugin-ui STATIC
     ${H2_PLUGIN_UI_WINDOW_SOURCES}
@@ -127,6 +134,14 @@ elseif(NOT WIN32)
     target_link_libraries( hydrogen-plugin-ui-smoke PRIVATE X11::X11 )
 endif()
 add_test( NAME PluginUiSmoke COMMAND hydrogen-plugin-ui-smoke )
+
+# Theme mapping (PluginUiStyle): headless — no window, no GPU — so it runs
+# where the window smoke skips. Pins the QColor lighter()/darker() port and
+# the ColorTheme-to-imgui mapping.
+add_executable( hydrogen-plugin-ui-style-test PluginUiStyleTest.cpp )
+target_link_libraries( hydrogen-plugin-ui-style-test PRIVATE hydrogen-plugin-ui )
+set_target_properties( hydrogen-plugin-ui-style-test PROPERTIES CXX_STANDARD 17 )
+add_test( NAME PluginUiStyle COMMAND hydrogen-plugin-ui-style-test )
 
 # Plugin-UI dependency guard (ADR 0035, proposal 0006 TU1.3): static source
 # check that the plugin UI layer never depends on the Qt-Widgets GUI

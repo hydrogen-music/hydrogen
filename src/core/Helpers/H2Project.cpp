@@ -53,6 +53,7 @@ namespace H2Core {
 // Entry names within the bundle.
 static const char* SONG_ENTRY = "song.h2song";
 static const char* MANIFEST_ENTRY = "manifest.txt";
+static const char* PREFS_ENTRY = "preferences.xml";
 
 // Folder a `.h2project` bundle with the cache key @a sCacheKey is extracted
 // to.
@@ -181,28 +182,19 @@ static void forEachSample( std::shared_ptr<Song> pSong, F fn ) {
 	}
 }
 
-std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
-												bool bSilent ) {
-#ifndef H2CORE_HAVE_LIBARCHIVE
-	___ERRORLOG( "libarchive not available; cannot build .h2project" );
-	return {};
-#else
-	if ( pSong == nullptr ) {
-		___ERRORLOG( "Invalid song" );
-		return {};
-	}
+#ifdef H2CORE_HAVE_LIBARCHIVE
 
-	// Collect the unique sample blobs (deduped by content hash), the manifest
-	// mapping each (inst,comp,layer) slot to its blob entry, and a lookup
-	// from sample file path to entry name. The latter is handed to the XML
-	// serialization below so that `<filename>` elements reference bundle
-	// entries instead of local paths - keeping the bundle portable and its
-	// XML reproducible across machines.
-	std::map<QString, QByteArray> sampleEntries; // entry name -> bytes
-	std::map<QString, QString> hashToEntry;      // content hash -> entry name
-	Xml::ProjectSampleEntries pathToEntry;       // sample path -> entry name
-	QStringList manifestLines;
-
+// Collect the unique sample blobs (deduped by content hash), the manifest
+// lines mapping each (inst,comp,layer) slot to its blob entry, and a lookup
+// from sample file path to entry name. The latter is handed to the XML
+// serialization by the caller so that `<filename>` elements reference
+// bundle entries instead of local paths - keeping the bundle portable and
+// its XML reproducible across machines.
+static void collectSampleEntries( std::shared_ptr<Song> pSong,
+								  std::map<QString, QByteArray>* sampleEntries,
+								  Xml::ProjectSampleEntries* pathToEntry,
+								  QStringList* manifestLines ) {
+	std::map<QString, QString> hashToEntry; // content hash -> entry name
 	forEachSample( pSong, [&]( int ii, int cc, int ll,
 							   std::shared_ptr<Sample> pSample ) {
 		const QString sPath = pSample->getFilePath();
@@ -230,22 +222,19 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 						 .arg( sSuffix.isEmpty() ? "" : "." )
 						 .arg( sSuffix );
 			hashToEntry[ sHash ] = sEntry;
-			sampleEntries[ sEntry ] = bytes;
+			( *sampleEntries )[ sEntry ] = bytes;
 		}
-		pathToEntry[ sPath ] = sEntry;
+		( *pathToEntry )[ sPath ] = sEntry;
 
-		manifestLines << QString( "%1 %2 %3 %4" )
+		( *manifestLines ) << QString( "%1 %2 %3 %4" )
 							 .arg( ii ).arg( cc ).arg( ll ).arg( sEntry );
 	} );
+}
 
-	const QByteArray songXml = pSong->toXmlBuffer(
-		Xml::Flag::KeepMissingSamples | Xml::Flag::Project, bSilent,
-		&pathToEntry
-	);
-
-	const QByteArray manifest = manifestLines.join( "\n" ).toUtf8();
-
-	// Assemble the archive in memory.
+// Assemble an in-memory `.h2project` archive from the passed entries, in
+// order. Returns an empty vector on failure.
+static std::vector<unsigned char> writeArchive(
+	const std::vector<std::pair<QString, QByteArray>>& entries ) {
 	std::vector<unsigned char> out;
 
 	struct archive* a = archive_write_new();
@@ -255,6 +244,18 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 	}
 	archive_write_add_filter_gzip( a );
 	archive_write_set_format_pax_restricted( a );
+	// Deterministic output: libarchive stamps the gzip header with the
+	// current wall clock by default, so identical state would serialize
+	// to different bytes on every save. Hosts like Ardour compare whole
+	// state blobs and rewrite the entire stored state whenever the bytes
+	// differ. The value must be NULL — any string ("0"/"false") ENABLES
+	// the timestamp (libarchive treats a non-NULL value as "on").
+	if ( archive_write_set_filter_option( a, "gzip", "timestamp", nullptr )
+		 != ARCHIVE_OK ) {
+		___ERRORLOG( "Unable to disable the gzip header timestamp" );
+		archive_write_free( a );
+		return {};
+	}
 	if ( archive_write_open( a, &out, memOpenCloseCb, memWriteCb,
 							 memOpenCloseCb ) != ARCHIVE_OK ) {
 		___ERRORLOG( QString( "Unable to open archive for writing: %1" )
@@ -263,17 +264,55 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 		return {};
 	}
 
-	bool bOk = writeEntry( a, SONG_ENTRY, songXml );
-	bOk = bOk && writeEntry( a, MANIFEST_ENTRY, manifest );
-	for ( const auto& [ sEntry, bytes ] : sampleEntries ) {
-		bOk = bOk && writeEntry( a, sEntry, bytes );
+	bool bOk = true;
+	for ( const auto& [ sName, bytes ] : entries ) {
+		bOk = bOk && writeEntry( a, sName, bytes );
 	}
 
 	archive_write_close( a );
 	archive_write_free( a );
 
 	if ( ! bOk ) {
-		___ERRORLOG( "Error while writing .h2project archive" );
+		___ERRORLOG( "Error while writing archive" );
+		return {};
+	}
+
+	return out;
+}
+
+#endif // H2CORE_HAVE_LIBARCHIVE
+
+std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
+												bool bSilent ) {
+#ifndef H2CORE_HAVE_LIBARCHIVE
+	___ERRORLOG( "libarchive not available; cannot build .h2project" );
+	return {};
+#else
+	if ( pSong == nullptr ) {
+		___ERRORLOG( "Invalid song" );
+		return {};
+	}
+
+	std::map<QString, QByteArray> sampleEntries; // entry name -> bytes
+	Xml::ProjectSampleEntries pathToEntry;       // sample path -> entry name
+	QStringList manifestLines;
+	collectSampleEntries( pSong, &sampleEntries, &pathToEntry, &manifestLines );
+
+	const QByteArray songXml = pSong->toXmlBuffer(
+		Xml::Flag::KeepMissingSamples | Xml::Flag::Project, bSilent,
+		&pathToEntry
+	);
+	const QByteArray manifest = manifestLines.join( "\n" ).toUtf8();
+
+	std::vector<std::pair<QString, QByteArray>> entries;
+	entries.emplace_back( SONG_ENTRY, songXml );
+	entries.emplace_back( MANIFEST_ENTRY, manifest );
+	for ( const auto& [ sEntry, bytes ] : sampleEntries ) {
+		entries.emplace_back( sEntry, bytes );
+	}
+
+	const std::vector<unsigned char> out = writeArchive( entries );
+	if ( out.empty() ) {
 		return {};
 	}
 
@@ -288,7 +327,7 @@ std::vector<unsigned char> H2Project::toBuffer( std::shared_ptr<Song> pSong,
 
 std::shared_ptr<Song> H2Project::fromBuffer(
 	const std::vector<unsigned char>& data, const QString& sCacheKey,
-	Hydrogen* pHydrogen, bool bSilent ) {
+	Hydrogen* pHydrogen, bool bSilent, Xml::Flag flags ) {
 #ifndef H2CORE_HAVE_LIBARCHIVE
 	___ERRORLOG( "libarchive not available; cannot read .h2project" );
 	return nullptr;
@@ -332,8 +371,20 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 	const QByteArray songXml = songFile.readAll();
 	songFile.close();
 
+	// The manifest is the dialect discriminator of the container: the
+	// embedded writer always emits it alongside the sample entries, the
+	// song-only one never does. Without it the song XML references the
+	// installed drumkit's sample files, so the Project read mode - which
+	// blanks sample paths for later assignment from the bundle below -
+	// must not engage.
+	const QString sManifestPath = sExtractDir + "/" + MANIFEST_ENTRY;
+	const bool bManifestPresent = QFileInfo( sManifestPath ).exists();
+	if ( ! bManifestPresent && ( flags & Xml::Flag::Project ) ) {
+		flags = Xml::withoutFlag( flags, Xml::Flag::Project );
+	}
+
 	auto pSong = Song::fromXmlBuffer(
-		songXml, Xml::Flag::Project, bSilent, pHydrogen
+		songXml, flags, bSilent, pHydrogen
 	);
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to reconstruct song from .h2project" );
@@ -342,42 +393,46 @@ std::shared_ptr<Song> H2Project::fromBuffer(
 
 	// Parse the manifest: "inst comp layer entry" per line.
 	std::map<QString, QString> slotToEntry; // "i/c/l" -> entry name
-	const QString sManifestPath = sExtractDir + "/" + MANIFEST_ENTRY;
-	QFile manifestFile( sManifestPath );
-	if ( manifestFile.open( QIODevice::ReadOnly ) ) {
-		const QStringList lines =
-			QString::fromUtf8( manifestFile.readAll() ).split(
-				'\n', Qt::SkipEmptyParts );
-		manifestFile.close();
-		for ( const auto& sLine : lines ) {
-			const QStringList parts = sLine.split( ' ' );
-			if ( parts.size() >= 4 ) {
-				const QString sKey = QString( "%1/%2/%3" )
-										  .arg( parts[0] ).arg( parts[1] )
-										  .arg( parts[2] );
-				slotToEntry[ sKey ] = parts[3];
+	if ( bManifestPresent ) {
+		QFile manifestFile( sManifestPath );
+		if ( manifestFile.open( QIODevice::ReadOnly ) ) {
+			const QStringList lines =
+				QString::fromUtf8( manifestFile.readAll() ).split(
+					'\n', Qt::SkipEmptyParts );
+			manifestFile.close();
+			for ( const auto& sLine : lines ) {
+				const QStringList parts = sLine.split( ' ' );
+				if ( parts.size() >= 4 ) {
+					const QString sKey = QString( "%1/%2/%3" )
+											  .arg( parts[0] ).arg( parts[1] )
+											  .arg( parts[2] );
+					slotToEntry[ sKey ] = parts[3];
+				}
 			}
 		}
 	}
 
 	// Assign the extracted sample files to their slots. The actual decoding
 	// happens through the regular file-based loading below.
-	forEachSample( pSong, [&]( int ii, int cc, int ll,
-							   std::shared_ptr<Sample> pSample ) {
-		const QString sKey = QString( "%1/%2/%3" ).arg( ii ).arg( cc ).arg( ll );
-		auto itSlot = slotToEntry.find( sKey );
-		if ( itSlot == slotToEntry.end() ) {
-			ERRORLOG( QString( "Couldn't find slot [%1]" ).arg( sKey ) );
-			return;
-		}
-		const QString sSamplePath = sExtractDir + "/" + itSlot->second;
-		if ( ! QFileInfo( sSamplePath ).exists() ) {
-			ERRORLOG( QString( "Couldn't find extracted sample [%1]" )
-					  .arg( sSamplePath ) );
-			return;
-		}
-		pSample->setFilePath( sSamplePath );
-	} );
+	if ( bManifestPresent ) {
+		forEachSample( pSong, [&]( int ii, int cc, int ll,
+								   std::shared_ptr<Sample> pSample ) {
+			const QString sKey =
+				QString( "%1/%2/%3" ).arg( ii ).arg( cc ).arg( ll );
+			auto itSlot = slotToEntry.find( sKey );
+			if ( itSlot == slotToEntry.end() ) {
+				ERRORLOG( QString( "Couldn't find slot [%1]" ).arg( sKey ) );
+				return;
+			}
+			const QString sSamplePath = sExtractDir + "/" + itSlot->second;
+			if ( ! QFileInfo( sSamplePath ).exists() ) {
+				ERRORLOG( QString( "Couldn't find extracted sample [%1]" )
+							  .arg( sSamplePath ) );
+				return;
+			}
+			pSample->setFilePath( sSamplePath );
+		} );
+	}
 
 	// Decode the samples via the standard, synchronous file-based code path.
 	pSong->getDrumkit()->loadSamples( 120, pHydrogen->getPreferences().get() );
@@ -459,45 +514,98 @@ std::shared_ptr<Song> H2Project::openSong( const QString& sPath,
 	return Song::load( sPath, bSilent, pHydrogen );
 }
 
-std::vector<unsigned char> H2Project::toState( std::shared_ptr<Song> pSong,
-											   bool bEmbedSamples, bool bSilent ) {
+std::vector<unsigned char> H2Project::toState(
+	std::shared_ptr<Song> pSong, bool bEmbedSamples, bool bSilent,
+	std::shared_ptr<Preferences> pPreferences ) {
+#ifndef H2CORE_HAVE_LIBARCHIVE
+	___ERRORLOG( "libarchive not available; cannot build plugin state" );
+	return {};
+#else
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Invalid song" );
 		return {};
 	}
 
+	// The plugin state is always the archive container (ADR 0017
+	// amendment): the embed toggle only decides whether the sample audio
+	// rides along, while the plugin's own preferences always do - they are
+	// small, and losing them (last-used folders, MIDI mappings) would be a
+	// real regression for the restoring session.
+	std::vector<std::pair<QString, QByteArray>> entries;
+
 	if ( bEmbedSamples ) {
 		// Portable: full bundle with embedded sample audio.
-		return toBuffer( pSong, bSilent );
+		std::map<QString, QByteArray> sampleEntries; // entry name -> bytes
+		Xml::ProjectSampleEntries pathToEntry; // sample path -> entry name
+		QStringList manifestLines;
+		collectSampleEntries( pSong, &sampleEntries, &pathToEntry,
+							  &manifestLines );
+
+		entries.emplace_back( SONG_ENTRY, pSong->toXmlBuffer(
+			Xml::Flag::KeepMissingSamples | Xml::Flag::Project |
+			Xml::Flag::Plugin, bSilent,
+			&pathToEntry ) );
+		if ( pPreferences != nullptr ) {
+			entries.emplace_back( PREFS_ENTRY, pPreferences->toXmlBuffer() );
+		}
+		entries.emplace_back( MANIFEST_ENTRY,
+							  manifestLines.join( "\n" ).toUtf8() );
+		for ( const auto& [ sEntry, bytes ] : sampleEntries ) {
+			entries.emplace_back( sEntry, bytes );
+		}
+	}
+	else {
+		// Song-only: the .h2song XML; the kit must be installed to reload.
+		entries.emplace_back( SONG_ENTRY, pSong->toXmlBuffer(
+			Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc |
+			Xml::Flag::Plugin, bSilent ) );
+		if ( pPreferences != nullptr ) {
+			entries.emplace_back( PREFS_ENTRY, pPreferences->toXmlBuffer() );
+		}
 	}
 
-	// Song-only: the .h2song XML; the kit must be installed to reload.
-	const QByteArray xml = pSong->toXmlBuffer(
-		Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, bSilent
-	);
-	return std::vector<unsigned char>(
-		reinterpret_cast<const unsigned char*>( xml.constData() ),
-		reinterpret_cast<const unsigned char*>( xml.constData() ) + xml.size()
-	);
+	return writeArchive( entries );
+#endif
 }
 
 std::shared_ptr<Song> H2Project::fromState(
-	const std::vector<unsigned char>& data, Hydrogen* pHydrogen, bool bSilent ) {
+	const std::vector<unsigned char>& data, Hydrogen* pHydrogen, bool bSilent,
+	QByteArray* pPreferencesXml ) {
+	if ( pPreferencesXml != nullptr ) {
+		pPreferencesXml->clear();
+	}
 	if ( data.empty() ) {
 		___ERRORLOG( "Empty plugin-state buffer" );
 		return nullptr;
 	}
 
 	if ( looksLikeArchive( data ) ) {
-		return fromBuffer( data, pluginCacheKey( pHydrogen ), pHydrogen,
-						   bSilent );
+		const QString sCacheKey = pluginCacheKey( pHydrogen );
+		auto pSong = fromBuffer( data, sCacheKey, pHydrogen, bSilent,
+								 Xml::Flag::Project | Xml::Flag::Plugin );
+		if ( pSong == nullptr ) {
+			return nullptr;
+		}
+		// The plugin's own preferences ride in the archive (ADR 0017
+		// amendment). An absent entry - state from an older build - leaves
+		// the out-param empty, so the caller keeps its current ones.
+		if ( pPreferencesXml != nullptr ) {
+			QFile prefsFile( projectCacheDir( sCacheKey ) + "/" + PREFS_ENTRY );
+			if ( prefsFile.open( QIODevice::ReadOnly ) ) {
+				*pPreferencesXml = prefsFile.readAll();
+				prefsFile.close();
+			}
+		}
+		return pSong;
 	}
 
-	// Song-only state: a plain .h2song XML document.
+	// Legacy song-only state (the pre-archive form): a plain .h2song XML
+	// document. It carries no preferences; the out-param stays empty.
 	const QByteArray xml(
 		reinterpret_cast<const char*>( data.data() ),
 		static_cast<int>( data.size() ) );
-	return Song::fromXmlBuffer( xml, Xml::Flag::Ipc, bSilent, pHydrogen );
+	return Song::fromXmlBuffer(
+		xml, Xml::Flag::Ipc | Xml::Flag::Plugin, bSilent, pHydrogen );
 }
 
 bool H2Project::looksLikeArchive( const std::vector<unsigned char>& data ) {

@@ -398,6 +398,21 @@ bool IpcChannel::request( const IpcMessage& req, IpcMessage& reply,
 			return true;
 		}
 
+		// The peer hung up and nothing is buffered: no reply can arrive
+		// anymore. Fail now instead of burning the whole deadline — the
+		// protocol-gate refusal (engine closes on a protocol-incompatible
+		// hello, ADR 0018) and every crashed-engine case depend on this
+		// returning promptly. The bytesAvailable/bufferedBytes guards cover
+		// the partial-frame race: a reply whose tail was still in flight when
+		// the peer closed must still be reassembled by the pump above, not
+		// dropped.
+		if ( ! isConnected() && m_pSocket->bytesAvailable() == 0 &&
+			 m_reader.bufferedBytes() == 0 ) {
+			IPCLOG( QString( "Request failed - peer disconnected while "
+							 "awaiting reqId [%1]" ).arg( nId ) );
+			return false;
+		}
+
 		const int nRemaining =
 			nTimeoutMs - static_cast<int>( timer.elapsed() );
 		if ( nRemaining <= 0 ) {

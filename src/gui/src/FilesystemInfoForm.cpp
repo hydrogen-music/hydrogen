@@ -43,8 +43,10 @@ FilesystemInfoForm::FilesystemInfoForm( QWidget *parent ) :
 		sIconPath.append( "/icons/black/" );
 	}
 
-	const QColor windowColor = pPref->getColorTheme()->m_windowColor;
-	const QColor windowTextColor = pPref->getColorTheme()->m_windowTextColor;
+	const QColor windowColor =
+		Skin::toQColor( pPref->getColorTheme()->m_windowColor );
+	const QColor windowTextColor =
+		Skin::toQColor( pPref->getColorTheme()->m_windowTextColor );
 
 	tmpDirWarningButton->setIcon( QIcon( sIconPath + "warning.svg" ) );
 	tmpDirWarningButton->setToolTip( tr( "Filesystem is not writable!" ) );

@@ -453,6 +453,18 @@ class HydrogenApp : public QObject,
 	 * #scheduleSongModifiedResync(); invalid between bursts. */
 	QElapsedTimer m_songModifiedResyncCapTimer;
 
+	/** Whether the "Song is read-only" popup was already shown in this session
+	 * for #m_sLastSongPath. The read-only state is re-announced on every song
+	 * (re-)install — in the editor split each debounced dirty-echo resync of a
+	 * read-only song pushes another UpdateSong(2) — so the popup itself must
+	 * fire only once. */
+	bool m_bReadOnlySongPopupShown = false;
+	bool m_bReadOnlyPlaylistPopupShown = false;
+	/** Unique identifier of the last song installed. Used to show the read only
+	 * popup only once per session per song. */
+	QString m_sLastSongPath = "";
+	QString m_sLastPlaylistPath = "";
+
 	/** Used for accessibility reasons to show scroll bars in case Hydrogen
 	 * has to be shrunk below its minimum size - magnified using the Qt
 	 * scale factor so its efficitive size is below the minimum one. */

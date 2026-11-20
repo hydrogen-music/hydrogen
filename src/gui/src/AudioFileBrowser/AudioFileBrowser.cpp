@@ -630,7 +630,7 @@ void AudioFileBrowser::updateIcons()
 		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive =
-		Skin::makeBackgroundColorInactive( pColorTheme->m_widgetColor );
+		Skin::makeBackgroundColorInactive( Skin::toQColor( pColorTheme->m_widgetColor ) );
 
 	if ( m_playback == Playback::Rolling ) {
 		Skin::setToolButtonIcon(

@@ -27,6 +27,10 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Hydrogen.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/EngineSession.h>
+#include <core/IPC/IpcChannel.h>
+#include <core/IPC/IpcMessage.h>
 #include <core/Midi/MidiAction.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Object.h>
@@ -149,6 +153,49 @@ void PluginFeatureGateTest::testOscServerNotStarted() {
 #endif
 
 	delete pHydrogen;
+
+	___INFOLOG( "passed" );
+}
+
+// The editor GUI gates its transport controls on the mirror's
+// isUnderPluginHost() (ADR 0026); HydrogenApp::ipcSyncPluginHostState pulls
+// that flag with this exact request. Pin both directions of the contract:
+// a plugin-host engine reports true over IPC, a standard engine false (an
+// editor attached to h2player keeps its transport controls).
+void PluginFeatureGateTest::testPluginHostStateServedOverIpc() {
+	___INFOLOG( "" );
+
+	const auto queryHosted = [&]( H2Core::Hydrogen* pEngine ) {
+		auto pMirror = TestHelper::makeMirror();
+		const QString sEndpoint = TestHelper::uniqueEndpoint();
+
+		auto pSession = EngineSession::start( pEngine, sEndpoint );
+		CPPUNIT_ASSERT( pSession != nullptr );
+
+		auto pEditorSession = EditorSession::connect( sEndpoint, pMirror );
+		CPPUNIT_ASSERT( pEditorSession != nullptr );
+
+		IpcMessage reply;
+		CPPUNIT_ASSERT( pEditorSession->getChannel()->request(
+			IpcMessage( IpcOpcode::GetIsUnderPluginHost ), reply, 3000 ) );
+		CPPUNIT_ASSERT( reply.getArgs().size() == 1 );
+
+		pSession->stop();
+		pEditorSession->disconnect();
+		delete pMirror;
+
+		return reply.getArgs()[0].toBool();
+	};
+
+	{
+		FakePluginHost host;
+		CPPUNIT_ASSERT( queryHosted( host.getHydrogen() ) );
+	}
+	{
+		auto pEngine = TestHelper::makeEngine();
+		CPPUNIT_ASSERT( ! queryHosted( pEngine ) );
+		delete pEngine;
+	}
 
 	___INFOLOG( "passed" );
 }

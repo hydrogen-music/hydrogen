@@ -294,9 +294,12 @@ public:
 
 	// ADR 0030 batch 2i — MIDI instrument map. Same whole-map payload
 	// shape as batch 2h; the base call installs the very object on the
-	// mirror.
+	// mirror. @a nEventId rides on the queued
+	// MidiInstrumentMapChanged event so the caller can blacklist its
+	// own echo.
 	bool setMidiInstrumentMap(
-		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap ) override;
+		std::shared_ptr<MidiInstrumentMap> pMidiInstrumentMap,
+		long nEventId ) override;
 
 	// ADR 0030 batch 2j — MIDI-learn channel. The reset crosses so the
 	// authoritative engine's MIDI input starts from a clean slate; the
@@ -319,7 +322,9 @@ public:
 
 	// ADR 0030 batch 2z — scalar MIDI control settings. The tuple
 	// crosses as bools/ints; the base call installs the very values on
-	// the mirror.
+	// the mirror. @a nEventId rides on the queued
+	// MidiControlSettingsChanged event so the caller can blacklist its
+	// own echo.
 	bool setMidiControlSettings(
 		bool bNoteOffIgnore,
 		Midi::Channel actionChannel,
@@ -327,7 +332,8 @@ public:
 		bool bTransportInputHandling,
 		bool bTransportOutputSend,
 		Midi::Channel feedbackChannel,
-		Preferences::MidiSendNoteOff sendNoteOff ) override;
+		Preferences::MidiSendNoteOff sendNoteOff,
+		long nEventId ) override;
 
 	// ADR 0030 batch 2aa — atomic automation point move. The four
 	// coordinates cross as floats; the base call moves the mirror's

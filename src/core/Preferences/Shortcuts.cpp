@@ -20,14 +20,11 @@
  *
  */
 #include <QtGlobal>
-#include <QtCore/QCoreApplication>
-#include <QtGui/QGuiApplication>
 
 #include <core/Preferences/Shortcuts.h>
 
 #include <core/config.h>
 #include <core/Helpers/Xml.h>
-#include <core/Hydrogen.h>
 
 namespace H2Core {
 Shortcuts::Shortcuts() :
@@ -53,47 +50,44 @@ void Shortcuts::saveTo( XMLNode& node ) const {
 		for ( const auto& aaction : it.second ) {
 			XMLNode shortcutNode = shortcutsNode.createNode( "shortcut" );
 			shortcutNode.write_string( "keySequence",
-									   it.first.toString( QKeySequence::PortableText ) );
+									   it.first.toPortableText() );
 			shortcutNode.write_int( "action", static_cast<int>(aaction) );
 		}
 	}
 }
 
-std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, Hydrogen* pHydrogen, bool bSilent ) {
+std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, bool bSilent ) {
 	auto pShortcuts = std::make_shared<Shortcuts>();
 	pShortcuts->createActionInfoMap();
 	
 	XMLNode shortcutsNode = node.firstChildElement( "shortcuts" );
 	if ( shortcutsNode.isNull() ) {
-		// Creating the defaults involves QKeySequence::keyBindings(), which
-		// requires a platform theme and therefore a QGuiApplication. A bare
-		// QCoreApplication (h2cli, unit tests) is not enough - Qt would
-		// segfault. In that case this step is delayed till after the GUI
-		// bootstrap (m_bRequiresDefaults).
-		if ( pHydrogen == nullptr ||
-			 qobject_cast<const QGuiApplication*>(
-				 QCoreApplication::instance() ) == nullptr ||
-			 !pHydrogen->isFullyOperational() ) {
-			// No shortcuts found. We need to create the default ones. But
-			// it is essential that we do not do this right away (see
-			// above).
-			WARNINGLOG( "shortcut node not found." );
-			pShortcuts->m_bRequiresDefaults = true;
-		}
-		else {
-			pShortcuts->createDefaultShortcuts();
-		}
+		// The Undo/Redo defaults are resolved via
+		// QKeySequence::keyBindings(), which requires a platform theme
+		// and therefore a QGuiApplication. A bare QCoreApplication
+		// (h2cli, unit tests) is not enough - Qt would segfault. Their
+		// creation is therefore deferred till after the GUI bootstrap,
+		// which injects them (m_bRequiresDefaults).
+		WARNINGLOG( "shortcut node not found." );
+		pShortcuts->m_bRequiresDefaults = true;
 	}
 	else {
 		XMLNode shortcutNode = shortcutsNode.firstChildElement( "shortcut" );
 
 		bool bShortcutsFound = false;
 		while ( ! shortcutNode.isNull() ) {
-			const auto keySequence = QKeySequence::fromString(
-				shortcutNode.read_string( "keySequence", "", false, false, bSilent ),
-				QKeySequence::PortableText );
+			const QString sKeySequence = shortcutNode.read_string(
+				"keySequence", "", false, false, bSilent );
+			const auto keySequence =
+				KeySequence::fromPortableText( sKeySequence );
 
-			if ( ! keySequence.isEmpty() ) {
+			if ( keySequence.isEmpty() ) {
+				if ( ! bSilent ) {
+					WARNINGLOG( QString( "Skipping malformed shortcut [%1]" )
+								   .arg( sKeySequence ) );
+				}
+			}
+			else {
 				pShortcuts->insertShortcut(
 					keySequence,
 					static_cast<Action>(shortcutNode.read_int( "action", 0,
@@ -103,17 +97,17 @@ std::shared_ptr<Shortcuts> Shortcuts::loadFrom( const XMLNode& node, Hydrogen* p
 			shortcutNode = shortcutNode.nextSiblingElement( "shortcut" );
 		}
 
-		if ( bShortcutsFound ) {
-			// There was at least one valid shortcut. Make sure we do not
-			// replace it with teh default ones.
-			pShortcuts->m_bRequiresDefaults = false;
-		}
+		// A configuration without a single usable shortcut is as good
+		// as none: it must not silently leave the user without any
+		// bindings.
+		pShortcuts->m_bRequiresDefaults = ! bShortcutsFound;
 	}
 
 	return pShortcuts;
 }
 
-void Shortcuts::createDefaultShortcuts() {
+void Shortcuts::createDefaultShortcuts( const KeySequence& undo,
+										const KeySequence& redo ) {
 	m_actionsMap.clear();
 
 	// POSIX Locale for keyboardlayout QWERTZ: de_DE, de_AT, de_LU, de_CH, de
@@ -143,8 +137,8 @@ void Shortcuts::createDefaultShortcuts() {
 	insertShortcut( Qt::ControlModifier, Qt::Key_S, Action::SaveSong );
 	insertShortcut( Qt::ControlModifier, Qt::ShiftModifier, Qt::Key_S,
 					Action::SaveAsSong );
-	insertShortcut( QKeySequence::StandardKey::Undo, Action::Undo );
-	insertShortcut( QKeySequence::StandardKey::Redo, Action::Redo );
+	insertShortcut( undo, Action::Undo );
+	insertShortcut( redo, Action::Redo );
 	insertShortcut( Qt::Key_Space, Action::PlayPauseToggle );
 #ifndef Q_OS_MACX
 	insertShortcut( Qt::ControlModifier, Qt::Key_Space, Action::PlayPauseToggleAtCursor );
@@ -249,7 +243,7 @@ void Shortcuts::createDefaultShortcuts() {
 
 }
 
-std::vector<Shortcuts::Action> Shortcuts::getActions( const QKeySequence& keySequence ) const {
+std::vector<Shortcuts::Action> Shortcuts::getActions( const KeySequence& keySequence ) const {
 	auto it = m_actionsMap.find( keySequence );
 	if ( it != m_actionsMap.end() ) {
 		// Key found
@@ -260,7 +254,7 @@ std::vector<Shortcuts::Action> Shortcuts::getActions( const QKeySequence& keySeq
 	}
 }
 
-void Shortcuts::deleteShortcut( const QKeySequence& keySequence,
+void Shortcuts::deleteShortcut( const KeySequence& keySequence,
 								const Action& action ) {
 	for ( auto it = m_actionsMap.begin(); it != m_actionsMap.end(); ) {
 		if ( it->first == keySequence ) {
@@ -301,7 +295,7 @@ Shortcuts::ActionInfo Shortcuts::getActionInfo( const Action& action ) const {
 	}
 }
 
-QKeySequence Shortcuts::getKeySequence( const Action& action ) const {
+KeySequence Shortcuts::getKeySequence( const Action& action ) const {
 	for ( const auto& it : m_actionsMap ) {
 		for ( const auto& aaction : it.second ) {
 			if ( aaction == action ) {
@@ -309,11 +303,11 @@ QKeySequence Shortcuts::getKeySequence( const Action& action ) const {
 			}
 		}
 	}
-	return QKeySequence( "" );
+	return KeySequence();
 }
 
-std::vector<QKeySequence> Shortcuts::getKeySequences( const Action& action ) const {
-	std::vector<QKeySequence> keySequences;
+std::vector<KeySequence> Shortcuts::getKeySequences( const Action& action ) const {
+	std::vector<KeySequence> keySequences;
 	
 	for ( const auto& [kkeySequence, aactions] : m_actionsMap ) {
 		for ( const auto& aaction : aactions ) {
@@ -324,7 +318,7 @@ std::vector<QKeySequence> Shortcuts::getKeySequences( const Action& action ) con
 	}
 
 	if ( keySequences.size() == 0 ) {
-		keySequences.push_back( QKeySequence( "" ) );
+		keySequences.push_back( KeySequence() );
 	}
 	
 	return keySequences;
@@ -773,21 +767,20 @@ QString Shortcuts::categoryToQString( const Category& category ) {
 	return std::move( s );
 };
 
-// The modifier+key variants compose the sequence through QKeySequence's int
-// constructor: the one route that works warning-free on every Qt from 5.15
-// to 6.8. Qt 5 lacks the operator|/QKeyCombination route entirely (it yields
-// QIncompatibleFlag), while Qt 6 deletes operator+ between two modifiers and
-// deprecates the single-modifier one.
+void Shortcuts::insertShortcut( Qt::Key key, const Action& action ) {
+	insertShortcut( KeySequence( int( key ) ), action );
+}
+
 void Shortcuts::insertShortcut( Qt::KeyboardModifier modifier, Qt::Key key,
 								const Action& action ) {
-	insertShortcut( QKeySequence( int( modifier ) | int( key ) ), action );
+	insertShortcut( KeySequence( int( modifier ) | int( key ) ), action );
 }
 
 void Shortcuts::insertShortcut( Qt::KeyboardModifier modifier1,
 								Qt::KeyboardModifier modifier2, Qt::Key key,
 								const Action& action ) {
 	insertShortcut(
-		QKeySequence( int( modifier1 ) | int( modifier2 ) | int( key ) ),
+		KeySequence( int( modifier1 ) | int( modifier2 ) | int( key ) ),
 		action );
 }
 
@@ -795,12 +788,12 @@ void Shortcuts::insertShortcut( Qt::KeyboardModifier modifier1,
 								Qt::KeyboardModifier modifier2,
 								Qt::KeyboardModifier modifier3, Qt::Key key,
 								const Action& action ) {
-	insertShortcut( QKeySequence( int( modifier1 ) | int( modifier2 ) |
+	insertShortcut( KeySequence( int( modifier1 ) | int( modifier2 ) |
 								  int( modifier3 ) | int( key ) ),
 					action );
 }
 
-void Shortcuts::insertShortcut( const QKeySequence& keySequence,
+void Shortcuts::insertShortcut( const KeySequence& keySequence,
 								const Action& action ) {
 	auto it = m_actionsMap.find( keySequence );
 	if ( it != m_actionsMap.end() ) {
@@ -847,9 +840,9 @@ QString Shortcuts::toQString( const QString& sPrefix, bool bShort ) const {
 		}
 		sOutput.append( QString( "%1%2m_actionsMap: \n" ).arg( sPrefix ).arg( s ) );
 		for ( const auto& it : m_actionsMap ) {
-			sOutput.append( QString( "%1%2%2KeySequence: %3 : [" )
-							.arg( sPrefix ).arg( s )
-							.arg( it.first.toString( QKeySequence::PortableText ) ) );
+		sOutput.append( QString( "%1%2%2KeySequence: %3 : [" )
+						.arg( sPrefix ).arg( s )
+						.arg( it.first.toPortableText() ) );
 			for ( const auto& aaction : it.second ) {
 				sOutput.append( QString( ", Action: %1" )
 								.arg( static_cast<int>(aaction ) ) );
@@ -869,7 +862,7 @@ QString Shortcuts::toQString( const QString& sPrefix, bool bShort ) const {
 		sOutput.append( QString( "], m_actionsMap: [" ) );
 		for ( const auto& it : m_actionsMap ) {
 			sOutput.append( QString( ", KeySequence: %1 : [" )
-							.arg( it.first.toString( QKeySequence::PortableText ) ) );
+							.arg( it.first.toPortableText() ) );
 			for ( const auto& aaction : it.second ) {
 				sOutput.append( QString( ", Action: %1" )
 								.arg( static_cast<int>(aaction ) ) );

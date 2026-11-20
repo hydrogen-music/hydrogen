@@ -23,10 +23,14 @@
 
 #include "TestHelper.h"
 
+#include <cppunit/Exception.h>
+
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 #include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
@@ -39,7 +43,10 @@
 
 #include <plugin/HydrogenPlugin.h>
 
+#include <atomic>
+#include <memory>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 using namespace H2Core;
@@ -64,6 +71,11 @@ public:
 	void onMeterSnapshot( const EngineTelemetrySnapshot& snapshot ) override {
 		std::lock_guard<std::mutex> lock( m_mutex );
 		m_snapshots.push_back( snapshot );
+	}
+
+	void onInfoSnapshot( const EngineInfoSnapshot& snapshot ) override {
+		std::lock_guard<std::mutex> lock( m_mutex );
+		m_infoSnapshots.push_back( snapshot );
 	}
 
 	/** Whether an event of the given (type, value) was recorded
@@ -102,6 +114,22 @@ public:
 		return false;
 	}
 
+	/** Number of recorded info snapshots (non-consuming). */
+	int countInfoSnapshots() {
+		std::lock_guard<std::mutex> lock( m_mutex );
+		return m_infoSnapshots.size();
+	}
+
+	/** Most recent recorded info snapshot (default-constructed when
+	 * none arrived yet). */
+	EngineInfoSnapshot lastInfoSnapshot() {
+		std::lock_guard<std::mutex> lock( m_mutex );
+		if ( m_infoSnapshots.empty() ) {
+			return EngineInfoSnapshot();
+		}
+		return m_infoSnapshots.back();
+	}
+
 	/** Swap all recorded events out (test thread). */
 	std::vector<RecordedEvent> drainEvents() {
 		std::lock_guard<std::mutex> lock( m_mutex );
@@ -114,7 +142,82 @@ private:
 	std::mutex m_mutex;
 	std::vector<RecordedEvent> m_events;
 	std::vector<EngineTelemetrySnapshot> m_snapshots;
+	std::vector<EngineInfoSnapshot> m_infoSnapshots;
 };
+
+/** Sink that parks inside onMeterSnapshot until released: a slow
+ * consumer, so an unregister racing an in-flight callback is
+ * observable from the test thread. */
+class BlockingSink : public EngineEventSink {
+public:
+	BlockingSink( std::atomic<int>& rInside, std::atomic<bool>& rRelease )
+		: m_rInside( rInside ), m_rRelease( rRelease ) {}
+
+	void onEvent( Event::Type, int, long ) override {}
+	void onMeterSnapshot( const EngineTelemetrySnapshot& ) override {
+		m_rInside.fetch_add( 1 );
+		while ( ! m_rRelease.load() ) {
+			std::this_thread::yield();
+		}
+	}
+	void onInfoSnapshot( const EngineInfoSnapshot& ) override {}
+
+private:
+	std::atomic<int>& m_rInside;
+	std::atomic<bool>& m_rRelease;
+};
+
+/** Unwind-safe teardown for the session-based sink tests: a failed
+ *  assert unwinds through this destructor, so the sink seam is torn
+ *  down in the contract's order on EVERY exit path — unregister (which
+ *  drains any in-flight callback), stop (which joins the serve loop),
+ *  then delete the engine — instead of the raw sink dying first while
+ *  the serve thread still calls it (pure virtual call → abort,
+ *  shadowing the assert failure). Declare it after the sink
+ *  registration so it destructs before both the sink and the
+ *  session. */
+struct SinkTestTeardown {
+	EngineSession* pServer = nullptr;
+	Hydrogen* pEngine = nullptr;
+
+	~SinkTestTeardown() {
+		if ( pServer != nullptr ) {
+			pServer->setEventSink( nullptr );
+			pServer->stop();
+		}
+		delete pEngine;
+	}
+};
+
+/** The body of a session-based sink test in miniature — engine,
+ *  session, registered sink, teardown guard — ending in a deliberate
+ *  assertion failure with events in flight. Throwing from this helper
+ *  unwinds ITS locals: the exact path a failed assert takes in a real
+ *  sink test. */
+void sinkTestBodyEndingInFailedAssert() {
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	RecordingSink sink;
+	pServer->setEventSink( &sink );
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
+
+	// The seam is live and events are still in flight when the failure
+	// unwinds: the serve thread must be mid-drain calling the sink —
+	// the conditions the crash was seen under.
+	pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, 0 );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return sink.sawEvent( Event::Type::Metronome, 0 ); } ) );
+	for ( int ii = 1; ii <= 16; ++ii ) {
+		pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, ii );
+	}
+
+	CPPUNIT_FAIL( "deliberate failure: exercises the unwind path" );
+}
 
 } // namespace
 
@@ -134,9 +237,12 @@ void EngineEventSinkTest::testFanoutToEditorAndSink() {
 
 	RecordingSink sink;
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
-	auto* pMirror = TestHelper::makeMirror();
-	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	auto pMirror = std::unique_ptr<Hydrogen>( TestHelper::makeMirror() );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror.get() );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 
 	// Let the initial handshake/state settle first.
@@ -145,7 +251,7 @@ void EngineEventSinkTest::testFanoutToEditorAndSink() {
 	// One engine event surfaces on the editor's mirror AND the sink.
 	pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, 7 );
 	CPPUNIT_ASSERT(
-		TestHelper::pumpUntilEvent( pMirror, Event::Type::Metronome, 7 ) );
+		TestHelper::pumpUntilEvent( pMirror.get(), Event::Type::Metronome, 7 ) );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return sink.sawEvent( Event::Type::Metronome, 7 ); } ) );
 
@@ -187,9 +293,6 @@ void EngineEventSinkTest::testFanoutToEditorAndSink() {
 	} ) );
 
 	pEditor.reset();
-	pServer->stop();
-	delete pMirror;
-	delete pEngine;
 
 	___INFOLOG( "passed" );
 }
@@ -211,6 +314,9 @@ void EngineEventSinkTest::testFanoutWithoutEditor() {
 
 	RecordingSink sink;
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
 	// No editor is attached (nor will be, in this first phase).
 	pEngine->getEventQueue()->pushEvent( Event::Type::Metronome, 7 );
@@ -224,16 +330,13 @@ void EngineEventSinkTest::testFanoutWithoutEditor() {
 
 	// A late editor still gets the retained error replayed (ADR 0026
 	// point 9).
-	auto* pMirror = TestHelper::makeMirror();
-	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	auto pMirror = std::unique_ptr<Hydrogen>( TestHelper::makeMirror() );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror.get() );
 	CPPUNIT_ASSERT( pEditor != nullptr );
 	CPPUNIT_ASSERT(
-		TestHelper::pumpUntilEvent( pMirror, Event::Type::Error, 42 ) );
+		TestHelper::pumpUntilEvent( pMirror.get(), Event::Type::Error, 42 ) );
 
 	pEditor.reset();
-	pServer->stop();
-	delete pMirror;
-	delete pEngine;
 
 	___INFOLOG( "passed" );
 }
@@ -254,6 +357,9 @@ void EngineEventSinkTest::testSinkQueueDrainedByIdle() {
 
 	RecordingSink sink;
 	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
 
 	// A burst well below the EventQueue cap (nMaxEvents): the idle session
 	// must drain it to the sink completely and in order.
@@ -285,10 +391,9 @@ void EngineEventSinkTest::testSinkQueueDrainedByIdle() {
 	TestHelper::pumpUntil( []() { return false; }, 200 );
 	CPPUNIT_ASSERT( sink.drainEvents().empty() );
 
-	// The unregister-before-destroy contract: stop the session (joining
-	// the bridge thread) before the sink goes out of scope.
-	pServer->stop();
-	delete pEngine;
+	// The unregister-before-destroy contract is honored by the teardown
+	// guard on every exit path: the session is stopped (joining the
+	// bridge thread) before the sink goes out of scope.
 
 	___INFOLOG( "passed" );
 }
@@ -313,6 +418,222 @@ void EngineEventSinkTest::testPluginFanoutWithoutEditor() {
 		Event::Type::Metronome, 7 );
 	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
 		return sink.sawEvent( Event::Type::Metronome, 7 ); } ) );
+
+	___INFOLOG( "passed" );
+}
+
+// The publish cycle delivers an info snapshot to a registered sink
+// (ADR 0035 UI-3): the same song-level data the landing info section
+// shows — identity, mode, counts, playback position — built on the
+// bridge thread, so the UI never reads the song itself.
+void EngineEventSinkTest::testInfoSnapshotFanout() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	auto pSong = Song::load(
+		H2TEST_FILE( "song/midiExport_timelineAndTimeSignatures.h2song" ),
+		false, pEngine );
+	CPPUNIT_ASSERT( pSong != nullptr );
+	pSong->setMode( Song::Mode::Song );
+	pEngine->setSong( pSong );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	RecordingSink sink;
+	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
+
+	// No editor attached: the publish cycle alone feeds the sink.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return sink.countInfoSnapshots() > 0; } ) );
+	const auto info = sink.lastInfoSnapshot();
+
+	// The snapshot mirrors the song's own lists (the timeline fixture:
+	// ten patterns across six columns) and the idle transport.
+	CPPUNIT_ASSERT( info.sSongName == pSong->getName() );
+	if ( pSong->getDrumkit() != nullptr ) {
+		CPPUNIT_ASSERT( info.sDrumkitName ==
+						pSong->getDrumkit()->getName() );
+	}
+	else {
+		CPPUNIT_ASSERT( info.sDrumkitName.isEmpty() );
+	}
+	CPPUNIT_ASSERT( info.mode == Song::Mode::Song );
+	CPPUNIT_ASSERT_EQUAL( 3, info.nPatternCount );
+	CPPUNIT_ASSERT_EQUAL( 6, info.nColumnCount );
+	CPPUNIT_ASSERT( info.playingPatterns.empty() );
+	pEngine->getAudioEngine()->lock( RIGHT_HERE );
+	const int nPlayheadColumn =
+		pEngine->getAudioEngine()->getPlayhead()->getColumn();
+	pEngine->getAudioEngine()->unlock();
+	CPPUNIT_ASSERT( info.nCurrentColumn == nPlayheadColumn );
+
+	___INFOLOG( "passed" );
+}
+
+// A degraded cycle (the engine lock stays contended for the builder's
+// small try-lock budget) skips info delivery entirely — nullopt, never
+// a blank snapshot that would read as "no song". Uncontended, the
+// build delivers the song's shape.
+void EngineEventSinkTest::testBuildInfoSnapshotDegradedSkips() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+	auto pAudioEngine = pEngine->getAudioEngine();
+	CPPUNIT_ASSERT( pAudioEngine != nullptr );
+
+	// Hold the engine lock on another thread, as the audio thread
+	// would during a buffer render.
+	std::atomic<bool> bLockHeld{ false };
+	std::atomic<bool> bRelease{ false };
+	std::thread lockHolder( [&]() {
+		pAudioEngine->lock( RIGHT_HERE );
+		bLockHeld.store( true );
+		while ( ! bRelease.load() ) {
+			std::this_thread::yield();
+		}
+		pAudioEngine->unlock();
+	} );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return bLockHeld.load(); } ) );
+
+	const auto degraded = EngineSession::buildInfoSnapshot( pEngine );
+	CPPUNIT_ASSERT( ! degraded.has_value() );
+
+	bRelease.store( true );
+	lockHolder.join();
+
+	// Uncontended: the build delivers the empty song's Pattern-mode
+	// shape (the song-mode-only counts stay at their defaults).
+	const auto snapshot = EngineSession::buildInfoSnapshot( pEngine );
+	CPPUNIT_ASSERT( snapshot.has_value() );
+	CPPUNIT_ASSERT( snapshot->mode == Song::Mode::Pattern );
+	CPPUNIT_ASSERT( snapshot->sSongName ==
+					pEngine->getSong()->getName() );
+	CPPUNIT_ASSERT_EQUAL( 0, snapshot->nPatternCount );
+	CPPUNIT_ASSERT_EQUAL( 0, snapshot->nColumnCount );
+	CPPUNIT_ASSERT( snapshot->nCurrentColumn == -1 );
+	CPPUNIT_ASSERT( snapshot->playingPatterns.empty() );
+	const int nSelected = pEngine->getSelectedPatternNumber();
+	CPPUNIT_ASSERT( snapshot->sPatternName ==
+					pEngine->getSong()->getPatternList()
+						->get( nSelected )->getName() );
+
+	delete pEngine;
+
+	___INFOLOG( "passed" );
+}
+
+// The unregister-before-destroy contract: setEventSink( nullptr )
+// drains in-flight callbacks before returning — it must not return
+// while the bridge thread is still inside a sink callback, or the
+// caller could destroy the sink out from under the bridge.
+void EngineEventSinkTest::testUnregisterQuiescesInFlight() {
+	___INFOLOG( "" );
+
+	auto* pEngine = TestHelper::makeEngine();
+	pEngine->setSong( Song::getEmptySong( pEngine ) );
+
+	const QString sEndpoint = TestHelper::uniqueEndpoint();
+	auto pServer = EngineSession::start( pEngine, sEndpoint );
+	CPPUNIT_ASSERT( pServer != nullptr );
+
+	std::atomic<int> nInside{ 0 };
+	std::atomic<bool> bRelease{ false };
+	BlockingSink sink( nInside, bRelease );
+	pServer->setEventSink( &sink );
+	// Every exit path — including a failed assert unwinding from
+	// anywhere below — tears the seam down in the contract's order.
+	SinkTestTeardown teardown{ pServer.get(), pEngine };
+
+	// Park the bridge thread inside the sink's meter callback.
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return nInside.load() > 0; } ) );
+
+	// Unregister concurrently: without the drain it returns immediately
+	// — while the bridge is still inside the sink. The window spans
+	// several publish cycles, and the sink stays parked for all of it,
+	// so a correct drain deterministically overruns the window.
+	std::atomic<bool> bReturned{ false };
+	std::thread unregisterer( [&]() {
+		pServer->setEventSink( nullptr );
+		bReturned.store( true );
+	} );
+	CPPUNIT_ASSERT( ! TestHelper::pumpUntil(
+		[&]() { return bReturned.load(); }, 300 ) );
+
+	// Releasing the sink lets the callback finish, the drain observe
+	// it, and the unregister return.
+	bRelease.store( true );
+	unregisterer.join();
+	CPPUNIT_ASSERT( bReturned.load() );
+	CPPUNIT_ASSERT( nInside.load() > 0 );
+
+	___INFOLOG( "passed" );
+}
+
+// HydrogenPlugin::clearEventSink is conditional: it unregisters only
+// the sink still registered — a displaced sink's teardown must not
+// kill its successor.
+void EngineEventSinkTest::testClearEventSinkKeepsSuccessor() {
+	___INFOLOG( "" );
+
+	// Sinks must outlive the plugin (whose session outlives this
+	// test's body): declare them first so they destruct last.
+	RecordingSink sinkA;
+	RecordingSink sinkB;
+	HydrogenPlugin plugin( 44100, 512, 0 );
+	CPPUNIT_ASSERT( plugin.getHydrogen() != nullptr );
+
+	plugin.setEventSink( &sinkA );
+	plugin.setEventSink( &sinkB );
+	// A's teardown clears only if A is still registered — it is not.
+	plugin.clearEventSink( &sinkA );
+
+	// B still receives the engine's events.
+	plugin.getHydrogen()->getEventQueue()->pushEvent(
+		Event::Type::Metronome, 7 );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return sinkB.sawEvent( Event::Type::Metronome, 7 ); } ) );
+	CPPUNIT_ASSERT( ! sinkA.sawEvent( Event::Type::Metronome, 7 ) );
+
+	// Clearing the registered pointer itself does unregister.
+	plugin.clearEventSink( &sinkB );
+	plugin.getHydrogen()->getEventQueue()->pushEvent(
+		Event::Type::Metronome, 8 );
+	TestHelper::pumpUntil( []() { return false; }, 200 );
+	CPPUNIT_ASSERT( ! sinkB.sawEvent( Event::Type::Metronome, 8 ) );
+
+	___INFOLOG( "passed" );
+}
+
+// A failed assertion in a session-based sink test must not be shadowed
+// by a crash: the unwind has to tear the sink seam down (unregister,
+// stop, engine delete) instead of destroying the raw sink while the
+// serve loop still calls it. Exercise exactly that path — a deliberate
+// failure with events in flight — and catch CppUnit's exception:
+// reaching the catch means the unwind was survived.
+void EngineEventSinkTest::testTeardownOnFailedAssert() {
+	___INFOLOG( "" );
+
+	bool bUnwound = false;
+	try {
+		sinkTestBodyEndingInFailedAssert();
+	}
+	catch ( const CppUnit::Exception& e ) {
+		// Only the deliberate failure may be caught here — a setup
+		// failure (null session, pump timeout) must still fail this
+		// test instead of passing it.
+		CPPUNIT_ASSERT(
+			QString( e.what() ).contains( "deliberate failure" ) );
+		bUnwound = true;
+	}
+	CPPUNIT_ASSERT( bUnwound );
 
 	___INFOLOG( "passed" );
 }

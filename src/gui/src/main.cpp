@@ -42,7 +42,6 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
-#include "EditorPathExerciser.h"
 #include "FontUtils.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
@@ -52,6 +51,7 @@
 #include "ShotList.h"
 #include "Skin.h"
 #include "SplashScreen.h"
+#include "StartupTestModes.h"
 
 #ifdef HAVE_EXECINFO_H
   #include <execinfo.h>
@@ -209,6 +209,14 @@ int main(int argc, char *argv[])
 	}
 #endif
 	Reporter::spawn( argc, argv );
+
+	// The event loop's exit code is the verdict channel for the
+	// out-of-process verification modes (e.g. --verify-plugin-transport-
+	// gating, ADR 0026), which signal a mismatch via
+	// QCoreApplication::exit(1). Regular shutdowns go through quit() (=
+	// exit(0)), so propagating the result does not change standalone
+	// behavior.
+	int nExecResult = 0;
 	try {
 #ifndef H2CORE_HAVE_QT6
   #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
@@ -398,10 +406,16 @@ int main(int argc, char *argv[])
 		setApplicationIcon( pQApp );
 
 		// This must be done after creating a QApplication instance
-		// and setting its locale as some Qt standard keys are used as
-		// defaults.
+		// and setting its locale: the Undo/Redo defaults are
+		// platform-dependent (QKeySequence::keyBindings() requires a
+		// QGuiApplication) and are therefore injected from the GUI
+		// side.
 		if ( pPref->getShortcuts()->requiresDefaults() ) {
-			pPref->getShortcuts()->createDefaultShortcuts();
+			pPref->getShortcuts()->createDefaultShortcuts(
+				Skin::fromQKeySequence(
+					QKeySequence( QKeySequence::StandardKey::Undo ) ),
+				Skin::fromQKeySequence(
+					QKeySequence( QKeySequence::StandardKey::Redo ) ) );
 		}
 
 		if ( ! pPref->getLoadingSuccessful() ) {
@@ -468,14 +482,9 @@ int main(int argc, char *argv[])
 		pSplash->show();
 #endif
 
-		// Non-interactive startup smoke test (ADR 0015/0016): use the no-op Fake
-		// audio driver and suppress the development-build warning, so the engine
-		// starts cleanly and no modal dialog blocks the headless run before the
-		// scheduled quit.
-		if ( parser.getQuitAfterStartup() ) {
-			pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
-			pPref->setShowDevelWarning( false );
-		}
+		// Hidden test-mode options (ADR 0015/0016, ADR 0026): non-interactive
+		// startup preferences. The mode logic lives in StartupTestModes.
+		StartupTestModes::applyNonInteractivePreferences( parser, pPref );
 
 		// Connect-to-headless-engine mode (ADR 0016/0018/0032): when an
 		// endpoint was given, the GUI connects to a headless engine at this IPC
@@ -661,26 +670,12 @@ int main(int argc, char *argv[])
 		// it is replaced while Hydrogen is running.
 		pPref = nullptr;
 
-		// Startup smoke test (ADR 0015/0016): once the GUI has fully constructed
-		// and shown, schedule an immediate quit so the event loop runs one pass
-		// and then exits cleanly through the normal teardown below. A crash
-		// during construction or teardown surfaces as a non-zero exit code.
-		if ( parser.getQuitAfterStartup() ) {
-			QTimer::singleShot( 0, pQApp, &QApplication::quit );
-		}
+		// Hidden test-mode options (ADR 0015/0016, 0033, 0026): schedule the
+		// smoke-test quit, the editor-path exerciser, or the transport-gating
+		// verifier. The mode logic lives in StartupTestModes.
+		StartupTestModes::schedulePostStartupWork( parser, pQApp, pMainForm );
 
-		// Editor-mode assert guard (ADR 0033): exercise all safe shortcut
-		// actions through executeShortcut to surface any code path that
-		// reaches an ASSERT_NO_EDITOR_MODE site. The exerciser dispatches
-		// one action per timer tick, then quits the application. A crash
-		// (SIGABRT from assert(false)) shows up as a non-zero/signal exit.
-		if ( parser.getExerciseEditorPaths() ) {
-			auto* pExerciser = new EditorPathExerciser( pMainForm, pQApp );
-			QTimer::singleShot( 500, pExerciser,
-								&EditorPathExerciser::start );
-		}
-
-		pQApp->exec();
+		nExecResult = pQApp->exec();
 
 		QString sShutdownCrashContext( "Shutting down Hydrogen" );
 		H2Core::Logger::setCrashContext( &sShutdownCrashContext );
@@ -721,6 +716,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	return 0;
+	return nExecResult;
 }
 

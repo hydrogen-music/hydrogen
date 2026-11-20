@@ -130,12 +130,12 @@ if(WANT_LV2)
     set(H2_LV2_PORTS "")
     string(APPEND H2_LV2_PORTS
         "        a lv2:AudioPort , lv2:OutputPort ;\n"
-        "        lv2:index 1 ;\n        lv2:symbol \"master_l\" ;\n        lv2:name \"Master L\"\n    ] , [\n"
+        "        lv2:index 2 ;\n        lv2:symbol \"master_l\" ;\n        lv2:name \"Master L\"\n    ] , [\n"
         "        a lv2:AudioPort , lv2:OutputPort ;\n"
-        "        lv2:index 2 ;\n        lv2:symbol \"master_r\" ;\n        lv2:name \"Master R\"\n")
+        "        lv2:index 3 ;\n        lv2:symbol \"master_r\" ;\n        lv2:name \"Master R\"\n")
     math(EXPR H2_LV2_LAST_BUS "${H2_PLUGIN_OUTPUT_BUSES} - 1")
     foreach(bus RANGE 0 ${H2_LV2_LAST_BUS})
-        math(EXPR idxL "3 + 2 * ${bus}")
+        math(EXPR idxL "4 + 2 * ${bus}")
         math(EXPR idxR "${idxL} + 1")
         math(EXPR busName "${bus} + 1")
         string(APPEND H2_LV2_PORTS
@@ -183,6 +183,7 @@ if(WANT_LV2)
     # meson/lilv are absent).
     add_executable( hydrogen-lv2-smoke lv2/lv2_smoke.cpp )
     target_include_directories( hydrogen-lv2-smoke PRIVATE
+        ${CMAKE_SOURCE_DIR}/src # plugin/lv2/Lv2Transport.h (shared source)
         ${CMAKE_SOURCE_DIR}/extern/lv2/include )
     # Qt: the UI checks observe the editor serve loop through its QLocalServer
     # endpoint (QLocalSocket) and pin the editor binary to a name that cannot

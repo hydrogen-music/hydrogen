@@ -28,11 +28,13 @@ class PluginStateTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginStateTest );
 	CPPUNIT_TEST( testEmbedOn );
 	CPPUNIT_TEST( testEmbedOff );
+	CPPUNIT_TEST( testOutputBusRoundTrip );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 	void testEmbedOn();
 	void testEmbedOff();
+	void testOutputBusRoundTrip();
 };
 
 #endif

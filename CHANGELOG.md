@@ -121,9 +121,10 @@ All notable changes to this project will be documented in this file.
   combined with IPC server for simultaneous keyboard and GUI control).
 - A song and all its samples can now be stored and loaded from a self-contained `.h2project` file (#272).
 - The Hydrogen project does now provide LV2, CLAP, and VST3 plugins. It features
-  a minimal UI to render incoming MIDI notes and/or play back loaded patterns or
-  songs from within the plugin host. For more advanced features, it allows to
-  open the regular GUI for remote controlling of the plugin.
+  a minimal UI to render incoming MIDI notes, play back loaded patterns or
+  songs, and mix the loaded drumkit's instruments (volume, pan, mute, solo,
+  level meters) from within the plugin host. For more advanced features, it
+  allows to open the regular GUI for remote controlling of the plugin.
 
 ### Changed
 

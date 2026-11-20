@@ -29,7 +29,9 @@
 #include <plugin/HydrogenPlugin.h>
 #include <plugin/ui/PluginUiWindow.h>
 
+#include <core/Hydrogen.h>
 #include <core/Midi/Midi.h>
+#include <core/Preferences/Preferences.h>
 
 #include <cmath>
 #include <cstdio>
@@ -189,7 +191,13 @@ bool CLAP_ABI stateSave( const clap_plugin_t* plugin, const clap_ostream_t* stre
 	if ( p->engine == nullptr ) {
 		return false;
 	}
-	const auto data = p->engine->saveState( /*bEmbedSamples=*/true );
+	// The embed choice is the user's — the landing UI's configuration
+	// checkbox, persisted as a base-layer preference: with the samples
+	// the state is self-contained, without it the restoring machine
+	// needs the drumkit installed.
+	const bool bEmbedSamples = p->engine->getHydrogen()
+		->getPreferences()->getPluginStateEmbedSamples();
+	const auto data = p->engine->saveState( bEmbedSamples );
 	uint64_t nOffset = 0;
 	while ( nOffset < data.size() ) {
 		const int64_t nWritten = stream->write(
@@ -322,8 +330,8 @@ bool CLAP_ABI guiGetSize( const clap_plugin_t* plugin, uint32_t* width,
 		*height = static_cast<uint32_t>( h );
 	}
 	else {
-		*width = 960;
-		*height = 600;
+		*width = HydrogenPlugin::nDefaultWidth;
+		*height = HydrogenPlugin::nDefaultHeight;
 	}
 	return true;
 }
@@ -350,11 +358,11 @@ bool CLAP_ABI guiAdjustSize( const clap_plugin_t*, uint32_t* width,
 	if ( width == nullptr || height == nullptr ) {
 		return false;
 	}
-	if ( *width < 640 ) {
-		*width = 640;
+	if ( *width < HydrogenPlugin::nMinWidth ) {
+		*width = HydrogenPlugin::nMinWidth;
 	}
-	if ( *height < 400 ) {
-		*height = 400;
+	if ( *height < HydrogenPlugin::nMinHeight ) {
+		*height = HydrogenPlugin::nMinHeight;
 	}
 	return true;
 }
@@ -394,8 +402,10 @@ bool CLAP_ABI guiSetParent( const clap_plugin_t* plugin,
 		return false;
 	}
 	p->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-		parent, 960, 600, p->engine );
-	if ( ! p->pWindow->isValid() ) {
+		parent, HydrogenPlugin::nDefaultWidth, HydrogenPlugin::nDefaultHeight,
+		p->engine
+	);
+	if ( !p->pWindow->isValid() ) {
 		p->pWindow.reset();
 		return false;
 	}
@@ -421,8 +431,10 @@ bool CLAP_ABI guiShow( const clap_plugin_t* plugin ) {
 	// view's Open editor button owns that).
 	if ( ! p->bEmbedded && p->pWindow == nullptr ) {
 		p->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-			0, 960, 600, p->engine );
-		if ( ! p->pWindow->isValid() ) {
+			0, HydrogenPlugin::nDefaultWidth, HydrogenPlugin::nDefaultHeight,
+			p->engine
+		);
+		if ( !p->pWindow->isValid() ) {
 			p->pWindow.reset();
 			return false;
 		}
@@ -491,7 +503,12 @@ void CLAP_ABI pluginDeactivate( const clap_plugin_t* plugin ) {
 }
 bool CLAP_ABI pluginStartProcessing( const clap_plugin_t* ) { return true; }
 void CLAP_ABI pluginStopProcessing( const clap_plugin_t* ) {}
-void CLAP_ABI pluginReset( const clap_plugin_t* ) {}
+void CLAP_ABI pluginReset( const clap_plugin_t* plugin ) {
+	auto* p = self( plugin );
+	if ( p->engine != nullptr ) {
+		p->engine->reset();
+	}
+}
 
 void handleEvent( H2ClapPlugin* p, const clap_event_header_t* hdr ) {
 	if ( hdr->space_id != CLAP_CORE_EVENT_SPACE_ID ) {
@@ -560,20 +577,36 @@ clap_process_status CLAP_ABI pluginProcess( const clap_plugin_t* plugin,
 		}
 	}
 
-	// Transport.
-	bool bRolling = false;
-	double fBpm = 0.0;
-	long long nFrame = 0;
+	// Transport (ADR 0013): the host position arrives as clap_sectime
+	// whose round-trip to frames is lossy at the frame level, so raw
+	// readings jitter around the true position. The latch inside the
+	// engine wrapper absorbs that; this shim only parses.
+	H2Core::HostTransportReading hostTransport;
 	if ( process->transport != nullptr ) {
 		const auto* t = process->transport;
-		bRolling = ( t->flags & CLAP_TRANSPORT_IS_PLAYING ) != 0;
-		fBpm = t->tempo;
-		const double fSeconds =
-			static_cast<double>( t->song_pos_seconds ) / CLAP_SECTIME_FACTOR;
-		nFrame = static_cast<long long>( fSeconds * p->sampleRate );
-	} else if ( process->steady_time >= 0 ) {
-		// free running host
-		nFrame = process->steady_time;
+		hostTransport.bRolling =
+			( t->flags & CLAP_TRANSPORT_IS_PLAYING ) != 0;
+		if ( ( t->flags & CLAP_TRANSPORT_HAS_TEMPO ) != 0 ) {
+			hostTransport.fBpm = t->tempo;
+		}
+		bool bHasSecondsTimeline = false;
+#if defined( H2_CLAP_FOR_VST3 )
+		// clap-wrapper fills song_pos_seconds from the VST3 project time
+		// but cannot forward the CLAP flags, so trust the value.
+		bHasSecondsTimeline = true;
+#else
+		bHasSecondsTimeline =
+			( t->flags & CLAP_TRANSPORT_HAS_SECONDS_TIMELINE ) != 0;
+#endif
+		if ( bHasSecondsTimeline ) {
+			const double fSeconds =
+				static_cast<double>( t->song_pos_seconds ) / CLAP_SECTIME_FACTOR;
+			hostTransport.nFrame = static_cast<long long>(
+				std::llround( fSeconds * p->sampleRate ) );
+			hostTransport.bValid = true;
+		}
+		// Without a seconds timeline the reading stays invalid and the engine
+		// free-runs.
 	}
 
 	// Map output ports: port 0 = master, ports 1.. = buses.
@@ -602,7 +635,7 @@ clap_process_status CLAP_ABI pluginProcess( const clap_plugin_t* plugin,
 	}
 
 	p->engine->process( process->frames_count, pMasterL, pMasterR, busL, busR,
-						bRolling, fBpm, nFrame );
+						hostTransport );
 
 	return CLAP_PROCESS_CONTINUE;
 }

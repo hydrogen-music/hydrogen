@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-06-08
-amended: 2026-09-10
+amended: 2026-11-12
 deciders: pm
 ---
 
@@ -238,6 +238,114 @@ Since acceptance, the telemetry pipeline was implemented end-to-end for the
    — one whose id belongs to an earlier, timed-out request — instead of
    re-queueing it forever; with one request in flight at a time it can never
    be correlated again.
+
+## Amendment (2026-10-20): the info snapshot rides the publish cycle; sinks quiesce on unregister
+
+The basic plugin UI ([ADR 0035](0035-embedded-basic-plugin-ui.md)) needs the
+same rich engine state the editor mirrors — but in-process, and without the
+UI thread ever taking the engine lock. Five points extend the 2026-09-10
+amendment above:
+
+1. **A QString-rich `EngineInfoSnapshot` rides the publish cycle.** The
+   bridge thread's `publishTelemetry()` now also builds an info snapshot —
+   song and drumkit names, the mode, the song's pattern/column counts with
+   the playhead column and the playing patterns (song mode), the selected
+   pattern's name, tick length, and note count (pattern mode) — and delivers
+   it to the in-process `EngineEventSink` through the new `onInfoSnapshot`
+   callback. Same thread, same `tryLockFor` discipline as the telemetry
+   snapshot. The POD shared-memory `EngineTelemetry` stays at v1: no new
+   fields, no version bump — the rich payload is in-process-only, so the
+   cross-process protocol is untouched.
+
+2. **Degraded cycles skip delivery; the consumer keeps its last snapshot.**
+   On lock contention (`tryLockFor(2 ms)`), a null engine, or a null
+   audio engine, the cycle delivers *nothing* for the info snapshot — never
+   a blanked one. A null song still delivers (default-constructed): "no
+   song" is state, not degradation. Consumers render their previous data
+   until the next cycle; the landing info section can never flicker to
+   empty rows from a busy engine.
+
+3. **The engine-lock invariant this rests on is load-bearing.**
+   `buildInfoSnapshot` reads the *song pointer itself* under the lock — an
+   unlocked read racing a `setSong` swap would be a use-after-free — plus
+   the pattern lists, the column vector, and the selected pattern. This is
+   the same invariant the editor's state mirror relies on; any future
+   Song-structural mutation must keep taking the engine lock. Playing
+   patterns are additionally gated on `State::Playing` and no export
+   session: the transport pre-populates its playing patterns while idle,
+   and the snapshot shows what actually sounds.
+
+4. **`setEventSink` drains before it returns.** Every sink callback now
+   holds an in-flight counter (seq_cst) for its whole duration, and
+   `setEventSink` spins on that counter after storing the new pointer:
+   once it returns, no callback of the old sink is running or will ever
+   run — the sink object may be destroyed immediately. Unregister-before-
+   destroy is the ownership contract. `HydrogenPlugin::clearEventSink(
+   pExpected)` is the conditional form for ownership hand-off: it
+   unregisters only if `pExpected` is still the registered sink, so a late
+   clear (a destroyed window's destructor) cannot kill a successor's
+   registration. Both are host-thread-only, which makes the
+   check-then-clear race-free.
+
+5. **The last UI-side blocking engine lock is gone.** The plugin UI's
+   landing info section used to take the audio-engine lock per frame on
+   the host's UI thread (`PluginUiLandingModel::songInfo()`). It now
+   serves the publish cycle's cache — see [ADR 0035's
+   amendment](0035-embedded-basic-plugin-ui.md) for the window-side poll
+   that turns cache changes into frame requests.
+
+## Amendment (2026-11-12): the hello handshake carries version identity; the wire-protocol tag alone gates the connection
+
+The accepted text says "The protocol version is negotiated in `hello`; a
+mismatch fails gracefully" — but until now the hello carried only a bare
+protocol tag and *nobody compared anything*: any editor could attach to any
+engine and speak a possibly-incompatible protocol. The gate is now
+implemented on both ends:
+
+1. **The hello carries a full version identity — as diagnostics.**
+   `IpcHelloVersion` (wire-protocol tag + app major/minor/patch/suffix,
+   sourced from `config.h`) rides the hello args as
+   `[int protocol, int major, int minor, int patch, QString suffix]`. The
+   app fields are logged on connect and on refusal, and are deliberately
+   never compared. The pre-gate single-int hello parses as *invalid* — a
+   legacy peer can never pass the gate. That is a deliberate hard cutover:
+   2.0 is pre-alpha, no old editors exist in the wild.
+
+2. **Compatibility = valid identity + equal protocol tag — nothing
+   else.** The application version (major, minor, patch, suffix) never
+   blocks a connection: the protocol tag is the precise, manually-bumped
+   signal for wire changes, and the opcode vocabulary is pinned by
+   `testOpcodeWireStability` (point 5) so accidental drift without a bump
+   fails CI. Gating on the app version instead would block harmless mixes
+   (a hotfix engine serving an older editor). A protocol mismatch — or an
+   invalid/garbled identity — is refused.
+
+3. **Both ends refuse, each on its own terms.** The engine
+   (`EngineSession::handleMessage`) closes the connection without answering
+   and returns to accepting — the engine itself survives the refusal and
+   stays available to a compatible editor. The editor
+   (`EditorSession::connect`) rides the handshake on the request/response
+   tier ([ADR 0030](0030-coreactioncontroller-over-ipc.md)): the engine's reply
+   is a *correlated* hello echoing the request id, and a missing or
+   protocol-mismatched answer fails the connect with `nullptr` — the same
+   clean abort path as a dead endpoint (`Reporter::EXIT_CODE_CLEAN_FAILURE`).
+
+4. **`request()` fails fast on peer hang-up.** A blocking request
+   previously burned its whole deadline when the peer disconnected — which
+   is exactly what the refusal path produces. It now returns as soon as the
+   socket is down and no partial frame is buffered; the
+   `bytesAvailable`/`bufferedBytes` guard keeps a reply whose tail was
+   still in flight when the peer closed reassemblable rather than dropped.
+
+5. **The wire is pinned by tests.** Opcode numeric values are part of the
+   IPC API (they cross as raw `u16`):
+   `IpcProtocolTest::testOpcodeWireStability` pins value→name for the whole
+   vocabulary — new opcodes must be appended at the tail; a mid-enum change
+   requires bumping `IPC_PROTOCOL_VERSION`. The hello arg layout and the
+   compatibility matrix are pinned alongside (`testHelloHandshake`,
+   `testHelloVersionCompatibility`), and the end-to-end refusal is covered
+   by unit tests on both sides plus the `EditorVersionMismatch` CTest (the
+   real GUI against a fake engine announcing a mismatching protocol).
 
 ## More Information
 

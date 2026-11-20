@@ -21,9 +21,10 @@
 
 // Native LV2 plugin (ADR 0014). A thin C-ABI shim over the format-agnostic
 // HydrogenPlugin engine wrapper. Ports (must match the generated hydrogen.ttl):
-//   0           : MIDI in       (atom sequence input)
-//   1, 2        : master out    L, R
-//   3, 4        : bus 0 out      L, R
+//   0           : control in    (atom sequence input, time:Position)
+//   1           : MIDI in       (atom sequence input)
+//   2, 3        : master out    L, R
+//   4, 5        : bus 0 out      L, R
 //   ...         : bus i out      L, R   (for i in 0 .. H2_PLUGIN_OUTPUT_BUSES-1)
 
 #include <lv2/core/lv2.h>
@@ -33,9 +34,14 @@
 #include <lv2/midi/midi.h>
 #include <lv2/ui/ui.h>
 #include <lv2/instance-access/instance-access.h>
+#include <lv2/state/state.h>
 
 #include <plugin/HydrogenPlugin.h>
+#include <plugin/lv2/Lv2Transport.h>
 #include <plugin/ui/PluginUiWindow.h>
+
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
 
 #include <cstdint>
 #include <cstring>
@@ -59,20 +65,30 @@ constexpr int kNumBuses = H2_PLUGIN_OUTPUT_BUSES;
 constexpr uint32_t kMaxBlock = 8192;
 
 // Port indices.
-constexpr uint32_t kPortMidiIn = 0;
-constexpr uint32_t kPortMasterL = 1;
-constexpr uint32_t kPortMasterR = 2;
-constexpr uint32_t kPortBusBase = 3; // bus i: base + 2*i (L), +1 (R)
+constexpr uint32_t kPortControlIn = 0; // time:Position (transport) atom input
+constexpr uint32_t kPortMidiIn = 1;
+constexpr uint32_t kPortMasterL = 2;
+constexpr uint32_t kPortMasterR = 3;
+constexpr uint32_t kPortBusBase = 4; // bus i: base + 2*i (L), +1 (R)
 
 int toH2Channel( int nMidiChannel ) { return nMidiChannel + 1; }
 
 struct H2Lv2 {
 	HydrogenPlugin* engine = nullptr;
 	double sampleRate = 44100.0;
-	long long nFrame = 0;
+
+	// Host transport latch (time:Position, ADR 0013): the last published
+	// state, self-advancing while rolling.
+	H2Core::Lv2TransportLatch transport;
 
 	LV2_URID midiEventType = 0;
 
+	// State interface (LV2 state extension): the property key and the
+	// atom:Chunk value type, mapped once at instantiate.
+	LV2_URID stateKey = 0;
+	LV2_URID chunkType = 0;
+
+	const LV2_Atom_Sequence* controlIn = nullptr;
 	const LV2_Atom_Sequence* midiIn = nullptr;
 	float* masterL = nullptr;
 	float* masterR = nullptr;
@@ -99,6 +115,9 @@ LV2_Handle instantiate( const LV2_Descriptor*, double sample_rate,
 	}
 	p->sampleRate = sample_rate;
 	p->midiEventType = map->map( map->handle, LV2_MIDI__MidiEvent );
+	p->stateKey = map->map( map->handle, H2_LV2_URI "#state" );
+	p->chunkType = map->map( map->handle, LV2_ATOM__Chunk );
+	p->transport.mapUrids( map );
 	p->busL.assign( kNumBuses, nullptr );
 	p->busR.assign( kNumBuses, nullptr );
 	p->engine = new ( std::nothrow )
@@ -117,7 +136,9 @@ LV2_Handle instantiate( const LV2_Descriptor*, double sample_rate,
 
 void connect_port( LV2_Handle instance, uint32_t port, void* data ) {
 	auto* p = static_cast<H2Lv2*>( instance );
-	if ( port == kPortMidiIn ) {
+	if ( port == kPortControlIn ) {
+		p->controlIn = static_cast<const LV2_Atom_Sequence*>( data );
+	} else if ( port == kPortMidiIn ) {
 		p->midiIn = static_cast<const LV2_Atom_Sequence*>( data );
 	} else if ( port == kPortMasterL ) {
 		p->masterL = static_cast<float*>( data );
@@ -172,11 +193,20 @@ void run( LV2_Handle instance, uint32_t sample_count ) {
 		}
 	}
 
-	// LV2 transport (time:Position) sync is a follow-up; notes trigger
-	// regardless of transport, which is the primary drum-machine use.
+	// LV2 transport (time:Position, ADR 0013): the host publishes its
+	// position on the control port; the latch keeps the last known state
+	// between updates and self-advances the frame while rolling. Only a
+	// host that ever published a position makes the reading valid —
+	// without one the engine free-runs (notes trigger regardless of
+	// transport, which is the primary drum-machine use). The engine-side
+	// latch absorbs the residual frame jitter.
+	p->transport.read( p->controlIn );
+	const H2Core::HostTransportReading hostTransport{
+		p->transport.bHavePosition, p->transport.bRolling,
+		p->transport.fBpm, p->transport.nFrame };
 	p->engine->process( sample_count, p->masterL, p->masterR, p->busL, p->busR,
-						/*bRolling=*/false, /*fBpm=*/0.0, p->nFrame );
-	p->nFrame += sample_count;
+						hostTransport );
+	p->transport.advance( sample_count );
 }
 
 void deactivate( LV2_Handle instance ) {
@@ -192,7 +222,88 @@ void cleanup( LV2_Handle instance ) {
 	delete p;
 }
 
-const void* extension_data( const char* ) { return nullptr; }
+// ── State interface (LV2 state extension) ──────────────────────────────────
+// One inline property carries the whole plugin state: the `.h2project` blob
+// (song + base-layer preferences) as an atom:Chunk. Inline properties are
+// the spec-preferred state model ("plugins are strongly encouraged to
+// avoid creating files"). Whether the samples are embedded is the user's
+// choice — the landing UI's configuration checkbox, persisted as the
+// pluginStateEmbedSamples base-layer preference (the default embeds, so
+// the blob is self-contained and the state is POD and portable — a
+// session moves between machines; disabling it shrinks the state to
+// song-only, the restoring machine needs the kit installed, and the
+// PORTABLE flag drops with the embedding).
+//
+// Threading: save() may run concurrently with run(); the engine lock
+// inside HydrogenPlugin::saveState keeps the snapshot consistent (the
+// process cycle skips buffers while it is held). restore() is in the
+// Instantiation class — the host guarantees no concurrent run() — so the
+// synchronous loadState() is safe; no state:threadSafeRestore is offered.
+LV2_State_Status stateSave( LV2_Handle instance,
+							LV2_State_Store_Function store,
+							LV2_State_Handle handle_to_host_map,
+							uint32_t, const LV2_Feature* const* ) {
+	auto* p = static_cast<H2Lv2*>( instance );
+	if ( p->engine == nullptr ) {
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	// The embed choice is the user's (the landing UI's configuration
+	// checkbox, persisted as a base-layer preference) — the same
+	// preference the CLAP wrapper reads (HydrogenClap.cpp).
+	const bool bEmbedSamples = p->engine->getHydrogen()
+		->getPreferences()->getPluginStateEmbedSamples();
+	const auto data = p->engine->saveState( bEmbedSamples );
+	if ( data.empty() ) {
+		// store() requires size > 0; an empty blob means the save failed.
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	const uint32_t flags = LV2_STATE_IS_POD |
+		( bEmbedSamples ? LV2_STATE_IS_PORTABLE : 0 );
+	// The host's store status (e.g. NO_SPACE) propagates verbatim.
+	return store( handle_to_host_map, p->stateKey, data.data(), data.size(),
+				  p->chunkType, flags );
+}
+
+LV2_State_Status stateRestore( LV2_Handle instance,
+							   LV2_State_Retrieve_Function retrieve,
+							   LV2_State_Handle handle_to_host_map,
+							   uint32_t, const LV2_Feature* const* ) {
+	auto* p = static_cast<H2Lv2*>( instance );
+	if ( p->engine == nullptr ) {
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	size_t size = 0;
+	uint32_t type = 0;
+	uint32_t flags = 0;
+	const void* value =
+		retrieve( handle_to_host_map, p->stateKey, &size, &type, &flags );
+	if ( value == nullptr ) {
+		// No stored state (a host resetting to defaults): the instance
+		// keeps its current state, successfully.
+		return LV2_STATE_SUCCESS;
+	}
+	if ( type != p->chunkType ) {
+		return LV2_STATE_ERR_BAD_TYPE;
+	}
+	// The retrieved pointer is only valid until restore() returns; copy
+	// the blob before handing it to the engine.
+	const std::vector<unsigned char> data(
+		static_cast<const unsigned char*>( value ),
+		static_cast<const unsigned char*>( value ) + size );
+	if ( ! p->engine->loadState( data ) ) {
+		return LV2_STATE_ERR_UNKNOWN;
+	}
+	return LV2_STATE_SUCCESS;
+}
+
+const LV2_State_Interface kStateInterface = { stateSave, stateRestore };
+
+const void* extension_data( const char* uri ) {
+	if ( std::strcmp( uri, LV2_STATE__interface ) == 0 ) {
+		return &kStateInterface;
+	}
+	return nullptr;
+}
 
 const LV2_Descriptor kDescriptor = {
 	H2_LV2_URI, instantiate, connect_port, activate,
@@ -262,8 +373,10 @@ struct H2Lv2Ui {
 		// child with its FX window (the backend tracks ConfigureNotify).
 		ui->bEmbedded = true;
 		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-			parentHandle, 960, 600, engine );
-		if ( ! ui->pWindow->isValid() ) {
+			parentHandle, HydrogenPlugin::nDefaultWidth,
+			HydrogenPlugin::nDefaultHeight, engine
+		);
+		if ( !ui->pWindow->isValid() ) {
 			delete ui;
 			return nullptr;
 		}
@@ -304,8 +417,10 @@ int uiShow( LV2UI_Handle handle ) {
 	// show() while the window lives is a no-op.
 	if ( ui->pWindow == nullptr ) {
 		ui->pWindow = std::make_unique<H2Core::PluginUiWindow>(
-			0, 960, 600, ui->engine );
-		if ( ! ui->pWindow->isValid() ) {
+			0, HydrogenPlugin::nDefaultWidth, HydrogenPlugin::nDefaultHeight,
+			ui->engine
+		);
+		if ( !ui->pWindow->isValid() ) {
 			ui->pWindow.reset();
 			return 1;
 		}

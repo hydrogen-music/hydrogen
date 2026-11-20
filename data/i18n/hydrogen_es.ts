@@ -692,7 +692,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>License String</source>
-        <extracomment>Displayed in the Open dialog window if the selected song could not be loaded.Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
+        <extracomment>Heading displayed in the info box asking the user to recover unsaved changes from an earlier session.Additional text displayed in the info box asking the user to recover unsaved changes from an earlier session.Label corresponding to the line edit in the drumkit and song properties dialog used to enter the license</extracomment>
         <translation>Cadena de Licencia</translation>
     </message>
     <message>
@@ -906,7 +906,7 @@ Shown in table headers when referring to a license of an object.</extracomment>
         <source>Notes</source>
         <extracomment>Label of the text input in pattern/song/drumkit properties dialog to * fill in notes about the particular artifact.
 ----------
-Label for the number of musical notes contained in a pattern, * shown in the Online Import detail panel. Not to be confused * with the &apos;Notes&apos; label for text annotations in property * dialogs.</extracomment>
+Label for the number of musical notes contained in a pattern, * shown in the Online Import detail panel. Not to be confused * with the &apos;Notes&apos; label for text annotations in property * dialogs. Also the label of the embedded plugin UI&apos;s info * section row showing the current pattern&apos;s note count.</extracomment>
         <translation>Notas</translation>
     </message>
     <message>
@@ -977,7 +977,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Length</source>
-        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor.</extracomment>
+        <extracomment>Name of note property adjustable by right click-dragging in * DrumPatternEditor and PianoRollEditor. Also the label of the * embedded plugin UI&apos;s info section row showing the current * pattern&apos;s length in ticks.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1326,7 +1326,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Pattern</source>
-        <extracomment>Indicates a menu section which affects patterns.</extracomment>
+        <extracomment>Indicates a menu section which affects patterns. Also labels the * pattern tab of the embedded plugin UI as well as its info * section&apos;s current pattern row and pattern mode value.</extracomment>
         <translation>Patrón</translation>
     </message>
     <message>
@@ -1451,7 +1451,7 @@ Please set your system&apos;s locale to UTF-8!</source>
     </message>
     <message>
         <source>Patterns</source>
-        <extracomment>Label shown in a tab of the Sound Library.</extracomment>
+        <extracomment>Label shown in a tab of the Sound Library. Also the label of the * info section&apos;s pattern count row in the embedded plugin UI&apos;s * landing view.</extracomment>
         <translation>Patrones</translation>
     </message>
     <message>
@@ -2028,16 +2028,6 @@ Please set your system&apos;s locale to UTF-8!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Input</source>
-        <extracomment>Column header of the note mapping table&apos;s event source side in * the embedded plugin UI.</extracomment>
-        <translation>Entrada</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <extracomment>Column header of the note mapping table&apos;s event target side in * the embedded plugin UI.</extracomment>
-        <translation>Salida</translation>
-    </message>
-    <message>
         <source>Bus</source>
         <extracomment>Label of the output bus selector in the embedded plugin UI.</extracomment>
         <translation type="unfinished"></translation>
@@ -2051,6 +2041,81 @@ Please set your system&apos;s locale to UTF-8!</source>
         <source>Master only</source>
         <extracomment>Checkbox limiting the mixer tab of the embedded plugin UI to * the master strip.</extracomment>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song</source>
+        <extracomment>A single song, e.g. as a tab label. Also labels the embedded * plugin UI&apos;s info section song name row and song mode value.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editor executable</source>
+        <extracomment>Label of the line edit holding the path to the editor * executable in the embedded plugin UI.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit</source>
+        <extracomment>Label of the info section&apos;s drumkit row in the embedded plugin * UI&apos;s landing view — the name of the drumkit of the current song.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mode</source>
+        <extracomment>Label of the info section&apos;s mode row in the embedded plugin UI&apos;s * landing view — whether the current song is in song or pattern * mode.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <extracomment>Label of the info section&apos;s row in the embedded plugin UI&apos;s * landing view showing the total length of the current song in * columns.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current column</source>
+        <extracomment>Label of the info section&apos;s row in the embedded plugin UI&apos;s * landing view showing the column the playback position is * currently in.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playing</source>
+        <extracomment>Label of the info section&apos;s row in the embedded plugin UI&apos;s * landing view showing the names of the patterns currently being * played.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configuration</source>
+        <extracomment>Section header above the save-behavior settings in the embedded * plugin UI&apos;s landing view.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include samples in plugin state</source>
+        <extracomment>Checkbox in the embedded plugin UI&apos;s landing view; when checked, * the state a host saves contains the drumkit&apos;s sample audio, so * it survives on machines without the drumkit installed.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to load drumkit</source>
+        <extracomment>Displayed in the plugin UI&apos;s status line if the selected drumkit could not be loaded.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to open editor</source>
+        <extracomment>Displayed in the plugin UI&apos;s status line if the external editor could not be opened.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <extracomment>Displayed if a selected song could not be loaded, e.g. in the GUI&apos;s open-file error box and the plugin UI&apos;s status line.</extracomment>
+        <translation>Error al cargar la canción.</translation>
+    </message>
+    <message>
+        <source>Bus Output</source>
+        <extracomment>Section header of the instrument-to-bus routing in the embedded * plugin UI&apos;s mapping view.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>L</source>
+        <extracomment>Text displayed at the left margin of the pan knob in the mixer marking the left end of the pan scale. Its size is designed to hold a single character.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R</source>
+        <extracomment>Text displayed at the right margin of the pan knob in the mixer marking the right end of the pan scale. Its size is designed to hold a single character.</extracomment>
+        <translation type="unfinished">R</translation>
     </message>
 </context>
 <context>
@@ -2506,10 +2571,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Instrument + Pattern</source>
         <translation>Instrumento + Patrón</translation>
-    </message>
-    <message>
-        <source>Error loading song.</source>
-        <translation>Error al cargar la canción.</translation>
     </message>
     <message>
         <source>Preferences saved.</source>

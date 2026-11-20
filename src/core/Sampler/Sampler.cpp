@@ -1109,8 +1109,7 @@ bool Sampler::handleNote( std::shared_ptr<Note> pNote, unsigned nBufferSize )
 								  "and sample rate [%5]" )
 							 .arg( nCurrentFrame )
 							 .arg( pNote->toQString() )
-							 .arg( pAudioEngine->getTransportPosition()
-                                   ->getTickSize() )
+							 .arg( pAudioEngine->getPlayhead()->getTickSize() )
                          .arg( nLengthInFrames )
 							 .arg( fSampleRate ) );
 #endif
@@ -1761,7 +1760,8 @@ bool Sampler::renderNote(
 	float* pBusOutR = nullptr;
 	float fBusGain_L = 0.0f;
 	float fBusGain_R = 0.0f;
-	if ( m_pHydrogen->isUnderPluginHost() ) {
+	if ( m_pHydrogen->isUnderPluginHost() &&
+		 pInstrument->getOutputBus() != Instrument::nNoOutputBusMapping ) {
 		auto pPluginDriver =
 			std::dynamic_pointer_cast<PluginAudioDriver>( pAudioDriver );
 		if ( pPluginDriver != nullptr && pSong->getDrumkit() != nullptr ) {

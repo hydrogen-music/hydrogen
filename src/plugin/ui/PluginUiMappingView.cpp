@@ -19,263 +19,615 @@
  *
  */
 
-// The MIDI mapping view's renderer (proposal 0006 TU4.2): the map-wide
-// settings and the per-instrument rows. Every widget applies its change
-// with one model command (apply-on-change — the model's atomic-command
-// design); nothing is held locally, so nothing can drift. Thin draw
-// calls only (TU1.3): every decision is the model's.
+// The MIDI mapping view's renderer (proposal 0006 TU4.2): the exposed MIDI
+// configuration foldable section (moved from the landing view — feedback and
+// transport stay engine-side, settable via the editor) and the note mapping as
+// two foldable sections — "Input" (input mode, global input channel, the
+// per-instrument input rows) and "Output" (output mode, global output channel,
+// the per-instrument output rows) — plus the "Bus Output" section: the
+// instruments in a left column, the numbered output busses in a right
+// one, drag&drop routing and béziers visualizing the effective feeds. Every
+// widget — the MIDI config ones included — applies its change the moment it
+// is made, with one model command (the model's atomic-command design);
+// nothing is held locally, so nothing can drift. Thin draw calls only
+// (TU1.3): every decision is the model's.
 
 #include "PluginUiMappingView.h"
+#include "PluginUiStyle.h"
 
 #include <imgui.h>
 
+#include <algorithm>
+#include <vector>
+
 #include <core/CommonStrings.h>
 #include <plugin/HydrogenPlugin.h>
+
+namespace {
+
+// Drag&drop payload type of an instrument's bus routing (ADR 0019).
+const char* s_sInstrumentBusPayload = "H2_INSTRUMENT_BUS";
+
+// The bus output section's column geometry: the floors of the columns'
+// uniform button widths (the trailing Dummy of each column keeps them
+// when a column has no buttons at all) and the corridor between the
+// columns the béziers travel through.
+constexpr float s_nInstrumentColumnWidth = 150.0f;
+constexpr float s_nBusColumnWidth = 90.0f;
+constexpr float s_nBusColumnGap = 40.0f;
+
+} // namespace
 
 namespace H2Core {
 
 PluginUiMappingView::PluginUiMappingView( HydrogenPlugin* pPlugin )
 	: m_model( pPlugin ), m_pCommonStrings( pPlugin->commonStrings() )
 {
+	refreshMidiConfigWidgets();
 }
 
-void PluginUiMappingView::draw()
+void PluginUiMappingView::refreshMidiConfigWidgets()
 {
+	m_bNoteOffIgnore = m_model.midiNoteOffIgnore();
+	m_nActionChannel = static_cast<int>( m_model.midiActionChannel() );
+	m_nSendNoteOff = static_cast<int>( m_model.midiSendNoteOff() );
+}
+
+void PluginUiMappingView::applyMidiConfigWidgets()
+{
+	// The atomic command takes the whole triple; the widgets not being
+	// changed carry the engine's current values.
+	m_model.applyExposedMidiControlSettings(
+		m_bNoteOffIgnore,
+		Midi::channelFromInt( m_nActionChannel ),
+		static_cast<Preferences::MidiSendNoteOff>( m_nSendNoteOff ) );
+	// Resync regardless of the outcome: the engine may have normalized
+	// a value — or refused the change outright (no engine) — and the
+	// widgets must mirror the engine, never hold an unapplied edit.
+	// (The per-frame refresh in draw() is interaction-gated; this
+	// resync follows the user's own apply immediately.)
+	refreshMidiConfigWidgets();
+}
+
+void PluginUiMappingView::draw( const PluginUiPalette& palette )
+{
+	// The exposed MIDI configuration — drawn before the engine guard so
+	// the section renders (with the engine defaults) even without an
+	// engine, exactly as it did on the landing view.
+	m_layout.bValid = false;
+	bool bMidiConfigInteraction = false;
+	if ( ImGui::CollapsingHeader(
+			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
+					.constData(),
+			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		m_layout.bValid = true;
+		// Engine-side changes (the editor's IPC applies) adopt with
+		// the next frame — unless the user is mid-interaction with
+		// one of the three widgets: an open dropdown or a held
+		// checkbox must not snap back under the user's hand. The
+		// flag is recomputed every frame, collapsed section or not,
+		// so a collapsed section cannot strand it.
+		if ( ! m_bMidiConfigInteraction ) {
+			refreshMidiConfigWidgets();
+		}
+		{
+			PluginUiStyle::ScopedCheckBox checkBox( palette );
+			if ( ImGui::Checkbox(
+					 m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8()
+						 .constData(),
+					 &m_bNoteOffIgnore ) ) {
+				applyMidiConfigWidgets();
+			}
+		}
+		m_layout.noteOffIgnoreMin = ImGui::GetItemRectMin();
+		m_layout.noteOffIgnoreMax = ImGui::GetItemRectMax();
+		bMidiConfigInteraction |= ImGui::IsItemActive();
+
+		// The action channel dropdown — the GUI spinbox's range and
+		// texts (all channels, Off, 1..16), the same +1 index shift as
+		// the input channel dropdowns below. The QByteArrays must
+		// outlive the Combo call — held locals, not chained
+		// temporaries.
+		QByteArray sActionChannelEntries[ 18 ];
+		const char* sActionChannelEntryPtrs[ 18 ];
+		for ( int n = 0; n < 18; ++n ) {
+			sActionChannelEntries[ n ] =
+				m_pCommonStrings->getChannelDisplayName(
+					Midi::channelFromInt( n - 1 ) ).toUtf8();
+			sActionChannelEntryPtrs[ n ] =
+				sActionChannelEntries[ n ].constData();
+		}
+		int nActionChannel = m_nActionChannel + 1;
+		ImGui::SetNextItemWidth( 72.0f );
+		if ( ImGui::Combo(
+				 m_pCommonStrings->getActionChannelLabel().toUtf8()
+					 .constData(),
+				 &nActionChannel, sActionChannelEntryPtrs, 18 ) ) {
+			m_nActionChannel = nActionChannel - 1;
+			applyMidiConfigWidgets();
+		}
+		m_layout.actionChannelMin = ImGui::GetItemRectMin();
+		m_layout.actionChannelMax = ImGui::GetItemRectMax();
+		bMidiConfigInteraction |= ImGui::IsItemActive();
+
+		// The combo entries must outlive the Combo call — held locals,
+		// not chained temporaries.
+		const auto sAlways = m_pCommonStrings->getOptionAlways().toUtf8();
+		const auto sOnCustomNoteLengths =
+			m_pCommonStrings->getOptionOnCustomNoteLengths().toUtf8();
+		const auto sNever = m_pCommonStrings->getOptionNever().toUtf8();
+		const char* sSendNoteOffEntries[ 3 ] = {
+			sAlways.constData(), sOnCustomNoteLengths.constData(),
+			sNever.constData()
+		};
+		if ( ImGui::Combo( m_pCommonStrings->getSendNoteOffLabel().toUtf8()
+							   .constData(),
+						   &m_nSendNoteOff, sSendNoteOffEntries, 3 ) ) {
+			applyMidiConfigWidgets();
+		}
+		m_layout.sendNoteOffMin = ImGui::GetItemRectMin();
+		m_layout.sendNoteOffMax = ImGui::GetItemRectMax();
+		bMidiConfigInteraction |= ImGui::IsItemActive();
+
+		m_layout.bNoteOffIgnore = m_bNoteOffIgnore;
+		m_layout.nActionChannel = m_nActionChannel;
+		m_layout.nSendNoteOff = m_nSendNoteOff;
+	}
+	m_bMidiConfigInteraction = bMidiConfigInteraction;
+
 	auto pMap = m_model.liveMap();
 	if ( pMap == nullptr ) {
 		// No engine yet — nothing to map.
 		return;
 	}
 
-	ImGui::TextUnformatted( m_pCommonStrings->getNoteMappingHeader().toUtf8()
-								.constData() );
-
-	// Map-wide settings, applied on change. The combo entries must
-	// outlive the Combo calls — held locals, not chained temporaries.
-	const auto sInputNone = MidiInstrumentMap::InputToQString(
-		MidiInstrumentMap::Input::None ).toUtf8();
-	const auto sInputAsOutput = MidiInstrumentMap::InputToQString(
-		MidiInstrumentMap::Input::AsOutput ).toUtf8();
-	const auto sInputCustom = MidiInstrumentMap::InputToQString(
-		MidiInstrumentMap::Input::Custom ).toUtf8();
-	const auto sInputSelected = MidiInstrumentMap::InputToQString(
-		MidiInstrumentMap::Input::SelectedInstrument ).toUtf8();
-	const auto sInputOrder = MidiInstrumentMap::InputToQString(
-		MidiInstrumentMap::Input::Order ).toUtf8();
-	const char* sInputModes[ 5 ] = {
-		sInputNone.constData(),   sInputAsOutput.constData(),
-		sInputCustom.constData(), sInputSelected.constData(),
-		sInputOrder.constData()
-	};
-	int nInputMode = static_cast<int>( pMap->getInput() );
-	if ( ImGui::Combo( m_pCommonStrings->getInputHeader().toUtf8()
-						   .constData(),
-					   &nInputMode, sInputModes, 5 ) ) {
-		m_model.setInputMode(
-			static_cast<MidiInstrumentMap::Input>( nInputMode ) );
-	}
-
-	const auto sOutputNone = MidiInstrumentMap::OutputToQString(
-		MidiInstrumentMap::Output::None ).toUtf8();
-	const auto sOutputOffset = MidiInstrumentMap::OutputToQString(
-		MidiInstrumentMap::Output::Offset ).toUtf8();
-	const auto sOutputConstant = MidiInstrumentMap::OutputToQString(
-		MidiInstrumentMap::Output::Constant ).toUtf8();
-	const char* sOutputModes[ 3 ] = {
-		sOutputNone.constData(), sOutputOffset.constData(),
-		sOutputConstant.constData()
-	};
-	int nOutputMode = static_cast<int>( pMap->getOutput() );
-	if ( ImGui::Combo( m_pCommonStrings->getOutputHeader().toUtf8()
-						   .constData(),
-					   &nOutputMode, sOutputModes, 3 ) ) {
-		m_model.setOutputMode(
-			static_cast<MidiInstrumentMap::Output>( nOutputMode ) );
-	}
-
-	// The channel dropdowns' entries — All / Off / 1..16, one per
-	// selectable channel: index 0 is "All" (-1), 1 is "Off" (0), 2..17
-	// are the channels, the same shift every channel combo below
-	// applies. The QByteArrays must outlive the combo calls, so they
-	// are held next to the pointers into them.
+	// The channel dropdowns' entries — All / Off / 1..16, one per selectable
+	// channel: the input list leads with "All" (index 0 is "All" (-1), 1 is
+	// "Off" (0), 2..17 are the channels), so every input combo shifts the
+	// raw channel by one. The output counterpart has no "All" value — it
+	// starts at "Off", and the raw channel IS the index. The QByteArrays
+	// must outlive the combo calls, so they are held next to the pointers
+	// into them.
 	QByteArray sChannelEntries[ 18 ];
-	const char* sChannelEntryPtrs[ 18 ];
+	const char* sInputChannelEntryPtrs[ 18 ];
+	const char* sOutputChannelEntryPtrs[ 17 ];
 	for ( int n = 0; n < 18; ++n ) {
 		sChannelEntries[ n ] = m_pCommonStrings->getChannelDisplayName(
 			Midi::channelFromInt( n - 1 ) ).toUtf8();
-		sChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
-	}
-
-	// Global channels — dropdowns with the GUI's spinbox texts (all
-	// channels, Off, 1..16). The "##" suffixes keep the twice-used
-	// labels' imgui IDs apart.
-	const auto sUseGlobalInput = ( m_pCommonStrings->
-									   getUseGlobalChannelLabel() +
-								   "##input" ).toUtf8();
-	bool bUseGlobalInput = pMap->getUseGlobalInputChannel();
-	if ( ImGui::Checkbox( sUseGlobalInput.constData(),
-						  &bUseGlobalInput ) ) {
-		m_model.setUseGlobalInputChannel( bUseGlobalInput );
-	}
-	ImGui::SameLine();
-	const auto sGlobalInputChannel = ( m_pCommonStrings->
-											getGlobalChannelLabel() +
-										"##input" ).toUtf8();
-	int nGlobalInputChannel =
-		static_cast<int>( pMap->getGlobalInputChannel() ) + 1;
-	ImGui::SetNextItemWidth( 60.0f );
-	if ( ImGui::Combo( sGlobalInputChannel.constData(),
-					   &nGlobalInputChannel, sChannelEntryPtrs, 18 ) ) {
-		m_model.setGlobalInputChannel(
-			Midi::channelFromInt( nGlobalInputChannel - 1 ) );
-	}
-
-	const auto sUseGlobalOutput = ( m_pCommonStrings->
-										getUseGlobalChannelLabel() +
-									"##output" ).toUtf8();
-	bool bUseGlobalOutput = pMap->getUseGlobalOutputChannel();
-	if ( ImGui::Checkbox( sUseGlobalOutput.constData(),
-						  &bUseGlobalOutput ) ) {
-		m_model.setUseGlobalOutputChannel( bUseGlobalOutput );
-	}
-	ImGui::SameLine();
-	const auto sGlobalOutputChannel = ( m_pCommonStrings->
-											getGlobalChannelLabel() +
-										"##output" ).toUtf8();
-	int nGlobalOutputChannel =
-		static_cast<int>( pMap->getGlobalOutputChannel() ) + 1;
-	ImGui::SetNextItemWidth( 60.0f );
-	if ( ImGui::Combo( sGlobalOutputChannel.constData(),
-					   &nGlobalOutputChannel, sChannelEntryPtrs, 18 ) ) {
-		m_model.setGlobalOutputChannel(
-			Midi::channelFromInt( nGlobalOutputChannel - 1 ) );
+		sInputChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
+		if ( n > 0 ) {
+			sOutputChannelEntryPtrs[ n - 1 ] = sChannelEntries[ n ].constData();
+		}
 	}
 
 	const int nInstruments = m_model.instrumentCount();
 
-	// The per-instrument input rows: the effective incoming
-	// note/channel, editable only in Custom mode (the only mode with
-	// per-instrument rows).
-	ImGui::TextUnformatted( m_pCommonStrings->getInputHeader().toUtf8()
-								.constData() );
-	ImGui::PushID( "input" );
-	if ( ImGui::BeginTable( "##table", 3,
-							ImGuiTableFlags_Borders |
-								ImGuiTableFlags_RowBg ) ) {
-		ImGui::TableSetupColumn( m_pCommonStrings->getInstrumentButton()
-									.toUtf8().constData() );
-		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutNoteLabel()
-									.toUtf8().constData() );
-		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutChannelLabel()
-									.toUtf8().constData() );
-		ImGui::TableHeadersRow();
+	ImGui::Dummy( ImVec2( 0.0f, PluginUiMappingView::nSpacing ) );
+	ImGui::Separator();
 
-		const bool bCustom = pMap->getInput() ==
-			MidiInstrumentMap::Input::Custom;
-		for ( int n = 0; n < nInstruments; ++n ) {
-			ImGui::TableNextRow();
-			ImGui::PushID( n );
+	// The sections reuse the existing "Input"/"Output" strings as
+	// headers and the "Note mapping" string as the mode combos' label
+	// (the "##" suffixes keep the twice-used label's imgui IDs apart) —
+	// no new translatable strings.
+	m_layout.bInputSectionValid = false;
+	m_layout.nGlobalInputChannelIndex = -1;
+	if ( ImGui::CollapsingHeader(
+			 m_pCommonStrings->getMidiInputLabel().toUtf8().constData(),
+			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		m_layout.bInputSectionValid = true;
+		// The map-wide input setting, applied on change. The combo
+		// entries must outlive the Combo call — held locals, not
+		// chained temporaries.
+		const auto sInputNone = MidiInstrumentMap::InputToQString(
+			MidiInstrumentMap::Input::None ).toUtf8();
+		const auto sInputAsOutput = MidiInstrumentMap::InputToQString(
+			MidiInstrumentMap::Input::AsOutput ).toUtf8();
+		const auto sInputCustom = MidiInstrumentMap::InputToQString(
+			MidiInstrumentMap::Input::Custom ).toUtf8();
+		const auto sInputSelected = MidiInstrumentMap::InputToQString(
+			MidiInstrumentMap::Input::SelectedInstrument ).toUtf8();
+		const auto sInputOrder = MidiInstrumentMap::InputToQString(
+			MidiInstrumentMap::Input::Order ).toUtf8();
+		const char* sInputModes[ 5 ] = {
+			sInputNone.constData(),   sInputAsOutput.constData(),
+			sInputCustom.constData(), sInputSelected.constData(),
+			sInputOrder.constData()
+		};
+		int nInputMode = static_cast<int>( pMap->getInput() );
+		if ( ImGui::Combo(
+				 ( m_pCommonStrings->getNoteMappingHeader() + "##input" )
+					 .toUtf8()
+					 .constData(),
+				 &nInputMode, sInputModes, 5
+			 ) ) {
+			m_model.setInputMode(
+				static_cast<MidiInstrumentMap::Input>( nInputMode )
+			);
+		}
 
-			ImGui::TableNextColumn();
-			const auto sName =
-				m_model.instrumentName( n ).left( 24 ).toUtf8();
-			ImGui::TextUnformatted( sName.constData(),
-									sName.constData() + sName.size() );
-
-			const auto mapping = m_model.inputMapping( n );
-		ImGui::TableNextColumn();
-		int nNote = static_cast<int>( mapping.note );
-		if ( bCustom ) {
-			ImGui::SetNextItemWidth( 52.0f );
-			if ( ImGui::InputInt( "##note", &nNote, 0, 0 ) ) {
-				m_model.insertCustomInputMapping(
-					n, Midi::noteFromIntClamp( nNote ),
-					mapping.channel );
+		// The global input channel — a dropdown with the GUI's spinbox
+		// texts (all channels, Off, 1..16). The "##" suffixes keep the
+		// twice-used labels' imgui IDs apart from the output section's
+		// twins below.
+		const auto sUseGlobalInput = ( m_pCommonStrings->
+										   getUseGlobalChannelLabel() +
+									   "##input" ).toUtf8();
+		bool bUseGlobalInput = pMap->getUseGlobalInputChannel();
+		// Input::SelectedInstrument forces the global input channel on
+		// (every incoming note maps to the selected instrument) — the
+		// checkbox renders checked and is locked.
+		const bool bSelectedInstrument = pMap->getInput() ==
+			MidiInstrumentMap::Input::SelectedInstrument;
+		ImGui::BeginDisabled( bSelectedInstrument );
+		{
+			PluginUiStyle::ScopedCheckBox checkBox( palette );
+			if ( ImGui::Checkbox( sUseGlobalInput.constData(),
+								  &bUseGlobalInput ) ) {
+				m_model.setUseGlobalInputChannel( bUseGlobalInput );
 			}
 		}
-		else if ( mapping.note == Midi::NoteInvalid ) {
-			// Unmapped in this mode (e.g. Selected Instrument): the
-			// GUI disables the widgets — the read-only row reads
-			// "Off" for both fields.
-			const auto sOff = m_pCommonStrings->getStatusOff().toUtf8();
-			ImGui::TextUnformatted( sOff.constData(),
-									sOff.constData() + sOff.size() );
+		ImGui::EndDisabled();
+		const auto sGlobalInputChannel = ( m_pCommonStrings->
+												getGlobalChannelLabel() +
+											"##input" ).toUtf8();
+		int nGlobalInputChannel =
+			static_cast<int>( pMap->getGlobalInputChannel() ) + 1;
+		ImGui::SetNextItemWidth( 60.0f );
+		// The global channel only takes effect when the checkbox above
+		// enables it — grey the dropdown out otherwise.
+		ImGui::BeginDisabled( ! bUseGlobalInput );
+		if ( ImGui::Combo( sGlobalInputChannel.constData(),
+						   &nGlobalInputChannel, sInputChannelEntryPtrs, 18 ) ) {
+			m_model.setGlobalInputChannel(
+				Midi::channelFromInt( nGlobalInputChannel - 1 ) );
 		}
-		else {
-			ImGui::Text( "%d", nNote );
+		ImGui::EndDisabled();
+		m_layout.nGlobalInputChannelIndex = nGlobalInputChannel;
+
+		// The per-instrument input rows: the effective incoming
+		// note/channel. The note is editable only in Custom mode; the
+		// channel in Custom and Order as well (Order derives the note
+		// from the instrument's position but keeps the individual
+		// channel) — unless the global input channel is enabled, which
+		// overrides all individual channels. No standalone "Input"
+		// label — the section header carries it.
+		ImGui::PushID( "input" );
+		if ( ImGui::BeginTable( "##table", 3,
+								ImGuiTableFlags_Borders |
+									ImGuiTableFlags_RowBg ) ) {
+			ImGui::TableSetupColumn( m_pCommonStrings->getInstrumentButton()
+										 .toUtf8().constData() );
+			ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutNoteLabel()
+										 .toUtf8().constData() );
+			ImGui::TableSetupColumn(
+				m_pCommonStrings->getMidiOutChannelLabel().toUtf8()
+					.constData() );
+			ImGui::TableHeadersRow();
+
+			const bool bCustom = pMap->getInput() ==
+				MidiInstrumentMap::Input::Custom;
+			const bool bOrder = pMap->getInput() ==
+				MidiInstrumentMap::Input::Order;
+			// The global input channel (forced on in SelectedInstrument)
+			// overrides every individual channel — grey the combos out.
+			const bool bChannelEditable =
+				( bCustom || bOrder ) && ! bUseGlobalInput;
+			for ( int n = 0; n < nInstruments; ++n ) {
+				ImGui::TableNextRow();
+				ImGui::PushID( n );
+
+				ImGui::TableNextColumn();
+				const auto sName =
+					m_model.instrumentName( n ).left( 24 ).toUtf8();
+				ImGui::TextUnformatted( sName.constData(),
+										sName.constData() + sName.size() );
+
+				const auto mapping = m_model.inputMapping( n );
+				ImGui::TableNextColumn();
+				int nNote = static_cast<int>( mapping.note );
+				if ( bCustom ) {
+					ImGui::SetNextItemWidth( 52.0f );
+					if ( ImGui::InputInt( "##note", &nNote, 0, 0 ) ) {
+						m_model.insertCustomInputMapping(
+							n, Midi::noteFromIntClamp( nNote ),
+							mapping.channel );
+					}
+				}
+				else if ( mapping.note == Midi::NoteInvalid ) {
+					// Unmapped in this mode (e.g. Selected Instrument):
+					// the GUI disables the widgets — the read-only row
+					// reads "Off" for both fields.
+					const auto sOff =
+						m_pCommonStrings->getStatusOff().toUtf8();
+					ImGui::TextUnformatted( sOff.constData(),
+											sOff.constData() + sOff.size() );
+				}
+				else if ( mapping.note == Midi::NoteAll ) {
+					// Input::SelectedInstrument: every incoming note
+					// maps to the selected instrument.
+					const auto sAll =
+						m_pCommonStrings->getAllLabel().toUtf8();
+					ImGui::TextUnformatted( sAll.constData(),
+											sAll.constData() + sAll.size() );
+				}
+				else {
+					ImGui::Text( "%d", nNote );
+				}
+				ImGui::TableNextColumn();
+				if ( bChannelEditable ) {
+					int nChannel = static_cast<int>( mapping.channel ) + 1;
+					ImGui::SetNextItemWidth( 52.0f );
+					if ( ImGui::Combo( "##channel", &nChannel,
+									   sInputChannelEntryPtrs, 18 ) ) {
+						// In Order mode the note column is read-only —
+						// mapping.note carries the order-derived note,
+						// so the custom mapping keeps it.
+						m_model.insertCustomInputMapping(
+							n, mapping.note,
+							Midi::channelFromInt( nChannel - 1 ) );
+					}
+				}
+				else {
+					const auto sChannel =
+						m_pCommonStrings->getChannelDisplayName(
+							mapping.channel ).toUtf8();
+					ImGui::TextUnformatted( sChannel.constData(),
+											 sChannel.constData() +
+												 sChannel.size() );
+				}
+				ImGui::PopID();
+			}
+			ImGui::EndTable();
 		}
-		ImGui::TableNextColumn();
-		if ( bCustom ) {
-			int nChannel = static_cast<int>( mapping.channel ) + 1;
+		ImGui::PopID();
+	}
+
+	ImGui::Dummy( ImVec2( 0.0f, PluginUiMappingView::nSpacing ) );
+	ImGui::Separator();
+
+	m_layout.bOutputSectionValid = false;
+	m_layout.nGlobalOutputChannelIndex = -1;
+	m_layout.nRowOutputChannelIndex = -1;
+	if ( ImGui::CollapsingHeader(
+			 m_pCommonStrings->getMidiOutLabel().toUtf8().constData(),
+			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		m_layout.bOutputSectionValid = true;
+		// The map-wide output setting, applied on change. The combo
+		// entries must outlive the Combo call — held locals, not
+		// chained temporaries.
+		const auto sOutputNone = MidiInstrumentMap::OutputToQString(
+			MidiInstrumentMap::Output::None ).toUtf8();
+		const auto sOutputOffset = MidiInstrumentMap::OutputToQString(
+			MidiInstrumentMap::Output::Offset ).toUtf8();
+		const auto sOutputConstant = MidiInstrumentMap::OutputToQString(
+			MidiInstrumentMap::Output::Constant ).toUtf8();
+		const char* sOutputModes[ 3 ] = {
+			sOutputNone.constData(), sOutputOffset.constData(),
+			sOutputConstant.constData()
+		};
+		int nOutputMode = static_cast<int>( pMap->getOutput() );
+		if ( ImGui::Combo(
+				 ( m_pCommonStrings->getNoteMappingHeader() + "##output" )
+					 .toUtf8()
+					 .constData(),
+				 &nOutputMode, sOutputModes, 3
+			 ) ) {
+			m_model.setOutputMode(
+				static_cast<MidiInstrumentMap::Output>( nOutputMode )
+			);
+		}
+
+		// The global output channel — the input section's twin above;
+		// the "##" suffixes keep the twice-used labels' imgui IDs
+		// apart.
+		const auto sUseGlobalOutput = ( m_pCommonStrings->
+											getUseGlobalChannelLabel() +
+										"##output" ).toUtf8();
+		bool bUseGlobalOutput = pMap->getUseGlobalOutputChannel();
+		{
+			PluginUiStyle::ScopedCheckBox checkBox( palette );
+			if ( ImGui::Checkbox( sUseGlobalOutput.constData(),
+								  &bUseGlobalOutput ) ) {
+				m_model.setUseGlobalOutputChannel( bUseGlobalOutput );
+			}
+		}
+		const auto sGlobalOutputChannel = ( m_pCommonStrings->
+													getGlobalChannelLabel() +
+												"##output" ).toUtf8();
+		// The output list starts at "Off" — the raw channel is the
+		// index (no "All" shift, unlike the input twin above).
+		int nGlobalOutputChannel =
+			static_cast<int>( pMap->getGlobalOutputChannel() );
+		ImGui::SetNextItemWidth( 60.0f );
+		// The input section's twin: greyed out unless the global
+		// channel is enabled above.
+		ImGui::BeginDisabled( ! bUseGlobalOutput );
+		if ( ImGui::Combo( sGlobalOutputChannel.constData(),
+						   &nGlobalOutputChannel, sOutputChannelEntryPtrs, 17 ) ) {
+			m_model.setGlobalOutputChannel(
+				Midi::channelFromInt( nGlobalOutputChannel ) );
+		}
+		ImGui::EndDisabled();
+		m_layout.nGlobalOutputChannelIndex = nGlobalOutputChannel;
+
+		// The per-instrument output rows: the instrument's outgoing
+		// note/channel. No standalone "Output" label — the section
+		// header carries it.
+		ImGui::PushID( "output" );
+		if ( ImGui::BeginTable( "##table", 3,
+								ImGuiTableFlags_Borders |
+									ImGuiTableFlags_RowBg ) ) {
+			ImGui::TableSetupColumn( m_pCommonStrings->getInstrumentButton()
+										 .toUtf8().constData() );
+			ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutNoteLabel()
+										 .toUtf8().constData() );
+			ImGui::TableSetupColumn(
+				m_pCommonStrings->getMidiOutChannelLabel().toUtf8()
+					.constData() );
+			ImGui::TableHeadersRow();
+
+			for ( int n = 0; n < nInstruments; ++n ) {
+				ImGui::TableNextRow();
+				ImGui::PushID( n );
+
+				ImGui::TableNextColumn();
+				const auto sName =
+					m_model.instrumentName( n ).left( 24 ).toUtf8();
+				ImGui::TextUnformatted( sName.constData(),
+										sName.constData() + sName.size() );
+
+				ImGui::TableNextColumn();
+				int nNote = static_cast<int>(
+					m_model.instrumentMidiOutNote( n ) );
+				ImGui::SetNextItemWidth( 52.0f );
+				if ( ImGui::InputInt( "##note", &nNote, 0, 0 ) ) {
+					m_model.setInstrumentMidiOutNote(
+						n, Midi::noteFromIntClamp( nNote ) );
+				}
+			ImGui::TableNextColumn();
+			// The output list starts at "Off" — the raw channel is
+			// the index (no "All" shift, unlike the input rows).
+			int nChannel = static_cast<int>(
+				m_model.instrumentMidiOutChannel( n ) );
 			ImGui::SetNextItemWidth( 52.0f );
 			if ( ImGui::Combo( "##channel", &nChannel,
-							   sChannelEntryPtrs, 18 ) ) {
-				m_model.insertCustomInputMapping(
-					n, mapping.note,
-					Midi::channelFromInt( nChannel - 1 ) );
+							   sOutputChannelEntryPtrs, 17 ) ) {
+				m_model.setInstrumentMidiOutChannel(
+					n, Midi::channelFromInt( nChannel ) );
 			}
+			if ( n == 0 ) {
+				m_layout.nRowOutputChannelIndex = nChannel;
+			}
+				ImGui::PopID();
+			}
+			ImGui::EndTable();
 		}
-		else {
-			const auto sChannel = m_pCommonStrings->getChannelDisplayName(
-				mapping.channel ).toUtf8();
-			ImGui::TextUnformatted( sChannel.constData(),
-									sChannel.constData() +
-										sChannel.size() );
-		}
-			ImGui::PopID();
-		}
-		ImGui::EndTable();
+		ImGui::PopID();
 	}
-	ImGui::PopID();
 
-	// The per-instrument output rows: the instrument's outgoing
-	// note/channel.
-	ImGui::TextUnformatted( m_pCommonStrings->getOutputHeader().toUtf8()
-								.constData() );
-	ImGui::PushID( "output" );
-	if ( ImGui::BeginTable( "##table", 3,
-							ImGuiTableFlags_Borders |
-								ImGuiTableFlags_RowBg ) ) {
-		ImGui::TableSetupColumn( m_pCommonStrings->getInstrumentButton()
-									.toUtf8().constData() );
-		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutNoteLabel()
-									.toUtf8().constData() );
-		ImGui::TableSetupColumn( m_pCommonStrings->getMidiOutChannelLabel()
-									.toUtf8().constData() );
-		ImGui::TableHeadersRow();
+	ImGui::Dummy( ImVec2( 0.0f, PluginUiMappingView::nSpacing ) );
+	ImGui::Separator();
 
+	// The instrument-to-bus routing (ADR 0019): the instruments in a left
+	// column, the numbered output busses in a right one, the béziers
+	// visualizing the effective feeds. Dragging an instrument onto a bus
+	// sets its explicit routing — instruments are only mapped to
+	// numbered busses; the ones beyond the bus count (master only)
+	// carry no curve.
+	if ( ImGui::CollapsingHeader(
+			 m_pCommonStrings->getBusOutputHeader().toUtf8().constData(),
+			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		const int nBusCount = m_model.busCount();
+
+		// Uniform widget sizes: every button of a column shares its
+		// width — at least the column floor, growing with the widest
+		// (clipped) label — and the auto height, so the two columns'
+		// widgets are indistinguishable in size and styling.
+		float nInstrumentButtonWidth = s_nInstrumentColumnWidth;
 		for ( int n = 0; n < nInstruments; ++n ) {
-			ImGui::TableNextRow();
-			ImGui::PushID( n );
+			nInstrumentButtonWidth = std::max(
+				nInstrumentButtonWidth,
+				ImGui::CalcTextSize(
+					m_model.instrumentName( n ).left( 24 ).toUtf8()
+						.constData() )
+					.x +
+					ImGui::GetStyle().FramePadding.x * 2.0f );
+		}
+		float nBusButtonWidth = s_nBusColumnWidth;
+		if ( nBusCount > 0 ) {
+			// "Bus <nBusCount>" is the widest label of the column.
+			nBusButtonWidth = std::max(
+				nBusButtonWidth,
+				ImGui::CalcTextSize(
+					( m_pCommonStrings->getBusLabel() + " " +
+					  QString::number( nBusCount ) ).toUtf8()
+						.constData() )
+					.x +
+					ImGui::GetStyle().FramePadding.x * 2.0f );
+		}
 
-			ImGui::TableNextColumn();
-			const auto sName =
-				m_model.instrumentName( n ).left( 24 ).toUtf8();
-			ImGui::TextUnformatted( sName.constData(),
-									sName.constData() + sName.size() );
-
-			ImGui::TableNextColumn();
-			int nNote = static_cast<int>(
-				m_model.instrumentMidiOutNote( n ) );
-			ImGui::SetNextItemWidth( 52.0f );
-			if ( ImGui::InputInt( "##note", &nNote, 0, 0 ) ) {
-				m_model.setInstrumentMidiOutNote(
-					n, Midi::noteFromIntClamp( nNote ) );
+		// Both columns are push buttons in the GUI's style; the scope
+		// ends before the béziers, which use the plain text color.
+		std::vector<ImVec2> instrumentOrigins;
+		std::vector<ImVec2> busOrigins;
+		{
+			PluginUiStyle::ScopedPushButton pushButtons( palette );
+			// The left column: every instrument of the kit, each the
+			// drag source of its routing.
+			instrumentOrigins.reserve( nInstruments );
+			ImGui::BeginGroup();
+			for ( int n = 0; n < nInstruments; ++n ) {
+				ImGui::PushID( n );
+				const auto sName =
+					m_model.instrumentName( n ).left( 24 ).toUtf8();
+				ImGui::Button( sName.constData(),
+							   ImVec2( nInstrumentButtonWidth, 0.0f ) );
+				const ImVec2 rectMin = ImGui::GetItemRectMin();
+				const ImVec2 rectMax = ImGui::GetItemRectMax();
+				instrumentOrigins.push_back( ImVec2(
+					rectMax.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
+				if ( ImGui::BeginDragDropSource() ) {
+					ImGui::SetDragDropPayload( s_sInstrumentBusPayload, &n,
+											   sizeof( int ) );
+					ImGui::TextUnformatted( sName.constData(),
+											sName.constData() + sName.size() );
+					ImGui::EndDragDropSource();
+				}
+				ImGui::PopID();
 			}
-		ImGui::TableNextColumn();
-		int nChannel = static_cast<int>(
-			m_model.instrumentMidiOutChannel( n ) ) + 1;
-		ImGui::SetNextItemWidth( 52.0f );
-		if ( ImGui::Combo( "##channel", &nChannel,
-						   sChannelEntryPtrs, 18 ) ) {
-			m_model.setInstrumentMidiOutChannel(
-				n, Midi::channelFromInt( nChannel - 1 ) );
+			ImGui::Dummy( ImVec2( s_nInstrumentColumnWidth, 0.0f ) );
+			ImGui::EndGroup();
+			// The corridor the béziers travel through.
+			ImGui::SameLine( 0.0f, s_nBusColumnGap );
+
+			// The right column: one slot per numbered host bus. Dropping an
+			// instrument sets its explicit output bus.
+			busOrigins.reserve( nBusCount );
+			ImGui::BeginGroup();
+			for ( int nBus = 0; nBus < nBusCount; ++nBus ) {
+				const auto sBus = ( m_pCommonStrings->getBusLabel() + " " +
+									QString::number( nBus + 1 ) ).toUtf8();
+				ImGui::Button( sBus.constData(),
+							   ImVec2( nBusButtonWidth, 0.0f ) );
+				if ( ImGui::BeginDragDropTarget() ) {
+					if ( const ImGuiPayload* pPayload =
+							 ImGui::AcceptDragDropPayload(
+								 s_sInstrumentBusPayload ) ) {
+						const int nInstrument =
+							*static_cast<const int*>( pPayload->Data );
+						m_model.setInstrumentOutputBus( nInstrument, nBus );
+					}
+					ImGui::EndDragDropTarget();
+				}
+				const ImVec2 rectMin = ImGui::GetItemRectMin();
+				const ImVec2 rectMax = ImGui::GetItemRectMax();
+				busOrigins.push_back( ImVec2(
+					rectMin.x, ( rectMin.y + rectMax.y ) * 0.5f ) );
+			}
+			ImGui::Dummy( ImVec2( s_nBusColumnWidth, 0.0f ) );
+			ImGui::EndGroup();
 		}
-			ImGui::PopID();
+
+		// The routing béziers: each instrument to its effective
+		// numbered bus.
+		ImDrawList* pDraw = ImGui::GetWindowDrawList();
+		const ImU32 nCurveColor = IM_COL32( 0, 0, 0, 255 );
+		for ( int n = 0; n < nInstruments; ++n ) {
+			const int nBus = m_model.effectiveOutputBus( n, nBusCount );
+			if ( nBus == Instrument::nNoOutputBusMapping ) {
+				// Master only — not part of the visualization.
+				continue;
+			}
+			const ImVec2 from = instrumentOrigins[ n ];
+			const ImVec2 to = busOrigins[ nBus ];
+			const float nDip =
+				std::max( ( to.x - from.x ) * 0.5f, 8.0f );
+			pDraw->AddBezierCubic( from,
+								   ImVec2( from.x + nDip, from.y ),
+								   ImVec2( to.x - nDip, to.y ), to,
+								   nCurveColor, 2.0f );
 		}
-		ImGui::EndTable();
 	}
-	ImGui::PopID();
 }
 
 } // namespace H2Core

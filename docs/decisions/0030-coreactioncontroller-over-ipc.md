@@ -162,3 +162,27 @@ command) — the cost option 4 was rejected to preserve. Args reuse the existing
 
 * The CLI option `--plugin-editor` was renamed to `--connect-via-ipc`.
 * The unit test `EditorModeTest.cpp` was renamed to `ConnectViaIpcModeTest.cpp`.
+
+## Addition 2026-11-17
+
+* The MIDI configuration commands `setMidiInstrumentMap()` and
+  `setMidiControlSettings()` now queue dedicated events —
+  `Event::Type::MidiInstrumentMapChanged` and
+  `Event::Type::MidiControlSettingsChanged` — after the granular install.
+  Rationale: the editor's MIDI control dialog caches the MIDI configuration in
+  its widgets and previously refreshed it only on local `UpdatePreferences(1)`.
+  Changes applied by the *engine* side — most notably the embedded plugin UI's
+  in-process commands — never reached it and were stomped by the dialog's next
+  whole-config push. The new events cross the IPC boundary (the engine echo is
+  forwarded with origin `Headless`); the editor's
+  `HydrogenApp::handleRemoteEvent()` pulls the fresh core preferences before
+  fan-out so listeners reload current state.
+* Both commands take a trailing `nEventId` (default `Event::nInvalidId`) which
+  rides on the queued event and crosses the wire, so a GUI funneling its own
+  change through the command can `EventListener::blacklistEventId()` it once
+  and skip both echoes (local mirror apply + engine echo) — the established
+  pattern of `setInstrumentMidiOutNote()`/`setInstrumentMidiOutChannel()`.
+* The events are deliberately *not* `UpdatePreferences`: that one is
+  intercepted in `handleRemoteEvent()` and downgraded to a preferences
+  re-pull, and a granular MIDI install must not masquerade as a full
+  preference change.

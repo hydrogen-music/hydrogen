@@ -1303,17 +1303,17 @@ void SongEditorPanel::updateIcons() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorSongEditorToolBarDisabled =
 		Skin::makeBackgroundColorInactive(
-			pColorTheme->m_songEditor_alternateRowColor.darker(
+			Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 				SongEditorPositionRuler::nScalingRuler
 			)
 		);
 	const QColor colorPlaybackTrackToolBarDisabled =
-		Skin::makeBackgroundColorInactive( pColorTheme->m_accentColor.darker(
+		Skin::makeBackgroundColorInactive( Skin::toQColor( pColorTheme->m_accentColor ).darker(
 			SongEditorPanel::nScalingPlaybackTrack
 		) );
 	const QColor colorTimelineToolBarDisabled =
 		Skin::makeBackgroundColorInactive(
-			pColorTheme->m_songEditor_alternateRowColor.darker(
+			Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 				SongEditorPositionRuler::nScalingTimeline
 			)
 		);
@@ -1393,7 +1393,7 @@ void SongEditorPanel::updatePatternEditorLocked()
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorSongEditorToolBarDisabled =
 		Skin::makeBackgroundColorInactive(
-			pColorTheme->m_songEditor_alternateRowColor.darker(
+			Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 				SongEditorPositionRuler::nScalingRuler
 			)
 		);
@@ -1451,7 +1451,7 @@ void SongEditorPanel::updatePatternMode() {
 void SongEditorPanel::updateStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	const QColor colorSongEditorToolBar =
-		pColorTheme->m_songEditor_alternateRowColor.darker(
+		Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 			SongEditorPositionRuler::nScalingRuler
 		);
 
@@ -1460,27 +1460,27 @@ void SongEditorPanel::updateStyleSheet() {
 	QColor colorPlaybackTrackToolBar;
 	if ( pSong != nullptr && pSong->getPlaybackTrackInstrument() != nullptr &&
 		 pSong->getPlaybackTrackInstrument()->isMuted() ) {
-		colorPlaybackTrackToolBar = pColorTheme->m_muteColor;
+		colorPlaybackTrackToolBar = Skin::toQColor( pColorTheme->m_muteColor );
 	}
 	else {
-		colorPlaybackTrackToolBar = pColorTheme->m_accentColor;
+		colorPlaybackTrackToolBar = Skin::toQColor( pColorTheme->m_accentColor );
 	}
 	colorPlaybackTrackToolBar =
 		colorPlaybackTrackToolBar.darker( SongEditorPanel::nScalingPlaybackTrack
 		);
 
 	const QColor colorTimelineToolBar =
-		pColorTheme->m_songEditor_alternateRowColor.darker(
+		Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 			SongEditorPositionRuler::nScalingTimeline
 		);
 
 	QColor backgroundInactiveColor;
 	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Song ) {
-		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor ).lighter(
 		 	Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	setStyleSheet( QString( "\
@@ -1538,7 +1538,7 @@ QWidget#SongEditorToolBarContainer {\
 		colorPlaybackTrackToolBar
 	);
 	m_pMutePlaybackTrackButton->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor
+		Skin::toQColor( pColorTheme->m_muteTextColor )
 	);
 }
 

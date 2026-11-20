@@ -22,6 +22,7 @@
 
 #include "ClickableLabel.h"
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <QtGui>
 #include <QtWidgets>
@@ -72,9 +73,9 @@ void ClickableLabel::updateStyleSheet() {
 	  textColor = m_color;
 	}
 	else if ( m_defaultColor == DefaultColor::Bright ) {
-		textColor = pColorTheme->m_windowTextColor;
+		textColor = Skin::toQColor( pColorTheme->m_windowTextColor );
 	} else {
-		textColor = pColorTheme->m_widgetTextColor;
+		textColor = Skin::toQColor( pColorTheme->m_widgetTextColor );
 	}
 
 	setStyleSheet( QString( "QLabel { color: %1; }" ).arg( textColor.name() ) );
@@ -110,9 +111,9 @@ void ClickableLabel::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( isEnabled() ) {
-			colorHighlightActive = pColorTheme->m_highlightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 		} else {
-			colorHighlightActive = pColorTheme->m_lightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 		}
 
 		// If the mouse is placed on the widget but the user hasn't

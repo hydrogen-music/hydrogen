@@ -26,6 +26,8 @@
 #include <memory>
 #include <vector>
 
+#include <plugin/HostTransportLatch.h>
+
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
@@ -58,6 +60,12 @@ class EngineEventSink;
  */
 class HydrogenPlugin {
 public:
+
+		static constexpr int nDefaultHeight = 600;
+		static constexpr int nDefaultWidth = 960;
+		static constexpr int nMinHeight = 400;
+		static constexpr int nMinWidth = 640;
+
 	/**
 	 * @param fSampleRate  Initial sample rate in Hz.
 	 * @param nMaxBlockSize Largest block the host will request (frames).
@@ -92,6 +100,15 @@ public:
 	void activate( double fSampleRate, unsigned nMaxBlockSize );
 	void deactivate();
 
+	/** The host's reset hook (CLAP `reset`: clear the processing state
+	 * and kill all voices, [audio-thread & active]) mapped onto the
+	 * engine's panic action: stop the sequencer, stop all playing
+	 * notes, all notes off. Called between process blocks, where the
+	 * engine lock is free (audioEngine_process only try-locks), so the
+	 * lock panic() takes can only ever wait for a rare main-thread
+	 * holder (state save, editor command) — no circular waits. */
+	void reset();
+
 	/**
 	 * Render one block into the host buffers.
 	 * @param nFrames   Frames to render (<= max block size).
@@ -99,14 +116,18 @@ public:
 	 * @param pMasterR  Master right output.
 	 * @param busOut_L  Per-bus left buffers (size getBusCount() or empty).
 	 * @param busOut_R  Per-bus right buffers.
-	 * @param bRolling  Host transport rolling this block.
-	 * @param fBpm      Host tempo (<= 0 keeps the engine tempo).
-	 * @param nFrame    Host transport frame at the start of the block.
+	 * @param hostTransport  Raw host transport for this block as parsed by
+	 *                       the format shim. It is sanitized through the
+	 *                       host transport latch (ADR 0013) before reaching
+	 *                       the engine: raw readings jitter at the frame
+	 *                       level and must not be published as relocations.
+	 *                       An invalid reading (host without transport)
+	 *                       leaves the engine free-running.
 	 */
 	void process( uint32_t nFrames, float* pMasterL, float* pMasterR,
 				  const std::vector<float*>& busOut_L,
 				  const std::vector<float*>& busOut_R,
-				  bool bRolling, double fBpm, long long nFrame );
+				  const HostTransportReading& hostTransport );
 
 	// Host MIDI for the upcoming block (queued, dispatched at process()).
 	// Threading contract (ADR 0013): the queue is plain storage, not
@@ -121,11 +142,15 @@ public:
 
 	int getBusCount() const;
 
-	/** Serialize the current song to a plugin-state buffer (ADR 0017/0020/0025).
-	 * @param bEmbedSamples ON → portable `.h2project`; OFF → song-only. */
+	/** Serialize the current song — and the plugin's own base-layer
+	 * preferences (ADR 0017 amendment/0022) — to a plugin-state buffer. The
+	 * buffer is always the `.h2project` archive container;
+	 * @param bEmbedSamples ON → portable bundle (sample audio embedded);
+	 *   OFF → song-only (the kit must be installed to reload). */
 	std::vector<unsigned char> saveState( bool bEmbedSamples );
-	/** Replace the current song from a plugin-state buffer (embedded or
-	 * song-only, auto-detected). */
+	/** Replace the current song from a plugin-state buffer (container
+	 * auto-detected), adopting the stored plugin preferences where the
+	 * state carries them. */
 	bool loadState( const std::vector<unsigned char>& data );
 
 	Hydrogen* getHydrogen() const { return m_pHydrogen; }
@@ -139,12 +164,19 @@ public:
 	}
 
 	/** Register an engine-process consumer of this plugin's engine event
-	 * stream and telemetry (ADR 0035 UI-3): forwarded to the engine
-	 * session's sink seam (EngineSession::setEventSink). The plugin
-	 * remembers it and (re-)registers it with any session started later.
-	 * Pass nullptr to unregister; the caller owns the sink and must
-	 * unregister it before destroying it. */
+	 *  stream and telemetry (ADR 0035 UI-3): forwarded to the engine
+	 *  session's sink seam (EngineSession::setEventSink). The plugin
+	 *  remembers it and (re-)registers it with any session started later.
+	 *  Pass nullptr to unregister; the caller owns the sink and must
+	 *  unregister it before destroying it. */
 	void setEventSink( EngineEventSink* pEventSink );
+
+	/** Unregister @a pEventSink, but only if it is still the registered
+	 *  sink: a displaced sink's teardown must not unregister its
+	 *  successor. When it does unregister, the session's in-flight
+	 *  drain completes before this returns — the sink may be destroyed
+	 *  afterwards. */
+	void clearEventSink( EngineEventSink* pExpected );
 
 	// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────
 	/** Open the editor for this instance: mark it open and, when
@@ -169,8 +201,11 @@ public:
 	/** The IPC endpoint the editor attaches to (empty only while the
 	 * session could not bind). */
 	const QString& getEditorEndpoint() const { return m_sEditorEndpoint; }
-	/** Override the editor binary outright (highest precedence). */
-	void setEditorBinary( const QString& sPath ) { m_sEditorBinary = sPath; }
+	/** Override the editor binary outright (highest precedence). The
+	 * override is a base-layer preference (ADR 0022): it persists to the
+	 * shared user config and rides the plugin state, so it survives
+	 * sessions. An empty path restores automatic resolution. */
+	void setEditorBinary( const QString& sPath );
 	/** Directory to look in for the bundled editor binary — the plugin's own
 	 * install location, supplied by the format shim (CLAP `init(plugin_path)`,
 	 * LV2 `instantiate(bundle_path)`). */
@@ -183,9 +218,19 @@ public:
 	static QString resolveEditorBinary( const QString& sExplicit,
 										const QString& sSearchDir );
 
-private:
+	/** The editor binary this instance would launch right now: the
+	 * persisted #setEditorBinary override if set, else resolveEditorBinary
+	 * with the instance's search dir. Exposed so the landing view can
+	 * prefill its executable line edit. */
 	QString editorBinary() const;
-	void launchEditorProcess();
+
+private:
+	/** Launch the editor process against the served endpoint. Returns
+	 * false — without spawning — when the resolved binary is not
+	 * launchable, so callers (openEditor, the respawn path) can report
+	 * the failure synchronously; QProcess would only surface it
+	 * asynchronously (FailedToStart via the event loop). */
+	bool launchEditorProcess();
 	/** Process-exit handler. Respawns only on a crash (bounded); a clean exit
 	 * (the user closed the editor window) leaves it closed. */
 	void onEditorProcessFinished( bool bCrashed );
@@ -195,6 +240,9 @@ private:
 	std::shared_ptr<PluginAudioDriver> m_pAudioDriver;
 	std::shared_ptr<PluginMidiDriver> m_pMidiDriver;
 	int m_nBuses;
+	/** Sanitizes raw host transport readings into the contiguous clock
+	 *  the engine contract requires (ADR 0013); see HostTransportLatch. */
+	HostTransportLatch m_hostTransportLatch;
 
 	/** Engine-side serve loop, running for the plugin's whole lifetime
 	 * (always-on drain/fan-out, ADR 0035 UI-3); owned. */
@@ -206,7 +254,6 @@ private:
 	/** The spawned editor process; owned (null when not launched). */
 	std::unique_ptr<QProcess> m_pEditorProcess;
 	QString m_sEditorEndpoint;
-	QString m_sEditorBinary;
 	QString m_sEditorSearchDir;
 	bool m_bEditorOpen = false;
 	/** Set during closeEditor() so the process-exit handler does not respawn. */

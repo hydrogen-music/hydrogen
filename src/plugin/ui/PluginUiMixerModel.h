@@ -35,6 +35,7 @@ namespace H2Core {
 class CoreActionController;
 class HydrogenPlugin;
 class Instrument;
+class Preferences;
 
 /** Headless state + command model behind the mixer view of the plugin
  * UI (#PluginUiWindow).
@@ -42,8 +43,12 @@ class Instrument;
  * Strip and master controls forward to one CoreActionController command
  * each — the same commands the GUI mixer's undo actions route through —
  * so the engine validates, applies, and emits the parameter events.
- * Strip selection is not driven: the plugin mixer has no selected-strip
- * concept, so every command passes #bSelectStrip = false.
+ * The randomization controls follow the same scheme: the strips'
+ * random pitch and the master's humanize triple (velocity, timing,
+ * swing) are the GUI's MasterLine rotaries and InstrumentEditor's
+ * random-pitch rotary. Strip selection is not driven: the plugin
+ * mixer has no selected-strip concept, so every command passes
+ * #bSelectStrip = false.
  *
  * Meter values come from the engine's telemetry snapshots (ADR 0018):
  * #acceptMeterSnapshot() is the seam the window's engine-event-sink
@@ -65,19 +70,14 @@ public:
 	bool setStripIsSoloed( int nStrip, bool bSoloed );
 	bool setMasterVolume( float fVolume );
 	bool setMasterIsMuted( bool bMuted );
-
-	/** Bus routing (ADR 0019): sets the instrument's explicit output
-	 * bus; a negative @a nBus resets it to the implicit 1-to-1 default
-	 * (bus = position in the kit). */
-	bool setInstrumentOutputBus( int nInstrument, int nBus );
-	/** The instrument's stored output bus, or -1 for the implicit 1-to-1
-	 * default (0 when the engine is unavailable). */
-	int instrumentOutputBus( int nInstrument ) const;
-	/** The bus the instrument actually feeds: the stored custom mapping
-	 * if set, else the implicit 1-to-1 by kit position; -1 when the
-	 * instrument gets no individual bus (beyond @a nBusCount — master
-	 * only). */
-	int effectiveOutputBus( int nInstrument, int nBusCount ) const;
+	/** The song-global randomization controls (the master strip's
+	 *  humanize section). */
+	bool setHumanizeVelocity( float fValue );
+	bool setHumanizeTime( float fValue );
+	bool setSwing( float fValue );
+	/** The strip's random pitch factor (its randomization
+	 *  section). */
+	bool setStripRandomPitch( int nStrip, float fValue );
 
 	// The read side for populating the strips. Each returns the
 	// engine's current value, or the documented degenerate value when
@@ -98,9 +98,26 @@ public:
 	/** The master volume (0.0 when the engine is unavailable). */
 	float masterVolume() const;
 	bool masterIsMuted() const;
+	/** The song-global humanize velocity (0.0 when the engine is
+	 *  unavailable). */
+	float humanizeVelocity() const;
+	/** The song-global humanize timing (0.0 when the engine is
+	 *  unavailable). */
+	float humanizeTime() const;
+	/** The song-global 16th-note swing factor (0.0 when the engine
+	 *  is unavailable). */
+	float swingFactor() const;
+	/** The strip's random pitch factor (0.0 when unavailable or out
+	 *  of range). */
+	float stripRandomPitch( int nStrip ) const;
 	/** The host-provided bus count (ADR 0019; 0 when the plugin is
 	 *  unavailable). */
 	int busCount() const;
+
+	/** The engine's preferences (nullptr when the engine is
+	 *  unavailable) — the view reads the theme's mute/solo palette
+	 *  from them at draw time. */
+	std::shared_ptr<Preferences> preferences() const;
 
 	/** Latest telemetry snapshot, as forwarded by the engine event
 	 * sink. Cheap and non-blocking (EngineEventSink contract). */
@@ -113,6 +130,13 @@ public:
 	float instrumentPeakR( int nInstrument ) const;
 	float masterPeakL() const;
 	float masterPeakR() const;
+	/** Whether the cached meter snapshot moved since the last poll —
+	 *  the window's cue that the mixer's displayed meters went stale
+	 *  and a frame is owed. Compares the fields the view renders: the
+	 *  master peaks, the per-instrument peak arrays, and the
+	 *  instrument count (a kit change re-shapes the strips). UI thread
+	 *  only: the poll latches the cache into the displayed meters. */
+	bool pollMetersChanged();
 
 private:
 	std::shared_ptr<CoreActionController> controller() const;
@@ -128,6 +152,10 @@ private:
 	mutable std::mutex m_mutex;
 	bool m_bHasSnapshot = false;
 	EngineTelemetrySnapshot m_snapshot;
+	// What the last rendered frame showed — the poll's diff base (UI
+	// thread only). Zero-initialized: before the first snapshot the
+	// displayed meters are silence.
+	EngineTelemetrySnapshot m_metersDisplayed{};
 };
 
 } // namespace H2Core

@@ -122,10 +122,38 @@ public:
 			 */
 			Metronome,
 			MidiClockActivation,
+			/**
+			 * The scalar MIDI control settings of the
+			 * #H2Core::Preferences did change — installed via
+			 * CoreActionController::setMidiControlSettings().
+			 *
+			 * Consumers holding a local copy of the settings — like the
+			 * editor's MIDI control dialog — are expected to discard
+			 * and reload it. The event's id is the caller-supplied one:
+			 * a GUI funneling its own change through the command can
+			 * blacklist the id (EventListener::blacklistEventId) to not
+			 * react to its own echo.
+			 */
+			MidiControlSettingsChanged,
 			MidiDriverChanged,
 			/** Hydrogen did received a MIDI event. */
 			MidiInput,
 			MidiEventMapChanged,
+			/**
+			 * The #H2Core::MidiInstrumentMap of the
+			 * #H2Core::Preferences was replaced — installed via
+			 * CoreActionController::setMidiInstrumentMap(). Not to be
+			 * confused with #Event::Type::MidiEventMapChanged, which
+			 * covers the MIDI action map and stays editor-local.
+			 *
+			 * Consumers holding a local copy of the map — like the
+			 * editor's MIDI control dialog — are expected to discard
+			 * and reload it. The event's id is the caller-supplied one:
+			 * a GUI funneling its own change through the command can
+			 * blacklist the id (EventListener::blacklistEventId) to not
+			 * react to its own echo.
+			 */
+			MidiInstrumentMapChanged,
 			/** Hydrogen did sent a MIDI event. */
 			MidiOutput,
 			/** Miscellaneous things shown in the Mixer apart from the

@@ -21,10 +21,74 @@
 
 #include <core/IPC/IpcServer.h>
 
+#include <QtCore/QDir>
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
 
+#if defined( Q_OS_UNIX )
+#include <sys/stat.h>
+#endif
+
 namespace H2Core {
+
+namespace {
+
+// Whether anything currently accepts connections on the endpoint.
+//
+// A failed connect alone does not prove the endpoint is dead: a live
+// server whose accept backlog is momentarily full leaves the probe
+// connecting without any error set (Linux EAGAIN) or reports the
+// refusal as a connect error (macOS/BSD ECONNREFUSED; Windows: all
+// pipe instances busy, access denied). Only a provably absent endpoint
+// may be treated as not live; anything else must count as live, or
+// listen() below would unlink a busy endpoint's socket file.
+bool isEndpointLive( const QString& sName ) {
+#if defined( Q_OS_UNIX )
+	// A non-socket file at the endpoint path is garbage by definition:
+	// nothing can ever accept on it. macOS reports connect() to such a
+	// file as ENOTSOCK, which Qt maps to UnknownSocketError and would
+	// otherwise read as "live".
+	const QString sPath = sName.startsWith( QLatin1Char( '/' ) )
+		? sName
+		: QDir::cleanPath( QDir::tempPath() ) + QLatin1Char( '/' ) + sName;
+	struct stat socketStat;
+	if ( ::stat( sPath.toUtf8().constData(), &socketStat ) == 0 &&
+		 ! S_ISSOCK( socketStat.st_mode ) ) {
+		return false;
+	}
+#endif
+
+	QLocalSocket probe;
+	probe.connectToServer( sName );
+	if ( probe.waitForConnected( 100 ) ) {
+		return true;
+	}
+
+	switch ( probe.error() ) {
+	case QLocalSocket::ServerNotFoundError:
+		return false;
+	case QLocalSocket::ConnectionRefusedError:
+		// Linux: ECONNREFUSED on a Unix-domain socket proves nothing
+		// accepts on it - a crashed run's leftover file, safe to clear.
+		// (Windows pipes keep the same reading.) macOS/BSD: a full
+		// accept backlog reports ECONNREFUSED as well (XNU fails
+		// sonewconn with it), so the same error cannot prove staleness
+		// there. Refusing to bind is the safe reading: unlinking a busy
+		// endpoint's file would silently kill the live server (whose
+		// later close() would then remove whatever file now sits at the
+		// path). Production endpoint names embed the PID, so a stale
+		// file never collides with a future name anyway.
+#if defined( Q_OS_DARWIN )
+		return true;
+#else
+		return false;
+#endif
+	default:
+		return true;
+	}
+}
+
+} // namespace
 
 IpcServer::IpcServer( QObject* pParent )
 	: QObject( pParent )
@@ -39,7 +103,20 @@ IpcServer::IpcServer( QObject* pParent )
 IpcServer::~IpcServer() = default;
 
 bool IpcServer::listen( const QString& sName ) {
-	// Clear any stale socket file left by a crashed previous run.
+	// Never bind over a live endpoint. On Linux QLocalServer::listen()
+	// fails with AddressInUse on its own, but Windows named pipes are
+	// multi-instance: a second listen() on a live name silently succeeds
+	// and both servers would race for the same endpoint. Refusing
+	// explicitly keeps the no-steal contract on every platform.
+	if ( isEndpointLive( sName ) ) {
+		IPCLOG( QString( "Endpoint [%1] is already live; not binding over it" )
+				.arg( sName ) );
+		return false;
+	}
+
+	// Clear any socket file left behind by a crashed previous run: Qt
+	// reports AddressInUse for any existing file and never clears it
+	// itself. (On Windows removeServer() is a no-op.)
 	QLocalServer::removeServer( sName );
 
 	IPCLOG( QString( "Listening to [%1]" ).arg( sName ) );

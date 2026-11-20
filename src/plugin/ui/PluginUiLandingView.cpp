@@ -19,17 +19,18 @@
  *
  */
 
-// The landing view's renderer (proposal 0006 TU4.1): the load buttons
-// with their keyed IGFD browsers, the pattern-load target row, and the
-// exposed MIDI configuration (feedback and transport stay engine-side —
-// settable via the editor). Thin draw calls only (TU1.3): every decision
-// is the model's.
+// The landing view's renderer (proposal 0006 TU4.1): the song/pattern load
+// tabs with their keyed IGFD browsers, the sound-library drumkit picker,
+// and the editor line. Thin draw calls only (TU1.3): every decision is the
+// model's.
 
 #include "PluginUiLandingView.h"
+#include "PluginUiStyle.h"
 
 #include <imgui.h>
 
 #include <algorithm>
+#include <cstring>
 
 #include <core/CommonStrings.h>
 #include <plugin/HydrogenPlugin.h>
@@ -39,147 +40,311 @@ namespace H2Core {
 PluginUiLandingView::PluginUiLandingView( HydrogenPlugin* pPlugin )
 	: m_model( pPlugin ), m_pCommonStrings( pPlugin->commonStrings() )
 {
-	refreshMidiConfigWidgets();
+	// Prefill the editor line with the resolved default executable — the
+	// line edit's content is what the button launches.
+	const QByteArray sDefault = m_model.editorExecutable().toUtf8();
+	const int nCopy = std::min( static_cast<int>( sDefault.size() ),
+								static_cast<int>(
+									m_sEditorExecutableBuffer.size() ) - 1 );
+	std::memcpy( m_sEditorExecutableBuffer.data(), sDefault.constData(),
+				 nCopy );
+	m_sEditorExecutableBuffer[ nCopy ] = '\0';
 }
 
-void PluginUiLandingView::refreshMidiConfigWidgets()
+void PluginUiLandingView::draw( const PluginUiPalette& palette )
 {
-	m_bNoteOffIgnore = m_model.midiNoteOffIgnore();
-	m_nActionChannel = static_cast<int>( m_model.midiActionChannel() );
-	m_nSendNoteOff = static_cast<int>( m_model.midiSendNoteOff() );
+	// The pinned status line: the content flows in a child region
+	// reserving the line's height at the bottom edge, so the line
+	// sits at the same spot whether or not a message is set — no
+	// layout jump when one appears.
+	const float footerHeight = ImGui::GetTextLineHeightWithSpacing() +
+		ImGui::GetStyle().ItemSpacing.y + 2.0f;
+	if ( ImGui::BeginChild( "##landingContent",
+							ImVec2( 0.0f, -footerHeight ) ) ) {
+		drawContent( palette );
+	}
+	ImGui::EndChild();
+
+	drawStatusLine( palette );
 }
 
-void PluginUiLandingView::draw()
+void PluginUiLandingView::drawContent( const PluginUiPalette& palette )
 {
-	// Load row: each button opens its keyed browser; the drumkit
-	// browser lists directories only (a drumkit is a folder).
-	if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
-							.constData() ) ) {
-		IGFD::FileDialogConfig config;
-		config.path = ".";
-		m_fileDialog.OpenDialog(
-			"song", m_pCommonStrings->getSongFileDialogTitle().toStdString(),
-			Filesystem::sSongSuffix.toUtf8(), config );
-	}
-	ImGui::SameLine();
-	if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
-							.constData() ) ) {
-		IGFD::FileDialogConfig config;
-		config.path = ".";
-		m_fileDialog.OpenDialog(
-			"pattern",
-			m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
-			Filesystem::sPatternSuffix.toUtf8(), config );
-	}
-	ImGui::SameLine();
-	if ( ImGui::Button( m_pCommonStrings->getActionLoadDrumkit().toUtf8()
-							.constData() ) ) {
-		IGFD::FileDialogConfig config;
-		config.path = ".";
-		m_fileDialog.OpenDialog(
-			"drumkit",
-			m_pCommonStrings->getDrumkitFileDialogTitle().toStdString(),
-			nullptr, config );
-	}
-	ImGui::SameLine();
-	if ( ImGui::Button( m_pCommonStrings->getOpenEditorButton().toUtf8()
-							.constData() ) ) {
-		m_model.openEditor();
-	}
+	// The info section: what the engine is doing right now — the loaded
+	// song and drumkit, the mode, and the mode-specific playback state.
+	// One model snapshot per frame; the frame gate keeps the cadence
+	// request-driven.
+	const auto info = m_model.infoSnapshot();
 
-	// Pattern-load target: the slot the next pattern load installs into
-	// (0-based, like the GUI's pattern spinbox) and whether it replaces
-	// the slot's current pattern.
-	ImGui::SetNextItemWidth( 72.0f );
-	ImGui::InputInt( m_pCommonStrings->getInputCapturePattern().toUtf8()
-						.constData(),
-					 &m_nPatternNumber, 0, 0 );
-	m_nPatternNumber = std::max( 0, m_nPatternNumber );
-	ImGui::SameLine();
-	ImGui::Checkbox( m_pCommonStrings->getReplaceLabel().toUtf8().constData(),
-					 &m_bReplacePattern );
+	const auto infoTableFlags =
+		ImGuiTableFlags_BordersOuterH |
+		ImGuiTableFlags_BordersOuterV |
+		ImGuiTableFlags_SizingFixedFit;
 
-	// The exposed MIDI configuration.
-	if ( ImGui::CollapsingHeader(
-			 m_pCommonStrings->getMidiConfigurationHeader().toUtf8()
-					.constData(),
-			 ImGuiTreeNodeFlags_DefaultOpen ) ) {
-		ImGui::Checkbox(
-			m_pCommonStrings->getIgnoreNoteOffLabel().toUtf8().constData(),
-			&m_bNoteOffIgnore );
+	if ( ImGui::BeginTable( "infoTable", 2, infoTableFlags ) ) {
+		ImGui::TableSetupColumn( "" ); // labels
+		ImGui::TableSetupColumn( "", ImGuiTableColumnFlags_WidthStretch ); // widgets
 
-		// The action channel dropdown — the GUI spinbox's range and
-		// texts (all channels, Off, 1..16), the same +1 index shift as
-		// the mapping tab's channel dropdowns. The QByteArrays must
-		// outlive the Combo call — held locals, not chained
-		// temporaries.
-		QByteArray sChannelEntries[ 18 ];
-		const char* sChannelEntryPtrs[ 18 ];
-		for ( int n = 0; n < 18; ++n ) {
-			sChannelEntries[ n ] = m_pCommonStrings->getChannelDisplayName(
-				Midi::channelFromInt( n - 1 ) ).toUtf8();
-			sChannelEntryPtrs[ n ] = sChannelEntries[ n ].constData();
-		}
-		int nActionChannel = m_nActionChannel + 1;
-		ImGui::SetNextItemWidth( 72.0f );
-		if ( ImGui::Combo(
-				 m_pCommonStrings->getActionChannelLabel().toUtf8()
-					 .constData(),
-				 &nActionChannel, sChannelEntryPtrs, 18 ) ) {
-			m_nActionChannel = nActionChannel - 1;
-		}
+		// Empty values (no song, nothing playing) show as a dash instead of
+		// a blank.
+		const auto row = []( const QString& sLabel, const QString& sValue ) {
+			ImGui::TableNextColumn();
+			ImGui::TextUnformatted( ( sLabel + ":" ).toUtf8().constData() );
 
-		// The combo entries must outlive the Combo call — held locals,
-		// not chained temporaries.
-		const auto sAlways = m_pCommonStrings->getOptionAlways().toUtf8();
-		const auto sOnCustomNoteLengths =
-			m_pCommonStrings->getOptionOnCustomNoteLengths().toUtf8();
-		const auto sNever = m_pCommonStrings->getOptionNever().toUtf8();
-		const char* sSendNoteOffEntries[ 3 ] = {
-			sAlways.constData(), sOnCustomNoteLengths.constData(),
-			sNever.constData()
+			ImGui::TableNextColumn();
+			const QString sShown = sValue.isEmpty() ? QString( "-" ) : sValue;
+			ImGui::TextUnformatted( sShown.toUtf8().constData() );
 		};
-		ImGui::Combo( m_pCommonStrings->getSendNoteOffLabel().toUtf8()
-							.constData(),
-					 &m_nSendNoteOff, sSendNoteOffEntries, 3 );
 
-		if ( ImGui::Button( m_pCommonStrings->getApplyButton().toUtf8()
-								.constData() ) ) {
-			if ( m_model.applyExposedMidiControlSettings(
-					 m_bNoteOffIgnore,
-					 Midi::channelFromInt( m_nActionChannel ),
-					 static_cast<Preferences::MidiSendNoteOff>(
-						 m_nSendNoteOff ) ) ) {
-				// The engine may have normalized a value — resync the
-				// widgets, but never per frame (snap-back).
-				refreshMidiConfigWidgets();
+		QString sMode;
+		if ( info.mode == Song::Mode::Song ) {
+			sMode = m_pCommonStrings->getSong();
+		}
+		else if ( info.mode == Song::Mode::Pattern ) {
+			sMode = m_pCommonStrings->getPattern();
+		}
+		row( m_pCommonStrings->getModeLabel(), sMode );
+		row( m_pCommonStrings->getSong(), info.sSongName );
+		row( m_pCommonStrings->getDrumkitLabel(), info.sDrumkitName );
+
+		if ( info.mode == Song::Mode::Song ) {
+			row( m_pCommonStrings->getPatternsLabel(),
+				 QString::number( info.nPatternCount ) );
+			row( m_pCommonStrings->getColumnsLabel(),
+				 QString::number( info.nColumnCount ) );
+			row( m_pCommonStrings->getCurrentColumnLabel(),
+				 info.nCurrentColumn >= 0
+					 ? QString::number( info.nCurrentColumn )
+					 : QString() );
+			QString sPlaying;
+			for ( const auto& sName : info.playingPatterns ) {
+				if ( !sPlaying.isEmpty() ) {
+					sPlaying += ", ";
+				}
+				sPlaying += sName;
 			}
+			row( m_pCommonStrings->getPlayingLabel(), sPlaying );
+		}
+		else if ( info.mode == Song::Mode::Pattern ) {
+			row( m_pCommonStrings->getPattern(), info.sPatternName );
+			row( m_pCommonStrings->getNotePropertyLength(),
+				 QString::number( info.nPatternLength ) );
+			row( m_pCommonStrings->getNoteCountLabel(),
+				 QString::number( info.nPatternNoteCount ) );
+		}
+
+		ImGui::EndTable();
+	}
+
+	// The loading: the info section above shows the current mode,
+	// so the song/pattern mutual exclusivity is visible without a tab
+	// widget — plain buttons suffice. The drumkit picker lists the
+	// sound library database's kits instead of browsing the filesystem;
+	// the song and pattern buttons keep their keyed IGFD browsers.
+	{
+		PluginUiStyle::ScopedPushButton pushButtons( palette );
+		if ( ImGui::Button( m_pCommonStrings->getLoadSongButton().toUtf8()
+								.constData() ) ) {
+			IGFD::FileDialogConfig config;
+			config.path = m_model.songDialogDefaultPath().toStdString();
+			config.countSelectionMax = 1;
+			m_fileDialog.OpenDialog(
+				"song",
+				m_pCommonStrings->getSongFileDialogTitle().toStdString(),
+				Filesystem::sSongSuffix.toUtf8() + ", " +
+					Filesystem::sProjectSuffix.toUtf8(),
+				config );
+		}
+		ImGui::SameLine();
+		if ( ImGui::Button( m_pCommonStrings->getLoadPatternButton().toUtf8()
+								.constData() ) ) {
+			IGFD::FileDialogConfig config;
+			config.path = m_model.patternDialogDefaultPath().toStdString();
+			config.countSelectionMax = 1;
+			m_fileDialog.OpenDialog(
+				"pattern",
+				m_pCommonStrings->getPatternFileDialogTitle().toStdString(),
+				Filesystem::sPatternSuffix.toUtf8(), config );
+		}
+		ImGui::SameLine();
+		if ( ImGui::Button( m_pCommonStrings->getClearButton().toUtf8()
+							.constData() ) ) {
+			m_model.clearSong();
+		}
+
+		ImGui::Separator();
+
+		if ( ImGui::Button( m_pCommonStrings->getActionSwitchDrumkit().toUtf8()
+								.constData() ) ) {
+			const QByteArray sTitle =
+				m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
+			ImGui::OpenPopup( sTitle.constData() );
+		}
+	}
+
+	drawDrumkitPicker( palette );
+
+	ImGui::Separator();
+
+	// Editor line: the executable the button launches — prefilled with
+	// the resolved default, editable to point elsewhere.
+	ImGui::SetNextItemWidth( 240.0f );
+	ImGui::InputText( m_pCommonStrings->getEditorExecutableLabel().toUtf8()
+						  .constData(),
+					  m_sEditorExecutableBuffer.data(),
+					  m_sEditorExecutableBuffer.size() );
+	ImGui::SameLine();
+	{
+		PluginUiStyle::ScopedPushButton pushButton( palette );
+		if ( ImGui::Button( m_pCommonStrings->getOpenEditorButton().toUtf8()
+								.constData() ) ) {
+			// The line edit's content is what launches; an empty field
+			// restores the default resolution.
+			m_model.setEditorExecutable(
+				QString::fromUtf8( m_sEditorExecutableBuffer.data() ) );
+			m_model.openEditor();
+		}
+	}
+
+	// The configuration section: the save-behavior toggle. The value is
+	// live-read each frame — a state restore or config change shows up
+	// without extra plumbing — and the checkbox writes on toggle.
+	const QByteArray sConfigurationHeader =
+		m_pCommonStrings->getConfigurationHeader().toUtf8();
+	ImGui::Separator();
+	if ( ImGui::CollapsingHeader( sConfigurationHeader.constData(),
+								  ImGuiTreeNodeFlags_DefaultOpen ) ) {
+		const QByteArray sIncludeSamplesLabel =
+			m_pCommonStrings->getIncludeSamplesInStateLabel().toUtf8();
+		bool bEmbedSamples = m_model.pluginStateEmbedSamples();
+		PluginUiStyle::ScopedCheckBox checkBox( palette );
+		if ( ImGui::Checkbox( sIncludeSamplesLabel.constData(),
+							  &bEmbedSamples ) ) {
+			m_model.setPluginStateEmbedSamples( bEmbedSamples );
 		}
 	}
 
 	// The keyed browsers — one IGFD instance, at most one dialog open.
-	if ( m_fileDialog.Display( "song" ) ) {
+	// Drawn unconditionally so an open browser survives tab switches.
+	//
+	// The default size on Linux+wayland is far too tiny.
+	const ImVec2 minSize =
+		ImVec2( HydrogenPlugin::nMinWidth, HydrogenPlugin::nMinHeight );
+	if ( m_fileDialog.Display( "song", ImGuiWindowFlags_NoCollapse, minSize ) ) {
 		if ( m_fileDialog.IsOk() ) {
 			m_model.loadSong( QString::fromStdString(
 				m_fileDialog.GetFilePathName() ) );
 		}
 		m_fileDialog.Close();
 	}
-	if ( m_fileDialog.Display( "pattern" ) ) {
+	if ( m_fileDialog.Display( "pattern", ImGuiWindowFlags_NoCollapse, minSize ) ) {
 		if ( m_fileDialog.IsOk() ) {
 			m_model.loadPattern(
-				QString::fromStdString( m_fileDialog.GetFilePathName() ),
-				m_nPatternNumber, m_bReplacePattern );
+				QString::fromStdString( m_fileDialog.GetFilePathName() ) );
 		}
 		m_fileDialog.Close();
 	}
-	if ( m_fileDialog.Display( "drumkit" ) ) {
-		if ( m_fileDialog.IsOk() ) {
-			m_model.loadDrumkit( QString::fromStdString(
-				m_fileDialog.GetFilePathName() ) );
-		}
-		m_fileDialog.Close();
+}
+
+void PluginUiLandingView::drawStatusLine( const PluginUiPalette& palette )
+{
+	QString sMessage;
+	switch ( m_model.lastFailedAction() ) {
+	case PluginUiLandingModel::FailedAction::None:
+		return;
+	case PluginUiLandingModel::FailedAction::LoadSong:
+		sMessage = CommonStrings::getDialogSongLoadError();
+		break;
+	case PluginUiLandingModel::FailedAction::LoadPattern:
+		sMessage = m_pCommonStrings->getPatternLoadError();
+		break;
+	case PluginUiLandingModel::FailedAction::LoadDrumkit:
+		sMessage = m_pCommonStrings->getDrumkitLoadError();
+		break;
+	case PluginUiLandingModel::FailedAction::OpenEditor:
+		sMessage = m_pCommonStrings->getEditorOpenError();
+		break;
 	}
+
+	ImGui::Separator();
+	ImGui::PushStyleColor( ImGuiCol_Text,
+						   PluginUiColor::toImVec4( palette.error ) );
+	const QByteArray sText = sMessage.toUtf8();
+	ImGui::TextWrapped( "%s", sText.constData() );
+	ImGui::PopStyleColor();
+}
+
+void PluginUiLandingView::drawDrumkitPicker( const PluginUiPalette& palette )
+{
+	// The picker reuses the load button's string as its title — no extra
+	// translatable. Sized like the file browser it replaces.
+	const QByteArray sTitle = m_pCommonStrings->getActionSwitchDrumkit().toUtf8();
+	ImGui::SetNextWindowSize(
+		ImVec2( HydrogenPlugin::nMinWidth, HydrogenPlugin::nMinHeight ),
+		ImGuiCond_Appearing );
+	if ( ! ImGui::BeginPopupModal( sTitle.constData(), nullptr,
+								   ImGuiWindowFlags_NoCollapse ) ) {
+		return;
+	}
+
+	// Re-queried every frame: the listing fills in as the database's
+	// initial scan progresses.
+	const auto kits = m_model.drumkits();
+
+	if ( ImGui::BeginTable( "##kits", 4,
+							ImGuiTableFlags_ScrollY |
+								ImGuiTableFlags_RowBg |
+								ImGuiTableFlags_Borders,
+							ImVec2( 0.0f, 300.0f ) ) ) {
+		ImGui::TableSetupScrollFreeze( 0, 1 );
+		ImGui::TableSetupColumn(
+			m_pCommonStrings->getNameDialog().toUtf8().constData() );
+		ImGui::TableSetupColumn(
+			m_pCommonStrings->getAuthorDialog().toUtf8().constData() );
+		ImGui::TableSetupColumn(
+			m_pCommonStrings->getLicenseDialog().toUtf8().constData() );
+		ImGui::TableSetupColumn(
+			m_pCommonStrings->getVersionDialog().toUtf8().constData() );
+		ImGui::TableHeadersRow();
+
+		for ( const auto& kit : kits ) {
+			ImGui::TableNextRow();
+			ImGui::TableNextColumn();
+			// The "##" suffix keeps imgui IDs apart when two kits share a
+			// name; the visible label stays the bare name.
+			const QByteArray sLabel =
+				kit.sName.toUtf8() + "##" + kit.sPath.toUtf8();
+			if ( ImGui::Selectable( sLabel.constData(), false,
+									ImGuiSelectableFlags_SpanAllColumns ) ) {
+				m_model.loadDrumkit( kit.sPath );
+				ImGui::CloseCurrentPopup();
+			}
+			if ( ! kit.sInfo.isEmpty() && ImGui::IsItemHovered() ) {
+				const QByteArray sInfo = kit.sInfo.toUtf8();
+				ImGui::SetTooltip( "%s", sInfo.constData() );
+			}
+			ImGui::TableNextColumn();
+			const QByteArray sAuthor = kit.sAuthor.toUtf8();
+			ImGui::TextUnformatted( sAuthor.constData() );
+			ImGui::TableNextColumn();
+			const QByteArray sLicense = kit.sLicense.toUtf8();
+			ImGui::TextUnformatted( sLicense.constData() );
+			ImGui::TableNextColumn();
+			const QByteArray sVersion =
+				QString::number( kit.nVersion ).toUtf8();
+			ImGui::TextUnformatted( sVersion.constData() );
+		}
+		ImGui::EndTable();
+	}
+
+	{
+		PluginUiStyle::ScopedPushButton pushButton( palette );
+		if ( ImGui::Button( m_pCommonStrings->getButtonClose().toUtf8()
+								.constData() ) ) {
+			ImGui::CloseCurrentPopup();
+		}
+	}
+	ImGui::EndPopup();
 }
 
 } // namespace H2Core

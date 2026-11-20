@@ -72,8 +72,8 @@ namespace H2Core
 	.arg( getDriverNames() ).arg( x ) );
 #define AE_ERRORLOG(x) ERRORLOG( QString( "[%1] %2" ) \
 	.arg( getDriverNames() ).arg( x ) );
-#define AE_DEBUGLOG(x) if ( __logger->should_log( Logger::Debug ) ) { \
-		__logger->log( Logger::Debug, _class_name(), __FUNCTION__, \
+#define AE_DEBUGLOG(x) if ( Logger::currentLogger()->should_log( Logger::Debug ) ) { \
+		Logger::currentLogger()->log( Logger::Debug, _class_name(), __FUNCTION__, \
 					   QString( "%1" ).arg( x ), "\033[34;1m" ); }
 
 thread_local AudioEngine* AudioEngine::tls_pLockedEngine = nullptr;
@@ -352,6 +352,10 @@ void AudioEngine::stopPlayback( Event::Trigger trigger )
 }
 
 void AudioEngine::reset( bool bWithJackBroadcast, Event::Trigger trigger ) {
+#if AUDIO_ENGINE_DEBUG
+		AE_DEBUGLOG( "" );
+#endif
+
 	if ( getState() == State::CountIn ) {
 		setState( State::Ready );
 	}
@@ -506,6 +510,10 @@ void AudioEngine::locateToFrame( const long long nFrame ) {
 }
 
 void AudioEngine::resetOffsets() {
+#if AUDIO_ENGINE_DEBUG
+		AE_DEBUGLOG( "" );
+#endif
+
 	clearNoteQueues();
 
 	m_fLastTickEnd = 0;
@@ -556,6 +564,24 @@ void AudioEngine::followHostTransport() {
 	if ( ! host.bValid ) {
 		// The host has not published transport yet; free-run from our own state.
 		return;
+	}
+
+	// The host owns the transport (ADR 0013): its rolling state drives the
+	// engine's play state, the way the JACK transport does via
+	// JackDriver::updateTransport(). While the host rolls, playback is on -
+	// also over a user-initiated stop() queued in between blocks, which would
+	// otherwise cost a block of silence. While it is stopped, the engine is
+	// parked - including over a user play() queued against the host's
+	// stationary clock, which would free-run and fight the relocate below. A
+	// count-in is Hydrogen-internal, not coupled to the host transport (as
+	// under JACK), and keeps running.
+	if ( host.bRolling ) {
+		if ( m_nextState != State::Playing ) {
+			setNextState( State::Playing );
+		}
+	}
+	else if ( getState() != State::CountIn ) {
+		setNextState( State::Ready );
 	}
 
 	// Follow host relocates and host loops. When the host rolls contiguously its
@@ -2914,7 +2940,7 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 		pPos->getTickOffsetQueuing();
 
 #if AUDIO_ENGINE_DEBUG
-	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pPlayhead->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pPlayhead: %10, m_pQueuing: %11,_bLookaheadApplied: %12, m_nCountInFrameOffset: %13" )
+	AE_DEBUGLOG( QString( "nFrame: [%1,%2], fTick: [%3, %4], fTick (without offset): [%5,%6], m_pPlayhead->getTickOffsetQueuing(): %7, nLookahead: %8, nIntervalLengthInFrames: %9, m_pPlayhead: %10, m_pQueuing: %11, m_bLookaheadApplied: %12, m_state: %13, m_nCountInFrameOffset: %14" )
 			 .arg( nFrameStart )
 			 .arg( nFrameEnd )
 			 .arg( *fTickStart, 0, 'f' )
@@ -2926,7 +2952,8 @@ long long AudioEngine::computeTickInterval( double* fTickStart, double* fTickEnd
 			 .arg( nIntervalLengthInFrames )
 			 .arg( pPos->toQString() )
 			 .arg( m_pQueuing->toQString() )
-			 .arg( m_bLookaheadApplied )
+				 .arg( m_bLookaheadApplied )
+				 .arg( StateToQString( m_state ) )
 				 .arg( m_nCountInFrameOffset )
 			 );
 #endif

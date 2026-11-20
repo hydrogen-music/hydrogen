@@ -199,6 +199,12 @@ public:
 
 	~PluginUiBackendWin32() override {
 		if ( m_context != nullptr ) {
+			// Defensive: a current context cannot be deleted —
+			// shutdownRenderBackend() already released it on the normal
+			// path.
+			if ( wglGetCurrentContext() == m_context ) {
+				wglMakeCurrent( nullptr, nullptr );
+			}
 			wglDeleteContext( m_context );
 		}
 		if ( m_dc != nullptr && m_window != nullptr ) {
@@ -269,6 +275,18 @@ public:
 		return m_inputEvents;
 	}
 
+	bool takeFrameRequest() override {
+		const bool bRequested = m_bFrameRequested;
+		m_bFrameRequested = false;
+		return bRequested;
+	}
+
+	bool isPresentable() const override {
+		// IsWindowVisible walks the parent chain — a hidden ancestor
+		// (the host's hidden tab) hides the child too.
+		return m_window != nullptr && IsWindowVisible( m_window );
+	}
+
 	void mouseState( float& x, float& y, int& nButtons ) const override {
 		x = m_fMouseX;
 		y = m_fMouseY;
@@ -328,20 +346,49 @@ public:
 		if ( ! wglMakeCurrent( m_dc, m_context ) ) {
 			return false;
 		}
-		const bool ok = ImGui_ImplOpenGL3_Init();
-		wglMakeCurrent( nullptr, nullptr );
-		return ok;
+		// Swap-interval 0 (clap-imgui-support's Present(0, 0) precedent):
+		// the host's idle cadence — not the display's vsync — paces the
+		// frames, and a vsynced swap on the host's main thread would
+		// block the host (the Reaper slowdown's mechanism). The WGL
+		// extension proc resolves per process; absent (generic GDI
+		// OpenGL) is not an error — the swap stays unsynchronized, the
+		// desired state anyway.
+		using WglSwapIntervalEXT_t = BOOL ( WINAPI* )( int );
+		const auto pWglSwapIntervalEXT =
+			reinterpret_cast<WglSwapIntervalEXT_t>(
+				reinterpret_cast<void*>(
+					wglGetProcAddress( "wglSwapIntervalEXT" ) ) );
+		if ( pWglSwapIntervalEXT != nullptr ) {
+			pWglSwapIntervalEXT( 0 );
+		}
+		if ( ! ImGui_ImplOpenGL3_Init() ) {
+			wglMakeCurrent( nullptr, nullptr );
+			return false;
+		}
+		// The context stays current on the caller's thread (the frame
+		// discipline): beginFrame() only re-makes it when another
+		// context intervened.
+		return true;
 	}
 
 	void shutdownRenderBackend() override {
-		if ( wglMakeCurrent( m_dc, m_context ) ) {
-			ImGui_ImplOpenGL3_Shutdown();
-			wglMakeCurrent( nullptr, nullptr );
+		if ( wglGetCurrentContext() != m_context
+			 && ! wglMakeCurrent( m_dc, m_context ) ) {
+			return;
 		}
+		ImGui_ImplOpenGL3_Shutdown();
+		// Release before the destructor deletes the context — a current
+		// context cannot be deleted.
+		wglMakeCurrent( nullptr, nullptr );
 	}
 
 	void beginFrame() override {
-		wglMakeCurrent( m_dc, m_context );
+		// Re-make only when another context displaced ours on this
+		// thread — no per-frame make/uncurrent churn on the host's
+		// thread.
+		if ( wglGetCurrentContext() != m_context ) {
+			wglMakeCurrent( m_dc, m_context );
+		}
 		ImGui_ImplOpenGL3_NewFrame();
 	}
 
@@ -351,7 +398,9 @@ public:
 
 	void endFrame() override {
 		SwapBuffers( m_dc );
-		wglMakeCurrent( nullptr, nullptr );
+		// The context stays current for the next frame — uncurrenting
+		// here would force a make-current on every following frame on
+		// the host's thread.
 	}
 
 private:
@@ -508,12 +557,29 @@ private:
 				// getSize() reads the live client rect anyway.
 				self->m_width = LOWORD( lParam );
 				self->m_height = HIWORD( lParam );
+				// A resized window needs a frame at the new size.
+				self->m_bFrameRequested = true;
+				break;
+			case WM_PAINT:
+				// Damage must repaint: latch a frame and validate — the
+				// next rendered frame covers the whole window, and an
+				// unvalidated region would storm WM_PAINT.
+				self->m_bFrameRequested = true;
+				ValidateRect( hwnd, nullptr );
+				return 0;
+			case WM_SHOWWINDOW:
+				// Shown again after a hide: the content must redraw.
+				self->m_bFrameRequested = true;
 				break;
 			default:
 				break;
 			}
 			if ( ev.kind != InputEvent::Kind::None ) {
 				self->m_inputQueue.push_back( ev );
+				// Input changes what the next frame shows (hover, focus,
+				// text) — latch a frame request; the window's gate
+				// coalesces and rate-limits it.
+				self->m_bFrameRequested = true;
 				return 0;
 			}
 		}
@@ -537,6 +603,9 @@ private:
 	mutable int m_height = 0;
 	mutable double m_scaleFactor = 0.0;
 	bool m_bShouldClose = false;
+	// The frame-request latch (takeFrameRequest) — set by the WndProc on
+	// input/resize/paint/show messages.
+	bool m_bFrameRequested = false;
 	bool m_valid = false;
 };
 

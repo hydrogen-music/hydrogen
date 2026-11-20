@@ -26,7 +26,10 @@
 #include <core/IPC/EngineTelemetry.h>
 #include <core/Object.h>
 
+#include <QtCore/QDataStream>
+
 #include <atomic>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -42,7 +45,9 @@ static std::vector<Event::Type> allEventTypes() {
 		T::InstrumentMuteSoloChanged, T::InstrumentParametersChanged,
 		T::JackTimebaseStateChanged, T::JackTransportActivation,
 		T::LoopModeActivation, T::Metronome, T::MidiClockActivation,
-		T::MidiDriverChanged, T::MidiEventMapChanged, T::MidiInput, T::MidiOutput,
+		T::MidiControlSettingsChanged, T::MidiDriverChanged,
+		T::MidiEventMapChanged, T::MidiInput, T::MidiInstrumentMapChanged,
+		T::MidiOutput,
 		T::MixerSettingsChanged, T::NextPatternsChanged, T::NextShot,
 		T::NoteRender, T::OnlineImportProgress, T::PatternChanged,
 		T::PatternEditorLocked, T::PatternIsModified, T::PlaybackTrackChanged,
@@ -163,18 +168,198 @@ void IpcProtocolTest::testStreamingFraming() {
 void IpcProtocolTest::testHelloHandshake() {
 	___INFOLOG( "" );
 
+	// The hello announces the full version identity: wire-protocol tag plus
+	// the application's major/minor/patch/suffix. Only the protocol tag
+	// gates compatibility (see testHelloVersionCompatibility); the app
+	// fields ride along as diagnostics.
+	const IpcHelloVersion local = IpcHelloVersion::local();
+	CPPUNIT_ASSERT( local.isValid() );
+
 	IpcMessage decoded;
 	CPPUNIT_ASSERT( roundTrip( IpcMessage::hello(), decoded ) );
 	CPPUNIT_ASSERT( decoded.getOpcode() == IpcOpcode::Hello );
-	CPPUNIT_ASSERT_EQUAL( IPC_PROTOCOL_VERSION,
-						  decoded.helloProtocolVersion() );
+
+	// The exact arg layout is wire: [int protocol, int major, int minor,
+	// int patch, QString suffix]. A peer built from another commit of the
+	// same major.minor must be able to parse it, so pin the shape.
+	CPPUNIT_ASSERT_EQUAL( 5, static_cast<int>( decoded.getArgs().size() ) );
+	CPPUNIT_ASSERT( decoded.getArgs() ==
+					IpcMessage::hello( local ).getArgs() );
+	CPPUNIT_ASSERT( decoded.helloVersion() == local );
 
 	// A peer announcing a different protocol version is detectable (mismatch
 	// → graceful refusal in the transport layer).
+	IpcHelloVersion otherProtocol = local;
+	otherProtocol.nProtocolVersion = IPC_PROTOCOL_VERSION + 1;
 	IpcMessage other;
-	CPPUNIT_ASSERT( roundTrip( IpcMessage::hello( IPC_PROTOCOL_VERSION + 1 ),
-							   other ) );
-	CPPUNIT_ASSERT( other.helloProtocolVersion() != IPC_PROTOCOL_VERSION );
+	CPPUNIT_ASSERT( roundTrip( IpcMessage::hello( otherProtocol ), other ) );
+	CPPUNIT_ASSERT( other.helloVersion().nProtocolVersion !=
+					IPC_PROTOCOL_VERSION );
+
+	// A legacy protocol-only hello (the pre-2.0 single-arg shape) carries no
+	// version identity: it parses as invalid and must never pass the gate.
+	IpcMessage legacy( IpcOpcode::Hello );
+	legacy.arg( static_cast<int>( IPC_PROTOCOL_VERSION ) );
+	IpcMessage decodedLegacy;
+	CPPUNIT_ASSERT( roundTrip( legacy, decodedLegacy ) );
+	CPPUNIT_ASSERT( ! decodedLegacy.helloVersion().isValid() );
+	CPPUNIT_ASSERT( ! ipcHelloVersionsCompatible(
+		decodedLegacy.helloVersion(), local ) );
+
+	___INFOLOG( "passed" );
+}
+
+// The hello compatibility gate (ADR 0018): only the wire-protocol tag must
+// match. The application version — major, minor, patch, suffix — is
+// deliberately not compared: it rides the hello as diagnostics only, so any
+// two builds that speak the same wire protocol interoperate. A protocol
+// difference or a garbled/legacy hello is refused on both ends of the
+// connection.
+void IpcProtocolTest::testHelloVersionCompatibility() {
+	___INFOLOG( "" );
+
+	const IpcHelloVersion local = IpcHelloVersion::local();
+	CPPUNIT_ASSERT( local.isValid() );
+
+	// Identical versions are compatible (and the check is symmetric).
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( local, local ) );
+
+	// The application version never blocks: major, minor, patch, and
+	// suffix differences are all compatible — alone and combined, in both
+	// directions, including a stable release (empty suffix).
+	IpcHelloVersion majorBump = local;
+	majorBump.nAppMajor += 1;
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( local, majorBump ) );
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( majorBump, local ) );
+
+	IpcHelloVersion minorBump = local;
+	minorBump.nAppMinor += 1;
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( local, minorBump ) );
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( minorBump, local ) );
+
+	IpcHelloVersion otherSuffix = local;
+	otherSuffix.sAppSuffix = "rc1";
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( local, otherSuffix ) );
+
+	IpcHelloVersion release = local;
+	release.nAppMajor += 5;
+	release.sAppSuffix = "";
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( local, release ) );
+	CPPUNIT_ASSERT( ipcHelloVersionsCompatible( release, local ) );
+
+	// A wire-protocol difference is refused (the framing/vocabulary tag).
+	IpcHelloVersion protocolBump = local;
+	protocolBump.nProtocolVersion = IPC_PROTOCOL_VERSION + 1;
+	CPPUNIT_ASSERT( ! ipcHelloVersionsCompatible( local, protocolBump ) );
+
+	// An invalid version (legacy/garbled hello, or negative components) is
+	// never compatible — in either argument position.
+	IpcHelloVersion invalid;
+	CPPUNIT_ASSERT( ! invalid.isValid() );
+	CPPUNIT_ASSERT( ! ipcHelloVersionsCompatible( local, invalid ) );
+	CPPUNIT_ASSERT( ! ipcHelloVersionsCompatible( invalid, local ) );
+
+	IpcHelloVersion negative = local;
+	negative.nAppMajor = -1;
+	CPPUNIT_ASSERT( ! negative.isValid() );
+	CPPUNIT_ASSERT( ! ipcHelloVersionsCompatible( local, negative ) );
+
+	___INFOLOG( "passed" );
+}
+
+// Opcodes cross the wire as raw u16 values, so the numeric value of every
+// opcode is part of the IPC API: inserting or reordering entries in
+// IpcOpcode renumbers everything after it and silently breaks editors that
+// passed the version handshake. This pins value→name for the whole
+// vocabulary. If it fails, the enum changed: new opcodes must be APPENDED
+// at the tail (and this list extended in the same commit, deliberately);
+// a mid-enum change requires bumping IPC_PROTOCOL_VERSION.
+void IpcProtocolTest::testOpcodeWireStability() {
+	___INFOLOG( "" );
+
+	static const char* expected[] = {
+		"HELLO", "EVENT", "MIDI_NOTE_RECORDED", "REPLY",
+		"RESCAN_SOUND_LIBRARY", "UPDATE_SOUND_LIBRARY",
+		"PLAY", "STOP", "QUIT",
+		"SET_BPM", "SET_MASTER_VOLUME", "SET_MASTER_IS_MUTED",
+		"SET_METRONOME_IS_ACTIVE", "SET_METRONOME_VOLUME",
+		"LOCATE_TO_COLUMN", "LOCATE_TO_TICK", "SELECT_PATTERN",
+		"SET_STRIP_VOLUME", "SET_STRIP_PAN", "ACTIVATE_LOOP_MODE",
+		"ACTIVATE_SONG_MODE", "ACTIVATE_RECORD_MODE", "ADD_TEMPO_MARKER",
+		"ADD_TAG", "ADD_AUTOMATION_POINT", "REMOVE_AUTOMATION_POINT",
+		"SET_SONG", "SET_DRUMKIT", "SET_PREFERENCES",
+		"SET_INSTRUMENT_PITCH", "SET_INSTRUMENT_GAIN",
+		"SET_INSTRUMENT_RANDOM_PITCH", "SET_INSTRUMENT_FILTER_CUTOFF",
+		"SET_INSTRUMENT_FILTER_RESONANCE", "SET_INSTRUMENT_ATTACK",
+		"SET_INSTRUMENT_DECAY", "SET_INSTRUMENT_SUSTAIN",
+		"SET_INSTRUMENT_RELEASE", "SET_INSTRUMENT_FILTER_ACTIVE",
+		"SET_INSTRUMENT_MUTE_GROUP", "SET_INSTRUMENT_STOP_NOTES",
+		"SET_INSTRUMENT_APPLY_VELOCITY", "SET_INSTRUMENT_HIHAT_GROUP",
+		"SET_INSTRUMENT_LOWER_CC", "SET_INSTRUMENT_HIGHER_CC",
+		"SET_INSTRUMENT_MIDI_OUT_NOTE", "SET_INSTRUMENT_MIDI_OUT_CHANNEL",
+		"SET_COMPONENT_IS_MUTED", "SET_COMPONENT_IS_SOLOED",
+		"SET_COMPONENT_GAIN", "SET_COMPONENT_SELECTION",
+		"SET_LAYER_IS_MUTED", "SET_LAYER_IS_SOLOED", "SET_LAYER_GAIN",
+		"SET_LAYER_PITCH_OFFSET", "SET_LAYER_START_VELOCITY",
+		"SET_LAYER_END_VELOCITY", "SET_STRIP_IS_MUTED",
+		"SET_STRIP_IS_SOLOED", "SET_STRIP_PAN_SYM", "SET_HUMANIZE_TIME",
+		"SET_HUMANIZE_VELOCITY", "SET_SWING", "SET_PAN_LAW",
+		"SET_PLAYBACK_TRACK_MUTED", "SET_PLAYBACK_TRACK_VOLUME",
+		"SET_DEFAULT_MIDI_OUT_NOTES", "HANDLE_MIDI_ACTION",
+		"RECALCULATE_RUBBERBAND", "SET_RUBBERBAND_BATCH_MODE",
+		"SET_PUNCH_AREA", "SET_MIDI_CONTROL_SETTINGS",
+		"MOVE_AUTOMATION_POINT", "SET_VIRTUAL_PATTERNS",
+		"SET_QUANTIZE_EVENTS", "SET_PATTERN_EDITOR_GRID",
+		"PREVIEW_INSTRUMENT", "ACTIVATE_TIMELINE", "TOGGLE_TIMELINE",
+		"DELETE_TEMPO_MARKER", "DELETE_TAG", "ACTIVATE_JACK_TRANSPORT",
+		"TOGGLE_JACK_TRANSPORT", "ACTIVATE_JACK_TIMEBASE_CONTROL",
+		"TOGGLE_JACK_TIMEBASE_CONTROL", "TOGGLE_SONG_MODE",
+		"TOGGLE_LOOP_MODE", "MOVE_INSTRUMENT", "RENAME_COMPONENT",
+		"TOGGLE_NEXT_PATTERN", "MOVE_PATTERN", "REMOVE_PATTERN",
+		"SET_PATTERN_SIZE", "START_COUNT_IN", "ACTIVATE_PLAYLIST_SONG",
+		"SET_MIDI_CLOCK_INPUT_HANDLING", "SET_MIDI_CLOCK_OUTPUT_SEND",
+		"CLEAR_MIDI_INPUT_LOG", "CLEAR_MIDI_OUTPUT_LOG",
+		"EDIT_NOTE_PROPERTY", "REMOVE_NOTE", "TOGGLE_GRID_CELL",
+		"ADD_OR_REMOVE_NOTE", "HANDLE_NOTE", "SET_SONG_PROPERTIES",
+		"SET_PATTERN_PROPERTIES", "SET_PATTERN", "REPLACE_INSTRUMENT",
+		"ADD_INSTRUMENT", "REMOVE_INSTRUMENT", "SAVE_SONG",
+		"SAVE_SONG_AS", "SAVE_PLAYLIST", "SAVE_PLAYLIST_AS",
+		"SET_PLAYLIST", "ADD_TO_PLAYLIST", "REMOVE_FROM_PLAYLIST",
+		"SET_MIDI_EVENT_MAP", "SET_MIDI_INSTRUMENT_MAP", "GET_SONG",
+		"GET_PLAYLIST", "GET_SELECTED_PATTERN", "GET_SELECTED_INSTRUMENT",
+		"GET_RECORD_ENABLED", "GET_CORE_PREFERENCES",
+		"GET_SOUND_LIBRARY_INFO", "GET_AUDIO_DRIVER_INFO",
+		"GET_MIDI_DRIVER_INFO", "GET_IS_UNDER_SESSION_MANAGEMENT",
+		"GET_IS_UNDER_PLUGIN_HOST", "PANIC", "NOTE_ON",
+		"RELEASE_PLAYING_NOTES", "SET_SELECTED_INSTRUMENT",
+		"GET_MIDI_PORTS", "GET_HANDLED_MIDI_INPUTS",
+		"GET_HANDLED_MIDI_OUTPUTS", "GET_AUDIO_HOST_APIS",
+		"GET_AUDIO_DEVICES", "RECREATE_OSC_SERVER",
+		"GET_OSC_TEMPORARY_PORT", "SET_SONG_MODIFIED",
+		"GET_SESSION_FOLDER_PATH", "PREVIEW_INSTRUMENT_SERIALIZED",
+		"HANDLE_BEAT_COUNTER", "TAP_TEMPO_ACCEL_EVENT",
+		"UPDATE_BEAT_COUNTER_SETTINGS", "SET_IS_TIMELINE_ACTIVATED",
+		"SET_PATTERN_MODE", "LOAD_PLAYBACK_TRACK",
+		"SET_DRUMKIT_MODIFIED", "SET_PATTERN_MODIFIED",
+		"SET_PLAYLIST_IS_MODIFIED", "SET_IS_PATTERN_EDITOR_LOCKED",
+		"SET_LAST_MIDI_EVENT", "GET_LAST_MIDI_EVENT",
+		"ADD_CUSTOM_SOUND_LIBRARY_DIR", "REMOVE_CUSTOM_SOUND_LIBRARY_DIR",
+		"EXPORT_SONG", "STOP_EXPORT_SESSION", "GET_EXPORT_WRITING_FAILED"
+	};
+	const int nCount = sizeof( expected ) / sizeof( expected[0] );
+
+	// The list must cover every opcode (and no more): a size mismatch means
+	// the enum grew or shrank — extend/trim this list in the same commit.
+	CPPUNIT_ASSERT_EQUAL( static_cast<int>( IpcOpcode::OpcodeCount ), nCount );
+
+	for ( int i = 0; i < nCount; ++i ) {
+		CPPUNIT_ASSERT_EQUAL( std::string( expected[i] ),
+			IpcOpcodeToQString( static_cast<quint16>( i ) ).toStdString() );
+	}
+
+	// The QDataStream serialization version is as much part of the wire
+	// format as the opcodes: bumping it changes every frame's encoding.
+	CPPUNIT_ASSERT( IPC_DATASTREAM_VERSION == QDataStream::Qt_5_15 );
 
 	___INFOLOG( "passed" );
 }

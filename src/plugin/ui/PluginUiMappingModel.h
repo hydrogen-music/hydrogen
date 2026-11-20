@@ -24,12 +24,14 @@
 #define H2C_PLUGIN_UI_MAPPING_MODEL_H
 
 #include <memory>
+#include <vector>
 
 #include <QString>
 
 #include <core/Basics/Instrument.h>
 #include <core/Midi/Midi.h>
 #include <core/Midi/MidiInstrumentMap.h>
+#include <core/Preferences/Preferences.h>
 
 namespace H2Core {
 
@@ -39,13 +41,22 @@ class HydrogenPlugin;
 /** Headless state + command model behind the Instrument Mapping tab of
  * the plugin UI (#PluginUiWindow).
  *
- * The model owns no state of its own. Instead every setter reads the
+ * The model owns no state of its own (the sole exception: the
+ * frame-governance poll's last fingerprint — window bookkeeping,
+ * never displayed). Instead every setter reads the
  * live #MidiInstrumentMap of the plugin's engine, applies a single
  * change to a copy of it, and installs that copy with one
  * CoreActionController command — the same read-modify-persist flow the
  * MIDI instrument map dialog uses. This keeps every widget change
  * atomic and leaves the engine in charge of validation and event
  * emission.
+ *
+ * The scalar MIDI control settings of the "MIDI configuration"
+ * foldable section ride the same engine commands (ADR 0030/0022): the
+ * plugin's engine preferences adopt them live, runtime-only — never
+ * persisted back to the user config (the GUI dialog's save is
+ * deliberately not replicated — a host session must not clobber the
+ * user's data folder).
  *
  * Per-instrument output note/channel are not part of the map; they
  * live on the #Instrument itself and are forwarded to the matching
@@ -84,6 +95,59 @@ public:
 	bool setInstrumentMidiOutNote( int nInstrument, Midi::Note note );
 	bool setInstrumentMidiOutChannel( int nInstrument, Midi::Channel channel );
 
+	/** Bus routing (ADR 0019) — the "Bus Output" section: sets the
+	 * instrument's explicit output bus; a negative @a nBus resets it to
+	 * the implicit 1-to-1 default (bus = position in the kit). */
+	bool setInstrumentOutputBus( int nInstrument, int nBus );
+	/** The bus the instrument actually feeds: the stored mapping if set, else
+	 * the implicit 1-to-1 by kit position;
+	 * #H2Core::Instrument::nNoOutputBusMapping when the engine is unavailable,
+	 * @a nInstrument is out of range, or the instrument gets no individual bus
+	 * (beyond @a nBusCount — master only). */
+	int effectiveOutputBus( int nInstrument, int nBusCount ) const;
+	/** The host-provided bus count (ADR 0019; 0 when the plugin is
+	 * unavailable). */
+	int busCount() const;
+
+	/** Applies the scalar MIDI control settings to the plugin's engine
+	 * (runtime-only; never persisted back to the user config). */
+	bool applyMidiControlSettings(
+		bool bNoteOffIgnore,
+		Midi::Channel actionChannel,
+		bool bEnableFeedback,
+		bool bTransportInputHandling,
+		bool bTransportOutputSend,
+		Midi::Channel feedbackChannel,
+		Preferences::MidiSendNoteOff sendNoteOff );
+	/** The plugin UI exposes only three of the MIDI control settings
+	 * (feedback and transport stay engine-side, settable via the
+	 * editor): this apply changes the exposed three and preserves the
+	 * current engine values of the other four. */
+	bool applyExposedMidiControlSettings(
+		bool bNoteOffIgnore,
+		Midi::Channel actionChannel,
+		Preferences::MidiSendNoteOff sendNoteOff );
+	/** Replaces the MIDI instrument map of the plugin's engine
+	 * (runtime-only; never persisted back to the user config). */
+	bool applyMidiInstrumentMap( std::shared_ptr<MidiInstrumentMap> pMap );
+
+	// The read side for populating the exposed MIDI config widgets.
+	// Each returns the engine's current value, or the engine default
+	// when the engine is unavailable.
+	bool midiNoteOffIgnore() const;
+	Midi::Channel midiActionChannel() const;
+	Preferences::MidiSendNoteOff midiSendNoteOff() const;
+
+	/** The mapping tab's frame-governance poll (ADR 0035's
+	 *  amendment): true exactly once for each change to the tab's
+	 *  displayed surface since the previous poll — the exposed MIDI
+	 *  config triple, the map-wide settings, the per-instrument rows,
+	 *  the bus count — so the window can request the frame that
+	 *  shows it. Reads the engine live, the same reads the view's
+	 *  draws issue; the engine moving something the tab does not
+	 *  display is not a change. */
+	bool pollMappingChanged();
+
 	// The read side for populating the per-instrument rows. Each
 	// returns the engine's current value, or the documented degenerate
 	// value when the engine is unavailable.
@@ -91,13 +155,13 @@ public:
 	 *  unavailable). */
 	int instrumentCount() const;
 	/** The instrument's name (empty when the engine is unavailable or
-	 *  @a nInstrument is out of range). */
+	 * @a nInstrument is out of range). */
 	QString instrumentName( int nInstrument ) const;
 	/** The instrument's output note (Midi::NoteDefault when the engine
-	 *  is unavailable or @a nInstrument is out of range). */
+	 * is unavailable or @a nInstrument is out of range). */
 	Midi::Note instrumentMidiOutNote( int nInstrument ) const;
 	/** The instrument's output channel (Midi::ChannelOff when the
-	 *  engine is unavailable or @a nInstrument is out of range). */
+	 * engine is unavailable or @a nInstrument is out of range). */
 	Midi::Channel instrumentMidiOutChannel( int nInstrument ) const;
 	/** The instrument's effective incoming note/channel — resolved
 	 * through the engine's live map (custom row, global channel, or the
@@ -121,6 +185,48 @@ private:
 	std::shared_ptr<MidiInstrumentMap> mapCopy() const;
 	/** Installs @a pMap with one command; the engine adopts it. */
 	bool applyMap( std::shared_ptr<MidiInstrumentMap> pMap );
+	/** The plugin engine's preferences (nullptr when the plugin or the
+	 * engine is unavailable). */
+	std::shared_ptr<Preferences> preferences() const;
+
+	/** Everything the mapping tab displays, as one comparable value —
+	 *  #pollMappingChanged's diff basis. Displayed values only: engine
+	 *  state the tab does not show never enters it, so it cannot
+	 *  request a frame. The member defaults are the no-engine reads'
+	 *  values, so a model without a plugin never reports a change. */
+	struct Fingerprint {
+		/** The exposed MIDI config triple. */
+		bool bNoteOffIgnore = true;
+		int nActionChannel = -1;
+		int nSendNoteOff = 0;
+		/** The map-wide settings (the section headers' widgets). */
+		int nInputMode = 0;
+		int nOutputMode = 0;
+		bool bUseGlobalInputChannel = false;
+		int nGlobalInputChannel = 0;
+		bool bUseGlobalOutputChannel = false;
+		int nGlobalOutputChannel = 0;
+		/** The per-instrument rows. */
+		struct Row {
+			QString sName;
+			int nInNote = 0;
+			int nInChannel = 0;
+			int nOutNote = 0;
+			int nOutChannel = 0;
+			int nEffectiveBus = 0;
+		};
+		std::vector<Row> rows;
+		/** The Bus Output section's right column. */
+		int nBusCount = 0;
+
+		bool operator==( const Fingerprint& other ) const;
+	};
+
+	/** Reads the tab's displayed surface out of the engine — the same
+	 *  reads the view's draws issue. */
+	Fingerprint buildFingerprint() const;
+
+	Fingerprint m_polledFingerprint;
 };
 
 } // namespace H2Core

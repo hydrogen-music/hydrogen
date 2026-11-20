@@ -759,19 +759,19 @@ void ComponentView::leaveEvent( QEvent* ev ) {
 void ComponentView::updateColors() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	m_pComponentMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pComponentMuteBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_muteColor ) );
 	m_pComponentMuteBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor );
-	m_pComponentSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
+		Skin::toQColor( pColorTheme->m_muteTextColor ) );
+	m_pComponentSoloBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_soloColor ) );
 	m_pComponentSoloBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_soloTextColor );
+		Skin::toQColor( pColorTheme->m_soloTextColor ) );
 
-	m_pLayerMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pLayerMuteBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_muteColor ) );
 	m_pLayerMuteBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor );
-	m_pLayerSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
+		Skin::toQColor( pColorTheme->m_muteTextColor ) );
+	m_pLayerSoloBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_soloColor ) );
 	m_pLayerSoloBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_soloTextColor );
+		Skin::toQColor( pColorTheme->m_soloTextColor ) );
 }
 
 void ComponentView::updateIcons() {
@@ -784,8 +784,8 @@ void ComponentView::updateIcons() {
 	}
 
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	const QColor headerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_componentColor);
-	const QColor layerInactiveColor = Skin::makeBackgroundColorInactive(pColorTheme->m_componentEditor_layerColor);
+	const QColor headerInactiveColor = Skin::makeBackgroundColorInactive(Skin::toQColor(pColorTheme->m_componentEditor_componentColor));
+	const QColor layerInactiveColor = Skin::makeBackgroundColorInactive(Skin::toQColor(pColorTheme->m_componentEditor_layerColor));
 
 	m_pShowLayersBtn->setIcon(
 		QIcon( sIconPath + ( m_bIsExpanded ? "minus.svg" : "plus.svg" ) )
@@ -830,21 +830,21 @@ void ComponentView::updateStyleSheet() {
 		iconColor = Qt::black;
 	}
 
-	const QColor headerColor = pColorTheme->m_componentEditor_componentColor;
+	const QColor headerColor = Skin::toQColor( pColorTheme->m_componentEditor_componentColor );
 	const QColor headerColorHover =
 		headerColor.darker( Skin::nToolButtonHoveredScaling );
 	const QColor headerColorPressed =
 		headerColor.darker( Skin::nToolButtonCheckedScaling );
 	const QColor headerSeparator = headerColor.lighter( 115 );
 	const QColor headerTextColor =
-		pColorTheme->m_componentEditor_componentTextColor;
+		Skin::toQColor( pColorTheme->m_componentEditor_componentTextColor );
 	const QColor borderHeaderLightColor = headerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
 	const QColor borderHeaderDarkColor = headerColor.darker(
 		Skin::nListBackgroundDarkBorderScaling );
 
-	const QColor layerColor = pColorTheme->m_componentEditor_layerColor;
-	const QColor layerTextColor = pColorTheme->m_componentEditor_layerTextColor;
+	const QColor layerColor = Skin::toQColor( pColorTheme->m_componentEditor_layerColor );
+	const QColor layerTextColor = Skin::toQColor( pColorTheme->m_componentEditor_layerTextColor );
 	const QColor borderLayerLightColor = layerColor.lighter(
 		Skin::nListBackgroundLightBorderScaling );
 	const QColor borderLayerDarkColor = layerColor.darker(

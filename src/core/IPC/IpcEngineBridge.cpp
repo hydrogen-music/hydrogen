@@ -603,10 +603,12 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 	// ADR 0030 batch 2z — args: the seven scalar MIDI control settings
 	// (note-off ignore, action channel, feedback enable, transport
 	// in/out handling, feedback channel, send-note-off) as a
-	// bool/int tuple. Granular install on the engine's preferences;
-	// the editor already applied them on its mirror.
+	// bool/int tuple plus the trailing event id. Granular install on
+	// the engine's preferences; the editor already applied them on its
+	// mirror. The id rides on the queued MidiControlSettingsChanged
+	// event so the editor can blacklist its own echo.
 	case IpcOpcode::SetMidiControlSettings:
-		if ( args.size() >= 7 ) {
+		if ( args.size() >= 8 ) {
 			return pController->setMidiControlSettings(
 				args[0].toBool(),
 				static_cast<Midi::Channel>( args[1].toInt() ),
@@ -615,7 +617,8 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 				args[4].toBool(),
 				static_cast<Midi::Channel>( args[5].toInt() ),
 				static_cast<Preferences::MidiSendNoteOff>(
-					args[6].toInt() ) );
+					args[6].toInt() ),
+				args[7].value<long>() );
 		}
 		break;
 	// ADR 0030 batch 2aa — args: old and new point coordinates (x, y
@@ -990,8 +993,15 @@ bool IpcEngineBridge::dispatchCommand( const IpcMessage& msg,
 						  .arg( msg.toQString() ) );
 			return false;
 		}
-		return pController->setMidiInstrumentMap( pMidiInstrumentMap );
+		// The trailing arg is the event id: it rides on the queued
+		// MidiInstrumentMapChanged event so the editor can blacklist
+		// its own echo.
+		if ( args.size() >= 1 ) {
+			return pController->setMidiInstrumentMap(
+				pMidiInstrumentMap, args[0].value<long>() );
+		}
 	}
+	break;
 	case IpcOpcode::SetLastMidiEvent:
 		if ( args.size() >= 2 ) {
 			return pController->setLastMidiEvent(

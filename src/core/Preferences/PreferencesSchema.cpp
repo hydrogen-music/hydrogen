@@ -1050,8 +1050,7 @@ namespace {
 	{
 		// Shortcuts::loadFrom() handles a missing <shortcuts> element
 		// internally (falling back to the defaults).
-		data.m_pShortcuts =
-			Shortcuts::loadFrom( parent, context.pHydrogen, context.bSilent );
+		data.m_pShortcuts = Shortcuts::loadFrom( parent, context.bSilent );
 	}
 
 }  // namespace
@@ -2282,6 +2281,24 @@ const PreferencesSchema::FieldRow PreferencesSchema::kSchemaRows[] = {
 	  &scalarWrite<&PreferencesData::m_sDefaultEditor>,
 	  &scalarRead<&PreferencesData::m_sDefaultEditor> },
 	{ { PreferencesKeys::Files, nullptr, nullptr },
+	  "pluginEditorBinary",
+	  Layer::Base,
+	  Owner::Gui,
+	  false,
+	  true,
+	  FieldRow::KeyMatch::Exact,
+	  &scalarWrite<&PreferencesData::m_sPluginEditorBinary>,
+	  &scalarRead<&PreferencesData::m_sPluginEditorBinary> },
+	{ { PreferencesKeys::Files, nullptr, nullptr },
+	  "pluginStateEmbedSamples",
+	  Layer::Base,
+	  Owner::Gui,
+	  false,
+	  false,
+	  FieldRow::KeyMatch::Exact,
+	  &scalarWrite<&PreferencesData::m_bPluginStateEmbedSamples>,
+	  &scalarRead<&PreferencesData::m_bPluginStateEmbedSamples> },
+	{ { PreferencesKeys::Files, nullptr, nullptr },
 	  "customSoundLibraryDirs",
 	  Layer::Base,
 	  Owner::Core,
@@ -2320,7 +2337,7 @@ const PreferencesSchema::FieldRow PreferencesSchema::kSchemaRows[] = {
 	  &shortcutsRead },
 };
 
-const int PreferencesSchema::kSchemaRowCount = 135;
+const int PreferencesSchema::kSchemaRowCount = 137;
 
 // Compile-time enforcement of the single source of truth: the loop bound
 // above must match the actual table size, and every member tied by
@@ -2409,24 +2426,44 @@ inline void preferencesDataCanary( PreferencesData& data ) {
 		m_bpmTap, m_beatCounter, m_nBeatCounterDriftCompensation,
 		m_nBeatCounterStartOffset, m_bPlaySamplesOnClicking,
 		m_nAutosavesPerHour, m_sLastSongPath, m_sLastPlaylistPath,
-		m_sDefaultEditor, m_customSoundLibraryDirs, m_pMidiEventMap,
-		m_pMidiInstrumentMap, m_pShortcuts, m_pTheme
+		m_sDefaultEditor, m_sPluginEditorBinary,
+		m_bPluginStateEmbedSamples, m_customSoundLibraryDirs,
+		m_pMidiEventMap, m_pMidiInstrumentMap, m_pShortcuts, m_pTheme
 	] = data;
 }
 
-// 121 canary-named members - m_pTheme itself (tied through 15 sub-object
+// 123 canary-named members - m_pTheme itself (tied through 15 sub-object
 // entries: 10 InterfaceTheme + 4 FontTheme + the opaque ColorTheme row)
-// + the 120 directly tied members = the 135 schema rows.
+// + the 122 directly tied members = the 137 schema rows.
 static_assert(
-	121 - 1 + 10 + 4 + 1 == PreferencesSchema::kSchemaRowCount,
+	123 - 1 + 10 + 4 + 1 == PreferencesSchema::kSchemaRowCount,
 	"The schema row count drifted from the tied members. When adding a "
 	"member, extend the canary binding above, tieAllMembers(), and "
 	"kSchemaRows together" );
+
+namespace {
+
+// Whether ownership permits this instance to write the row (ADR 0022/0023).
+bool rowEligible( const FieldRow& row, Preferences::FieldOwnership ownership )
+{
+	switch ( ownership ) {
+	case Preferences::FieldOwnership::All:
+		return true;
+	case Preferences::FieldOwnership::BaseLayer:
+		return row.layer == Layer::Base;
+	case Preferences::FieldOwnership::GuiOwned:
+		return row.layer == Layer::Base && row.owner == Owner::Gui;
+	}
+	return false;
+}
+
+} // namespace
 
 void PreferencesSchema::writeRows(
 	XMLNode& rootNode,
 	const PreferencesData& data,
 	std::optional<Owner> ownerFilter,
+	std::optional<Preferences::FieldOwnership> ownershipFilter,
 	const WriteContext& context
 )
 {
@@ -2434,6 +2471,10 @@ void PreferencesSchema::writeRows(
 	for ( int ii = 0; ii < kSchemaRowCount; ++ii ) {
 		const FieldRow& row = kSchemaRows[ii];
 		if ( ownerFilter.has_value() && row.owner != *ownerFilter ) {
+			continue;
+		}
+		if ( ownershipFilter.has_value() &&
+			 ! rowEligible( row, *ownershipFilter ) ) {
 			continue;
 		}
 
@@ -2457,20 +2498,6 @@ void PreferencesSchema::writeRows(
 }
 
 namespace {
-
-// Whether ownership permits this instance to write the row (ADR 0022/0023).
-bool rowEligible( const FieldRow& row, Preferences::FieldOwnership ownership )
-{
-	switch ( ownership ) {
-	case Preferences::FieldOwnership::All:
-		return true;
-	case Preferences::FieldOwnership::BaseLayer:
-		return row.layer == Layer::Base;
-	case Preferences::FieldOwnership::GuiOwned:
-		return row.layer == Layer::Base && row.owner == Owner::Gui;
-	}
-	return false;
-}
 
 // Whether a child element of a parent belongs to the row: an exact (or
 // opaque-subtree) name match, or a formatted-container name prefix.
@@ -2719,6 +2746,7 @@ void PreferencesSchema::readRows(
 	const XMLNode& rootNode,
 	PreferencesData& data,
 	std::optional<Owner> ownerFilter,
+	std::optional<Preferences::FieldOwnership> ownershipFilter,
 	const ReadContext& context
 )
 {
@@ -2726,6 +2754,10 @@ void PreferencesSchema::readRows(
 	for ( int ii = 0; ii < kSchemaRowCount; ++ii ) {
 		const FieldRow& row = kSchemaRows[ii];
 		if ( ownerFilter.has_value() && row.owner != *ownerFilter ) {
+			continue;
+		}
+		if ( ownershipFilter.has_value() &&
+			 ! rowEligible( row, *ownershipFilter ) ) {
 			continue;
 		}
 

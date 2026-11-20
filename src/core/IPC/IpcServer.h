@@ -47,6 +47,8 @@ public:
 	explicit IpcServer( QObject* pParent = nullptr );
 	~IpcServer() override;
 
+	/** Binds @a sName; refuses (returns false) when another live listener
+	 *  already holds the endpoint. */
 	bool listen( const QString& sName );
 	QString serverName() const;
 

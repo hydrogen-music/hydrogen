@@ -109,6 +109,9 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Rewind button
 	m_pRwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	// Stable lookup handles for the transport-gating verification (and
+	// any future widget-level tests).
+	m_pRwdButton->setObjectName( "PlaylistEditorRewindButton" );
 	connect( m_pRwdButton, &QToolButton::clicked, [=]() {
 		HydrogenApp::pEngine()->getCoreActionController()->locateToColumn( std::max(
 			HydrogenApp::pHydrogen()
@@ -130,6 +133,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 	// Play button
 	m_pPlayButton = new MidiLearnableToolButton(
 		m_pToolBar, tr( "Play/ Pause/ Load selected song" ) );
+	m_pPlayButton->setObjectName( "PlaylistEditorPlayButton" );
 	m_pPlayButton->setFixedSize(
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
@@ -140,6 +144,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Stop button
 	m_pStopButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	m_pStopButton->setObjectName( "PlaylistEditorStopButton" );
 	m_pStopButton->setFixedSize(
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
@@ -153,6 +158,7 @@ PlaylistEditor::PlaylistEditor( QWidget* pParent )
 
 	// Fast forward button
 	m_pFfwdButton = new MidiLearnableToolButton( m_pToolBar, "" );
+	m_pFfwdButton->setObjectName( "PlaylistEditorForwardButton" );
 	m_pFfwdButton->setFixedSize(
 		PlaylistEditor::nButtonWidth, PlaylistEditor::nButtonHeight
 	);
@@ -218,36 +224,36 @@ void PlaylistEditor::populateMenuBar() {
 	auto pActionNew = m_pPlaylistMenu->addAction(
 		tr( "&New Playlist" ), this, SLOT( newPlaylist() ) );
 	pActionNew->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::NewPlaylist ) ) );
 	auto pActionOpen = m_pPlaylistMenu->addAction(
 		tr( "&Open Playlist" ), this, SLOT( openPlaylist() ) );
 	pActionOpen->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::OpenPlaylist ) ) );
 	m_pPlaylistMenu->addSeparator();
 	auto pActionSave = m_pPlaylistMenu->addAction(
 		tr( "&Save Playlist" ), this, SLOT( savePlaylist() ) );
 	pActionSave->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SavePlaylist ) ) );
 	auto pActionSaveAs = m_pPlaylistMenu->addAction(
 		tr( "Save Playlist &as" ), this, SLOT( savePlaylistAs() ) );
 	pActionSaveAs->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::SaveAsPlaylist ) ) );
 	m_pPlaylistMenu->addSeparator();				// -----
 	auto pActionAddSong = m_pPlaylistMenu->addAction(
 		tr( "Add song to Play&list" ), this, SLOT( addSong() ) );
 	pActionAddSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddSong ) ) );
 	auto pActionAddCurrentSong = m_pPlaylistMenu->addAction(
 		tr( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ) );
 	pActionAddCurrentSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddCurrentSong ) ) );
 
 	m_pPlaylistMenu->addSeparator();				// -----
 
 	auto pActionRemoveSong = m_pPlaylistMenu->addAction(
 		tr( "&Remove selected song from Playlist" ), this, SLOT( removeSong() ) );
 	pActionRemoveSong->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveSong ) ) );
 	m_actionsSelected.push_back( pActionRemoveSong );
 	m_pPlaylistMenu->setFont( font );
 
@@ -256,7 +262,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pUndoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuUndo(), this, SLOT( undo() ) );
 	pUndoAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::Undo ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::Undo ) ) );
 	pUndoAction->setEnabled( false );
 	connect( m_pUndoStack, &QUndoStack::canUndoChanged,
 			 [=]( bool bCanUndo ) {
@@ -267,7 +273,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pRedoAction = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuRedo(), this, SLOT( redo() ) );
 	pRedoAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::Redo ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::Redo ) ) );
 	pRedoAction->setEnabled( false );
 	connect( m_pUndoStack, &QUndoStack::canRedoChanged,
 			 [=]( bool bCanRedo ) {
@@ -278,7 +284,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pActionUndoHistory = m_pUndoMenu->addAction(
 		pCommonStrings->getUndoMenuHistory(), this, SLOT( showUndoHistory() ) );
 	pActionUndoHistory->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::ShowUndoHistory ) ) );
 
 #ifndef WIN32
 	// Script menu
@@ -287,19 +293,19 @@ void PlaylistEditor::populateMenuBar() {
 	auto pActionNewScript = m_pScriptMenu->addAction(
 		tr( "&Create a new Script" ), this, SLOT( newScript() ) );
 	pActionNewScript->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistCreateScript ) ) );
 	m_actionsSelected.push_back( pActionNewScript );
 
 	auto pActionAddScript = m_pScriptMenu->addAction(
 		tr( "&Add Script to selected song" ), this, SLOT( loadScript() ) );
 	pActionAddScript->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistAddScript ) ) );
 	m_actionsSelected.push_back( pActionAddScript );
 
 	auto pScriptEditAction = m_pScriptMenu->addAction(
 		tr( "&Edit selected Script" ), this, SLOT( editScript() ) );
 	pScriptEditAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistEditScript ) ) );
 	m_actionsSelected.push_back( pScriptEditAction );
 	m_actionsSelectedScript.push_back( pScriptEditAction );
 
@@ -308,7 +314,7 @@ void PlaylistEditor::populateMenuBar() {
 	auto pScriptRemoveAction = m_pScriptMenu->addAction(
 		tr( "&Remove selected Script" ), this, SLOT( removeScript() ) );
 	pScriptRemoveAction->setShortcut(
-		pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) );
+		Skin::toQKeySequence( pShortcuts->getKeySequence( Shortcuts::Action::PlaylistRemoveScript ) ) );
 	m_actionsSelected.push_back( pScriptRemoveAction );
 	m_actionsSelectedScript.push_back( pScriptRemoveAction );
 
@@ -950,6 +956,15 @@ void PlaylistEditor::playButtonClicked()
 		HydrogenApp::pEngine()->getCoreActionController()->activatePlaylistSong( nIndex );
 	}
 
+	// Under a plugin host the host owns transport (ADR 0026): the button
+	// only selects the song (loaded above) and must not start or stop
+	// playback. Reset the checked state so the button does not pretend
+	// playback control it will not exercise.
+	if ( pHydrogen->isUnderPluginHost() ) {
+		m_pPlayButton->setChecked( false );
+		return;
+	}
+
 	if ( m_pPlayButton->isChecked() ) {
 		HydrogenApp::pEngine()->sequencerPlay();
 	}
@@ -957,6 +972,20 @@ void PlaylistEditor::playButtonClicked()
 		HydrogenApp::pEngine()->sequencerStop();
 		pH2App->showStatusBarMessage( tr("Pause.") );
 	}
+}
+
+void PlaylistEditor::updatePluginHostGating()
+{
+	// ADR 0026: under a plugin host the host owns transport — seeking and
+	// stopping are deactivated. The play button stays available as the
+	// song selector (playButtonClicked() selects without starting
+	// playback). Called whenever the plugin-host predicate may have
+	// changed (HydrogenApp::syncViaIpc).
+	const bool bTransportControl =
+		! HydrogenApp::pHydrogen()->isUnderPluginHost();
+	m_pRwdButton->setEnabled( bTransportControl );
+	m_pStopButton->setEnabled( bTransportControl );
+	m_pFfwdButton->setEnabled( bTransportControl );
 }
 
 bool PlaylistEditor::eventFilter( QObject *o, QEvent *e )
@@ -1049,7 +1078,7 @@ void PlaylistEditor::updateIcons() {
 		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive =
-		Skin::makeBackgroundColorInactive( pColorTheme->m_baseColor );
+		Skin::makeBackgroundColorInactive( Skin::toQColor( pColorTheme->m_baseColor ) );
 
 	Skin::setToolButtonIcon(
 		m_pRwdButton, sIconPath + "rewind.svg", colorBackgroundInactive
@@ -1070,7 +1099,7 @@ void PlaylistEditor::updateStyleSheet()
 	const auto pColorTheme =
 		HydrogenApp::pPreferences()->getColorTheme();
 
-	const QColor colorBackground = pColorTheme->m_baseColor;
+	const QColor colorBackground = Skin::toQColor( pColorTheme->m_baseColor );
 	Skin::setToolBarStyle( m_pToolBar, colorBackground, true );
 }
 
@@ -1340,8 +1369,8 @@ void PlaylistTableWidget::update() {
 	auto colorNonExisting = [=]( QTableWidgetItem* pItem ) {
 		const auto pColorTheme =
 			HydrogenApp::pPreferences()->getColorTheme();
-		pItem->setBackground( QBrush( pColorTheme->m_buttonRedColor ) );
-		pItem->setForeground( QBrush( pColorTheme->m_buttonRedTextColor ) );
+		pItem->setBackground( QBrush( Skin::toQColor( pColorTheme->m_buttonRedColor ) ) );
+		pItem->setForeground( QBrush( Skin::toQColor( pColorTheme->m_buttonRedTextColor ) ) );
 	};
 	auto colorDefault = [=]( QTableWidgetItem* pItem ) {
 		pItem->setBackground( QBrush( ) );
@@ -1352,9 +1381,9 @@ void PlaylistTableWidget::update() {
 			HydrogenApp::pPreferences()->getColorTheme();
 
 		// Highlighting of non-existing file has higher priority.
-		if ( pItem->background().color() != pColorTheme->m_buttonRedColor ) {
-			pItem->setBackground( QBrush( pColorTheme->m_accentColor ) );
-			pItem->setForeground( QBrush( pColorTheme->m_accentTextColor ) );
+		if ( pItem->background().color() != Skin::toQColor( pColorTheme->m_buttonRedColor ) ) {
+			pItem->setBackground( QBrush( Skin::toQColor( pColorTheme->m_accentColor ) ) );
+			pItem->setForeground( QBrush( Skin::toQColor( pColorTheme->m_accentTextColor ) ) );
 		}
 	};
 

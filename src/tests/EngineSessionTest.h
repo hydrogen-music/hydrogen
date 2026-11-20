@@ -31,6 +31,8 @@
 class EngineSessionTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( EngineSessionTest );
 	CPPUNIT_TEST( testRejectsInvalidArguments );
+	CPPUNIT_TEST( testRefusesIncompatibleEditorVersion );
+	CPPUNIT_TEST( testAcceptsDifferingAppVersionEditor );
 	CPPUNIT_TEST( testCommandDispatchedToEngine );
 	CPPUNIT_TEST( testEventForwardedToEditor );
 	CPPUNIT_TEST( testEngineSurvivesEditorReconnect );
@@ -57,6 +59,16 @@ class EngineSessionTest : public CppUnit::TestFixture {
 
 public:
 	void testRejectsInvalidArguments();
+	/** The hello handshake gate (ADR 0018): an editor announcing a
+	 * different wire protocol (or a legacy version-less hello) is refused —
+	 * the engine closes the connection instead of replying — and the
+	 * refusal must not take the engine down: the serve loop goes back to
+	 * accepting. */
+	void testRefusesIncompatibleEditorVersion();
+	/** The application version never gates (ADR 0018): major, minor, patch,
+	 * and suffix differences all pass — the engine replies with its own
+	 * (correlated) hello. */
+	void testAcceptsDifferingAppVersionEditor();
 	void testCommandDispatchedToEngine();
 	void testEventForwardedToEditor();
 	void testEngineSurvivesEditorReconnect();

@@ -1030,8 +1030,9 @@ void MainToolBar::updateIpcConnectionState() {
 	m_pIpcConnectionButton->setChecked( bConnected );
 
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	const QColor color =
-		bConnected ? pColorTheme->m_accentColor : pColorTheme->m_buttonRedColor;
+	const QColor color = bConnected
+		? Skin::toQColor( pColorTheme->m_accentColor )
+		: Skin::toQColor( pColorTheme->m_buttonRedColor );
 	m_pIpcConnectionButton->setStyleSheet( QString( "\
 #IpcConnectionButton {									 \
    background-color: %1;								 \
@@ -1141,9 +1142,28 @@ void MainToolBar::updateSongMode()
 	const bool bSongMode = pHydrogen->getMode() == Song::Mode::Song;
 	m_pSongModeAction->setChecked( bSongMode );
 	m_pPatternModeAction->setChecked( !bSongMode );
-	m_pRwdButton->setEnabled( bSongMode );
-	m_pFfwdButton->setEnabled( bSongMode );
+	// Under a plugin host the host owns transport (ADR 0026): the seek
+	// buttons stay deactivated even in song mode. This runs on song-mode
+	// events, so the AND-gate also re-applies the gating after such an
+	// event re-enabled the buttons.
+	const bool bTransportControl = ! pHydrogen->isUnderPluginHost();
+	m_pRwdButton->setEnabled( bSongMode && bTransportControl );
+	m_pFfwdButton->setEnabled( bSongMode && bTransportControl );
 	m_pSongLoopButton->setEnabled( bSongMode );
+}
+
+void MainToolBar::updatePluginHostGating()
+{
+	// ADR 0026: under a plugin host the host owns transport — play/stop
+	// are deactivated while record stays available (the editor still
+	// drives the record state). updateSongMode() applies the matching
+	// gating to the seek buttons. Called whenever the plugin-host
+	// predicate may have changed (HydrogenApp::syncViaIpc).
+	auto pHydrogen = HydrogenApp::pHydrogen();
+	const bool bTransportControl = ! pHydrogen->isUnderPluginHost();
+	m_pPlayButton->setEnabled( bTransportControl );
+	m_pStopButton->setEnabled( bTransportControl );
+	updateSongMode();
 }
 
 void MainToolBar::updateTransportControl()
@@ -1197,7 +1217,7 @@ void MainToolBar::updateIcons()
 		HydrogenApp::pPreferences()->getColorTheme();
 
 	const QColor colorBackgroundInactive = Skin::makeBackgroundColorInactive(
-		pColorTheme->m_songEditor_backgroundColor.darker( 110 )
+		Skin::toQColor( pColorTheme->m_songEditor_backgroundColor ).darker( 110 )
 	);
 
 	if ( HydrogenApp::isConnectViaIpcMode() ) {
@@ -1256,7 +1276,7 @@ void MainToolBar::updateStyleSheet()
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor colorBackground =
-		pColorTheme->m_songEditor_backgroundColor.darker( 110 );
+		Skin::toQColor( pColorTheme->m_songEditor_backgroundColor ).darker( 110 );
 
 	Skin::setToolBarStyle( this, colorBackground, false );
 	setStyleSheet( styleSheet().append( QString( "\

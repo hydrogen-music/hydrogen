@@ -23,10 +23,54 @@
 #define H2C_IPC_ENGINE_EVENT_SINK_H
 
 #include <core/Basics/Event.h>
+#include <core/Basics/Song.h>
+
+#include <QtCore/QString>
+
+#include <vector>
 
 namespace H2Core {
 
 struct EngineTelemetrySnapshot;
+
+/**
+ * One info snapshot (ADR 0035 UI-3): the song-level state the embedded
+ * UI's info section shows — identity, mode, per-mode counts and
+ * playback position — built on the engine session's bridge thread
+ * under the same small-budget engine lock as the telemetry publish
+ * (amendment to ADR 0018), so a UI consumer never takes the engine
+ * lock itself. Delivered via EngineEventSink::onInfoSnapshot on the
+ * publish cycle; a degraded cycle (lock contention) is skipped
+ * entirely rather than delivered blank — the consumer keeps its last
+ * snapshot. Field names mirror the landing model's former SongInfo.
+ */
+struct EngineInfoSnapshot {
+	QString sSongName;
+	QString sDrumkitName;
+	Song::Mode mode = Song::Mode::None;
+	int nPatternCount = 0;
+	int nColumnCount = 0;
+	int nCurrentColumn = -1;
+	std::vector<QString> playingPatterns;
+	QString sPatternName;
+	int nPatternLength = 0;
+	int nPatternNoteCount = 0;
+
+	bool operator==( const EngineInfoSnapshot& other ) const {
+		return sSongName == other.sSongName &&
+			sDrumkitName == other.sDrumkitName && mode == other.mode &&
+			nPatternCount == other.nPatternCount &&
+			nColumnCount == other.nColumnCount &&
+			nCurrentColumn == other.nCurrentColumn &&
+			playingPatterns == other.playingPatterns &&
+			sPatternName == other.sPatternName &&
+			nPatternLength == other.nPatternLength &&
+			nPatternNoteCount == other.nPatternNoteCount;
+	}
+	bool operator!=( const EngineInfoSnapshot& other ) const {
+		return ! ( *this == other );
+	}
+};
 
 /**
  * \ingroup docCore
@@ -54,10 +98,16 @@ public:
 	virtual void onEvent( Event::Type type, int nValue, long nId ) = 0;
 
 	/** One telemetry snapshot (transport / peaks / process time, ADR
-	 * 0018), as built for the periodic publish — the same snapshot the
-	 * SHM block stores. */
+	 *  0018), as built for the periodic publish — the same snapshot the
+	 *  SHM block stores. */
 	virtual void onMeterSnapshot(
 		const EngineTelemetrySnapshot& snapshot ) = 0;
+
+	/** One info snapshot (see #EngineInfoSnapshot), as built for the
+	 *  periodic publish. Skipped for a degraded cycle (engine-lock
+	 *  contention): the consumer keeps its last snapshot — a skipped
+	 *  cycle must never read as "no song". Default: not interested. */
+	virtual void onInfoSnapshot( const EngineInfoSnapshot& ) {}
 };
 
 }

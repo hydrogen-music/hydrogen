@@ -26,6 +26,7 @@
 #include <core/Basics/Song.h>
 #include <core/CommonStrings.h>
 #include <core/CoreActionController.h>
+#include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/H2Project.h>
 #include <core/Helpers/Translations.h>
@@ -46,7 +47,17 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcess>
+#include <QtCore/QStandardPaths>
 #include <QtCore/QStringList>
+
+// Per-block logging in the audio path is compiled out by default, like
+// the engine's AUDIO_ENGINE_DEBUG in AudioEngine.cpp: the plugin's
+// debug-build logger level (see the constructor bootstrap) has Debug
+// enabled, so a runtime-gated ___DEBUGLOG here would take the logger
+// lock and drive log-file writes from the realtime thread on every
+// block - exactly what lv2lint's syscall gate rejects. Flip to 1 to
+// trace host/presented transport while debugging.
+#define PLUGIN_TRANSPORT_DEBUG 0
 
 namespace H2Core {
 
@@ -305,6 +316,9 @@ void HydrogenPlugin::activate( double fSampleRate, unsigned /*nMaxBlockSize*/ ) 
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	if ( m_pAudioDriver != nullptr ) {
 		m_pAudioDriver->setSampleRate( static_cast<unsigned>( fSampleRate ) );
+		// A new sample rate rescales the timeline: latched frame
+		// expectations from the previous activation are void.
+		m_hostTransportLatch.reset();
 	}
 	else {
 		___ERRORLOG( "Invalid audio driver" );
@@ -315,10 +329,25 @@ void HydrogenPlugin::deactivate() {
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 }
 
+void HydrogenPlugin::reset() {
+	if ( m_pHydrogen == nullptr ) {
+		___ERRORLOG( "Invalid setup" );
+		return;
+	}
+	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
+
+	// A host reset (e.g. on a transport jump) maps to Hydrogen's panic:
+	// all sounding voices and queued notes are killed. Neither the
+	// loaded kit nor the plugin parameters are touched, and the
+	// transport follows the host again on the next block (ADR 0013) -
+	// a stop parked in here cannot outroll the host's clock.
+	m_pHydrogen->getCoreActionController()->panic();
+}
+
 void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR,
 							  const std::vector<float*>& busOut_L,
 							  const std::vector<float*>& busOut_R,
-							  bool bRolling, double fBpm, long long nFrame ) {
+							  const HostTransportReading& hostTransport ) {
 	if ( m_pHydrogen == nullptr || m_pAudioDriver == nullptr ) {
 		___ERRORLOG( "Invalid setup" );
 		return;
@@ -326,8 +355,34 @@ void HydrogenPlugin::process( uint32_t nFrames, float* pMasterL, float* pMasterR
 
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 
+	// Raw host readings jitter at the frame level (lossy sectime
+	// round-trip, ADR 0013); publishing them as-is made the engine treat
+	// every other block as a relocate, resetting the tick lookahead and
+	// enqueuing notes a second time on top of the still-playing first
+	// ones. The latch turns them back into the contiguous clock the
+	// engine contract requires.
+	const HostTransportReading presented =
+		m_hostTransportLatch.next( hostTransport, nFrames );
+
+#if PLUGIN_TRANSPORT_DEBUG
+	___DEBUGLOG( QString( "nFrames: %1, host: [%2,%3,%4], presented: [%5,%6,%7]" )
+				 .arg( nFrames )
+				 .arg( hostTransport.bValid ? "valid" : "invalid" )
+				 .arg( hostTransport.bRolling ? "rolling" : "parked" )
+				 .arg( hostTransport.nFrame )
+				 .arg( presented.bValid ? "valid" : "invalid" )
+				 .arg( presented.bRolling ? "rolling" : "parked" )
+				 .arg( presented.nFrame ) );
+#endif
+
 	m_pAudioDriver->setHostBuffers( pMasterL, pMasterR, nFrames );
-	m_pAudioDriver->setHostTransport( bRolling, fBpm, nFrame );
+	if ( presented.bValid ) {
+		m_pAudioDriver->setHostTransport( presented.bRolling, presented.fBpm,
+										  presented.nFrame );
+	}
+	// An invalid presentation (the host never offered transport) is not
+	// published at all: the driver's transport stays invalid and the
+	// engine free-runs from its own state.
 	m_pAudioDriver->setBusBuffers( busOut_L, busOut_R );
 
 	if ( m_pMidiDriver != nullptr ) {
@@ -402,8 +457,8 @@ std::vector<unsigned char> HydrogenPlugin::saveState( bool bEmbedSamples ) {
 	// able to glitch.
 	auto pAudioEngine = m_pHydrogen->getAudioEngine();
 	pAudioEngine->lock( RIGHT_HERE );
-	const auto state =
-		H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples, true );
+	const auto state = H2Project::toState( m_pHydrogen->getSong(), bEmbedSamples,
+										  true, m_pHydrogen->getPreferences() );
 	pAudioEngine->unlock();
 	return state;
 }
@@ -414,11 +469,42 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 		return false;
 	}
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
-	auto pSong = H2Project::fromState( data, m_pHydrogen, true );
+	QByteArray prefsXml;
+	auto pSong = H2Project::fromState( data, m_pHydrogen, true, &prefsXml );
 	if ( pSong == nullptr ) {
 		___ERRORLOG( "Unable to load state" );
 		return false;
 	}
+
+	// The plugin's own base-layer config (ADR 0022) rides in the state:
+	// apply it as an overlay before the song takes the stage. The
+	// host-owned override layer (sample rate, buffer size, drivers) is not
+	// part of the blob and stays this instance's own.
+	if ( ! prefsXml.isEmpty() ) {
+		auto pPreferences = m_pHydrogen->getPreferences();
+		pPreferences->applyFromXmlBuffer( prefsXml );
+
+		// The light-path side effects of a preferences change (mirroring
+		// CoreActionController::setPreferences): the metronome follows its
+		// volume, and an operational engine is told to re-sync. Driver
+		// restarts are deliberately skipped - mid-loadState the host owns
+		// the audio geometry, not the stored config. The metronome is
+		// built from the click sample: a data-less host (bare CI, a
+		// stripped install) runs without one, and the side effect is
+		// skipped rather than fatal - setMetronomeVolume guards the
+		// same way.
+		auto pMetronomeInstrument =
+			m_pHydrogen->getAudioEngine()->getMetronomeInstrument();
+		if ( pMetronomeInstrument != nullptr ) {
+			pMetronomeInstrument->setVolume(
+				pPreferences->m_fMetronomeVolume );
+		}
+		if ( m_pHydrogen->isFullyOperational() ) {
+			m_pHydrogen->getEventQueue()->pushEvent(
+				H2Core::Event::Type::UpdatePreferences, 1 );
+		}
+	}
+
 	return m_pHydrogen->getCoreActionController()->setSong( pSong );
 }
 
@@ -472,7 +558,13 @@ QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
 }
 
 QString HydrogenPlugin::editorBinary() const {
-	return resolveEditorBinary( m_sEditorBinary, m_sEditorSearchDir );
+	return resolveEditorBinary(
+		m_pHydrogen->getPreferences()->getPluginEditorBinary(),
+		m_sEditorSearchDir );
+}
+
+void HydrogenPlugin::setEditorBinary( const QString& sPath ) {
+	m_pHydrogen->getPreferences()->setPluginEditorBinary( sPath );
 }
 
 void HydrogenPlugin::setEventSink( EngineEventSink* pEventSink ) {
@@ -482,6 +574,17 @@ void HydrogenPlugin::setEventSink( EngineEventSink* pEventSink ) {
 	if ( m_pEditorSession != nullptr ) {
 		m_pEditorSession->setEventSink( pEventSink );
 	}
+}
+
+void HydrogenPlugin::clearEventSink( EngineEventSink* pExpected ) {
+	// Conditional unregister: only the still-registered sink is
+	// cleared — a displaced sink's teardown must not kill its
+	// successor. m_pEventSink is host-thread-only state (like
+	// setEventSink), so the check-then-clear is race-free.
+	if ( m_pEventSink != pExpected ) {
+		return;
+	}
+	setEventSink( nullptr );
 }
 
 bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
@@ -516,14 +619,42 @@ bool HydrogenPlugin::openEditor( bool bLaunchProcess ) {
 	m_bEditorOpen = true;
 	m_bEditorClosing = false;
 	m_nEditorRespawns = 0;
-	if ( bLaunchProcess ) {
-		launchEditorProcess();
+	if ( bLaunchProcess && ! launchEditorProcess() ) {
+		// Surface the launch failure (landing-view status line); the
+		// session stays up so a corrected binary can retry.
+		m_bEditorOpen = false;
+		return false;
 	}
 	return true;
 }
 
-void HydrogenPlugin::launchEditorProcess() {
+namespace {
+/** Whether the resolved editor binary can actually be exec'd: a path
+ * (contains a separator) must be an executable file, a bare name must
+ * resolve through PATH. */
+bool isLaunchableBinary( const QString& sBinary ) {
+	if ( sBinary.isEmpty() ) {
+		return false;
+	}
+	if ( sBinary.contains( '/' )
+#if defined( _WIN32 )
+		 || sBinary.contains( '\\' )
+#endif
+	) {
+		const QFileInfo info( sBinary );
+		return info.isFile() && info.isExecutable();
+	}
+	return ! QStandardPaths::findExecutable( sBinary ).isEmpty();
+}
+}
+
+bool HydrogenPlugin::launchEditorProcess() {
 	const auto sEditorBinary = editorBinary();
+	if ( ! isLaunchableBinary( sEditorBinary ) ) {
+		___ERRORLOG( QString( "Editor binary [%1] is not launchable" )
+					 .arg( sEditorBinary ) );
+		return false;
+	}
 	___INFOLOG( QString( "Starting editor [%1]" ).arg( sEditorBinary ) );
 
 	m_pEditorProcess = std::make_unique<QProcess>();
@@ -533,9 +664,22 @@ void HydrogenPlugin::launchEditorProcess() {
 		[this]( int, QProcess::ExitStatus status ) {
 			onEditorProcessFinished( status == QProcess::CrashExit );
 		} );
+	// A binary passing the launchability check can still fail at exec
+	// time (e.g. a +x file the kernel refuses). That arrives
+	// asynchronously; treat it as closed instead of crash-respawning a
+	// binary that would fail identically every time.
+	QObject::connect(
+		m_pEditorProcess.get(), &QProcess::errorOccurred,
+		[this]( QProcess::ProcessError error ) {
+			if ( error == QProcess::FailedToStart ) {
+				___ERRORLOG( "Editor process failed to start" );
+				m_bEditorOpen = false;
+			}
+		} );
 	m_pEditorProcess->start(
 		sEditorBinary,
 		QStringList() << QStringLiteral( "--connect-via-ipc" ) << m_sEditorEndpoint );
+	return true;
 }
 
 void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
@@ -559,7 +703,9 @@ void HydrogenPlugin::onEditorProcessFinished( bool bCrashed ) {
 	// crashing editor can't loop forever.
 	if ( m_nEditorRespawns < knMaxEditorRespawns ) {
 		++m_nEditorRespawns;
-		launchEditorProcess();
+		if ( ! launchEditorProcess() ) {
+			m_bEditorOpen = false;
+		}
 	}
 	else {
 		m_bEditorOpen = false;

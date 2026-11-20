@@ -30,16 +30,27 @@
 class PluginUiModelTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( PluginUiModelTest );
 	CPPUNIT_TEST( testLandingLoadCommands );
-	CPPUNIT_TEST( testLandingMidiConfigNoWriteBack );
-	CPPUNIT_TEST( testLandingMidiConfigExposedReadApply );
+	CPPUNIT_TEST( testLandingActionStatus );
+	CPPUNIT_TEST( testLandingDialogDirectories );
+	CPPUNIT_TEST( testLandingDrumkitListing );
+	CPPUNIT_TEST( testLandingEditorExecutable );
+	CPPUNIT_TEST( testLandingEditorExecutablePersistence );
+	CPPUNIT_TEST( testLandingEmbedSamplesPreference );
+	CPPUNIT_TEST( testHtmlToPlainText );
+	CPPUNIT_TEST( testLandingInfoSnapshot );
+	CPPUNIT_TEST( testMixerMeterPoll );
+	CPPUNIT_TEST( testEngineSinkAdapter );
 	CPPUNIT_TEST( testMappingModelRoundTrip );
 	CPPUNIT_TEST( testMappingModelInstrumentReads );
 	CPPUNIT_TEST( testMappingModelInputMappingRead );
+	CPPUNIT_TEST( testMappingMidiConfigNoWriteBack );
+	CPPUNIT_TEST( testMappingMidiConfigExposedReadApply );
+	CPPUNIT_TEST( testMappingPollChanged );
 	CPPUNIT_TEST( testChannelDisplayName );
 	CPPUNIT_TEST( testCreatePitchLabel );
 	CPPUNIT_TEST( testMixerModelStripsAndMeters );
 	CPPUNIT_TEST( testMixerModelStripReads );
-	CPPUNIT_TEST( testMixerModelBusCommands );
+	CPPUNIT_TEST( testMappingModelBusCommands );
 	CPPUNIT_TEST( testTranslatorInstallation );
 	CPPUNIT_TEST_SUITE_END();
 
@@ -49,16 +60,65 @@ public:
 	 * the current state untouched on unloadable paths; the editor button
 	 * forwards to the plugin's editor seam. */
 	void testLandingLoadCommands();
-	/** TU4.a: MIDI config applies reach the plugin's engine preferences
-	 * (ADR 0022 plugin-instance layer) and are never written back to the
-	 * user config file. */
-	void testLandingMidiConfigNoWriteBack();
-	/** TU4.1: the read side populates the three exposed MIDI config
-	 * widgets from the engine, and the narrow apply changes exactly
-	 * those three while preserving the four settings the plugin UI does
-	 * not expose (feedback, transport — engine-side, settable via the
-	 * editor). */
-	void testLandingMidiConfigExposedReadApply();
+	/** TU4.1: the status line's data — every load/switch/editor
+	 * command records its action on each failure path and clears
+	 * the line on success (the outcome is visible in the info
+	 * section); clearing the song is not status-worthy and resets
+	 * the line. */
+	void testLandingActionStatus();
+	/** TU4.1: the file browsers' remembered folders — a load command
+	 * (the dialog's OK intent) moves exactly its own last-open
+	 * directory to the picked file's folder, even when the path does
+	 * not load; the default-path accessors serve the remembered
+	 * folder while it stays readable and fall back to the user dirs
+	 * otherwise. */
+	void testLandingDialogDirectories();
+	/** TU4.1: the drumkit picker's listing — the sound library
+	 * database's kits as name-sorted summaries carrying the
+	 * drumkit.xml metadata (author, license, version, plain-text
+	 * info) and unique paths as the selection key; a summary's path
+	 * loads the kit it describes. */
+	void testLandingDrumkitListing();
+	/** TU4.1: the editor line's executable handling — the effective
+	 * binary (override or resolved default) is exposed for the
+	 * prefill, an override wins, and clearing it restores the
+	 * default. */
+	void testLandingEditorExecutable();
+	/** TU4.1: the editor override persists — setEditorExecutable lands in
+	 * the instance's Preferences (base layer, ADR 0022), survives a
+	 * config save/load cycle, and clearing persists as automatic
+	 * resolution. */
+	void testLandingEditorExecutablePersistence();
+	/** TU4.1: the configuration section's embed-samples toggle — the
+	 * checkbox's value is the instance's base-layer preference (the
+	 * same one the CLAP/LV2 state saves read), writes land in it, and
+	 * it persists through a config save/load cycle; a config from
+	 * before the row existed keeps the embed-by-default behavior. */
+	void testLandingEmbedSamplesPreference();
+	/** TU4.1: the picker's info conversion — htmlToPlainText, the
+	 * pure-QtCore reimplementation of QtGui's
+	 * QTextDocumentFragment::fromHtml().toPlainText() (the GUI
+	 * InfoView tooltip path the plugin UI cannot link), pinned
+	 * case-by-case by a reference battery whose expected outputs the
+	 * QtGui template itself produced. */
+	void testHtmlToPlainText();
+	/** TU4.1: the landing view's info section — pipeline-fed data
+	 * (ADR 0035 UI-3): the model caches the engine session's info
+	 * snapshots (never reading the engine itself), serves the latest
+	 * per frame, and its poll diff tells the window the displayed
+	 * surface went stale. Idle defaults before the first delivery. */
+	void testLandingInfoSnapshot();
+	/** The mixer model's meter poll — the diff that turns publish-cycle
+	 * meter snapshots into frame requests: meter fields and the
+	 * instrument count count, repeated identical snapshots and
+	 * non-meter fields (transport) do not. */
+	void testMixerMeterPoll();
+	/** The window's engine-event-sink adapter (ADR 0035 UI-3): meter
+	 * snapshots forward to the mixer model, info snapshots to the
+	 * landing model, events to nobody (pull-rendered UI) — and
+	 * registered on the plugin, the real publish cycle feeds the
+	 * models the engine's actual state. */
+	void testEngineSinkAdapter();
 	/** TU4.b: the mapping model's setters land in the plugin's engine —
 	 * map-wide modes/channels in the live MidiInstrumentMap, per-instrument
 	 * custom input rows resolvable through it, per-instrument output
@@ -71,6 +131,23 @@ public:
 	/** TU4.2: the index-based custom-row insert and the effective input
 	 * mapping read — the mapping view's per-instrument row cells. */
 	void testMappingModelInputMappingRead();
+	/** TU4.b: MIDI config applies reach the plugin's engine preferences
+	 * (ADR 0022 plugin-instance layer) and are never written back to the
+	 * user config file. */
+	void testMappingMidiConfigNoWriteBack();
+	/** TU4.2: the read side populates the three exposed MIDI config
+	 *  widgets from the engine, and the narrow apply changes exactly
+	 *  those three while preserving the four settings the plugin UI does
+	 *  not expose (feedback, transport — engine-side, settable via the
+	 *  editor). */
+	void testMappingMidiConfigExposedReadApply();
+	/** The mapping tab's frame-governance poll — the diff that turns
+	 *  engine-side changes (the editor's IPC applies, map installs,
+	 *  instrument edits) into frame requests: every change to the
+	 *  tab's displayed surface reports exactly once, repeated
+	 *  unchanged state and engine state the tab does not display do
+	 *  not. */
+	void testMappingPollChanged();
 	/** UI-4: the channel dropdowns' display convention — "All" for
 	 * -1, "Off" for 0 and for the invalid -2 (unmapped rows), the
 	 * number itself for 1..16. */
@@ -89,10 +166,11 @@ public:
 	 * the strip/master values follow the commands and the engine state;
 	 * the bus count mirrors the host context. */
 	void testMixerModelStripReads();
-	/** TU4.4: the mixer model's bus commands — explicit mapping lands on
+	/** TU4.4: the mapping model's bus commands — explicit mapping lands on
 	 * the engine's instrument and round-trips in the embedded song state
-	 * (ADR 0019); -1 resets to the implicit 1-to-1 default. */
-	void testMixerModelBusCommands();
+	 * (ADR 0019); -1 resets to the implicit 1-to-1 default and -2 indicates
+	 * no mapping */
+	void testMappingModelBusCommands();
 	/** TU6.1: the plugin process installs the hydrogen catalog translator
 	 * for the user's languages on the process's QCoreApplication, so the
 	 * embedded UI's CommonStrings resolve through the shared data/i18n

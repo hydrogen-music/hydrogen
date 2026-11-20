@@ -1,7 +1,7 @@
 ---
 status: accepted
 date: 2026-10-05
-amended: 2026-10-12
+amended: 2026-11-17
 deciders: phil (theGreatWhiteShark)
 ---
 
@@ -88,16 +88,20 @@ own shims, state codec, and IPC transport.
 
 ### The basic UI: three views
 
-1. **Landing** — load song, pattern, and drumkit (file browser); spawn
-   and connect an editor process (the existing `--connect-via-ipc`
-   flow); MIDI configuration (ignore note-offs, instrument vs. kit
-   mode). Configuration writes (MIDI options, instrument map) go
+1. **Landing** — load song and pattern (mutually exclusive tabs, each
+   with a file browser); load a drumkit from the sound library
+   database (picker table: name/author/license/version, the kit's
+   notes on hover); spawn and connect an editor process (the existing
+   `--connect-via-ipc` flow), with its executable path editable in a
+   line edit prefilled with the resolved default.
+2. **MIDI mapping** — the Instrument Mapping tab of
+   `MidiControlDialog` as a plugin view: a settings grid plus
+   per-instrument rows of channel/note spinboxes, plus the MIDI
+   configuration (ignore note-offs, instrument vs. kit mode).
+   Configuration writes (MIDI options, instrument map) go
    through the [ADR 0022](0022-layered-plugin-configuration.md)
    plugin-instance layer and are never written back to
    `~/.hydrogen`.
-2. **MIDI mapping** — the Instrument Mapping tab of
-   `MidiControlDialog` as a plugin view: a settings grid plus
-   per-instrument rows of channel/note spinboxes.
 3. **Mixer** — one strip per instrument (volume fader, pan encoder,
    mute, solo, meter), plus drag&drop bezier curves connecting
    instruments to the plugin's exposed audio busses
@@ -273,3 +277,193 @@ from the start.
   [ADR 0022](0022-layered-plugin-configuration.md),
   [ADR 0026](0026-plugin-mode-feature-disablement-and-gui.md),
   [ADR 0032](0032-h2player-gui-connection-mode.md)
+
+## Amendment (2026-10-16): frame-governed rendering on the host idle
+
+The accepted design rendered one frame per idle tick ("immediate mode fits
+the host-idle execution model"). In real hosts that broke down: hosts idle
+at *their* cadence — VST3 via clap-wrapper at ≥ 30 ms, CLAP at 16 ms, LV2
+unbounded — so an open UI rendered and swapped as fast as the host spun,
+and the per-frame `glXMakeCurrent` → render → swap → un-current churn plus
+an uncontrolled swap interval put a constant load on the host's UI thread
+(opening the UI in REAPER visibly crippled the host). Industry practice
+agrees on event-driven, ceiling-capped frames (DPF 16 ms, VSTGUI 30 Hz,
+iPlug2 dirty-rect).
+
+Rendering is now **request-driven with a 30 Hz ceiling**:
+
+1. **Frame gate** — `PluginUiFrameGate`, pure logic (unit-tested headless
+   through hydrogen-plugin-ui-models): a frame is owed when a request is
+   pending and either no frame was ever rendered (the first frame is
+   unconditional — a mapped window must not stay blank) or 27 ms elapsed
+   since the last one (the 30 Hz target minus slack; a 33 ms gate would
+   beat against the hosts' 30 ms timers down to ~17 Hz). Requests
+   accumulate; one frame serves all.
+2. **Request sources** — native input/resize/visibility events latch in
+   the backend (`takeFrameRequest()` consumes on take); a size change
+   since the last rendered frame (macOS has no resize event — the view
+   autoresizes); a presentability false→true transition — the reveal —
+   (macOS has no paint/visibility event to latch one with, so the
+   window tracks the transition itself); `PluginUiWindow::requestFrame()`
+   as the seam a live view (meters, once wired) calls when its state
+   changes.
+3. **Presentability** — `isPresentable()`: an unmapped, fully obscured, or
+   hidden-tab window skips rendering; the pending request survives until
+   it can present again.
+4. **Context and swap discipline** — the GL context stays current between
+   frames (re-bound only when another context took it); the swap
+   interval is forced to 0 at backend init (EXT/MESA/SGI
+   `glXSwapIntervalEXT` on X11, `wglSwapIntervalEXT(0)` on Win32,
+   `displaySyncEnabled = NO` on macOS 10.15+): the host owns the cadence,
+   the compositor must not add its own.
+
+`idle()` still pumps native events on every tick — input translation and
+resize bookkeeping must not wait for a frame. The CLAP 16 ms host timer
+and all host-layer shims stay untouched.
+
+Evidence: `PluginUiFrameGateTest` (six cases, headless) and the
+PluginUiSmoke gate assertions — ten rapid idles render nothing, a request
+after the interval renders exactly one frame, an unrequested idle renders
+nothing, an obscured window renders nothing while its reveal renders
+exactly one frame, and the GL context stays current across a rendered
+frame.
+
+## Amendment (2026-10-20): the engine-event-sink adapter and the data poll
+
+The accepted text mandates an in-process sink for the basic UI ("the basic
+UI through an in-process sink"); this is how it landed, and how engine data
+becomes frame requests.
+
+1. **The adapter is `PluginUiEngineSink`**, owned by the window's Impl and
+   registered with the plugin at construction: `onMeterSnapshot` forwards
+   into the mixer model, `onInfoSnapshot` (ADR 0018's 2026-10-20 amendment)
+   into the landing model. `onEvent` is a deliberate no-op — the UI is
+   pull-rendered, change detection is diffing cached snapshots, not event
+   bookkeeping. The member is declared after the views so reverse
+   destruction order destroys it before the models it forwards into, and
+   `~Impl` unregisters first via `HydrogenPlugin::clearEventSink` (the
+   conditional clear: a late window teardown cannot kill a successor's
+   registration). The host contract — the plugin and its session outlive
+   the window — makes registering at construction safe.
+
+2. **The models cache; the window polls.** Each model keeps the latest
+   delivered snapshot under a small mutex (bridge-thread writes, UI-thread
+   reads). The window's idle polls the *active tab's* model —
+   `pollInfoChanged` (landing) / `pollMetersChanged` (mixer) diff the cache
+   against what the last rendered frame showed and latch it — and a diff
+   requests a frame through the gate. Only the active tab is polled: the
+   frame a poll would request is the frame that shows it. The poll runs
+   before the presentability check, so while obscured the diff is consumed
+   cheaply and the reveal transition re-requests — a change that happened
+   hidden shows with exactly one render on reveal.
+
+3. **This retires the `requestFrame()` "live view" seam** from the
+   2026-10-16 amendment's request-source list: the window's own poll is
+   the live-data request source now (`requestFrame()` stays for hosts and
+   explicit requests). Meters are live — the mixer's meters move with the
+   engine while the mixer tab is active, at the publish cycle's ~50 ms
+   cadence coalesced onto the 30 Hz ceiling.
+
+4. **Known limitation — mixer strip parameters.** Strip names, volumes,
+   and pans are still live Song reads at render time: an editor-side
+   parameter edit while the mixer tab is active stays stale until the next
+   frame request (interaction, tab switch, or a meter move). Riding
+   parameter state on a snapshot is future work if it matters in practice.
+
+Evidence: `PluginUiModelTest` (cache/poll semantics, adapter forwarding,
+end-to-end over the real publish pipeline), `EngineEventSinkTest` (builder
+truth, degraded-skip, unregister quiesce, conditional clear), and the
+PluginUiSmoke live-data assertions — an engine data change renders exactly
+one frame, unchanged data renders nothing, and a change while obscured
+renders nothing until the reveal renders exactly one.
+
+## Amendment (2026-11-10): the GUI's color theme as the plugin UI's look
+
+The views shipped on imgui's stock dark style, which reads nothing like the
+Qt GUI next to it. The plugin UI now paints with the user's `ColorTheme`.
+
+1. **One palette, resolved per frame.** `PluginUiPalette::fromTheme()`
+   (`src/plugin/ui/PluginUiStyle.*`) turns the theme into every color the
+   UI paints with; `PluginUiStyle::applyColors()` maps it onto imgui's
+   slots. The window resolves it from the live preferences at the start of
+   each rendered frame (the default theme stands in without an engine) and
+   hands it to the views' `draw()` explicitly — no view reads the theme, so
+   each derivation lives in exactly one place, and a theme edit in the full
+   editor shows on the next frame.
+
+2. **The GUI's derivations are mirrored, not shared.** `Skin` (stylesheet
+   shades), `MixerLine` (mute/solo face) and `Rotary` (knob face) live in
+   `src/gui`, which the plugin UI must not include (`tools/check_plugin_ui`),
+   and the core's `Color` deliberately has no HSV. So `PluginUiColor`
+   ports `QColor::lighter()`/`darker()` and `Skin::makeTextColorInactive()`
+   — with exact integer rounding of QColor's 16-bit HSV intermediates, since
+   8-bit inputs hit exact .5 ties that a float port rounds unlike Qt. A
+   fuzz run against Qt 6 (3M calls) differs in 14 results by one step in
+   one channel, from float noise in Qt's own conversion; the test pins the
+   shades the palette actually uses to Qt's output.
+
+3. **Where the OS style, not the theme, decides a shade** (the dialogs'
+   tab pane, the unselected tabs, the mixer strip panel), the shade was
+   measured off the Qt GUI and expressed as a lighter()/darker() of a theme
+   color, so it still follows a customized theme. Colors the GUI hardcodes
+   (the push buttons' black border, Rotary's red/green/gray arc) are
+   mirrored as constants.
+
+4. **Widget-level differences are scoped, not global.** imgui draws button
+   labels and check boxes with the global text/frame colors, where the GUI
+   uses dark text on light push buttons and the palette's base under check
+   boxes; `ScopedPushButton` / `ScopedCheckBox` push those around the
+   affected widgets. The mixer's pan knob keeps imgui-knobs' interaction but
+   draws Rotary's face (center marker, offset arc, handle dot, hover bar)
+   over a transparent knob.
+
+Evidence: `PluginUiStyleTest` (headless, runs where the window smoke skips):
+QColor parity on Qt-produced reference values, the default theme's full
+palette, a customized theme flowing through, the imgui slot mapping, the
+metrics, and the scopes' push/restore.
+
+## Amendment (2026-11-17): the mapping tab joins the frame-governance poll
+
+The 2026-10-20 amendment's poll covered the landing and mixer tabs — the two
+pipeline-fed models. The mapping tab had no poll at all: its widgets cached
+the engine's MIDI configuration on construction and after their own applies,
+so a change made in the editor GUI (the MIDI config dialog, the map dialog,
+the instrument editor) never rendered. This is how the third tab joined.
+
+1. **The mapping model's poll is a live-read fingerprint, not a snapshot
+   diff.** `pollMappingChanged()` builds a value fingerprint of the tab's
+   *displayed surface* — the exposed MIDI config triple (ignore note off,
+   action channel, send note off), the map-wide settings, one row per
+   instrument (name, resolved input mapping, output note/channel, effective
+   bus), and the bus count — and diffs it against the fingerprint the last
+   rendered frame showed. No mutex and no pipeline: the poll and the reads
+   it guards run UI-thread-only, the same reads the view's draws issue.
+   The fingerprint member is the poll's own latch — the sole exception to
+   the model's otherwise stateless reads, mirroring the other models'
+   "diff against what the last frame showed".
+
+2. **Displayed-surface-only semantics.** Engine state the tab does not
+   display cannot request a frame: the MIDI feedback settings are pinned
+   no-false-positive by design. Map identity is likewise dropped — two
+   different map objects with identical displayed values are the same
+   picture, and a re-installed map that changes nothing renders nothing.
+
+3. **The view refreshes per frame, gated on interaction.** The three MIDI
+   config widgets re-read the engine every frame while the user is not
+   interacting with them — an open dropdown or a held checkbox must not
+   snap back mid-edit; the user's edit wins until it is applied or
+   released. The interaction flag is accumulated from imgui's
+   `IsItemActive()` after each widget and recomputed every frame, so a
+   collapsed section cannot strand it.
+
+4. **This is the candidate shape for the mixer's known limitation.** The
+   2026-10-20 amendment left mixer strip parameters as live reads without
+   a poll; the mapping tab's fingerprint poll is the pattern that would
+   retire it, should it matter in practice.
+
+Evidence: `PluginUiModelTest::testMappingPollChanged` (orphan polls never
+report; the prime poll; each displayed-surface change — config triple, map
+mode, global input switch, custom input row, output note — reports exactly
+once; a feedback-only change does not), and the PluginUiSmoke probes: an
+engine-side config change adopts on the next frame, a held checkbox does
+not snap back, and releasing applies the user's edit.

@@ -24,6 +24,7 @@
 
 #include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 #include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
@@ -227,9 +228,9 @@ void MasterLine::leaveEvent( QEvent* ev ) {
 void MasterLine::updateColors() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+	m_pMuteBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_muteColor ) );
 	m_pMuteBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor );
+		Skin::toQColor( pColorTheme->m_muteTextColor ) );
 }
 
 void MasterLine::updateLine() {

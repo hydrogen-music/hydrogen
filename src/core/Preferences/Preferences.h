@@ -38,7 +38,6 @@
 #include <core/Object.h>
 #include <core/Sampler/Interpolation.h>
 
-#include <QColor>
 #include <QDir>
 #include <QDomDocument>
 #include <QMutex>
@@ -311,6 +310,16 @@ struct PreferencesData {
 	/** Default text editor (used by Playlisteditor) */
 	QString m_sDefaultEditor = "";
 
+	/** Binary of the out-of-process plugin editor (ADR 0016). Empty means
+	 *  automatic resolution (install dir, `$HYDROGEN_EDITOR_PATH`, `PATH`);
+	 *  a value is the highest-precedence override. */
+	QString m_sPluginEditorBinary = "";
+
+	/** Whether a host-saved plugin state contains the drumkit's sample
+	 *  audio (the landing UI's configuration checkbox; the CLAP/LV2
+	 *  state saves read it). */
+	bool m_bPluginStateEmbedSamples = true;
+
 	QString m_sPreferredLanguage = "";
 
 	bool m_bUseRelativeFileNamesForPlaylists = false;
@@ -579,6 +588,20 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 	 * fields (window geometry, theme, shortcuts, recent files) are preserved. */
 	void applyCorePropsFromXml( const QByteArray& xml );
 
+	/** Serialize this instance's ownership-eligible rows (ADR 0022 layering)
+	 * to a self-contained XML document — the plugin's own config slice
+	 * carried inside the host project state (ADR 0017 amendment). Unlike the
+	 * IPC core fragment this is a full document with formatVersion, so
+	 * future readers can migrate it. */
+	QByteArray toXmlBuffer() const;
+
+	/** Apply an XML document produced by toXmlBuffer() onto this instance:
+	 * an overlay — only rows the document actually carries overwrite their
+	 * values, missing rows keep the current ones. Restricted to the rows
+	 * this instance's ownership may write, so a restoring plugin guest
+	 * never adopts the host-owned override layer. */
+	void applyFromXmlBuffer( const QByteArray& xml );
+
 	static std::vector<AudioDriver> getSupportedAudioDrivers();
 
 	/**
@@ -638,6 +661,12 @@ class Preferences : public H2Core::Object<Preferences>, public PreferencesData {
 
 	const QString& getDefaultEditor() const;
 	void setDefaultEditor( const QString& editor );
+
+	const QString& getPluginEditorBinary() const;
+	void setPluginEditorBinary( const QString& sPath );
+
+	bool getPluginStateEmbedSamples() const;
+	void setPluginStateEmbedSamples( bool bEmbedSamples );
 
 	// General
 	const QString& getPreferredLanguage() const;
@@ -1192,6 +1221,26 @@ inline const QString& Preferences::getDefaultEditor() const
 inline void Preferences::setDefaultEditor( const QString& editor )
 {
 	m_sDefaultEditor = editor;
+}
+
+inline const QString& Preferences::getPluginEditorBinary() const
+{
+	return m_sPluginEditorBinary;
+}
+
+inline void Preferences::setPluginEditorBinary( const QString& sPath )
+{
+	m_sPluginEditorBinary = sPath;
+}
+
+inline bool Preferences::getPluginStateEmbedSamples() const
+{
+	return m_bPluginStateEmbedSamples;
+}
+
+inline void Preferences::setPluginStateEmbedSamples( bool bEmbedSamples )
+{
+	m_bPluginStateEmbedSamples = bEmbedSamples;
 }
 
 // General

@@ -252,6 +252,10 @@ QString LCDSpinBox::textFromValue( double fValue ) const {
 		 fValue == -1.0 ) {
 		result = pCommonStrings->getCurrentlySelectedLabel();
 	}
+	else if ( m_type == Type::Int && ( m_flag & Flag::MinusTwoAsAll ) &&
+		 fValue == -2.0 ) {
+		result = pCommonStrings->getAllLabel();
+	}
 	else if ( m_flag & Flag::ShowMidiNote ) {
         // We do not rely on Note::Pitch in here because the pitch offset does
         // not adhere to the defined ranges for pitch/key/octave we use
@@ -398,9 +402,9 @@ void LCDSpinBox::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pColorTheme->m_highlightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 		} else {
-			colorHighlightActive = pColorTheme->m_lightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 		}
 
 		// If the mouse is placed on the widget but the user hasn't
@@ -435,8 +439,8 @@ void LCDSpinBox::leaveEvent( QEvent* ev ) {
 void LCDSpinBox::updateStyleSheet() {
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	QColor spinBoxColor = pColorTheme->m_spinBoxColor;
-	QColor spinBoxTextColor = pColorTheme->m_spinBoxTextColor;
+	QColor spinBoxColor = Skin::toQColor( pColorTheme->m_spinBoxColor );
+	QColor spinBoxTextColor = Skin::toQColor( pColorTheme->m_spinBoxTextColor );
 	QColor selectionColor = spinBoxColor.darker( 120 );
 
 	QColor spinBoxInactiveColor =

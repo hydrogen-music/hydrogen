@@ -71,6 +71,17 @@ public:
 	// current.
 	virtual void pumpEvents() = 0;
 
+	// True when native events asked for a frame since the last take —
+	// input, resize, exposure/visibility on the window. Consumed by the
+	// window's idle() to request a frame from its gate; latched, so one
+	// take serves every event since the previous one.
+	virtual bool takeFrameRequest() = 0;
+	// False while the window cannot present a frame (unmapped, fully
+	// obscured, hidden ancestor — e.g. the host's hidden tab): idle()
+	// skips rendering but keeps the pending request for when it becomes
+	// presentable again.
+	virtual bool isPresentable() const = 0;
+
 	// False for embedded child windows: they never close on their own
 	// (the host owns their lifecycle). True for the parentless fallback
 	// window (UI-5, TU5.2) after the user asked the window manager to

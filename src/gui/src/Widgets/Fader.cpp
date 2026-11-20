@@ -190,9 +190,9 @@ void Fader::paintEvent( QPaintEvent *ev)
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = pColorTheme->m_highlightColor;
+		colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 	} else {
-		colorHighlightActive = pColorTheme->m_lightColor;
+		colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 	}
 	QColor colorGradientNormal( Qt::green );
 	QColor colorGradientWarning( Qt::yellow );

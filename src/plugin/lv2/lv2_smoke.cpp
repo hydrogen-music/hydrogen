@@ -21,17 +21,24 @@
 
 // Minimal LV2 host smoke test (ADR 0014): dlopen the built plugin, drive its
 // full lifecycle (instantiate → connect → activate → run silence → deactivate →
-// cleanup) and assert the master output stays finite, then drive the UI
-// descriptor through its show/hide/idle semantics (proposal 0006, phase UI-0).
+// cleanup) and assert the master output stays finite, exercise the state
+// interface (save → restore round-trip through a second instance), then drive
+// the UI descriptor through its show/hide/idle semantics (proposal 0006,
+// phase UI-0).
 // This stands in for the per-format "instantiate, activate, process silence,
 // no crash" CI check where a full LV2 host / lv2lint is not available.
 // Usage: lv2_smoke <hydrogen.so>
 
 #include <lv2/core/lv2.h>
 #include <lv2/atom/atom.h>
+#include <lv2/atom/forge.h>
 #include <lv2/urid/urid.h>
 #include <lv2/ui/ui.h>
 #include <lv2/instance-access/instance-access.h>
+#include <lv2/state/state.h>
+#include <lv2/time/time.h>
+
+#include <plugin/lv2/Lv2Transport.h>
 
 #include <algorithm>
 #include <chrono>
@@ -158,19 +165,27 @@ int main( int argc, char** argv ) {
 	}
 
 	const uint32_t nFrames = 256;
-	// 1 MIDI in + 2 master + 2 * H2_PLUGIN_OUTPUT_BUSES; query indices from the
-	// descriptor is overkill - we connect a generous, fixed count.
-	const uint32_t nPorts = 1 + 2 + 2 * 32;
+	// 1 control + 1 MIDI in + 2 master + 2 * H2_PLUGIN_OUTPUT_BUSES; query
+	// indices from the descriptor is overkill - we connect a generous, fixed
+	// count.
+	const uint32_t nPorts = 2 + 2 + 2 * 32;
 
-	// An empty MIDI sequence on port 0 (no events).
+	// Empty atom sequences on the two input ports (no events, no transport
+	// published this block).
+	LV2_Atom_Sequence control;
+	std::memset( &control, 0, sizeof( control ) );
+	control.atom.size = sizeof( LV2_Atom_Sequence_Body );
+	control.atom.type = mapUri( nullptr, LV2_ATOM__Sequence );
+	d->connect_port( inst, 0, &control );
+
 	LV2_Atom_Sequence midi;
 	std::memset( &midi, 0, sizeof( midi ) );
 	midi.atom.size = sizeof( LV2_Atom_Sequence_Body );
-	midi.atom.type = mapUri( nullptr, "http://lv2plug.in/ns/ext/atom#Sequence" );
-	d->connect_port( inst, 0, &midi );
+	midi.atom.type = mapUri( nullptr, LV2_ATOM__Sequence );
+	d->connect_port( inst, 1, &midi );
 
 	std::vector<std::vector<float>> audio( nPorts );
-	for ( uint32_t p = 1; p < nPorts; ++p ) {
+	for ( uint32_t p = 2; p < nPorts; ++p ) {
 		audio[p].assign( nFrames, 0.0f );
 		d->connect_port( inst, p, audio[p].data() );
 	}
@@ -181,6 +196,336 @@ int main( int argc, char** argv ) {
 	for ( int b = 0; b < 8; ++b ) {
 		d->run( inst, nFrames );
 	}
+
+	// ── Transport checks (time:Position, ADR 0013) ─────────────────────────
+	// The latch (Lv2Transport.h) is the module's transport parser, shared
+	// source with this smoke: forge host atom sequences and check the parse
+	// directly. The engine's following of the published values is covered by
+	// the FakePluginHost transport tests; here the end-to-end part only
+	// proves the module digests a published transport without disturbing the
+	// render.
+	bool bTransportOk = true;
+	{
+		H2Core::Lv2TransportLatch latch;
+		latch.mapUrids( &map );
+
+		// A fresh latch has seen no position: the reading it hands the
+		// engine stays invalid (free-run) - not a phantom parked 0.
+		if ( latch.bHavePosition ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: fresh latch claimed a position\n" );
+		}
+
+		// Forge a control sequence carrying one time:Position object with
+		// the given properties (flags skip frame / bpm, modeling a host
+		// that publishes only what it knows).
+		uint8_t controlBuf[ 512 ];
+		auto forgePosition = [ & ]( float fSpeed, bool bWithFrame,
+									long long nFrameArg, bool bWithBpm,
+									float fBpmArg ) -> LV2_Atom_Sequence* {
+			LV2_Atom_Forge forge;
+			lv2_atom_forge_init( &forge, &map );
+			lv2_atom_forge_set_buffer( &forge, controlBuf,
+									   sizeof( controlBuf ) );
+			LV2_Atom_Forge_Frame seq;
+			lv2_atom_forge_sequence_head( &forge, &seq, 0 );
+			lv2_atom_forge_frame_time( &forge, 0 );
+			LV2_Atom_Forge_Frame obj;
+			lv2_atom_forge_object( &forge, &obj, 0,
+								   mapUri( nullptr, LV2_TIME__Position ) );
+			lv2_atom_forge_key( &forge, mapUri( nullptr, LV2_TIME__speed ) );
+			lv2_atom_forge_float( &forge, fSpeed );
+			if ( bWithFrame ) {
+				lv2_atom_forge_key( &forge, mapUri( nullptr, LV2_TIME__frame ) );
+				lv2_atom_forge_long( &forge, nFrameArg );
+			}
+			if ( bWithBpm ) {
+				lv2_atom_forge_key( &forge,
+									mapUri( nullptr, LV2_TIME__beatsPerMinute ) );
+				lv2_atom_forge_float( &forge, fBpmArg );
+			}
+			lv2_atom_forge_pop( &forge, &obj );
+			lv2_atom_forge_pop( &forge, &seq );
+			return reinterpret_cast<LV2_Atom_Sequence*>( controlBuf );
+		};
+
+		// Rolling at 132 BPM from frame 44100: all three latch.
+		latch.read( forgePosition( 1.0f, true, 44100, true, 132.0f ) );
+		if ( ! latch.bRolling || latch.fBpm != 132.0 || latch.nFrame != 44100 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not adopt a rolling position\n" );
+		}
+		if ( ! latch.bHavePosition ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not register the published position\n" );
+		}
+
+		// An empty control sequence (a host that writes only on change): the
+		// latched state stands, and advance() moves the frame while rolling.
+		latch.read( &control );
+		latch.advance( nFrames );
+		if ( ! latch.bRolling || latch.fBpm != 132.0 ||
+			 latch.nFrame != 44100 + 256 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not hold its state over an empty block\n" );
+		}
+
+		// Stopped (speed 0) at a new frame: rolling clears and the frame
+		// relocates; the unresent tempo latches on. advance() stands while
+		// stopped.
+		latch.read( forgePosition( 0.0f, true, 88200, false, 0.0f ) );
+		latch.advance( nFrames );
+		if ( latch.bRolling || latch.nFrame != 88200 || latch.fBpm != 132.0 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: latch did not follow a stop\n" );
+		}
+
+		// Reverse (speed -1) cannot be rendered: latches as stopped.
+		latch.read( forgePosition( -1.0f, false, 0, false, 0.0f ) );
+		if ( latch.bRolling ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: reverse transport latched as rolling\n" );
+		}
+
+		// A wrong-typed property (frame as Float instead of Long) is
+		// skipped: the latched frame survives.
+		{
+			LV2_Atom_Forge forge;
+			lv2_atom_forge_init( &forge, &map );
+			lv2_atom_forge_set_buffer( &forge, controlBuf,
+									   sizeof( controlBuf ) );
+			LV2_Atom_Forge_Frame seq;
+			lv2_atom_forge_sequence_head( &forge, &seq, 0 );
+			lv2_atom_forge_frame_time( &forge, 0 );
+			LV2_Atom_Forge_Frame obj;
+			lv2_atom_forge_object( &forge, &obj, 0,
+								   mapUri( nullptr, LV2_TIME__Position ) );
+			lv2_atom_forge_key( &forge, mapUri( nullptr, LV2_TIME__frame ) );
+			lv2_atom_forge_float( &forge, 123.0f ); // spec says Long
+			lv2_atom_forge_pop( &forge, &obj );
+			lv2_atom_forge_pop( &forge, &seq );
+			latch.read( reinterpret_cast<LV2_Atom_Sequence*>( controlBuf ) );
+		}
+		if ( latch.nFrame != 88200 ) {
+			bTransportOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: wrong-typed frame property was not skipped\n" );
+		}
+
+		// End-to-end: the module's run() must digest a published transport
+		// (rolling, then stopped) without disturbing the render.
+		d->connect_port( inst, 0,
+			forgePosition( 1.0f, true, 44100, true, 132.0f ) );
+		for ( int b = 0; b < 4; ++b ) {
+			d->run( inst, nFrames );
+		}
+		d->connect_port( inst, 0,
+			forgePosition( 0.0f, true, 88200, false, 0.0f ) );
+		for ( int b = 0; b < 2; ++b ) {
+			d->run( inst, nFrames );
+		}
+		for ( uint32_t p = 2; p <= 3; ++p ) {
+			for ( float v : audio[ p ] ) {
+				if ( ! std::isfinite( v ) ) {
+					bTransportOk = false;
+				}
+			}
+		}
+	}
+
+	// ── Plugin state checks (LV2 state extension) ──────────────────────────
+	// The state interface must persist the `.h2project` blob as exactly one
+	// atom:Chunk property (POD|PORTABLE — the default configuration embeds
+	// the samples, so the blob is self-contained) and restore it back.
+	// Host-side store/retrieve stand-ins record what save() hands over; a
+	// second instance proves the restore path in the host order that
+	// matters (instantiate → restore → activate → run, Ardour's sequence).
+	bool bStateOk = true;
+	const LV2_State_Interface* st = static_cast<const LV2_State_Interface*>(
+		d->extension_data( LV2_STATE__interface ) );
+	if ( st == nullptr || st->save == nullptr || st->restore == nullptr ) {
+		bStateOk = false;
+		std::fprintf( stderr, "LV2 SMOKE: no state interface\n" );
+	}
+
+	// A host's state map: key URID → stored property.
+	struct StoredProperty {
+		std::vector<unsigned char> data;
+		uint32_t type = 0;
+		uint32_t flags = 0;
+	};
+	using StateMap = std::map<uint32_t, StoredProperty>;
+	const auto hostStore = []( LV2_State_Handle handle, uint32_t key,
+							   const void* value, size_t size, uint32_t type,
+							   uint32_t flags ) -> LV2_State_Status {
+		auto& m = *static_cast<StateMap*>( handle );
+		const auto* bytes = static_cast<const unsigned char*>( value );
+		m[ key ] = { { bytes, bytes + size }, type, flags };
+		return LV2_STATE_SUCCESS;
+	};
+	const auto hostRetrieve = []( LV2_State_Handle handle, uint32_t key,
+								  size_t* size, uint32_t* type,
+								  uint32_t* flags ) -> const void* {
+		const auto& m = *static_cast<const StateMap*>( handle );
+		const auto it = m.find( key );
+		if ( it == m.end() ) {
+			// An absent key: the plugin must fall back to its defaults.
+			return nullptr;
+		}
+		if ( size != nullptr ) { *size = it->second.data.size(); }
+		if ( type != nullptr ) { *type = it->second.type; }
+		if ( flags != nullptr ) { *flags = it->second.flags; }
+		return it->second.data.data();
+	};
+
+	// The one property save() must store: the state blob under the plugin's
+	// #state key (H2_LV2_URI in HydrogenLv2.cpp).
+	const uint32_t stateKey =
+		mapUri( nullptr, "https://hydrogen-music.org/lv2/hydrogen#state" );
+	const uint32_t chunkType = mapUri( nullptr, LV2_ATOM__Chunk );
+
+	// save() on the live instance: LV2 permits it concurrent with run();
+	// the engine lock keeps the snapshot consistent.
+	StateMap savedFromA;
+	if ( bStateOk ) {
+		if ( st->save( inst, hostStore, &savedFromA, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr, "LV2 SMOKE: state save() failed\n" );
+		}
+	}
+	if ( bStateOk ) {
+		const auto it = savedFromA.find( stateKey );
+		if ( savedFromA.size() != 1 || it == savedFromA.end() ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: save() did not store exactly the #state property\n" );
+		} else {
+			if ( it->second.type != chunkType ) {
+				bStateOk = false;
+				std::fprintf( stderr,
+					"LV2 SMOKE: state property is not an atom:Chunk\n" );
+			}
+			if ( it->second.flags !=
+				 ( LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE ) ) {
+				bStateOk = false;
+				std::fprintf( stderr,
+					"LV2 SMOKE: state property is not flagged POD|PORTABLE "
+					"(pluginStateEmbedSamples disabled in the ambient "
+					"config?)\n" );
+			}
+			// The gzip magic proves the payload is the `.h2project`
+			// container, not some other serialization.
+			if ( it->second.data.size() < 2 ||
+				 it->second.data[ 0 ] != 0x1f || it->second.data[ 1 ] != 0x8b ) {
+				bStateOk = false;
+				std::fprintf( stderr,
+					"LV2 SMOKE: state property is not the gzip'd container\n" );
+			}
+		}
+	}
+
+	// A second instance walks the restore path end to end.
+	LV2_Handle instB = nullptr;
+	if ( bStateOk ) {
+		instB = d->instantiate( d, 44100.0, "/tmp/", features );
+		if ( instB == nullptr ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: second instantiate returned null\n" );
+		}
+	}
+	if ( bStateOk ) {
+		// An empty state map (a host resetting to defaults): retrieve finds
+		// nothing; restore must succeed without touching the engine.
+		StateMap empty;
+		if ( st->restore( instB, hostRetrieve, &empty, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() of an empty map failed\n" );
+		}
+		// The real thing: A's blob into the fresh instance, before
+		// activate() — the restored state must survive activation.
+		if ( st->restore( instB, hostRetrieve, &savedFromA, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() of the saved state failed\n" );
+		}
+	}
+	if ( bStateOk ) {
+		d->connect_port( instB, 0, &control );
+		d->connect_port( instB, 1, &midi );
+		for ( uint32_t p = 2; p < nPorts; ++p ) {
+			d->connect_port( instB, p, audio[ p ].data() );
+		}
+		if ( d->activate != nullptr ) {
+			d->activate( instB );
+		}
+		for ( int b = 0; b < 4; ++b ) {
+			d->run( instB, nFrames );
+		}
+	}
+
+	// The restored instance must save the same state back: byte-stable
+	// (the archive writer is deterministic — no mtimes, fixed entry order)
+	// and equal, proving the round-trip neither lost nor altered it.
+	StateMap savedFromB;
+	if ( bStateOk ) {
+		if ( st->save( instB, hostStore, &savedFromB, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: state save() on the restored instance failed\n" );
+		}
+	}
+	if ( bStateOk ) {
+		const auto a = savedFromA.find( stateKey );
+		const auto b = savedFromB.find( stateKey );
+		if ( a == savedFromA.end() || b == savedFromB.end() ||
+			 a->second.data != b->second.data ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: state blob not stable across save → restore → save\n" );
+		}
+	}
+
+	// A wrong-typed property must be rejected without touching the engine.
+	if ( bStateOk ) {
+		StateMap wrongType = savedFromB;
+		wrongType[ stateKey ].type = mapUri( nullptr, LV2_ATOM__String );
+		if ( st->restore( instB, hostRetrieve, &wrongType, 0, nullptr ) !=
+			 LV2_STATE_ERR_BAD_TYPE ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() accepted a non-Chunk property\n" );
+		}
+	}
+
+	// Hosts also restore into live instances (between run() calls).
+	if ( bStateOk ) {
+		if ( st->restore( inst, hostRetrieve, &savedFromB, 0, nullptr ) !=
+			 LV2_STATE_SUCCESS ) {
+			bStateOk = false;
+			std::fprintf( stderr,
+				"LV2 SMOKE: restore() into the live instance failed\n" );
+		}
+	}
+
+	if ( instB != nullptr ) {
+		if ( d->deactivate != nullptr ) {
+			d->deactivate( instB );
+		}
+		d->cleanup( instB );
+	}
+
 	if ( d->deactivate != nullptr ) {
 		d->deactivate( inst );
 	}
@@ -261,10 +606,13 @@ int main( int argc, char** argv ) {
 	// Editor-session observation: the engine session is always-on (UI-3: it
 	// starts with the plugin instance and serves for its whole lifetime),
 	// binding a QLocalServer named "hydrogen-editor-<pid>-<instance id>"
-	// (HydrogenPlugin.cpp). This process hosts exactly one engine instance,
-	// and the per-instance counter starts at 0 (Hydrogen.cpp), so the id is
-	// 0. The editor PROCESS is only ever spawned by the landing view's Open
-	// editor button (UI-5, TU5.7) — show() must not spawn it.
+	// (HydrogenPlugin.cpp). By the time the UI checks run this process hosts
+	// exactly one engine instance again (the state section's second instance
+	// is cleaned up before them), and its instance log file suffix was
+	// allocated first in this fresh process (Hydrogen.cpp), so the id is 0.
+	// The editor PROCESS is only
+	// ever spawned by the landing view's Open editor button (UI-5, TU5.7)
+	// — show() must not spawn it.
 	const QString sEndpoint = QString( "hydrogen-editor-%1-%2" )
 		.arg( QCoreApplication::applicationPid() ).arg( 0 );
 
@@ -561,7 +909,7 @@ int main( int argc, char** argv ) {
 	}
 
 	bool bOk = true;
-	for ( uint32_t p = 1; p <= 2; ++p ) {
+	for ( uint32_t p = 2; p <= 3; ++p ) {
 		for ( float v : audio[p] ) {
 			if ( ! std::isfinite( v ) ) {
 				bOk = false;
@@ -570,7 +918,7 @@ int main( int argc, char** argv ) {
 	}
 	dlClose( h );
 
-	const bool bPassed = bOk && bUiOk;
+	const bool bPassed = bOk && bUiOk && bTransportOk && bStateOk;
 	std::printf( bPassed ? "LV2 SMOKE: PASSED\n" : "LV2 SMOKE: FAILED\n" );
 	return bPassed ? 0 : 1;
 }

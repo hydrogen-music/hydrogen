@@ -385,6 +385,18 @@ public:
 		return m_inputEvents;
 	}
 
+	bool takeFrameRequest() override {
+		const bool bRequested = m_bFrameRequested;
+		m_bFrameRequested = false;
+		return bRequested;
+	}
+
+	bool isPresentable() const override {
+		// A hidden ancestor (the host's hidden tab) cannot present; the
+		// view itself stays "visible" in AppKit terms either way.
+		return m_view != nil && ! m_view.hiddenOrHasHiddenAncestor;
+	}
+
 	void mouseState( float& x, float& y, int& nButtons ) const override {
 		x = m_fMouseX;
 		y = m_fMouseY;
@@ -395,7 +407,13 @@ public:
 		// Drain what the view responder recorded on the host's AppKit
 		// pump (TU6.2). The caller guarantees the per-instance ImGui
 		// context is current, so events translate straight into its
-		// IO.
+		// IO. Recorded input asked for a frame — latch one request; the
+		// window's gate coalesces and rate-limits it (resizes need no
+		// event here: the view autoresizes, and the window's idle()
+		// compares sizes).
+		if ( ! m_inputQueue.empty() ) {
+			m_bFrameRequested = true;
+		}
 		for ( const MacInputEvent& ev : m_inputQueue ) {
 			ImGuiIO& io = ImGui::GetIO();
 			switch ( ev.kind ) {
@@ -501,6 +519,15 @@ public:
 	}
 
 	bool initRenderBackend() override {
+		// Frame pacing stays ours (the host's idle cadence), not the
+		// display link's: displaySyncEnabled would serialize presents
+		// with the refresh on the host's main thread (the Reaper
+		// slowdown's mechanism). macOS 10.15+; older systems never
+		// synced a programmatically created layer by default anyway.
+		if ( @available( macOS 10.15, * ) ) {
+			CAMetalLayer* layer = (CAMetalLayer*)m_view.layer;
+			layer.displaySyncEnabled = NO;
+		}
 		return ImGui_ImplMetal_Init( m_device );
 	}
 
@@ -612,6 +639,9 @@ private:
 	float m_fMouseX = -1.0f;
 	float m_fMouseY = -1.0f;
 	int m_nMouseButtons = 0;
+	// The frame-request latch (takeFrameRequest) — set by pumpEvents()
+	// when the responder recorded input.
+	bool m_bFrameRequested = false;
 	bool m_valid = false;
 };
 

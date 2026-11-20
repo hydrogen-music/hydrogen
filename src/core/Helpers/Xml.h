@@ -24,8 +24,8 @@
 #define H2C_XML_H
 
 #include <core/Object.h>
+#include <core/Preferences/Color.h>
 #include <QtCore/QString>
-#include <QColor>
 #include <QtXml/QDomDocument>
 
 #include <map>
@@ -72,7 +72,9 @@ namespace Xml
 		/** Whether the object is serialized as part of a H2Project. This does
 		 * not use sample data from installed drumkits but bundles them directly
 		 * into a tar archive along with the song. */
-		Project = 0x010
+		Project = 0x010,
+		/** The object is serialized and stored as part of a plugin state. */
+		Plugin = 0x020
 	};
 
 	constexpr Flag operator|( Flag flag1, Flag flag2 ) {
@@ -92,6 +94,15 @@ namespace Xml
 	 */
 	constexpr bool operator&( Flag flag1, Flag flag2 ) {
 		return ( static_cast<int>(flag1) & static_cast<int>(flag2) ) != 0;
+	}
+	/**
+	 * \param flags Combination of options to trim.
+	 * \param drop Single option (or combination of options) to remove.
+	 * \return @a flags with every option in @a drop removed.
+	 */
+	constexpr Flag withoutFlag( Flag flags, Flag drop ) {
+		return static_cast<Flag>(
+			static_cast<int>( flags ) & ~static_cast<int>( drop ) );
 	}
 
 	QString flagToQString( const Flag& flags );
@@ -182,10 +193,10 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		QString read_string( const QString& node, const QString& default_value,
 							 bool inexistent_ok = true, bool empty_ok = true,
 							 bool bSilent = false ) const;
-		QColor read_color( const QString& node,
-						   const QColor& defaultValue = QColor( 97, 167, 251 ),
-						   bool inexistent_ok = true, bool empty_ok = true,
-						   bool bSilent = false ) const;
+	Color read_color( const QString& node,
+					  const Color& defaultValue = Color( 97, 167, 251 ),
+					  bool inexistent_ok = true, bool empty_ok = true,
+					  bool bSilent = false ) const;
 		Uuid read_uuid(
 			const QString& node,
 			bool inexistent_ok = true,
@@ -238,7 +249,7 @@ class XMLNode : public H2Core::Object<XMLNode>, public QDomNode
 		 * \param value the value to write
 		 */
 		void write_string( const QString& node, const QString& value );
-	void write_color( const QString& node, const QColor& color );
+	void write_color( const QString& node, const Color& color );
 		void write_uuid( const QString& node, const Uuid& uuid );
 
 		/**

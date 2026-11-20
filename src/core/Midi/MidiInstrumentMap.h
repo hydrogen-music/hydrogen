@@ -190,6 +190,13 @@ public:
 	std::map<NoteRef, std::shared_ptr<Instrument>> createFallbackMap(
 		Hydrogen* pHydrogen ) const;
 
+	/** The channel of the instrument's custom input mapping —
+	 * #Midi::ChannelInvalid if it has none. In Input::Order the note is
+	 * derived from the instrument's position but the channel is the
+	 * individual one configured here. */
+	Midi::Channel getCustomInputChannel(
+		std::shared_ptr<Instrument> pInstrument ) const;
+
 	Input m_input;
 	Output m_output;
 	bool m_bUseGlobalInputChannel;
@@ -219,7 +226,12 @@ inline void MidiInstrumentMap::setOutput( MidiInstrumentMap::Output mapping ) {
 	m_output = mapping;
 }
 inline bool MidiInstrumentMap::getUseGlobalInputChannel() const {
-	return m_bUseGlobalInputChannel;
+	// In Input::SelectedInstrument every incoming note maps to the
+	// selected instrument — there is no per-instrument input channel —
+	// so the global input channel is forced on. The UIs render the
+	// checkbox accordingly (checked and locked); the stored preference
+	// is preserved for the other modes (saveTo() writes the raw one).
+	return m_bUseGlobalInputChannel || m_input == Input::SelectedInstrument;
 }
 inline void MidiInstrumentMap::setUseGlobalInputChannel( bool bUse ){
 	m_bUseGlobalInputChannel = bUse;

@@ -127,23 +127,23 @@ void SongEditorPositionRuler::createBackground()
 	auto tagVector = pTimeline->getAllTags();
 	
 	const QColor timelineTextColor = Qt::black;
-	const QColor rulerTextColor( pColorTheme->m_songEditor_textColor );
+	const QColor rulerTextColor( Skin::toQColor( pColorTheme->m_songEditor_textColor ) );
 	QColor timelineTextColorAlpha( timelineTextColor );
 	timelineTextColorAlpha.setAlpha( 45 );
 
 	const QColor backgroundColor =
-		pColorTheme->m_songEditor_alternateRowColor.darker(
+		Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 			SongEditorPositionRuler::nScalingRuler
 		);
-	const QColor backgroundInactiveColor = pColorTheme->m_midLightColor;
+	const QColor backgroundInactiveColor = Skin::toQColor( pColorTheme->m_midLightColor );
 	const QColor backgroundColorTempoMarkers =
-		pColorTheme->m_songEditor_alternateRowColor.darker(
+		Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 			SongEditorPositionRuler::nScalingTimeline
 		);
 
-	const QColor colorHighlight = pColorTheme->m_highlightColor;
+	const QColor colorHighlight = Skin::toQColor( pColorTheme->m_highlightColor );
 
-	const QColor lineColor = pColorTheme->m_songEditor_lineColor;
+	const QColor lineColor = Skin::toQColor( pColorTheme->m_songEditor_lineColor );
 	QColor lineColorAlpha( lineColor );
 	lineColorAlpha.setAlpha( 45 );
 		
@@ -200,7 +200,7 @@ void SongEditorPositionRuler::createBackground()
 	}
 	
 	// draw tags
-	p.setPen( pColorTheme->m_accentTextColor );
+	p.setPen( Skin::toQColor( pColorTheme->m_accentTextColor ) );
 	
 	QFont font2( pFontTheme->m_sApplicationFontFamily, 5 );
 	p.setFont( font2 );
@@ -210,7 +210,7 @@ void SongEditorPositionRuler::createBackground()
 		QRect rect( x, height() / 2 - 1 - m_nTagHeight,
 					m_nGridWidth - 6, m_nTagHeight );
 
-		p.fillRect( rect, pColorTheme->m_highlightColor.darker( 135 ) );
+		p.fillRect( rect, Skin::toQColor( pColorTheme->m_highlightColor ).darker( 135 ) );
 		p.drawText( rect, Qt::AlignCenter, "T");
 	}
 	p.setFont( font );
@@ -474,11 +474,11 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 	
-	QColor highlightColor = pColorTheme->m_highlightColor;
+	QColor highlightColor = Skin::toQColor( pColorTheme->m_highlightColor );
 	QColor colorHovered( highlightColor );
 	colorHovered.setAlpha( 200 );
 	const QColor backgroundColorTempoMarkers =
-		pColorTheme->m_songEditor_alternateRowColor.darker(
+		Skin::toQColor( pColorTheme->m_songEditor_alternateRowColor ).darker(
 			SongEditorPositionRuler::nScalingTimeline
 		);
 
@@ -575,8 +575,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		QFont font2( pFontTheme->m_sApplicationFontFamily, 5 );
 		painter.setFont( font2 );
 		
-		painter.fillRect( rect, pColorTheme->m_highlightColor );
-		painter.setPen( pColorTheme->m_highlightedTextColor );
+		painter.fillRect( rect, Skin::toQColor( pColorTheme->m_highlightColor ) );
+		painter.setPen( Skin::toQColor( pColorTheme->m_highlightedTextColor ) );
 		painter.drawText( rect, Qt::AlignCenter, "T");
 
 		painter.setFont( font );
@@ -673,7 +673,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		int nCursorX = columnToX(
 			pSongEditor->getCursorPosition().getColumn() ) + 2;
 
-		QColor cursorColor = pColorTheme->m_cursorColor;
+		QColor cursorColor = Skin::toQColor( pColorTheme->m_cursorColor );
 
 		QPen p( cursorColor );
 		p.setWidth( 2 );

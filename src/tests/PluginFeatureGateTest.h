@@ -32,6 +32,7 @@ class PluginFeatureGateTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPlaylistMidiActionsDisabled );
 	CPPUNIT_TEST( testLoopForcedOn );
 	CPPUNIT_TEST( testOscServerNotStarted );
+	CPPUNIT_TEST( testPluginHostStateServedOverIpc );
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -41,6 +42,7 @@ public:
 	void testPlaylistMidiActionsDisabled();
 	void testLoopForcedOn();
 	void testOscServerNotStarted();
+	void testPluginHostStateServedOverIpc();
 };
 
 #endif

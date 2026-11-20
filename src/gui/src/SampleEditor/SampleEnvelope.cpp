@@ -110,7 +110,7 @@ void SampleEnvelope::drawPoint(
 
 	if ( style == Style::Hovered || style == Style::Selected ) {
 		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-		QColor highlightColor = pColorTheme->m_selectionHighlightColor;
+		QColor highlightColor = Skin::toQColor( pColorTheme->m_selectionHighlightColor );
 		if ( style == Style::Hovered ) {
 			if ( Skin::moreBlackThanWhite( highlightColor ) ) {
 				highlightColor = highlightColor.lighter( 125 );
@@ -164,9 +164,9 @@ void SampleEnvelope::paintEvent( QPaintEvent* ev )
 	}
 
 	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
-	QColor velocityColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor );
-	QColor panColor( pColorTheme->m_sampleEditor_panEnvelopeColor );
-	const QColor selectionColor = pColorTheme->m_selectionHighlightColor;
+	QColor velocityColor( Skin::toQColor( pColorTheme->m_sampleEditor_velocityEnvelopeColor ) );
+	QColor panColor( Skin::toQColor( pColorTheme->m_sampleEditor_panEnvelopeColor ) );
+	const QColor selectionColor = Skin::toQColor( pColorTheme->m_selectionHighlightColor );
 	QColor hoverColor;
 	if ( Skin::moreBlackThanWhite( selectionColor ) ) {
 		hoverColor = selectionColor.lighter( 115 );

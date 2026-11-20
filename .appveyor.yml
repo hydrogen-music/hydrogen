@@ -673,7 +673,15 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -R -c -s mingw-w64-x86_64-gcc-libs
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-make
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gdb-multiarch
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tools-git
+
+          REM *** mingw-w64-x86_64-tools-git was dropped from the MSYS2 repos. ***
+          REM *** Install its last archived version from repo.msys2.org via a ***
+          REM *** local file install instead (pacman's default ***
+          REM *** LocalFileSigLevel=Optional applies to local -U packages, so ***
+          REM *** no signature download is required). ***
+          curl -L -f -o %TEMP%\mingw-w64-x86_64-tools-git-13.0.0.r91.gfc0b67305-1-any.pkg.tar.zst https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-tools-git-13.0.0.r91.gfc0b67305-1-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm -U %TEMP%\mingw-w64-x86_64-tools-git-13.0.0.r91.gfc0b67305-1-any.pkg.tar.zst
+
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gdb
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-xxhash
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-python
@@ -725,8 +733,14 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-liblo
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
           c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5-tools
 
+          REM *** mingw-w64-x86_64-qt5-tools was dropped from the MSYS2 repos. ***
+          REM *** Install its last archived version from repo.msys2.org via a ***
+          REM *** local file install instead (pacman's default ***
+          REM *** LocalFileSigLevel=Optional applies to local -U packages, so ***
+          REM *** no signature download is required). ***
+          curl -L -f -o %TEMP%\mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm -U %TEMP%\mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst
           ccache -M 256M
           ccache -s
 
@@ -794,8 +808,12 @@ for:
           %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-%TARGET_VERSION%.dll
 
           REM *** libcrypto and libssl are not picked up by the Python script above and needs to be copied manually ***
-          copy %MSYS%\bin\libssl-3-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
-          copy %MSYS%\bin\libcrypto-3-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          REM *** The wildcard is on purpose: the OpenSSL major version ***
+          REM *** shipped by MSYS2 drifts (gdb-multiarch already pulls in ***
+          REM *** OpenSSL 4 while the openssl package is still at 3.x) and ***
+          REM *** the DLL names embed that major version. ***
+          copy %MSYS%\bin\libssl-*-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
+          copy %MSYS%\bin\libcrypto-*-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Build installer ***
           cpack -G NSIS -v

@@ -287,7 +287,20 @@ include guard tripped it in the ObjC++ smoke TU. The guard is now
 `H2C_EVENT_H`, locked tree-wide by the header-guard hygiene tests
 (`src/tests/HeaderGuardHygieneTest.cpp` — every include guard must be
 `H2C_`-prefixed and unique, red→green); the macOS pipeline re-run is
-the remaining CI-gated proof.
+the remaining CI-gated proof. The MIDI configuration foldable section
+moved (2026-10-18) from the landing view to the mapping view — its
+model logic (the scalar MIDI control applies/reads and the wholesale
+map apply) moved with it from `PluginUiLandingModel` to
+`PluginUiMappingModel`, leaving the landing model with the
+load/install/editor commands; the section still renders with the
+engine defaults when no engine is available. The landing view was
+reworked (2026-10-18): song/pattern loading is now a mutually
+exclusive tab pair (each tab keeps its keyed browser), the drumkit
+file browser became a sound-library picker (`SoundLibraryDatabase`
+listing — name/author/license/version columns, the kit's notes on
+hover, row select loads the kit), and the editor line at the bottom
+gained an executable path field prefilled with the resolved default
+(an empty field restores the default resolution).
 
 *Objective:* landing, MIDI mapping, mixer — model-first, each view's logic
 unit-tested headless, renderers thin.
@@ -295,13 +308,14 @@ unit-tested headless, renderers thin.
 **Tests first** (model level)
 
 * **TU4.a** landing: load commands invoked with the chosen paths; editor
-  button → `openEditor`; MIDI config → `setMidiControlSettings` /
-  `setMidiInstrumentMap` through the
-  [ADR 0022](../decisions/0022-layered-plugin-configuration.md) plugin-instance
-  layer — never written back to `~/.hydrogen`.
+  button → `openEditor`.
 * **TU4.b** mapping: `MidiInstrumentMap` round-trips (input/output modes,
   global channel, per-instrument rows) — mirroring the Instrument Mapping tab
-  (`MidiControlDialog.cpp:397-671`).
+  (`MidiControlDialog.cpp:397-671`); MIDI config → `setMidiControlSettings` /
+  `setMidiInstrumentMap` through the
+  [ADR 0022](../decisions/0022-layered-plugin-configuration.md) plugin-instance
+  layer — never written back to `~/.hydrogen` (moved from TU4.a together with
+  the section).
 * **TU4.c** mixer: strip commands; meter values from sink snapshots; bus
   connections round-trip in the embedded song state
   ([ADR 0017](../decisions/0017-embed-song-in-plugin-state.md) /
@@ -319,9 +333,11 @@ unit-tested headless, renderers thin.
   existing `data/i18n` catalogs (not `CommonStrings.h` — that lives in
   `src/gui`, which the plugin must not link). The wiring itself lands at
   UI-6 (TU6.1).
-* **TU4.1** landing view (ImGuiFileDialog browser, load buttons, MIDI config
-  widgets, editor button).
-* **TU4.2** MIDI mapping view (settings grid + per-instrument rows).
+* **TU4.1** landing view (song/pattern load tabs with keyed
+  ImGuiFileDialog browsers, sound-library drumkit picker, editor line
+  with executable path field).
+* **TU4.2** MIDI mapping view (settings grid + per-instrument rows + the
+  MIDI config widgets, moved from TU4.1).
 * **TU4.3** mixer strips (fader, ImGuiKnobs pan encoder, mute/solo, meters).
 * **TU4.4** bus drag&drop curves (imgui `BeginDragDropSource`/`Target` +
   `DrawList` béziers; the connection model is ADR 0019's deferred remapping

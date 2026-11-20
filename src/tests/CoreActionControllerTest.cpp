@@ -595,6 +595,81 @@ void CoreActionControllerTest::testSetMidiInstrumentMap() {
 	___INFOLOG( "passed" );
 }
 
+void CoreActionControllerTest::testMidiConfigEvents() {
+	___INFOLOG( "" );
+	auto pHydrogen = pTestHydrogen();
+	auto pCAC = pHydrogen->getCoreActionController();
+
+	// Reinstall the original map before leaving — the live one backs the
+	// MIDI I/O of subsequent tests.
+	const auto pOriginalMap =
+		pHydrogen->getPreferences()->getMidiInstrumentMap();
+
+	auto pQueue = pHydrogen->getEventQueue();
+	while ( pQueue->popEvent() != nullptr ) {}
+
+	// The caller-supplied id must ride on the event: a GUI funneling
+	// its own change through the command blacklists the id to not
+	// react to its own echo — in the editor split both the local
+	// mirror apply and the engine echo carry it.
+	auto pMap = std::make_shared<MidiInstrumentMap>();
+	pMap->setOutput( MidiInstrumentMap::Output::Constant );
+	CPPUNIT_ASSERT( pCAC->setMidiInstrumentMap( pMap, 4242 ) );
+
+	// Without an id the event still fires — other listeners must see
+	// every install — but with the invalid id. The values are the
+	// currently installed ones, so the scalar install is a no-op
+	// mutation and needs no restore.
+	auto pPref = pHydrogen->getPreferences();
+	CPPUNIT_ASSERT( pCAC->setMidiControlSettings(
+		pPref->m_bMidiNoteOffIgnore, pPref->m_midiActionChannel,
+		pPref->m_bEnableMidiFeedback,
+		pPref->getMidiTransportInputHandling(),
+		pPref->getMidiTransportOutputSend(),
+		pPref->getMidiFeedbackChannel(), pPref->getMidiSendNoteOff() ) );
+
+	bool bSawMapChanged = false;
+	bool bSawSettingsChanged = false;
+	bool bSawUpdatePreferences = false;
+	std::unique_ptr<Event> pEvent;
+	while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+		if ( pEvent->getType() == Event::Type::MidiInstrumentMapChanged ) {
+			bSawMapChanged = true;
+			CPPUNIT_ASSERT( pEvent->getId() == 4242 );
+		}
+		else if ( pEvent->getType() ==
+				  Event::Type::MidiControlSettingsChanged ) {
+			bSawSettingsChanged = true;
+			// Without a requested id the queue assigns a fresh unique
+			// one — never the invalid id, so echo blacklisting stays
+			// opt-in.
+			CPPUNIT_ASSERT( pEvent->getId() != Event::nInvalidId );
+		}
+		else if ( pEvent->getType() == Event::Type::UpdatePreferences ) {
+			bSawUpdatePreferences = true;
+		}
+	}
+	CPPUNIT_ASSERT( bSawMapChanged );
+	CPPUNIT_ASSERT( bSawSettingsChanged );
+	// A granular install must not masquerade as a full preference
+	// change: UpdatePreferences makes the GUI re-read everything and,
+	// in the editor split, is intercepted and downgraded by
+	// HydrogenApp::handleRemoteEvent (ADR 0030).
+	CPPUNIT_ASSERT( ! bSawUpdatePreferences );
+
+	// A rejected install must not fire.
+	while ( pQueue->popEvent() != nullptr ) {}
+	CPPUNIT_ASSERT( ! pCAC->setMidiInstrumentMap( nullptr, 4243 ) );
+	while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+		CPPUNIT_ASSERT( pEvent->getType() !=
+						Event::Type::MidiInstrumentMapChanged );
+	}
+
+	pHydrogen->getPreferences()->setMidiInstrumentMap( pOriginalMap );
+
+	___INFOLOG( "passed" );
+}
+
 void CoreActionControllerTest::testSetLastMidiEvent() {
 	___INFOLOG( "" );
 	auto pHydrogen = pTestHydrogen();
