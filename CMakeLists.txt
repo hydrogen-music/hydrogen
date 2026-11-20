@@ -252,8 +252,11 @@ if(APPLE)
     include_directories("/opt/local/include")
     link_directories("/opt/local/lib")
 
-    #Without setting this, installation would go into /usr/local, which does not exist per default
-    set(CMAKE_INSTALL_PREFIX "/usr" )
+    #Without setting this, installation would go into /usr/local, which does not exist per default.
+    #An explicitly passed prefix (e.g. the Justfile's plugin PREFIX) must win, though.
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX "/usr" )
+    endif()
 else(APPLE)
     set(OSS_LIB_PATHS "${CMAKE_INSTALL_FULL_LIBDIR}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
 endif(APPLE)
