@@ -20,11 +20,11 @@
  *
  */
 
-#ifndef OSS_AUDIO_DRIVER_H
-#define OSS_AUDIO_DRIVER_H
+#ifndef H2C_OSS_AUDIO_DRIVER_H
+#define H2C_OSS_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 // check if OSS support is enabled
 #if defined(H2CORE_HAVE_OSS) || _DOXYGEN_
@@ -41,6 +41,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <iostream>
+#include <thread>
 #include <unistd.h>
 #include <inttypes.h>
 
@@ -65,7 +66,7 @@ class OssDriver : public Object<OssDriver>, public AudioDriver
 {
 	H2_OBJECT(OssDriver)
 public:
-	OssDriver( audioProcessCallback processCallback );
+	OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~OssDriver();
 
 	int init( unsigned bufferSize );
@@ -89,17 +90,20 @@ private:
 	audioProcessCallback processCallback;
 	int log2( int n );
 
+	// Audio processing thread (created in connect(), joined in
+	// disconnect()).
+	std::thread m_ossDriverThread;
 };
 
 #else
 
 namespace H2Core {
 
-class OssDriver : public Object<OssDriver>, public NullDriver
+class OssDriver : public Object<OssDriver>, public StubAudioDriver
 {
 	H2_OBJECT(OssDriver)
 public:
-	OssDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	OssDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 };
 

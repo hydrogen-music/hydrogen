@@ -124,78 +124,78 @@ void FilesystemTest::testListContent() {
 	// system-level (the data folder of this repo).
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::DrumkitBundled,
-						Filesystem::Context::System
+						Filesystem::Context::System, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( !Filesystem::listContent(
 						 Filesystem::Artifact::DrumkitExtracted,
-						 Filesystem::Context::System
+						 Filesystem::Context::System, "", pTestHydrogen()
 	)
 						 .isEmpty() );
 	CPPUNIT_ASSERT( !Filesystem::listContent(
 						 Filesystem::Artifact::Pattern,
-						 Filesystem::Context::System
+						 Filesystem::Context::System, "", pTestHydrogen()
 	)
 						 .isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::Playlist,
-						Filesystem::Context::System
+						Filesystem::Context::System, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( !Filesystem::listContent(
-						Filesystem::Artifact::Song, Filesystem::Context::System
+						Filesystem::Artifact::Song, Filesystem::Context::System, "", pTestHydrogen()
 	)
 						.isEmpty() );
 
 	// There won't be any session artifacts during unit testing.
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::DrumkitBundled,
-						Filesystem::Context::SessionReadOnly
+						Filesystem::Context::SessionReadOnly, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::DrumkitExtracted,
-						Filesystem::Context::SessionReadOnly
+						Filesystem::Context::SessionReadOnly, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::Pattern,
-						Filesystem::Context::SessionReadOnly
+						Filesystem::Context::SessionReadOnly, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::Playlist,
-						Filesystem::Context::SessionReadOnly
+						Filesystem::Context::SessionReadOnly, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::Song,
-						Filesystem::Context::SessionReadOnly
+						Filesystem::Context::SessionReadOnly, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::DrumkitBundled,
-						Filesystem::Context::SessionReadWrite
+						Filesystem::Context::SessionReadWrite, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::DrumkitExtracted,
-						Filesystem::Context::SessionReadWrite
+						Filesystem::Context::SessionReadWrite, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::Pattern,
-						Filesystem::Context::SessionReadWrite
+						Filesystem::Context::SessionReadWrite, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::Playlist,
-						Filesystem::Context::SessionReadWrite
+						Filesystem::Context::SessionReadWrite, "", pTestHydrogen()
 	)
 						.isEmpty() );
 	CPPUNIT_ASSERT( Filesystem::listContent(
 						Filesystem::Artifact::Song,
-						Filesystem::Context::SessionReadWrite
+						Filesystem::Context::SessionReadWrite, "", pTestHydrogen()
 	)
 						.isEmpty() );
 
@@ -245,35 +245,35 @@ void FilesystemTest::testListContent() {
 	CPPUNIT_ASSERT(
 		Filesystem::listContent(
 			Filesystem::Artifact::DrumkitBundled, Filesystem::Context::User,
-			sDummyDir
+			sDummyDir, pTestHydrogen()
 		)
 			.size() == 0
 	);
 	CPPUNIT_ASSERT(
 		Filesystem::listContent(
 			Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::User,
-			sDummyDir
+			sDummyDir, pTestHydrogen()
 
 		)
 			.size() == 2
 	);
 	CPPUNIT_ASSERT(
 		Filesystem::listContent(
-			Filesystem::Artifact::Pattern, Filesystem::Context::User, sDummyDir
+			Filesystem::Artifact::Pattern, Filesystem::Context::User, sDummyDir, pTestHydrogen()
 
 		)
 			.size() == 4
 	);
 	CPPUNIT_ASSERT(
 		Filesystem::listContent(
-			Filesystem::Artifact::Playlist, Filesystem::Context::User, sDummyDir
+			Filesystem::Artifact::Playlist, Filesystem::Context::User, sDummyDir, pTestHydrogen()
 
 		)
 			.size() == 3
 	);
 	CPPUNIT_ASSERT(
 		Filesystem::listContent(
-			Filesystem::Artifact::Song, Filesystem::Context::User, sDummyDir
+			Filesystem::Artifact::Song, Filesystem::Context::User, sDummyDir, pTestHydrogen()
 
 		)
 			.size() == 4

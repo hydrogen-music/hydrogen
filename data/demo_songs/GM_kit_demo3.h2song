@@ -3,7 +3,6 @@
  <version>1.2.0</version>
  <bpm>115</bpm>
  <volume>0.64</volume>
- <metronomeVolume>0.5</metronomeVolume>
  <name>GM kit demo #3</name>
  <author>Artemio &lt;artemio@artemio.net></author>
  <notes>Demo patterns for GM kit</notes>

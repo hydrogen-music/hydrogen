@@ -66,7 +66,7 @@ void PixmapWidget::setPixmap( const QString& sPixmapPath, bool expand_horiz )
 
 	bool ok = m_pixmap.load( Skin::getImagePath() + sPixmapPath );
 	if ( !ok ) {
-		_INFOLOG( QString( "Error loading: %1%2").arg( Skin::getImagePath() ).arg( sPixmapPath ) );
+		INFOLOG( QString( "Error loading: %1%2").arg( Skin::getImagePath() ).arg( sPixmapPath ) );
 	}
 
 	resize( m_pixmap.width(), m_pixmap.height() );

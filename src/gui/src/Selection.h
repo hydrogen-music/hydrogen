@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SELECTION_H
-#define SELECTION_H
+#ifndef H2C_SELECTION_H
+#define H2C_SELECTION_H
 
 #include <QtGui>
 #include <QWidget>
@@ -38,6 +38,8 @@
 #include <core/Preferences/Preferences.h>
 
 #include "Compatibility/MouseEvent.h"
+#include "HydrogenApp.h"
+#include "Skin.h"
 #include "Widgets/EditorDefs.h"
 
 namespace H2Core {
@@ -553,8 +555,9 @@ public:
 	//! Paint selection-related elements (ie lasso)
 	void paintSelection( QPainter *painter ) {
 		if ( m_selectionState == MouseLasso || m_selectionState == KeyboardLasso ) {
-			QPen pen( H2Core::Preferences::get_instance()->getColorTheme()->
-					  m_selectionHighlightColor );
+			QPen pen( Skin::toQColor(
+						  HydrogenApp::pPreferences()->getColorTheme()->
+						  m_selectionHighlightColor ) );
 			pen.setStyle( Qt::DotLine );
 			pen.setWidth(2);
 			painter->setPen( pen );
@@ -979,4 +982,4 @@ inline int operator<( QPoint a, QPoint b ) {
 	}
 }
 
-#endif // SELECTION_H
+#endif // H2C_SELECTION_H

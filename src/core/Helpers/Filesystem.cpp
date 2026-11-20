@@ -58,7 +58,6 @@
 #define IMG "img/"
 #define PATTERNS "patterns/"
 #define PLAYLISTS "playlists/"
-#define PLUGINS "plugins/"
 #define REPOSITORIES "repositories/"
 #define SCRIPTS "scripts/"
 #define SONGS "songs/"
@@ -105,6 +104,7 @@ Logger* Filesystem::m_pLogger = nullptr;
 
 const QString Filesystem::sScriptSuffix = ".sh";
 const QString Filesystem::sSongSuffix = ".h2song";
+const QString Filesystem::sProjectSuffix = ".h2project";
 const QString Filesystem::sThemeSuffix = ".h2theme";
 const QString Filesystem::sPatternSuffix = ".h2pattern";
 const QString Filesystem::sPlaylistSuffix = ".h2playlist";
@@ -113,6 +113,7 @@ const QString Filesystem::sDrumkitMapSuffix = ".h2map";
 const QString Filesystem::sScriptFilter = "Hydrogen Scripts (*.sh)";
 const QString Filesystem::sDrumkitFilter = "Hydrogen Drumkit (*.h2drumkit)";
 const QString Filesystem::sSongFilter = "Hydrogen Songs (*.h2song)";
+const QString Filesystem::sProjectFilter = QString( "(*%1)" ).arg( Filesystem::sProjectSuffix );
 const QString Filesystem::sThemeFilter = "Hydrogen Theme (*.h2theme)";
 const QString Filesystem::sPatternFilter = "Hydrogen Patterns (*.h2pattern)";
 const QString Filesystem::sPlaylistFilter = "Hydrogen Playlists (*.h2playlist)";
@@ -136,8 +137,6 @@ QString Filesystem::m_sUserLogPath =
 
 bool Filesystem::m_bLogPathInitialized = false;
 
-QStringList Filesystem::m_ladspaPaths;
-
 QString Filesystem::m_sPreferencesOverwritePath = "";
 
 static QString getEnvironmentVariable( const QString& sEnvironmentVariable )
@@ -159,7 +158,8 @@ static bool isEnvironmentVariableSet( const QString& sEnvironmentVariable )
 #endif
 };
 
-Filesystem::Context Filesystem::DetermineContext( const QString& sPath )
+Filesystem::Context Filesystem::DetermineContext( const QString& sPath,
+												  Hydrogen* pHydrogen )
 {
 	if ( !sPath.isEmpty() ) {
 		const QString sAbsolutePath = Filesystem::absolutePath( sPath );
@@ -171,7 +171,7 @@ Filesystem::Context Filesystem::DetermineContext( const QString& sPath )
 		}
 		else {
 			for ( const auto& ssPath :
-				  Preferences::get_instance()->getCustomSoundLibraryDirs() ) {
+				  pHydrogen->getPreferences()->getCustomSoundLibraryDirs() ) {
 				if ( sAbsolutePath.contains( ssPath ) ) {
 					return Filesystem::Context::Custom;
 				}
@@ -421,6 +421,21 @@ bool Filesystem::bootstrap(
 		// logger.
 		Filesystem::m_sUserLogPath = sLogFile;
 	}
+	else if ( !m_bLogPathInitialized ) {
+		// No explicit log file: a custom user data folder also hosts the
+		// default log file (isolation: no leakage into the default user
+		// data folder); otherwise the default location logFilePath() also
+		// computes prior to this bootstrap.
+		if ( !sUsrDataPath.isEmpty() ) {
+			Filesystem::m_sUserLogPath = m_sUserDataPath + LOG_FILE;
+		}
+		else {
+			Filesystem::m_sUserLogPath = defaultLogFilePath();
+		}
+	}
+	// From here on the bootstrapped path is authoritative: no later
+	// logFilePath() call may re-clobber it with a default.
+	m_bLogPathInitialized = true;
 
 	if ( !dirReadable( m_sSystemDataPath ) ) {
 		m_sSystemDataPath =
@@ -430,49 +445,6 @@ bool Filesystem::bootstrap(
 			QString( "will use local data path : %1" ).arg( m_sSystemDataPath )
 		);
 	}
-
-	char* ladspaPath = getenv( "LADSPA_PATH" );
-	if ( ladspaPath ) {
-		INFOLOG( "Found LADSPA_PATH environment variable" );
-		QString sLadspaPath = QString::fromLocal8Bit( ladspaPath );
-		int pos;
-		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
-			QString sPath = sLadspaPath.left( pos );
-			m_ladspaPaths << QFileInfo( sPath ).canonicalFilePath();
-			sLadspaPath = sLadspaPath.mid( pos + 1, sLadspaPath.length() );
-		}
-		m_ladspaPaths << QFileInfo( sLadspaPath ).canonicalFilePath();
-	}
-	else {
-#ifdef Q_OS_MACX
-		m_ladspaPaths << QFileInfo(
-							 QCoreApplication::applicationDirPath(),
-							 "/../Resources/plugins"
-		)
-							 .canonicalFilePath();
-		m_ladspaPaths << QFileInfo( "/Library/Audio/Plug-Ins/LADSPA/" )
-							 .canonicalFilePath();
-		m_ladspaPaths << QFileInfo(
-							 QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA"
-		)
-							 .canonicalFilePath();
-#else
-		m_ladspaPaths << QFileInfo( "/usr/lib/ladspa" ).canonicalFilePath();
-		m_ladspaPaths
-			<< QFileInfo( "/usr/local/lib/ladspa" ).canonicalFilePath();
-		m_ladspaPaths << QFileInfo( "/usr/lib64/ladspa" ).canonicalFilePath();
-		m_ladspaPaths
-			<< QFileInfo( "/usr/local/lib64/ladspa" ).canonicalFilePath();
-#endif
-	}
-	m_ladspaPaths.sort();
-	m_ladspaPaths.removeDuplicates();
-	if ( !m_ladspaPaths.isEmpty() && m_ladspaPaths.at( 0 ).isEmpty() ) {
-		m_ladspaPaths.removeFirst();
-	}
-	// we want this first
-	m_ladspaPaths << Filesystem::userPluginsDir();
-	m_ladspaPaths.removeDuplicates();
 
 	bool ret = checkSystemPaths();
 	ret &= checkUserPaths();
@@ -762,7 +734,7 @@ bool Filesystem::checkUserPaths()
 	QStringList pathsUsable = { tmpDir(),			m_sUserDataPath,
 								cacheDir(),			repositoriesCacheDir(),
 								userDrumkitsDir(),	userPatternsDir(),
-								userPlaylistsDir(), userPluginsDir(),
+								userPlaylistsDir(),
 								userScriptsDir(),	userSongsDir(),
 								userThemesDir() };
 
@@ -795,11 +767,6 @@ const QString& Filesystem::systemDataPath()
 const QString& Filesystem::userDataPath()
 {
 	return m_sUserDataPath;
-}
-
-const QStringList& Filesystem::ladspaPaths()
-{
-	return m_ladspaPaths;
 }
 
 // FILES
@@ -873,28 +840,39 @@ QString Filesystem::clickFilePath()
 {
 	return m_sSystemDataPath + CLICK_SAMPLE;
 }
+QString Filesystem::defaultLogFilePath()
+{
+	// The legacy layout (~/.hydrogen) wins if it exists; XDG paths
+	// otherwise. We do not use QStandardPaths in order to share the same
+	// location amongst all our binaries (bearing different application
+	// names).
+#if defined( Q_OS_MACX ) || defined( WIN32 )
+	// The statically initialized path is already the platform default.
+	return m_sUserLogPath;
+#else
+	if ( QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH ) ) ) {
+		return QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE );
+	}
+	if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
+		return getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
+			APPLICATION_NAME + "/" + LOG_FILE;
+	}
+	return QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME
+									"/" LOG_FILE );
+#endif
+}
+
 const QString& Filesystem::logFilePath()
 {
-	// Called within the Reporter prior to the bootstrap of Filesystem itself.
-	// Therefore we need some special treatments.
-#if defined( Q_OS_MACX ) || defined( WIN32 )
-#else
+	// Called within the Reporter and the Logger prior to the bootstrap of
+	// Filesystem itself, so the default location is computed lazily. The
+	// bootstrap marks the path as initialized, so from then on the
+	// bootstrapped path is authoritative and no later call re-clobbers it
+	// with a default.
 	if ( !m_bLogPathInitialized ) {
-		if ( !QFileInfo::exists( QDir::homePath().append( "/" H2_USR_PATH )
-			 ) ) {
-			if ( isEnvironmentVariableSet( "XDG_DATA_HOME" ) ) {
-				m_sUserLogPath = getEnvironmentVariable( "XDG_DATA_HOME" ) + "/" +
-								 APPLICATION_NAME + "/" + LOG_FILE;
-			}
-			else {
-				m_sUserLogPath =
-					QDir::homePath().append( "/" XDG_LINUX_DATA APPLICATION_NAME
-											 "/" LOG_FILE );
-			}
-		}
+		m_sUserLogPath = defaultLogFilePath();
 		m_bLogPathInitialized = true;
 	}
-#endif
 	return m_sUserLogPath;
 }
 
@@ -938,10 +916,6 @@ QString Filesystem::systemPatternsDir()
 QString Filesystem::systemSongsDir()
 {
 	return m_sSystemDataPath + SONGS;
-}
-QString Filesystem::userPluginsDir()
-{
-	return m_sUserDataPath + PLUGINS;
 }
 QString Filesystem::systemDrumkitsDir()
 {
@@ -1010,14 +984,15 @@ QString Filesystem::tmpFilePath( const QString& sBase )
 QStringList Filesystem::listContent(
 	Artifact artifact,
 	Context context,
-	const QString& sUserDirOverwrite
+	const QString& sUserDirOverwrite,
+	Hydrogen* pHydrogen
 )
 {
 	QStringList content;
 
 	// In case of session folders, targetDirs can return more than one folder.
 	// But in generel there will be only one.
-	const auto dirs = Filesystem::targetDirs( artifact, context );
+	const auto dirs = Filesystem::targetDirs( artifact, context, pHydrogen );
 	if ( dirs.size() == 0 ) {
         // No content in this context.
 		return content;
@@ -1136,7 +1111,8 @@ QString Filesystem::drumkitBackupPath( const QString& sDrumkitPath )
 bool Filesystem::isPathValid(
 	const Artifact& artifact,
 	const QString& sPath,
-	bool bCheckExistance
+	bool bCheckExistance,
+	bool bSilent
 )
 {
 	QString sExtension;
@@ -1156,10 +1132,15 @@ bool Filesystem::isPathValid(
 		case Artifact::Song:
 			sExtension = Filesystem::sSongSuffix;
 			break;
+		case Artifact::Project:
+			sExtension = Filesystem::sProjectSuffix;
+			break;
 
 		default:
-			ERRORLOG( QString( "Unsupported file type: [%1]" )
-						  .arg( ArtifactToQString( artifact ) ) );
+			if ( !bSilent ) {
+				ERRORLOG( QString( "Unsupported file type: [%1]" )
+							  .arg( ArtifactToQString( artifact ) ) );
+			}
 			return "";
 	}
 	QString suffix( sExtension );
@@ -1168,46 +1149,55 @@ bool Filesystem::isPathValid(
 	QFileInfo fileInfo = QFileInfo( sPath );
 
 	if ( !fileInfo.isAbsolute() ) {
-		ERRORLOG( QString( "Error: Unable to handle sPath [%1]. Please provide "
-						   "an absolute file sPath!" )
-					  .arg( sPath ) );
+		if ( !bSilent ) {
+			ERRORLOG(
+				QString( "Error: Unable to handle sPath [%1]. Please provide "
+						 "an absolute file sPath!" )
+					.arg( sPath )
+			);
+		}
 		return false;
 	}
 
 	if ( fileInfo.exists() ) {
 		if ( !fileInfo.isReadable() ) {
-			ERRORLOG( QString( "Unable to handle sPath [%1]. You must have "
-							   "permissions to read the file!" )
-						  .arg( sPath ) );
+			if ( !bSilent ) {
+				ERRORLOG( QString( "Unable to handle sPath [%1]. You must have "
+								   "permissions to read the file!" )
+							  .arg( sPath ) );
+			}
 			return false;
 		}
 	}
 	else if ( bCheckExistance ) {
-		ERRORLOG( QString( "Provided %1 [%2] does not exist" )
-					  .arg( ArtifactToQString( artifact ) )
-					  .arg( sPath ) );
+		if ( !bSilent ) {
+			ERRORLOG( QString( "Provided %1 [%2] does not exist" )
+						  .arg( ArtifactToQString( artifact ) )
+						  .arg( sPath ) );
+		}
 		return false;
 	}
 
 	if ( fileInfo.suffix() != suffix ) {
-		ERRORLOG(
-			QString( "Unable to handle sPath [%1]. The provided file must "
-					 "have the suffix '%2'!" )
-				.arg( sPath )
-				.arg( sExtension )
-		);
+		if ( !bSilent ) {
+			ERRORLOG(
+				QString( "Unable to handle sPath [%1]. The provided file must "
+						 "have the suffix '%2'!" )
+					.arg( sPath )
+					.arg( sExtension )
+			);
+		}
 		return false;
 	}
 
 	if ( artifact == Artifact::DrumkitExtracted &&
 		 fileInfo.fileName() != DRUMKIT_XML ) {
-		ERRORLOG(
-			QString(
-				"Provided drumkit definition [%1] must be called [%2] instead"
-			)
-				.arg( fileInfo.fileName() )
-				.arg( DRUMKIT_XML )
-		);
+		if ( !bSilent ) {
+			ERRORLOG( QString( "Provided drumkit definition [%1] must be "
+							   "called [%2] instead" )
+						  .arg( fileInfo.fileName() )
+						  .arg( DRUMKIT_XML ) );
+		}
 		return false;
 	}
 
@@ -1269,9 +1259,6 @@ void Filesystem::info()
 	);
 	INFOLOG(
 		QString( "Playlist dir               : %1" ).arg( userPlaylistsDir() )
-	);
-	INFOLOG(
-		QString( "Plugins dir                : %1" ).arg( userPluginsDir() )
 	);
 	INFOLOG(
 		QString( "Scripts dir                : %1" ).arg( userScriptsDir() )
@@ -1524,6 +1511,8 @@ QString Filesystem::ArtifactToQString( const Artifact& type )
 			return "Playlist";
 		case Artifact::Song:
 			return "Song";
+		case Artifact::Project:
+			return "Project";
 		default:
 			return QString( "Unknown artifact [%1]" )
 				.arg( static_cast<int>( type ) );
@@ -1559,7 +1548,8 @@ QString Filesystem::appendNumberOrIncrement( const QString& sString )
 	return parts.join( " " );
 }
 
-QStringList Filesystem::targetDirs( Artifact artifact, Context context )
+QStringList Filesystem::targetDirs( Artifact artifact, Context context,
+									Hydrogen* pHydrogen )
 {
 	QStringList results;
 
@@ -1575,7 +1565,7 @@ QStringList Filesystem::targetDirs( Artifact artifact, Context context )
 	}
 
 	if ( context == Context::Custom ) {
-		return Preferences::get_instance()->getCustomSoundLibraryDirs();
+		return pHydrogen->getPreferences()->getCustomSoundLibraryDirs();
 	}
 
 	switch ( artifact ) {
@@ -1591,7 +1581,6 @@ QStringList Filesystem::targetDirs( Artifact artifact, Context context )
 				results << userDrumkitsDir();
 			}
 			else {
-				auto pHydrogen = Hydrogen::get_instance();
 				if ( pHydrogen != nullptr &&
 					 pHydrogen->getSoundLibraryDatabase() != nullptr ) {
 					results << pHydrogen->getSoundLibraryDatabase()

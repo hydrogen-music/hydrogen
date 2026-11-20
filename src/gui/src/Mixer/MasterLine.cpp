@@ -22,8 +22,10 @@
 
 #include "MasterLine.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
+#include "../UndoActions.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/ClickableLabel.h"
 #include "../Widgets/Fader.h"
@@ -58,17 +60,24 @@ MasterLine::MasterLine( QWidget* pParent )
 	// Background image
 	setPixmap( "/mixerPanel/masterMixerline_background.png" );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	m_pFader = new Fader(
-		this, QSize( 34, 189 ), Fader::Type::Master, tr( "Master volume" ),
-		false, false, 0.0, 1.5
+		this, QSize( 34, 189 ), Fader::Type::Master,
+		pCommonStrings->getActionSetMasterVolume(), false, false, 0.0, 1.5
 	);
 	m_pFader->setModifierTarget( Modifier::Song );
 	m_pFader->move( 24, 75 );
 	connect( m_pFader, &Fader::valueChanged, [&]() {
-		CoreActionController::setMasterVolume( m_pFader->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::Volume,
+					pSong->getVolume(), m_pFader->getValue() ),
+				"master:volume" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set master volume [%1]" ).arg( m_pFader->getValue(), 0, 'f', 2 ),
 			QString( "%1:faderChanged" ).arg( class_name() ) );
@@ -87,7 +96,8 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	m_pHumanizeVelocityRotary = new Rotary(
-		this, Rotary::Type::Normal, tr( "Humanize velocity" ), false
+		this, Rotary::Type::Normal,
+		pCommonStrings->getActionSetHumanizeVelocity(), false
 	);
 	m_pHumanizeVelocityRotary->setModifierTarget( Modifier::Song );
 	m_pHumanizeVelocityRotary->setMidiAction( std::make_shared<MidiAction>(
@@ -95,8 +105,15 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pHumanizeVelocityRotary->move( 66, 88 );
 	connect( m_pHumanizeVelocityRotary, &Rotary::valueChanged, [&]() {
-		CoreActionController::setHumanizeVelocity(
-			m_pHumanizeVelocityRotary->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::HumanizeVelocity,
+					pSong->getHumanizeVelocityValue(),
+					m_pHumanizeVelocityRotary->getValue() ),
+				"master:humanizeVelocity" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize vel. param [%1]" )
 			.arg( m_pHumanizeVelocityRotary->getValue(), 0, 'f', 2 ),
@@ -104,15 +121,23 @@ MasterLine::MasterLine( QWidget* pParent )
 	});
 
 	m_pHumanizeTimeRotary =
-		new Rotary( this, Rotary::Type::Normal, tr( "Humanize time" ), false );
+		new Rotary( this, Rotary::Type::Normal,
+					pCommonStrings->getActionSetHumanizeTime(), false );
 	m_pHumanizeTimeRotary->setModifierTarget( Modifier::Song );
 	m_pHumanizeTimeRotary->setMidiAction( std::make_shared<MidiAction>(
 		MidiAction::Type::HumanizationTimingAbsolute
 	) );
 	m_pHumanizeTimeRotary->move( 66, 125 );
 	connect( m_pHumanizeTimeRotary, &Rotary::valueChanged, [&]() {
-		CoreActionController::setHumanizeTime(
-			m_pHumanizeTimeRotary->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::HumanizeTime,
+					pSong->getHumanizeTimeValue(),
+					m_pHumanizeTimeRotary->getValue() ),
+				"master:humanizeTime" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set humanize time param [%1]" )
 			.arg( m_pHumanizeTimeRotary->getValue(), 0, 'f', 2 ),
@@ -120,7 +145,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	});
 
 	m_pSwingRotary = new Rotary(
-		this, Rotary::Type::Normal, tr( "16th-note Swing" ), false
+		this, Rotary::Type::Normal, pCommonStrings->getActionSetSwing(), false
 	);
 	m_pSwingRotary->setModifierTarget( Modifier::Song );
 	m_pSwingRotary->setMidiAction( std::make_shared<MidiAction>(
@@ -128,7 +153,14 @@ MasterLine::MasterLine( QWidget* pParent )
 	) );
 	m_pSwingRotary->move( 66, 162 );
 	connect( m_pSwingRotary, &Rotary::valueChanged, [&]() {
-		CoreActionController::setSwing( m_pSwingRotary->getValue() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::Swing,
+					pSong->getSwingFactor(), m_pSwingRotary->getValue() ),
+				"master:swing" );
+		}
 		HydrogenApp::get_instance()->showStatusBarMessage(
 			tr( "Set swing factor [%1]")
 			.arg( m_pSwingRotary->getValue(), 0, 'f', 2 ),
@@ -139,6 +171,7 @@ MasterLine::MasterLine( QWidget* pParent )
 	m_pMuteBtn = new MuteButton(
 		this, QSize( 42, 17 ), "", ColoredButton::Flag::None );
 	m_pMuteBtn->setObjectName( "MixerMasterMuteButton" );
+	m_pMuteBtn->setBaseToolTip( pCommonStrings->getActionToggleMasterMute() );
 	m_pMuteBtn->move( 20, 31 );
 	// Color used as background within the pixmap.
 	m_pMuteBtn->setDefaultBackgroundColor( QColor( 128, 134, 152 ) );
@@ -146,7 +179,15 @@ MasterLine::MasterLine( QWidget* pParent )
 		std::make_shared<MidiAction>( MidiAction::Type::MuteToggle )
 	);
 	connect( m_pMuteBtn, &QPushButton::clicked, [&]() {
-		CoreActionController::setMasterIsMuted( m_pMuteBtn->isChecked() );
+		auto pSong = HydrogenApp::pEngine()->getSong();
+		if ( pSong != nullptr ) {
+			HydrogenApp::get_instance()->pushUndoCommand(
+				new SE_setMasterPropertyAction(
+					SE_setMasterPropertyAction::Property::Mute,
+					pSong->getIsMuted() ? 1.0f : 0.0f,
+					m_pMuteBtn->isChecked() ? 1.0f : 0.0f ),
+				"master:mute" );
+		}
 	});
 
 	m_pMasterLbl = new ClickableLabel(
@@ -176,16 +217,24 @@ MasterLine::MasterLine( QWidget* pParent )
 MasterLine::~MasterLine() {
 }
 
-void MasterLine::updateColors() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+void MasterLine::leaveEvent( QEvent* ev ) {
+	PixmapWidget::leaveEvent( ev );
+	// Close the per-property undo context opened by the master-edit callbacks so
+	// a gesture (e.g. a fader drag) collapses into one undo step and Undo/Redo
+	// re-enable once the pointer leaves the strip (mirrors Widgets/EditorBase.h).
+	HydrogenApp::get_instance()->endUndoContext();
+}
 
-	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
+void MasterLine::updateColors() {
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+
+	m_pMuteBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_muteColor ) );
 	m_pMuteBtn->setCheckedBackgroundTextColor(
-		pColorTheme->m_muteTextColor );
+		Skin::toQColor( pColorTheme->m_muteTextColor ) );
 }
 
 void MasterLine::updateLine() {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr ) {
 		m_pFader->setIsActive( false );
 		m_pHumanizeTimeRotary->setIsActive( false );
@@ -215,14 +264,16 @@ void MasterLine::updateLine() {
 }
 
 void MasterLine::updatePeaks() {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const float fFallOffSpeed =
 		pPref->getInterfaceTheme()->m_fMixerFalloffSpeed;
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
-	float fNewPeak_L = pAudioEngine->getMasterPeak_L();
-	float fNewPeak_R = pAudioEngine->getMasterPeak_R();
+	// Read and reset the master peak in one engine-owned step (ADR 0027); the
+	// meter only applies its own fall-off below.
+	float fNewPeak_L, fNewPeak_R;
+	pAudioEngine->consumeMasterPeaks( fNewPeak_L, fNewPeak_R );
 	if ( ! pPref->showInstrumentPeaks() ) {
 		fNewPeak_L = 0.0;
 		fNewPeak_R = 0.0;
@@ -230,10 +281,6 @@ void MasterLine::updatePeaks() {
 
 	const float fOldPeak_L = m_pFader->getPeak_L();
 	const float fOldPeak_R = m_pFader->getPeak_R();
-
-	// reset master peak
-	pAudioEngine->setMasterPeak_L( 0.0 );
-	pAudioEngine->setMasterPeak_R( 0.0 );
 
 	if ( fNewPeak_L < fOldPeak_L ) {
 		fNewPeak_L = fOldPeak_L / fFallOffSpeed;

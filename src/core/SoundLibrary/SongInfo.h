@@ -20,14 +20,16 @@
  *
  */
 
-#ifndef SONG_INFO_H
-#define SONG_INFO_H
+#ifndef H2C_SONG_INFO_H
+#define H2C_SONG_INFO_H
 
 #include <core/Object.h>
 #include <core/SoundLibrary/SoundLibraryInfo.h>
 
 namespace H2Core
 {
+
+class Hydrogen;
 
 /**
  * @class SongInfo
@@ -49,11 +51,11 @@ class SongInfo : public SoundLibraryInfo, public H2Core::Object<SongInfo> {
 	 * @param sPath Path to a .h2song XML file
 	 * @return `true` on success
 	 */
-	bool load( const QString& sPath );
+	bool load( const QString& sPath, Hydrogen* pHydrogen );
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override;
 };
 };	// namespace H2Core
 
-#endif	// SONG_INFO_H
+#endif	// H2C_SONG_INFO_H

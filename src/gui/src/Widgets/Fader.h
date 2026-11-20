@@ -21,8 +21,8 @@
  */
 
 
-#ifndef FADER_H
-#define FADER_H
+#ifndef H2C_FADER_H
+#define H2C_FADER_H
 
 
 #include <QtGui>

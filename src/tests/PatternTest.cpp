@@ -38,23 +38,28 @@ using namespace H2Core;
 void PatternTest::testCustomLegacyImport()
 {
 	___INFOLOG( "" );
-	auto pDB = Hydrogen::get_instance()->getSoundLibraryDatabase();
+	auto pDB = pTestHydrogen()->getSoundLibraryDatabase();
 
 	// Try to import the legcay pattern without loading the kit into the DB
 	// first.
 	auto pPattern = Pattern::load(
-		H2TEST_FILE( "pattern/legacyImport.h2pattern" ) );
+		H2TEST_FILE( "pattern/legacyImport.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPattern != nullptr );
 	CPPUNIT_ASSERT( pPattern->getAllTypes().size() == 0 );
 
 	// Now we load our custom kit into the db and try again
 	auto pSampleKit = pDB->getDrumkit(
-		H2TEST_FILE( "drumkits/sampleKit/drumkit.xml" ), false );
+		H2TEST_FILE( "drumkits/sampleKit/drumkit.xml" ), false
+	);
 	CPPUNIT_ASSERT( pSampleKit != nullptr );
 	CPPUNIT_ASSERT( pSampleKit->toDrumkitMap()->getAllTypes().size() > 0 );
 
 	auto pPatternReload = Pattern::load(
-		H2TEST_FILE( "pattern/legacyImport.h2pattern" ) );
+		H2TEST_FILE( "pattern/legacyImport.h2pattern" ), false,
+		pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPatternReload != nullptr );
 	CPPUNIT_ASSERT( pPatternReload->getAllTypes().size() > 0 );
 
@@ -68,12 +73,14 @@ void PatternTest::testPatternPathStorage()
 	const QString sPath = H2TEST_FILE( "pattern/pattern.h2pattern" );
 	const QString sPathNonExisting( "/non/existing/one" );
 
-	auto pSong = Song::getEmptySong();
+	auto pSong = Song::getEmptySong( pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 	CPPUNIT_ASSERT( pSong->getPatternList()->size() == 10 );
 	pSong->getPatternList()->get( 5 )->setPath( sPathNonExisting );
 
-	auto pPattern = Pattern::load( sPath, false );
+	auto pPattern = Pattern::load(
+		sPath, false, pTestHydrogen()->getSoundLibraryDatabase()
+	);
 	CPPUNIT_ASSERT( pPattern != nullptr );
 	CPPUNIT_ASSERT( !pPattern->getPath().isEmpty() );
 	pSong->getPatternList()->add( pPattern, false );
@@ -83,7 +90,7 @@ void PatternTest::testPatternPathStorage()
 
 	CPPUNIT_ASSERT( pSong->save( sTmpPath, true, false ) );
 
-	auto pSongReload = Song::load( sTmpPath, false );
+	auto pSongReload = Song::load( sTmpPath, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSongReload != nullptr );
 	CPPUNIT_ASSERT( pSongReload->getPatternList()->size() == 11 );
 
@@ -135,7 +142,12 @@ void PatternTest::testPurgeInstrument()
 	CPPUNIT_ASSERT( notes.size() == 1 );
 	notes.clear();
 
+	auto pAudioEngine = pTestHydrogen()->getAudioEngine();
+
+	pAudioEngine->lock( RIGHT_HERE );
 	pPattern->purgeInstrument( pInstrument );
+	pAudioEngine->unlock();
+
 	CPPUNIT_ASSERT(
 		pPattern->findNote(
 			1, pInstrument->getId(), pInstrument->getType(), Note::KeyMinimum,

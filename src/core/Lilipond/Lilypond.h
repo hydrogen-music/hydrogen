@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef LILYPOND_H
-#define LILYPOND_H
+#ifndef H2C_LILYPOND_H
+#define H2C_LILYPOND_H
 
 #include <QString>
 #include <QTextStream>
@@ -107,4 +107,4 @@ private:
 };	
 }
 
-#endif // LILYPOND_H
+#endif // H2C_LILYPOND_H

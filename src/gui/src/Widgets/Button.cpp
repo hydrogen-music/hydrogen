@@ -24,7 +24,7 @@
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "MidiSenseWidget.h"
 
 #include <qglobal.h>	// for QT_VERSION
@@ -48,9 +48,11 @@ Button::Button( QWidget *pParent, const QSize& size, const Type& type,
 	, m_nBorderRadius( nBorderRadius )
 	, m_bUseCustomBackgroundColors( false )
 {
-	auto pPref = H2Core::Preferences::get_instance();
-	m_checkedBackgroundColor = pPref->getColorTheme()->m_accentColor;
-	m_checkedBackgroundTextColor = pPref->getColorTheme()->m_accentTextColor;
+	auto pPref = HydrogenApp::pPreferences();
+	m_checkedBackgroundColor =
+		Skin::toQColor( pPref->getColorTheme()->m_accentColor );
+	m_checkedBackgroundTextColor =
+		Skin::toQColor( pPref->getColorTheme()->m_accentTextColor );
 
 	setFocusPolicy( Qt::NoFocus );
 	setSize( size );
@@ -91,7 +93,7 @@ void Button::setIsActive( bool bIsActive ) {
 
 
 void Button::updateIcon() {
-	if ( H2Core::Preferences::get_instance()->
+	if ( HydrogenApp::pPreferences()->
 		 getInterfaceTheme()->m_iconColor ==
 		 H2Core::InterfaceTheme::IconColor::White ) {
 		setIcon( QIcon( Skin::getSvgImagePath() + "/icons/white/" + m_sIcon ) );
@@ -137,9 +139,9 @@ QPushButton {									\
 		return;
 	}
 
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 	
-	const QColor backgroundColor = pColorTheme->m_widgetColor;
+	const QColor backgroundColor = Skin::toQColor( pColorTheme->m_widgetColor );
 	const QColor backgroundHoverColor = backgroundColor.lighter( Skin::nToolButtonHoveredScaling );
 	const QColor borderColor = Qt::black;
 
@@ -148,11 +150,12 @@ QPushButton {									\
 		backgroundCheckedColor = m_checkedBackgroundColor;
 		backgroundCheckedTextColor = m_checkedBackgroundTextColor;
 	} else {
-		backgroundCheckedColor = pColorTheme->m_accentColor;
-		backgroundCheckedTextColor = pColorTheme->m_accentTextColor;
+		backgroundCheckedColor = Skin::toQColor( pColorTheme->m_accentColor );
+		backgroundCheckedTextColor =
+			Skin::toQColor( pColorTheme->m_accentTextColor );
 	}
 
-	const QColor textColor = pColorTheme->m_widgetTextColor;
+	const QColor textColor = Skin::toQColor( pColorTheme->m_widgetTextColor );
 	
 	const QColor backgroundInactiveColor =
 		Skin::makeWidgetColorInactive( backgroundColor );
@@ -283,7 +286,7 @@ void Button::setType( const Type& type ) {
 
 void Button::updateFont() {
 
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 	
 	float fScalingFactor = 1.0;
     switch ( pFontTheme->m_fontSize ) {

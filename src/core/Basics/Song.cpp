@@ -27,7 +27,6 @@
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/AudioEngine/Transport.h>
-#include <core/AutomationPathSerializer.h>
 #include <core/Basics/AutomationPath.h>
 #include <core/Basics/GridPoint.h>
 #include <core/Basics/Instrument.h>
@@ -39,7 +38,6 @@
 #include <core/Basics/PatternList.h>
 #include <core/Basics/Sample.h>
 #include <core/EventQueue.h>
-#include <core/FX/Effects.h>
 #include <core/Globals.h>
 #include <core/Helpers/Legacy.h>
 #include <core/Hydrogen.h>
@@ -73,7 +71,6 @@ Song::Song(
 	  m_sName( sName ),
 	  m_sAuthor( sAuthor ),
 	  m_fVolume( fVolume ),
-	  m_fMetronomeVolume( 0.5 ),
 	  m_sNotes( "..." ),
 	  m_tags( QStringList() ),
 	  m_pPatternList( std::make_shared<PatternList>() ),
@@ -81,6 +78,7 @@ Song::Song(
 		  std::make_shared<std::vector<std::shared_ptr<PatternList>>>()
 	  ),
 	  m_sPath( "" ),
+	  m_bBackedByProject( false ),
 	  m_loopMode( LoopMode::Disabled ),
 	  m_patternMode( PatternMode::Selected ),
 	  m_fHumanizeTimeValue( 0.0 ),
@@ -88,7 +86,6 @@ Song::Song(
 	  m_fSwingFactor( 0.0 ),
 	  m_bIsModified( false ),
 	  m_mode( Mode::Pattern ),
-	  m_pVelocityAutomationPath( nullptr ),
 	  m_license( License( "", sAuthor ) ),
 	  m_actionMode( ActionMode::selectMode ),
 	  m_bIsPatternEditorLocked( false ),
@@ -97,14 +94,13 @@ Song::Song(
 	  m_sLastLoadedDrumkitPath( "" ),
 	  m_pDrumkit( std::make_shared<Drumkit>() ),
 	  m_pTimeline( std::make_shared<Timeline>() ),
-	  m_pEffects( std::make_shared<Effects>() ),
 	  m_bWasAskedAboutMissingSamples( false )
 {
 	if ( m_sName.isEmpty() ) {
 		m_sName = Song::sDefaultName;
 	}
 
-	m_pVelocityAutomationPath = new AutomationPath( 0.0f, 1.5f, 1.0f );
+	m_pAutomationPath = std::make_shared<AutomationPath>();
 }
 
 Song::~Song()
@@ -114,17 +110,16 @@ Song::~Song()
 	 * the audio engine. Following the current design, the caller has to care
 	 * for the lock.
 	 */
-
-	delete m_pVelocityAutomationPath;
 }
 
-std::shared_ptr<Song> Song::from( std::shared_ptr<SoundLibraryInfo> pInfo )
+std::shared_ptr<Song> Song::from( std::shared_ptr<SoundLibraryInfo> pInfo,
+								  Hydrogen* pHydrogen )
 {
 	if ( pInfo == nullptr ) {
 		return nullptr;
 	}
 
-	auto pSong = Song::load( pInfo->getPath() );
+	auto pSong = Song::load( pInfo->getPath(), false, pHydrogen );
 	if ( pSong == nullptr ) {
 		ERRORLOG(
 			QString( "Unable to load song from [%1]" ).arg( pInfo->toQString() )
@@ -220,7 +215,8 @@ bool Song::isPatternActive( const GridPoint& gridPoint ) const
 }
 
 /// Load a song from file
-std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
+std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent,
+								  Hydrogen* pHydrogen )
 {
 	QString sPath = Filesystem::absolutePath( sInputPath, bSilent );
 	if ( sPath.isEmpty() ) {
@@ -258,7 +254,8 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
 		}
 	}
 
-	auto pSong = Song::loadFrom( songNode, sPath, bSilent );
+	auto pSong = Song::loadFrom(
+		songNode, sPath, Xml::Flag::None, bSilent, pHydrogen );
 	if ( pSong != nullptr ) {
 		pSong->setPath( sPath );
 	}
@@ -266,10 +263,57 @@ std::shared_ptr<Song> Song::load( const QString& sInputPath, bool bSilent )
 	return pSong;
 }
 
-std::shared_ptr<Song>
-Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
+QByteArray
+Song::toXmlBuffer( Xml::Flag flags, bool bSilent,
+				   const Xml::ProjectSampleEntries* pProjectSampleEntries ) const
 {
-	auto pPreferences = Preferences::get_instance();
+	XMLDoc doc;
+	XMLNode rootNode = doc.set_root( "song" );
+
+	if ( getLicense().getType() == License::GPL ) {
+		doc.appendChild(
+			doc.createComment( License::getGPLLicenseNotice( getAuthor() ) )
+		);
+	}
+
+	saveTo( rootNode, flags, bSilent, pProjectSampleEntries );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<Song> Song::fromXmlBuffer( const QByteArray& buffer,
+										   Xml::Flag flags,
+										   bool bSilent,
+										   Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( buffer ) ) {
+		ERRORLOG( "Unable to parse song XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode songNode = doc.firstChildElement( "song" );
+	if ( songNode.isNull() ) {
+		ERRORLOG( "Error reading song buffer: 'song' node not found" );
+		return nullptr;
+	}
+
+	const QString sPath =
+		songNode.read_string( "ipc-path", "", false, false, false );
+	auto pSong = Song::loadFrom( songNode, sPath, flags, bSilent, pHydrogen );
+
+	return pSong;
+}
+
+std::shared_ptr<Song> Song::loadFrom(
+	const XMLNode& rootNode,
+	const QString& sPath,
+	Xml::Flag flags,
+	bool bSilent,
+	Hydrogen* pHydrogen
+)
+{
+	auto pPreferences = pHydrogen->getPreferences();
 	auto pSong = std::make_shared<Song>();
 
 	pSong->setBpm(
@@ -289,9 +333,6 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	) );
 	pSong->setIsMuted( rootNode.read_bool(
 		"isMuted", pSong->getIsMuted(), true, false, bSilent
-	) );
-	pSong->setMetronomeVolume( rootNode.read_float(
-		"metronomeVolume", pSong->getMetronomeVolume(), false, false, bSilent
 	) );
 	pSong->setNotes( rootNode.read_string(
 		"notes", pSong->getNotes(), false, false, bSilent
@@ -358,7 +399,8 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 			// track.
 			pPlaybackTrackInstrument = Instrument::loadFrom(
 				playbackTrackInstrumentNode, "", "", sSongPath,
-				pSong->getLicense(), true, nullptr, bSilent
+				flags | Xml::Flag::SongKit, pSong->getLicense(), nullptr,
+				bSilent, pHydrogen
 			);
 		}
 	}
@@ -390,7 +432,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 		}
 		if ( !sPlaybackTrack.isEmpty() ) {
 			pPlaybackTrackInstrument =
-				Instrument::from( Sample::load( sPlaybackTrack ) );
+				Instrument::from( Sample::load( sPlaybackTrack ), pHydrogen );
 
 			if ( pPlaybackTrackInstrument != nullptr ) {
 				pPlaybackTrackInstrument->setVolume( rootNode.read_float(
@@ -404,7 +446,7 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	if ( pPlaybackTrackInstrument != nullptr ) {
 		pPlaybackTrackInstrument->setName( "PlaybackTrack" );
 		pPlaybackTrackInstrument->setId( Instrument::PlaybackTrackId );
-		pPlaybackTrackInstrument->loadSamples();
+		pPlaybackTrackInstrument->loadSamples( 120, pPreferences.get() );
 	}
 
 	pSong->setPlaybackTrackInstrument( pPlaybackTrackInstrument );
@@ -510,14 +552,16 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	if ( !drumkitNode.isNull() ) {
 		// Current format (>= 2.0) storing a proper Drumkit
 		pDrumkit = Drumkit::loadFrom(
-			drumkitNode, "", sSongPath, true, nullptr, bSilent
+			drumkitNode, "", sSongPath, flags | Xml::Flag::SongKit, nullptr,
+			bSilent, pHydrogen
 		);
 		bCurrentDrumkitLoaded = true;
 	}
 	else {
 		// Older format (< 2.0) storing only selected elements
 		pDrumkit =
-			Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent );
+			Legacy::loadEmbeddedSongDrumkit( rootNode, sSongPath, bSilent,
+											 pHydrogen );
 	}
 
 	if ( pDrumkit == nullptr ) {
@@ -534,14 +578,16 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	pSong->setLastLoadedDrumkitPath(
 		Filesystem::sanitizeDrumkitPath( sLastLoadedDrumkitPath )
 	);
-	if ( pDrumkit != nullptr ) {
+	if ( pDrumkit != nullptr && !( flags & Xml::Flag::Ipc ) &&
+		 !( flags & Xml::Flag::Project ) ) {
 		pDrumkit->setPath( pSong->getLastLoadedDrumkitPath() );
 	}
 
 	// Pattern list
 	auto pPatternList = PatternList::loadFrom(
 		rootNode, pDrumkit->getExportName(),
-		bCurrentDrumkitLoaded ? pDrumkit : nullptr, bSilent
+		bCurrentDrumkitLoaded ? pDrumkit : nullptr, flags, bSilent,
+		pHydrogen->getSoundLibraryDatabase()
 	);
 	if ( pPatternList != nullptr ) {
 		pPatternList->mapToDrumkit( pDrumkit, nullptr );
@@ -693,63 +739,6 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 		WARNINGLOG( "'patternSequence' node not found. Aborting." );
 	}
 
-	// LADSPA FX
-	XMLNode ladspaNode = rootNode.firstChildElement( "ladspa" );
-	if ( !ladspaNode.isNull() ) {
-		int nFX = 0;
-		XMLNode fxNode = ladspaNode.firstChildElement( "fx" );
-		while ( !fxNode.isNull() ) {
-			QString sName =
-				fxNode.read_string( "name", "", false, false, bSilent );
-
-			if ( sName != "no plugin" ) {
-#ifdef H2CORE_HAVE_LADSPA
-				// TODO The upload must be handled by the engine, as only it
-				// knows the exact sample rate.
-				auto pFX = LadspaFX::load(
-					fxNode.read_string( "filename", "", false, false, bSilent ),
-					sName, 44100
-				);
-				pSong->getEffects()->setLadspaFX( pFX, nFX );
-				if ( pFX != nullptr ) {
-					pFX->setEnabled( fxNode.read_bool(
-						"enabled", false, false, false, bSilent
-					) );
-					pFX->setVolume( fxNode.read_float(
-						"volume", 1.0, false, false, bSilent
-					) );
-					XMLNode inputControlNode =
-						fxNode.firstChildElement( "inputControlPort" );
-					while ( !inputControlNode.isNull() ) {
-						QString sName = inputControlNode.read_string(
-							"name", "", false, false, bSilent
-						);
-						float fValue = inputControlNode.read_float(
-							"value", 0.0, false, false, bSilent
-						);
-
-						for ( unsigned nPort = 0;
-							  nPort < pFX->inputControlPorts.size(); nPort++ ) {
-							auto pPort = pFX->inputControlPorts[nPort];
-							if ( QString( pPort->sName ) == sName ) {
-								pPort->fControlValue = fValue;
-							}
-						}
-						inputControlNode = inputControlNode.nextSiblingElement(
-							"inputControlPort"
-						);
-					}
-				}
-#endif
-			}
-			nFX++;
-			fxNode = fxNode.nextSiblingElement( "fx" );
-		}
-	}
-	else if ( !bSilent ) {
-		WARNINGLOG( "'ladspa' node not found" );
-	}
-
 	auto pTimeline = std::make_shared<Timeline>();
 	XMLNode bpmTimeLineNode = rootNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLineNode.isNull() ) {
@@ -770,6 +759,16 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 			// No need to lock the audio engine in here because this is not the
 			// timeline associated with the _current_ song.
 			pTimeline->addTempoMarkers( tempoMarkers );
+		}
+
+		if ( flags & Xml::Flag::Ipc ) {
+			// IPC buffer only: the special first marker's tempo (runtime state,
+			// absent from .h2song). Presence-gated so disk songs keep the
+			// constructor placeholder *and* the unset marker — installing them
+			// re-captures the tempo from the song BPM (AudioEngine::setSong).
+			pTimeline->setDefaultBpm( bpmTimeLineNode.read_float(
+				"ipc-defaultBpm", 120.0, false, false, bSilent
+			) );
 		}
 	}
 	else if ( !bSilent ) {
@@ -804,8 +803,6 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 	XMLNode automationPathsNode =
 		rootNode.firstChildElement( "automationPaths" );
 	if ( !automationPathsNode.isNull() ) {
-		AutomationPathSerializer pathSerializer;
-
 		XMLNode pathNode = automationPathsNode.firstChildElement( "path" );
 		while ( !pathNode.isNull() ) {
 			QString sAdjust = pathNode.read_attribute(
@@ -813,17 +810,36 @@ Song::loadFrom( const XMLNode& rootNode, const QString& sPath, bool bSilent )
 			);
 
 			// Select automation path to be read based on "adjust" attribute
-			AutomationPath* pPath = nullptr;
-			if ( sAdjust == "velocity" ) {
-				pPath = pSong->getVelocityAutomationPath();
+			if ( sAdjust != "velocity" ) {
+				continue;
 			}
 
-			if ( pPath ) {
-				pathSerializer.read_automation_path( pathNode, *pPath );
-			}
+			pSong->m_pAutomationPath =
+				AutomationPath::loadFrom( pathNode, bSilent );
 
 			pathNode = pathNode.nextSiblingElement( "path" );
+
+			// For now there is only the velocity adjustment.
+			break;
 		}
+	}
+
+	// Additional members not present in .h2song but required for IPC.
+	if ( flags & Xml::Flag::Ipc ) {
+		pSong->setUuid( rootNode.read_uuid( "ipc-uuid", false, false, false ) );
+		pSong->setPath( sPath );
+		pSong->setBackedByProject(
+			rootNode.read_bool( "ipc-backedByProject", false, false, false )
+		);
+		pSong->setIsModified(
+			rootNode.read_bool( "ipc-isModified", false, false, false, false )
+		);
+		pSong->setLastLoadedDrumkitPath( rootNode.read_string(
+			"ipc-lastLoadedDrumkitPath", "", false, false, false
+		) );
+		pSong->setWasAskedAboutMissingSamples( rootNode.read_bool(
+			"ipc-wasAskedAboutMissingSamples", false, false, false, false
+		) );
 	}
 
 	return pSong;
@@ -834,6 +850,13 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 {
 	if ( !bSilent ) {
 		INFOLOG( QString( "Saving song to [%1]" ).arg( sPath ) );
+	}
+
+	if ( sPath == m_sPath && m_bBackedByProject ) {
+		ERRORLOG( QString( "Song is contained in project [%1]. Please save it "
+						   "to a .h2song file first!" )
+					  .arg( m_sPath ) );
+		return false;
 	}
 
 	XMLDoc doc;
@@ -847,9 +870,13 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 		);
 	}
 
-	saveTo( rootNode, bKeepMissingSamples, bSilent );
+	saveTo( rootNode,
+			bKeepMissingSamples ? Xml::Flag::KeepMissingSamples
+							   : Xml::Flag::None,
+			bSilent );
 
 	setPath( sPath );
+	setBackedByProject( false );
 	setIsModified( false );
 
 	if ( !doc.write( sPath ) ) {
@@ -878,15 +905,18 @@ bool Song::save( const QString& sPath, bool bKeepMissingSamples, bool bSilent )
 	return true;
 }
 
-void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
-	const
+void Song::saveTo(
+	XMLNode& rootNode,
+	Xml::Flag flags,
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
+) const
 {
 	rootNode.write_string( "version", QString( get_version().c_str() ) );
 	rootNode.write_int( "formatVersion", nCurrentFormatVersion );
 	rootNode.write_float( "bpm", m_fBpm );
 	rootNode.write_float( "volume", m_fVolume );
 	rootNode.write_bool( "isMuted", m_bIsMuted );
-	rootNode.write_float( "metronomeVolume", m_fMetronomeVolume );
 	rootNode.write_int( "userVersion", m_nVersion );
 	rootNode.write_string( "name", m_sName );
 	rootNode.write_string( "author", m_sAuthor );
@@ -910,9 +940,18 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 
 	auto playbackTrackNode = rootNode.createNode( "playbackTrack" );
 	if ( m_pPlaybackTrackInstrument != nullptr ) {
+		// The playback track is a single meta instrument and not subject
+		// to the KeepMissingSamples option.
+		auto playbackTrackFlags = Xml::Flag::SongKit;
+		if ( flags & Xml::Flag::Ipc ) {
+			playbackTrackFlags |= Xml::Flag::Ipc;
+		}
+		if ( flags & Xml::Flag::Project ) {
+			playbackTrackFlags |= Xml::Flag::Project;
+		}
 		m_pPlaybackTrackInstrument->saveTo(
-			playbackTrackNode, true, false, bSilent
-		);
+			playbackTrackNode, playbackTrackFlags, bSilent,
+			pProjectSampleEntries );
 	}
 
 	rootNode.write_int( "action_mode", static_cast<int>( m_actionMode ) );
@@ -994,14 +1033,17 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 	auto drumkitNode = rootNode.createNode( "drumkit_info" );
 	m_pDrumkit->saveTo(
 		drumkitNode,
-		true,  // Enable per-instrument sample loading
-		bKeepMissingSamples, bSilent
+		flags | Xml::Flag::SongKit,  // Enable per-instrument sample loading
+		bSilent,
+		pProjectSampleEntries
 	);
 
 	rootNode.write_string( "lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath );
 
 	if ( m_pPatternList != nullptr ) {
-		m_pPatternList->saveTo( rootNode );
+		m_pPatternList->saveTo(
+			rootNode, Instrument::EmptyId, "", Note::Pitch::Invalid, flags
+		);
 
 		XMLNode patternPathsNode = rootNode.createNode( "patternPaths" );
 		for ( const auto& ppPattern : *m_pPatternList ) {
@@ -1048,51 +1090,6 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 		}
 	}
 
-	XMLNode ladspaFxNode = rootNode.createNode( "ladspa" );
-	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
-		XMLNode fxNode = ladspaFxNode.createNode( "fx" );
-
-#ifdef H2CORE_HAVE_LADSPA
-		auto pFX = m_pEffects->getLadspaFX( nFX );
-		if ( pFX != nullptr ) {
-			fxNode.write_string( "name", pFX->getPluginLabel() );
-			fxNode.write_string( "filename", pFX->getLibraryPath() );
-			fxNode.write_bool( "enabled", pFX->isEnabled() );
-			fxNode.write_float( "volume", pFX->getVolume() );
-
-			for ( unsigned nControl = 0;
-				  nControl < pFX->inputControlPorts.size(); nControl++ ) {
-				auto pControlPort = pFX->inputControlPorts[nControl];
-				XMLNode controlPortNode =
-					fxNode.createNode( "inputControlPort" );
-				controlPortNode.write_string( "name", pControlPort->sName );
-				controlPortNode.write_string(
-					"value", QString( "%1" ).arg( pControlPort->fControlValue )
-				);
-			}
-			for ( unsigned nControl = 0;
-				  nControl < pFX->outputControlPorts.size(); nControl++ ) {
-				auto pControlPort = pFX->inputControlPorts[nControl];
-				XMLNode controlPortNode =
-					fxNode.createNode( "outputControlPort" );
-				controlPortNode.write_string( "name", pControlPort->sName );
-				controlPortNode.write_string(
-					"value", QString( "%1" ).arg( pControlPort->fControlValue )
-				);
-			}
-		}
-#else
-		if ( false ) {
-		}
-#endif
-		else {
-			fxNode.write_string( "name", QString( "no plugin" ) );
-			fxNode.write_string( "filename", QString( "-" ) );
-			fxNode.write_bool( "enabled", false );
-			fxNode.write_float( "volume", 0.0 );
-		}
-	}
-
 	// bpm time line
 	auto tempoMarkerVector = m_pTimeline->getAllTempoMarkers();
 	XMLNode bpmTimeLineNode = rootNode.createNode( "BPMTimeLine" );
@@ -1106,6 +1103,13 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 			newBPMNode.write_int( "BAR", tempoMarkerVector[tt]->nColumn );
 			newBPMNode.write_float( "BPM", tempoMarkerVector[tt]->fBpm );
 		}
+	}
+	// The special first marker's tempo is runtime state absent from
+	// .h2song — but the editor's mirror Timeline needs it (BPM display,
+	// timeline editor labels), so it crosses the IPC buffer.
+	if ( flags & Xml::Flag::Ipc ) {
+		bpmTimeLineNode.write_float( "ipc-defaultBpm",
+									 m_pTimeline->getDefaultBpm() );
 	}
 
 	// time line tag
@@ -1121,25 +1125,33 @@ void Song::saveTo( XMLNode& rootNode, bool bKeepMissingSamples, bool bSilent )
 
 	// Automation Paths
 	XMLNode automationPathsNode = rootNode.createNode( "automationPaths" );
-	AutomationPath* pPath = getVelocityAutomationPath();
+	auto pPath = getAutomationPath();
 	if ( pPath != nullptr ) {
 		XMLNode pathNode = automationPathsNode.createNode( "path" );
 		pathNode.write_attribute( "adjust", "velocity" );
+		pPath->saveTo( pathNode, bSilent );
+	}
 
-		AutomationPathSerializer serializer;
-		serializer.write_automation_path( pathNode, *pPath );
+	// Additional members not present in .h2song but required for IPC.
+	if ( flags & Xml::Flag::Ipc ) {
+		rootNode.write_uuid( "ipc-uuid", getUuid() );
+		rootNode.write_string( "ipc-path", m_sPath );
+		rootNode.write_bool( "ipc-backedByProject", m_bBackedByProject );
+		rootNode.write_bool( "ipc-isModified", m_bIsModified );
+		rootNode.write_string(
+			"ipc-lastLoadedDrumkitPath", m_sLastLoadedDrumkitPath
+		);
+		rootNode.write_bool(
+			"ipc-wasAskedAboutMissingSamples", m_bWasAskedAboutMissingSamples
+		);
 	}
 }
 
-std::shared_ptr<Song> Song::getEmptySong(
-	std::shared_ptr<SoundLibraryDatabase> pDB
-)
+std::shared_ptr<Song> Song::getEmptySong( Hydrogen* pHydrogen )
 {
 	std::shared_ptr<Song> pSong = std::make_shared<Song>(
 		Song::sDefaultName, Song::sDefaultAuthor, 120, 0.5
 	);
-
-	pSong->setMetronomeVolume( 0.5 );
 	pSong->setNotes( "..." );
 	pSong->setLicense( License() );
 	pSong->setLoopMode( Song::LoopMode::Disabled );
@@ -1172,42 +1184,22 @@ std::shared_ptr<Song> Song::getEmptySong(
 
 	pSong->setPath( Filesystem::emptyPath( Filesystem::Artifact::Song ) );
 
-	std::shared_ptr<SoundLibraryDatabase> pSoundLibraryDatabase;
-
-	if ( pDB != nullptr ) {
-		// During startup
-		pSoundLibraryDatabase = pDB;
-	}
-	else {
-		pSoundLibraryDatabase =
-			Hydrogen::get_instance()->getSoundLibraryDatabase();
-	}
-
-	// Per default we use the GMRockKit shipped with Hydrogen
-	auto pDrumkit =
-		pSoundLibraryDatabase->getDrumkit( pSoundLibraryDatabase->findArtifact(
-			Filesystem::Artifact::DrumkitExtracted, Filesystem::Context::System,
-			"GMRockKit"
-		) );
+	// Per default we use the GMRockKit shipped with Hydrogen. It is loaded
+	// directly from disk — not via the SoundLibraryDatabase — so that an
+	// empty song can be created before the first scan of the sound library
+	// has completed.
+	auto pDrumkit = Drumkit::load(
+		Filesystem::drumkitPathFromDir(
+			Filesystem::systemDrumkitsDir() + "/GMRockKit" ),
+		true,	  // upgrade
+		nullptr,  // do not check for legacy format
+		false,	  // bSilent
+		pHydrogen
+	);
 	if ( pDrumkit == nullptr ) {
-		// In case we failed to load the default kit, we just use the first one
-		// registered in the sound library.
-		for ( const auto& pEntry :
-			  pSoundLibraryDatabase->getDrumkitDatabase() ) {
-			if ( pEntry.second != nullptr ) {
-				pDrumkit = pEntry.second;
-				break;
-			}
-		}
-	}
-
-	if ( pDrumkit == nullptr ) {
-		// Seems there is not a single drumkit in the library, we use an empty
-		// one.
+		// In case of a broken installation — the shipped default kit could
+		// not be loaded — we use an empty one.
 		pDrumkit = Drumkit::getEmptyDrumkit();
-	}
-	else {
-		pDrumkit = std::make_shared<Drumkit>( pDrumkit );
 	}
 
 	pSong->setDrumkit( pDrumkit );
@@ -1384,6 +1376,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 	if ( !bShort ) {
 		sOutput = QString( "%1[Song]\n" )
 					  .arg( sPrefix )
+					  .append( QString( "%1%2m_uuid: %3\n" )
+								   .arg( sPrefix )
+								   .arg( s )
+								   .arg( getUuid().toQString() ) )
 					  .append( QString( "%1%2m_bIsTimelineActivated: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -1412,10 +1408,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 								   .arg( sPrefix )
 								   .arg( s )
 								   .arg( m_fVolume ) )
-					  .append( QString( "%1%2m_fMetronomeVolume: %3\n" )
-								   .arg( sPrefix )
-								   .arg( s )
-								   .arg( m_fMetronomeVolume ) )
 					  .append( QString( "%1%2m_sNotes: %3\n" )
 								   .arg( sPrefix )
 								   .arg( s )
@@ -1452,6 +1444,10 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 						 .arg( sPrefix )
 						 .arg( s )
 						 .arg( m_sPath ) )
+			.append( QString( "%1%2m_bBackedByProject: %3\n" )
+						 .arg( sPrefix )
+						 .arg( s )
+						 .arg( m_bBackedByProject ) )
 			.append( QString( "%1%2m_loopMode: %3\n" )
 						 .arg( sPrefix )
 						 .arg( s )
@@ -1502,7 +1498,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 								   )
 						 ) )
 			.append( QString( "%1" ).arg(
-				m_pVelocityAutomationPath->toQString( sPrefix + s, bShort )
+				m_pAutomationPath->toQString( sPrefix + s, bShort )
 			) )
 			.append( QString( "%1%2m_license: %3\n" )
 						 .arg( sPrefix )
@@ -1546,6 +1542,7 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Song]" )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
 				.append( QString( ", m_bIsTimelineActivated: %1" )
 							 .arg( m_bIsTimelineActivated ) )
 				.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
@@ -1554,8 +1551,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 				.append( QString( ", m_sName: %1" ).arg( m_sName ) )
 				.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
 				.append( QString( ", m_fVolume: %1" ).arg( m_fVolume ) )
-				.append( QString( ", m_fMetronomeVolume: %1" )
-							 .arg( m_fMetronomeVolume ) )
 				.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
 				.append( QString( ", m_tags: %1" ).arg( m_tags.join( ", " ) ) )
 				.append( QString( "%1" ).arg(
@@ -1578,6 +1573,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 			sOutput.append( ", m_pDrumkit: nullptr" );
 		}
 		sOutput.append( QString( ", m_sPath: %1" ).arg( m_sPath ) )
+			.append( QString( ", m_bBackedByProject: %1" )
+					 .arg( m_bBackedByProject ) )
 			.append( QString( ", m_loopMode: %1" )
 						 .arg( LoopModeToQString( m_loopMode ) ) )
 			.append( QString( ", m_patternMode: %1" )
@@ -1604,8 +1601,8 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const
 									   "", bShort
 								   )
 						 ) )
-			.append( QString( ", m_pVelocityAutomationPath: %1" )
-						 .arg( m_pVelocityAutomationPath->toQString( sPrefix ) )
+			.append( QString( ", m_pAutomationPath: %1" )
+						 .arg( m_pAutomationPath->toQString( sPrefix ) )
 			)
 			.append( QString( ", m_license: %1" )
 						 .arg( m_license.toQString( sPrefix, bShort ) ) )

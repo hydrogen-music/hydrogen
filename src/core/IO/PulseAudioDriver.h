@@ -19,16 +19,18 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef H2_PULSE_AUDIO_DRIVER_H
-#define H2_PULSE_AUDIO_DRIVER_H
+#ifndef H2C_PULSE_AUDIO_DRIVER_H
+#define H2C_PULSE_AUDIO_DRIVER_H
 
 
 #include <core/IO/AudioDriver.h>
 
 #if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
-#include <pthread.h>
+#include <condition_variable>
 #include <inttypes.h>
+#include <mutex>
+#include <thread>
 #include <pulse/pulseaudio.h>
 
 namespace H2Core
@@ -43,7 +45,7 @@ class PulseAudioDriver : public Object<PulseAudioDriver>, public AudioDriver
 {
 	H2_OBJECT(PulseAudioDriver)
 public:
-	PulseAudioDriver(audioProcessCallback processCallback);
+	PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~PulseAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -56,9 +58,9 @@ public:
 
 	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 private:
-	pthread_t				m_thread;
-	pthread_mutex_t			m_mutex;
-	pthread_cond_t			m_cond;
+	std::thread				m_thread;
+	std::mutex				m_mutex;
+	std::condition_variable	m_cond;
 	/** File descriptors used to write data to (m_pipe[1]) and read
 		data from (m_pipe[0]) the pipe.*/
 	int						m_pipe[2];
@@ -73,7 +75,7 @@ private:
 	float*					m_outL;
 	float*					m_outR;
 
-	static void* s_thread_body(void*);
+	static void s_thread_body(PulseAudioDriver*);
 	int thread_body();
 
 	static void ctx_state_callback(pa_context* ctx, void* udata);
@@ -87,15 +89,15 @@ private:
 
 #else
 
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 namespace H2Core {
 /** \ingroup docCore docAudioDriver */
-	class PulseAudioDriver : public NullDriver
+	class PulseAudioDriver : public StubAudioDriver
 	{
 		H2_OBJECT(PulseAudioDriver)
 	public:
-		PulseAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+		PulseAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 	};
 }
@@ -103,6 +105,6 @@ namespace H2Core {
 #endif //H2CORE_HAVE_PULSEAUDIO
 
 
-#endif //H2_PULSE_AUDIO_DRIVER_H
+#endif //H2C_PULSE_AUDIO_DRIVER_H
 
 

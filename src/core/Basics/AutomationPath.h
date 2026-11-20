@@ -33,48 +33,53 @@
 namespace H2Core
 {
 
+class XMLNode;
+
 /** \ingroup docCore docDataStructure docAutomation*/
-class AutomationPath : public Object<AutomationPath>
-{
-	H2_OBJECT(AutomationPath)
+class AutomationPath : public Object<AutomationPath> {
+	H2_OBJECT( AutomationPath )
 
-	public:
-	typedef std::map<float,float>::iterator iterator;
-	typedef std::map<float,float>::const_iterator const_iterator;
+   public:
+	typedef std::map<float, float>::iterator iterator;
+	typedef std::map<float, float>::const_iterator const_iterator;
 
-	private:
-	
-	float _min;
-	float _max;
-	float _def;
+   public:
+	AutomationPath( float min = 0.0f, float max = 1.5f, float def = 1.0f );
 
-	std::map<float,float> _points;
+	static std::shared_ptr<AutomationPath>
+	loadFrom( const XMLNode& node, bool bSilent );
+	void saveTo( XMLNode& node, bool bSilent ) const;
 
-	public:
-	
-	AutomationPath(float min, float max, float def);
+	bool empty() const noexcept { return m_points.empty(); }
+	float getMin() const noexcept { return m_fMin; }
+	float getMax() const noexcept { return m_fMax; }
+	float getDefault() const noexcept { return m_fDef; }
 
-	bool empty() const noexcept { return _points.empty(); }
-	float get_min() const noexcept { return _min; }
-	float get_max() const noexcept { return _max; }
-	float get_default() const noexcept { return _def; }
+	float getValue( float x ) const noexcept;
 
-	float get_value(float x) const noexcept;
+	void addPoint( float x, float y );
+	void removePoint( float x );
 
-	void add_point(float x, float y);
-	void remove_point(float x);
+	friend bool
+	operator==( const AutomationPath& lhs, const AutomationPath& rhs );
+	friend bool
+	operator!=( const AutomationPath& lhs, const AutomationPath& rhs );
 
-	friend bool operator==(const AutomationPath &lhs, const AutomationPath &rhs);
-	friend bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs);
+	iterator begin() { return m_points.begin(); }
+	iterator end() { return m_points.end(); }
+	const_iterator begin() const { return m_points.begin(); }
+	const_iterator end() const { return m_points.end(); }
 
-	iterator begin() { return _points.begin(); }
-	iterator end() { return _points.end(); }
-	const_iterator begin() const { return _points.begin(); }
-	const_iterator end() const { return _points.end(); }
+	iterator find( float x );
+	iterator move( iterator& in, float x, float y );
 
-	iterator find(float x);
-	iterator move(iterator &in, float x, float y);
-	
+	/** Exact-coordinate lookup. Unlike find() this does not snap to
+	 * points within the 0.5 tolerance — command application carries
+	 * the precise coordinates previously read from the path and must
+	 * not grab a neighbouring point instead. */
+	iterator findExact( float x ) { return m_points.find( x ); }
+	const_iterator findExact( float x ) const { return m_points.find( x ); }
+
 	/** Formatted string version for debugging purposes.
 	 * \param sPrefix String prefix which will be added in front of
 	 * every new line
@@ -83,8 +88,16 @@ class AutomationPath : public Object<AutomationPath>
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
+	QString toQString( const QString& sPrefix = "", bool bShort = true )
+		const override;
+
+   private:
+	float m_fMin;
+	float m_fMax;
+	float m_fDef;
+
+	std::map<float, float> m_points;
 };
-};
+};	// namespace H2Core
 
 #endif

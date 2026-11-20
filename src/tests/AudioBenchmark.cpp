@@ -49,8 +49,8 @@ bool AudioBenchmark::bEnabled = false;
 
 static long long exportCurrentSong( const QString &sFileName, int nSampleRate )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	EventQueue *pQueue = EventQueue::get_instance();
+	Hydrogen *pHydrogen = pTestHydrogen();
+	EventQueue *pQueue = pTestEventQueue();
 	auto pSong = pHydrogen->getSong();
 
 	if( !pSong ) {
@@ -154,13 +154,12 @@ double AudioBenchmark::timeExport( int nSampleRate,
 								   double fReference,
 								   double *pfRMS ) {
 	auto outFile = Filesystem::tmpFilePath("test.wav");
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = pTestHydrogen();
 	int nIterations = 32;
 	std::vector< clock_t > times;
 	long long nFrames = 0, nFramesNew;
 
-	auto oldInterpolateMode = pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
-	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( interpolateMode );
+	pHydrogen->setInterpolateModeOverride( interpolateMode );
 
 	// Run through once to warm caches etc.
 	exportCurrentSong( outFile, 44100 );
@@ -195,7 +194,7 @@ double AudioBenchmark::timeExport( int nSampleRate,
 	}
 	out << Qt::endl;
 
-	pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( oldInterpolateMode );
+	pHydrogen->clearInterpolateModeOverride();
 
 	Filesystem::rm( outFile );
 
@@ -212,7 +211,7 @@ void AudioBenchmark::audioBenchmark(void)
 	}
 
 	___INFOLOG( "" );
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = pTestHydrogen();
 
 	out << "Benchmark ADSR method:" << Qt::endl;
 	timeADSR();
@@ -221,15 +220,10 @@ void AudioBenchmark::audioBenchmark(void)
 	auto songADSRFile = H2TEST_FILE("functional/test_adsr.h2song");
 
 	/* Load song and prepare */
-	std::shared_ptr<Song> pSong = Song::load( songFile );
+	std::shared_ptr<Song> pSong = Song::load( songFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
 	pHydrogen->setSong( pSong );
-
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get(i)->setCurrentlyExported( true );
-	}
 
 	out << "\n=== Audio engine benchmark ===" << Qt::endl;
 
@@ -241,14 +235,10 @@ void AudioBenchmark::audioBenchmark(void)
 	timeExport( 44101, Interpolation::InterpolateMode::Hermite, fRef );
 
 	out << "Now with ADSR" << Qt::endl;
-	pSong = Song::load( songADSRFile );
+	pSong = Song::load( songADSRFile, false, pTestHydrogen() );
 	ASSERT_SONG( pSong );
 
 	pHydrogen->setSong( pSong );
-	pInstrumentList = pSong->getDrumkit()->getInstruments();
-	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
-		pInstrumentList->get(i)->setCurrentlyExported( true );
-	}
 
 
 	timeExport( 44100, Interpolation::InterpolateMode::Linear, fRef );

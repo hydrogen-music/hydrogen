@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef FILEDIALOG_H
-#define FILEDIALOG_H
+#ifndef H2C_FILEDIALOG_H
+#define H2C_FILEDIALOG_H
 
 #include <QDialog>
 #include <QFileDialog>

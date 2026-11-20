@@ -1,0 +1,692 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#include "PluginLifecycleTest.h"
+
+#include "TestHelper.h"
+
+#include <cmath>
+#include <functional>
+#include <memory>
+#include <vector>
+
+#include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
+#include <core/EventQueue.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/H2Project.h>
+#include <core/Helpers/Xml.h>
+#include <core/Hydrogen.h>
+#include <core/IEngineAccess.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/IpcEngineAccess.h>
+#include <core/Logger.h>
+#include <core/Midi/Midi.h>
+#include <core/Midi/MidiInstrumentMap.h>
+#include <core/Object.h>
+#include <core/Preferences/Preferences.h>
+
+#include <plugin/HydrogenPlugin.h>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QElapsedTimer>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTemporaryDir>
+#include <QtCore/QTextStream>
+#include <QtCore/QThread>
+
+using namespace H2Core;
+
+namespace {
+// Allocate L/R + nBuses stereo buffers of nFrames each, zeroed.
+struct PluginBuffers {
+	std::vector<float> masterL, masterR;
+	std::vector<std::vector<float>> busL, busR;
+	std::vector<float*> busLPtr, busRPtr;
+
+	PluginBuffers( unsigned nFrames, int nBuses )
+		: masterL( nFrames, 0.0f ), masterR( nFrames, 0.0f ) {
+		for ( int ii = 0; ii < nBuses; ++ii ) {
+			busL.emplace_back( nFrames, 0.0f );
+			busR.emplace_back( nFrames, 0.0f );
+		}
+		for ( int ii = 0; ii < nBuses; ++ii ) {
+			busLPtr.push_back( busL[ ii ].data() );
+			busRPtr.push_back( busR[ ii ].data() );
+		}
+	}
+};
+
+bool allFinite( const std::vector<float>& buf, unsigned n ) {
+	for ( unsigned i = 0; i < n; ++i ) {
+		if ( ! std::isfinite( buf[i] ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// The restore contract of both state dialects: every layer of the song's
+// kit must hold a decoded sample afterwards - embedded states decode from
+// the extraction cache, song-only ones from the installed drumkit - or
+// the restored instance would come up silent.
+bool allKitSamplesLoaded( std::shared_ptr<Song> pSong ) {
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 pSong->getDrumkit()->getInstruments() == nullptr ) {
+		return false;
+	}
+	for ( auto ppInstrument : *pSong->getDrumkit()->getInstruments() ) {
+		if ( ppInstrument == nullptr ) {
+			continue;
+		}
+		auto pComponents = ppInstrument->getComponents();
+		for ( int cc = 0; cc < static_cast<int>( pComponents->size() );
+			  ++cc ) {
+			auto ppComponent = ( *pComponents )[ cc ];
+			if ( ppComponent == nullptr ) {
+				continue;
+			}
+			const auto layers = ppComponent->getLayers();
+			for ( int ll = 0; ll < static_cast<int>( layers.size() ); ++ll ) {
+				auto ppLayer = layers[ ll ];
+				if ( ppLayer == nullptr || ppLayer->getSample() == nullptr ) {
+					return false;
+				}
+				if ( ! ppLayer->getSample()->isLoaded() ||
+					 ppLayer->getSample()->getFrames() <= 0 ) {
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+} // namespace
+
+// A Preferences configured for a headless, host-less secondary instance: fake
+// audio, no MIDI, no OSC. create_instance() returns a freshly-owned object
+// (ADR 0015), so each instance gets its own.
+static std::shared_ptr<Preferences> makePluginPreferences() {
+	auto pPref = Preferences::create_instance();
+	pPref->m_audioDriver = Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = Preferences::MidiDriver::None;
+	pPref->m_nBufferSize = 1024;
+	pPref->setOscServerEnabled( false );
+	return pPref;
+}
+
+void PluginLifecycleTest::testRepeatedLifecycle() {
+	___INFOLOG( "" );
+
+	// A plugin host instantiates and destroys engine instances repeatedly within
+	// one process; doing so must leave no residual global state (ADR 0015). The
+	// harness's own Hydrogen is alive throughout, so the alive-object count after
+	// each destroyed instance must return to this baseline.
+	const int nBaseline = Base::getAliveObjectCount();
+	const int nIterations = 5;
+
+	for ( int ii = 0; ii < nIterations; ++ii ) {
+		// Each instance owns its own OSC server / NSM client (per-instance, not a
+		// singleton — ADR 0015); with OSC disabled they never touch the network.
+		auto* pHydrogen = new Hydrogen(
+			makePluginPreferences(), H2Core::ProcessMode::Headless, -1
+		);
+		pHydrogen->setFullyOperational( true );
+
+		CPPUNIT_ASSERT( pHydrogen->getAudioEngine() != nullptr );
+		CPPUNIT_ASSERT( pHydrogen->getPreferences() != nullptr );
+		CPPUNIT_ASSERT( pHydrogen->getEventQueue() != nullptr );
+		CPPUNIT_ASSERT( pHydrogen->getSong() != nullptr );
+
+		// Use it.
+		const float fBpm = 123.0f + static_cast<float>( ii );
+		pHydrogen->getSong()->setBpm( fBpm );
+		CPPUNIT_ASSERT_DOUBLES_EQUAL(
+			fBpm, pHydrogen->getSong()->getBpm(), 0.001 );
+
+		delete pHydrogen;
+
+		// No residual global state: every object the instance constructed has
+		// been destructed, so we are back to the baseline.
+		CPPUNIT_ASSERT_EQUAL( nBaseline, Base::getAliveObjectCount() );
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginProcess() {
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+	const int nBuses = 4;
+
+	HydrogenPlugin plugin( nSampleRate, nBlock, nBuses );
+	plugin.activate( nSampleRate, nBlock );
+	CPPUNIT_ASSERT_EQUAL( nBuses, plugin.getBusCount() );
+
+	PluginBuffers buf( nBlock, nBuses );
+
+	// Idle (not rolling): output stays finite and silent.
+	for ( int b = 0; b < 4; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, false, 120.0, 0 } );
+		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
+		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
+	}
+
+	// Rolling + a note: still finite, no NaN/denormals leaking to the host.
+	plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
+	long long nFrame = 0;
+	for ( int b = 0; b < 8; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 130.0, nFrame } );
+		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
+		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
+		for ( int bus = 0; bus < nBuses; ++bus ) {
+			CPPUNIT_ASSERT( allFinite( buf.busL[ bus ], nBlock ) );
+			CPPUNIT_ASSERT( allFinite( buf.busR[ bus ], nBlock ) );
+		}
+		nFrame += nBlock;
+	}
+
+	plugin.deactivate();
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginReset() {
+	___INFOLOG( "" );
+
+	const unsigned nSampleRate = 44100;
+	const unsigned nBlock = 512;
+
+	HydrogenPlugin plugin( nSampleRate, nBlock, 0 );
+	plugin.activate( nSampleRate, nBlock );
+
+	PluginBuffers buf( nBlock, 0 );
+
+	auto pSampler = plugin.getHydrogen()->getAudioEngine()->getSampler();
+	CPPUNIT_ASSERT( pSampler != nullptr );
+
+	// A live note, dispatched and sounding. The engine needs a couple of
+	// blocks on the presented transport before it consumes the queued
+	// note, so probe until the sampler actually holds it.
+	plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
+	bool bSounding = false;
+	long long nFrame = 0;
+	for ( int b = 0; b < 8 && ! bSounding; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, nFrame } );
+		nFrame += nBlock;
+		bSounding = pSampler->getPlayingNotesNumber() > 0;
+	}
+	CPPUNIT_ASSERT( bSounding );
+
+	// The host reset (e.g. on a transport jump) maps to panic.
+	plugin.reset();
+	CPPUNIT_ASSERT_EQUAL( 0, pSampler->getPlayingNotesNumber() );
+
+	// The engine stays voiceless over the following blocks.
+	for ( int b = 0; b < 2; ++b ) {
+		plugin.process( nBlock, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, nFrame } );
+		CPPUNIT_ASSERT_EQUAL( 0, pSampler->getPlayingNotesNumber() );
+		CPPUNIT_ASSERT( allFinite( buf.masterL, nBlock ) );
+		CPPUNIT_ASSERT( allFinite( buf.masterR, nBlock ) );
+		nFrame += nBlock;
+	}
+
+	plugin.deactivate();
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginStateRoundTrip() {
+	___INFOLOG( "" );
+
+	HydrogenPlugin plugin( 44100, 512, 4 );
+
+	// Embedded state is a portable .h2project bundle.
+	const auto state = plugin.saveState( /*bEmbedSamples=*/true );
+	CPPUNIT_ASSERT( ! state.empty() );
+	CPPUNIT_ASSERT( H2Project::looksLikeArchive( state ) );
+
+	// A fresh plugin instance restores it.
+	HydrogenPlugin other( 48000, 256, 2 );
+	CPPUNIT_ASSERT( other.loadState( state ) );
+	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
+	// The kit's samples ride in the bundle: the restored instance must
+	// come up with every one of them decoded, ready to play.
+	CPPUNIT_ASSERT( allKitSamplesLoaded( other.getHydrogen()->getSong() ) );
+
+	// Song-only state round-trips too. It is the same archive container,
+	// just without the sample entries (ADR 0017 amendment). Its song XML
+	// references the installed drumkit - the repo's GMRockKit the plugin
+	// boots with - so a restore must resolve and decode every sample from
+	// there instead of from bundle entries.
+	const auto songOnly = plugin.saveState( /*bEmbedSamples=*/false );
+	CPPUNIT_ASSERT( ! songOnly.empty() );
+	CPPUNIT_ASSERT( H2Project::looksLikeArchive( songOnly ) );
+	CPPUNIT_ASSERT( other.loadState( songOnly ) );
+	CPPUNIT_ASSERT( allKitSamplesLoaded( other.getHydrogen()->getSong() ) );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginStatePreferencesRoundTrip() {
+	___INFOLOG( "" );
+
+	// The plugin's own base-layer config (ADR 0022) rides in the state
+	// blob: a restoring instance adopts the saving instance's last-used
+	// directories and MIDI instrument map, while its host-owned override
+	// layer (sample rate, buffer size) stays its own. The shared user
+	// config file is never written.
+
+	HydrogenPlugin saver( 44100, 512, 2 );
+	auto pSaverPref = saver.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pSaverPref != nullptr );
+
+	// The plugin never persists its runtime config: whatever the state
+	// round-trip applies, the user config file must stay byte-identical
+	// (or stay absent). Snapshot after construction so bootstrap noise
+	// cannot mask the pin.
+	const QString sConfigPath = Filesystem::userConfigPath();
+	QByteArray configBefore;
+	bool bConfigExists = false;
+	{
+		QFile file( sConfigPath );
+		if ( file.exists() ) {
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			configBefore = file.readAll();
+			file.close();
+			bConfigExists = true;
+		}
+	}
+
+	// Distinctive base-layer values — several differ from the defaults,
+	// so adoption cannot pass vacuously.
+	pSaverPref->setLastOpenSongDirectory( Filesystem::userPatternsDir() );
+	auto pSaverMap = pSaverPref->getMidiInstrumentMap();
+	CPPUNIT_ASSERT( pSaverMap != nullptr );
+	pSaverMap->setInput( MidiInstrumentMap::Input::Custom );
+	pSaverMap->setOutput( MidiInstrumentMap::Output::Constant );
+	pSaverMap->setUseGlobalInputChannel( true );
+	pSaverMap->setGlobalInputChannel( Midi::channelFromInt( 3 ) );
+	auto pTypedInstrument = std::make_shared<Instrument>();
+	pTypedInstrument->setType( "Kick" );
+	pSaverMap->insertCustomInputMapping(
+		pTypedInstrument, Midi::noteFromInt( 60 ), Midi::channelFromInt( 5 ) );
+	// The editor-binary override (landing UI) is a base-layer preference
+	// too — it must ride along.
+	saver.setEditorBinary( "/opt/hydrogen-editor" );
+	// The embed-samples toggle (the landing UI's configuration section)
+	// is a base-layer preference as well — it must ride along too.
+	pSaverPref->setPluginStateEmbedSamples( false );
+
+	const auto state = saver.saveState( /*bEmbedSamples=*/true );
+	CPPUNIT_ASSERT( ! state.empty() );
+
+	// A fresh instance at a different host geometry restores it.
+	HydrogenPlugin other( 48000, 256, 2 );
+	auto pOtherPref = other.getHydrogen()->getPreferences();
+	CPPUNIT_ASSERT( pOtherPref != nullptr );
+	// A known sentinel, so the restore cannot pass vacuously whatever
+	// the shared user config happens to contain.
+	pOtherPref->setLastOpenSongDirectory( QDir::homePath() );
+	pOtherPref->setPluginStateEmbedSamples( true );
+
+	CPPUNIT_ASSERT( other.loadState( state ) );
+	CPPUNIT_ASSERT( other.getHydrogen()->getSong() != nullptr );
+
+	// Base layer restored from the saving instance.
+	CPPUNIT_ASSERT( pOtherPref->getLastOpenSongDirectory() ==
+					Filesystem::userPatternsDir() );
+	CPPUNIT_ASSERT( pOtherPref->getMidiInstrumentMap()->toXmlBuffer() ==
+					pSaverMap->toXmlBuffer() );
+	CPPUNIT_ASSERT( pOtherPref->getPluginEditorBinary() ==
+					"/opt/hydrogen-editor" );
+	CPPUNIT_ASSERT( pOtherPref->getPluginStateEmbedSamples() == false );
+
+	// Override layer stays the restoring host's own (ADR 0022: the host
+	// owns the audio geometry; it is not part of the plugin's config).
+	CPPUNIT_ASSERT( pOtherPref->m_nSampleRate == 48000 );
+	CPPUNIT_ASSERT( pOtherPref->m_nBufferSize == 256 );
+
+	// Legacy bare-XML song blobs (state from before the always-archive
+	// form) still load and leave the current preferences untouched.
+	pOtherPref->setLastOpenSongDirectory( QDir::tempPath() );
+	const QByteArray legacyXml = saver.getHydrogen()->getSong()->toXmlBuffer(
+		Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc, true );
+	const std::vector<unsigned char> legacyState(
+		legacyXml.constData(), legacyXml.constData() + legacyXml.size() );
+	CPPUNIT_ASSERT( other.loadState( legacyState ) );
+	CPPUNIT_ASSERT( pOtherPref->getLastOpenSongDirectory() ==
+					QDir::tempPath() );
+
+	// The shared user config was never written.
+	{
+		QFile file( sConfigPath );
+		if ( bConfigExists ) {
+			CPPUNIT_ASSERT( file.exists() );
+			CPPUNIT_ASSERT( file.open( QIODevice::ReadOnly ) );
+			const QByteArray configAfter = file.readAll();
+			file.close();
+			CPPUNIT_ASSERT( configAfter == configBefore );
+		}
+		else {
+			CPPUNIT_ASSERT( ! file.exists() );
+		}
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testPluginRepeatedLifecycle() {
+	___INFOLOG( "" );
+
+	// A host instantiates and destroys plugin instances repeatedly within one
+	// process; doing so must leave no residual global state (ADR 0015).
+	const int nBaseline = Base::getAliveObjectCount();
+
+	for ( int ii = 0; ii < 4; ++ii ) {
+		auto* pPlugin = new HydrogenPlugin( 44100, 256, 2 );
+		PluginBuffers buf( 256, 2 );
+		pPlugin->process( 256, buf.masterL.data(), buf.masterR.data(),
+						  buf.busLPtr, buf.busRPtr,
+						  HostTransportReading{ true, false, 120.0, 0 } );
+		delete pPlugin;
+		CPPUNIT_ASSERT_EQUAL( nBaseline, Base::getAliveObjectCount() );
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testEditorOpenServesEngine() {
+	___INFOLOG( "" );
+
+	const int nSelectedPattern = 3;
+	HydrogenPlugin plugin( 44100, 512, 0 );
+	CPPUNIT_ASSERT( plugin.getHydrogen() != nullptr );
+	CPPUNIT_ASSERT( plugin.getHydrogen()->getSong() != nullptr );
+	plugin.getHydrogen()->setSelectedPatternNumber( nSelectedPattern );
+
+	// Open the editor without spawning the GUI process — this test acts as the
+	// editor itself by attaching an EditorSession to the served endpoint.
+	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
+	CPPUNIT_ASSERT( plugin.isEditorOpen() );
+	CPPUNIT_ASSERT( ! plugin.getEditorEndpoint().isEmpty() );
+	const QString sEndpoint = plugin.getEditorEndpoint();
+
+	auto* pMirror = TestHelper::makeMirror();
+	CPPUNIT_ASSERT( pMirror->getSelectedPatternNumber() != nSelectedPattern );
+	auto pEditor = EditorSession::connect( sEndpoint, pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+	// The engine primes the attached editor's mirror with its current
+	// selection state (attach-time push over the event pipeline).
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return pMirror->getSelectedPatternNumber() == nSelectedPattern; } ) );
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess->getSelectedPatternNumber() == nSelectedPattern );
+
+	// Closing kills the editor process but keeps the always-on session
+	// (ADR 0035 UI-3): the endpoint stays served for a reopen, and an
+	// editor can still attach while "closed".
+	pEditor.reset();
+	plugin.closeEditor();
+	CPPUNIT_ASSERT( ! plugin.isEditorOpen() );
+	CPPUNIT_ASSERT( plugin.getEditorEndpoint() == sEndpoint );
+
+	auto* pMirror2 = TestHelper::makeMirror();
+	auto pLate = EditorSession::connect( sEndpoint, pMirror2, 300 );
+	CPPUNIT_ASSERT( pLate != nullptr ); // the always-on session still serves
+
+	delete pMirror2;
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testEditorCommandReachesEngine() {
+	___INFOLOG( "" );
+
+	HydrogenPlugin plugin( 44100, 512, 0 );
+	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pEditor = EditorSession::connect( plugin.getEditorEndpoint(), pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	auto pAccess = pEditor->createEngineAccess();
+	CPPUNIT_ASSERT( pAccess != nullptr );
+	CPPUNIT_ASSERT( pAccess->getCoreActionController() != nullptr );
+
+	// A command on the editor flows over IPC to the plugin's engine. (Use master
+	// volume, not BPM: under a plugin host the engine cedes tempo to the host, so
+	// setBpm is intentionally a no-op there.)
+	pAccess->getCoreActionController()->setMasterVolume( 0.25f );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::abs(
+			plugin.getHydrogen()->getSong()->getVolume() - 0.25f ) < 0.001f;
+	} ) );
+
+	pEditor.reset();
+	plugin.closeEditor();
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+// TU3.4 (ADR 0035 UI-3) — the local command path the embedded basic UI
+// uses: its models call the plugin's own CoreActionController (the engine
+// lives in this very process), so a command mutates the authoritative
+// engine state directly — no editor round-trip.
+void PluginLifecycleTest::testLocalCommandReachesEngine() {
+	___INFOLOG( "" );
+
+	HydrogenPlugin plugin( 44100, 512, 0 );
+	auto pHydrogen = plugin.getHydrogen();
+	CPPUNIT_ASSERT( pHydrogen != nullptr );
+	CPPUNIT_ASSERT( pHydrogen->getSong() != nullptr );
+
+	pHydrogen->getCoreActionController()->setStripVolume( 0, 0.7f, false );
+	CPPUNIT_ASSERT( TestHelper::pumpUntil( [&]() {
+		return std::abs( pHydrogen->getSong()->getDrumkit()->getInstruments()
+				->get( 0 )->getVolume() - 0.7f ) < 0.001f;
+	} ) );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testEditorReopen() {
+	___INFOLOG( "" );
+
+	HydrogenPlugin plugin( 44100, 512, 0 );
+
+	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
+	CPPUNIT_ASSERT( plugin.isEditorOpen() );
+	// Idempotent: a second open while already open is a no-op success.
+	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
+
+	plugin.closeEditor();
+	CPPUNIT_ASSERT( ! plugin.isEditorOpen() );
+	// Double close is harmless.
+	plugin.closeEditor();
+
+	// Re-openable after close (the always-on session kept serving the same
+	// endpoint; openEditor just marks it open again).
+	CPPUNIT_ASSERT( plugin.openEditor( /*bLaunchProcess=*/false ) );
+	CPPUNIT_ASSERT( plugin.isEditorOpen() );
+
+	auto* pMirror = TestHelper::makeMirror();
+	auto pEditor = EditorSession::connect( plugin.getEditorEndpoint(), pMirror );
+	CPPUNIT_ASSERT( pEditor != nullptr );
+
+	pEditor.reset();
+	plugin.closeEditor();
+	delete pMirror;
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testEditorBinaryDiscovery() {
+	___INFOLOG( "" );
+
+	qunsetenv( "HYDROGEN_EDITOR_PATH" );
+
+	// Explicit override always wins.
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "/opt/h/hydrogen" ),
+		HydrogenPlugin::resolveEditorBinary( "/opt/h/hydrogen", "" )
+			.toStdString() );
+
+	// No override and nothing bundled → PATH fallback (a bare name).
+	const QString sFallback =
+		HydrogenPlugin::resolveEditorBinary( "", "/no/such/plugin/dir" );
+	CPPUNIT_ASSERT( sFallback == QStringLiteral( "hydrogen" ) ||
+					sFallback == QStringLiteral( "hydrogen.exe" ) );
+
+	// An executable bundled next to the plugin is discovered.
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+#if defined( _WIN32 )
+	const QString sName = QStringLiteral( "hydrogen.exe" );
+#else
+	const QString sName = QStringLiteral( "hydrogen" );
+#endif
+	const QString sExe = QDir( tmp.path() ).filePath( sName );
+	{
+		QFile f( sExe );
+		CPPUNIT_ASSERT( f.open( QIODevice::WriteOnly ) );
+		f.write( "#!/bin/sh\n" );
+	}
+	QFile::setPermissions( sExe, QFile::permissions( sExe ) |
+								  QFileDevice::ExeOwner | QFileDevice::ExeUser );
+	CPPUNIT_ASSERT_EQUAL(
+		QFileInfo( sExe ).absoluteFilePath().toStdString(),
+		HydrogenPlugin::resolveEditorBinary( "", tmp.path() ).toStdString() );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testResolveSystemDataPath() {
+	___INFOLOG( "" );
+
+	// The override must not leak between the cases below (nor in from the
+	// developer's shell).
+	qunsetenv( "HYDROGEN_SYS_DATA_PATH" );
+
+	// No override → the Filesystem platform default: the one shared system
+	// location. The plugin never searches relative to its own install
+	// location.
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "" ),
+		HydrogenPlugin::resolveSystemDataPath().toStdString() );
+
+	// An explicit override wins.
+	qputenv( "HYDROGEN_SYS_DATA_PATH", "/opt/h/data" );
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "/opt/h/data" ),
+		HydrogenPlugin::resolveSystemDataPath().toStdString() );
+	qunsetenv( "HYDROGEN_SYS_DATA_PATH" );
+
+	___INFOLOG( "passed" );
+}
+
+#ifdef H2CORE_HAVE_DEBUG
+void PluginLifecycleTest::testProcessDefaultAuditSurface() {
+	___INFOLOG( "" );
+
+	// The process default writes asynchronously; drain its queue so the
+	// offset below marks a quiet point and the delta only contains lines
+	// logged during this test's lifecycle.
+	Logger::get_instance()->flush();
+
+	// The process default's actual file, straight from the logger itself.
+	QFile processLog( Logger::get_instance()->getLogFile() );
+	CPPUNIT_ASSERT( processLog.open( QIODevice::ReadOnly ) );
+	const qint64 nOffsetBefore = processLog.size();
+	processLog.close();
+
+	{
+		// Full lifecycle: construction, activation, a state round-trip (a
+		// loud path so unscoped lines actually exist), a processing cycle
+		// with a note, and teardown.
+		HydrogenPlugin plugin( 44100, 512, 2 );
+		plugin.activate( 44100, 512 );
+		const auto state = plugin.saveState( /*bEmbedSamples=*/false );
+		CPPUNIT_ASSERT( plugin.loadState( state ) );
+		PluginBuffers buf( 512, 2 );
+		plugin.noteOn( 36, 100, static_cast<int>( Midi::ChannelDefault ) );
+		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, 0 } );
+		plugin.process( 512, buf.masterL.data(), buf.masterR.data(),
+						buf.busLPtr, buf.busRPtr,
+						HostTransportReading{ true, true, 120.0, 512 } );
+		plugin.deactivate();
+	}
+
+	Logger::get_instance()->flush();
+
+	CPPUNIT_ASSERT( processLog.open( QIODevice::ReadOnly ) );
+	processLog.seek( nOffsetBefore );
+	QTextStream in( &processLog );
+	QStringList sMarkedLines;
+	while ( ! in.atEnd() ) {
+		const QString sLine = in.readLine();
+		if ( sLine.contains( "[unscoped]" ) ) {
+			sMarkedLines << sLine;
+		}
+	}
+	processLog.close();
+
+	// The one deliberate process-level line of an instance lifecycle is the
+	// spawning announcement (the shared log doubles as the index of
+	// per-instance files). Anything else reaching the process default while
+	// instance loggers are alive is a routing gap.
+	CPPUNIT_ASSERT_MESSAGE(
+		QString( "Expected exactly the spawning announcement on the process "
+				 "default (offset %1..%2), got %3 marked line(s):\n%4" )
+			.arg( nOffsetBefore )
+			.arg( processLog.size() )
+			.arg( sMarkedLines.size() )
+			.arg( sMarkedLines.join( "\n" ) )
+			.toStdString(),
+		sMarkedLines.size() == 1 );
+	CPPUNIT_ASSERT( sMarkedLines.first().contains( "Spawning instance logger" ) );
+
+	___INFOLOG( "passed" );
+}
+#endif

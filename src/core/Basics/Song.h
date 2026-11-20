@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_H
-#define SONG_H
+#ifndef H2C_SONG_H
+#define H2C_SONG_H
 
 #include <QDomNode>
 #include <QString>
@@ -41,8 +41,8 @@ namespace H2Core {
 class ADSR;
 class AutomationPath;
 class Drumkit;
-class Effects;
 class GridPoint;
+class Hydrogen;
 class Instrument;
 class Note;
 class Pattern;
@@ -132,18 +132,48 @@ class Song : public H2Core::Object<Song>,
 
 	/** Creates the default / fallback song.
 	 *
-	 * @param pDB When creating an empty song during startup, the
-	 *   #H2Core::Hydrogen singleton might not be ready yet. This can be
-	 *   compensated by passing the created instance directly instead. */
-	static std::shared_ptr<Song> getEmptySong(
-		std::shared_ptr<SoundLibraryDatabase> pDB = nullptr
-	);
+	 * The default drumkit (the shipped GMRockKit) is loaded directly from
+	 * disk, so the song does not depend on the state of the
+	 * SoundLibraryDatabase and can be created before its first scan has
+	 * completed.
+	 *
+	 * @param pHydrogen Owning instance used when loading the default
+	 *   drumkit (ADR 0015). */
+	static std::shared_ptr<Song> getEmptySong( Hydrogen* pHydrogen );
 
-	static std::shared_ptr<Song> from( std::shared_ptr<SoundLibraryInfo> pInfo
+	static std::shared_ptr<Song> from( std::shared_ptr<SoundLibraryInfo> pInfo,
+		Hydrogen* pHydrogen
 	);
 
 	static std::shared_ptr<Song>
-	load( const QString& sPath, bool bSilent = false );
+	load( const QString& sPath, bool bSilent,
+		  Hydrogen* pHydrogen );
+
+	/** Serialize the song to an in-memory `.h2song` XML buffer (no disk I/O).
+	 * Used by the `.h2project` bundle codec (ADR 0025).
+	 *
+	 * \param flags OR-ed combination of #Xml::Flag options.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed.
+	 * \param pProjectSampleEntries If not null, samples are referenced by
+	 *   their entry names within a `.h2project` bundle instead of local
+	 *   paths (only effective in combination with Xml::Flag::Project). */
+	QByteArray toXmlBuffer(
+		Xml::Flag flags = Xml::Flag::KeepMissingSamples | Xml::Flag::Ipc,
+		bool bSilent = false,
+		const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
+	) const;
+	/** Reconstruct a song from an in-memory `.h2song` XML buffer (no disk I/O).
+	 * Samples are referenced but not loaded - the same as load().
+	 *
+	 * \param flags OR-ed combination of #Xml::Flag options.
+	 * \param bSilent if set to true, all log messages except of errors and
+	 *   warnings are suppressed. */
+	static std::shared_ptr<Song> fromXmlBuffer( const QByteArray& buffer,
+												Xml::Flag flags,
+												bool bSilent,
+												Hydrogen* pHydrogen );
+
 	/** Writes the song as .h2song to disk.
 	 *
 	 * @param sPath Absolute path to write the song to.
@@ -178,9 +208,6 @@ class Song : public H2Core::Object<Song>,
 
 	void setVolume( float fVolume );
 	float getVolume() const;
-
-	void setMetronomeVolume( float fVolume );
-	float getMetronomeVolume() const;
 
 	std::shared_ptr<PatternList> getPatternList() const;
 	void setPatternList( std::shared_ptr<PatternList> pList );
@@ -224,6 +251,9 @@ class Song : public H2Core::Object<Song>,
 	const QString& getPath() const;
 	void setPath( const QString& sPath );
 
+	bool getBackedByProject() const;
+	void setBackedByProject( bool bBackedByProject );
+
 	const LoopMode& getLoopMode() const;
 	void setLoopMode( const LoopMode& loopMode );
 	bool isLoopEnabled() const;
@@ -246,7 +276,7 @@ class Song : public H2Core::Object<Song>,
 	bool getIsModified() const;
 	void setIsModified( bool bIsModified );
 
-	AutomationPath* getVelocityAutomationPath() const;
+	std::shared_ptr<AutomationPath> getAutomationPath() const;
 
 	int getLatestRoundRobin( float fStartVelocity ) const;
 	void setLatestRoundRobin( float fStartVelocity, int nLatestRoundRobin );
@@ -271,9 +301,6 @@ class Song : public H2Core::Object<Song>,
 	std::shared_ptr<Timeline> getTimeline() const;
 	void setTimeline( std::shared_ptr<Timeline> pTimeline );
 
-	std::shared_ptr<Effects> getEffects() const;
-	void setEffects( std::shared_ptr<Effects> pEffects );
-
 	std::vector<std::shared_ptr<Note>> getAllNotes() const;
 
 	const QString& getLastLoadedDrumkitPath() const;
@@ -297,12 +324,15 @@ class Song : public H2Core::Object<Song>,
 	static std::shared_ptr<Song> loadFrom(
 		const XMLNode& pNode,
 		const QString& sFileName,
-		bool bSilent = false
+		Xml::Flag flags,
+		bool bSilent,
+		Hydrogen* pHydrogen
 	);
 	void saveTo(
 		XMLNode& pNode,
-		bool bKeepMissingSamples,
-		bool bSilent = false
+		Xml::Flag flags,
+		bool bSilent,
+		const Xml::ProjectSampleEntries* pProjectSampleEntries = nullptr
 	) const;
 
 	/** Whether the Timeline button was pressed in the GUI or it was
@@ -327,8 +357,6 @@ class Song : public H2Core::Object<Song>,
 
 	///< volume of the song (0.0..1.0)
 	float m_fVolume;
-	///< Metronome volume
-	float m_fMetronomeVolume;
 	QString m_sNotes;
 	QStringList m_tags;
 
@@ -349,8 +377,20 @@ class Song : public H2Core::Object<Song>,
 	 *
 	 * In case is no file backing the resource (yet), an path to an
 	 * non-existing file retrieved via #Filesystem::emptyPath will be used
-	 * instead. */
+	 * instead.
+	 *
+	 * In case the file is #m_bBackedByProject, the absolute path to the
+	 * .h2project file will be assigned. */
 	QString m_sPath;
+
+	/** Indicates whether the song was loaded as part of a .h2project file. The
+	 * later is a tar archive which will be extracted the Hydrogen's cache
+	 * folder during runtime. Although this .h2song file is writable, we treat
+	 * it as read-only and discard it during tear down. Overwriting a project
+	 * must be an explicit action and must not be done during song save. This
+	 * also means a song backed by a project can not have an autosave file
+	 * associated to it. */
+	bool m_bBackedByProject;
 
 	/**
 	 * The three states of this enum is just a way to handle the
@@ -381,7 +421,8 @@ class Song : public H2Core::Object<Song>,
 
 	std::shared_ptr<Instrument> m_pPlaybackTrackInstrument;
 
-	AutomationPath* m_pVelocityAutomationPath;
+	std::shared_ptr<AutomationPath> m_pAutomationPath;
+
 	///< license of the song
 	License m_license;
 
@@ -404,8 +445,6 @@ class Song : public H2Core::Object<Song>,
 	float m_fPanLawKNorm;
 
 	std::shared_ptr<Timeline> m_pTimeline;
-
-	std::shared_ptr<Effects> m_pEffects;
 
 	/** Unique identifier of the drumkit last loaded.
 	 *
@@ -452,15 +491,6 @@ inline void Song::setTimeline( std::shared_ptr<Timeline> pTimeline )
 {
 	m_pTimeline = pTimeline;
 }
-inline std::shared_ptr<Effects> Song::getEffects() const
-{
-	return m_pEffects;
-}
-inline void Song::setEffects( std::shared_ptr<Effects> pEffects )
-{
-	m_pEffects = pEffects;
-}
-
 inline bool Song::getIsMuted() const
 {
 	return m_bIsMuted;
@@ -503,16 +533,6 @@ inline float Song::getVolume() const
 inline void Song::setVolume( float fValue )
 {
 	m_fVolume = fValue;
-}
-
-inline float Song::getMetronomeVolume() const
-{
-	return m_fMetronomeVolume;
-}
-
-inline void Song::setMetronomeVolume( float fValue )
-{
-	m_fMetronomeVolume = fValue;
 }
 
 inline bool Song::getIsModified() const
@@ -603,6 +623,14 @@ inline void Song::setPath( const QString& sPath )
 	m_sPath = sPath;
 }
 
+inline bool Song::getBackedByProject() const {
+	return m_bBackedByProject;
+}
+
+inline void Song::setBackedByProject( bool bBackedByProject ) {
+	m_bBackedByProject = bBackedByProject;
+}
+
 inline bool Song::isLoopEnabled() const
 {
 	return m_loopMode == LoopMode::Enabled || m_loopMode == LoopMode::Finishing;
@@ -669,9 +697,9 @@ inline void Song::setMode( const Song::Mode& mode )
 	m_mode = mode;
 }
 
-inline AutomationPath* Song::getVelocityAutomationPath() const
+inline std::shared_ptr<AutomationPath> Song::getAutomationPath() const
 {
-	return m_pVelocityAutomationPath;
+	return m_pAutomationPath;
 }
 
 inline int Song::getLatestRoundRobin( float fStartVelocity ) const

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef NOTE_PROPERTIES_RULER_H
-#define NOTE_PROPERTIES_RULER_H
+#ifndef H2C_NOTE_PROPERTIES_RULER_H
+#define H2C_NOTE_PROPERTIES_RULER_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -107,6 +107,21 @@ class NotePropertiesRuler : public PatternEditor,
 	/** Transforms the y coordinate of the provided event into a value which
 	 * is intended to be used with applyProperty(). */
 	float eventToYValue( QMouseEvent* pEvent ) const;
+
+	/** Commits a single note-property edit through #H2Core::CoreActionController
+	 * (ADR 0027), addressing @a pNote by value (position + id/type + key/octave
+	 * — which the caller must not have changed yet). Only the component matching
+	 * @a property is applied; the remaining values should equal the note's
+	 * current ones. @return true if a value actually changed. */
+	bool commitNoteProperty(
+		std::shared_ptr<H2Core::Note> pNote,
+		PatternEditor::Property property,
+		float fVelocity,
+		float fPan,
+		float fLeadLag,
+		float fProbability,
+		H2Core::Note::Key newKey,
+		H2Core::Note::Octave newOctave );
 
 	static void yToKeyOctave(
 		int nY,

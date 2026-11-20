@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef SHORTCUT_CAPTURE_DIALOG_H
-#define SHORTCUT_CAPTURE_DIALOG_H
+#ifndef H2C_SHORTCUT_CAPTURE_DIALOG_H
+#define H2C_SHORTCUT_CAPTURE_DIALOG_H
 
 #include <QtGui>
 #include <QtWidgets>

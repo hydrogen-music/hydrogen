@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef COLORED_BUTTON_H
-#define COLORED_BUTTON_H
+#ifndef H2C_COLORED_BUTTON_H
+#define H2C_COLORED_BUTTON_H
 
 #include "Button.h"
 #include "Modifier.h"

@@ -31,6 +31,8 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
 #include <core/Hydrogen.h>
+#include <core/IPC/EditorSession.h>
+#include <core/IPC/IpcEngineAccess.h>
 #include <core/Logger.h>
 #ifdef H2CORE_HAVE_OSC
   #include <core/NsmClient.h>
@@ -40,6 +42,7 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 #include <core/Version.h>
 
+#include "FontUtils.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "Parser.h"
@@ -48,6 +51,7 @@
 #include "ShotList.h"
 #include "Skin.h"
 #include "SplashScreen.h"
+#include "StartupTestModes.h"
 
 #ifdef HAVE_EXECINFO_H
   #include <execinfo.h>
@@ -55,6 +59,7 @@
 #include <getopt.h>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <set>
 #include <signal.h>
 #ifdef WIN32
@@ -204,6 +209,14 @@ int main(int argc, char *argv[])
 	}
 #endif
 	Reporter::spawn( argc, argv );
+
+	// The event loop's exit code is the verdict channel for the
+	// out-of-process verification modes (e.g. --verify-plugin-transport-
+	// gating, ADR 0026), which signal a mismatch via
+	// QCoreApplication::exit(1). Regular shutdowns go through quit() (=
+	// exit(0)), so propagating the result does not change standalone
+	// behavior.
+	int nExecResult = 0;
 	try {
 #ifndef H2CORE_HAVE_QT6
   #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
@@ -222,7 +235,23 @@ int main(int argc, char *argv[])
 			exit( 1 );
 		}
 
-		QString sSongFileName = parser.getSongFileName();
+		QString sSongFileName;
+		if ( ! parser.getConnectViaIpcEndpoint().isEmpty() &&
+			 ! parser.getSongFileName().isEmpty() ) {
+			___WARNINGLOG( "A song can not be provided when connecting via IPC!" );
+		}
+		else {
+			sSongFileName = parser.getSongFileName();
+		}
+
+		QString sPlaylistFileName;
+		if ( ! parser.getConnectViaIpcEndpoint().isEmpty() &&
+			 ! parser.getPlaylistFileName().isEmpty() ) {
+			___WARNINGLOG( "A playlist can not be provided when connecting via IPC!" );
+		}
+		else {
+			sPlaylistFileName = parser.getPlaylistFileName();
+		}
 
 		std::cout << H2Core::getAboutText().toStdString();
 		
@@ -231,16 +260,27 @@ int main(int argc, char *argv[])
 		H2Core::Logger::setCrashContext( &sInitialisingCrashContext );
 
 		// Man your battle stations... this is not a drill.
+		H2Core::Logger::Options logOptions =
+			H2Core::Logger::Option::UseStdout;
+		if ( parser.getLogTimestamps() ) {
+			logOptions |= H2Core::Logger::Option::Timestamps;
+		}
+		if ( parser.getLogColors() ) {
+			logOptions |= H2Core::Logger::Option::Colors;
+		}
 		auto pLogger = H2Core::Logger::bootstrap(
-			parser.getLogLevel(), parser.getLogFile(), true,
-			parser.getLogTimestamps(), parser.getLogColors() );
+			parser.getLogLevel(), parser.getLogFile(), logOptions );
 		H2Core::Base::bootstrap(
 			pLogger, pLogger->should_log( H2Core::Logger::Debug ) );
 
 		H2Core::Filesystem::bootstrap(
 			pLogger, parser.getSysDataPath(), parser.getUsrDataPath(),
 			parser.getConfigFilePath(), parser.getLogFile() );
-		H2Core::Preferences::create_instance();
+		auto pPref = H2Core::Preferences::create_instance();
+		// The GUI touches Preferences during early startup (e.g. Skin::setPalette)
+		// before the engine exists; inject the bootstrap handle so the static
+		// HydrogenApp accessors resolve to it (ADR 0015/0016).
+		HydrogenApp::setBootstrap( nullptr, pPref );
 		// See below for H2Core::Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
@@ -252,7 +292,7 @@ int main(int argc, char *argv[])
 		___INFOLOG( QString( "System encoding: [%1]" ).arg( sEncoding ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::systemDataPath() );
 
-		auto pPref = H2Core::Preferences::get_instance();
+		// pPref obtained above from create_instance().
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
 		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
@@ -293,8 +333,14 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! parser.getAudioDriver().isEmpty() ) {
-			pPref->m_audioDriver =
-				H2Core::Preferences::parseAudioDriver( parser.getAudioDriver() );
+			if ( ! parser.getConnectViaIpcEndpoint().isEmpty() ) {
+				___WARNINGLOG( "An audio driver can not be specific in when connecting via IPC!" );
+			}
+			else {
+				pPref->m_audioDriver = H2Core::Preferences::parseAudioDriver(
+					parser.getAudioDriver()
+				);
+			}
 		}
 
 		delete pBootStrApp;
@@ -306,6 +352,12 @@ int main(int argc, char *argv[])
 		// Process any pending events before showing splash screen. This allows macOS to show previous-crash
 		// warning dialogs before they are covered by the splash screen.
 		pQApp->processEvents();
+
+		// Font families from the config file are untrusted input. They
+		// are sanitized once here — after the QApplication exists (font
+		// database queries require it) and before the first font is
+		// used.
+		FontUtils::sanitizeFontTheme( pPref->getThemeWritable()->m_pFont );
 
 		QString family = pPref->getFontTheme()->m_sApplicationFontFamily;
 		pQApp->setFont( QFont( family, 10 ) );
@@ -354,17 +406,28 @@ int main(int argc, char *argv[])
 		setApplicationIcon( pQApp );
 
 		// This must be done after creating a QApplication instance
-		// and setting its locale as some Qt standard keys are used as
-		// defaults.
+		// and setting its locale: the Undo/Redo defaults are
+		// platform-dependent (QKeySequence::keyBindings() requires a
+		// QGuiApplication) and are therefore injected from the GUI
+		// side.
 		if ( pPref->getShortcuts()->requiresDefaults() ) {
-			pPref->getShortcuts()->createDefaultShortcuts();
+			pPref->getShortcuts()->createDefaultShortcuts(
+				Skin::fromQKeySequence(
+					QKeySequence( QKeySequence::StandardKey::Undo ) ),
+				Skin::fromQKeySequence(
+					QKeySequence( QKeySequence::StandardKey::Redo ) ) );
 		}
 
 		if ( ! pPref->getLoadingSuccessful() ) {
+			QMessageBox::critical(
+				nullptr, "Hydrogen",
+				QString( QT_TRANSLATE_NOOP(
+					"Startup",
+					"No [hydrogen.conf] file found. Hydrogen was not installed "
+					"properly. Aborting..."
+				) )
+			);
 
-			QMessageBox::critical( nullptr, "Hydrogen",
-				QString( QT_TRANSLATE_NOOP( "Startup",															   "No [hydrogen.conf] file found. Hydrogen was not installed properly. Aborting..." ) ) );
-			
 			// Neither the Preferences on system level nor the ones at
 			// user level could be loaded successfully. Hydrogen was
 			// most probably not installed properly. Abort.
@@ -405,9 +468,7 @@ int main(int argc, char *argv[])
 		QDir::setCurrent( sCurrentDir );
 #endif
 
-
 		SplashScreen *pSplash = new SplashScreen();
-
 #ifdef H2CORE_HAVE_OSC
 		// Check for being under session management without the
 		// NsmClient class available yet.
@@ -417,40 +478,96 @@ int main(int argc, char *argv[])
 		else {
 			pSplash->show();
 		}
-#endif
-#ifndef H2CORE_HAVE_OSC
+#else
 		pSplash->show();
 #endif
 
-		// Hydrogen here to honor all preferences.
-		H2Core::Hydrogen::create_instance( parser.getOscPort() );
-		auto pHydrogen = H2Core::Hydrogen::get_instance();
-		
-#ifdef H2CORE_HAVE_OSC
-		auto pNsmClient = NsmClient::get_instance();
-		if ( pNsmClient != nullptr ) {
-			// We provide the process name as argument.
-			pNsmClient->createInitialClient( QString( argv[0] ) );
+		// Hidden test-mode options (ADR 0015/0016, ADR 0026): non-interactive
+		// startup preferences. The mode logic lives in StartupTestModes.
+		StartupTestModes::applyNonInteractivePreferences( parser, pPref );
+
+		// Connect-to-headless-engine mode (ADR 0016/0018/0032): when an
+		// endpoint was given, the GUI connects to a headless engine at this IPC
+		// endpoint instead of creating its own authoritative engine + audio
+		// driver. No local driver, no NSM (the headless engine owns the
+		// session).
+		const QString sConnectViaIpcEndpoint = parser.getConnectViaIpcEndpoint();
+		const bool bConnectViaIpc = ! sConnectViaIpcEndpoint.isEmpty();
+		std::unique_ptr<H2Core::EditorSession> pEditorSession;
+
+		H2Core::Hydrogen* pHydrogen = nullptr;
+		if ( bConnectViaIpc ) {
+			// Local headless mirror: clocked but output-less (Null) driver
+			// (ADR 0031) — it rolls the mirror's own transport for a smooth
+			// playhead while the headless engine we connect to owns audio.
+			// No MIDI, no OSC.
+			//
+			// The mirror GUI only owns the GUI rows of the shared config; the
+			// authoritative headless engine owns the core rows (ADR 0022/0023).
+			pPref->setFieldOwnership(
+				H2Core::Preferences::FieldOwnership::GuiOwned );
+			H2Core::EditorSession::configureMirrorPreferences( pPref );
+			pHydrogen = H2Core::Hydrogen::create_instance(
+				parser.getOscPort(), pPref,
+				H2Core::ProcessMode::Editor
+			);
+			pEditorSession = H2Core::EditorSession::connect(
+				sConnectViaIpcEndpoint, pHydrogen
+			);
+			if ( pEditorSession == nullptr ) {
+				___ERRORLOG( QString( "Unable to connect to headless engine "
+									  "endpoint [%1]. Aborting..." )
+								 .arg( sConnectViaIpcEndpoint ) );
+				// Stop the engine (joins any driver threads) before tearing down
+				// the QApplication and the Logger those threads log through.
+				delete pHydrogen;
+				delete pQApp;
+				delete H2Core::Logger::get_instance();
+				// Clean, already-reported failure (not a crash): exit with the
+				// dedicated code so the Reporter does not pop the crash dialog.
+				exit( Reporter::EXIT_CODE_CLEAN_FAILURE );
+			}
+			HydrogenApp::setEditorBootstrap(
+				pHydrogen, std::move( pEditorSession ), pPref );
 		}
+		else {
+			// Standalone owns everything (ADR 0022/0023). The GUI process
+			// never runs in-DAW (its UI is out-of-process), so a leftover
+			// `Plugin` audio driver in the config must not mask the override
+			// rows here - that would make the stuck value unrepairable.
+			pPref->setFieldOwnership(
+				H2Core::Preferences::FieldOwnership::All );
+			// Hydrogen here to honor all preferences.
+			pHydrogen = H2Core::Hydrogen::create_instance(
+				parser.getOscPort(), pPref, H2Core::ProcessMode::Full
+			);
+			HydrogenApp::setBootstrap( pHydrogen, pPref );
+
+#ifdef H2CORE_HAVE_OSC
+			auto pNsmClient = pHydrogen->getNsmClient();
+			if ( pNsmClient != nullptr ) {
+				// We provide the process name as argument.
+				pNsmClient->createInitialClient( QString( argv[0] ) );
+			}
 #endif
 
-		// If the NSM_URL variable is present, Hydrogen will not
-		// initialize the audio driver and leaves this to the callback
-		// function nsm_open_cb of the NSM client (which will be
-		// called by now). However, the presence of the environmental
-		// variable does not guarantee for a session management and if
-		// no audio driver is initialized yet, we will do it here. 
-		if ( pHydrogen->getAudioDriver() == nullptr ) {
-			// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
-			// we're definitely busy.
-			QApplication::setOverrideCursor( Qt::WaitCursor );
-			pHydrogen->restartAudioDriver();
-			QApplication::restoreOverrideCursor();
+			// If the NSM_URL variable is present, Hydrogen will not
+			// initialize the audio driver and leaves this to the callback
+			// function nsm_open_cb of the NSM client (which will be
+			// called by now). However, the presence of the environmental
+			// variable does not guarantee for a session management and if
+			// no audio driver is initialized yet, we will do it here.
+			if ( pHydrogen->getAudioDriver() == nullptr ) {
+				// Starting drivers can take some time, so show the wait cursor to let the user know that, yes,
+				// we're definitely busy.
+				QApplication::setOverrideCursor( Qt::WaitCursor );
+				pHydrogen->restartAudioDriver();
+				QApplication::restoreOverrideCursor();
+			}
 		}
 
-		MainForm *pMainForm =
-			new MainForm( pQApp, sSongFileName,
-						  parser.getPlaylistFileName() );
+		auto pMainForm =
+			new MainForm( pQApp, sSongFileName, sPlaylistFileName );
 		auto pHydrogenApp = HydrogenApp::get_instance();
 		pMainForm->show();
 		// Update visibility button states.
@@ -461,25 +578,41 @@ int main(int argc, char *argv[])
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
-		pHydrogen->setGUIState( H2Core::Hydrogen::GUIState::ready );
+		pHydrogen->setFullyOperational( true );
+
+		// In IPC mode the song/playlist were not loaded from disk (the else
+		// branch above). Pull the full engine state from the headless engine so
+		// the mirror is in sync before the GUI is shown.
+		if ( bConnectViaIpc ) {
+			pHydrogenApp->syncViaIpc();
+		}
 
 		// The drumkit assigned via the command line must be applied _after_ the
 		// GUI is fully set up. We rely on our core events to reflect changes
 		// during loading and those have to be fully wired.
-		const QString sDrumkitNameToLoad = parser.getDrumkitToLoad();
-		if ( !sDrumkitNameToLoad.isEmpty() ) {
-			auto pDB =
-				H2Core::Hydrogen::get_instance()->getSoundLibraryDatabase();
-			auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
-				H2Core::Filesystem::Artifact::DrumkitExtracted,
-				H2Core::Filesystem::Context::User, sDrumkitNameToLoad, true
-			) );
-			if ( pDrumkit != nullptr ) {
-				H2Core::CoreActionController::setDrumkit( pDrumkit );
+		if ( ! parser.getDrumkitToLoad().isEmpty() ) {
+			if ( ! parser.getConnectViaIpcEndpoint().isEmpty() ) {
+				___WARNINGLOG(
+					"A drumkit can not be provided when connecting via IPC!"
+				);
 			}
 			else {
-				___ERRORLOG( QString( "Unable to retrieve drumkit called [%1]" )
-								 .arg( sDrumkitNameToLoad ) );
+				auto pDB = pHydrogen->getSoundLibraryDatabase();
+				auto pDrumkit = pDB->getDrumkit( pDB->findArtifact(
+					H2Core::Filesystem::Artifact::DrumkitExtracted,
+					H2Core::Filesystem::Context::User,
+					parser.getDrumkitToLoad(), true
+				) );
+				if ( pDrumkit != nullptr ) {
+					pHydrogen->getCoreActionController()->setDrumkit( pDrumkit
+					);
+				}
+				else {
+					___ERRORLOG(
+						QString( "Unable to retrieve drumkit called [%1]" )
+							.arg( parser.getDrumkitToLoad() )
+					);
+				}
 			}
 		}
 
@@ -493,24 +626,38 @@ int main(int argc, char *argv[])
 		// the modification flag. This does not apply in case we are
 		// restoring unsaved changes applied to an empty song during
 		// the previous session.
-		if ( pHydrogen->getSong()->getPath() !=
+		//
+		// In the editor split this reset is skipped entirely: the flag
+		// pulled with the song is authoritative (the engine re-marks a
+		// new NSM session's fresh song in its open callback), and a
+		// local reset would clobber it — the GUI title would say clean
+		// while the engine's NsmClient reports dirty. Spurious
+		// widget-driven flagging never survives the song pull, and
+		// post-sync flips forward through IEngineAccess.
+		if ( ! bConnectViaIpc &&
+			 pHydrogen->getSong()->getPath() !=
 			 H2Core::Filesystem::emptyPath(
 				 H2Core::Filesystem::Artifact::Song ) ) {
 #ifdef H2CORE_HAVE_OSC
-			// Mark empty song created in a new NSM session modified
-			// in order to emphasis that an initial song save is
-			// required to generate the song file and link the
-			// associated drumkit in the session folder.
-			if ( NsmClient::get_instance() != nullptr &&
-				 NsmClient::get_instance()->getIsNewSession() ) {
-				
-				NsmClient::get_instance()->sendDirtyState( true );
-				pHydrogen->setSongModified( true );
+		// Mark empty song created in a new NSM session modified
+		// in order to emphasis that an initial song save is
+		// required to generate the song file and link the
+		// associated drumkit in the session folder. The engine's
+		// NSM open callback re-marks the fresh song as well
+		// (NsmClient.cpp); this standalone-only branch is the belt
+		// to those braces.
+		auto pNsmClient = pHydrogen->getNsmClient();
+		if ( pNsmClient != nullptr && pNsmClient->getIsNewSession() ) {
+
+			pNsmClient->sendDirtyState( true );
+			pHydrogen->setSongModified( true );
+		}
+		else {
+			if ( pNsmClient != nullptr ) {
+				pNsmClient->sendDirtyState( false );
 			}
-			else {
-				NsmClient::get_instance()->sendDirtyState( false );
-				pHydrogen->setSongModified( false );
-			}
+			pHydrogen->setSongModified( false );
+		}
 #else
 			pHydrogen->setSongModified( false );
 #endif
@@ -523,7 +670,12 @@ int main(int argc, char *argv[])
 		// it is replaced while Hydrogen is running.
 		pPref = nullptr;
 
-		pQApp->exec();
+		// Hidden test-mode options (ADR 0015/0016, 0033, 0026): schedule the
+		// smoke-test quit, the editor-path exerciser, or the transport-gating
+		// verifier. The mode logic lives in StartupTestModes.
+		StartupTestModes::schedulePostStartupWork( parser, pQApp, pMainForm );
+
+		nExecResult = pQApp->exec();
 
 		QString sShutdownCrashContext( "Shutting down Hydrogen" );
 		H2Core::Logger::setCrashContext( &sShutdownCrashContext );
@@ -531,26 +683,26 @@ int main(int argc, char *argv[])
 		// When cancelling the PreferencesDialog, Hydrogen will revert to the
 		// previous state of Preferences by reading the user-level hydrogen.conf
 		// file again and creating a new instance.
-		pPref = H2Core::Preferences::get_instance();
+		pPref = pHydrogen->getPreferences();
 
-		pPref->save();
+		pPref->save( false );
 		delete pSplash;
 		delete pMainForm;
 		delete pQApp;
-		delete H2Core::EventQueue::get_instance();
+		// Hydrogen (deleted via ~HydrogenApp) owns its EventQueue and frees it
+		// in ~Hydrogen (ADR 0015).
 
 		___INFOLOG( "Quitting..." );
 		std::cout << "\nBye..." << std::endl;
 
-		// There is no particular need to clean up the Preferences outselves.
-		// This is just done in order for it to not appear in the objects map
-		// printed below.
-		pPref->replaceInstance( nullptr );
+		// There is no particular need to clean up the Preferences ourselves.
 		pPref = nullptr;
 
 		delete H2Core::Logger::get_instance();
 
-		if (H2Core::Base::count_active()) {
+		// objects_count() is the number of alive objects (count_active()
+		// only tells whether counting is enabled at all).
+		if (H2Core::Base::objects_count() > 0) {
 			H2Core::Base::write_objects_map_to_cerr();
 		}
 
@@ -564,6 +716,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	return 0;
+	return nExecResult;
 }
 

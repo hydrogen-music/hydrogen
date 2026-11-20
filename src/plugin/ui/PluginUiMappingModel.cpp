@@ -1,0 +1,481 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team
+ * [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see https://www.gnu.org/licenses
+ *
+ */
+
+#include "PluginUiMappingModel.h"
+
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences/Preferences.h>
+
+#include <plugin/HydrogenPlugin.h>
+
+namespace H2Core {
+
+PluginUiMappingModel::PluginUiMappingModel( HydrogenPlugin* pPlugin )
+	: m_pPlugin( pPlugin )
+{
+}
+
+PluginUiMappingModel::~PluginUiMappingModel()
+{
+}
+
+std::shared_ptr<CoreActionController> PluginUiMappingModel::controller() const
+{
+	return m_pPlugin != nullptr ? m_pPlugin->getHydrogen()->getCoreActionController()
+								: nullptr;
+}
+
+std::shared_ptr<Preferences> PluginUiMappingModel::preferences() const
+{
+	return m_pPlugin != nullptr && m_pPlugin->getHydrogen() != nullptr
+		? m_pPlugin->getHydrogen()->getPreferences() : nullptr;
+}
+
+std::shared_ptr<MidiInstrumentMap> PluginUiMappingModel::liveMap() const
+{
+	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
+		return nullptr;
+	}
+	return m_pPlugin->getHydrogen()->getPreferences()->getMidiInstrumentMap();
+}
+
+std::shared_ptr<MidiInstrumentMap> PluginUiMappingModel::mapCopy() const
+{
+	auto pLive = liveMap();
+	if ( pLive == nullptr ) {
+		return nullptr;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	return std::make_shared<MidiInstrumentMap>( pLive );
+}
+
+bool PluginUiMappingModel::applyMap(
+	std::shared_ptr<MidiInstrumentMap> pMap )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	return pCAC->setMidiInstrumentMap( pMap );
+}
+
+bool PluginUiMappingModel::setInputMode( MidiInstrumentMap::Input mode )
+{
+	auto pMap = mapCopy();
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	pMap->setInput( mode );
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::setOutputMode( MidiInstrumentMap::Output mode )
+{
+	auto pMap = mapCopy();
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	pMap->setOutput( mode );
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::setUseGlobalInputChannel( bool bUse )
+{
+	auto pMap = mapCopy();
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	pMap->setUseGlobalInputChannel( bUse );
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::setGlobalInputChannel( Midi::Channel channel )
+{
+	auto pMap = mapCopy();
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	pMap->setGlobalInputChannel( channel );
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::setUseGlobalOutputChannel( bool bUse )
+{
+	auto pMap = mapCopy();
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	pMap->setUseGlobalOutputChannel( bUse );
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::setGlobalOutputChannel( Midi::Channel channel )
+{
+	auto pMap = mapCopy();
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	pMap->setGlobalOutputChannel( channel );
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::insertCustomInputMapping(
+	std::shared_ptr<Instrument> pInstrument, Midi::Note note,
+	Midi::Channel channel )
+{
+	if ( pInstrument == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	auto pMap = mapCopy();
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	pMap->insertCustomInputMapping( pInstrument, note, channel );
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::insertCustomInputMapping(
+	int nInstrument, Midi::Note note, Midi::Channel channel )
+{
+	return insertCustomInputMapping( instrument( nInstrument ), note,
+									 channel );
+}
+
+bool PluginUiMappingModel::setInstrumentMidiOutNote( int nInstrument,
+													 Midi::Note note )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	// No event correlation id: the plugin UI does not deduplicate the
+	// UpdateEvents its own commands emit.
+	return pCAC->setInstrumentMidiOutNote( nInstrument, note, 0 );
+}
+
+bool PluginUiMappingModel::setInstrumentMidiOutChannel( int nInstrument,
+														Midi::Channel channel )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	// No event correlation id: the plugin UI does not deduplicate the
+	// UpdateEvents its own commands emit.
+	return pCAC->setInstrumentMidiOutChannel( nInstrument, channel, 0 );
+}
+
+bool PluginUiMappingModel::setInstrumentOutputBus( int nInstrument, int nBus )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	// In case the mapping was already present, we remove it.
+	auto pInstrument = instrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		___ERRORLOG(
+			QString( "Instrument [%1] could not be found" ).arg( nInstrument )
+		);
+		return false;
+	}
+	const int nTargetBus = pInstrument->getOutputBus() != nBus
+							   ? nBus
+							   : Instrument::nNoOutputBusMapping;
+
+	return pCAC->setInstrumentOutputBus( nInstrument, nTargetBus );
+}
+
+int PluginUiMappingModel::effectiveOutputBus( int nInstrument, int nBusCount )
+	const
+{
+	const auto pInstrument = instrument( nInstrument );
+	if ( pInstrument == nullptr ) {
+		// No engine or out of range: nothing feeds anywhere.
+		return Instrument::nNoOutputBusMapping;
+	}
+	const int nStored = pInstrument->getOutputBus();
+	if ( nStored <= Instrument::nNoOutputBusMapping ) {
+		return Instrument::nNoOutputBusMapping;
+	}
+
+	// Implicit 1-to-1 default (ADR 0019): the bus matching the kit
+	// position.
+	const int nCandidate =
+		nStored != Instrument::nDefaultOutputBusMapping ? nStored : nInstrument;
+	if ( nCandidate >= 0 && nCandidate < nBusCount ) {
+		return nCandidate;
+	}
+
+	// Beyond the available buses the instrument feeds the master only.
+	return Instrument::nNoOutputBusMapping;
+}
+
+int PluginUiMappingModel::busCount() const
+{
+	return m_pPlugin != nullptr ? m_pPlugin->getBusCount() : 0;
+}
+
+// The MIDI config applies go through the engine's granular install commands
+// (ADR 0030/0022): the plugin's engine preferences adopt them live. Neither
+// command persists — and the plugin never calls a preferences save on top —
+// so a host session cannot clobber the user's ~/.hydrogen.
+
+bool PluginUiMappingModel::applyMidiControlSettings(
+	bool bNoteOffIgnore, Midi::Channel actionChannel, bool bEnableFeedback,
+	bool bTransportInputHandling, bool bTransportOutputSend,
+	Midi::Channel feedbackChannel, Preferences::MidiSendNoteOff sendNoteOff )
+{
+	auto pCAC = controller();
+	if ( pCAC == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	return pCAC->setMidiControlSettings(
+		bNoteOffIgnore, actionChannel, bEnableFeedback,
+		bTransportInputHandling, bTransportOutputSend, feedbackChannel,
+		sendNoteOff );
+}
+
+bool PluginUiMappingModel::applyMidiInstrumentMap(
+	std::shared_ptr<MidiInstrumentMap> pMap )
+{
+	if ( pMap == nullptr ) {
+		return false;
+	}
+	// The wholesale install rides the same one-command sink as every
+	// read-modify-apply setter above.
+	return applyMap( pMap );
+}
+
+bool PluginUiMappingModel::applyExposedMidiControlSettings(
+	bool bNoteOffIgnore, Midi::Channel actionChannel,
+	Preferences::MidiSendNoteOff sendNoteOff )
+{
+	auto pPref = preferences();
+	if ( pPref == nullptr ) {
+		return false;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+
+	// The plugin UI does not expose feedback or transport; the apply
+	// preserves their current engine values.
+	return applyMidiControlSettings(
+		bNoteOffIgnore, actionChannel, pPref->m_bEnableMidiFeedback,
+		pPref->getMidiTransportInputHandling(),
+		pPref->getMidiTransportOutputSend(),
+		pPref->getMidiFeedbackChannel(), sendNoteOff );
+}
+
+bool PluginUiMappingModel::midiNoteOffIgnore() const
+{
+	auto pPref = preferences();
+	// The engine default (true) when the engine is unavailable.
+	return pPref != nullptr ? pPref->m_bMidiNoteOffIgnore : true;
+}
+
+Midi::Channel PluginUiMappingModel::midiActionChannel() const
+{
+	auto pPref = preferences();
+	// The engine default (all channels) when the engine is unavailable.
+	return pPref != nullptr ? pPref->m_midiActionChannel : Midi::ChannelAll;
+}
+
+Preferences::MidiSendNoteOff PluginUiMappingModel::midiSendNoteOff() const
+{
+	auto pPref = preferences();
+	// The engine default (always) when the engine is unavailable.
+	return pPref != nullptr ? pPref->getMidiSendNoteOff()
+							: Preferences::MidiSendNoteOff::Always;
+}
+
+bool PluginUiMappingModel::pollMappingChanged()
+{
+	const Fingerprint current = buildFingerprint();
+	if ( current == m_polledFingerprint ) {
+		return false;
+	}
+	m_polledFingerprint = std::move( current );
+	return true;
+}
+
+PluginUiMappingModel::Fingerprint PluginUiMappingModel::buildFingerprint()
+	const
+{
+	Fingerprint fingerprint;
+	fingerprint.bNoteOffIgnore = midiNoteOffIgnore();
+	fingerprint.nActionChannel = static_cast<int>( midiActionChannel() );
+	fingerprint.nSendNoteOff = static_cast<int>( midiSendNoteOff() );
+	fingerprint.nBusCount = busCount();
+
+	const auto pMap = liveMap();
+	if ( pMap != nullptr ) {
+		fingerprint.nInputMode = static_cast<int>( pMap->getInput() );
+		fingerprint.nOutputMode = static_cast<int>( pMap->getOutput() );
+		fingerprint.bUseGlobalInputChannel =
+			pMap->getUseGlobalInputChannel();
+		fingerprint.nGlobalInputChannel =
+			static_cast<int>( pMap->getGlobalInputChannel() );
+		fingerprint.bUseGlobalOutputChannel =
+			pMap->getUseGlobalOutputChannel();
+		fingerprint.nGlobalOutputChannel =
+			static_cast<int>( pMap->getGlobalOutputChannel() );
+	}
+
+	const int nInstruments = instrumentCount();
+	fingerprint.rows.reserve( nInstruments );
+	for ( int ii = 0; ii < nInstruments; ++ii ) {
+		Fingerprint::Row row;
+		row.sName = instrumentName( ii );
+		const auto input = inputMapping( ii );
+		row.nInNote = static_cast<int>( input.note );
+		row.nInChannel = static_cast<int>( input.channel );
+		row.nOutNote = static_cast<int>( instrumentMidiOutNote( ii ) );
+		row.nOutChannel = static_cast<int>( instrumentMidiOutChannel( ii ) );
+		row.nEffectiveBus = effectiveOutputBus( ii, fingerprint.nBusCount );
+		fingerprint.rows.push_back( std::move( row ) );
+	}
+
+	return fingerprint;
+}
+
+bool PluginUiMappingModel::Fingerprint::operator==(
+	const Fingerprint& other ) const
+{
+	if ( bNoteOffIgnore != other.bNoteOffIgnore ||
+		 nActionChannel != other.nActionChannel ||
+		 nSendNoteOff != other.nSendNoteOff ||
+		 nInputMode != other.nInputMode ||
+		 nOutputMode != other.nOutputMode ||
+		 bUseGlobalInputChannel != other.bUseGlobalInputChannel ||
+		 nGlobalInputChannel != other.nGlobalInputChannel ||
+		 bUseGlobalOutputChannel != other.bUseGlobalOutputChannel ||
+		 nGlobalOutputChannel != other.nGlobalOutputChannel ||
+		 nBusCount != other.nBusCount ||
+		 rows.size() != other.rows.size() ) {
+		return false;
+	}
+	for ( std::size_t ii = 0; ii < rows.size(); ++ii ) {
+		const Row& a = rows[ ii ];
+		const Row& b = other.rows[ ii ];
+		if ( a.sName != b.sName || a.nInNote != b.nInNote ||
+			 a.nInChannel != b.nInChannel || a.nOutNote != b.nOutNote ||
+			 a.nOutChannel != b.nOutChannel ||
+			 a.nEffectiveBus != b.nEffectiveBus ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+int PluginUiMappingModel::instrumentCount() const
+{
+	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
+		return 0;
+	}
+	const auto pSong = m_pPlugin->getHydrogen()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ||
+		 pSong->getDrumkit()->getInstruments() == nullptr ) {
+		return 0;
+	}
+	return pSong->getDrumkit()->getInstruments()->size();
+}
+
+QString PluginUiMappingModel::instrumentName( int nInstrument ) const
+{
+	const auto pInstrument = instrument( nInstrument );
+	return pInstrument != nullptr ? pInstrument->getName() : QString();
+}
+
+Midi::Note PluginUiMappingModel::instrumentMidiOutNote(
+	int nInstrument ) const
+{
+	const auto pInstrument = instrument( nInstrument );
+	return pInstrument != nullptr ? pInstrument->getMidiOutNote()
+								  : Midi::NoteDefault;
+}
+
+Midi::Channel PluginUiMappingModel::instrumentMidiOutChannel(
+	int nInstrument ) const
+{
+	const auto pInstrument = instrument( nInstrument );
+	return pInstrument != nullptr ? pInstrument->getMidiOutChannel()
+								  : Midi::ChannelOff;
+}
+
+MidiInstrumentMap::NoteRef PluginUiMappingModel::inputMapping(
+	int nInstrument ) const
+{
+	auto pMap = liveMap();
+	const auto pInstrument = instrument( nInstrument );
+	if ( pMap == nullptr || pInstrument == nullptr || m_pPlugin == nullptr ||
+		 m_pPlugin->getHydrogen() == nullptr ) {
+		return MidiInstrumentMap::NoteRef();
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	const auto pSong = m_pPlugin->getHydrogen()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return MidiInstrumentMap::NoteRef();
+	}
+	return pMap->getInputMapping( pInstrument, pSong->getDrumkit(),
+								  m_pPlugin->getHydrogen() );
+}
+
+std::shared_ptr<Instrument> PluginUiMappingModel::instrument(
+	int nInstrument ) const
+{
+	if ( m_pPlugin == nullptr || m_pPlugin->getHydrogen() == nullptr ) {
+		return nullptr;
+	}
+	const auto pSong = m_pPlugin->getHydrogen()->getSong();
+	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
+		return nullptr;
+	}
+	Logger::Scope loggerScope( m_pPlugin->getHydrogen()->getLogger() );
+	const auto pInstruments = pSong->getDrumkit()->getInstruments();
+	// Guarded range check: a UI polling loop must not spam the log
+	// when the kit shrank between two frames.
+	if ( pInstruments == nullptr || nInstrument < 0 ||
+		 nInstrument >= pInstruments->size() ) {
+		return nullptr;
+	}
+	return pInstruments->get( nInstrument );
+}
+
+} // namespace H2Core

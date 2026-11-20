@@ -25,7 +25,7 @@
 #include "PianoRollEditor.h"
 
 #include "PatternEditorPanel.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Compatibility/MouseEvent.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
@@ -57,8 +57,8 @@ PitchLabel::PitchLabel( QWidget* pParent, const QString& sText, int nHeight )
 	setIndent( 2 );
 
 	updateFont();
-	setBackgroundColor( H2Core::Preferences::get_instance()->getColorTheme()->
-		m_patternEditor_backgroundColor );
+	setBackgroundColor( Skin::toQColor( HydrogenApp::pPreferences()->getColorTheme()->
+		m_patternEditor_backgroundColor ) );
 	updateStyleSheet();
 }
 
@@ -77,15 +77,15 @@ void PitchLabel::setBackgroundColor( const QColor& backgroundColor ) {
 
 
 void PitchLabel::updateStyleSheet() {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor textColor;
 	if ( m_bSelected ) {
-		textColor = pColorTheme->m_patternEditor_selectedRowTextColor;
+		textColor = Skin::toQColor( pColorTheme->m_patternEditor_selectedRowTextColor );
 	} else {
-		textColor = pColorTheme->m_patternEditor_textColor;
+		textColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
 	}
-	const auto cursorColor = pColorTheme->m_cursorColor;
+	const auto cursorColor = Skin::toQColor( pColorTheme->m_cursorColor );
 
 	if ( m_textColor == textColor && m_cursorColor == cursorColor ) {
 		return;
@@ -130,7 +130,7 @@ void PitchLabel::mousePressEvent( QMouseEvent* pEvent ) {
 
 void PitchLabel::paintEvent( QPaintEvent* ev )
 {
-    const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+    const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	auto p = QPainter( this );
 
@@ -153,7 +153,7 @@ void PitchLabel::paintEvent( QPaintEvent* ev )
 	}
 
     // border
-    p.setPen( pColorTheme->m_windowColor );
+    p.setPen( Skin::toQColor( pColorTheme->m_windowColor ) );
     p.drawLine( 0, 0,  width(), 0 );
 
 	QLabel::paintEvent( ev );
@@ -161,7 +161,7 @@ void PitchLabel::paintEvent( QPaintEvent* ev )
 
 void PitchLabel::updateFont() {
 
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	float fScalingFactor = 1.0;
     switch ( pFontTheme->m_fontSize ) {
@@ -453,7 +453,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent )
 	m_type = Editor::Type::Grid;
 	m_instance = Editor::Instance::PianoRoll;
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	QFont font( pPref->getFontTheme()->m_sApplicationFontFamily,
 				getPointSize( pPref->getFontTheme()->m_fontSize ) );
 	setFont( font );
@@ -606,30 +606,30 @@ void PianoRollEditor::paintEvent(QPaintEvent *ev)
 
 void PianoRollEditor::createBackground()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
-	QColor backgroundColor( pColorTheme->m_patternEditor_backgroundColor );
-	QColor alternateRowColor( pColorTheme->m_patternEditor_alternateRowColor );
-	QColor octaveColor = pColorTheme->m_patternEditor_octaveRowColor;
-	QColor lineColor( pColorTheme->m_patternEditor_lineColor );
+	QColor backgroundColor( Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ) );
+	QColor alternateRowColor( Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ) );
+	QColor octaveColor = Skin::toQColor( pColorTheme->m_patternEditor_octaveRowColor );
+	QColor lineColor( Skin::toQColor( pColorTheme->m_patternEditor_lineColor ) );
 	// Row clicked by the user.
-	QColor selectedRowColor( pColorTheme->m_patternEditor_selectedRowColor );
+	QColor selectedRowColor( Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ) );
 
 	// Everything beyond the current pattern (used when another, larger pattern
 	// is played as well).
 	const QColor lineInactiveColor(
-		pColorTheme->m_windowTextColor.darker( 170 ) );
+		Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 170 ) );
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
-		backgroundInactiveColor = pColorTheme->m_windowColor.lighter(
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor ).lighter(
 			Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	if ( ! hasFocus() ) {

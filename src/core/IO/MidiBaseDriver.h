@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_BASE_DRIVER_H
-#define MIDI_BASE_DRIVER_H
+#ifndef H2C_MIDI_BASE_DRIVER_H
+#define H2C_MIDI_BASE_DRIVER_H
 
 #include <core/IO/MidiInput.h>
 #include <core/IO/MidiOutput.h>
@@ -54,8 +54,16 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	static constexpr int nBacklogSize = 200;
 	static constexpr int nAllNotesOffThresholdInSeconds = 15;
 
-	MidiBaseDriver();
+	/** @param pHydrogen Owning Hydrogen instance (ADR 0015), forwarded to the
+	 * MidiInput/MidiOutput virtual bases. */
+	MidiBaseDriver( Hydrogen* pHydrogen );
 	virtual ~MidiBaseDriver();
+
+	/** Owning Hydrogen instance (ADR 0015). Public accessor for the static C
+	 * callbacks and free-function threads that reach the driver via a void*
+	 * instance pointer and so cannot use the protected MidiInput::m_pHydrogen
+	 * directly. */
+	Hydrogen* getHydrogen() const { return MidiInput::m_pHydrogen; }
 
 	virtual void close() = 0;
 	virtual std::vector<QString> getExternalPortList( const PortType& portType
@@ -109,6 +117,17 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 		const override
 	{
 		return "";
+	}
+
+   protected:
+	/** Handle one input message synchronously on the calling thread, running
+	 * the full input pipeline (note/CC/program handling, handled-input backlog,
+	 * MidiInput event). The async drivers feed their worker thread instead; the
+	 * host-driven PluginMidiDriver has no worker and dispatches its host events
+	 * through here so they take effect within the current process block. */
+	std::shared_ptr<MidiInput::HandledInput> handleInputMessageSync(
+		const MidiMessage& msg ) {
+		return handleMessage( msg );
 	}
 
    private:
@@ -184,10 +203,12 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 
 inline void MidiBaseDriver::clearHandledInput()
 {
+	QMutexLocker mx( &m_handledInputsMutex );
 	m_handledInputs.clear();
 }
 inline void MidiBaseDriver::clearHandledOutput()
 {
+	QMutexLocker mx( &m_handledOutputMutex );
 	m_handledOutputs.clear();
 }
 

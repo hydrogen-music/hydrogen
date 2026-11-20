@@ -35,6 +35,14 @@ OPEN=0
 # Option: Translation directory
 TRANSLATIONS="data/i18n"
 
+# Option: directory to search for built plugin bundles (Hydrogen.clap /
+# Hydrogen.vst3 / hydrogen.lv2). Empty => plugin staging disabled. When set, any
+# bundles found are copied into a "Plugins" folder in the disk image so users can
+# drag them into ~/Library/Audio/Plug-Ins/{CLAP,VST3} (and the .lv2 bundle into
+# an LV2 path). Like the Linux .tar.xz, the bundles ship against the same Qt as
+# the app — a fully self-contained (Qt-bundled) plugin is a follow-up.
+PLUGIN_DIR=""
+
 
 # Print message if verbose mode is enabled
 function verbose {
@@ -68,6 +76,9 @@ Usage: build_dmg.sh [-vho] [hydrogen.app] [hydrogen.dmg]
   -v Be verbose
   -h Show this help message
   -o Open image afterwards
+  -t Translation directory (default: data/i18n)
+  -p Directory to search for built plugin bundles (Hydrogen.clap,
+     Hydrogen.vst3, hydrogen.lv2); staged into a "Plugins" folder in the image
 
 EOF
 }
@@ -95,7 +106,7 @@ function clean_up {
 
 # Parse options
 
-while getopts ":vhot:" opt; do
+while getopts ":vhot:p:" opt; do
 	case $opt in
 		v)
 			VERBOSE=1
@@ -109,6 +120,9 @@ while getopts ":vhot:" opt; do
 			;;
         t)
             TRANSLATIONS="$OPTARG"
+            ;;
+        p)
+            PLUGIN_DIR="$OPTARG"
             ;;
 		\?)
 			echo "Unknown option: $OPTARG"
@@ -152,6 +166,44 @@ verbose "Deploying translations"
 I18N_DEST="$DMG_ROOT/Hydrogen.app/Contents/Resources/data/i18n"
 mkdir -p "$I18N_DEST"
 find "$TRANSLATIONS" -name '*.qm' -exec cp {} "$I18N_DEST" \;
+
+if [ -n "$PLUGIN_DIR" ]; then
+	verbose "Staging plugin bundles from $PLUGIN_DIR"
+	PLUGIN_DEST="$DMG_ROOT/Plugins"
+	staged_any=0
+	for bundle in "Hydrogen.clap" "Hydrogen.vst3" "hydrogen.lv2"; do
+		# VST3 may be emitted under a per-config subdir (e.g. Release/).
+		src=""
+		if [ -e "$PLUGIN_DIR/$bundle" ]; then
+			src="$PLUGIN_DIR/$bundle"
+		else
+			src=$(find "$PLUGIN_DIR" -maxdepth 3 -name "$bundle" -print -quit 2>/dev/null)
+		fi
+		if [ -n "$src" ] && [ -e "$src" ]; then
+			mkdir -p "$PLUGIN_DEST"
+			cp -R "$src" "$PLUGIN_DEST/" || error "Can't copy $src"
+			verbose "  + $bundle"
+			staged_any=1
+		fi
+	done
+	if (( staged_any )); then
+		cat > "$PLUGIN_DEST/README.txt" <<'PLUGINREADME'
+Hydrogen audio plugins
+======================
+
+Copy the bundles into your user plugin folders, then rescan in your DAW:
+
+  Hydrogen.clap  ->  ~/Library/Audio/Plug-Ins/CLAP/
+  Hydrogen.vst3  ->  ~/Library/Audio/Plug-Ins/VST3/
+  hydrogen.lv2   ->  ~/Library/Audio/Plug-Ins/LV2/   (or another LV2_PATH dir)
+
+The plugin opens Hydrogen's editor as a separate window; keep Hydrogen.app
+installed so the plugin can launch it.
+PLUGINREADME
+	else
+		verbose "  (no plugin bundles found in $PLUGIN_DIR)"
+	fi
+fi
 
 verbose "Deploying additional assets"
 ln -s /Applications "$DMG_ROOT/Applications"

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef EDITOR_BASE_H
-#define EDITOR_BASE_H
+#ifndef H2C_EDITOR_BASE_H
+#define H2C_EDITOR_BASE_H
 
 #include "EditorDefs.h"
 #include "../HydrogenApp.h"
@@ -1041,4 +1041,4 @@ class Base : public SelectionWidget<Elem>, public QWidget
 
 } // namespace Base
 
-#endif // EDITOR_BASE_H
+#endif // H2C_EDITOR_BASE_H

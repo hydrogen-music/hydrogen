@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ADSR_TEST_H
-#define ADSR_TEST_H
+#ifndef H2C_ADSR_TEST_H
+#define H2C_ADSR_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

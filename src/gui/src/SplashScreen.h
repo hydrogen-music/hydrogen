@@ -21,8 +21,8 @@
  */
 
 
-#ifndef SPLASH_SCREEN_H
-#define SPLASH_SCREEN_H
+#ifndef H2C_SPLASH_SCREEN_H
+#define H2C_SPLASH_SCREEN_H
 
 #include <QSplashScreen>
 #include <QTimer>

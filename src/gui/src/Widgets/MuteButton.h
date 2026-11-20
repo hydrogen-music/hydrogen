@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MUTE_BUTTON_H
-#define MUTE_BUTTON_H
+#ifndef H2C_MUTE_BUTTON_H
+#define H2C_MUTE_BUTTON_H
 
 #include "ColoredButton.h"
 

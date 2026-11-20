@@ -25,6 +25,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
+#include <random>
 #include <sstream>
 #include <typeinfo>
 
@@ -51,10 +52,88 @@ Logger* Base::__logger = nullptr;
 bool Base::bLogColors = true;
 bool Base::__count = false;
 std::atomic<int> Base::__objects_count(0);
-pthread_mutex_t Base::__mutex;
+std::mutex Base::__mutex;
 object_internal_map_t Base::__objects_map;
 QString Base::sPrintIndention = "  ";
 TimePoint Base::m_lastTimePoint = TimePoint();
+
+// ----------------------------------------------------------------------------
+// Object instance identity (ADR 0028)
+
+namespace {
+/** Wait-free per-object counter — safe to advance on the audio thread. */
+std::atomic<uint64_t> s_uuidCounter{ 0 };
+
+// The whole point of the atomic-counter backing (over QUuid::createUuid()) is
+// that minting must not take a lock on the note-copy path (ADR 0028). Fail the
+// build on any platform where it would.
+static_assert( std::atomic<uint64_t>::is_always_lock_free,
+			   "Object identity minting must be lock-free for real-time safety" );
+
+/** A single RNG draw, off the real-time path, distinguishing this process. */
+uint64_t seedUuidEpoch() {
+	std::random_device rd;
+	uint64_t epoch = ( static_cast<uint64_t>( rd() ) << 32 ) ^
+					 static_cast<uint64_t>( rd() );
+	// 0 is reserved for the null id.
+	return epoch != 0 ? epoch : ~static_cast<uint64_t>( 0 );
+}
+
+/**
+ * The per-process epoch. Seeded thread-safely on first use (a startup, off-RT
+ * event since the first Object is constructed long before the audio thread);
+ * subsequent reads are a plain load, so minting on the audio thread takes no
+ * lock.
+ */
+uint64_t uuidEpoch() {
+	static const uint64_t epoch = seedUuidEpoch();
+	return epoch;
+}
+}
+
+Uuid Uuid::mint() {
+	return Uuid( uuidEpoch(),
+				 s_uuidCounter.fetch_add( 1, std::memory_order_relaxed ) );
+}
+
+QString Uuid::toQString() const {
+	return QString( "%1-%2" )
+		.arg( epoch, 16, 16, QChar( '0' ) )
+		.arg( counter, 16, 16, QChar( '0' ) );
+}
+
+Uuid Uuid::fromQString( const QString& sText, bool bSilent ) {
+	if ( sText.isEmpty() ) {
+		if ( !bSilent ) {
+			___WARNINGLOG( "Empty string provided. Using new one instead." );
+		}
+		return Uuid::mint();
+	}
+
+	QStringList textList = sText.split( QLatin1Char( '-' ) );
+	if ( textList.size() != 2 ) {
+		if ( !bSilent ) {
+			___WARNINGLOG( QString( "Invalid UUid format [%1]."
+								 "Using new one instead" )
+							.arg( sText ) );
+		}
+		return Uuid::mint();
+	}
+
+	bool bOk, bOk2;
+	const uint64_t epoch = textList[0].toULongLong( &bOk, 16 );
+	const uint64_t counter = textList[1].toULongLong( &bOk2, 16 );
+	const Uuid uuid( epoch, counter );
+	if ( !bOk || !bOk2 || uuid.isNull() ) {
+		if ( !bSilent ) {
+			___WARNINGLOG( QString( "Invalid uuid values in string [%1]. Using "
+								 "new one instead" )
+							.arg( sText ) );
+		}
+		return Uuid::mint();
+	}
+	return uuid;
+}
 
 int Base::bootstrap( Logger* pLogger, bool count ) {
 	if ( __logger == nullptr && pLogger != nullptr ) {
@@ -63,7 +142,6 @@ int Base::bootstrap( Logger* pLogger, bool count ) {
 
 		Base::bLogColors = pLogger->getLogColors();
 
-		pthread_mutex_init( &__mutex, nullptr );
 		return 0;
 	}
 	return 1;
@@ -97,7 +175,7 @@ void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 	}
 	
 	std::ostringstream o;
-	pthread_mutex_lock( &__mutex );
+	std::lock_guard<std::mutex> lock( __mutex );
 	object_map_t::iterator it = map->begin();
 	while ( it != map->end() ) {
 		if ( it->second.constructed || it->second.destructed ) {
@@ -106,7 +184,6 @@ void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 		}
 		it++;
 	}
-	pthread_mutex_unlock( &__mutex );
 
 	out << std::endl;
 	if ( Base::bLogColors ) {
@@ -178,7 +255,7 @@ void Base::printObjectMapDiff( const object_map_t& mapSnapshot ) {
 
 QString Base::toQString( const QString& sPrefix, bool bShort ) const {
 	return QString( "[%1] instances alive: %2" )
-		.arg( class_name() ).arg( count_active() );
+		.arg( class_name() ).arg( objects_count() );
 }
 
 void Base::Print( bool bShort ) const {

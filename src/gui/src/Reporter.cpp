@@ -127,13 +127,24 @@ void Reporter::on_openLog( void )
 	QDesktopServices::openUrl( QUrl::fromLocalFile( Reporter::m_sLogFile ) );
 }
 
+bool Reporter::shouldReportCrash( QProcess::ExitStatus exitStatus, int exitCode )
+{
+	// A crash is a termination by signal (CrashExit) or an unexpected non-zero
+	// exit. A clean exit (0) or a deliberate, already-reported clean failure
+	// (EXIT_CODE_CLEAN_FAILURE, e.g. the editor could not reach its engine) is
+	// NOT a crash and must not raise the crash dialog.
+	if ( exitStatus == QProcess::CrashExit ) {
+		return true;
+	}
+	return exitCode != 0 && exitCode != EXIT_CODE_CLEAN_FAILURE;
+}
+
 void Reporter::on_finished( int exitCode, QProcess::ExitStatus exitStatus )
 {
 	on_readyReadStandardError();
 	on_readyReadStandardOutput();
 
-	if ( m_pChild->exitStatus() != QProcess::NormalExit
-		 || m_pChild->exitCode() != 0 ) {
+	if ( shouldReportCrash( m_pChild->exitStatus(), m_pChild->exitCode() ) ) {
 
 		char *argv[] = { (char *)"-" };
 		int argc = 1;

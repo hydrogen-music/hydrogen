@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SAMPLER_H
-#define SAMPLER_H
+#ifndef H2C_SAMPLER_H
+#define H2C_SAMPLER_H
 
 #include <core/Basics/Note.h>
 #include <core/Globals.h>
@@ -36,6 +36,7 @@
 
 namespace H2Core {
 
+class Hydrogen;
 class Instrument;
 class InstrumentComponent;
 class InstrumentLayer;
@@ -167,7 +168,9 @@ class Sampler : public H2Core::Object<Sampler> {
 	 * It is called by AudioEngine::AudioEngine() and stored in
 	 * AudioEngine::m_pSampler.
 	 */
-	Sampler();
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * through which the sampler reaches its per-instance context (ADR 0015). */
+	Sampler( Hydrogen* pHydrogen );
 	~Sampler();
 
 	void process( uint32_t nFrames );
@@ -194,7 +197,7 @@ class Sampler : public H2Core::Object<Sampler> {
 	 *
 	 * @param pInstr particular instrument for which notes will be release
 	 *   (`nullptr` to release them all) */
-	void releasePlayingNotes( std::shared_ptr<Instrument> pInstr = nullptr );
+	void releasePlayingNotes( Uuid instrumentUuid = Uuid() );
 
 	int getPlayingNotesNumber() const { return m_playingNotesQueue.size(); }
 
@@ -215,16 +218,6 @@ class Sampler : public H2Core::Object<Sampler> {
 	void previewSample( std::shared_ptr<Sample> pSample, int length );
 
 	bool isInstrumentPlaying( std::shared_ptr<Instrument> pInstr ) const;
-
-	void setInterpolateMode( Interpolation::InterpolateMode mode )
-	{
-		m_interpolateMode = mode;
-	}
-
-	Interpolation::InterpolateMode getInterpolateMode() const
-	{
-		return m_interpolateMode;
-	}
 
 	/**
 	 * Recalculates all note starts to make them valid again after a
@@ -247,6 +240,14 @@ class Sampler : public H2Core::Object<Sampler> {
 		const override;
 
    private:
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
+
+	/** Effective interpolation mode, resolved from the owning #H2Core::Hydrogen
+	 * (audio-export override, else the persistent Preferences value). The
+	 * Sampler no longer stores it (ADR 0027). */
+	Interpolation::InterpolateMode getInterpolateMode() const;
+
 	/** function to direct the computation to the selected pan law function
 	 */
 	float panLaw( float fPan, std::shared_ptr<Song> pSong );
@@ -324,8 +325,6 @@ class Sampler : public H2Core::Object<Sampler> {
 	 * single layer. Whenever a sample is going to be preview, it will be
 	 * assigned to that layer and the preview instrument will be triggered. */
 	std::shared_ptr<Instrument> m_pDefaultPreviewInstrument;
-
-	Interpolation::InterpolateMode m_interpolateMode;
 
 	/** In order to allow for all layers in an #H2Core::InstrumentComponent
 	 * to be selected in a round robin scheme consistently, we keep track of

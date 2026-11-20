@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MASTER_LINE_H
-#define MASTER_LINE_H
+#ifndef H2C_MASTER_LINE_H
+#define H2C_MASTER_LINE_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -53,6 +53,12 @@ public:
 		void updateColors();
 	void	updateLine();
 	void	updatePeaks();
+
+protected:
+		/** Closes the per-property undo context (see the master-edit callbacks)
+		 * so a gesture forms a single undo step once the pointer leaves the
+		 * strip. */
+		void leaveEvent( QEvent* ev ) override;
 
 private:
 		/** For how many more peak update cycles to keep the same text in the

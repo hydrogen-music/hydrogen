@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ONLINE_IMPORTER_H
-#define ONLINE_IMPORTER_H
+#ifndef H2C_ONLINE_IMPORTER_H
+#define H2C_ONLINE_IMPORTER_H
 
 #include <core/Object.h>
 
@@ -31,11 +31,15 @@
 #include <QUrl>
 #include <QVector>
 
+QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
 class QNetworkReply;
 class QTimer;
+QT_END_NAMESPACE
 
 namespace H2Core {
+
+class Hydrogen;
 
 /** Describes a single downloadable artifact from an online index. */
 struct OnlineArtifact {
@@ -142,7 +146,7 @@ public:
 	static constexpr int nProgressComplete = 101;
 		static constexpr int nDefaultTimeoutMs = 60000;
 
-	explicit OnlineImporter( QObject* pParent = nullptr );
+	explicit OnlineImporter( Hydrogen* pHydrogen, QObject* pParent = nullptr );
 	~OnlineImporter();
 
 	// --- Index operations ---
@@ -258,6 +262,9 @@ private slots:
 	void onAsyncBytesProgress( qint64 bytesReceived, qint64 bytesTotal );
 
 private:
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
+
 	bool m_bAborted;
 	/** Optional override paths for local status resolution (used in tests). */
 	QMap<int, QString> m_localSearchPaths;
@@ -299,4 +306,4 @@ private:
 
 } // namespace H2Core
 
-#endif // ONLINE_IMPORTER_H
+#endif // H2C_ONLINE_IMPORTER_H

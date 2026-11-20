@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef DROPEVENT_H_
-#define DROPEVENT_H_
+#ifndef H2C_DROPEVENT_H_
+#define H2C_DROPEVENT_H_
 
 #include <QDropEvent>
 
@@ -41,4 +41,4 @@ public:
 	QPointF	position() const;
 };
 
-#endif // DROPEVENT_H_
+#endif // H2C_DROPEVENT_H_

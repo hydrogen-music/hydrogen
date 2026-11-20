@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SONG_EDITOR_PANEL_H
-#define SONG_EDITOR_PANEL_H
+#ifndef H2C_SONG_EDITOR_PANEL_H
+#define H2C_SONG_EDITOR_PANEL_H
 
 
 #include "../EventListener.h"
@@ -105,6 +105,7 @@ class SongEditorPanel : public QWidget,
 		virtual void patternChangedEvent() override;
 		virtual void patternIsModifiedEvent() override;
 		virtual void playbackTrackChangedEvent() override;
+		virtual void playbackTrackParameterChangedEvent() override;
 		virtual void playingPatternsChangedEvent() override;
 		virtual void relocationEvent() override;
 		virtual void selectedPatternChangedEvent() override;
@@ -137,12 +138,11 @@ class SongEditorPanel : public QWidget,
 		
 		void faderChanged( WidgetWithInput* pRef );
 
-		void automationPathPointAdded(float x, float y);
-		void automationPathPointRemoved(float x, float y);
-		void automationPathPointMoved(float ox, float oy, float tx, float ty);
-
 	private:
 		virtual void resizeEvent( QResizeEvent *ev ) override;
+		/** Closes the playback-track volume-drag undo context (ADR 0027 /
+		 * T4.5) when the pointer leaves the panel. */
+		virtual void leaveEvent( QEvent* ev ) override;
 
 		void resyncExternalScrollBar();
 

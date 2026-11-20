@@ -38,8 +38,16 @@ TimeHelper::TimeHelper() : m_nSleepSurplusIndex( 0 )
 		m_sleepSurplusNs[ ii ] = 0;
 	}
 
+	// The burn-in thread serves one engine instance for its whole life, so a
+	// single scope at entry routes its logging to that instance's logger
+	// (ADR 0015, T1.6). The instance logger is captured at spawn: the
+	// constructor runs inside the owning instance's scope.
+	auto pLogger = Logger::currentLogger();
 	m_pBurnInThread = std::make_shared< std::thread >(
-		TimeHelper::burnIn, (void*)this );
+		[pLogger]( void* pInstance ) {
+			Logger::Scope loggerScope( pLogger );
+			TimeHelper::burnIn( pInstance );
+		}, (void*)this );
 }
 
 TimeHelper::~TimeHelper() {

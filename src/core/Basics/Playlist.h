@@ -32,6 +32,8 @@
 namespace H2Core
 {
 
+class Preferences;
+
 class PlaylistEntry : public H2Core::Object<PlaylistEntry> {
 	H2_OBJECT(PlaylistEntry)
 
@@ -109,6 +111,7 @@ class Playlist : public H2Core::Object<Playlist>
 		bool	remove( std::shared_ptr<PlaylistEntry> entry, int nIndex = -1 );
 
 		int		getActiveSongNumber() const;
+		void setActiveSongNumber( int ActiveSongNumber );
 
 		QString	getSongFileNameByNumber( int nSongNumber ) const;
 
@@ -117,9 +120,21 @@ class Playlist : public H2Core::Object<Playlist>
 		bool getIsModified() const;
 		void setIsModified( bool IsModified );
 
-		static std::shared_ptr<Playlist> load( const QString& sPath );
-		bool saveAs( const QString& sTargetPath, bool bSilent = false );
-		bool save( bool bSilent = false ) const;
+		static std::shared_ptr<Playlist> load( const QString& sPath,
+											   std::shared_ptr<Preferences> pPreferences );
+		bool saveAs( const QString& sTargetPath, std::shared_ptr<Preferences> pPreferences, bool bSilent = false );
+		bool save( std::shared_ptr<Preferences> pPreferences, bool bSilent = false ) const;
+
+		/** Serialize the playlist to an in-memory XML buffer (the `.h2playlist`
+		 * structure, no file). Mirrors save() but always writes **absolute** song
+		 * / script paths so the result reconstructs without a path context; used
+		 * to carry the playlist across the editor↔engine IPC split (ADR 0030). */
+		QByteArray toXmlBuffer() const;
+		/** Reconstruct a playlist from a buffer produced by toXmlBuffer(). @a sPath
+		 * (may be empty) only resolves any relative entry paths and sets the
+		 * playlist path. */
+		static std::shared_ptr<Playlist> fromXmlBuffer( const QByteArray& buffer,
+														const QString& sPath = "" );
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
@@ -131,28 +146,26 @@ class Playlist : public H2Core::Object<Playlist>
 		QString toQString( const QString& sPrefix = "", bool bShort = true ) const override;
 
 	private:
+	 static std::shared_ptr<Playlist>
+	 load_from( const XMLNode& root, const QString& sPath, Xml::Flag flags );
+	 void saveTo( XMLNode& node, Xml::Flag flags ) const;
 
-		static std::shared_ptr<Playlist> load_from( const XMLNode& root, const QString& sPath );
-		void saveTo( XMLNode& node ) const;
+	 void execScript( int index ) const;
 
-		void execScript( int index ) const;
+	 /** Absolute path to the underlying artifact serving as an unique
+	  * identifier of the artifact throughout Hydrogen.
+	  *
+	  * In case is no file backing the resource (yet), an path to an
+	  * non-existing file retrieved via #Filesystem::emptyPath will be used
+	  * instead. */
+	 QString m_sPath;
 
-		void setActiveSongNumber( int ActiveSongNumber );
+	 std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
+	 int m_nActiveSongNumber;
+	 bool m_bIsModified;
 
-		/** Absolute path to the underlying artifact serving as an unique
-		 * identifier of the artifact throughout Hydrogen.
-		 *
-		 * In case is no file backing the resource (yet), an path to an
-		 * non-existing file retrieved via #Filesystem::emptyPath will be used
-		 * instead. */
-		QString m_sPath;
-
-		std::vector<std::shared_ptr<PlaylistEntry>> m_entries;
-		int m_nActiveSongNumber;
-		bool m_bIsModified;
-
-		/** Used to indicate changes in the underlying XML file. */
-		static constexpr int nCurrentFormatVersion = 2;
+	 /** Used to indicate changes in the underlying XML file. */
+	 static constexpr int nCurrentFormatVersion = 2;
 };
 
 inline const QString& PlaylistEntry::getSongPath() const {

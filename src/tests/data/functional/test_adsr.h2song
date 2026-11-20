@@ -22,7 +22,7 @@
  <humanize_time>0</humanize_time>
  <humanize_velocity>0</humanize_velocity>
  <swing_factor>0</swing_factor>
- <last_loaded_drumkit>/usr/local/share/hydrogen/data/drumkits/GMRockKit</last_loaded_drumkit>
+ <last_loaded_drumkit>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</last_loaded_drumkit>
  <last_loaded_drumkit_name>GMRockKit</last_loaded_drumkit_name>
  <componentList>
   <drumkitComponent>
@@ -35,7 +35,7 @@
   <instrument>
    <id>0</id>
    <name>Kick</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
@@ -158,7 +158,7 @@
   <instrument>
    <id>1</id>
    <name>Stick</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.99569</volume>
    <isMuted>false</isMuted>
@@ -281,7 +281,7 @@
   <instrument>
    <id>2</id>
    <name>Snare</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
@@ -404,7 +404,7 @@
   <instrument>
    <id>3</id>
    <name>Hand Clap</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1.02155</volume>
    <isMuted>false</isMuted>
@@ -459,7 +459,7 @@
   <instrument>
    <id>4</id>
    <name>Snare Rimshot</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
@@ -582,7 +582,7 @@
   <instrument>
    <id>5</id>
    <name>Floor Tom</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1.04741</volume>
    <isMuted>false</isMuted>
@@ -705,7 +705,7 @@
   <instrument>
    <id>6</id>
    <name>Hat Closed</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
@@ -828,7 +828,7 @@
   <instrument>
    <id>7</id>
    <name>Tom 2</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
@@ -951,7 +951,7 @@
   <instrument>
    <id>8</id>
    <name>Hat Pedal</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.685345</volume>
    <isMuted>false</isMuted>
@@ -1074,7 +1074,7 @@
   <instrument>
    <id>9</id>
    <name>Tom 1</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
@@ -1197,7 +1197,7 @@
   <instrument>
    <id>10</id>
    <name>Hat Open</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.698276</volume>
    <isMuted>false</isMuted>
@@ -1320,7 +1320,7 @@
   <instrument>
    <id>11</id>
    <name>Cowbell</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.568965</volume>
    <isMuted>false</isMuted>
@@ -1443,7 +1443,7 @@
   <instrument>
    <id>12</id>
    <name>Ride</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.633621</volume>
    <isMuted>false</isMuted>
@@ -1566,7 +1566,7 @@
   <instrument>
    <id>13</id>
    <name>Crash</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.517241</volume>
    <isMuted>false</isMuted>
@@ -1689,7 +1689,7 @@
   <instrument>
    <id>14</id>
    <name>Ride 2</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
@@ -1812,7 +1812,7 @@
   <instrument>
    <id>18</id>
    <name>Splash</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.543103</volume>
    <isMuted>false</isMuted>
@@ -1935,7 +1935,7 @@
   <instrument>
    <id>16</id>
    <name>Hat Semi-Open</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.69</volume>
    <isMuted>true</isMuted>
@@ -1973,7 +1973,7 @@
   <instrument>
    <id>17</id>
    <name>Bell</name>
-   <drumkitPath>/usr/local/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
+   <drumkitPath>/nonexistent/share/hydrogen/data/drumkits/GMRockKit</drumkitPath>
    <drumkit>GMRockKit</drumkit>
    <volume>0.534828</volume>
    <isMuted>true</isMuted>

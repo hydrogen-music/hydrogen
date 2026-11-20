@@ -49,7 +49,7 @@ MidiActionTable::MidiActionTable( QWidget* pParent ) : QTableWidget( pParent )
 	m_availableActions << "";
 
 	const auto pActionHandler =
-		Hydrogen::get_instance()->getMidiActionManager();
+		HydrogenApp::pEngine()->getMidiActionManager();
 	for ( const auto& ttype : pActionHandler->getMidiActions() ) {
 		m_availableActions << MidiAction::typeToQString( ttype );
 	}
@@ -117,7 +117,7 @@ void MidiActionTable::resetTable()
 	// Initialize all data with the ones found in data structure loaded from
 	// disk. Afterwards, #m_tableData will serve as our single source of truth.
 	const auto midiEvents =
-		Preferences::get_instance()->getMidiEventMap()->getMidiEvents();
+		HydrogenApp::pPreferences()->getMidiEventMap()->getMidiEvents();
 
 	m_tableRows.clear();
 	for ( const auto& ppEvent : midiEvents ) {
@@ -140,6 +140,24 @@ void MidiActionTable::resetTable()
 	}
 }
 
+void MidiActionTable::persistMidiMap()
+{
+	// The MIDI action table is part of the (config) Preferences MidiEventMap.
+	// Persist it to disk right after an edit so it behaves like every other
+	// Preferences option (written on dialog OK) and — like those — reaches the
+	// engine via the shared config rather than living only in memory until
+	// shutdown (ADR 0027 bucket C). GUI components stay in sync through the
+	// MidiEventMapChanged event fired by the (un)register calls.
+	HydrogenApp::pPreferences()->save( false );
+
+	// In the IPC split the engine does not share our Preferences object:
+	// hand it the edited map so its MIDI dispatch reacts live instead of
+	// only on the next config reload (ADR 0030). Standalone this is a
+	// local install of the very same object — a no-op.
+	HydrogenApp::pEngine()->getCoreActionController()->setMidiEventMap(
+		HydrogenApp::pPreferences()->getMidiEventMap() );
+}
+
 void MidiActionTable::insertRow(
 	int nRow,
 	H2Core::MidiEvent::Type eventType,
@@ -149,8 +167,9 @@ void MidiActionTable::insertRow(
 {
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, Event::Trigger::Default
+		HydrogenApp::pPreferences()->getMidiEventMap()->registerEvent(
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
+			HydrogenApp::pHydrogen()
 		);
 	}
 
@@ -174,6 +193,8 @@ void MidiActionTable::insertRow(
 		);
 		++nIndex;
 	}
+
+	persistMidiMap();
 }
 
 void MidiActionTable::removeRow( int nRow )
@@ -188,10 +209,11 @@ void MidiActionTable::removeRow( int nRow )
 	const auto row = m_tableRows[nRow];
 	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
 		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()
+		HydrogenApp::pPreferences()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
-				row.eventType, row.eventParameter, row.pMidiAction
+				row.eventType, row.eventParameter, row.pMidiAction,
+				HydrogenApp::pHydrogen()
 			);
 	}
 
@@ -207,6 +229,8 @@ void MidiActionTable::removeRow( int nRow )
 		);
 		++nIndex;
 	}
+
+	persistMidiMap();
 }
 
 void MidiActionTable::replaceRow(
@@ -227,18 +251,20 @@ void MidiActionTable::replaceRow(
 	const auto row = m_tableRows[nRow];
 	if ( row.eventType != MidiEvent::Type::Null && row.pMidiAction != nullptr &&
 		 row.pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()
+		HydrogenApp::pPreferences()
 			->getMidiEventMap()
 			->removeRegisteredEvent(
-				row.eventType, row.eventParameter, row.pMidiAction
+				row.eventType, row.eventParameter, row.pMidiAction,
+				HydrogenApp::pHydrogen()
 			);
 	}
 
 	// Add new one
 	if ( eventType != MidiEvent::Type::Null && pMidiAction != nullptr &&
 		 pMidiAction->getType() != MidiAction::Type::Null ) {
-		H2Core::Preferences::get_instance()->getMidiEventMap()->registerEvent(
-			eventType, eventParameter, pMidiAction, Event::Trigger::Default
+		HydrogenApp::pPreferences()->getMidiEventMap()->registerEvent(
+			eventType, eventParameter, pMidiAction, Event::Trigger::Default,
+			HydrogenApp::pHydrogen()
 		);
 	}
 
@@ -247,6 +273,8 @@ void MidiActionTable::replaceRow(
 	m_tableRows[nRow].pMidiAction = pMidiAction;
 
 	updateRowContent( nRow, eventType, eventParameter, pMidiAction );
+
+	persistMidiMap();
 }
 
 void MidiActionTable::removeRegisteredEvents(
@@ -320,13 +348,13 @@ void MidiActionTable::midiSensePressed( int nRow )
 
 void MidiActionTable::appendEmptyRow()
 {
-	auto pMidiActionManager = Hydrogen::get_instance()->getMidiActionManager();
+	auto pMidiActionManager = HydrogenApp::pEngine()->getMidiActionManager();
 
 	const int nNewRow = rowCount();
 	setRowCount( rowCount() + 1 );
 
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	}
@@ -510,7 +538,7 @@ void MidiActionTable::updateRowContent(
 	if ( pActionParameterSpinBox1 != nullptr &&
 		 pActionParameterSpinBox2 != nullptr &&
 		 pActionParameterSpinBox3 != nullptr ) {
-		const int nActionParameters = Hydrogen::get_instance()
+		const int nActionParameters = HydrogenApp::pHydrogen()
 										  ->getMidiActionManager()
 										  ->getParameterNumber( actionType );
 		pActionParameterSpinBox1->setVisible( nActionParameters >= 1 );
@@ -565,12 +593,6 @@ void MidiActionTable::updateRowContent(
 				pMidiAction->getComponent(), Event::Trigger::Suppress
 			);
 		}
-		else if ( required & MidiAction::RequiresFx ) {
-			pActionParameterSpinBox2->m_pSpinBox->setValue(
-				pMidiAction->getFx(), Event::Trigger::Suppress
-			);
-		}
-
 		if ( required & MidiAction::RequiresLayer ) {
 			pActionParameterSpinBox3->m_pSpinBox->setValue(
 				pMidiAction->getLayer(), Event::Trigger::Suppress
@@ -578,7 +600,7 @@ void MidiActionTable::updateRowContent(
 		}
 
 		QString sIconPath( Skin::getSvgImagePath() );
-		if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+		if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 			 InterfaceTheme::IconColor::White ) {
 			sIconPath.append( "/icons/white/" );
 		}
@@ -617,11 +639,6 @@ void MidiActionTable::updateRowContent(
 				QIcon( sIconPath + "component-editor.svg" )
 			);
 		}
-		else if ( required & MidiAction::RequiresFx ) {
-			pActionParameterSpinBox2->m_pButton->setIcon( QIcon() );
-			pActionParameterSpinBox2->m_pButton->setText( "Fx" );
-		}
-
 		if ( required & MidiAction::RequiresLayer ) {
 			pActionParameterSpinBox3->m_pButton->setIcon(
 				QIcon( sIconPath + "sample-editor.svg" )
@@ -660,7 +677,7 @@ void MidiActionTable::updateRowVisibility( int nRow )
 		dynamic_cast<SpinBoxWithIcon*>( cellWidget( nRow, 6 ) );
 
 	const int nActionParameters =
-		Hydrogen::get_instance()->getMidiActionManager()->getParameterNumber(
+		HydrogenApp::pEngine()->getMidiActionManager()->getParameterNumber(
 			actionType
 		);
 	if ( pActionParameterSpinBox1 != nullptr &&
@@ -760,10 +777,6 @@ void MidiActionTable::writeBackRow( int nRow )
 				pActionParameterSpinBox2->m_pSpinBox->value()
 			);
 		}
-		else if ( required & MidiAction::RequiresFx ) {
-			pMidiAction->setFx( pActionParameterSpinBox2->m_pSpinBox->value() );
-		}
-
 		if ( required & MidiAction::RequiresLayer ) {
 			pMidiAction->setLayer( pActionParameterSpinBox3->m_pSpinBox->value()
 			);

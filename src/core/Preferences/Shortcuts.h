@@ -20,15 +20,15 @@
  *
  */
 
-#ifndef SHORTCUTS_H
-#define SHORTCUTS_H
+#ifndef H2C_SHORTCUTS_H
+#define H2C_SHORTCUTS_H
 
 #include <QString>
-#include <QKeySequence>
 #include <map>
 #include <vector>
 #include <memory>
 
+#include <core/Preferences/KeySequence.h>
 #include <core/Object.h>
 
 namespace H2Core {
@@ -132,8 +132,6 @@ public:
 		FirstWithManyArgs		 	= 300,
 		LayerPitch				 	= 301,
 		LayerGain				 	= 302,
-		
-		StripEffectLevel		 	= 303,
 
 		LastWithManyArgs		 	= 399,
 
@@ -173,53 +171,54 @@ public:
 		OpenPattern				 	= 506,
 		ExportPattern			 	= 507,
 		ExportSong				 	= 508,
-		ExportMIDI				 	= 509,
-		ExportLilyPond			 	= 510,
-		Quit					 	= 511,
+		ExportProject			 	= 509,
+		ExportMIDI				 	= 510,
+		ExportLilyPond			 	= 511,
+		Quit					 	= 512,
 
-		Undo					 	= 512,
-		Redo					 	= 513,
-		ShowUndoHistory			 	= 514,
+		Undo					 	= 513,
+		Redo					 	= 514,
+		ShowUndoHistory			 	= 515,
 
-		NewDrumkit				 	= 515,
-		OpenDrumkit				 	= 516,
-		EditDrumkitProperties	 	= 517,
-		SaveDrumkitToSoundLibrary	= 518,
-		SaveDrumkitToSession		= 519,
-		ExportDrumkit			 	= 520,
-		ImportDrumkit			 	= 521,
-		ImportOnlineDrumkit		 	= 522,
+		NewDrumkit				 	= 516,
+		OpenDrumkit				 	= 517,
+		EditDrumkitProperties	 	= 518,
+		SaveDrumkitToSoundLibrary	= 519,
+		SaveDrumkitToSession		= 520,
+		ExportDrumkit			 	= 521,
+		ImportDrumkit			 	= 522,
+		ImportOnlineDrumkit		 	= 523,
 
-		AddInstrument			 	= 523,
-		ClearAllInstruments		 	= 524,
-		AddComponent			 	= 525,
+		AddInstrument			 	= 524,
+		ClearAllInstruments		 	= 525,
+		AddComponent			 	= 526,
 
-		ShowPlaylist			 	= 526,
-		ShowDirector			 	= 527,
-		ShowMixer				 	= 528,
-		ShowRack		 	= 529,
-		ShowAutomation			 	= 530,
-		ShowPlaybackTrack		 	= 531,
-		ShowFullscreen			 	= 532,
+		ShowPlaylist			 	= 527,
+		ShowDirector			 	= 528,
+		ShowMixer				 	= 529,
+		ShowRack		 	= 530,
+		ShowAutomation			 	= 531,
+		ShowPlaybackTrack		 	= 532,
+		ShowFullscreen			 	= 533,
 
-		InputInstrument			= 533,
-		InputDrumkit			 	= 534,
-		ShowPreferencesDialog	 	= 535,
+		InputInstrument			= 534,
+		InputDrumkit			 	= 535,
+		ShowPreferencesDialog	 	= 536,
 
-		ShowAudioEngineInfo		= 536,
-		ShowFilesystemInfo		 	= 537,
-		LogLevelNone			 	= 538,
-		LogLevelError			 	= 539,
-		LogLevelWarning			= 540,
-		LogLevelInfo			 	= 541,
-		LogLevelDebug			 	= 542,
-		OpenLogFile				= 543,
-		DebugPrintObjects		 	= 544,
+		ShowAudioEngineInfo		= 537,
+		ShowFilesystemInfo		 	= 538,
+		LogLevelNone			 	= 539,
+		LogLevelError			 	= 540,
+		LogLevelWarning			= 541,
+		LogLevelInfo			 	= 542,
+		LogLevelDebug			 	= 543,
+		OpenLogFile				= 544,
+		DebugPrintObjects		 	= 545,
 
-		OpenManual				 	= 545,
-		ShowAbout				 	= 546,
-		ShowReportBug			 	= 547,
-		ShowDonate				 	= 548,
+		OpenManual				 	= 546,
+		ShowAbout				 	= 547,
+		ShowReportBug			 	= 548,
+		ShowDonate				 	= 549,
 
 		// Playlist editor
 		PlaylistAddSong			 	= 600,
@@ -275,19 +274,32 @@ public:
 	 * Creates the default key bindings as fallback when upgrading
 	 * from older versions or starting Hydrogen the first time.
 	 *
-	 * If no QApplication is present, Qt will segfault when attempting
-	 * to access standard keys as done within this functions. It has
-	 * to be used with care.
+	 * The Undo/Redo defaults are platform-dependent - Qt resolves
+	 * them via QKeySequence::keyBindings(), which requires a
+	 * QGuiApplication - and are therefore injected by the GUI after
+	 * its bootstrap. This keeps the function headless-safe.
 	 */
-	void createDefaultShortcuts();
+	void createDefaultShortcuts( const KeySequence& undo,
+								 const KeySequence& redo );
 
-	std::vector<Action> getActions( const QKeySequence& keySequence ) const;
+	std::vector<Action> getActions( const KeySequence& keySequence ) const;
 	/**
 	 * Removes mapping between @a keySequence and @a action in
 	 * #m_actionsMap.
 	 */
-	void deleteShortcut( const QKeySequence& keySequence, const Action& action );
-	void insertShortcut( const QKeySequence& keySequence, const Action& action );
+	void deleteShortcut( const KeySequence& keySequence, const Action& action );
+	void insertShortcut( const KeySequence& keySequence, const Action& action );
+	/** Variants composing the sequence from modifier(s) and a key. */
+	void insertShortcut( Qt::Key key, const Action& action );
+	void insertShortcut( Qt::KeyboardModifier modifier, Qt::Key key,
+						 const Action& action );
+	void insertShortcut( Qt::KeyboardModifier modifier1,
+						 Qt::KeyboardModifier modifier2, Qt::Key key,
+						 const Action& action );
+	void insertShortcut( Qt::KeyboardModifier modifier1,
+						 Qt::KeyboardModifier modifier2,
+						 Qt::KeyboardModifier modifier3, Qt::Key key,
+						 const Action& action );
 	ActionInfo getActionInfo( const Action& action ) const;
 
 	/**
@@ -299,12 +311,12 @@ public:
 	 * the generated GUI menus. Only the first one is used for this
 	 * purpose.
 	 */
-	QKeySequence getKeySequence( const Action& action ) const;
+	KeySequence getKeySequence( const Action& action ) const;
 
 	/**
 	 * Returns all key sequences mapped to an @a action.
 	 */
-	std::vector<QKeySequence> getKeySequences( const Action& action ) const;
+	std::vector<KeySequence> getKeySequences( const Action& action ) const;
 
 	const std::map<Action, ActionInfo>& getActionInfoMap() const;
 
@@ -320,7 +332,7 @@ private:
 						   const QString& sDescription );
 
 	std::map<Action, ActionInfo> m_actionInfoMap;
-	std::map<QKeySequence, std::vector<Action>> m_actionsMap;
+	std::map<KeySequence, std::vector<Action>> m_actionsMap;
 
 	/**
 	 * 

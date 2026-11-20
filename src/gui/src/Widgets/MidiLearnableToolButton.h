@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_LEARNABLE_TOOL_BUTTON_H
-#define MIDI_LEARNABLE_TOOL_BUTTON_H
+#ifndef H2C_MIDI_LEARNABLE_TOOL_BUTTON_H
+#define H2C_MIDI_LEARNABLE_TOOL_BUTTON_H
 
 #include <QtGui>
 #include <QtWidgets>

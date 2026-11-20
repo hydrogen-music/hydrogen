@@ -26,6 +26,7 @@
 #include <QtWidgets>
 
 #include <core/AudioEngine/AudioEngine.h>
+#include <core/Basics/Drumkit.h>
 #include <core/Basics/Instrument.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/InstrumentLayer.h>
@@ -81,6 +82,14 @@ LayerPreview::LayerPreview( ComponentView* pComponentView )
 }
 
 LayerPreview::~LayerPreview() {
+}
+
+void LayerPreview::leaveEvent( QEvent* ev ) {
+	QWidget::leaveEvent( ev );
+	// Close the per-layer velocity undo context so a drag collapses into one
+	// undo step and Undo/Redo re-enable once the pointer leaves the preview
+	// (mirrors Widgets/EditorBase.h).
+	HydrogenApp::get_instance()->endUndoContext();
 }
 
 void LayerPreview::updatePreview()
@@ -174,7 +183,7 @@ void LayerPreview::dropEvent( QDropEvent* event )
 		const int nStartLayer = LayerPreview::yToLayer( m_dragStartPoint.y() );
 
 		const auto pInstrument =
-			Hydrogen::get_instance()->getSelectedInstrument();
+			HydrogenApp::pEngine()->getSelectedInstrument();
 		const auto pComponent = m_pComponentView->getComponent();
 		if ( pInstrument == nullptr || pComponent == nullptr ) {
 			return;
@@ -224,19 +233,19 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		return gradient;
 	};
 
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	const auto pFontTheme = pPref->getFontTheme();
 
-	const auto gradientDefault = createGradient( pColorTheme->m_accentColor );
-	const auto gradientMute = createGradient( pColorTheme->m_muteColor );
-	const auto gradientSolo = createGradient( pColorTheme->m_soloColor );
+	const auto gradientDefault = createGradient( Skin::toQColor( pColorTheme->m_accentColor ) );
+	const auto gradientMute = createGradient( Skin::toQColor( pColorTheme->m_muteColor ) );
+	const auto gradientSolo = createGradient( Skin::toQColor( pColorTheme->m_soloColor ) );
 
 	p.setFont( QFont(
 		pFontTheme->m_sLevel2FontFamily, getPointSize( pFontTheme->m_fontSize )
 	) );
 
-	p.fillRect( ev->rect(), pColorTheme->m_windowColor );
+	p.fillRect( ev->rect(), Skin::toQColor( pColorTheme->m_windowColor ) );
 
 	const auto pComponent = m_pComponentView->getComponent();
 	const int nSelectedLayer = m_pComponentView->getSelectedLayer();
@@ -250,16 +259,16 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
     // layer. It will be used for the middle section. The further left, the
     // lighter the other segments will be (derived from this color) and the
     // further right, the darker.
-    const QColor headerBaseColor = pColorTheme->m_windowColor;
+    const QColor headerBaseColor = Skin::toQColor( pColorTheme->m_windowColor );
 	QColor highlightColor;
 	QLinearGradient segmentGradient;
 	if ( pComponent != nullptr ) {
-		highlightColor = pColorTheme->m_highlightColor;
+		highlightColor = Skin::toQColor( pColorTheme->m_highlightColor );
 	}
 	else {
-		highlightColor = pColorTheme->m_lightColor;
+		highlightColor = Skin::toQColor( pColorTheme->m_lightColor );
 	}
-	const QColor missingLayerColor = pColorTheme->m_buttonRedColor;
+	const QColor missingLayerColor = Skin::toQColor( pColorTheme->m_buttonRedColor );
 
 	auto pickHeaderColor = [&]( int nLayer ) {
 		if ( nLayers <= 1 ) {
@@ -284,7 +293,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		// Background
 		p.fillRect(
 			0, info.nStartY, width(), LayerPreview::nLayerHeight,
-			pColorTheme->m_windowColor
+			Skin::toQColor( pColorTheme->m_windowColor )
 		);
 
 		if ( pGradient != nullptr ) {
@@ -297,12 +306,12 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 		if ( pColor != nullptr ) {
 			p.fillRect(
 				info.nStartX, info.nStartY, info.nEndX - info.nStartX,
-				LayerPreview::nLayerHeight, pColorTheme->m_buttonRedColor
+				LayerPreview::nLayerHeight, Skin::toQColor( pColorTheme->m_buttonRedColor )
 			);
 		}
 
 		// Label
-		QColor layerTextColor = pColorTheme->m_windowTextColor;
+		QColor layerTextColor = Skin::toQColor( pColorTheme->m_windowTextColor );
 		layerTextColor.setAlpha( 155 );
 		p.setPen( layerTextColor );
 		p.drawText(
@@ -381,7 +390,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			LayerPreview::nBorder, LayerPreview::nBorder, width() - 2 * LayerPreview::nBorder,
 			LayerPreview::nHeader - LayerPreview::nBorder, headerBaseColor
 		);
-		p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+		p.setPen( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 145 ) );
 		p.drawRect(
 			LayerPreview::nBorder, LayerPreview::nBorder, width() - 3 * LayerPreview::nBorder,
 			LayerPreview::nHeader - 2 * LayerPreview::nBorder
@@ -432,7 +441,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			}
 			QPen pen;
 			pen.setStyle( Qt::DashLine );
-			pen.setColor( pColorTheme->m_windowTextColor.darker( 145 ) );
+			pen.setColor( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 145 ) );
 			p.setPen( pen );
 			p.drawLine(
 				iinfoOther.nEndX, LayerPreview::nBorder, iinfoOther.nEndX,
@@ -451,7 +460,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 			p.setPen( highlightColor );
 		}
 		else {
-			p.setPen( pColorTheme->m_windowTextColor.darker( 145 ) );
+			p.setPen( Skin::toQColor( pColorTheme->m_windowTextColor ).darker( 145 ) );
 		}
 		p.drawLine(
 			nVisibleStart, LayerPreview::nBorder, nVisibleStart,
@@ -481,7 +490,7 @@ void LayerPreview::paintEvent( QPaintEvent* ev )
 	// The number indicating the layer in the header should always win and be
 	// visible. That's why render them in another swipe.
 	p.setFont( QFont( pFontTheme->m_sLevel2FontFamily, getPointSizeButton() ) );
-	p.setPen( pColorTheme->m_windowTextColor );
+	p.setPen( Skin::toQColor( pColorTheme->m_windowTextColor ) );
 	for ( const auto& iinfo : m_layerInfos ) {
 		if ( iinfo.bSelected ) {
 			continue;
@@ -604,7 +613,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 		return;
 	}
 
-	const auto pInstrument = Hydrogen::get_instance()->getSelectedInstrument();
+	const auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
 	if ( pInstrument == nullptr ) {
 		// What is displayed in the component editor _is_ the selected
 		// instrument. In case it is nullptr, we are working on inconsistent
@@ -638,7 +647,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 			// based on the current sample selection algorithm.
 			pNote->setSelectedLayerInfo( nullptr, pComponent );
 
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pEngine()->getCoreActionController()->noteOn(
 				pNote
 			);
 		}
@@ -679,7 +688,7 @@ void LayerPreview::mousePressEvent( QMouseEvent* ev )
 				std::make_shared<Note>( pInstrument, nPosition, fVelocity );
 			pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );
 
-			Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(
+			HydrogenApp::pEngine()->getCoreActionController()->noteOn(
 				pNote
 			);
 		}
@@ -832,25 +841,47 @@ void LayerPreview::mouseMoveEvent( QMouseEvent* ev )
 				VELOCITY_MIN, VELOCITY_MAX
 			);
 
-			bool bChanged = false;
+			// Address the layer by (instrument, component, layer) index for the
+			// undo command.
+			int nInstrument = -1, nComponent = -1;
+			auto pSong = HydrogenApp::pEngine()->getSong();
+			auto pInstrument = HydrogenApp::pEngine()->getSelectedInstrument();
+			if ( pSong != nullptr && pSong->getDrumkit() != nullptr &&
+				 pInstrument != nullptr ) {
+				nInstrument =
+					pSong->getDrumkit()->getInstruments()->index( pInstrument );
+				nComponent = pInstrument->index( pComponent );
+			}
+			if ( nInstrument == -1 || nComponent == -1 ) {
+				break;
+			}
+
+			const QString sContext = QString( "layer:%1:%2:%3:velocity" )
+				.arg( nInstrument ).arg( nComponent ).arg( nSelectedLayer );
+
 			if ( m_drag == Drag::VelocityStart ) {
 				if ( fVelocity < pLayer->getEndVelocity() ) {
-					pLayer->setStartVelocity( fVelocity );
-					bChanged = true;
+					HydrogenApp::get_instance()->pushUndoCommand(
+						new SE_setLayerPropertyAction(
+							nInstrument, nComponent, nSelectedLayer,
+							SE_setLayerPropertyAction::Property::StartVelocity,
+							pLayer->getStartVelocity(), fVelocity ),
+						sContext );
 					showLayerStartVelocity( pLayer, ev );
+					update();
 				}
 			}
 			else {
 				if ( fVelocity > pLayer->getStartVelocity() ) {
-					pLayer->setEndVelocity( fVelocity );
-					bChanged = true;
+					HydrogenApp::get_instance()->pushUndoCommand(
+						new SE_setLayerPropertyAction(
+							nInstrument, nComponent, nSelectedLayer,
+							SE_setLayerPropertyAction::Property::EndVelocity,
+							pLayer->getEndVelocity(), fVelocity ),
+						sContext );
 					showLayerEndVelocity( pLayer, ev );
+					update();
 				}
-			}
-
-			if ( bChanged ) {
-				update();
-				Hydrogen::get_instance()->setDrumkitModified( true );
 			}
 			break;
 		}
@@ -900,7 +931,7 @@ void LayerPreview::showLayerEndVelocity( const std::shared_ptr<InstrumentLayer> 
 
 int LayerPreview::getPointSizeButton() const
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	
 	int nPointSize;
 	

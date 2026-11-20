@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SAMPLE_WAVE_DISPLAY
-#define SAMPLE_WAVE_DISPLAY
+#ifndef H2C_SAMPLE_WAVE_DISPLAY
+#define H2C_SAMPLE_WAVE_DISPLAY
 
 #include "../Widgets/WaveDisplay.h"
 #include "SampleEditor.h"

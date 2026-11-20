@@ -1,0 +1,230 @@
+#! /bin/bash
+#
+# tools/check_write_surface — CI guard for ADR 0027
+# (CoreActionController is the single GUI->engine write surface).
+#
+# Fails if GUI code (src/gui/src) calls a *mutating* method directly on an
+# engine-owned core (Basics) object instead of routing the edit through
+# CoreActionController. This is the "done-when" gate for the Phase 4.5
+# write-surface sweep (proposal 0005).
+#
+# Scope: (1) direct mutation of engine-owned **Basics** objects (Note, Pattern,
+# Playlist, Instrument, InstrumentComponent, InstrumentLayer, Sample, Adsr,
+# Song, Drumkit, AutomationPath) via the conventional pointer names; (2) direct
+# mutation / playback commands on AudioEngine / Transport / Sampler
+# (set*/reset*/... and noteOn/noteOff/previewInstrument/stopPlayingNotes).
+#
+# NOT enforced (by design): state *reads* under a hand-rolled lock() — e.g. the
+# SongEditor position ruler / pattern list reading transport & playing-pattern
+# state for painting, and the SampleEditor's editor-local preview-instrument
+# mutation. These are not song-graph writes; in editor mode they become telemetry
+# reads (ADR 0018), a separate migration. The few preview/audition calls that
+# play an editor-local or not-yet-in-song object through the sampler are
+# allowlisted below, pending the editor-mode preview design (ADR 0016).
+#
+# Legitimate exceptions (ADR 0027 buckets C/D, editor-local working copies,
+# scratch/preview notes, file & session bookkeeping) are listed in ALLOW with a
+# reason. Prefer routing through CoreActionController over adding an entry here.
+#
+# Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+#
+# http://www.hydrogen-music.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see https://www.gnu.org/licenses
+
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT" || exit 2
+
+GUI_DIR="src/gui/src"
+
+# Pointer-variable names denoting engine-owned core objects, followed by a
+# mutating method (set/insert/remove/add/purge/clear/move/replace/erase + a
+# capital). Qt-widget pointers (pButton, pLabel, m_pFader, ...) are not named
+# like this, so they do not match.
+PATTERN='\b(pNote|ppNote|pNotes|pNewNote|pSelectedNote|pInstrument|ppInstrument|pInstr|pPattern|ppPattern|pComponent|ppComponent|pLayer|ppLayer|pSong|pDrumkit|pPlaylist|pSample|pAdsr|pAutomationPath)[[:space:]]*->[[:space:]]*(set|insert|remove|add|purge|clear|move|replace|erase|setIsModified)[A-Z]'
+
+# Direct mutation / playback commands on the engine, transport or sampler — these
+# must go through CoreActionController too (ADR 0027/0029). Reads
+# (getState/getPlayhead/getSampler getters, etc.) and hand-rolled lock() are NOT
+# matched: they are state reads for painting that become telemetry in editor mode,
+# a separate migration. The remaining preview/audition calls
+# (getSampler()->noteOn / previewInstrument of an editor-local or not-in-song
+# object) are allowlisted below, pending the editor-mode preview design (ADR 0016).
+PATTERN_ENGINE='(getAudioEngine\(\)|pAudioEngine|getTransport\(\)|pTransport|getSampler\(\)|pSampler)[[:space:]]*->[[:space:]]*((set|insert|remove|add|purge|clear|reset|move|replace|erase)[A-Z]|noteOn|noteOff|previewInstrument|stopPlayingNotes)'
+
+# Some of the methods of #H2Core::CoreActionController are only called in the
+# core and/or cli part of Hydrogen. They do not have OpCodes and do not travel
+# the IPC split. In order to ensure they do not sneak into the GUI at a later
+# point, we make our intention explicit and assert that they are not called.
+PATTERN_CORE_ACTION_CONTROLLER='(getCoreActionController\(\)|pCoreActionController|pCac|pCAC)[[:space:]]*->[[:space:]]*(toggleRecordMode|initExternalControlInterfaces|toggleStripIsMuted|toggleStripIsSoloed|upgradeDrumkit|validateDrumkit|retrieveDrumkit|extractDrumkit|replaceDrumkitInstrument|replacePlaybackTrackInstrument|relocateToFrame|clearInstrumentInPattern|newPattern)'
+
+# ADR 0030 batch 2v — the MIDI setup fix mutates the current drumkit and has
+# to cross the split via CoreActionController::setDefaultMidiOutNotes; a
+# direct call on the GUI's song copy would only fix the mirror. The generic
+# PATTERN can not see through the getInstruments() getter chain, so this one
+# is matched explicitly.
+PATTERN_SET_DEFAULT_MIDI_OUT_NOTES='getInstruments[[:space:]]*\([[:space:]]*\)[[:space:]]*->[[:space:]]*setDefaultMidiOutNotes'
+
+# ADR 0030 batch 2w — MIDI actions triggered by the GUI have to cross the
+# split via IEngineAccess::handleMidiAction(); calling the manager directly
+# (sync or async) would only hit the editor's mirror.
+PATTERN_MIDI_ACTION_MANAGER='getMidiActionManager[[:space:]]*\([[:space:]]*\)[[:space:]]*->[[:space:]]*handleMidiAction(Sync|Async)'
+
+# ADR 0030 batch 2x — the rubberband batch recalculation swaps in-memory
+# samples and has to cross the split via
+# CoreActionController::recalculateRubberband; a direct call on the GUI's
+# drumkit copy would only re-pitch the mirror. The generic PATTERN can not
+# see through the getDrumkit() getter chain, so this one is matched
+# explicitly.
+PATTERN_RECALCULATE_RUBBERBAND='(pDrumkit|ppDrumkit|getDrumkit[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*recalculateRubberband'
+
+# ADR 0030 batch 2y — GUI writes to engine-read preferences state have to
+# cross the split via CoreActionController commands; a direct write on the
+# mirror's preferences leaves the authoritative engine stale (its
+# transport/drumkit read the batch flag and its recording decision reads
+# the punch area live).
+PATTERN_SET_RUBBERBAND_BATCH_MODE='(pPref|pPreferences[[:space:]]*\([[:space:]]*\)|pPrefs|getPreferences[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*setRubberBandBatchMode'
+PATTERN_SET_PUNCH_AREA='(pPref|pPreferences[[:space:]]*\([[:space:]]*\)|pPrefs|getPreferences[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*(setPunchInPos|setPunchOutPos|unsetPunchArea)'
+
+# ADR 0030 batch 2z — the MIDI control dialog's scalar settings have to
+# cross the split via CoreActionController::setMidiControlSettings (and
+# the clock toggles via their dedicated commands); a direct write on the
+# mirror's preferences leaves the authoritative engine's MIDI I/O stale
+# (it reads them live).
+PATTERN_SET_MIDI_CONTROL_SETTINGS='(pPref|pPreferences[[:space:]]*\([[:space:]]*\)|pPrefs|getPreferences[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*((m_bMidiNoteOffIgnore|m_midiActionChannel|m_bEnableMidiFeedback|m_midiFeedbackChannel|m_midiSendNoteOff|m_bMidiTransportInputHandling|m_bMidiTransportOutputSend|m_bMidiClockInputHandling|m_bMidiClockOutputSend)[[:space:]]*=|setMidiTransportInputHandling|setMidiTransportOutputSend|setMidiFeedbackChannel|setMidiSendNoteOff|setMidiClockInputHandling|setMidiClockOutputSend)'
+
+# ADR 0030 batch 2aa — the automation path view must not mutate the
+# mirror's path directly: every add/move/remove has to cross the split
+# via the CoreActionController commands (wrapped in undo actions), or
+# the authoritative engine's automation path goes stale.
+PATTERN_AUTOMATION_PATH_DIRECT_WRITES='(m_pPath|pPath|getAutomationPath[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*(addPoint|removePoint|move)[[:space:]]*\('
+
+# ADR 0030 batch 2ab — virtual pattern relationships are song structure:
+# the GUI must not clear/add them on the mirror (nor recompute the
+# mirror's flattened sets on its own) — the setVirtualPatterns command
+# crosses and the authoritative engine refreshes its own playing
+# patterns, or playback keeps using the stale set.
+PATTERN_VIRTUAL_DIRECT_WRITES='(virtualPatternsAdd|virtualPatternsDel|virtualPatternsClear|updateVirtualPatterns)[[:space:]]*\('
+
+# ADR 0030 batch 2ac — the pattern editor panel's realtime note
+# quantization settings (the quantize flag and the grid
+# resolution×triplets pair) have to cross the split via the
+# CoreActionController commands; a direct write on the mirror's
+# preferences leaves the authoritative engine's addRealtimeNote()
+# quantizing incoming keyboard/MIDI notes on the stale grid.
+PATTERN_SET_QUANTIZATION_SETTINGS='(pPref|pPreferences[[:space:]]*\([[:space:]]*\)|pPrefs|getPreferences[[:space:]]*\([[:space:]]*\))[[:space:]]*->[[:space:]]*(setQuantizeEvents|setPatternEditorGridResolution|setPatternEditorUsingTriplets)[[:space:]]*\('
+
+
+# Normalize a source line: strip leading/trailing whitespace, collapse internal
+# whitespace runs to single spaces.
+normalize() {
+	printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+						   -e 's/[[:space:]]\{1,\}/ /g'
+}
+
+# Allowlist stored as newline-separated "<relpath>|||<normalized line>" keys.
+# A plain string (not an associative array) keeps this compatible with the
+# bash 3.2 shipped on macOS.
+ALLOW=""
+allow() { ALLOW="${ALLOW}$1|||$2
+"; }
+
+# --- MainForm.cpp: file & session bookkeeping (modified flags, pre-add
+#     instrument id, missing-sample prompt, pattern/drumkit save-as path
+#     pre-seeds). Not a live edit of the audio graph. The song save-as
+#     pre-seed/restore setPath() sites are gone since batch 2t — the chosen
+#     path now flows through CoreActionController::saveSongAs(PathPolicy)
+#     directly. ---------------------------------------------------------------
+allow "$GUI_DIR/MainForm.cpp" 'pSong->setWasAskedAboutMissingSamples( true );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setPath( sPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setPath( QString( "%1/%2%3" )'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setIsModified( false );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setAuthor( pSong->getAuthor() );'
+allow "$GUI_DIR/MainForm.cpp" 'pPattern->setLicense( pSong->getLicense() );'
+allow "$GUI_DIR/MainForm.cpp" 'pInstrument->setId( static_cast<Instrument::Id>( ii ) );'
+allow "$GUI_DIR/MainForm.cpp" 'pDrumkit->setPath( sPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pDrumkit->setIsModified( false );'
+
+# --- MainForm.cpp (onAutoSaveTimer): Song::save()/Playlist::saveAs() adopt
+#     the autosave target path unconditionally; these restores keep the
+#     autosave file from becoming the backing path. The saves themselves are
+#     editor-local recovery writes that cross nothing — routing them through
+#     the CAC save-as commands would pollute recent-files/last-path
+#     preferences and fire events (PathPolicy::Keep is export semantics, not
+#     recovery semantics). ------------------------------------------------------
+allow "$GUI_DIR/MainForm.cpp" 'pSong->setPath( sOldPath );'
+allow "$GUI_DIR/MainForm.cpp" 'pPlaylist->setPath( sOldPath );'
+
+# --- HydrogenApp.cpp (openFile): demos are opened as unsaved scratch copies
+#     — the path is cleared on the freshly loaded, not-yet-crossed payload
+#     before the single setSong() crossing, so engine and mirror stay
+#     consistent in one hop (batch 2t). ----------------------------------------
+allow "$GUI_DIR/HydrogenApp.cpp" 'pSong->setPath( "" );'
+
+# --- DrumkitPropertiesDialog.cpp: edits a detached working copy
+#     (std::make_shared<Drumkit>(...) at every call site); committed to the
+#     engine via SE_switchDrumkitAction -> CoreActionController::setDrumkit
+#     (bucket A) or saved to disk. -------------------------------------------
+allow "$GUI_DIR/DrumkitPropertiesDialog.cpp" 'ppInstrument->setType( ppItemType->currentText() );'
+
+# --- NotePropertiesRuler.cpp: applyProperty() mutates a caller-owned scratch
+#     note (a throwaway copy, or a dummy/transient preview note) to compute a
+#     value; real notes are committed via CoreActionController::editNoteProperty
+#     (see commitNoteProperty()). ----------------------------------------------
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setVelocity( fYValue );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setPanWithRangeFrom0To1( fYValue );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setLeadLag( fYValue * -2.0 + 1.0 );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setKey( key );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setOctave( octave );'
+allow "$GUI_DIR/PatternEditor/NotePropertiesRuler.cpp" 'pNote->setProbability( fYValue );'
+
+# --- LayerPreview.cpp: setSelectedLayerInfo is transient per-note view state
+#     used while auditioning a layer (bucket D, editor-local runtime preview). -
+allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( nullptr, pComponent );'
+allow "$GUI_DIR/Rack/ComponentEditor/LayerPreview.cpp" 'pNote->setSelectedLayerInfo( pSelectedLayerInfo, pComponent );'
+
+violations=0
+while IFS= read -r line; do
+	[ -z "$line" ] && continue
+	file="${line%%:*}"
+	rest="${line#*:}"            # lineno:content
+	lineno="${rest%%:*}"
+	content="${rest#*:}"
+	norm="$(normalize "$content")"
+	if printf "${file}" | grep -Fq "EditorPathExerciser"; then
+		continue
+	fi
+	if printf '%s' "$ALLOW" | grep -Fxq -- "$file|||$norm"; then
+		continue
+	fi
+	if [ "$violations" -eq 0 ]; then
+		echo "ERROR: direct mutation of engine-owned Basics objects in the GUI."
+		echo "       Route the edit through CoreActionController (ADR 0027), or"
+		echo "       add a documented exception to tools/check_write_surface."
+		echo
+	fi
+	echo "  $file:$lineno: $norm"
+	violations=$((violations + 1))
+done < <( LC_ALL=C grep -rnE "($PATTERN)|($PATTERN_ENGINE)|($PATTERN_CORE_ACTION_CONTROLLER)|($PATTERN_SET_DEFAULT_MIDI_OUT_NOTES)|($PATTERN_MIDI_ACTION_MANAGER)|($PATTERN_RECALCULATE_RUBBERBAND)|($PATTERN_SET_RUBBERBAND_BATCH_MODE)|($PATTERN_SET_PUNCH_AREA)|($PATTERN_SET_MIDI_CONTROL_SETTINGS)|($PATTERN_AUTOMATION_PATH_DIRECT_WRITES)|($PATTERN_VIRTUAL_DIRECT_WRITES)|($PATTERN_SET_QUANTIZATION_SETTINGS)" "$GUI_DIR" 2>/dev/null )
+
+if [ "$violations" -gt 0 ]; then
+	echo
+	echo "Found $violations unguarded GUI write(s) to engine state."
+	exit 1
+fi
+
+echo "check_write_surface: OK — no unguarded GUI writes to engine Basics."
+exit 0

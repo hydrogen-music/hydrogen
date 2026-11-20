@@ -184,15 +184,15 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 
 void Fader::paintEvent( QPaintEvent *ev)
 {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QPainter painter(this);
 	
 	QColor colorHighlightActive;
 	if ( m_bIsActive ) {
-		colorHighlightActive = pColorTheme->m_highlightColor;
+		colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 	} else {
-		colorHighlightActive = pColorTheme->m_lightColor;
+		colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 	}
 	QColor colorGradientNormal( Qt::green );
 	QColor colorGradientWarning( Qt::yellow );
@@ -270,7 +270,7 @@ void Fader::paintEvent( QPaintEvent *ev)
 			fFaderTopLeftX_R = 15.5;
 			fFaderTopLeftY_R = 1.7;
 			fFaderWidth = 6.5;
-			fFaderHeight = nWidth - 3;
+			fFaderHeight = nHeight - 3;
 			fPeak_L = ( m_fPeakValue_L - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
 			fPeak_R = ( m_fPeakValue_R - m_fMinPeak ) / ( m_fMaxPeak - m_fMinPeak ) * fFaderHeight;
 		}

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_CONTROL_DIALOG_H
-#define MIDI_CONTROL_DIALOG_H
+#ifndef H2C_MIDI_CONTROL_DIALOG_H
+#define H2C_MIDI_CONTROL_DIALOG_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -68,8 +68,10 @@ class MidiControlDialog : public QDialog,
 	// EventListerer
 	void drumkitLoadedEvent() override;
 	void instrumentParametersChangedEvent( int ) override;
+	void midiControlSettingsChangedEvent() override;
 	void midiDriverChangedEvent() override;
 	void midiInputEvent() override;
+	void midiInstrumentMapChangedEvent() override;
 	void midiOutputEvent() override;
 	void updatePreferencesEvent( int ) override;
 	void updateSongEvent( int ) override;
@@ -84,6 +86,33 @@ class MidiControlDialog : public QDialog,
 
 	void updateFont();
 	void updateIcons();
+	/** Crosses the scalar MIDI settings edited in this dialog (transport
+	 * handling, action/feedback channels, note-off behaviour, …) via
+	 * CoreActionController::setMidiControlSettings() — in editor mode this
+	 * installs them on the authoritative engine's preferences, whose MIDI I/O
+	 * reads them live — and writes them to disk right after an edit so they
+	 * behave like every other Preferences option (written on dialog OK)
+	 * instead of living only in memory until shutdown. This keeps recovery
+	 * after a crash consistent: either all of these settings come back or none
+	 * would (ADR 0030 + ADR 0027 bucket C). */
+	void persistMidiSettings();
+	/** Crosses the MIDI instrument map — staged in place on the mirror's
+	 * preferences by the mapping callbacks — via
+	 * CoreActionController::setMidiInstrumentMap() so the authoritative
+	 * engine's MIDI/Sampler dispatch applies it live, and writes it to disk
+	 * like the scalar settings (ADR 0030 + ADR 0027 bucket C). */
+	void persistMidiInstrumentMap();
+
+	/** Discards the cached widget state of the scalar MIDI settings and
+	 * re-reads them from the current Preferences. Signal-blocked: the
+	 * widget state mirrors the core, it must not write back. */
+	void reloadMidiControlSettings();
+	/** Discards the cached widget state of the MIDI instrument map —
+	 * mapping combos, global channel widgets and the per-instrument
+	 * table — and re-reads it from the current Preferences.
+	 * Signal-blocked: the widget state mirrors the core, it must not
+	 * write back. */
+	void reloadMidiInstrumentMap();
 
 	void updateInstrumentTable();
 	/** @returns the row number corresponding to the objects just added. */

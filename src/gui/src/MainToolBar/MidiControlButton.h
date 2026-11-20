@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_CONTROL_BUTTON_H
-#define MIDI_CONTROL_BUTTON_H
+#ifndef H2C_MIDI_CONTROL_BUTTON_H
+#define H2C_MIDI_CONTROL_BUTTON_H
 
 #include <QSvgRenderer>
 #include <QtGui>

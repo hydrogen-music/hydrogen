@@ -19,15 +19,16 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef ALSA_AUDIO_DRIVER_H
-#define ALSA_AUDIO_DRIVER_H
+#ifndef H2C_ALSA_AUDIO_DRIVER_H
+#define H2C_ALSA_AUDIO_DRIVER_H
 
 #include <core/IO/AudioDriver.h>
-#include <core/IO/NullDriver.h>
+#include <core/IO/StubAudioDriver.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <inttypes.h>
+#include <thread>
 #include <alsa/asoundlib.h>
 
 namespace H2Core
@@ -47,7 +48,7 @@ public:
 	audioProcessCallback m_processCallback;
 	int m_nXRuns;
 
-	AlsaAudioDriver( audioProcessCallback processCallback );
+	AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback );
 	~AlsaAudioDriver();
 
 	virtual int init( unsigned nBufferSize ) override;
@@ -57,7 +58,7 @@ public:
 	virtual unsigned getSampleRate() override;
 	virtual float* getOut_L() override;
 	virtual float* getOut_R() override;
-	static QStringList getDevices();
+	static QStringList getAlsaDevices();
 
 	virtual int getXRuns() const override { return m_nXRuns; }
 
@@ -65,6 +66,9 @@ public:
 private:
 
 	unsigned int m_nSampleRate;
+	// Audio processing thread (created in connect(), joined in
+	// disconnect()).
+	std::thread m_alsaAudioDriverThread;
 };
 
 #else
@@ -72,11 +76,11 @@ private:
 namespace H2Core {
 
 /** \ingroup docCore docAudioDriver */
-class AlsaAudioDriver : public NullDriver
+class AlsaAudioDriver : public StubAudioDriver
 {
 	H2_OBJECT(AlsaAudioDriver)
 public:
-	AlsaAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback ) : StubAudioDriver( pHydrogen, processCallback ) {}
 
 };
 

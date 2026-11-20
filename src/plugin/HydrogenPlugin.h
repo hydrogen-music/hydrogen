@@ -1,0 +1,269 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef H2C_HYDROGEN_PLUGIN_H
+#define H2C_HYDROGEN_PLUGIN_H
+
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+#include <plugin/HostTransportLatch.h>
+
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+
+QT_BEGIN_NAMESPACE
+class QProcess;
+class QTranslator;
+QT_END_NAMESPACE
+
+namespace H2Core {
+
+class CommonStrings;
+class Hydrogen;
+class PluginAudioDriver;
+class PluginMidiDriver;
+class EngineSession;
+class EngineEventSink;
+
+/**
+ * Format-agnostic plugin engine wrapper (ADR 0013/0014).
+ *
+ * Owns one headless Hydrogen instance driven by the host-driven Plugin audio
+ * and MIDI drivers, and exposes the lifecycle a plugin host needs: activate /
+ * process (host buffers + transport + MIDI) / deactivate, plus state save/load
+ * through the `.h2project` codec (ADR 0017/0020/0025). The native CLAP and LV2
+ * entry points are thin C-ABI shims over this class; keeping the real logic
+ * here means one implementation serves every format and stays unit-testable
+ * without any plugin SDK.
+ *
+ * \ingroup docCore
+ */
+class HydrogenPlugin {
+public:
+
+		static constexpr int nDefaultHeight = 600;
+		static constexpr int nDefaultWidth = 960;
+		static constexpr int nMinHeight = 400;
+		static constexpr int nMinWidth = 640;
+
+	/**
+	 * @param fSampleRate  Initial sample rate in Hz.
+	 * @param nMaxBlockSize Largest block the host will request (frames).
+	 * @param nBuses       Number of stereo output buses (ADR 0019); 0 disables
+	 *                     per-instrument bus routing (master only).
+	 */
+	HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize, int nBuses );
+	~HydrogenPlugin();
+
+	/** Resolve the shared system data folder (drumkits, empty song etc.)
+	 * for plugin use: $HYDROGEN_SYS_DATA_PATH if set, else empty — the
+	 * Filesystem platform default, the one shared system location. The
+	 * plugin deliberately never searches relative to its own install
+	 * location: the shared data must only exist in one place. */
+	static QString resolveSystemDataPath();
+
+	/** Load the hydrogen translation catalog for @a languages — the
+	 * preferred language first, then the system locale's UI languages,
+	 * like the GUI main — from the shared system data folder's i18n
+	 * directory and install it on the process's QCoreApplication: the
+	 * host's if it runs one, else the minimal one the plugin ensures.
+	 * The catalog only carries hydrogen's own translation contexts, so
+	 * the host's strings are unaffected. Idempotent; returns false only
+	 * when no catalog matches @a languages (e.g. English, the source
+	 * language). */
+	static bool installTranslator( const QStringList& languages );
+	/** The process-wide hydrogen translator #installTranslator loaded —
+	 * null until then. Exposed for tests and diagnostics. */
+	static QTranslator* translator();
+
+	/** Update the sample rate / max block size before processing starts. */
+	void activate( double fSampleRate, unsigned nMaxBlockSize );
+	void deactivate();
+
+	/** The host's reset hook (CLAP `reset`: clear the processing state
+	 * and kill all voices, [audio-thread & active]) mapped onto the
+	 * engine's panic action: stop the sequencer, stop all playing
+	 * notes, all notes off. Called between process blocks, where the
+	 * engine lock is free (audioEngine_process only try-locks), so the
+	 * lock panic() takes can only ever wait for a rare main-thread
+	 * holder (state save, editor command) — no circular waits. */
+	void reset();
+
+	/**
+	 * Render one block into the host buffers.
+	 * @param nFrames   Frames to render (<= max block size).
+	 * @param pMasterL  Master left output (host owned, >= nFrames).
+	 * @param pMasterR  Master right output.
+	 * @param busOut_L  Per-bus left buffers (size getBusCount() or empty).
+	 * @param busOut_R  Per-bus right buffers.
+	 * @param hostTransport  Raw host transport for this block as parsed by
+	 *                       the format shim. It is sanitized through the
+	 *                       host transport latch (ADR 0013) before reaching
+	 *                       the engine: raw readings jitter at the frame
+	 *                       level and must not be published as relocations.
+	 *                       An invalid reading (host without transport)
+	 *                       leaves the engine free-running.
+	 */
+	void process( uint32_t nFrames, float* pMasterL, float* pMasterR,
+				  const std::vector<float*>& busOut_L,
+				  const std::vector<float*>& busOut_R,
+				  const HostTransportReading& hostTransport );
+
+	// Host MIDI for the upcoming block (queued, dispatched at process()).
+	// Threading contract (ADR 0013): the queue is plain storage, not
+	// thread-safe — call these on the same thread as process() (or at a
+	// point where process() is not running), per the realtime rules of
+	// CLAP/VST3 hosts. Calling them from another thread while process()
+	// dispatches the queue is a data race.
+	void noteOn( int nKey, int nVelocity, int nChannel, int nSampleOffset = 0 );
+	void noteOff( int nKey, int nChannel, int nSampleOffset = 0 );
+	void controlChange( int nParameter, int nValue, int nChannel,
+						int nSampleOffset = 0 );
+
+	int getBusCount() const;
+
+	/** Serialize the current song — and the plugin's own base-layer
+	 * preferences (ADR 0017 amendment/0022) — to a plugin-state buffer. The
+	 * buffer is always the `.h2project` archive container;
+	 * @param bEmbedSamples ON → portable bundle (sample audio embedded);
+	 *   OFF → song-only (the kit must be installed to reload). */
+	std::vector<unsigned char> saveState( bool bEmbedSamples );
+	/** Replace the current song from a plugin-state buffer (container
+	 * auto-detected), adopting the stored plugin preferences where the
+	 * state carries them. */
+	bool loadState( const std::vector<unsigned char>& data );
+
+	Hydrogen* getHydrogen() const { return m_pHydrogen; }
+
+	/** The plugin UI's translatable strings (proposal 0006 TU4.0).
+	 *  Constructed after #installTranslator so its members resolve
+	 *  through the installed catalog; the UI views read it once per
+	 *  construction, not per frame. */
+	std::shared_ptr<H2Core::CommonStrings> commonStrings() const {
+		return m_pCommonStrings;
+	}
+
+	/** Register an engine-process consumer of this plugin's engine event
+	 *  stream and telemetry (ADR 0035 UI-3): forwarded to the engine
+	 *  session's sink seam (EngineSession::setEventSink). The plugin
+	 *  remembers it and (re-)registers it with any session started later.
+	 *  Pass nullptr to unregister; the caller owns the sink and must
+	 *  unregister it before destroying it. */
+	void setEventSink( EngineEventSink* pEventSink );
+
+	/** Unregister @a pEventSink, but only if it is still the registered
+	 *  sink: a displaced sink's teardown must not unregister its
+	 *  successor. When it does unregister, the session's in-flight
+	 *  drain completes before this returns — the sink may be destroyed
+	 *  afterwards. */
+	void clearEventSink( EngineEventSink* pExpected );
+
+	// ── Out-of-process editor lifecycle (ADR 0016) ─────────────────
+	/** Open the editor for this instance: mark it open and, when
+	 * @a bLaunchProcess, spawn the editor process
+	 * `hydrogen --connect-via-ipc <endpoint>`. The engine is served by the
+	 * always-on #EngineSession started in the constructor (ADR 0035 UI-3);
+	 * a bind is only (re-)attempted here if that initial bind failed.
+	 * Idempotent; returns false only if the serve loop could not bind.
+	 * @a bLaunchProcess == false opens without spawning (used by tests,
+	 * which act as the editor themselves). */
+	bool openEditor( bool bLaunchProcess = true );
+	/** Close the editor: terminate the process (if any). The engine session
+	 * keeps serving — it is the plugin-lifetime drain/fan-out loop (ADR
+	 * 0035 UI-3) — so the endpoint stays valid for a reopen. The session
+	 * itself is stopped by the destructor. */
+	void closeEditor();
+	bool isEditorOpen() const { return m_bEditorOpen; }
+	/** Whether the editor *process* is currently alive. Polled (no event loop
+	 * needed), so a host idle callback can detect the user closing the window
+	 * (e.g. the LV2 ui:idleInterface). False when no process was launched. */
+	bool isEditorProcessRunning() const;
+	/** The IPC endpoint the editor attaches to (empty only while the
+	 * session could not bind). */
+	const QString& getEditorEndpoint() const { return m_sEditorEndpoint; }
+	/** Override the editor binary outright (highest precedence). The
+	 * override is a base-layer preference (ADR 0022): it persists to the
+	 * shared user config and rides the plugin state, so it survives
+	 * sessions. An empty path restores automatic resolution. */
+	void setEditorBinary( const QString& sPath );
+	/** Directory to look in for the bundled editor binary — the plugin's own
+	 * install location, supplied by the format shim (CLAP `init(plugin_path)`,
+	 * LV2 `instantiate(bundle_path)`). */
+	void setEditorSearchDir( const QString& sDir ) { m_sEditorSearchDir = sDir; }
+
+	/** Resolve the editor binary to launch, in precedence order: @a sExplicit
+	 * override → `$HYDROGEN_EDITOR_PATH` → a `hydrogen` executable found relative
+	 * to @a sSearchDir (the installed plugin location) → `hydrogen` on `PATH`.
+	 * Static + pure (aside from the env var) so it is unit-testable. */
+	static QString resolveEditorBinary( const QString& sExplicit,
+										const QString& sSearchDir );
+
+	/** The editor binary this instance would launch right now: the
+	 * persisted #setEditorBinary override if set, else resolveEditorBinary
+	 * with the instance's search dir. Exposed so the landing view can
+	 * prefill its executable line edit. */
+	QString editorBinary() const;
+
+private:
+	/** Launch the editor process against the served endpoint. Returns
+	 * false — without spawning — when the resolved binary is not
+	 * launchable, so callers (openEditor, the respawn path) can report
+	 * the failure synchronously; QProcess would only surface it
+	 * asynchronously (FailedToStart via the event loop). */
+	bool launchEditorProcess();
+	/** Process-exit handler. Respawns only on a crash (bounded); a clean exit
+	 * (the user closed the editor window) leaves it closed. */
+	void onEditorProcessFinished( bool bCrashed );
+
+	Hydrogen* m_pHydrogen;
+	std::shared_ptr<H2Core::CommonStrings> m_pCommonStrings;
+	std::shared_ptr<PluginAudioDriver> m_pAudioDriver;
+	std::shared_ptr<PluginMidiDriver> m_pMidiDriver;
+	int m_nBuses;
+	/** Sanitizes raw host transport readings into the contiguous clock
+	 *  the engine contract requires (ADR 0013); see HostTransportLatch. */
+	HostTransportLatch m_hostTransportLatch;
+
+	/** Engine-side serve loop, running for the plugin's whole lifetime
+	 * (always-on drain/fan-out, ADR 0035 UI-3); owned. */
+	std::unique_ptr<EngineSession> m_pEditorSession;
+	/** Registered engine-process event/meter consumer (ADR 0035 UI-3); not
+	 * owned. Remembered so a session started after registration picks it
+	 * up (openEditor). */
+	EngineEventSink* m_pEventSink = nullptr;
+	/** The spawned editor process; owned (null when not launched). */
+	std::unique_ptr<QProcess> m_pEditorProcess;
+	QString m_sEditorEndpoint;
+	QString m_sEditorSearchDir;
+	bool m_bEditorOpen = false;
+	/** Set during closeEditor() so the process-exit handler does not respawn. */
+	bool m_bEditorClosing = false;
+	/** Bounded auto-respawn count, so a persistently crashing editor can't loop
+	 * forever (ADR 0016 respawn-on-crash). */
+	int m_nEditorRespawns = 0;
+	static constexpr int knMaxEditorRespawns = 3;
+};
+
+};
+
+#endif

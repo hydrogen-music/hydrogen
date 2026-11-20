@@ -38,18 +38,15 @@
 #include <porttime.h>
 #define TIME_PROC ((int32_t (*)(void *)) Pt_Time)
 
-#include <pthread.h>
-
 namespace H2Core
 {
 
-pthread_t PortMidiDriverThread;
-
-void* PortMidiDriver_thread( void* param )
+void PortMidiDriver_thread( PortMidiDriver* instance )
 {
-	Base *__object = (Base *)param;
-	PortMidiDriver *instance = ( PortMidiDriver* )param;
-	__INFOLOG( "PortMidiDriver_thread starting" );
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( instance->getHydrogen()->getLogger() );
+	___INFOLOG( "PortMidiDriver_thread starting" );
 
 	PmError status;
 	int length;
@@ -106,7 +103,7 @@ void* PortMidiDriver_thread( void* param )
 				}
 			}
 			else if ( nEventType >= 256 ) {
-				__ERRORLOG( QString( "Unsupported midi message type: [%1]" )
+				___ERRORLOG( QString( "Unsupported midi message type: [%1]" )
 							.arg( nEventType ) );
 			}
 			else {
@@ -127,20 +124,21 @@ void* PortMidiDriver_thread( void* param )
 		}
 		else {
 			// An error occurred, e.g. a buffer overflow.
-			__ERRORLOG( QString( "Error in Pm_Read: [%1]" )
+			___ERRORLOG( QString( "Error in Pm_Read: [%1]" )
 						.arg( PortMidiDriver::translatePmError( static_cast<PmError>(length) ) ) );
 		}
 	}
 
 
 
-	__INFOLOG( "MIDI Thread DESTROY" );
-	pthread_exit( nullptr );
-	return nullptr;
+	___INFOLOG( "MIDI Thread DESTROY" );
 }
 
-PortMidiDriver::PortMidiDriver()
-		: MidiBaseDriver()
+PortMidiDriver::PortMidiDriver( Hydrogen* pHydrogen )
+		// Virtual bases must be initialized by the most-derived class (ADR 0015).
+		: MidiInput( pHydrogen )
+		, MidiOutput( pHydrogen )
+		, MidiBaseDriver( pHydrogen )
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )
@@ -194,8 +192,8 @@ void PortMidiDriver::open()
 
 	int nDeviceId = -1;
 	int nOutDeviceId = -1;
-	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
-	QString sMidiOutputPortName = Preferences::get_instance()->m_sMidiOutputPortName;
+	QString sMidiPortName = MidiInput::m_pHydrogen->getPreferences()->m_sMidiPortName;
+	QString sMidiOutputPortName = MidiInput::m_pHydrogen->getPreferences()->m_sMidiOutputPortName;
 	int nDevices = Pm_CountDevices();
 
 	// Find named devices
@@ -367,9 +365,7 @@ void PortMidiDriver::open()
 	if ( m_pMidiIn != nullptr ) {
 		m_bRunning = true;
 
-		pthread_attr_t attr;
-		pthread_attr_init( &attr );
-		pthread_create( &PortMidiDriverThread, &attr, PortMidiDriver_thread, ( void* )this );
+		m_midiDriverThread = std::thread( PortMidiDriver_thread, this );
 	}
 }
 
@@ -379,7 +375,7 @@ void PortMidiDriver::close()
 	INFOLOG( "[close]" );
 	if ( m_bRunning ) {
 		m_bRunning = false;
-		pthread_join( PortMidiDriverThread, nullptr );
+		m_midiDriverThread.join();
 
 		PmError err;
 		if ( m_pMidiIn != nullptr ) {

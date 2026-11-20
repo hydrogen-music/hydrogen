@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MIDI_EVENT_H
-#define MIDI_EVENT_H
+#ifndef H2C_MIDI_EVENT_H
+#define H2C_MIDI_EVENT_H
 
 #include <QString>
 

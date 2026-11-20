@@ -22,7 +22,7 @@
 
 #include "SongPropertiesDialog.h"
 
-#include "CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "HydrogenApp.h"
 #include "Widgets/Button.h"
 #include "Widgets/FileDialog.h"
@@ -55,13 +55,14 @@ using namespace H2Core;
 SongPropertiesDialog::SongPropertiesDialog(
 	QWidget* parent,
 	std::shared_ptr<Song> pSong,
-	Action action
+	Action action,
+	const QString& sDefaultPath
 )
 	: QDialog( parent ), m_pSong( pSong ), m_action( action )
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 
 	setMinimumSize( 757, 876 );
 
@@ -237,7 +238,14 @@ SongPropertiesDialog::SongPropertiesDialog(
 	setupLicenseComboBox( m_pLicenseComboBox );
 
 	if ( pSong != nullptr ) {
-		if ( pSong->getPath() != Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
+		if ( !sDefaultPath.isEmpty() ) {
+			// A caller-deduced default (e.g. the save-as target computed
+			// upfront) wins over the song's current backing path — the
+			// latter is stale exactly when a default is supplied (batch
+			// 2t).
+			m_pPathEdit->setText( sDefaultPath );
+		}
+		else if ( pSong->getPath() != Filesystem::emptyPath( Filesystem::Artifact::Song ) ) {
 			// In order to allow to recover empty songs not associated with a
 			// file (path) yet from an autosave file, we assign those "empty"
 			// paths. But we do not show them in here since those paths are not
@@ -397,7 +405,7 @@ SongPropertiesDialog::~SongPropertiesDialog() {
 
 void SongPropertiesDialog::updatePatternLicenseTable() {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	m_pLicensesTable->setColumnCount( 4 );
 	m_pLicensesTable->setHorizontalHeaderLabels(
@@ -495,7 +503,7 @@ void SongPropertiesDialog::on_cancelBtn_clicked()
 void SongPropertiesDialog::on_okBtn_clicked()
 {
 	const auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	const int nVersion = m_pVersionSpinBox->value();
 	const QString sAuthor = m_pAuthorTxt->text();
 	const QString sSongName = m_pSongNameTxt->text();
@@ -552,17 +560,16 @@ void SongPropertiesDialog::on_okBtn_clicked()
 	}
 
 	if ( ( m_action & Action::ModifyViaUndo ) &&
-		 ( m_pSong->getPath() != m_pPathEdit->text() ||
-		   m_pSong->getVersion() != nVersion ||
+		 ( m_pSong->getVersion() != nVersion ||
 		   m_pSong->getName() != sSongName ||
 		   m_pSong->getAuthor() != sAuthor ||
 		   m_pSong->getNotes() != sNotes ||
 		   m_pSong->getLicense() != license ||
 		   m_pSong->getTags() != tags ) ) {
 		auto pAction = new SE_modifySongPropertiesAction(
-			m_pSong->getPath(), m_pSong->getVersion(), m_pSong->getName(),
+			m_pSong->getVersion(), m_pSong->getName(),
 			m_pSong->getAuthor(), m_pSong->getNotes(), m_pSong->getLicense(),
-			m_pSong->getTags(), m_pPathEdit->text(), nVersion, sSongName,
+			m_pSong->getTags(), nVersion, sSongName,
 			sAuthor, sNotes, license, tags
 		);
 		HydrogenApp::get_instance()->pushUndoCommand( pAction );
@@ -572,11 +579,8 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		return;
 	}
 
-	if ( ( m_action & Action::SaveAs ) &&
-		 m_pSong->getPath() != m_pPathEdit->text() ) {
-		m_pSong->setPath( m_pPathEdit->text() );
-		bIsModified = true;
-	}
+	// The backing path is deliberately not applied here: adopting a chosen
+	// path is the single-writer domain of the save commands (batch 2t).
 	if ( m_pSong->getVersion() != nVersion ) {
 		m_pSong->setVersion( nVersion );
 		bIsModified = true;
@@ -605,7 +609,12 @@ void SongPropertiesDialog::on_okBtn_clicked()
 		bIsModified = true;
 	}
 
-	pHydrogen->setSongModified( bIsModified && !( m_action & Action::SaveAs ) );
+	HydrogenApp::pEngine()->setSongModified(
+		bIsModified && !( m_action & Action::SaveAs ) );
 
 	accept();
+}
+
+QString SongPropertiesDialog::getChosenPath() const {
+	return m_pPathEdit->text();
 }

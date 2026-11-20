@@ -22,8 +22,9 @@
 
 #include "SoloButton.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
@@ -46,9 +47,9 @@ SoloButton::SoloButton(
 		setText( pCommonStrings->getSmallSoloButton() );
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-	setBaseColor( pColorTheme->m_soloColor );
-	setBaseTextColor( pColorTheme->m_soloTextColor );
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	setBaseColor( Skin::toQColor( pColorTheme->m_soloColor ) );
+	setBaseTextColor( Skin::toQColor( pColorTheme->m_soloTextColor ) );
 }
 
 SoloButton::~SoloButton()
@@ -62,8 +63,8 @@ void SoloButton::onPreferencesChanged(
 	Button::onPreferencesChanged( changes );
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
-		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-		setBaseColor( pColorTheme->m_soloColor );
-		setBaseTextColor( pColorTheme->m_soloTextColor );
+		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+		setBaseColor( Skin::toQColor( pColorTheme->m_soloColor ) );
+		setBaseTextColor( Skin::toQColor( pColorTheme->m_soloTextColor ) );
 	}
 }

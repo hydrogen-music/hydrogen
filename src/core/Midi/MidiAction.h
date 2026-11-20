@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_ACTION_H
-#define MIDI_ACTION_H
+#ifndef H2C_MIDI_ACTION_H
+#define H2C_MIDI_ACTION_H
 
 #include <QString>
 
@@ -30,6 +30,8 @@
 
 #include <chrono>
 #include <memory>
+
+namespace H2Core {
 
 /**
  * @class MidiAction
@@ -66,8 +68,6 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		CountIn,
 		CountInPauseToggle,
 		CountInStopToggle,
-		EffectLevelAbsolute,
-		EffectLevelRelative,
 		FilterCutoffLevelAbsolute,
 		GainLevelAbsolute,
 		HumanizationSwingAbsolute,
@@ -129,11 +129,10 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		RequiresNone = 0x000,
 		RequiresComponent = 0x001,
 		RequiresFactor = 0x002,
-		RequiresFx = 0x004,
-		RequiresInstrument = 0x008,
-		RequiresLayer = 0x010,
-		RequiresPattern = 0x020,
-		RequiresSong = 0x040,
+		RequiresInstrument = 0x004,
+		RequiresLayer = 0x008,
+		RequiresPattern = 0x010,
+		RequiresSong = 0x020,
 	};
 	static Requires requiresFromType( const Type& type );
 
@@ -180,8 +179,6 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	void setComponent( int nComponent );
 	float getFactor() const;
 	void setFactor( float fFactor );
-	int getFx() const;
-	void setFx( int nFx );
 	int getInstrument() const;
 	void setInstrument( int nInstrument );
 	int getLayer() const;
@@ -206,7 +203,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	{
 		return (
 			lhs.m_type == rhs.m_type && lhs.m_nComponent == rhs.m_nComponent &&
-			lhs.m_fFactor == rhs.m_fFactor && lhs.m_nFx == rhs.m_nFx &&
+			lhs.m_fFactor == rhs.m_fFactor &&
 			lhs.m_nInstrument == rhs.m_nInstrument &&
 			lhs.m_nLayer == rhs.m_nLayer && lhs.m_nPattern == rhs.m_nPattern &&
 			lhs.m_nSong == rhs.m_nSong && lhs.m_nValue == rhs.m_nValue &&
@@ -217,7 +214,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	{
 		return (
 			lhs.m_type != rhs.m_type || lhs.m_nComponent != rhs.m_nComponent ||
-			lhs.m_fFactor != rhs.m_fFactor || lhs.m_nFx != rhs.m_nFx ||
+			lhs.m_fFactor != rhs.m_fFactor ||
 			lhs.m_nInstrument != rhs.m_nInstrument ||
 			lhs.m_nLayer != rhs.m_nLayer || lhs.m_nPattern != rhs.m_nPattern ||
 			lhs.m_nSong != rhs.m_nSong || lhs.m_nValue != rhs.m_nValue ||
@@ -235,7 +232,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		return (
 			lhs->m_type == rhs->m_type &&
 			lhs->m_nComponent == rhs->m_nComponent &&
-			lhs->m_fFactor == rhs->m_fFactor && lhs->m_nFx == rhs->m_nFx &&
+			lhs->m_fFactor == rhs->m_fFactor &&
 			lhs->m_nInstrument == rhs->m_nInstrument &&
 			lhs->m_nLayer == rhs->m_nLayer &&
 			lhs->m_nPattern == rhs->m_nPattern &&
@@ -254,7 +251,7 @@ class MidiAction : public H2Core::Object<MidiAction> {
 		return (
 			lhs->m_type != rhs->m_type ||
 			lhs->m_nComponent != rhs->m_nComponent ||
-			lhs->m_fFactor != rhs->m_fFactor || lhs->m_nFx != rhs->m_nFx ||
+			lhs->m_fFactor != rhs->m_fFactor ||
 			lhs->m_nInstrument != rhs->m_nInstrument ||
 			lhs->m_nLayer != rhs->m_nLayer ||
 			lhs->m_nPattern != rhs->m_nPattern ||
@@ -282,7 +279,6 @@ class MidiAction : public H2Core::Object<MidiAction> {
 
 	int m_nComponent;
 	float m_fFactor;
-	int m_nFx;
 	int m_nInstrument;
 	int m_nLayer;
 	int m_nPattern;
@@ -291,28 +287,30 @@ class MidiAction : public H2Core::Object<MidiAction> {
 	TimePoint m_timePoint;
 };
 
-inline int MidiAction::getValue() const
+inline int H2Core::MidiAction::getValue() const
 {
 	return m_nValue;
 }
 
-inline void MidiAction::setValue( int nValue )
+inline void H2Core::MidiAction::setValue( int nValue )
 {
 	m_nValue = nValue;
 }
 
-inline MidiAction::Requires MidiAction::getRequires() const
+inline H2Core::MidiAction::Requires H2Core::MidiAction::getRequires() const
 {
 	return m_requires;
 }
 
-inline const MidiAction::Type& MidiAction::getType() const
+inline const H2Core::MidiAction::Type& H2Core::MidiAction::getType() const
 {
 	return m_type;
 }
-inline const TimePoint& MidiAction::getTimePoint() const
+inline const TimePoint& H2Core::MidiAction::getTimePoint() const
 {
 	return m_timePoint;
 }
+
+} // namespace H2Core
 
 #endif

@@ -21,21 +21,45 @@
 
 #include "EventQueueTest.h"
 
-#include <pthread.h>
+#include "TestHelper.h"
+
+#include <core/Hydrogen.h>
+
+#include <thread>
 
 using namespace H2Core;
 
-static void *pushThread(void *p) {
-	int *pInt = (int *)p;
-	auto pEventQueue = EventQueue::get_instance();
+static void pushThread(int* pInt) {
+	auto pEventQueue = pTestEventQueue();
 	for ( int i = 0; i < EventQueueTest::nCountsPerThread; i++) {
 		pEventQueue->pushEvent( Event::Type::Metronome, *pInt );
 	}
-	return nullptr;
+}
+
+/** Entries pushed by the concurrent-drain test below. Kept larger than a
+ * single serve/timer cycle so the producer is still pushing while the
+ * main thread drains — the overlap the lock has to survive. */
+static constexpr int nMidiNotesToPush = 2000;
+
+static void pushMidiNoteThread() {
+	auto pEventQueue = pTestEventQueue();
+	for ( int i = 0; i < nMidiNotesToPush; i++ ) {
+		EventQueue::AddMidiNoteVector noteAction;
+		noteAction.nColumn = i;
+		noteAction.id = static_cast<Instrument::Id>( 0 );
+		noteAction.nPattern = 0;
+		noteAction.nLength = -1;
+		noteAction.fVelocity = 0.5;
+		noteAction.fPan = 0.0;
+		noteAction.key = static_cast<Note::Key>( 0 );
+		noteAction.octave = static_cast<Note::Octave>( 0 );
+		noteAction.bNoteOff = false;
+		pEventQueue->pushMidiNoteAction( noteAction );
+	}
 }
 
 void EventQueueTest::setUp() {
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	pEventQueue->setSilent( false );
 
 	auto pEvent = pEventQueue->popEvent();
@@ -46,12 +70,12 @@ void EventQueueTest::setUp() {
 }
 
 void EventQueueTest::tearDown() {
-	EventQueue::get_instance()->setSilent( true );
+	pTestEventQueue()->setSilent( true );
 }
 	
 void EventQueueTest::testPushPop() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	std::unique_ptr<Event> pEvent;
 
 	// Fill the event queue to the maximum permissible size, drain the queue
@@ -76,7 +100,7 @@ void EventQueueTest::testPushPop() {
 
 void EventQueueTest::testOverflow() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	std::unique_ptr<Event> pEvent;
 
 	// Overfill queue
@@ -98,9 +122,9 @@ void EventQueueTest::testOverflow() {
 
 void EventQueueTest::testThreadedAccess() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 
-	pthread_t threads[ EventQueueTest::nThreads ];
+	std::thread threads[ EventQueueTest::nThreads ];
 	int counters[ EventQueueTest::nThreads ];
 	int threadIds[ EventQueueTest::nThreads ];
 
@@ -111,8 +135,7 @@ void EventQueueTest::testThreadedAccess() {
 
 	// Start writer threads
 	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
-		int nRetVal = pthread_create(
-			&threads[ i ], nullptr, pushThread, &threadIds[ i ]);
+		threads[ i ] = std::thread( pushThread, &threadIds[ i ] );
 	}
 
 	// Reader counts up the number of events from each thread
@@ -131,6 +154,14 @@ void EventQueueTest::testThreadedAccess() {
 		}
 	}
 
+	// The reader loop only completes once every writer finished pushing
+	// (the total counts them all), so these joins return immediately —
+	// but they are mandatory: destroying a joinable std::thread
+	// terminates the process (an abandoned pthread_t was merely sloppy).
+	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
+		threads[ i ].join();
+	}
+
 	for ( int i = 0; i < EventQueueTest::nThreads; i++ ) {
 		CPPUNIT_ASSERT( counters[i] == EventQueueTest::nCountsPerThread );
 	}
@@ -141,7 +172,7 @@ void EventQueueTest::testThreadedAccess() {
 
 void EventQueueTest::testEventDrop() {
 	___INFOLOG( "" );
-	auto pEventQueue = EventQueue::get_instance();
+	auto pEventQueue = pTestEventQueue();
 	std::unique_ptr<Event> pEvent;
 	// Clear queue of any events from previous tests.
 	do {
@@ -170,5 +201,99 @@ void EventQueueTest::testEventDrop() {
 	pEvent = pEventQueue->popEvent();
 	CPPUNIT_ASSERT( pEvent == nullptr );
 
+	___INFOLOG( "passed" );
+}
+
+void EventQueueTest::testIndependentInstances() {
+	___INFOLOG( "" );
+
+	// EventQueue is instance-ownable: several may coexist, fully independent of
+	// the process-current one and of each other. Constructing one no longer
+	// hijacks the process-current pointer (ADR 0015).
+	auto pA = std::make_unique<EventQueue>( pTestHydrogen() );
+	auto pB = std::make_unique<EventQueue>( pTestHydrogen() );
+	CPPUNIT_ASSERT( pA != pB );
+
+	// An event pushed onto one queue is invisible to the other.
+	pA->pushEvent( Event::Type::Metronome, 1 );
+	CPPUNIT_ASSERT( pB->popEvent() == nullptr );
+
+	auto pEvent = pA->popEvent();
+	CPPUNIT_ASSERT( pEvent != nullptr );
+	CPPUNIT_ASSERT( pEvent->getType() == Event::Type::Metronome &&
+					pEvent->getValue() == 1 );
+	CPPUNIT_ASSERT( pA->popEvent() == nullptr );
+
+	___INFOLOG( "passed" );
+}
+
+void EventQueueTest::testMidiNoteVectorThreadedAccess() {
+	___INFOLOG( "" );
+	auto pEventQueue = pTestEventQueue();
+
+	// Clear any residue earlier tests may have left on the same queue.
+	pEventQueue->drainMidiNoteActions();
+	CPPUNIT_ASSERT( pEventQueue->getMidiNoteActions().empty() );
+
+	// Semantics: FIFO drain and a non-consuming snapshot.
+	EventQueue::AddMidiNoteVector noteAction;
+	noteAction.id = static_cast<Instrument::Id>( 0 );
+	noteAction.nPattern = 3;
+	noteAction.nLength = -1;
+	noteAction.fVelocity = 0.5;
+	noteAction.fPan = 0.0;
+	noteAction.key = static_cast<Note::Key>( 0 );
+	noteAction.octave = static_cast<Note::Octave>( 0 );
+	noteAction.bNoteOff = false;
+
+	noteAction.nColumn = 23;
+	pEventQueue->pushMidiNoteAction( noteAction );
+	noteAction.nColumn = 42;
+	pEventQueue->pushMidiNoteAction( noteAction );
+
+	const auto snapshot = pEventQueue->getMidiNoteActions();
+	CPPUNIT_ASSERT( snapshot.size() == 2 );
+	CPPUNIT_ASSERT( snapshot[ 0 ].nColumn == 23 );
+	CPPUNIT_ASSERT( snapshot[ 1 ].nColumn == 42 );
+	// A snapshot must not consume the queued entries.
+	CPPUNIT_ASSERT( pEventQueue->getMidiNoteActions().size() == 2 );
+
+	const auto batch = pEventQueue->drainMidiNoteActions();
+	CPPUNIT_ASSERT( batch.size() == 2 );
+	CPPUNIT_ASSERT( batch[ 0 ].nColumn == 23 );
+	CPPUNIT_ASSERT( batch[ 1 ].nColumn == 42 );
+	// Draining consumed the entries — exactly once.
+	CPPUNIT_ASSERT( pEventQueue->drainMidiNoteActions().empty() );
+	CPPUNIT_ASSERT( pEventQueue->getMidiNoteActions().empty() );
+
+	// Concurrency: a producer thread pushes while this thread drains —
+	// the shape of the GUI timer racing the audio thread (standalone) or
+	// the IPC reader thread (split). Every entry must survive exactly
+	// once and in order.
+	// std::thread reports a failed spawn by throwing, which fails the
+	// test as loudly as the old pthread_create() return check.
+	std::thread thread( pushMidiNoteThread );
+
+	int nSeen = 0;
+	int nIdleSpins = 0;
+	while ( nSeen < nMidiNotesToPush && nIdleSpins < 10000000 ) {
+		const auto drained = pEventQueue->drainMidiNoteActions();
+		if ( drained.empty() ) {
+			++nIdleSpins;
+			continue;
+		}
+		for ( const auto& drainedNote : drained ) {
+			CPPUNIT_ASSERT( drainedNote.nColumn == nSeen );
+			++nSeen;
+		}
+	}
+	thread.join();
+	// Whatever the producer pushed after our last drain.
+	for ( const auto& drainedNote : pEventQueue->drainMidiNoteActions() ) {
+		CPPUNIT_ASSERT( drainedNote.nColumn == nSeen );
+		++nSeen;
+	}
+
+	CPPUNIT_ASSERT( nSeen == nMidiNotesToPush );
 	___INFOLOG( "passed" );
 }

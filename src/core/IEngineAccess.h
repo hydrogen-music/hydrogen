@@ -1,0 +1,201 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+#ifndef H2C_IENGINE_ACCESS_H
+#define H2C_IENGINE_ACCESS_H
+
+#include <memory>
+#include <vector>
+
+#include <QStringList>
+
+#include <core/Basics/Event.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Helpers/Time.h>
+#include <core/IO/AudioDriverInfo.h>
+#include <core/IO/JackDriver.h>
+#include <core/IO/MidiBaseDriver.h>
+#include <core/IO/MidiDriverInfo.h>
+#include <core/Midi/MidiAction.h>
+#include <core/SoundLibrary/SoundLibraryInfo.h>
+
+namespace H2Core {
+
+class AudioDriver;
+class AudioEngine;
+class CoreActionController;
+class EventQueue;
+class Instrument;
+class MidiActionManager;
+class MidiBaseDriver;
+class Playlist;
+class Preferences;
+class SoundLibraryDatabase;
+
+/** The last MIDI event the engine's input registered, as one logical
+ * value: the MIDI input writes type and parameter together for every
+ * incoming event, and the MIDI-learn poll must see a consistent pair
+ * (ADR 0030 batch 2j). */
+struct LastMidiEvent {
+	MidiEvent::Type type = MidiEvent::Type::Null;
+	Midi::Parameter parameter = Midi::ParameterInvalid;
+};
+
+/**
+ * \ingroup docCore
+ *
+ * The surface through which the GUI reads engine state and issues commands
+ * (ADR 0015/0016). The GUI holds an `IEngineAccess*` instead of poking a
+ * concrete #Hydrogen, so the same GUI can be backed either by a local engine
+ * (#LocalEngineAccess, standalone) or — in editor mode — by an IPC proxy to an
+ * engine living in the plugin host process. This interface mirrors exactly the
+ * #Hydrogen surface the GUI fans out from; commands flow through
+ * #CoreActionController, events through #EventQueue, and live state through the
+ * getters below.
+ */
+class IEngineAccess {
+public:
+	virtual ~IEngineAccess() = default;
+
+	// --- owned services / handles the GUI fans out from ---
+	// NB: the audio driver is NOT exposed as an object (ADR 0029). The GUI reads
+	// it through the value accessors below (getAudioDriverInfo() et al.).
+	virtual AudioEngine* getAudioEngine() const = 0;
+	virtual std::shared_ptr<CoreActionController> getCoreActionController() const = 0;
+	virtual EventQueue* getEventQueue() const = 0;
+	virtual std::shared_ptr<MidiActionManager> getMidiActionManager() const = 0;
+	// NB: the MIDI driver is NOT exposed as an object (ADR 0029). The GUI reads
+	// it through the value accessors below (getMidiDriverInfo() et al.).
+	virtual std::shared_ptr<Playlist> getPlaylist() const = 0;
+	virtual std::shared_ptr<Preferences> getPreferences() const = 0;
+	virtual std::shared_ptr<SoundLibraryDatabase> getSoundLibraryDatabase() const = 0;
+	virtual std::shared_ptr<Song> getSong() const = 0;
+
+	// --- live state reads ---
+	virtual const H2Core::ProcessMode& getProcessMode() const = 0;
+	virtual bool isFullyOperational() const = 0;
+	virtual JackDriver::Timebase getJackTimebaseState() const = 0;
+	virtual Song::Mode getMode() const = 0;
+	virtual std::shared_ptr<Instrument> getSelectedInstrument() const = 0;
+	virtual int getSelectedInstrumentNumber() const = 0;
+	virtual int getSelectedPatternNumber() const = 0;
+	virtual bool coreUsesJackDriver() const = 0;
+	virtual bool coreUsesJackTransport() const = 0;
+	virtual bool isPatternEditorLocked() const = 0;
+	virtual bool isUnderSessionManagement() const = 0;
+	virtual QString getSessionFolderPath() const = 0;
+	virtual bool getRecordEnabled() const = 0;
+
+	// --- audio driver: value views, never the driver object (ADR 0029) ---
+	/** Concrete kind / running state of the active audio driver — replaces
+	 * GUI-side `dynamic_pointer_cast` on the driver pointer. */
+	virtual AudioDriverInfo getAudioDriverInfo() const = 0;
+	/** Active driver sample rate in Hz, 0 when no driver is present. */
+	virtual int getAudioSampleRate() const = 0;
+	/** Active driver buffer size in frames, 0 when no driver is present. */
+	virtual int getAudioBufferSize() const = 0;
+	/** Estimated output latency in frames, 0 when no driver is present. */
+	virtual int getAudioLatencyFrames() const = 0;
+	/** Available output devices for the given driver @a kind (and PortAudio
+	 * host API @a sHostAPI, ignored by other drivers). */
+	virtual QStringList getAudioDevices(
+		Preferences::AudioDriver kind, const QString& sHostAPI ) const = 0;
+	/** Available PortAudio host APIs, empty for other drivers. */
+	virtual QStringList getAudioHostAPIs() const = 0;
+	/** Whether the disk-writer (export) driver reported a write failure.
+	 * Interim accessor; folds into export progress/completion events later
+	 * (ADR 0029). */
+	virtual bool isExportWritingFailed() const = 0;
+
+	// --- MIDI driver: value views, never the driver object (ADR 0029) ---
+	/** Presence / input+output activity of the active MIDI driver — replaces
+	 * GUI-side `getMidiDriver()` null + isInputActive/isOutputActive probes. */
+	virtual MidiDriverInfo getMidiDriverInfo() const = 0;
+	/** External system MIDI ports of the given @a portType, empty when no driver
+	 * is present (query — ADR 0029). */
+	virtual std::vector<QString> getMidiPorts(
+		MidiBaseDriver::PortType portType ) const = 0;
+	/** Snapshot of the driver's recently handled input events (the MIDI-activity
+	 * monitor), empty when no driver is present. */
+	virtual std::vector<std::shared_ptr<MidiInput::HandledInput>>
+		getHandledMidiInputs() const = 0;
+	/** Snapshot of the driver's recently handled output events, empty when no
+	 * driver is present. */
+	virtual std::vector<std::shared_ptr<MidiOutput::HandledOutput>>
+		getHandledMidiOutputs() const = 0;
+	/** The last MIDI event the authoritative engine's MIDI input
+	 * registered — the learning channel the MIDI sense widget polls
+	 * while listening. In the editor split this crosses the IPC
+	 * boundary as a single blocking query (the mirror owns no MIDI
+	 * input); the pair rides in one reply so the snapshot can not tear
+	 * across two separate queries (ADR 0030 batch 2j). */
+	virtual LastMidiEvent getLastMidiEvent() const = 0;
+
+	// --- OSC server: value views (ADR 0029 query pattern) ---
+	/** \return The fallback port the authoritative engine's OSC server took
+	 * when the configured port was unavailable, -1 when none is in effect.
+	 * In the editor split this crosses the IPC boundary — the preferences
+	 * dialog is the only place users can read the port to dial. */
+	virtual int getOscTemporaryPort() const = 0;
+
+	// --- commands / mutations ---
+	virtual bool handleBeatCounter( TimePoint start = TimePoint() ) = 0;
+	/** Executes a MIDI action on the authoritative engine (ADR 0030
+	 * batch 2w). GUI-triggered actions (keyboard shortcuts) must not
+	 * stay mirror-local: the engine's song, drumkit, and transport are
+	 * the real ones. Editor-local actions (undo/redo — the engine holds
+	 * no command stack) apply on the mirror only. */
+	virtual bool handleMidiAction(
+		const std::shared_ptr<MidiAction> pAction ) = 0;
+	virtual void loadPlaybackTrack( const QString& sFileName ) = 0;
+	virtual void onTapTempoAccelEvent( TimePoint start = TimePoint() ) = 0;
+	/** Full sound-library rescan (ADR 0016): the shared library filesystem
+	 * changed (or the user asked for a refresh) — every sound-library
+	 * database in the process graph rebuilds. In the editor split the
+	 * authoritative engine owns a database of its own (it resolves songs,
+	 * patterns, and fallback kits through it), so the rescan has to cross
+	 * the IPC boundary instead of staying mirror-local. */
+	virtual void rescanSoundLibrary() = 0;
+	virtual void sequencerPlay() = 0;
+	virtual void sequencerStop() = 0;
+	virtual void setDrumkitModified( bool bIsModified ) = 0;
+	virtual void setIsPatternEditorLocked( bool bLocked ) = 0;
+	virtual void setIsTimelineActivated( bool bEnabled ) = 0;
+	virtual void setPatternMode( const Song::PatternMode& mode ) = 0;
+	virtual void setPatternModified( bool bIsModified, int nIndex ) = 0;
+	virtual void setPlaylistIsModified( bool bIsModified ) = 0;
+	virtual void setSelectedInstrumentNumber(
+		int nInstrument, Event::Trigger trigger = Event::Trigger::Default ) = 0;
+	virtual void setSongModified( bool bIsModified ) = 0;
+	/** Per-type sound-library rescan (ADR 0016): a library artifact of
+	 * @a type was written, installed, or removed on the shared filesystem —
+	 * every sound-library database in the process graph re-scans that
+	 * type. */
+	virtual void updateSoundLibrary(
+		SoundLibraryInfo::Type type,
+		Event::Trigger trigger = Event::Trigger::Default ) = 0;
+	virtual void updateBeatCounterSettings() = 0;
+};
+
+}
+
+#endif

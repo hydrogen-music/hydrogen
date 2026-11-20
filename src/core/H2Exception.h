@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2EXCEPTION_H
-#define H2EXCEPTION_H
+#ifndef H2C_H2EXCEPTION_H
+#define H2C_H2EXCEPTION_H
 
 #include <string>
 #include <stdexcept>

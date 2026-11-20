@@ -49,20 +49,19 @@ void Modifier::modify()
 		return;
 	}
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
 	switch ( m_nModifierTarget ) {
 		case Drumkit:
-			pHydrogen->setDrumkitModified( true );
+			HydrogenApp::pEngine()->setDrumkitModified( true );
 			break;
 		case Pattern:
-			pHydrogen->setPatternModified(
+			HydrogenApp::pEngine()->setPatternModified(
 				true, HydrogenApp::get_instance()
 						  ->getPatternEditorPanel()
 						  ->getPatternNumber()
 			);
 			break;
 		case Song:
-			pHydrogen->setSongModified( true );
+			HydrogenApp::pEngine()->setSongModified( true );
 			break;
 		default:
 			___ERRORLOG(
