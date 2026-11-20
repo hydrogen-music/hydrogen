@@ -158,9 +158,28 @@ plugin-install:
         exit 1
     fi
     cmake --install "{{BUILD_DIR}}"
-    cp -r dist/lib/lv2/hydrogen.lv2 ${HOME}/.lv2
-    cp -r dist/lib/clap/Hydrogen.clap ${HOME}/.clap
-    cp -r dist/lib/vst3/Hydrogen.vst3 ${HOME}/.vst3
+    # Per-user plugin folders scanned by hosts on the current platform.
+    if [ "$(uname)" = "Darwin" ]; then
+        PLUGIN_ROOT="${HOME}/Library/Audio/Plug-Ins"
+        LV2_DIR="${PLUGIN_ROOT}/LV2"
+        CLAP_DIR="${PLUGIN_ROOT}/CLAP"
+        VST3_DIR="${PLUGIN_ROOT}/VST3"
+    else
+        LV2_DIR="${HOME}/.lv2"
+        CLAP_DIR="${HOME}/.clap"
+        VST3_DIR="${HOME}/.vst3"
+    fi
+    # The folders must exist: `cp -r` into a missing destination would
+    # rename the bundle to the folder name instead of copying it inside.
+    # Old copies are removed first so no stale files survive in a bundle.
+    mkdir -p "${LV2_DIR}" "${CLAP_DIR}" "${VST3_DIR}"
+    rm -rf "${LV2_DIR}/hydrogen.lv2" "${CLAP_DIR}/Hydrogen.clap" \
+        "${VST3_DIR}/Hydrogen.vst3"
+    cp -R "{{PREFIX}}/lib/lv2/hydrogen.lv2" "${LV2_DIR}/"
+    cp -R "{{PREFIX}}/lib/clap/Hydrogen.clap" "${CLAP_DIR}/"
+    cp -R "{{PREFIX}}/lib/vst3/Hydrogen.vst3" "${VST3_DIR}/"
+    echo "Installed plugins into ${LV2_DIR}, ${CLAP_DIR} and ${VST3_DIR}"
+
 # plugin-clean + plugin-build + plugin-test + plugin-install in one go.
 plugin: plugin-clean plugin-build plugin-test plugin-install
 
