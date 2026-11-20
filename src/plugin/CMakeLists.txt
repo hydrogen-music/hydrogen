@@ -16,6 +16,11 @@ target_include_directories( hydrogen-plugin PUBLIC
     ${CMAKE_SOURCE_DIR}/src # top level headers
     ${CMAKE_BINARY_DIR}/src # generated config.h
     ${QT_INCLUDES}
+    # Core headers include these third-party headers. With a system Qt their
+    # prefix often leaks in via Qt's include paths, hiding a missing entry;
+    # the static Qt of the plugin build (Justfile) does not.
+    ${LIBARCHIVE_INCLUDE_DIRS}
+    ${LIBSNDFILE_INCLUDE_DIRS}
 )
 
 target_link_libraries( hydrogen-plugin PUBLIC
@@ -345,6 +350,17 @@ if(WANT_VST3)
         OUTPUT_NAME "Hydrogen"
         WINDOWS_FOLDER_VST3 ON )
 
+    # Where clap-wrapper assembles the bundle. On macOS it is a real
+    # MACOSX_BUNDLE target placed in this target's binary dir; elsewhere
+    # clap-wrapper emits it under <build>/<Config>/. Assuming the latter on
+    # macOS would create an empty Hydrogen.vst3 (notices only) that the
+    # validator and install() then pick up instead of the real module.
+    if(APPLE)
+        set(H2_VST3_BUNDLE "$<TARGET_BUNDLE_DIR:hydrogen-vst3>")
+    else()
+        set(H2_VST3_BUNDLE "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3")
+    endif()
+
     # Ship the third-party notices inside the bundle's Resources dir
     # (TU6.3). The wrapper's own post-build steps assemble the bundle;
     # same-target POST_BUILD commands run in add order, so this copy
@@ -352,10 +368,10 @@ if(WANT_VST3)
     # rather than shipping a bundle without notices).
     add_custom_command( TARGET hydrogen-vst3 POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory
-            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources"
+            "${H2_VST3_BUNDLE}/Contents/Resources"
         COMMAND ${CMAKE_COMMAND} -E copy
             "${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES"
-            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources/THIRD-PARTY-NOTICES"
+            "${H2_VST3_BUNDLE}/Contents/Resources/THIRD-PARTY-NOTICES"
         COMMENT "Copying third-party notices into Hydrogen.vst3" )
 
     # Tell clap-wrapper that the CLAP entry is statically linked into this module
@@ -449,8 +465,8 @@ if(WANT_VST3)
     # clap-validate / lv2-smoke / vst3-smoke. clap-wrapper does not build the SDK's
     # validator tool, so tools/run_vst3_validator.sh builds it on demand from the
     # SDK source clap-wrapper already fetched, then runs it on the built bundle.
-    # The build root is passed (not a per-config path) so the helper finds the
-    # bundle regardless of Debug/Release. Heavy on first run (compiles the
+    # The bundle is passed explicitly: searching the build root could hit a
+    # stale or partial Hydrogen.vst3. Heavy on first run (compiles the
     # validator), idempotent afterwards.
     # NB: CTest hides a passing test's stdout under --output-on-failure, so the
     # "N tests passed" summary surfaces on failure (and always in
@@ -460,15 +476,14 @@ if(WANT_VST3)
         add_test( NAME vst3-validate
             COMMAND ${CMAKE_SOURCE_DIR}/tools/run_vst3_validator.sh
                 "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk"
-                "${CMAKE_BINARY_DIR}"
+                "${H2_VST3_BUNDLE}"
                 "${CMAKE_BINARY_DIR}/vst3-validator" )
         message(STATUS "  + Steinberg VST3 validator CTest enabled (vst3-validate)")
     endif()
 
     # Install the .vst3 bundle (a folder on Linux/Windows, a bundle on macOS)
-    # into the conventional VST3 location (<prefix>/lib/vst3; T6.2). clap-wrapper
-    # emits the bundle under <build>/<Config>/Hydrogen.vst3.
-    install(DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3"
+    # into the conventional VST3 location (<prefix>/lib/vst3; T6.2).
+    install(DIRECTORY "${H2_VST3_BUNDLE}"
         DESTINATION "${H2_LIB_PATH}/vst3")
 
     message(STATUS "Building VST3 plugin via clap-wrapper (buses=${H2_PLUGIN_OUTPUT_BUSES})")
