@@ -41,6 +41,11 @@ class PluginLifecycleTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testEditorReopen );
 	CPPUNIT_TEST( testEditorBinaryDiscovery );
 	CPPUNIT_TEST( testResolveSystemDataPath );
+#ifdef __APPLE__
+	CPPUNIT_TEST( testEditorBinaryDiscoveryMacPrefixLayout );
+	CPPUNIT_TEST( testEditorBinaryDiscoveryMacInstalledBundles );
+	CPPUNIT_TEST( testResolveSystemDataPathMacBundle );
+#endif
 #ifdef H2CORE_HAVE_DEBUG
 	CPPUNIT_TEST( testProcessDefaultAuditSurface );
 #endif
@@ -87,11 +92,23 @@ public:
 	 * $HYDROGEN_EDITOR_PATH → bundled-next-to-plugin → `hydrogen` on PATH. */
 	void testEditorBinaryDiscovery();
 	/** The shared system data folder is resolved for plugin use by
-	 * precedence: $HYDROGEN_SYS_DATA_PATH → walking up from the plugin's
-	 * own location (prefix install `<prefix>/share/hydrogen/data`, build
-	 * tree `<repo>/data`, one-dir layout `<dir>/data`) → empty, the
-	 * Filesystem platform default. */
+	 * precedence: $HYDROGEN_SYS_DATA_PATH → (macOS only, see
+	 * #testResolveSystemDataPathMacBundle) the editor's app bundle → empty,
+	 * the Filesystem platform default. Never relative to the plugin. */
 	void testResolveSystemDataPath();
+#ifdef __APPLE__
+	/** ADR 0038: in the `<prefix>/bin/hydrogen.app` install layout the
+	 * editor is found from `<prefix>/lib/{clap,vst3,lv2}/...`. */
+	void testEditorBinaryDiscoveryMacPrefixLayout();
+	/** ADR 0038: installed app bundles are used after the relative search;
+	 * the executable comes from `CFBundleExecutable`, a bundle matching the
+	 * plugin's version is preferred and bundles without an executable are
+	 * skipped. */
+	void testEditorBinaryDiscoveryMacInstalledBundles();
+	/** ADR 0038: the system data folder is `Contents/Resources/data` of the
+	 * editor's app bundle; the environment override still wins. */
+	void testResolveSystemDataPathMacBundle();
+#endif
 	/** The process-default log doubles as the audit surface: while
 	 * per-instance loggers are alive, every line reaching it is marked
 	 * `[unscoped]`. After a full HydrogenPlugin lifecycle (construction,

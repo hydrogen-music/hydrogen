@@ -571,9 +571,16 @@ void PluginLifecycleTest::testEditorBinaryDiscovery() {
 		HydrogenPlugin::resolveEditorBinary( "/opt/h/hydrogen", "" )
 			.toStdString() );
 
-	// No override and nothing bundled → PATH fallback (a bare name).
+	// No override and nothing bundled → PATH fallback (a bare name). On
+	// macOS the installed app bundles are consulted first; pass none so
+	// a Hydrogen.app on the developer's machine cannot interfere.
+#ifdef __APPLE__
+	const QString sFallback = HydrogenPlugin::resolveEditorBinary(
+		"", "/no/such/plugin/dir", QStringList() );
+#else
 	const QString sFallback =
 		HydrogenPlugin::resolveEditorBinary( "", "/no/such/plugin/dir" );
+#endif
 	CPPUNIT_ASSERT( sFallback == QStringLiteral( "hydrogen" ) ||
 					sFallback == QStringLiteral( "hydrogen.exe" ) );
 
@@ -621,8 +628,232 @@ void PluginLifecycleTest::testResolveSystemDataPath() {
 		HydrogenPlugin::resolveSystemDataPath().toStdString() );
 	qunsetenv( "HYDROGEN_SYS_DATA_PATH" );
 
+#ifndef __APPLE__
+	// Only macOS derives the folder from the editor (its app bundle).
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "" ),
+		HydrogenPlugin::resolveSystemDataPath( "/opt/h/bin/hydrogen" )
+			.toStdString() );
+#endif
+
 	___INFOLOG( "passed" );
 }
+
+#ifdef __APPLE__
+namespace {
+/** Creates a minimal app bundle `<sParentDir>/<sBundleName>` with an
+ * Info.plist naming @a sExecutable and @a sVersion. The executable itself
+ * and the shipped data folder are optional so the resolution's skip paths
+ * can be exercised. Returns the bundle's path. */
+QString makeFakeAppBundle( const QString& sParentDir,
+						   const QString& sBundleName,
+						   const QString& sExecutable,
+						   const QString& sVersion,
+						   bool bWithExecutable,
+						   bool bWithData )
+{
+	const QString sBundle = QDir( sParentDir ).filePath( sBundleName );
+	const QDir contents( sBundle + "/Contents" );
+	CPPUNIT_ASSERT( QDir().mkpath( contents.filePath( "MacOS" ) ) );
+	{
+		QFile plist( contents.filePath( "Info.plist" ) );
+		CPPUNIT_ASSERT( plist.open( QIODevice::WriteOnly | QIODevice::Text ) );
+		QTextStream out( &plist );
+		out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+			<< "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" "
+			<< "\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
+			<< "<plist version=\"1.0\"><dict>\n"
+			<< "<key>CFBundleExecutable</key><string>" << sExecutable
+			<< "</string>\n"
+			<< "<key>CFBundleIdentifier</key>"
+			<< "<string>org.hydrogenmusic.Hydrogen</string>\n"
+			<< "<key>CFBundleShortVersionString</key><string>" << sVersion
+			<< "</string>\n"
+			<< "</dict></plist>\n";
+	}
+	if ( bWithExecutable ) {
+		const QString sExe = contents.filePath( "MacOS/" + sExecutable );
+		QFile exe( sExe );
+		CPPUNIT_ASSERT( exe.open( QIODevice::WriteOnly ) );
+		exe.write( "#!/bin/sh\n" );
+		exe.close();
+		QFile::setPermissions( sExe, QFile::permissions( sExe ) |
+										 QFileDevice::ExeOwner |
+										 QFileDevice::ExeUser );
+	}
+	if ( bWithData ) {
+		CPPUNIT_ASSERT( QDir().mkpath( contents.filePath( "Resources/data" ) ) );
+	}
+	return sBundle;
+}
+
+/** The plugin's version the way CMake writes it into the app bundle's
+ * `CFBundleShortVersionString` (no git suffix). */
+QString pluginBundleVersion()
+{
+	QString sVersion = QString( "%1.%2.%3" )
+						   .arg( H2CORE_VERSION_MAJOR )
+						   .arg( H2CORE_VERSION_MINOR )
+						   .arg( H2CORE_VERSION_PATCH );
+	const QString sSuffix( H2CORE_VERSION_SUFFIX );
+	if ( ! sSuffix.isEmpty() ) {
+		sVersion += "-" + sSuffix;
+	}
+	return sVersion;
+}
+
+QString bundleExecutablePath( const QString& sBundle, const QString& sExe )
+{
+	return QFileInfo( sBundle + "/Contents/MacOS/" + sExe ).absoluteFilePath();
+}
+} // namespace
+
+void PluginLifecycleTest::testEditorBinaryDiscoveryMacPrefixLayout() {
+	___INFOLOG( "" );
+
+	qunsetenv( "HYDROGEN_EDITOR_PATH" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sPrefix = tmp.path();
+	const QString sBundle = makeFakeAppBundle(
+		sPrefix + "/bin", "hydrogen.app", "hydrogen", pluginBundleVersion(),
+		/*bWithExecutable=*/true, /*bWithData=*/false );
+	const QString sExpected = bundleExecutablePath( sBundle, "hydrogen" );
+
+	// The search dirs the format shims pass for the installed artifacts.
+	const QStringList searchDirs = {
+		sPrefix + "/lib/clap",
+		sPrefix + "/lib/vst3/Hydrogen.vst3/Contents/MacOS",
+		sPrefix + "/lib/lv2/hydrogen.lv2" };
+	for ( const auto& sSearchDir : searchDirs ) {
+		CPPUNIT_ASSERT( QDir().mkpath( sSearchDir ) );
+		CPPUNIT_ASSERT_EQUAL(
+			sExpected.toStdString(),
+			HydrogenPlugin::resolveEditorBinary( "", sSearchDir, QStringList() )
+				.toStdString() );
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testEditorBinaryDiscoveryMacInstalledBundles() {
+	___INFOLOG( "" );
+
+	qunsetenv( "HYDROGEN_EDITOR_PATH" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sRoot = tmp.path();
+	const QString sNoSuchDir = sRoot + "/no/such/plugin/dir";
+
+	// A release of another version, a copy lacking its executable and the
+	// matching build. Executable names differ from the bundle name to prove
+	// CFBundleExecutable is honored.
+	const QString sOld = makeFakeAppBundle(
+		sRoot + "/old", "Hydrogen.app", "h2-old", "0.9.9",
+		/*bWithExecutable=*/true, /*bWithData=*/false );
+	const QString sBroken = makeFakeAppBundle(
+		sRoot + "/broken", "Hydrogen.app", "h2-missing", pluginBundleVersion(),
+		/*bWithExecutable=*/false, /*bWithData=*/false );
+	const QString sCurrent = makeFakeAppBundle(
+		sRoot + "/current", "Hydrogen.app", "h2-editor", pluginBundleVersion(),
+		/*bWithExecutable=*/true, /*bWithData=*/false );
+	const QString sMissing = sRoot + "/missing/Hydrogen.app";
+
+	// The matching version wins over list order; unusable entries are
+	// skipped.
+	CPPUNIT_ASSERT_EQUAL(
+		bundleExecutablePath( sCurrent, "h2-editor" ).toStdString(),
+		HydrogenPlugin::resolveEditorBinary(
+			"", sNoSuchDir, { sMissing, sOld, sBroken, sCurrent } )
+			.toStdString() );
+
+	// Without a matching version the first usable bundle is taken; the
+	// version handshake reports the mismatch once the editor attaches.
+	CPPUNIT_ASSERT_EQUAL(
+		bundleExecutablePath( sOld, "h2-old" ).toStdString(),
+		HydrogenPlugin::resolveEditorBinary(
+			"", sNoSuchDir, { sMissing, sBroken, sOld } )
+			.toStdString() );
+
+	// Nothing usable → PATH fallback.
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "hydrogen" ),
+		HydrogenPlugin::resolveEditorBinary(
+			"", sNoSuchDir, { sMissing, sBroken } )
+			.toStdString() );
+
+	// The earlier precedence steps still win over installed bundles.
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "/opt/h/hydrogen" ),
+		HydrogenPlugin::resolveEditorBinary(
+			"/opt/h/hydrogen", sNoSuchDir, { sCurrent } )
+			.toStdString() );
+
+	qputenv( "HYDROGEN_EDITOR_PATH", "/opt/env/hydrogen" );
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "/opt/env/hydrogen" ),
+		HydrogenPlugin::resolveEditorBinary( "", sNoSuchDir, { sCurrent } )
+			.toStdString() );
+	qunsetenv( "HYDROGEN_EDITOR_PATH" );
+
+	const QString sPrefix = sRoot + "/prefix";
+	const QString sPrefixBundle = makeFakeAppBundle(
+		sPrefix + "/bin", "hydrogen.app", "hydrogen", pluginBundleVersion(),
+		/*bWithExecutable=*/true, /*bWithData=*/false );
+	CPPUNIT_ASSERT( QDir().mkpath( sPrefix + "/lib/clap" ) );
+	CPPUNIT_ASSERT_EQUAL(
+		bundleExecutablePath( sPrefixBundle, "hydrogen" ).toStdString(),
+		HydrogenPlugin::resolveEditorBinary(
+			"", sPrefix + "/lib/clap", { sCurrent } )
+			.toStdString() );
+
+	___INFOLOG( "passed" );
+}
+
+void PluginLifecycleTest::testResolveSystemDataPathMacBundle() {
+	___INFOLOG( "" );
+
+	qunsetenv( "HYDROGEN_SYS_DATA_PATH" );
+
+	QTemporaryDir tmp;
+	CPPUNIT_ASSERT( tmp.isValid() );
+	const QString sWithData = makeFakeAppBundle(
+		tmp.path() + "/a", "Hydrogen.app", "hydrogen", pluginBundleVersion(),
+		/*bWithExecutable=*/true, /*bWithData=*/true );
+	const QString sWithoutData = makeFakeAppBundle(
+		tmp.path() + "/b", "Hydrogen.app", "hydrogen", pluginBundleVersion(),
+		/*bWithExecutable=*/true, /*bWithData=*/false );
+	const QString sEditor = bundleExecutablePath( sWithData, "hydrogen" );
+
+	CPPUNIT_ASSERT_EQUAL(
+		QFileInfo( sWithData + "/Contents/Resources/data" )
+			.absoluteFilePath()
+			.toStdString(),
+		HydrogenPlugin::resolveSystemDataPath( sEditor ).toStdString() );
+
+	// No shipped data in the bundle, an editor outside of any bundle, the
+	// bare PATH fallback and no editor at all: unresolved (empty).
+	const QStringList unresolvable = {
+		bundleExecutablePath( sWithoutData, "hydrogen" ),
+		"/usr/local/bin/hydrogen", "hydrogen", "" };
+	for ( const auto& sCandidate : unresolvable ) {
+		CPPUNIT_ASSERT_EQUAL(
+			std::string( "" ),
+			HydrogenPlugin::resolveSystemDataPath( sCandidate ).toStdString() );
+	}
+
+	// The explicit override still wins.
+	qputenv( "HYDROGEN_SYS_DATA_PATH", "/opt/h/data" );
+	CPPUNIT_ASSERT_EQUAL(
+		std::string( "/opt/h/data" ),
+		HydrogenPlugin::resolveSystemDataPath( sEditor ).toStdString() );
+	qunsetenv( "HYDROGEN_SYS_DATA_PATH" );
+
+	___INFOLOG( "passed" );
+}
+#endif
 
 #ifdef H2CORE_HAVE_DEBUG
 void PluginLifecycleTest::testProcessDefaultAuditSurface() {

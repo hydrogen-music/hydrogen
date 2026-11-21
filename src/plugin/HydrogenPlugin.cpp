@@ -20,11 +20,13 @@
  */
 
 #include <plugin/HydrogenPlugin.h>
+#include <plugin/MacAppBundles.h>
 
 #include <core/AudioEngine/AudioEngine.h>
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/CommonStrings.h>
+#include <core/config.h>
 #include <core/CoreActionController.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
@@ -123,17 +125,38 @@ QStringList preferredLanguages( const std::shared_ptr<Preferences>& pPreferences
 }
 } // namespace
 
-QString HydrogenPlugin::resolveSystemDataPath()
+QString HydrogenPlugin::resolveSystemDataPath( const QString& sEditorBinary )
 {
 	// A plugin host passes no CLI options, so the shared data folder is
 	// resolved the way the mains take it as an argument: an explicit
-	// override, else the Filesystem platform default — the one shared
-	// system location. No searching relative to the plugin itself: the
-	// shared data must only exist in one place.
+	// override, else the one shared system location. No searching relative
+	// to the plugin itself: the shared data must only exist in one place.
 	const QByteArray sEnv = qgetenv( "HYDROGEN_SYS_DATA_PATH" );
 	if ( ! sEnv.isEmpty() ) {
 		return QString::fromLocal8Bit( sEnv );
 	}
+
+#ifdef __APPLE__
+	// On macOS that one place is the app bundle, <bundle>/Contents/MacOS/
+	// <editor> next to <bundle>/Contents/Resources/data. The Filesystem
+	// default would derive it from the *host's* bundle instead (ADR 0038).
+	const QFileInfo editor( sEditorBinary );
+	if ( ! sEditorBinary.isEmpty() && editor.isAbsolute() ) {
+		const QFileInfo macOsDir( editor.absolutePath() );
+		const QFileInfo contentsDir( macOsDir.absolutePath() );
+		if ( macOsDir.fileName() == QStringLiteral( "MacOS" ) &&
+			 contentsDir.fileName() == QStringLiteral( "Contents" ) ) {
+			const QFileInfo data( contentsDir.absoluteFilePath() +
+								  QStringLiteral( "/Resources/data" ) );
+			if ( data.isDir() && data.isReadable() ) {
+				return data.absoluteFilePath();
+			}
+		}
+	}
+#else
+	Q_UNUSED( sEditorBinary );
+#endif
+
 	return QString();
 }
 
@@ -228,8 +251,13 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	Base::bootstrap( pProcessLogger,
 					 pProcessLogger != nullptr &&
 						 pProcessLogger->should_log( Logger::Debug ) );
+	// The editor override persisted in the user config cannot be consulted
+	// yet (it is read after this bootstrap) and the format shim sets the
+	// search dir only after construction: the data folder follows the
+	// environment or the installed app (ADR 0038).
 	Filesystem::bootstrap( pProcessLogger,
-						   resolveSystemDataPath(),
+						   resolveSystemDataPath(
+							   resolveEditorBinary( QString(), QString() ) ),
 						   QString(), QString(), sPluginLogPath );
 
 	m_pHydrogen = new Hydrogen(
@@ -242,6 +270,29 @@ HydrogenPlugin::HydrogenPlugin( double fSampleRate, unsigned nMaxBlockSize,
 	// on the process default (ADR 0015, T1.6).
 	Logger::Scope loggerScope( m_pHydrogen->getLogger() );
 	m_pHydrogen->setFullyOperational( true );
+
+	// The shipped data is only a starting point and fallback; downloaded
+	// kits, songs and patterns live in the user data folder. Running
+	// without it is degraded, not fatal (ADR 0038).
+	if ( ! Filesystem::dirReadable( Filesystem::systemDataPath(), true ) ) {
+		___WARNINGLOG(
+			QString( "System data folder [%1] is not available. Shipped "
+					 "drumkits and defaults are missing; continuing with the "
+					 "user data folder [%2] only. Set HYDROGEN_SYS_DATA_PATH "
+					 "or install Hydrogen to provide them." )
+				.arg( Filesystem::systemDataPath() )
+				.arg( Filesystem::userDataPath() ) );
+	}
+
+	// First boot: the editor leaves a user-level config behind on its first
+	// start, so the plugin has to as well - other instances, the editor and
+	// later sessions build on it (ADR 0038). save() is the locked, merged
+	// write of ADR 0023, so instances racing on a first boot are safe.
+	if ( ! QFileInfo::exists( Filesystem::userConfigPath() ) &&
+		 ! m_pHydrogen->getPreferences()->save() ) {
+		___ERRORLOG( QString( "Unable to create the user-level config [%1]" )
+						 .arg( Filesystem::userConfigPath() ) );
+	}
 
 	// The embedded UI's strings resolve through the shared data/i18n
 	// catalogs (TU6.1): install the hydrogen translator for the user's
@@ -510,8 +561,34 @@ bool HydrogenPlugin::loadState( const std::vector<unsigned char>& data ) {
 
 // ── Out-of-process editor lifecycle (ADR 0016) ─────────────────────────────
 
-QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
-											 const QString& sSearchDir ) {
+namespace {
+#if defined( _WIN32 )
+const QString sEditorExecutable = QStringLiteral( "hydrogen.exe" );
+#else
+const QString sEditorExecutable = QStringLiteral( "hydrogen" );
+#endif
+
+#ifdef __APPLE__
+/** The plugin's version as CMake writes it into the app bundle's
+ * `CFBundleShortVersionString` (no git suffix, unlike get_version()). */
+QString bundleVersion()
+{
+	QString sVersion = QString( "%1.%2.%3" )
+						   .arg( H2CORE_VERSION_MAJOR )
+						   .arg( H2CORE_VERSION_MINOR )
+						   .arg( H2CORE_VERSION_PATCH );
+	const QString sSuffix( H2CORE_VERSION_SUFFIX );
+	if ( ! sSuffix.isEmpty() ) {
+		sVersion += "-" + sSuffix;
+	}
+	return sVersion;
+}
+#endif
+
+/** Steps 1 and 2 of the editor resolution: the explicit override and the
+ * environment. Empty if neither is set. */
+QString explicitEditorBinary( const QString& sExplicit )
+{
 	if ( ! sExplicit.isEmpty() ) {
 		return sExplicit;
 	}
@@ -519,43 +596,115 @@ QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
 	if ( ! sEnv.isEmpty() ) {
 		return QString::fromLocal8Bit( sEnv );
 	}
+	return QString();
+}
 
-#if defined( _WIN32 )
-	const QString sExe = QStringLiteral( "hydrogen.exe" );
-#else
-	const QString sExe = QStringLiteral( "hydrogen" );
-#endif
-
-	// Look for the editor relative to the installed plugin. The plugin can sit at
-	// various depths (dev build dir, or e.g. <prefix>/lib/{clap,vst3,lv2}/... while
-	// the editor is at <prefix>/bin), so walk up a few levels and, at each, look
-	// for the editor next to it or under a sibling bin/ (T6.2 install layout).
-	if ( ! sSearchDir.isEmpty() ) {
-		QDir dir( sSearchDir );
-		for ( int nLevel = 0; nLevel < 6; ++nLevel ) {
-			const QStringList candidates = {
-				dir.filePath( sExe ),                       // same dir
-				dir.filePath( QStringLiteral( "bin/" ) + sExe ), // sibling bin/
-#if defined( __APPLE__ )
-				dir.filePath( "Hydrogen.app/Contents/MacOS/Hydrogen" ),
-#endif
-			};
-			for ( const QString& sCandidate : candidates ) {
-				const QFileInfo info( sCandidate );
-				if ( info.isFile() && info.isExecutable() ) {
-					return info.absoluteFilePath();
-				}
-			}
-			if ( ! dir.cdUp() ) {
-				break;
+/** Step 3: the editor relative to the installed plugin. The plugin can sit
+ * at various depths (dev build dir, or e.g. <prefix>/lib/{clap,vst3,lv2}/...
+ * while the editor is at <prefix>/bin), so walk up a few levels and, at
+ * each, look for the editor next to it or under a sibling bin/ (T6.2
+ * install layout). Empty if nothing is found. */
+QString editorBinaryNextToPlugin( const QString& sSearchDir )
+{
+	if ( sSearchDir.isEmpty() ) {
+		return QString();
+	}
+	QDir dir( sSearchDir );
+	for ( int nLevel = 0; nLevel < 6; ++nLevel ) {
+		const QStringList candidates = {
+			dir.filePath( sEditorExecutable ),
+			dir.filePath( QStringLiteral( "bin/" ) + sEditorExecutable ) };
+		for ( const QString& sCandidate : candidates ) {
+			const QFileInfo info( sCandidate );
+			if ( info.isFile() && info.isExecutable() ) {
+				return info.absoluteFilePath();
 			}
 		}
+#ifdef __APPLE__
+		// On macOS the editor is an app bundle; the install layout puts it
+		// at <prefix>/bin/hydrogen.app (ADR 0038). Both spellings are
+		// checked as the file system may be case-sensitive.
+		const QStringList bundles = {
+			dir.filePath( QStringLiteral( "hydrogen.app" ) ),
+			dir.filePath( QStringLiteral( "Hydrogen.app" ) ),
+			dir.filePath( QStringLiteral( "bin/hydrogen.app" ) ),
+			dir.filePath( QStringLiteral( "bin/Hydrogen.app" ) ) };
+		for ( const QString& sBundle : bundles ) {
+			const auto info = MacAppBundles::read( sBundle );
+			if ( info.has_value() ) {
+				return info->sExecutable;
+			}
+		}
+#endif
+		if ( ! dir.cdUp() ) {
+			break;
+		}
 	}
-
-	// Last resort: rely on PATH (or a packaging-set HYDROGEN_EDITOR_PATH /
-	// setEditorBinary()).
-	return sExe;
+	return QString();
 }
+
+#ifdef __APPLE__
+/** Step 4 (macOS): the executable of the first usable bundle in
+ * @a installedAppBundles whose version matches the plugin's, else of the
+ * first usable one at all. A mismatching editor is still better than none:
+ * the version handshake reports it once it attaches. Empty if no bundle is
+ * usable. */
+QString editorBinaryOfInstalledApp( const QStringList& installedAppBundles )
+{
+	const QString sVersion = bundleVersion();
+	QString sFirstUsable;
+	for ( const QString& sBundle : installedAppBundles ) {
+		const auto info = MacAppBundles::read( sBundle );
+		if ( ! info.has_value() ) {
+			continue;
+		}
+		if ( info->sVersion == sVersion ) {
+			return info->sExecutable;
+		}
+		if ( sFirstUsable.isEmpty() ) {
+			sFirstUsable = info->sExecutable;
+		}
+	}
+	return sFirstUsable;
+}
+#endif
+}  // namespace
+
+QString HydrogenPlugin::resolveEditorBinary( const QString& sExplicit,
+											 const QString& sSearchDir ) {
+#ifdef __APPLE__
+	return resolveEditorBinary( sExplicit, sSearchDir, installedAppBundles() );
+#else
+	QString sEditor = explicitEditorBinary( sExplicit );
+	if ( sEditor.isEmpty() ) {
+		sEditor = editorBinaryNextToPlugin( sSearchDir );
+	}
+	// Last resort: rely on PATH.
+	return sEditor.isEmpty() ? sEditorExecutable : sEditor;
+#endif
+}
+
+#ifdef __APPLE__
+QString HydrogenPlugin::resolveEditorBinary(
+	const QString& sExplicit,
+	const QString& sSearchDir,
+	const QStringList& installedAppBundles )
+{
+	QString sEditor = explicitEditorBinary( sExplicit );
+	if ( sEditor.isEmpty() ) {
+		sEditor = editorBinaryNextToPlugin( sSearchDir );
+	}
+	if ( sEditor.isEmpty() ) {
+		sEditor = editorBinaryOfInstalledApp( installedAppBundles );
+	}
+	// Last resort: rely on PATH.
+	return sEditor.isEmpty() ? sEditorExecutable : sEditor;
+}
+
+QStringList HydrogenPlugin::installedAppBundles() {
+	return MacAppBundles::installed();
+}
+#endif
 
 QString HydrogenPlugin::editorBinary() const {
 	return resolveEditorBinary(

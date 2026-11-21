@@ -27,7 +27,9 @@ if(APPLE)
 	# set how it shows up in the Info.plist file
     set(MACOSX_BUNDLE_INFO_STRING "Hydrogen for Mac")
 	set(MACOSX_BUNDLE_ICON_FILE "icon.icns")
-	set(MACOSX_BUNDLE_GUI_IDENTIFIER "Hydrogen")
+	# Unique, reverse-DNS identifier: the plugins look the app up by it via
+	# LaunchServices (ADR 0038). Matches the Linux desktop-file ID.
+	set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.hydrogenmusic.Hydrogen")
 	set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VERSION}")
 	#this has to be short since it appears as the application name in the menu bar
 	set(MACOSX_BUNDLE_BUNDLE_NAME "Hydrogen")

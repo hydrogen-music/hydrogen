@@ -32,15 +32,28 @@ cmake -DWANT_CLAP=ON -DWANT_LV2=ON ..
 
 The CLAP and LV2 SDKs live under `extern/` (`extern/clap`, `extern/lv2`).
 
-## Data folder resolution
+## Data folder and editor resolution
 
 The plugin bootstraps `Base` and `Filesystem` like the standalone mains do
 (ADR 0013), so shared drumkits and the system config are available without a
-host-provided environment. The shared data folder is the `Filesystem` platform
-default — the one system location the shared data is installed to — optionally
-redirected via `$HYDROGEN_SYS_DATA_PATH`. The plugin deliberately never
-searches relative to its own install location: shared data must only exist in
-one place. The user data folder (`.hydrogen`) keeps its per-user default.
+host-provided environment. The plugin deliberately never searches for shared
+data relative to its own install location: shared data must only exist in one
+place (ADR 0038).
+
+- **Editor binary:** explicit override (plugin UI, persisted) →
+  `$HYDROGEN_EDITOR_PATH` → walking up from the plugin's install location
+  (`hydrogen`, `bin/hydrogen`; on macOS also `hydrogen.app`/`bin/hydrogen.app`)
+  → on macOS the installed `Hydrogen.app` (`/Applications`, `~/Applications`,
+  LaunchServices; a matching version is preferred) → `hydrogen` on `PATH`.
+- **System data folder:** `$HYDROGEN_SYS_DATA_PATH` → on macOS
+  `Contents/Resources/data` of the editor's app bundle → the `Filesystem`
+  platform default.
+
+The shipped data is only a starting point and fallback; most content lives in
+the user data folder (`.hydrogen` or the XDG folders, `~/Library/Application
+Support/Hydrogen` on macOS). Without it the plugin logs a warning and keeps
+running. On first start the plugin creates the user data folder and the
+user-level `hydrogen.conf`, like the editor does (`PluginFirstBoot-*` CTests).
 
 ## Conformance tests
 

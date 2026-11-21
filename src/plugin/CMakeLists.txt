@@ -36,6 +36,57 @@ set_target_properties( hydrogen-plugin PROPERTIES
     CXX_STANDARD 17
 )
 
+# macOS: locate the installed Hydrogen.app for the editor and the shipped
+# data (ADR 0038). LaunchServices lives in CoreServices.
+if(APPLE)
+    target_sources( hydrogen-plugin PRIVATE MacAppBundles.cpp )
+    target_link_libraries( hydrogen-plugin PUBLIC
+        "-framework CoreFoundation"
+        "-framework CoreServices" )
+endif()
+
+# First-boot smoke test (ADR 0038): the plugin core in a fresh process with an
+# empty HOME must run - with and without resolvable shipped data - and create
+# the same user-level folders and config the editor does on its first start.
+# Format independent, so it runs regardless of WANT_CLAP/LV2/VST3.
+add_executable( hydrogen-plugin-first-boot plugin_first_boot.cpp )
+target_link_libraries( hydrogen-plugin-first-boot PRIVATE hydrogen-plugin )
+set_target_properties( hydrogen-plugin-first-boot PROPERTIES CXX_STANDARD 17 )
+
+foreach( _h2_first_boot_mode with-system-data without-system-data user-data-only )
+    set( _h2_home "${CMAKE_BINARY_DIR}/plugin-first-boot-home-${_h2_first_boot_mode}" )
+    if( _h2_first_boot_mode STREQUAL "with-system-data" )
+        set( _h2_sys_data "${CMAKE_SOURCE_DIR}/data" )
+    else()
+        # A folder that never exists: the shipped data is unavailable.
+        set( _h2_sys_data "${_h2_home}-missing-system-data" )
+    endif()
+
+    # Every run must start from scratch, or a previous run's folders let the
+    # first-boot checks pass vacuously.
+    add_test( NAME PluginFirstBootClean-${_h2_first_boot_mode}
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${_h2_home}" )
+    add_test( NAME PluginFirstBootHome-${_h2_first_boot_mode}
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_h2_home}" )
+    set_tests_properties( PluginFirstBootClean-${_h2_first_boot_mode} PROPERTIES
+        FIXTURES_SETUP PluginFirstBootClean-${_h2_first_boot_mode} )
+    set_tests_properties( PluginFirstBootHome-${_h2_first_boot_mode} PROPERTIES
+        FIXTURES_SETUP PluginFirstBootHome-${_h2_first_boot_mode}
+        FIXTURES_REQUIRED PluginFirstBootClean-${_h2_first_boot_mode} )
+
+    add_test( NAME PluginFirstBoot-${_h2_first_boot_mode}
+        COMMAND hydrogen-plugin-first-boot ${_h2_first_boot_mode}
+            "${CMAKE_SOURCE_DIR}/src/tests/data/drumkits/baseKit" )
+    # The editor override points nowhere so no Hydrogen installed on the
+    # build machine (e.g. /Applications/Hydrogen.app) is picked up as the
+    # source of the system data. XDG_* are pinned inside HOME so a
+    # developer's shell cannot redirect the user folders elsewhere.
+    set_tests_properties( PluginFirstBoot-${_h2_first_boot_mode} PROPERTIES
+        FIXTURES_REQUIRED PluginFirstBootHome-${_h2_first_boot_mode}
+        ENVIRONMENT "HOME=${_h2_home};HYDROGEN_SYS_DATA_PATH=${_h2_sys_data};HYDROGEN_EDITOR_PATH=${_h2_home}-no-editor/hydrogen;XDG_CONFIG_HOME=${_h2_home}/.config;XDG_DATA_HOME=${_h2_home}/.local/share;XDG_CACHE_HOME=${_h2_home}/.cache"
+        TIMEOUT 120 )
+endforeach()
+
 # Embedded basic plugin UI (ADR 0035, proposal 0006 UI-1): vendored Dear ImGui
 # + add-ons as a static lib every plugin format links. Unconditional — it must
 # build on every platform and Qt >= 5.15 even with all formats off.
