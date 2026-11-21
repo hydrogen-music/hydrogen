@@ -61,6 +61,7 @@
 #include "MultiInstanceTest.h"
 #include "NetworkTest.h"
 #include "NoteTest.h"
+#include "ObjectRegistryTest.h"
 #include "ObjectUuidTest.h"
 #include "OnlineImporterTest.h"
 #include "OscServerTest.h"
@@ -132,6 +133,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( MidiNoteTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiInstanceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NetworkTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NoteTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ObjectRegistryTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( ObjectUuidTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( OnlineImporterTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( OutputBusTest );

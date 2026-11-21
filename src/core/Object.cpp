@@ -209,6 +209,7 @@ void Base::write_objects_map_to( std::ostream& out, object_map_t* map ) {
 int Base::getAliveObjectCount() {
 #ifdef H2CORE_HAVE_DEBUG
 	int nCount = 0;
+	std::lock_guard<std::mutex> lock( __mutex );
 	for (const auto& ii : __objects_map ) {
 		if (!strcmp(ii.first, "Object")) {
 			return ii.second->constructed - ii.second->destructed;
@@ -224,7 +225,8 @@ int Base::getAliveObjectCount() {
 object_map_t Base::getObjectMap() {
 	object_map_t mapCopy;
 	obj_cpt_t copy;
-	
+
+	std::lock_guard<std::mutex> lock( __mutex );
 	for ( auto const& ii : __objects_map ) {
 		copy.constructed = ii.second->constructed;
 		copy.destructed = ii.second->destructed;
@@ -241,12 +243,16 @@ void Base::printObjectMapDiff( const object_map_t& mapSnapshot ) {
 	// Since key value pairs are only inserted but not erased while
 	// Hydrogen is running it is save to assume for mapSnapshot to be
 	// a subset of the current object map.
-	for ( const auto& ii : __objects_map ) {
-		auto it = mapSnapshot.find( ii.first );
-		if ( it != mapSnapshot.end() ) {
-			diff.constructed = ii.second->constructed - it->second.constructed;
-			diff.destructed = ii.second->destructed - it->second.destructed;
-			mapDiff.insert( std::pair<const char*, obj_cpt_t>( ii.first, diff ) );
+	{
+		// Released before writing, which takes the lock itself.
+		std::lock_guard<std::mutex> lock( __mutex );
+		for ( const auto& ii : __objects_map ) {
+			auto it = mapSnapshot.find( ii.first );
+			if ( it != mapSnapshot.end() ) {
+				diff.constructed = ii.second->constructed - it->second.constructed;
+				diff.destructed = ii.second->destructed - it->second.destructed;
+				mapDiff.insert( std::pair<const char*, obj_cpt_t>( ii.first, diff ) );
+			}
 		}
 	}
 
@@ -322,14 +328,14 @@ void Base::registerClass(const char *name, const atomic_obj_cpt_t *counters)
 {
 	if ( ! counters ) {
 		qWarning() << "Base::registerClass: " << name << " null counters!";
-	}
-	if ( counters->constructed ) {
-		// already registered by another thread
 		return;
 	}
-	if ( ! __objects_map[name] ) {
-	__objects_map[name] = counters;
-	} else {
+	// Objects are constructed on any thread, e.g. IPC or audio worker
+	// threads, so first constructions of different classes - or of the
+	// same class - can register concurrently.
+	std::lock_guard<std::mutex> lock( __mutex );
+	const auto [ it, bInserted ] = __objects_map.emplace( name, counters );
+	if ( ! bInserted && it->second != counters ) {
 		qWarning() << "Base::registerClass: " << name << " already registered";
 	}
 }
