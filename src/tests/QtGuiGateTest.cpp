@@ -44,14 +44,13 @@ QStringList coreSources() {
 	return files;
 }
 
-// Root of the Qt installation the tests are compiled against (e.g.
-// .../qt6), derived from the QtCore header the build configured.
-// Its per-module subdirectories are the ground truth for deciding
-// which module a bare #include <QFoo> pulls in - no hardcoded class
-// list to drift out of sync with Qt.
+// Include root of the Qt installation the tests are compiled against
+// (e.g. .../qt6), as configured by the build. Its per-module
+// subdirectories are the ground truth for deciding which module a bare
+// #include <QFoo> pulls in - no hardcoded class list to drift out of
+// sync with Qt.
 QString qtIncludeRoot() {
-	const QFileInfo coreHeader( QString( QT_QNAMESPACE_H ) );
-	return QFileInfo( coreHeader.absolutePath() ).absolutePath();
+	return QString( QT_MODULE_INCLUDE_ROOT );
 }
 
 } // namespace
