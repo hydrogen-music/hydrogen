@@ -27,11 +27,20 @@
 #include <chrono>
 #include <QString>
 
-using Clock = std::chrono::high_resolution_clock;
+/** Clock for all time points used for timing (MIDI, tapping, sleeping).
+ *
+ * It has to be monotonic: deadlines and intervals must not follow changes of
+ * the wall clock (NTP steps, manual adjustments). `high_resolution_clock` is
+ * not suited, since it is an alias of the wall clock `system_clock` in
+ * libstdc++ (Linux, MinGW). `steady_clock` has the same resolution
+ * (CLOCK_MONOTONIC on Linux) and is consistent across processes on the same
+ * machine, as required for time points sent via IPC. */
+using Clock = std::chrono::steady_clock;
 using TimePoint = std::chrono::time_point<Clock>;
 
 namespace H2Core {
 
+	/** Formats @a timePoint as wall-clock time (UTC) "HH:MM:SS.mmm". */
 	QString timePointToQString( const TimePoint& timePoint );
 
 };

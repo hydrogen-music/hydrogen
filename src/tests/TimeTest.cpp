@@ -172,6 +172,46 @@ void TimeTest::testSleepUntil(){
 	___INFOLOG( "passed" );
 }
 
+void TimeTest::testClockIsMonotonic(){
+	___INFOLOG( "" );
+
+	CPPUNIT_ASSERT( Clock::is_steady );
+
+	___INFOLOG( "passed" );
+}
+
+void TimeTest::testTimePointToQString(){
+	___INFOLOG( "" );
+
+	const auto wallBefore = std::chrono::system_clock::now();
+	const QString sNow = H2Core::timePointToQString( Clock::now() );
+	const auto wallAfter = std::chrono::system_clock::now();
+
+	const QRegularExpression format( "^(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)$" );
+	const auto match = format.match( sNow );
+	___INFOLOG( QString( "now: [%1]" ).arg( sNow ) );
+	CPPUNIT_ASSERT( match.hasMatch() );
+
+	// Milliseconds since midnight UTC, compared modulo a day.
+	const auto msOfDay = []( std::chrono::system_clock::time_point timePoint ) {
+		return std::chrono::duration_cast<std::chrono::milliseconds>(
+				   timePoint.time_since_epoch() ).count() % 86400000;
+	};
+	const long long nShownMs = ( match.captured( 1 ).toLongLong() * 3600 +
+								 match.captured( 2 ).toLongLong() * 60 +
+								 match.captured( 3 ).toLongLong() ) * 1000 +
+		match.captured( 4 ).toLongLong();
+	const long long nBeforeMs = msOfDay( wallBefore );
+	const long long nAfterMs = msOfDay( wallAfter );
+	// Converting between clocks costs a few microseconds of accuracy.
+	const long long nSlackMs = 2;
+	if ( nBeforeMs <= nAfterMs ) {
+		CPPUNIT_ASSERT( nShownMs >= nBeforeMs - nSlackMs );
+		CPPUNIT_ASSERT( nShownMs <= nAfterMs + nSlackMs );
+	}
+
+	___INFOLOG( "passed" );
+}
 float TimeTest::locateAndLookupTime( int nPatternPos ){
 	pTestHydrogen()->getCoreActionController()->locateToColumn( nPatternPos );
 	return pTestHydrogen()->getAudioEngine()->getElapsedTime();

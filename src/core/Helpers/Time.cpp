@@ -29,23 +29,21 @@
 
 namespace H2Core {
 	QString timePointToQString( const TimePoint& timePoint ) {
-#ifndef HAVE_TO_TIME_T
-		// We do not use `Clock` defined above since `high_resolution_clock` on
-		// macOS is an alias for `steady_clock`, which - in contrast to
-		// `system_clock` - does not have a `to_time_t` member.
-		return QString::number(
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				timePoint.time_since_epoch() ).count() );
-#else
-		auto t = Clock::to_time_t( timePoint );
-		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-			timePoint.time_since_epoch() ) % 1000;
+		// #Clock is monotonic and has no relation to the calendar. Its time
+		// points are translated into wall-clock time via the current offset
+		// between both clocks.
+		const auto wallTimePoint = std::chrono::system_clock::now() +
+			std::chrono::duration_cast<std::chrono::system_clock::duration>(
+				timePoint - Clock::now() );
+
+		const auto t = std::chrono::system_clock::to_time_t( wallTimePoint );
+		const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			wallTimePoint.time_since_epoch() ) % 1000;
 		std::ostringstream timePointStringStream;
 		timePointStringStream
 			<< std::put_time( std::gmtime( &t ), "%H:%M:%S")
 			<< '.' << std::setfill( '0' ) << std::setw( 3 ) << ms.count();
 
-		return std::move( QString::fromStdString( timePointStringStream.str() ) );
-#endif
+		return QString::fromStdString( timePointStringStream.str() );
 	}
 };
