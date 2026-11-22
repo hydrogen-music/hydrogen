@@ -299,3 +299,60 @@ void MidiDriverTest::testMidiClockDrift() {
 
 	___INFOLOG("done");
 }
+
+void MidiDriverTest::testMidiClockGrid() {
+	___INFOLOG( "" );
+
+	auto pTestHelper = TestHelper::get_instance();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	auto pMidiDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pHydrogen->getAudioEngine()->getMidiDriver() );
+	CPPUNIT_ASSERT( pMidiDriver != nullptr );
+
+	const float fBpm = 120.7;
+	const auto interval =
+		std::chrono::duration<double, std::milli>( 60000.0 / fBpm / 24.0 );
+	const double fToleranceMs = 0.5;
+
+	pMidiDriver->clearBacklogMessages();
+	pMidiActionManager->resetTimingClockTicks();
+	pMidiDriver->startMidiClockStream( fBpm );
+	pHydrogen->getTimeHelper()->highResolutionSleep(
+		std::chrono::milliseconds( 1000 ) );
+	pMidiDriver->stopMidiClockStream();
+
+	// The backlog keeps the messages as sent by the clock thread, including
+	// the time point they were created at.
+	std::vector<TimePoint> ticks;
+	for ( const auto& mmessage : pMidiDriver->getBacklogMessages() ) {
+		if ( mmessage.getType() == H2Core::MidiMessage::Type::TimingClock ) {
+			ticks.push_back( mmessage.getTimePoint() );
+		}
+	}
+	CPPUNIT_ASSERT( ticks.size() > 40 );
+
+	double fMaxOffsetMs = 0;
+	QStringList offsets;
+	for ( int nnTick = 0; nnTick < ticks.size(); ++nnTick ) {
+		const double fOffsetMs =
+			std::chrono::duration<double, std::milli>(
+				ticks[ nnTick ] - ticks[ 0 ] ).count() -
+			nnTick * interval.count();
+		offsets << QString::number( fOffsetMs, 'f', 3 );
+		fMaxOffsetMs = std::max( fMaxOffsetMs, std::abs( fOffsetMs ) );
+	}
+	___INFOLOG( QString( "[%1] ticks, offsets to grid [ms]: [%2], max: [%3], tolerance: [%4]" )
+				.arg( ticks.size() ).arg( offsets.join( ", " ) )
+				.arg( fMaxOffsetMs ).arg( fToleranceMs ) );
+	if ( ! pTestHelper->isAppveyor() ) {
+		CPPUNIT_ASSERT( fMaxOffsetMs <= fToleranceMs );
+	}
+
+	// Flush all queues as part of the clanup.
+	TestHelper::waitForMidiDriver();
+	TestHelper::waitForMidiActionManagerWorkerThread();
+	pMidiActionManager->resetTimingClockTicks();
+
+	___INFOLOG( "done" );
+}

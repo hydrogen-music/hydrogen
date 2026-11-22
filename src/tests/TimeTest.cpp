@@ -33,7 +33,11 @@
 #include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 
+#include <chrono>
 #include <cmath>
+#include <memory>
+#include <thread>
+#include <vector>
 #include <QTest>
 
 using namespace H2Core;
@@ -85,41 +89,85 @@ void TimeTest::testElapsedTime(){
 	___INFOLOG( "passed" );
 }
 
+namespace {
+/** Maximum time a sleep may last longer than requested. */
+constexpr double fSleepToleranceMs = 0.5;
+
+std::shared_ptr<TimeHelper> burnedInTimeHelper()
+{
+	auto pTimeHelper = std::make_shared<TimeHelper>();
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( ! pTimeHelper->isBurnedIn() && nnTry < nMaxTries ) {
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+		++nnTry;
+	}
+	CPPUNIT_ASSERT( pTimeHelper->isBurnedIn() );
+	return pTimeHelper;
+}
+
+double toMs( const std::chrono::duration<double> duration )
+{
+	return std::chrono::duration<double, std::milli>( duration ).count();
+}
+}  // namespace
+
 void TimeTest::testHighResolutionSleep(){
 	___INFOLOG( "" );
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = pTestHydrogen();
 
-	const float fTolerance = 1;
-	std::vector<int> durationsMs{ 2, 10, 65, 234 };
+	// A fresh helper: no sleep may serve as warm-up for the next one.
+	auto pTimeHelper = burnedInTimeHelper();
 
+	const std::vector<double> durationsMs{ 2, 10, 65, 158.5, 234, 500, 21.3 };
 	for ( const auto ffDurationMs : durationsMs ) {
-		// Perform one sleep without checking time. This allows for `TimeHelper`
-		// to adopt to the new system surplus (which might depend on the sleep
-		// duration) and produces results closer to those encountered in real
-		// life.
-		pHydrogen->getTimeHelper()->highResolutionSleep(
-			std::chrono::duration<float, std::milli>( ffDurationMs ) );
-
 		const auto start = Clock::now();
-		pHydrogen->getTimeHelper()->highResolutionSleep(
-			std::chrono::duration<float, std::milli>( ffDurationMs ) );
-		const auto end = Clock::now();
-
-		const auto fPassedMs = std::chrono::duration_cast<
-			std::chrono::milliseconds >( end - start ).count();
+		pTimeHelper->highResolutionSleep(
+			std::chrono::duration<double, std::milli>( ffDurationMs ) );
+		const double fPassedMs = toMs( Clock::now() - start );
 
 		___INFOLOG( QString( "Interval: [%1], Milliseconds passed: [%2], tolerance: [%3]" )
-					.arg( ffDurationMs ).arg( fPassedMs ).arg( fTolerance ) );
+					.arg( ffDurationMs ).arg( fPassedMs ).arg( fSleepToleranceMs ) );
 		// We have to wait at least the requested amount. A little bit more is
 		// ok. But less is not.
 		CPPUNIT_ASSERT( fPassedMs >= ffDurationMs );
 
 		if ( ! pTestHelper->isAppveyor() ) {
-			CPPUNIT_ASSERT( std::abs( fPassedMs - ffDurationMs ) <= fTolerance );
+			CPPUNIT_ASSERT( fPassedMs - ffDurationMs <= fSleepToleranceMs );
 		}
 	}
+
+	___INFOLOG( "passed" );
+}
+
+void TimeTest::testSleepUntil(){
+	___INFOLOG( "" );
+
+	auto pTestHelper = TestHelper::get_instance();
+	auto pTimeHelper = burnedInTimeHelper();
+
+	// Tap tempo at 378.4 bpm.
+	const auto interval = std::chrono::duration<double, std::milli>( 158.5624 );
+	const auto start = Clock::now();
+	for ( int nnTick = 1; nnTick <= 10; ++nnTick ) {
+		const auto deadline = start +
+			std::chrono::duration_cast<Clock::duration>( nnTick * interval );
+		pTimeHelper->sleepUntil( deadline );
+		const double fLateMs = toMs( Clock::now() - deadline );
+
+		___INFOLOG( QString( "Tick: [%1], late by [%2]ms, tolerance: [%3]" )
+					.arg( nnTick ).arg( fLateMs ).arg( fSleepToleranceMs ) );
+		CPPUNIT_ASSERT( fLateMs >= 0 );
+		if ( ! pTestHelper->isAppveyor() ) {
+			CPPUNIT_ASSERT( fLateMs <= fSleepToleranceMs );
+		}
+	}
+
+	// A deadline in the past returns right away.
+	const auto pastStart = Clock::now();
+	pTimeHelper->sleepUntil( pastStart - std::chrono::milliseconds( 5 ) );
+	CPPUNIT_ASSERT( toMs( Clock::now() - pastStart ) <= fSleepToleranceMs );
 
 	___INFOLOG( "passed" );
 }

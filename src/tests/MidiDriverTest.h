@@ -31,6 +31,7 @@ class MidiDriverTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testLoopBackMidiDriver );
 	CPPUNIT_TEST( testMidiClock );
 	CPPUNIT_TEST( testMidiClockDrift );
+	CPPUNIT_TEST( testMidiClockGrid );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -48,6 +49,9 @@ class MidiDriverTest : public CppUnit::TestCase {
 		/** Check for systematic and/or steadily increasing errors in the MIDI
 		 * clock signal sent by Hydrogen. */
 		void testMidiClockDrift();
+		/** Every MIDI clock tick sent has to be on the grid spanned by the
+		 * first tick and the tick interval: no jitter and no drift. */
+		void testMidiClockGrid();
 
 	private:
 

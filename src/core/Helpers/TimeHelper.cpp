@@ -35,7 +35,8 @@ TimeHelper::TimeHelper() : m_nSleepSurplusIndex( 0 )
 {
 	m_sleepSurplusNs.resize( TimeHelper::nSurplusVectorLength );
 	for ( int ii = 0; ii < m_sleepSurplusNs.size(); ++ii ) {
-		m_sleepSurplusNs[ ii ] = 0;
+		m_sleepSurplusNs[ ii ] =
+			std::chrono::nanoseconds( TimeHelper::initialBaseLatency ).count();
 	}
 
 	// The burn-in thread serves one engine instance for its whole life, so a
@@ -60,46 +61,52 @@ TimeHelper::~TimeHelper() {
 void TimeHelper::highResolutionSleep(
 	std::chrono::duration<float, std::micro> interval )
 {
-	const auto start = Clock::now();
+	sleepUntil(
+		Clock::now() + std::chrono::duration_cast<Clock::duration>( interval ) );
+}
 
-	// Giving up control and relying on the OS scheduler to retrieve it again is
-	// expensive. The C++ std method std::this_thread::sleep_for only guarantees
-	// to sleep for at least the provided amount. It could very sleep longer.
-	// And it does. To circumvent this problem, we ask it for sleeping a little
-	// bit less and just wait the remaining time.
-	long long nSleepSurplusNs = 0;
-	{
-		std::scoped_lock lock{ m_sleepSurplusMutex };
-		nSleepSurplusNs = *std::max_element( m_sleepSurplusNs.begin(),
-											m_sleepSurplusNs.end() );
-	}
+void TimeHelper::sleepUntil( const TimePoint& deadline )
+{
+	const auto latency = baseLatency();
 
-	const std::chrono::duration<long long, std::nano> residualInterval{
-		nSleepSurplusNs };
-	if ( interval > residualInterval ) {
-
-		// We measure the time require for sleeping to do some statistics and
-		// provide the best guess possible when calculating the next sleep
-		// interval.
-		const auto preSleep = Clock::now();
-		std::this_thread::sleep_for( interval - residualInterval );
-		const auto postSleep = Clock::now();
-
-		std::scoped_lock lock{ m_sleepSurplusMutex };
-		if ( m_nSleepSurplusIndex >= m_sleepSurplusNs.size() ) {
-			m_nSleepSurplusIndex = 0;
+	while ( true ) {
+		// Half of the remaining time: even if the system adds a slack as
+		// large as the chunk itself on top of the base latency, we still
+		// wake up before the deadline.
+		const auto chunk = ( deadline - Clock::now() - latency ) / 2;
+		if ( chunk < TimeHelper::minSleepChunk ) {
+			break;
 		}
-		m_sleepSurplusNs[ m_nSleepSurplusIndex ] =
-			std::chrono::duration_cast<std::chrono::nanoseconds>(
-				postSleep - preSleep - interval + residualInterval ).count();
-		++m_nSleepSurplusIndex;
+
+		const auto preSleep = Clock::now();
+		std::this_thread::sleep_for( chunk );
+		if ( chunk <= TimeHelper::baseLatencyProbe ) {
+			addSurplus( Clock::now() - preSleep - chunk );
+		}
 	}
 
-	// This is very expensive. We waste a lot of CPU by doing nothing. To make
-	// the time spent on this loop as small as possible is an appropriate
-	// optimization target.
-	while ( Clock::now() - start < interval ) {
+	// This is very expensive. We waste CPU by doing nothing. But it is only
+	// done for about the base latency.
+	while ( Clock::now() < deadline ) {
 	}
+}
+
+std::chrono::nanoseconds TimeHelper::baseLatency()
+{
+	std::scoped_lock lock{ m_sleepSurplusMutex };
+	return std::chrono::nanoseconds( *std::max_element(
+		m_sleepSurplusNs.begin(), m_sleepSurplusNs.end() ) );
+}
+
+void TimeHelper::addSurplus( std::chrono::nanoseconds surplus )
+{
+	std::scoped_lock lock{ m_sleepSurplusMutex };
+	if ( m_nSleepSurplusIndex >= m_sleepSurplusNs.size() ) {
+		m_nSleepSurplusIndex = 0;
+	}
+	m_sleepSurplusNs[ m_nSleepSurplusIndex ] =
+		std::max( surplus, std::chrono::nanoseconds::zero() ).count();
+	++m_nSleepSurplusIndex;
 }
 
 void TimeHelper::burnIn( void* pInstance ) {
@@ -109,32 +116,18 @@ void TimeHelper::burnIn( void* pInstance ) {
 		return;
 	}
 
+	// The lock is not held while sleeping, so sleeps on other threads are
+	// not delayed by the burn-in.
 	for ( int ii = 0; ii < TimeHelper::nSurplusVectorLength; ++ii ) {
 		if ( pTimeHelper->m_bAbortBurnIn ) {
 			return;
 		}
-		std::scoped_lock lock{ pTimeHelper->m_sleepSurplusMutex };
-		if ( pTimeHelper->m_bAbortBurnIn ) {
-			return;
-		}
 		const auto start = Clock::now();
-		std::this_thread::sleep_for( std::chrono::milliseconds( 1 ) );
-		const auto end = Clock::now();
-
-		const auto sleepDuration = end - start - std::chrono::milliseconds( 1 );
-		pTimeHelper->m_sleepSurplusNs[ ii ] =
-			std::chrono::duration_cast<std::chrono::nanoseconds>(
-				sleepDuration ).count();
+		std::this_thread::sleep_for( TimeHelper::baseLatencyProbe );
+		pTimeHelper->addSurplus(
+			Clock::now() - start - TimeHelper::baseLatencyProbe );
 	}
 
-	if ( pTimeHelper->m_bAbortBurnIn ) {
-		return;
-	}
-	std::scoped_lock lock{ pTimeHelper->m_sleepSurplusMutex };
-	if ( pTimeHelper->m_bAbortBurnIn ) {
-		return;
-	}
-	pTimeHelper->m_nSleepSurplusIndex = 0;
 	pTimeHelper->m_bIsBurnedIn = true;
 }
 
