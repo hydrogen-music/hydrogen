@@ -27,6 +27,12 @@
 #include <mutex>
 #include <thread>
 
+#ifdef __linux__
+#include <cerrno>
+#include <cstring>
+#include <sys/prctl.h>
+#endif
+
 namespace H2Core {
 
 TimeHelper::TimeHelper() : m_nSleepSurplusIndex( 0 )
@@ -107,6 +113,27 @@ void TimeHelper::addSurplus( std::chrono::nanoseconds surplus )
 	m_sleepSurplusNs[ m_nSleepSurplusIndex ] =
 		std::max( surplus, std::chrono::nanoseconds::zero() ).count();
 	++m_nSleepSurplusIndex;
+}
+
+std::optional<std::chrono::nanoseconds> TimeHelper::minimizeTimerSlack()
+{
+#ifdef __linux__
+	// 1ns is the minimum. 0 would reset the slack to the thread's default
+	// (50us unless changed).
+	if ( prctl( PR_SET_TIMERSLACK, 1UL, 0UL, 0UL, 0UL ) != 0 ) {
+		WARNINGLOG( QString( "Unable to minimize timer slack: [%1]" )
+						.arg( std::strerror( errno ) ) );
+	}
+	const int nSlackNs = prctl( PR_GET_TIMERSLACK, 0UL, 0UL, 0UL, 0UL );
+	if ( nSlackNs < 0 ) {
+		WARNINGLOG( QString( "Unable to retrieve timer slack: [%1]" )
+						.arg( std::strerror( errno ) ) );
+		return std::nullopt;
+	}
+	return std::chrono::nanoseconds( nSlackNs );
+#else
+	return std::nullopt;
+#endif
 }
 
 void TimeHelper::burnIn( void* pInstance ) {

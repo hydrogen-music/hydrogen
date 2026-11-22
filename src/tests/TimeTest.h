@@ -33,6 +33,7 @@ class TimeTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST( testSleepUntil );
 		CPPUNIT_TEST( testClockIsMonotonic );
 		CPPUNIT_TEST( testTimePointToQString );
+		CPPUNIT_TEST( testMinimizeTimerSlack );
 		CPPUNIT_TEST_SUITE_END();
 
 	public:

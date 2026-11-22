@@ -356,3 +356,36 @@ void MidiDriverTest::testMidiClockGrid() {
 
 	___INFOLOG( "done" );
 }
+
+void MidiDriverTest::testMidiClockTimerSlack() {
+	___INFOLOG( "" );
+
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	auto pMidiDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pHydrogen->getAudioEngine()->getMidiDriver() );
+	CPPUNIT_ASSERT( pMidiDriver != nullptr );
+
+	CPPUNIT_ASSERT( ! pMidiDriver->getMidiClockTimerSlack().has_value() );
+
+	pMidiActionManager->resetTimingClockTicks();
+	pMidiDriver->startMidiClockStream( 120 );
+	// The thread applies the slack before sending its first tick.
+	pMidiDriver->waitForNextMidiClockTick();
+	const auto slack = pMidiDriver->getMidiClockTimerSlack();
+	pMidiDriver->stopMidiClockStream();
+
+#ifdef __linux__
+	CPPUNIT_ASSERT( slack.has_value() );
+	CPPUNIT_ASSERT( slack->count() == 1 );
+#else
+	CPPUNIT_ASSERT( ! slack.has_value() );
+#endif
+	CPPUNIT_ASSERT( ! pMidiDriver->getMidiClockTimerSlack().has_value() );
+
+	TestHelper::waitForMidiDriver();
+	TestHelper::waitForMidiActionManagerWorkerThread();
+	pMidiActionManager->resetTimingClockTicks();
+
+	___INFOLOG( "done" );
+}

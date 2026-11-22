@@ -30,6 +30,7 @@
 #include <chrono>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <thread>
 #include <vector>
 
@@ -80,6 +81,18 @@ public:
 	void sleepUntil( const TimePoint& deadline );
 
 	bool isBurnedIn() const;
+
+	/** Reduces the timer slack of the calling thread to the minimum, so
+	 * its sleeps end as close as possible to the requested time instead of
+	 * being batched with other wake-ups.
+	 *
+	 * Only Linux has a per-thread timer slack (`PR_SET_TIMERSLACK`). It is
+	 * meant for dedicated timing threads, like the MIDI clock, since it
+	 * costs power.
+	 *
+	 * \return the timer slack in effect for the calling thread afterwards or
+	 *   std::nullopt on platforms without a per-thread timer slack. */
+	static std::optional<std::chrono::nanoseconds> minimizeTimerSlack();
 
 
 private:

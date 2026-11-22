@@ -38,7 +38,13 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <optional>
+#include <QRegularExpression>
 #include <QTest>
+
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
 
 using namespace H2Core;
 
@@ -212,6 +218,35 @@ void TimeTest::testTimePointToQString(){
 
 	___INFOLOG( "passed" );
 }
+
+void TimeTest::testMinimizeTimerSlack(){
+	___INFOLOG( "" );
+
+	std::optional<std::chrono::nanoseconds> slack;
+#ifdef __linux__
+	long nThreadSlack = -1;
+#endif
+	std::thread thread( [&]() {
+		slack = TimeHelper::minimizeTimerSlack();
+#ifdef __linux__
+		nThreadSlack = prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 );
+#endif
+	} );
+	thread.join();
+
+#ifdef __linux__
+	CPPUNIT_ASSERT( slack.has_value() );
+	CPPUNIT_ASSERT( slack->count() == 1 );
+	CPPUNIT_ASSERT( nThreadSlack == 1 );
+	// Other threads keep their slack.
+	CPPUNIT_ASSERT( prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 ) > 1 );
+#else
+	CPPUNIT_ASSERT( ! slack.has_value() );
+#endif
+
+	___INFOLOG( "passed" );
+}
+
 float TimeTest::locateAndLookupTime( int nPatternPos ){
 	pTestHydrogen()->getCoreActionController()->locateToColumn( nPatternPos );
 	return pTestHydrogen()->getAudioEngine()->getElapsedTime();

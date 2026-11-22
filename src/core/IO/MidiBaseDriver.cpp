@@ -44,6 +44,7 @@ MidiBaseDriver::MidiBaseDriver( Hydrogen* pHydrogen )
 	  m_nAverageIntervalNs( 0 ),
 	  m_lastTick( TimePoint() ),
 	  m_nTickCount( 0 ),
+	  m_nClockTimerSlackNs( -1 ),
 	  m_pClockThread( nullptr ),
       m_bInputActive( false ),
       m_bOutputActive( false )
@@ -266,6 +267,7 @@ void MidiBaseDriver::startMidiClockStream( float fBpm )
 		m_pClockThread->join();
 		m_pClockThread = nullptr;
 	}
+	m_nClockTimerSlackNs = -1;
 
 	// 24 MIDI Clock messages should make up a quarter.
 	const double fInterval = 60000 / fBpm / 24.0;
@@ -286,6 +288,7 @@ void MidiBaseDriver::stopMidiClockStream()
 		m_pClockThread->join();
 		m_pClockThread = nullptr;
 	}
+	m_nClockTimerSlackNs = -1;
 
 	// By resetting the time point of the last MIDI clock message sent the next
 	// call to startMidiClockStream() will send a message right away instead of
@@ -293,6 +296,16 @@ void MidiBaseDriver::stopMidiClockStream()
 	m_lastTick = TimePoint();
 	m_intervalCompensation = std::chrono::microseconds::zero();
 	m_nAverageIntervalNs = 0;
+}
+
+std::optional<std::chrono::nanoseconds>
+MidiBaseDriver::getMidiClockTimerSlack() const
+{
+	const long long nSlackNs = m_nClockTimerSlackNs;
+	if ( nSlackNs < 0 ) {
+		return std::nullopt;
+	}
+	return std::chrono::nanoseconds( nSlackNs );
 }
 
 void MidiBaseDriver::waitForNextMidiClockTick()
@@ -324,6 +337,13 @@ void MidiBaseDriver::midiClockStream( void* pInstance )
 	ASSERT_NO_EDITOR_MODE( pHydrogen );
 
 	const auto pPref = pMidiDriver->getHydrogen()->getPreferences();
+
+	// The timer slack applies to this thread only. Ticks are sent at the
+	// requested time instead of being batched with other wake-ups of the
+	// system.
+	const auto timerSlack = TimeHelper::minimizeTimerSlack();
+	pMidiDriver->m_nClockTimerSlackNs =
+		timerSlack.has_value() ? timerSlack->count() : -1;
 
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();
