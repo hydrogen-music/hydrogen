@@ -48,6 +48,10 @@ namespace {
 // so the strips align and each name clips to its column.
 constexpr float s_nFaderWidth = 28.0f;
 constexpr float s_nFaderHeight = 120.0f;
+// The fader's volume range. The Qt mixer's Fader
+// (src/gui/src/Mixer/MixerLine.cpp, MasterLine.cpp) spans 0.0 to 1.5 —
+// the plugin's strips must not cap below it.
+constexpr float s_fVolumeMax = 1.5f;
 constexpr float s_nMeterBarWidth = 5.0f;
 constexpr float s_nMeterGap = 1.0f;
 constexpr float s_nKnobSize = 34.0f;
@@ -147,7 +151,8 @@ bool PluginUiMixerView::drawFaderWithMeter( const char* sId,
 	ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, well );
 	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, well );
 	const bool bMoved = ImGui::VSliderFloat(
-		sId, ImVec2( s_nFaderWidth, s_nFaderHeight ), &fVolume, 0.0f, 1.0f );
+		sId, ImVec2( s_nFaderWidth, s_nFaderHeight ), &fVolume, 0.0f,
+		s_fVolumeMax );
 	ImGui::PopStyleColor( 3 );
 	ImGui::SameLine( 0.0f, s_nFaderMeterGap );
 
@@ -488,6 +493,13 @@ void PluginUiMixerView::draw( const PluginUiPalette& palette )
 									 m_model.instrumentPeakR( n ),
 									 palette ) ) {
 				m_model.setStripVolume( n, fVolume );
+			}
+			if ( n == 0 ) {
+				// What the fader displayed — the model's value clamped
+				// to its range — not the model's value: the range is
+				// the fact the smoke's probe pins.
+				m_layout.fFaderValueShown =
+					std::clamp( fVolume, 0.0f, s_fVolumeMax );
 			}
 		float fPan = m_model.stripPan( n );
 		centerInStrip( s_nStripWidth, s_nKnobSize );

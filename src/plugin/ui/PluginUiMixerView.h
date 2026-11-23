@@ -99,6 +99,12 @@ struct PluginUiMixerLayout
 	 *  the next frame). */
 	float fHumanizeVelocityShown = -1.0f;
 	float fRandomPitchShown = -1.0f;
+	/** Strip 0's fader: the volume the last frame displayed — the
+	 *  model's value clamped to the fader's range. The smoke's range
+	 *  probe: volumes legal in the engine and the Qt mixer (up to
+	 *  1.5) must display at their own level, not pinned at a lower
+	 *  ceiling. */
+	float fFaderValueShown = -1.0f;
 };
 
 class PluginUiMixerView
