@@ -225,6 +225,15 @@ void TimeTest::testMinimizeTimerSlack(){
 	std::optional<std::chrono::nanoseconds> slack;
 #ifdef __linux__
 	long nThreadSlack = -1;
+	// The isolation check below requires this thread to run with a
+	// non-minimal slack. Its current value can not be relied upon:
+	// low-latency tuned systems run all processes with minimal slack. So,
+	// it is pinned to the stock kernel default and restored afterwards.
+	constexpr unsigned long nPinnedSlackNs = 50000UL;
+	const long nMainSlackBefore = prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 );
+	CPPUNIT_ASSERT( nMainSlackBefore >= 0 );
+	CPPUNIT_ASSERT( prctl( PR_SET_TIMERSLACK, nPinnedSlackNs,
+						   0UL, 0UL, 0UL ) == 0 );
 #endif
 	std::thread thread( [&]() {
 		slack = TimeHelper::minimizeTimerSlack();
@@ -239,7 +248,12 @@ void TimeTest::testMinimizeTimerSlack(){
 	CPPUNIT_ASSERT( slack->count() == 1 );
 	CPPUNIT_ASSERT( nThreadSlack == 1 );
 	// Other threads keep their slack.
-	CPPUNIT_ASSERT( prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 ) > 1 );
+	CPPUNIT_ASSERT( prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 ) == nPinnedSlackNs );
+	// Restore the slack the test started with. A value of 0 denotes the
+	// thread's default (which may itself be 0 on tuned systems).
+	CPPUNIT_ASSERT( prctl( PR_SET_TIMERSLACK,
+						   static_cast<unsigned long>( nMainSlackBefore ),
+						   0UL, 0UL, 0UL ) == 0 );
 #else
 	CPPUNIT_ASSERT( ! slack.has_value() );
 #endif
