@@ -115,8 +115,36 @@ else
     # the validator fails to compile ("'uint32_t' does not name a type"). Force-
     # including <cstdint> fixes it without patching the fetched SDK source; it is
     # harmless on toolchains that already have it.
-    cmake -S "$SDK_SRC" -B "$BUILD_DIR" \
+    # CMAKE_POLICY_VERSION_MINIMUM=3.5: the SDK's 'base' submodule declares
+    # cmake_minimum_required(VERSION 3.4.3), which CMake >= 4.0 rejects
+    # ("Compatibility with CMake < 3.5 has been removed"). Older CMake ignores
+    # the variable.
+    # macOS: the SDK takes the Xcode version from `xcodebuild -version` and
+    # refuses to configure without one ("XCode 9 or newer is required"). With
+    # only the Command Line Tools selected (`xcode-select -p` pointing to
+    # /Library/Developer/CommandLineTools) xcodebuild is unavailable although
+    # the toolchain is complete. Their version follows Xcode's numbering, so it
+    # stands in. The SDK only skips its own detection when the environment
+    # variable is set, but compares the CMake variable, hence both.
+    if [ "$(uname -s)" = "Darwin" ] && [ -z "${XCODE_VERSION:-}" ] \
+           && ! xcodebuild -version >/dev/null 2>&1; then
+        XCODE_VERSION=$(pkgutil --pkg-info=com.apple.pkg.CLTools_Executables 2>/dev/null \
+                            | sed -n 's/^version: \([0-9]*\.[0-9]*\).*/\1/p')
+        if [ -z "$XCODE_VERSION" ]; then
+            echo "error: neither Xcode nor the Command Line Tools were found" >&2
+            echo "       (install them via 'xcode-select --install')" >&2
+            exit 1
+        fi
+        echo "Xcode not selected, using the Command Line Tools $XCODE_VERSION"
+    fi
+    set --
+    if [ -n "${XCODE_VERSION:-}" ]; then
+        export XCODE_VERSION
+        set -- "-DXCODE_VERSION=$XCODE_VERSION"
+    fi
+    cmake -S "$SDK_SRC" -B "$BUILD_DIR" "$@" \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
         -DSMTG_ADD_VSTGUI=OFF \
         -DSMTG_ADD_VST3_PLUGINS_SAMPLES=OFF \
         -DSMTG_ADD_VST3_HOSTING_SAMPLES=OFF \
