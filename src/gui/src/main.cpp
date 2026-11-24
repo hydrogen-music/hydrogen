@@ -51,6 +51,7 @@
 #include "ShotList.h"
 #include "Skin.h"
 #include "SplashScreen.h"
+#include "SplashStartupVerifier.h"
 #include "StartupTestModes.h"
 
 #ifdef HAVE_EXECINFO_H
@@ -70,6 +71,8 @@
 #include <QLibraryInfo>
 #include <QProcess>
 #include <QSslSocket>
+#include <QThread>
+#include <QWindow>
 #ifndef H2CORE_HAVE_QT6
   #include <QTextCodec>
 #endif
@@ -481,6 +484,48 @@ int main(int argc, char *argv[])
 #else
 		pSplash->show();
 #endif
+
+		// Hidden test mode (SplashStartup CTest): arm the sentinel
+		// before the splash exposure pump below. It fires on the next
+		// event pass, so its delivery proves events were processed
+		// while the splash was up.
+		if ( parser.getVerifySplashShown() && pSplash->isVisible() ) {
+			SplashStartupVerifier::armSplashSentinel();
+		}
+
+		// The splash screen only becomes visible once the window system
+		// has processed the show request and the surface has been
+		// exposed — on Wayland the compositor only displays it after the
+		// first buffer commit, i.e. after the first paint.
+		// QSplashScreen::show() does not paint synchronously, and the
+		// startup work below (engine, drumkit, MainForm) runs for
+		// seconds without an event pass. Without pumping here the
+		// splash would only appear together with the main window, or
+		// never at all when finish() closes it first.
+		//
+		// The first pass is unconditional so pending show-side events
+		// (including the splash's own paint) are handled even on
+		// platforms that report exposure synchronously; the loop then
+		// waits for the compositor's expose, bounded so a window system
+		// that never configures the surface cannot stall startup.
+		if ( pSplash->isVisible() ) {
+			pQApp->processEvents();
+			QWindow* pSplashWindow = pSplash->windowHandle();
+			for ( int ii = 0;
+				  ii < 100 && ( pSplashWindow == nullptr ||
+								! pSplashWindow->isExposed() ); ++ii ) {
+				QThread::msleep( 10 );
+				pQApp->processEvents();
+				pSplashWindow = pSplash->windowHandle();
+			}
+		}
+
+		// Hidden test mode: freeze the verdict right after the pump
+		// (before the heavy startup work and exec(), which would
+		// deliver the sentinel regardless of the defect).
+		if ( parser.getVerifySplashShown() ) {
+			SplashStartupVerifier::captureSplashVerdict();
+		}
 
 		// Hidden test-mode options (ADR 0015/0016, ADR 0026): non-interactive
 		// startup preferences. The mode logic lives in StartupTestModes.

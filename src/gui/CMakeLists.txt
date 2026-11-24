@@ -133,6 +133,28 @@ set_tests_properties( GuiStartup PROPERTIES
 	TIMEOUT 120
 )
 
+# Splash startup verification: launch the full GUI headless WITHOUT
+# --nosplash and require that the splash screen receives an event pass
+# during startup. QSplashScreen::show() does not paint synchronously and
+# the offscreen platform exposes windows immediately, so the visual
+# outcome (splash invisible for the whole startup on Wayland/X11) is not
+# observable headless — the hidden --verify-splash-shown mode instead
+# arms a zero-timer sentinel before the exposure pump in main() and
+# freezes the verdict right after it: only processing events in between
+# delivers the sentinel in time. Exit code 0 = pass, 1 = splash never
+# became visible. HOME points at a throwaway dir so no user config
+# interferes.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/splash-startup-test-home)
+add_test(
+	NAME SplashStartup
+	COMMAND hydrogen --verify-splash-shown --child
+			-P ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( SplashStartup PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/splash-startup-test-home"
+	TIMEOUT 120
+)
+
 # Connect-via-IPC mode abort smoke test (ADR 0016): `hydrogen --connect-via-ipc
 # <endpoint>` against an endpoint with no engine must abort cleanly (exit 1),
 # NOT crash, and must not run an audio-processing thread on the mirror (the

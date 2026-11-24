@@ -118,6 +118,15 @@ class Parser {
 		bool getVerifyPluginTransportGating() const {
 			return m_bVerifyPluginTransportGating; }
 
+		/** When set, the GUI verifies that the splash screen receives an
+		 * event pass during startup — without one it never paints, so on
+		 * window systems requiring a compositor round trip (Wayland) users
+		 * stare at nothing for the seconds the startup takes — and quits
+		 * with the verdict: 0 = splash got its event pass, 1 = it did
+		 * not. Integration-test hook for the SplashStartup CTest. */
+		bool getVerifySplashShown() const {
+			return m_bVerifySplashShown; }
+
 	private:
 		QString  m_sAudioDriver;
 		QString  m_sPlaylistFileName;
@@ -149,6 +158,8 @@ class Parser {
 		bool     m_bExerciseEditorPaths;
 
 		bool     m_bVerifyPluginTransportGating;
+
+		bool     m_bVerifySplashShown;
 	};
 
 #endif

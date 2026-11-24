@@ -131,6 +131,12 @@ bool Parser::parse( int argc, char* argv[] ) {
 	verifyPluginTransportGatingOption.setFlags(
 		QCommandLineOption::HiddenFromHelp );
 
+	QCommandLineOption verifySplashShownOption(
+		QStringList() << "verify-splash-shown",
+		"Verify the splash screen receives an event pass during startup "
+		"(splash startup integration test)" );
+	verifySplashShownOption.setFlags( QCommandLineOption::HiddenFromHelp );
+
 	QCommandLineOption connectViaIpcOption(
 		QStringList() << "c" << "connect-via-ipc",
 		"Connect to a headless engine at the given IPC endpoint instead of "
@@ -170,6 +176,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 	parser.addOption( exerciseEditorPathsOption );
 
 	parser.addOption( verifyPluginTransportGatingOption );
+
+	parser.addOption( verifySplashShownOption );
 
 	parser.addOption( connectViaIpcOption );
 
@@ -242,6 +250,8 @@ bool Parser::parse( int argc, char* argv[] ) {
 
 	m_bVerifyPluginTransportGating =
 		parser.isSet( verifyPluginTransportGatingOption );
+
+	m_bVerifySplashShown = parser.isSet( verifySplashShownOption );
 
 	m_sConnectViaIpcEndpoint = parser.value( connectViaIpcOption );
 
