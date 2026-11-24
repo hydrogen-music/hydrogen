@@ -125,6 +125,10 @@ All notable changes to this project will be documented in this file.
   songs, and mix the loaded drumkit's instruments (volume, pan, mute, solo,
   level meters) from within the plugin host. For more advanced features, it
   allows to open the regular GUI for remote controlling of the plugin.
+- macOS: universal disk image running natively on both Apple Silicon and Intel
+  Macs with macOS 12 or newer. It contains the application as well as the
+  plugins and does not require any additional libraries. JACK is not supported
+  by this build.
 
 ### Changed
 

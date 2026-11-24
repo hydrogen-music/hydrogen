@@ -249,8 +249,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 if(APPLE)
-    include_directories("/opt/local/include")
-    link_directories("/opt/local/lib")
+    # MacPorts installs into /opt/local (and the AppVeyor pipeline links
+    # /usr/local there). Portable builds clear this prefix, since linking it
+    # adds an rpath pointing outside of the bundles.
+    set(H2_MACOS_EXTRA_PREFIX "/opt/local" CACHE PATH
+        "Additional prefix searched for headers and libraries on macOS (empty to disable)")
+    if(H2_MACOS_EXTRA_PREFIX)
+        include_directories("${H2_MACOS_EXTRA_PREFIX}/include")
+        link_directories("${H2_MACOS_EXTRA_PREFIX}/lib")
+    endif()
 
     #Without setting this, installation would go into /usr/local, which does not exist per default.
     #An explicitly passed prefix (e.g. the Justfile's plugin PREFIX) must win, though.

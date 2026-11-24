@@ -74,6 +74,18 @@ if(APPLE)
 
     add_file_dependencies(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
 
+    # Without it, macOS releases older than the deployment target refuse to
+    # start the app with a generic "damaged or incomplete" error.
+    if(CMAKE_OSX_DEPLOYMENT_TARGET)
+        add_custom_command(
+            TARGET hydrogen
+            POST_BUILD
+            COMMAND plutil -replace LSMinimumSystemVersion
+                           -string "${CMAKE_OSX_DEPLOYMENT_TARGET}"
+                           hydrogen.app/Contents/Info.plist
+        )
+    endif()
+
 endif()
 
 target_link_libraries(hydrogen

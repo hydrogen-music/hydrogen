@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+# Verify that macOS bundles are portable universal binaries.
+#
+# Used by the universal macOS builds of the Justfile (`just macos-universal`,
+# `just macos-test`) only. Regular single-architecture builds via build.sh are
+# allowed to link against Homebrew and are not checked.
+#
+# Every Mach-O file found within the given bundles must
+#   - contain both an arm64 and an x86_64 slice,
+#   - require at most the given macOS version (minos) in every slice,
+#   - only link against libraries shipped with macOS (/System/Library,
+#     /usr/lib) or contained in the bundle itself,
+#   - not carry an rpath pointing outside of the bundle, and
+#   - have a valid code signature (Apple Silicon refuses to run unsigned code;
+#     modifying a binary after linking invalidates its signature).
+# Application bundles additionally have to declare the minimum macOS version
+# in their Info.plist (LSMinimumSystemVersion). Without it, older systems refuse
+# to start the app with a generic error message.
+#
+# Usage:
+#   check_macos_portable <macos-target> <bundle> [<bundle> ...]
+#
+# Exits non-zero if any bundle violates one of the rules above.
+#
+# Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+#
+# http://www.hydrogen-music.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see https://www.gnu.org/licenses
+
+set -euo pipefail
+
+usage='usage: check_macos_portable <macos-target> <bundle> [<bundle> ...]'
+if [ "$#" -lt 2 ]; then
+    echo "$usage" >&2
+    exit 2
+fi
+TARGET="$1"
+shift
+REQUIRED_ARCHS="arm64 x86_64"
+
+nErrors=0
+fail() {
+    echo "  FAIL: $*"
+    nErrors=$((nErrors + 1))
+}
+
+# True if version $1 <= version $2.
+version_le() {
+    [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -n1)" = "$1" ]
+}
+
+# Resolve an install name starting with @loader_path/@executable_path to a
+# path on disk. Prints nothing for other install names.
+resolve_relative() {
+    local sName="$1" sFile="$2" sExecutable="$3"
+    case "$sName" in
+        @loader_path/*) echo "$(dirname "$sFile")/${sName#@loader_path/}" ;;
+        @executable_path/*)
+            if [ -n "$sExecutable" ]; then
+                echo "$(dirname "$sExecutable")/${sName#@executable_path/}"
+            fi ;;
+    esac
+}
+
+check_macho() {
+    local sFile="$1" sBundle="$2" sExecutable="$3"
+    local sRel="${sFile#"$sBundle"/}"
+
+    local sArchs
+    sArchs=$(lipo -archs "$sFile" 2>/dev/null || true)
+    for sArch in $REQUIRED_ARCHS; do
+        case " $sArchs " in
+            *" $sArch "*) ;;
+            *) fail "$sRel: no $sArch slice (has: ${sArchs:-none})" ;;
+        esac
+    done
+
+    for sArch in $sArchs; do
+        local sMinos
+        sMinos=$(vtool -arch "$sArch" -show-build "$sFile" 2>/dev/null \
+                     | awk '$1 == "minos" { print $2; exit }')
+        if [ -z "$sMinos" ]; then
+            # Binaries targeting macOS < 10.14 carry LC_VERSION_MIN_MACOSX
+            # instead of LC_BUILD_VERSION.
+            sMinos=$(otool -arch "$sArch" -l "$sFile" \
+                         | awk '/LC_VERSION_MIN_MACOSX/ { bFound = 1 }
+                                bFound && $1 == "version" { print $2; exit }')
+        fi
+        if [ -z "$sMinos" ]; then
+            fail "$sRel ($sArch): minimum macOS version not found"
+        elif ! version_le "$sMinos" "$TARGET"; then
+            fail "$sRel ($sArch): requires macOS $sMinos > $TARGET"
+        fi
+    done
+
+    if ! codesign --verify "$sFile" 2>/dev/null; then
+        fail "$sRel: missing or invalid code signature"
+    fi
+
+    local sRpaths
+    sRpaths=$(otool -l "$sFile" \
+                  | awk '$1 == "cmd" && $2 == "LC_RPATH" { bRpath = 1 }
+                         bRpath && $1 == "path" { print $2; bRpath = 0 }' \
+                  | sort -u)
+    local sRpath
+    while IFS= read -r sRpath; do
+        [ -z "$sRpath" ] && continue
+        case "$sRpath" in
+            @loader_path*|@executable_path*) ;;
+            *) fail "$sRel: rpath outside of the bundle: $sRpath" ;;
+        esac
+    done <<< "$sRpaths"
+
+    # The install name of a dylib itself is listed by `otool -L` too.
+    local sId
+    sId=$(otool -D "$sFile" 2>/dev/null | sed -n '2p')
+    local sDep
+    while IFS= read -r sDep; do
+        [ -z "$sDep" ] && continue
+        [ "$sDep" = "$sId" ] && continue
+        case "$sDep" in
+            /System/Library/*|/usr/lib/*) ;;
+            @loader_path/*|@executable_path/*)
+                local sResolved
+                sResolved=$(resolve_relative "$sDep" "$sFile" "$sExecutable")
+                if [ -z "$sResolved" ] || [ ! -e "$sResolved" ]; then
+                    fail "$sRel: links $sDep, which is not part of the bundle"
+                fi ;;
+            @rpath/*)
+                local bFound=0
+                while IFS= read -r sRpath; do
+                    [ -z "$sRpath" ] && continue
+                    local sCandidate
+                    sCandidate=$(resolve_relative \
+                        "$sRpath/${sDep#@rpath/}" "$sFile" "$sExecutable")
+                    if [ -n "$sCandidate" ] && [ -e "$sCandidate" ]; then
+                        bFound=1
+                        break
+                    fi
+                done <<< "$sRpaths"
+                if [ "$bFound" -eq 0 ]; then
+                    fail "$sRel: links $sDep, which is not part of the bundle"
+                fi ;;
+            *) fail "$sRel: links $sDep, which is not shipped with macOS" ;;
+        esac
+    done < <(otool -L "$sFile" | sed -n '2,$p' | sed -E 's/^[[:space:]]+//; s/ \(compatibility.*$//')
+}
+
+for sBundle in "$@"; do
+    sBundle="${sBundle%/}"
+    echo "Checking $sBundle (target macOS $TARGET)"
+    if [ ! -e "$sBundle" ]; then
+        fail "$sBundle does not exist"
+        continue
+    fi
+
+    sExecutable=""
+    case "$sBundle" in
+        *.app)
+            sPlist="$sBundle/Contents/Info.plist"
+            sName=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" \
+                        "$sPlist" 2>/dev/null || true)
+            sExecutable="$sBundle/Contents/MacOS/$sName"
+            sMin=$(/usr/libexec/PlistBuddy -c "Print :LSMinimumSystemVersion" \
+                       "$sPlist" 2>/dev/null || true)
+            if [ -z "$sMin" ]; then
+                fail "Info.plist: LSMinimumSystemVersion missing"
+            elif [ "$sMin" != "$TARGET" ]; then
+                fail "Info.plist: LSMinimumSystemVersion is $sMin instead of $TARGET"
+            fi ;;
+    esac
+
+    nMachO=0
+    while IFS= read -r -d '' sFile; do
+        if file -b "$sFile" | grep -q '^Mach-O'; then
+            nMachO=$((nMachO + 1))
+            check_macho "$sFile" "$sBundle" "$sExecutable"
+        fi
+    done < <(find "$sBundle" -type f -print0)
+    if [ "$nMachO" -eq 0 ]; then
+        fail "$sBundle contains no Mach-O binary"
+    fi
+done
+
+if [ "$nErrors" -gt 0 ]; then
+    echo "$nErrors portability problem(s) found"
+    exit 1
+fi
+echo "All bundles are portable universal binaries"
