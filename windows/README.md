@@ -3,8 +3,8 @@
 ## Compiling on Windows
 
 Using the **PowerShell** script `Build-WinNative.ps1` you can compile Hydrogen
-on Windows natively. Note that you need to setup a
-[MSYS2](https://www.msys2.org/) environment first.
+on Windows natively. Note that you need to setup an
+[MSYS2](https://www.msys2.org/) environment first (the UCRT64 one).
 
 You have the following options available:
 - `build`: compile all sources
