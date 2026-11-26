@@ -142,10 +142,36 @@ class LogWriteLock {
 void loggerThread_func( Logger* pLogger ) {
 #ifdef WIN32
 #  ifdef H2CORE_HAVE_DEBUG
-	::AllocConsole();
-//	::SetConsoleTitle( "Hydrogen debug log" );
-	SetConsoleOutputCP( CP_UTF8 );
-	freopen( "CONOUT$", "wt", stdout );
+	// The debug console is a per-process property, not a per-logger one.
+	// With the short-lived per-instance loggers (ADR 0015, T1.6) the
+	// previous unconditional AllocConsole()/FreeConsole() pair detached
+	// the process from the console it was started in on the first logger
+	// teardown and allocated (and flashed) a fresh console on every
+	// subsequent logger start (unit test suite, plugin host). Allocate
+	// one only when this process has no console at all and cannot attach
+	// to the console of its parent process.
+	static std::atomic<bool> s_bOwnsConsole{ false };
+	if ( ::GetConsoleWindow() == nullptr &&
+		 ! ::AttachConsole( ATTACH_PARENT_PROCESS ) &&
+		 ::AllocConsole() != 0 ) {
+		s_bOwnsConsole = true;
+	}
+	if ( ::GetConsoleWindow() != nullptr ) {
+//		::SetConsoleTitle( "Hydrogen debug log" );
+		SetConsoleOutputCP( CP_UTF8 );
+		// Rebind stdout to the console only when we own the debug
+		// console allocated above or when the inherited stdout is no
+		// capture channel: a pipe (e.g. a QProcess-based unit test
+		// capturing our output) or a file redirection has to stay
+		// untouched.
+		HANDLE hStdout = GetStdHandle( STD_OUTPUT_HANDLE );
+		const DWORD stdoutType = GetFileType( hStdout );
+		if ( s_bOwnsConsole || hStdout == INVALID_HANDLE_VALUE ||
+			 ( stdoutType != FILE_TYPE_PIPE &&
+			   stdoutType != FILE_TYPE_DISK ) ) {
+			freopen( "CONOUT$", "wt", stdout );
+		}
+	}
 #  endif
 #endif
 
@@ -239,9 +265,10 @@ void loggerThread_func( Logger* pLogger ) {
 		logFileStream.flush();
 	}
 	logFile.close();
-#ifdef WIN32
-	::FreeConsole();
-#endif
+	// Note: no FreeConsole() here. A console is owned by the process, not
+	// by an individual logger instance: freeing it on every per-instance
+	// logger teardown used to detach the process from its starting console
+	// and made the next logger start allocate (and flash) a new one.
 
 	stderrStream.flush();
 	stdoutStream.flush();

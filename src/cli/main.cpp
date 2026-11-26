@@ -144,9 +144,29 @@ int main(int argc, char *argv[])
 		// In case Hydrogen was started using a CLI attach its output to
 		// the latter. 
 		if ( AttachConsole(ATTACH_PARENT_PROCESS)) {
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
-			freopen("CONIN$", "w", stdin);
+			// Only rebind the standard channels when they are no capture
+			// channel of the calling process: redirecting a pipe (e.g. the
+			// QProcess-based unit tests reading our output) or a file
+			// redirection to the attached console would leave the caller
+			// with an empty capture.
+			const DWORD stdoutType =
+				GetFileType( GetStdHandle( STD_OUTPUT_HANDLE ) );
+			if ( stdoutType != FILE_TYPE_PIPE &&
+				 stdoutType != FILE_TYPE_DISK ) {
+				freopen("CONOUT$", "w", stdout);
+			}
+			const DWORD stderrType =
+				GetFileType( GetStdHandle( STD_ERROR_HANDLE ) );
+			if ( stderrType != FILE_TYPE_PIPE &&
+				 stderrType != FILE_TYPE_DISK ) {
+				freopen("CONOUT$", "w", stderr);
+			}
+			const DWORD stdinType =
+				GetFileType( GetStdHandle( STD_INPUT_HANDLE ) );
+			if ( stdinType != FILE_TYPE_PIPE &&
+				 stdinType != FILE_TYPE_DISK ) {
+				freopen("CONIN$", "w", stdin);
+			}
 		}
 #endif
 
