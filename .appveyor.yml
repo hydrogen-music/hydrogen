@@ -655,92 +655,59 @@ for:
           set DISPLAY_VERSION=%DISPLAY_VERSION:'=%
           echo %DISPLAY_VERSION%
 
-          set MSYS=C:\msys64\mingw64
+          set MSYS=C:\msys64\ucrt64
           set QTDIR=%MSYS%
           set CMAKE_PREFIX_PATH=%QTDIR%
           set PATH=%MSYS%\bin;%PATH%
           set PKG_CONFIG_PATH=%MSYS%\lib\pkgconfig
 
-          cmake --version
-          g++ --version
-
           REM *** Update pacman cache ***
           c:\msys64\usr\bin\pacman --noconfirm -S -y
 
-          REM *** The pacman cache of the AppVeyor image is hopelessly out of ***
-          REM *** date. To still allow installing package, we have to remove ***
-          REM *** and reinstall some basic packages ***
-          c:\msys64\usr\bin\pacman --noconfirm -R -c -s mingw-w64-x86_64-gcc-libs
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-make
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gdb-multiarch
+          REM *** The AppVeyor image only ships preinstalled (and stale) ***
+          REM *** mingw64 packages. The ucrt64 environment we build against ***
+          REM *** instead is not preinstalled at all. Every package below is ***
+          REM *** fetched as a current version and no repair of broken ***
+          REM *** package state is required anymore. ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-toolchain
+          REM *** 'make' is not part of the toolchain group but mingw32-make.exe
+          REM     is required by the "MinGW Makefiles" CMake generator used below. ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-make
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-cmake
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-ccache
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-openssl
 
-          REM *** mingw-w64-x86_64-tools-git was dropped from the MSYS2 repos. ***
-          REM *** Install its last archived version from repo.msys2.org via a ***
-          REM *** local file install instead (pacman's default ***
-          REM *** LocalFileSigLevel=Optional applies to local -U packages, so ***
-          REM *** no signature download is required). ***
-          curl -L -f -o %TEMP%\mingw-w64-x86_64-tools-git-13.0.0.r91.gfc0b67305-1-any.pkg.tar.zst https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-tools-git-13.0.0.r91.gfc0b67305-1-any.pkg.tar.zst
-          c:\msys64\usr\bin\pacman --noconfirm -U %TEMP%\mingw-w64-x86_64-tools-git-13.0.0.r91.gfc0b67305-1-any.pkg.tar.zst
-
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gdb
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-xxhash
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-python
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tzdata
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-openssl
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libffi
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-expat
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-ncurses
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libsystre
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libtre
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-xz
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tk
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-sqlite3
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-readline
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-termcap
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-tcl
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-mpdecimal
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gcc
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-windows-default-manifest
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-isl
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-mpc
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-binutils
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-zlib
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gettext-runtime
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-libiconv
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-zstd
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-mpfr
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gmp
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-bzip2
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw-w64-x86_64-gcc-libs
-          REM *** This section is hopefully just a temporary one ***
+          REM *** Toolchain versions. Unlike the former mingw64 environment
+          REM     the ucrt64 one is not preinstalled on the AppVeyor image,
+          REM     so this can only run after the packages above. ***
+          cmake --version
+          g++ --version
 
           REM *** Install dependencies ***
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-libarchive
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-libsndfile
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-cppunit
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-portaudio
-          REM *** mingw-w64-x86_64-portmidi was dropped from the MSYS2 repos. ***
-          REM *** Install its last archived version from repo.msys2.org via a ***
-          REM *** local file install instead (pacman's default ***
-          REM *** LocalFileSigLevel=Optional applies to local -U packages, so ***
-          REM *** no signature download is required). ***
-          curl -L -f -o %TEMP%\mingw-w64-x86_64-portmidi-1~2.0.8-1-any.pkg.tar.zst https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-portmidi-1~2.0.8-1-any.pkg.tar.zst
-          c:\msys64\usr\bin\pacman --noconfirm -U %TEMP%\mingw-w64-x86_64-portmidi-1~2.0.8-1-any.pkg.tar.zst
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-winpthreads-git
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-ladspa-sdk
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-jack2
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-ccache
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-liblo
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-angleproject
-          c:\msys64\usr\bin\pacman --noconfirm -S -q mingw64/mingw-w64-x86_64-qt5
-
-          REM *** mingw-w64-x86_64-qt5-tools was dropped from the MSYS2 repos. ***
-          REM *** Install its last archived version from repo.msys2.org via a ***
-          REM *** local file install instead (pacman's default ***
-          REM *** LocalFileSigLevel=Optional applies to local -U packages, so ***
-          REM *** no signature download is required). ***
-          curl -L -f -o %TEMP%\mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst
-          c:\msys64\usr\bin\pacman --noconfirm -U %TEMP%\mingw-w64-x86_64-qt5-tools-5.15.19-2-any.pkg.tar.zst
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-libarchive
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-libsndfile
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-cppunit
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-portaudio
+          REM *** portmidi is a regular (and current) package in the ucrt64 ***
+          REM *** repo. The former curl + local-file install workaround for ***
+          REM *** the archived mingw64 package is not needed anymore. ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-portmidi
+          REM *** winpthreads-git was renamed to libwinpthread in the MSYS2 ***
+          REM *** repos. ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-libwinpthread
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-ladspa-sdk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-jack2
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-liblo
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-angleproject
+          REM *** The bare 'qt5' meta package is gone from the MSYS2 repos (in ***
+          REM *** both the mingw64 and ucrt64 environments). Install the ***
+          REM *** individual modules instead. qt5-tools ships the Qt5 deploy ***
+          REM *** tool as windeployqt-qt5.exe (plain windeployqt.exe is the ***
+          REM *** Qt6 tool owned by qt6-base) plus the Qt5 linguist tools. ***
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-qt5-base
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-qt5-svg
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-qt5-tools
+          c:\msys64\usr\bin\pacman --noconfirm -S -q ucrt64/mingw-w64-ucrt-x86_64-qt5-translations
           ccache -M 256M
           ccache -s
 
@@ -797,8 +764,10 @@ for:
 
           mkdir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
-          REM *** Deploy Qt ***
-          set "DEPLOY_ARGS=--no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
+          REM *** Deploy Qt. --no-angle/--no-opengl-sw: the ucrt64 Qt5 packages ***
+          REM *** do not ship the ANGLE and software-OpenGL DLLs windeployqt ***
+          REM *** would otherwise require. ***
+          set "DEPLOY_ARGS=--no-patchqt --no-angle --no-opengl-sw --dir %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs"
 
           %QTDIR%\bin\windeployqt-qt5.exe %DEPLOY_ARGS% src/gui/hydrogen.exe
 
@@ -809,14 +778,13 @@ for:
 
           REM *** libcrypto and libssl are not picked up by the Python script above and needs to be copied manually ***
           REM *** The wildcard is on purpose: the OpenSSL major version ***
-          REM *** shipped by MSYS2 drifts (gdb-multiarch already pulls in ***
-          REM *** OpenSSL 4 while the openssl package is still at 3.x) and ***
-          REM *** the DLL names embed that major version. ***
+          REM *** shipped by MSYS2 drifts from time to time and the DLL ***
+          REM *** names embed that major version. ***
           copy %MSYS%\bin\libssl-*-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
           copy %MSYS%\bin\libcrypto-*-x64.dll %APPVEYOR_BUILD_FOLDER%\build\windows\extralibs
 
           REM *** Build installer ***
-          cpack -G NSIS -v
+          cpack -G NSIS -V
 
           REM *** Run and verify installer ***
           set INSTDIR=C:\hydrogen
