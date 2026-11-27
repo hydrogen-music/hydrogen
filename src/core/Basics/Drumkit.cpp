@@ -993,7 +993,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 
 	struct archive *a;
 	struct archive_entry *entry;
-	struct stat st;
 	const int nBufferSize = 8192;
 	char buff[ nBufferSize ];
 	int nBytesRead, nRet;
@@ -1063,8 +1062,6 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 			return false;
 		}
 
-		const auto sFileNameUtf8 = sFileName.toUtf8();
-		stat( sFileNameUtf8.constData(), &st );
 		entry = archive_entry_new();
 		if ( entry == nullptr ) {
 			ERRORLOG( "Unable to create new archive entry" );
@@ -1083,7 +1080,7 @@ bool Drumkit::exportTo( const QString& sTargetDir, bool* pUtf8Encoded,
 #endif
 			archive_entry_set_pathname(entry, sTargetFileNameUtf8.constData());
 		}
-		archive_entry_set_size(entry, st.st_size);
+		archive_entry_set_size(entry, ffileInfo.size());
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);
 		nRet = archive_write_header(a, entry);
