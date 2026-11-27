@@ -102,11 +102,17 @@ constexpr double fSleepToleranceMs = 0.5;
 std::shared_ptr<TimeHelper> burnedInTimeHelper()
 {
 	auto pTimeHelper = std::make_shared<TimeHelper>();
-	const int nMaxTries = 100;
-	int nnTry = 0;
-	while ( ! pTimeHelper->isBurnedIn() && nnTry < nMaxTries ) {
+	// The burn-in duration scales with the actual sleep overshoot. On
+	// Windows the system timer may run with a granularity of ~15.6ms - no
+	// application is requesting a finer one and Windows 11 ignores such
+	// requests from background processes. Each of the 100 probes of 1ms
+	// then takes ~16ms and burn-in requires ~1.6s instead of the ~0.2s on
+	// a fine-grained system. Waiting for a fixed duration instead of a
+	// fixed number of polls covers both cases.
+	constexpr std::chrono::milliseconds maxWait{ 5000 };
+	const auto start = Clock::now();
+	while ( ! pTimeHelper->isBurnedIn() && Clock::now() - start < maxWait ) {
 		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
-		++nnTry;
 	}
 	CPPUNIT_ASSERT( pTimeHelper->isBurnedIn() );
 	return pTimeHelper;
