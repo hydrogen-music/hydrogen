@@ -159,8 +159,14 @@ DMG_ROOT=`mktemp -d`
 verbose "Copying application bundle"
 cp -r "$SRC_APP" "$DMG_ROOT/Hydrogen.app" || error "Can't copy $SRC_APP"
 
-verbose "Deploying Qt libraries"
-macdeployqt "$DMG_ROOT/Hydrogen.app" || error "macdeployqt failed"
+# A statically linked Qt (universal builds of the Justfile) has nothing to
+# deploy, and macdeployqt would invalidate the code signature.
+if otool -L "$DMG_ROOT/Hydrogen.app/Contents/MacOS/hydrogen" | grep -q 'Qt[A-Za-z]*\.framework\|libQt[0-9]'; then
+	verbose "Deploying Qt libraries"
+	macdeployqt "$DMG_ROOT/Hydrogen.app" || error "macdeployqt failed"
+else
+	verbose "Qt is linked statically, skipping macdeployqt"
+fi
 
 verbose "Deploying translations"
 I18N_DEST="$DMG_ROOT/Hydrogen.app/Contents/Resources/data/i18n"
@@ -199,6 +205,11 @@ Copy the bundles into your user plugin folders, then rescan in your DAW:
 
 The plugin opens Hydrogen's editor as a separate window; keep Hydrogen.app
 installed so the plugin can launch it.
+
+The bundles are not notarized by Apple. If macOS or your DAW refuses to load
+them after the download, remove the quarantine flag, e.g.:
+
+  xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/Hydrogen.vst3
 PLUGINREADME
 	else
 		verbose "  (no plugin bundles found in $PLUGIN_DIR)"

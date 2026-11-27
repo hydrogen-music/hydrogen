@@ -27,7 +27,9 @@ if(APPLE)
 	# set how it shows up in the Info.plist file
     set(MACOSX_BUNDLE_INFO_STRING "Hydrogen for Mac")
 	set(MACOSX_BUNDLE_ICON_FILE "icon.icns")
-	set(MACOSX_BUNDLE_GUI_IDENTIFIER "Hydrogen")
+	# Unique, reverse-DNS identifier: the plugins look the app up by it via
+	# LaunchServices (ADR 0038). Matches the Linux desktop-file ID.
+	set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.hydrogenmusic.Hydrogen")
 	set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VERSION}")
 	#this has to be short since it appears as the application name in the menu bar
 	set(MACOSX_BUNDLE_BUNDLE_NAME "Hydrogen")
@@ -71,6 +73,18 @@ if(APPLE)
                        hydrogen.app/Contents/Info.plist )
 
     add_file_dependencies(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
+
+    # Without it, macOS releases older than the deployment target refuse to
+    # start the app with a generic "damaged or incomplete" error.
+    if(CMAKE_OSX_DEPLOYMENT_TARGET)
+        add_custom_command(
+            TARGET hydrogen
+            POST_BUILD
+            COMMAND plutil -replace LSMinimumSystemVersion
+                           -string "${CMAKE_OSX_DEPLOYMENT_TARGET}"
+                           hydrogen.app/Contents/Info.plist
+        )
+    endif()
 
 endif()
 
@@ -128,6 +142,28 @@ add_test(
 )
 set_tests_properties( GuiStartup PROPERTIES
 	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
+	TIMEOUT 120
+)
+
+# Splash startup verification: launch the full GUI headless WITHOUT
+# --nosplash and require that the splash screen receives an event pass
+# during startup. QSplashScreen::show() does not paint synchronously and
+# the offscreen platform exposes windows immediately, so the visual
+# outcome (splash invisible for the whole startup on Wayland/X11) is not
+# observable headless — the hidden --verify-splash-shown mode instead
+# arms a zero-timer sentinel before the exposure pump in main() and
+# freezes the verdict right after it: only processing events in between
+# delivers the sentinel in time. Exit code 0 = pass, 1 = splash never
+# became visible. HOME points at a throwaway dir so no user config
+# interferes.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/splash-startup-test-home)
+add_test(
+	NAME SplashStartup
+	COMMAND hydrogen --verify-splash-shown --child
+			-P ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( SplashStartup PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/splash-startup-test-home"
 	TIMEOUT 120
 )
 

@@ -249,11 +249,21 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 if(APPLE)
-    include_directories("/opt/local/include")
-    link_directories("/opt/local/lib")
+    # MacPorts installs into /opt/local (and the AppVeyor pipeline links
+    # /usr/local there). Portable builds clear this prefix, since linking it
+    # adds an rpath pointing outside of the bundles.
+    set(H2_MACOS_EXTRA_PREFIX "/opt/local" CACHE PATH
+        "Additional prefix searched for headers and libraries on macOS (empty to disable)")
+    if(H2_MACOS_EXTRA_PREFIX)
+        include_directories("${H2_MACOS_EXTRA_PREFIX}/include")
+        link_directories("${H2_MACOS_EXTRA_PREFIX}/lib")
+    endif()
 
-    #Without setting this, installation would go into /usr/local, which does not exist per default
-    set(CMAKE_INSTALL_PREFIX "/usr" )
+    #Without setting this, installation would go into /usr/local, which does not exist per default.
+    #An explicitly passed prefix (e.g. the Justfile's plugin PREFIX) must win, though.
+    if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        set(CMAKE_INSTALL_PREFIX "/usr" )
+    endif()
 else(APPLE)
     set(OSS_LIB_PATHS "${CMAKE_INSTALL_FULL_LIBDIR}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
 endif(APPLE)
@@ -431,20 +441,6 @@ if(WIN32)
     set(CMAKE_COLOR_MAKEFILE OFF)
 endif()
 
-include(CheckCXXSourceCompiles)
-check_cxx_source_compiles([[
-  #include <chrono>
-  int main()
-  {
-    auto now = std::chrono::high_resolution_clock::now();
-    auto test = std::chrono::high_resolution_clock::to_time_t(now);
-    return 0;
-  }
-]] HAVE_TO_TIME_T)
-
-if(HAVE_TO_TIME_T)
-    add_compile_definitions(HAVE_TO_TIME_T=1)
-endif()
 
 #
 # PLUGIN SDKs & HELPER TOOLS

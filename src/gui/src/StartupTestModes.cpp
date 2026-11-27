@@ -25,6 +25,7 @@
 #include "EditorPathExerciser.h"
 #include "Parser.h"
 #include "PluginTransportGatingVerifier.h"
+#include "SplashStartupVerifier.h"
 
 #include <core/Preferences/Preferences.h>
 
@@ -36,7 +37,8 @@ void StartupTestModes::applyNonInteractivePreferences(
 	const std::shared_ptr<H2Core::Preferences>& pPref )
 {
 	if ( parser.getQuitAfterStartup() ||
-		 parser.getVerifyPluginTransportGating() ) {
+		 parser.getVerifyPluginTransportGating() ||
+		 parser.getVerifySplashShown() ) {
 		pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
 		pPref->setShowDevelWarning( false );
 	}
@@ -74,5 +76,15 @@ void StartupTestModes::schedulePostStartupWork( const Parser& parser,
 		auto* pVerifier = new PluginTransportGatingVerifier( pApp );
 		QTimer::singleShot( 500, pVerifier,
 							&PluginTransportGatingVerifier::start );
+	}
+
+	// Splash startup verification: check that the splash screen got its
+	// event pass during startup (the sentinel armed and captured in
+	// main()) and quit with the verdict (0 = pass, 1 = the splash never
+	// became visible). Out-of-process like the verifier above so a
+	// CTest can fail on the exit code.
+	if ( parser.getVerifySplashShown() ) {
+		auto* pVerifier = new SplashStartupVerifier( pApp );
+		QTimer::singleShot( 500, pVerifier, &SplashStartupVerifier::start );
 	}
 }

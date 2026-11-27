@@ -68,7 +68,6 @@ void MidiActionTest::tearDown()
 	pTestPreferences()->getMidiEventMap()->reset();
 }
 
-#ifndef Q_OS_MACX
 void MidiActionTest::testBeatCounterAction()
 {
 	___INFOLOG( "" );
@@ -114,21 +113,15 @@ void MidiActionTest::testBeatCounterAction()
 		Midi::ParameterMinimum, Midi::ChannelDefault
 	);
 
-	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
-	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
-		const auto preSleep = Clock::now();
-		pTimeHelper->highResolutionSleep( interval - intervalCompensation );
-		const auto postSleep = Clock::now();
-
-		const auto preSend = Clock::now();
+	// Tap on an absolute grid - like a steady hand - so neither the time
+	// spent sending nor a late wake-up shifts the following taps.
+	const auto start = Clock::now();
+	for ( int nnMessage = 1; nnMessage <= 8; ++nnMessage ) {
+		pTimeHelper->sleepUntil(
+			start +
+			std::chrono::duration_cast<Clock::duration>( nnMessage * interval )
+		);
 		sendMessage( beatCounterMessage );
-		const auto postSend = Clock::now();
-
-		// Compensate the additional time spent during sleep as well as while
-		// sending the MIDI message.
-		intervalCompensation =
-			( postSleep - preSleep - ( interval - intervalCompensation ) ) +
-			( postSend - preSend );
 	}
 
 	// Wait for the audio engine to adopt the new tempo.
@@ -138,7 +131,8 @@ void MidiActionTest::testBeatCounterAction()
 	const auto fNewBpm = pAudioEngine->getNextBpm();
 	pAudioEngine->unlock();
 
-	const float fTolerance = 1;
+	// Taps are placed on a fixed grid with sub-millisecond accuracy.
+	const float fTolerance = 0.25;
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" )
 					.arg( fOldBpm )
 					.arg( fNewBpm )
@@ -151,7 +145,6 @@ void MidiActionTest::testBeatCounterAction()
 
 	___INFOLOG( "done" );
 }
-#endif
 
 void MidiActionTest::testBpmCcRelativeAction()
 {
@@ -2492,23 +2485,15 @@ void MidiActionTest::testTapTempoAction()
 		Midi::ChannelDefault
 	);
 
-	auto intervalCompensation = std::chrono::duration<float, std::milli>( 0 );
-	for ( int nnMessage = 0; nnMessage < 8; ++nnMessage ) {
-		const auto preSleep = Clock::now();
-		pHydrogen->getTimeHelper()->highResolutionSleep(
-			interval - intervalCompensation
+	// Tap on an absolute grid - like a steady hand - so neither the time
+	// spent sending nor a late wake-up shifts the following taps.
+	const auto start = Clock::now();
+	for ( int nnMessage = 1; nnMessage <= 8; ++nnMessage ) {
+		pHydrogen->getTimeHelper()->sleepUntil(
+			start +
+			std::chrono::duration_cast<Clock::duration>( nnMessage * interval )
 		);
-		const auto postSleep = Clock::now();
-
-		const auto preSend = Clock::now();
 		sendMessage( tapTempoMessage );
-		const auto postSend = Clock::now();
-
-		// Compensate the additional time spent during sleep as well as while
-		// sending the MIDI message.
-		intervalCompensation =
-			( postSleep - preSleep - ( interval - intervalCompensation ) ) +
-			( postSend - preSend );
 	}
 
 	// Wait for the audio engine to adopt the new tempo.
@@ -2518,7 +2503,8 @@ void MidiActionTest::testTapTempoAction()
 	const auto fNewBpm = pPlayhead->getBpm();
 	pAudioEngine->unlock();
 
-	const float fTolerance = 1;
+	// Taps are placed on a fixed grid with sub-millisecond accuracy.
+	const float fTolerance = 0.25;
 	___INFOLOG( QString( "[%1] -> [%2] target [%3 +/- %4]" )
 					.arg( fOldBpm )
 					.arg( fNewBpm )

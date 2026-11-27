@@ -125,9 +125,16 @@ All notable changes to this project will be documented in this file.
   songs, and mix the loaded drumkit's instruments (volume, pan, mute, solo,
   level meters) from within the plugin host. For more advanced features, it
   allows to open the regular GUI for remote controlling of the plugin.
+- macOS: universal disk image running natively on both Apple Silicon and Intel
+  Macs with macOS 12 or newer. It contains the application as well as the
+  plugins and does not require any additional libraries. JACK is not supported
+  by this build.
 
 ### Changed
 
+- The macOS bundle identifier changed from `Hydrogen` to
+  `org.hydrogenmusic.Hydrogen`. macOS asks once more for permissions granted
+  to the old identifier, e.g. microphone access for audio input.
 - Instead of using the raw font family names of the config file and imported
   themes, they are validated first and might trigger a fallback to a safer
   font. This was done to prevent crashes of `libfontconfig` on Linux (#2343).

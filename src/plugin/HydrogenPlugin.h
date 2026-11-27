@@ -76,11 +76,14 @@ public:
 	~HydrogenPlugin();
 
 	/** Resolve the shared system data folder (drumkits, empty song etc.)
-	 * for plugin use: $HYDROGEN_SYS_DATA_PATH if set, else empty — the
-	 * Filesystem platform default, the one shared system location. The
-	 * plugin deliberately never searches relative to its own install
-	 * location: the shared data must only exist in one place. */
-	static QString resolveSystemDataPath();
+	 * for plugin use (ADR 0038), in precedence order:
+	 * $HYDROGEN_SYS_DATA_PATH → on macOS `Contents/Resources/data` of the
+	 * app bundle containing @a sEditorBinary, if readable → empty, the
+	 * Filesystem platform default. The plugin deliberately never searches
+	 * relative to its own install location: the shared data must only
+	 * exist in one place - on macOS that is the app bundle. */
+	static QString resolveSystemDataPath(
+		const QString& sEditorBinary = QString() );
 
 	/** Load the hydrogen translation catalog for @a languages — the
 	 * preferred language first, then the system locale's UI languages,
@@ -213,10 +216,25 @@ public:
 
 	/** Resolve the editor binary to launch, in precedence order: @a sExplicit
 	 * override → `$HYDROGEN_EDITOR_PATH` → a `hydrogen` executable found relative
-	 * to @a sSearchDir (the installed plugin location) → `hydrogen` on `PATH`.
-	 * Static + pure (aside from the env var) so it is unit-testable. */
+	 * to @a sSearchDir (the installed plugin location) → on macOS the
+	 * installed application bundles (#installedAppBundles, ADR 0038) →
+	 * `hydrogen` on `PATH`. */
 	static QString resolveEditorBinary( const QString& sExplicit,
 										const QString& sSearchDir );
+#ifdef __APPLE__
+	/** #resolveEditorBinary with the installed application bundles passed
+	 * in instead of queried from the system, so the resolution is
+	 * unit-testable against fixture bundles. A bundle whose
+	 * `CFBundleShortVersionString` matches the plugin's version is
+	 * preferred; the executable is read from its `CFBundleExecutable`. */
+	static QString resolveEditorBinary( const QString& sExplicit,
+										const QString& sSearchDir,
+										const QStringList& installedAppBundles );
+	/** Hydrogen app bundles installed on this system: `/Applications`,
+	 * `~/Applications`, then every further copy LaunchServices knows for
+	 * the bundle identifier `org.hydrogenmusic.Hydrogen`. */
+	static QStringList installedAppBundles();
+#endif
 
 	/** The editor binary this instance would launch right now: the
 	 * persisted #setEditorBinary override if set, else resolveEditorBinary

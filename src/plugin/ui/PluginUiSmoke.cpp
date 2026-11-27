@@ -1134,6 +1134,31 @@ int main( int argc, char** argv ) {
 			}
 		}
 
+		// The fader's range must match the Qt mixer's (0.0–1.5): a
+		// volume above 1.0 — legal in the engine and settable in the
+		// Qt GUI — must display at its own level, not pinned at a 1.0
+		// ceiling.
+		{
+			const auto faderBefore = mixerView.layout();
+			auto pFaderCAC = plugin.getHydrogen() != nullptr
+				? plugin.getHydrogen()->getCoreActionController() : nullptr;
+			check( faderBefore.fFaderValueShown >= 0.0f,
+				   "strip fader not drawn (range probe)" );
+			check( pFaderCAC != nullptr,
+				   "no engine for the fader range probe" );
+			if ( faderBefore.fFaderValueShown >= 0.0f &&
+				 pFaderCAC != nullptr ) {
+				check( pFaderCAC->setStripVolume( 0, 1.2f, false ),
+					   "engine refused the strip volume change" );
+				runFrame( [ & ]() { mixerView.draw( palette ); } );
+				const auto faderAfter = mixerView.layout();
+				check( std::abs( faderAfter.fFaderValueShown - 1.2f ) <
+						   0.001f,
+					   "strip fader caps volumes at 1.0 instead of the "
+					   "Qt mixer's 1.5" );
+			}
+		}
+
 		// The MIDI config triple must adopt engine-side changes: the
 		// editor's IPC applies land in this process's engine
 		// preferences (the bridge's SetMidiControlSettings handler

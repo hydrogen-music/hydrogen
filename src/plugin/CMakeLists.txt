@@ -16,6 +16,11 @@ target_include_directories( hydrogen-plugin PUBLIC
     ${CMAKE_SOURCE_DIR}/src # top level headers
     ${CMAKE_BINARY_DIR}/src # generated config.h
     ${QT_INCLUDES}
+    # Core headers include these third-party headers. With a system Qt their
+    # prefix often leaks in via Qt's include paths, hiding a missing entry;
+    # the static Qt of the plugin build (Justfile) does not.
+    ${LIBARCHIVE_INCLUDE_DIRS}
+    ${LIBSNDFILE_INCLUDE_DIRS}
 )
 
 target_link_libraries( hydrogen-plugin PUBLIC
@@ -30,6 +35,57 @@ set_target_properties( hydrogen-plugin PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     CXX_STANDARD 17
 )
+
+# macOS: locate the installed Hydrogen.app for the editor and the shipped
+# data (ADR 0038). LaunchServices lives in CoreServices.
+if(APPLE)
+    target_sources( hydrogen-plugin PRIVATE MacAppBundles.cpp )
+    target_link_libraries( hydrogen-plugin PUBLIC
+        "-framework CoreFoundation"
+        "-framework CoreServices" )
+endif()
+
+# First-boot smoke test (ADR 0038): the plugin core in a fresh process with an
+# empty HOME must run - with and without resolvable shipped data - and create
+# the same user-level folders and config the editor does on its first start.
+# Format independent, so it runs regardless of WANT_CLAP/LV2/VST3.
+add_executable( hydrogen-plugin-first-boot plugin_first_boot.cpp )
+target_link_libraries( hydrogen-plugin-first-boot PRIVATE hydrogen-plugin )
+set_target_properties( hydrogen-plugin-first-boot PROPERTIES CXX_STANDARD 17 )
+
+foreach( _h2_first_boot_mode with-system-data without-system-data user-data-only )
+    set( _h2_home "${CMAKE_BINARY_DIR}/plugin-first-boot-home-${_h2_first_boot_mode}" )
+    if( _h2_first_boot_mode STREQUAL "with-system-data" )
+        set( _h2_sys_data "${CMAKE_SOURCE_DIR}/data" )
+    else()
+        # A folder that never exists: the shipped data is unavailable.
+        set( _h2_sys_data "${_h2_home}-missing-system-data" )
+    endif()
+
+    # Every run must start from scratch, or a previous run's folders let the
+    # first-boot checks pass vacuously.
+    add_test( NAME PluginFirstBootClean-${_h2_first_boot_mode}
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${_h2_home}" )
+    add_test( NAME PluginFirstBootHome-${_h2_first_boot_mode}
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_h2_home}" )
+    set_tests_properties( PluginFirstBootClean-${_h2_first_boot_mode} PROPERTIES
+        FIXTURES_SETUP PluginFirstBootClean-${_h2_first_boot_mode} )
+    set_tests_properties( PluginFirstBootHome-${_h2_first_boot_mode} PROPERTIES
+        FIXTURES_SETUP PluginFirstBootHome-${_h2_first_boot_mode}
+        FIXTURES_REQUIRED PluginFirstBootClean-${_h2_first_boot_mode} )
+
+    add_test( NAME PluginFirstBoot-${_h2_first_boot_mode}
+        COMMAND hydrogen-plugin-first-boot ${_h2_first_boot_mode}
+            "${CMAKE_SOURCE_DIR}/src/tests/data/drumkits/baseKit" )
+    # The editor override points nowhere so no Hydrogen installed on the
+    # build machine (e.g. /Applications/Hydrogen.app) is picked up as the
+    # source of the system data. XDG_* are pinned inside HOME so a
+    # developer's shell cannot redirect the user folders elsewhere.
+    set_tests_properties( PluginFirstBoot-${_h2_first_boot_mode} PROPERTIES
+        FIXTURES_REQUIRED PluginFirstBootHome-${_h2_first_boot_mode}
+        ENVIRONMENT "HOME=${_h2_home};HYDROGEN_SYS_DATA_PATH=${_h2_sys_data};HYDROGEN_EDITOR_PATH=${_h2_home}-no-editor/hydrogen;XDG_CONFIG_HOME=${_h2_home}/.config;XDG_DATA_HOME=${_h2_home}/.local/share;XDG_CACHE_HOME=${_h2_home}/.cache"
+        TIMEOUT 120 )
+endforeach()
 
 # Embedded basic plugin UI (ADR 0035, proposal 0006 UI-1): vendored Dear ImGui
 # + add-ons as a static lib every plugin format links. Unconditional — it must
@@ -345,6 +401,17 @@ if(WANT_VST3)
         OUTPUT_NAME "Hydrogen"
         WINDOWS_FOLDER_VST3 ON )
 
+    # Where clap-wrapper assembles the bundle. On macOS it is a real
+    # MACOSX_BUNDLE target placed in this target's binary dir; elsewhere
+    # clap-wrapper emits it under <build>/<Config>/. Assuming the latter on
+    # macOS would create an empty Hydrogen.vst3 (notices only) that the
+    # validator and install() then pick up instead of the real module.
+    if(APPLE)
+        set(H2_VST3_BUNDLE "$<TARGET_BUNDLE_DIR:hydrogen-vst3>")
+    else()
+        set(H2_VST3_BUNDLE "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3")
+    endif()
+
     # Ship the third-party notices inside the bundle's Resources dir
     # (TU6.3). The wrapper's own post-build steps assemble the bundle;
     # same-target POST_BUILD commands run in add order, so this copy
@@ -352,10 +419,10 @@ if(WANT_VST3)
     # rather than shipping a bundle without notices).
     add_custom_command( TARGET hydrogen-vst3 POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory
-            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources"
+            "${H2_VST3_BUNDLE}/Contents/Resources"
         COMMAND ${CMAKE_COMMAND} -E copy
             "${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES"
-            "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3/Contents/Resources/THIRD-PARTY-NOTICES"
+            "${H2_VST3_BUNDLE}/Contents/Resources/THIRD-PARTY-NOTICES"
         COMMENT "Copying third-party notices into Hydrogen.vst3" )
 
     # Tell clap-wrapper that the CLAP entry is statically linked into this module
@@ -449,8 +516,8 @@ if(WANT_VST3)
     # clap-validate / lv2-smoke / vst3-smoke. clap-wrapper does not build the SDK's
     # validator tool, so tools/run_vst3_validator.sh builds it on demand from the
     # SDK source clap-wrapper already fetched, then runs it on the built bundle.
-    # The build root is passed (not a per-config path) so the helper finds the
-    # bundle regardless of Debug/Release. Heavy on first run (compiles the
+    # The bundle is passed explicitly: searching the build root could hit a
+    # stale or partial Hydrogen.vst3. Heavy on first run (compiles the
     # validator), idempotent afterwards.
     # NB: CTest hides a passing test's stdout under --output-on-failure, so the
     # "N tests passed" summary surfaces on failure (and always in
@@ -460,15 +527,14 @@ if(WANT_VST3)
         add_test( NAME vst3-validate
             COMMAND ${CMAKE_SOURCE_DIR}/tools/run_vst3_validator.sh
                 "${CMAKE_BINARY_DIR}/clap-wrapper/cpm/vst3sdk"
-                "${CMAKE_BINARY_DIR}"
+                "${H2_VST3_BUNDLE}"
                 "${CMAKE_BINARY_DIR}/vst3-validator" )
         message(STATUS "  + Steinberg VST3 validator CTest enabled (vst3-validate)")
     endif()
 
     # Install the .vst3 bundle (a folder on Linux/Windows, a bundle on macOS)
-    # into the conventional VST3 location (<prefix>/lib/vst3; T6.2). clap-wrapper
-    # emits the bundle under <build>/<Config>/Hydrogen.vst3.
-    install(DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/Hydrogen.vst3"
+    # into the conventional VST3 location (<prefix>/lib/vst3; T6.2).
+    install(DIRECTORY "${H2_VST3_BUNDLE}"
         DESTINATION "${H2_LIB_PATH}/vst3")
 
     message(STATUS "Building VST3 plugin via clap-wrapper (buses=${H2_PLUGIN_OUTPUT_BUSES})")

@@ -12,9 +12,12 @@ moc_*.cpp_parameters
 /build
 /build-appimage
 /build-plugins
+/build-universal
 /dist
+/dist-universal
 /cmake_opts
 /hydrogen
+/hydrogen.app
 /libs/hydrogen/include/hydrogen/config.h
 *.cmake
 *.so

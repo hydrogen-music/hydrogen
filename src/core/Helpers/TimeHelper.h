@@ -26,51 +26,90 @@
 #include <core/Helpers/Time.h>
 #include <core/Object.h>
 
+#include <atomic>
 #include <chrono>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <thread>
+#include <vector>
 
 namespace H2Core
 {
 
-/** Sleeping is quite complicated. Giving up control and relying on the OS
-	scheduler to retrieve it again is expensive. The C++ std method
-	std::this_thread::sleep_for only guarantees to sleep for at least the
-	provided amount. It could very well sleep longer. And it does. To circumvent
-	this problem, we ask it for sleeping a little bit less and just wait the
-	remaining time. */
+/** Sleeping is quite complicated. std::this_thread::sleep_for() only
+	guarantees to sleep for _at least_ the provided amount. How much longer it
+	takes consists of two parts:
+
+	- a base latency of the scheduler to hand control back to the thread
+	  (roughly constant; e.g. ~0.1ms on Linux, ~15ms on Windows without
+	  timeBeginPeriod), and
+	- a slack growing with the requested duration. macOS coalesces timers and
+	  lets a sleep of ~160ms end tens of milliseconds late.
+
+	sleepUntil() therefore sleeps in chunks of half the time remaining (minus
+	the base latency), so neither part can carry a chunk beyond the deadline,
+	and only waits actively for the last, short bit. */
 class TimeHelper : public Object<TimeHelper>
 {
 		H2_OBJECT(TimeHelper)
 
 	static constexpr int nSurplusVectorLength = 100;
+	/** Chunks shorter than this are not worth giving up the CPU for. */
+	static constexpr std::chrono::microseconds minSleepChunk{ 200 };
+	/** Duration of the sleeps measuring the base latency. Chunks this short
+	 * hardly carry any duration-dependent slack and do refresh the
+	 * measurement. */
+	static constexpr std::chrono::milliseconds baseLatencyProbe{ 1 };
+	/** Assumed base latency until the burn-in measured the actual one. */
+	static constexpr std::chrono::milliseconds initialBaseLatency{ 2 };
 
 public:
 	TimeHelper();
 	~TimeHelper();
 
+	/** Blocks for @a interval. Equivalent to sleepUntil( now + @a interval ).
+	 *
+	 * For periodic work - a MIDI clock, a metronome, tapping - call
+	 * sleepUntil() with deadlines on a fixed grid instead. Repeated relative
+	 * sleeps accumulate the time spent in between. */
 	void highResolutionSleep(
 		std::chrono::duration<float, std::micro> interval );
 
+	/** Blocks until @a deadline is reached. Returns right away if it
+	 * already passed. */
+	void sleepUntil( const TimePoint& deadline );
+
 	bool isBurnedIn() const;
+
+	/** Reduces the timer slack of the calling thread to the minimum, so
+	 * its sleeps end as close as possible to the requested time instead of
+	 * being batched with other wake-ups.
+	 *
+	 * Only Linux has a per-thread timer slack (`PR_SET_TIMERSLACK`). It is
+	 * meant for dedicated timing threads, like the MIDI clock, since it
+	 * costs power.
+	 *
+	 * \return the timer slack in effect for the calling thread afterwards or
+	 *   std::nullopt on platforms without a per-thread timer slack. */
+	static std::optional<std::chrono::nanoseconds> minimizeTimerSlack();
 
 
 private:
-	/** Perform a number of sleeps in a separate thread to fill
-	 * #m_sleepSurplusNs in order to do some statistics in
-	 * highResolutionSleep(). */
+	/** Perform a number of short sleeps in a separate thread to measure the
+	 * base latency (#m_sleepSurplusNs) right from the start. */
 	static void burnIn( void* pInstance );
-	bool m_bIsBurnedIn;
-	bool m_bAbortBurnIn;
+	std::atomic<bool> m_bIsBurnedIn;
+	std::atomic<bool> m_bAbortBurnIn;
 
-	/** Measurements of the time surplus slept by the system.
+	/** Worst recent base latency, see #m_sleepSurplusNs. */
+	std::chrono::nanoseconds baseLatency();
+	void addSurplus( std::chrono::nanoseconds surplus );
+
+	/** Measurements of the base latency.
 	 *
-	 * When requesting a sleep for X ns and the system does sleep for X + Y ns,
-     * the `Y` is stored in this vector. On the next highResolutionSleep(), it
-     * is taken into account when compensating for the surplus time the system
-     * may require during sleep to switch back the context to the calling
-     * thread. */
+	 * When requesting a short sleep of X ns and the system does sleep for
+	 * X + Y ns, the `Y` is stored in this ring buffer. */
 	std::vector<long long> m_sleepSurplusNs;
 	int m_nSleepSurplusIndex;
 

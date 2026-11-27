@@ -30,11 +30,13 @@
 #include <QString>
 #include <QtCore/QMutex>
 
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <queue>
 #include <thread>
 #include <vector>
@@ -113,6 +115,11 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	 * Hydrogen. */
 	void waitForNextMidiClockTick();
 
+	/** Timer slack the MIDI clock thread runs with, see
+	 * TimeHelper::minimizeTimerSlack(). std::nullopt while no clock thread
+	 * is running or on platforms without a per-thread timer slack. */
+	std::optional<std::chrono::nanoseconds> getMidiClockTimerSlack() const;
+
 	virtual QString toQString( const QString& sPrefix = "", bool bShort = true )
 		const override
 	{
@@ -160,6 +167,9 @@ class MidiBaseDriver : public Object<MidiBaseDriver>,
 	long m_nAverageIntervalNs;
 	TimePoint m_lastTick;
 	long long m_nTickCount;
+	/** Timer slack of the clock thread in nanoseconds. Negative while no
+	 * clock thread is running or if not supported by the platform. */
+	std::atomic<long long> m_nClockTimerSlackNs;
 	/** @} */
 
 	std::shared_ptr<std::thread> m_pClockThread;

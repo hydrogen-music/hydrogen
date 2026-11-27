@@ -30,6 +30,10 @@ class TimeTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST_SUITE( TimeTest );
 		CPPUNIT_TEST( testElapsedTime );
 		CPPUNIT_TEST( testHighResolutionSleep );
+		CPPUNIT_TEST( testSleepUntil );
+		CPPUNIT_TEST( testClockIsMonotonic );
+		CPPUNIT_TEST( testTimePointToQString );
+		CPPUNIT_TEST( testMinimizeTimerSlack );
 		CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -41,7 +45,20 @@ class TimeTest : public CppUnit::TestFixture {
 		 */
 		void testElapsedTime();
 
+		/** Every sleep - including the first one of a fresh helper and
+		 * long ones, for which some systems (macOS) add a slack growing
+		 * with the duration - must neither end early nor late. */
 		void testHighResolutionSleep();
+		/** A sequence of absolute deadlines, as used for MIDI clock and
+		 * tapping, must be met one by one without accumulating delays. */
+		void testSleepUntil();
+		/** Time points used for sleeping and timing must not follow changes
+		 * of the wall clock (NTP steps, manual adjustments). */
+		void testClockIsMonotonic();
+		/** Time points are displayed as wall-clock time (UTC). */
+		void testTimePointToQString();
+		/** Only the calling thread gets the minimal timer slack. */
+		void testMinimizeTimerSlack();
 
 	private:
 
