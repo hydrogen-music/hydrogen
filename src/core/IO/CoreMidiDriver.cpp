@@ -72,8 +72,11 @@ static void midiProc ( const MIDIPacketList * pktlist,
 }
 
 
-CoreMidiDriver::CoreMidiDriver()
-		: MidiBaseDriver()
+CoreMidiDriver::CoreMidiDriver( Hydrogen* pHydrogen )
+		// Virtual bases must be initialized by the most-derived class (ADR 0015).
+		: MidiInput( pHydrogen )
+		, MidiOutput( pHydrogen )
+		, MidiBaseDriver( pHydrogen )
 		, m_bRunning( false )
 {
 	
@@ -118,7 +121,7 @@ void CoreMidiDriver::open()
 
 	OSStatus err = noErr;
 
-	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
+	QString sMidiPortName = MidiInput::m_pHydrogen->getPreferences()->m_sMidiPortName;
 
 	cmSources = MIDIGetNumberOfSources();
 	unsigned i;

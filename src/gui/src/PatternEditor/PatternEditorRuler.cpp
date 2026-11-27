@@ -54,9 +54,9 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	//infoLog( "INIT" );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
-	QColor backgroundColor( pPref->getColorTheme()->m_patternEditor_backgroundColor );
+	QColor backgroundColor( Skin::toQColor( pPref->getColorTheme()->m_patternEditor_backgroundColor ) );
 
 	m_fGridWidth = pPref->getPatternEditorGridWidth();
 
@@ -73,7 +73,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, &QTimer::timeout, [=]() {
-		if ( H2Core::Hydrogen::get_instance()->getAudioEngine()->getState() ==
+		if ( HydrogenApp::pEngine()->getAudioEngine()->getState() ==
 			 H2Core::AudioEngine::State::Playing ) {
 			updatePosition();
 		}
@@ -98,7 +98,7 @@ PatternEditorRuler::~PatternEditorRuler() {
 
 void PatternEditorRuler::updatePosition( bool bForce ) {
 	
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPattern = m_pPatternEditorPanel->getPattern();
 	
@@ -200,7 +200,7 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 
 	if ( ev->button() == Qt::LeftButton &&
 		 pEv->position().x() < m_nWidthActive ) {
-		auto pHydrogen = Hydrogen::get_instance();
+		auto pHydrogen = HydrogenApp::pHydrogen();
 
 		float fTripletFactor;
 		if ( m_pPatternEditorPanel->isUsingTriplets() ) {
@@ -216,11 +216,11 @@ void PatternEditorRuler::mousePressEvent( QMouseEvent* ev ) {
 			  static_cast<float>(m_pPatternEditorPanel->getResolution()) ) );
 
 		if ( pHydrogen->getMode() != Song::Mode::Pattern ) {
-			H2Core::CoreActionController::activateSongMode( false );
-			pHydrogen->setSongModified( true );
+			HydrogenApp::pEngine()->getCoreActionController()->activateSongMode( false );
+			HydrogenApp::pEngine()->setSongModified( true );
 		}
 
-		H2Core::CoreActionController::locateToTick( nNewTick );
+		HydrogenApp::pEngine()->getCoreActionController()->locateToTick( nNewTick );
 	}
 }
 
@@ -258,7 +258,7 @@ void PatternEditorRuler::mouseMoveEvent( QMouseEvent* ev ) {
 
 void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = HydrogenApp::pHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	//Do not redraw anything if Export is active.
@@ -285,7 +285,7 @@ void PatternEditorRuler::invalidateBackground()
 
 void PatternEditorRuler::createBackground()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	// Resize pixmap if pixel ratio has changed
@@ -298,11 +298,11 @@ void PatternEditorRuler::createBackground()
 		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 	}
 
-	QColor backgroundColor( pColorTheme->m_patternEditor_alternateRowColor.darker( 120 ) );
-	QColor textColor = pColorTheme->m_patternEditor_textColor;
+	QColor backgroundColor( Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ).darker( 120 ) );
+	QColor textColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
 	textColor.setAlpha( 220 );
 	
-	QColor lineColor = pColorTheme->m_patternEditor_lineColor;
+	QColor lineColor = Skin::toQColor( pColorTheme->m_patternEditor_lineColor );
 
 	QPainter painter( m_pBackgroundPixmap );
 	
@@ -312,7 +312,7 @@ void PatternEditorRuler::createBackground()
 	if ( m_nRulerWidth - m_nWidthActive != 0 ) {
 		painter.fillRect( m_nWidthActive, 0, m_nRulerWidth - m_nWidthActive,
 						  m_nRulerHeight,
-						  pColorTheme->m_midLightColor );
+						  Skin::toQColor( pColorTheme->m_midLightColor ) );
 	}
 
 	// numbers
@@ -356,7 +356,7 @@ void PatternEditorRuler::createBackground()
 
 void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 	auto pHydrogenApp = HydrogenApp::get_instance();
 
@@ -384,7 +384,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 			PatternEditor::nMargin - 4 - m_fGridWidth * 5;
 
 		// Middle line to indicate the selected tick
-		painter.setPen( QPen( pColorTheme->m_cursorColor, 2 ) );
+		painter.setPen( QPen( Skin::toQColor( pColorTheme->m_cursorColor ), 2 ) );
 		painter.setRenderHint( QPainter::Antialiasing );
 		painter.drawLine( nCursorX + m_fGridWidth * 5 + 4, height() - 6,
 						  nCursorX + m_fGridWidth * 5 + 4, height() - 13 );
@@ -436,7 +436,7 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 
 bool PatternEditorRuler::updateActiveRange() {
 	
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = HydrogenApp::pEngine()->getAudioEngine();
 	int nTicksInPattern = 4 * H2Core::nTicksPerQuarter;
 
 	auto pPlayingPatterns = pAudioEngine->getPlayingPatterns();

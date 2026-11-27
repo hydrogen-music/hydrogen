@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MOUSEEVENT_H_
-#define MOUSEEVENT_H_
+#ifndef H2C_MOUSEEVENT_H_
+#define H2C_MOUSEEVENT_H_
 
 #include <QMouseEvent>
 
@@ -42,4 +42,4 @@ public:
 	QPointF	position() const;
 };
 
-#endif // MOUSEEVENT_H_
+#endif // H2C_MOUSEEVENT_H_

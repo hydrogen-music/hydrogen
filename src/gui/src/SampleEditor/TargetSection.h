@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef TARGET_SECTION
-#define TARGET_SECTION
+#ifndef H2C_TARGET_SECTION
+#define H2C_TARGET_SECTION
 
 #include <QtGui>
 #include <QtWidgets>
@@ -54,6 +54,7 @@ class TargetSection : public QWidget, public H2Core::Object<TargetSection> {
 	void setEnvelopeLocked( bool bLocked );
 	void setLayer( std::shared_ptr<H2Core::InstrumentLayer> pLayer );
 	void update();
+	void updateBackground();
 
    private:
 	WaveDisplay* m_pWaveDisplayL;

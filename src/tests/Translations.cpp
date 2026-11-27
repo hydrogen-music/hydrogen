@@ -37,11 +37,14 @@ public:
 	void testLanguageSelection()
 	{
 	___INFOLOG( "" );
-		// Find translations. i18n_dir() contains only the source *.ts
-		// files. Find the *.qm files for the translations relative to
-		// the build directory the tests are run from.
-		QString sTestsDir = QCoreApplication::applicationDirPath();
-		QString sTranslationsDir = sTestsDir + "/../../data/i18n";
+	// The .qm catalogs are built next to their .ts sources in the
+	// system i18n dir (data/i18n/CMakeLists.txt points the lrelease
+	// output there), and the suite redirects its system data folder to
+	// the repo's data/ — so the Translations helpers' default directory
+	// already finds them. The former applicationDirPath() +
+	// "/../../data/i18n" guess depended on catalog copies inside the
+	// build dir, which a fresh checkout's build never had.
+	QString sTranslationsDir = H2Core::Filesystem::systemInternationalizationDir();
 
 		// For all available translations, check that we can load with matching language.
 		QStringList list = H2Core::Translations::availableTranslations( "hydrogen", sTranslationsDir );

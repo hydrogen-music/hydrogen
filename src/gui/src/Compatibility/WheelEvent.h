@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef WHEELEVENT_H_
-#define WHEELEVENT_H_
+#ifndef H2C_WHEELEVENT_H_
+#define H2C_WHEELEVENT_H_
 
 #include <QWheelEvent>
 
@@ -43,4 +43,4 @@ public:
 	QPointF	position() const;
 };
 
-#endif // WHEELEVENT_H_
+#endif // H2C_WHEELEVENT_H_

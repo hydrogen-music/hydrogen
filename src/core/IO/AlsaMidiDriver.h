@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ALSA_MIDI_DRIVER_H
-#define ALSA_MIDI_DRIVER_H
+#ifndef H2C_ALSA_MIDI_DRIVER_H
+#define H2C_ALSA_MIDI_DRIVER_H
 
 #include <core/IO/MidiBaseDriver.h>
 
@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <thread>
 
 namespace H2Core
 {
@@ -45,7 +46,7 @@ class AlsaMidiDriver : public Object<AlsaMidiDriver>,
 {
 	H2_OBJECT(AlsaMidiDriver)
 public:
-	AlsaMidiDriver();
+	AlsaMidiDriver( Hydrogen* pHydrogen );
 	virtual ~AlsaMidiDriver();
 
 	void close() override;
@@ -66,6 +67,10 @@ private:
 	void sendSystemRealTimeMessage( const MidiMessage& msg ) override;
 
 		std::vector<QString> getPortList( int nCapability );
+
+	// Polls the ALSA sequencer while isMidiDriverRunning (created in
+	// open(), joined in close()).
+	std::thread m_midiDriverThread;
 };
 
 };

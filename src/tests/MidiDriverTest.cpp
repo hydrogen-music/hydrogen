@@ -38,7 +38,7 @@
 #include <core/Midi/MidiMessage.h>
 
 void MidiDriverTest::setUp() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	m_previousDriver = pPref->m_midiDriver;
 	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
 
@@ -47,19 +47,19 @@ void MidiDriverTest::setUp() {
 	// tempo changes but want to do it ourselves in here.
 	pPref->setMidiClockOutputSend( false );
 
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pTestHydrogen()->getAudioEngine();
 	pAudioEngine->stopMidiDriver( H2Core::Event::Trigger::Suppress );
 	pAudioEngine->startMidiDriver( H2Core::Event::Trigger::Suppress );
 }
 
 void MidiDriverTest::tearDown() {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	pPref->m_midiDriver = m_previousDriver;
 
 	pPref->setMidiClockInputHandling( false );
 	pPref->setMidiClockOutputSend( false );
 
-	auto pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
+	auto pAudioEngine = pTestHydrogen()->getAudioEngine();
 	pAudioEngine->stopMidiDriver( H2Core::Event::Trigger::Suppress );
 	pAudioEngine->startMidiDriver( H2Core::Event::Trigger::Suppress );
 }
@@ -67,7 +67,7 @@ void MidiDriverTest::tearDown() {
 void MidiDriverTest::testLoopBackMidiDriver() {
 	___INFOLOG("");
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
@@ -137,7 +137,7 @@ void MidiDriverTest::testMidiClock() {
 	___INFOLOG("");
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
@@ -207,7 +207,7 @@ void MidiDriverTest::testMidiClockDrift() {
 	___INFOLOG("");
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pTimeHelper = pHydrogen->getTimeHelper();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 	auto pPlayhead = pAudioEngine->getPlayhead();
@@ -298,4 +298,94 @@ void MidiDriverTest::testMidiClockDrift() {
 	pMidiActionManager->resetTimingClockTicks();
 
 	___INFOLOG("done");
+}
+
+void MidiDriverTest::testMidiClockGrid() {
+	___INFOLOG( "" );
+
+	auto pTestHelper = TestHelper::get_instance();
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	auto pMidiDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pHydrogen->getAudioEngine()->getMidiDriver() );
+	CPPUNIT_ASSERT( pMidiDriver != nullptr );
+
+	const float fBpm = 120.7;
+	const auto interval =
+		std::chrono::duration<double, std::milli>( 60000.0 / fBpm / 24.0 );
+	const double fToleranceMs = 0.5;
+
+	pMidiDriver->clearBacklogMessages();
+	pMidiActionManager->resetTimingClockTicks();
+	pMidiDriver->startMidiClockStream( fBpm );
+	pHydrogen->getTimeHelper()->highResolutionSleep(
+		std::chrono::milliseconds( 1000 ) );
+	pMidiDriver->stopMidiClockStream();
+
+	// The backlog keeps the messages as sent by the clock thread, including
+	// the time point they were created at.
+	std::vector<TimePoint> ticks;
+	for ( const auto& mmessage : pMidiDriver->getBacklogMessages() ) {
+		if ( mmessage.getType() == H2Core::MidiMessage::Type::TimingClock ) {
+			ticks.push_back( mmessage.getTimePoint() );
+		}
+	}
+	CPPUNIT_ASSERT( ticks.size() > 40 );
+
+	double fMaxOffsetMs = 0;
+	QStringList offsets;
+	for ( int nnTick = 0; nnTick < ticks.size(); ++nnTick ) {
+		const double fOffsetMs =
+			std::chrono::duration<double, std::milli>(
+				ticks[ nnTick ] - ticks[ 0 ] ).count() -
+			nnTick * interval.count();
+		offsets << QString::number( fOffsetMs, 'f', 3 );
+		fMaxOffsetMs = std::max( fMaxOffsetMs, std::abs( fOffsetMs ) );
+	}
+	___INFOLOG( QString( "[%1] ticks, offsets to grid [ms]: [%2], max: [%3], tolerance: [%4]" )
+				.arg( ticks.size() ).arg( offsets.join( ", " ) )
+				.arg( fMaxOffsetMs ).arg( fToleranceMs ) );
+	if ( ! pTestHelper->isAppveyor() ) {
+		CPPUNIT_ASSERT( fMaxOffsetMs <= fToleranceMs );
+	}
+
+	// Flush all queues as part of the clanup.
+	TestHelper::waitForMidiDriver();
+	TestHelper::waitForMidiActionManagerWorkerThread();
+	pMidiActionManager->resetTimingClockTicks();
+
+	___INFOLOG( "done" );
+}
+
+void MidiDriverTest::testMidiClockTimerSlack() {
+	___INFOLOG( "" );
+
+	auto pHydrogen = pTestHydrogen();
+	auto pMidiActionManager = pHydrogen->getMidiActionManager();
+	auto pMidiDriver = std::dynamic_pointer_cast<H2Core::LoopBackMidiDriver>(
+		pHydrogen->getAudioEngine()->getMidiDriver() );
+	CPPUNIT_ASSERT( pMidiDriver != nullptr );
+
+	CPPUNIT_ASSERT( ! pMidiDriver->getMidiClockTimerSlack().has_value() );
+
+	pMidiActionManager->resetTimingClockTicks();
+	pMidiDriver->startMidiClockStream( 120 );
+	// The thread applies the slack before sending its first tick.
+	pMidiDriver->waitForNextMidiClockTick();
+	const auto slack = pMidiDriver->getMidiClockTimerSlack();
+	pMidiDriver->stopMidiClockStream();
+
+#ifdef __linux__
+	CPPUNIT_ASSERT( slack.has_value() );
+	CPPUNIT_ASSERT( slack->count() == 1 );
+#else
+	CPPUNIT_ASSERT( ! slack.has_value() );
+#endif
+	CPPUNIT_ASSERT( ! pMidiDriver->getMidiClockTimerSlack().has_value() );
+
+	TestHelper::waitForMidiDriver();
+	TestHelper::waitForMidiActionManagerWorkerThread();
+	pMidiActionManager->resetTimingClockTicks();
+
+	___INFOLOG( "done" );
 }

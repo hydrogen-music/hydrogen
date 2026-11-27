@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SAMPLE_ENVELOPE
-#define SAMPLE_ENVELOPE
+#ifndef H2C_SAMPLE_ENVELOPE
+#define H2C_SAMPLE_ENVELOPE
 
 #include <QtGui>
 #include <QtWidgets>

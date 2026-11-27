@@ -96,7 +96,7 @@ static double compute_pitch_scale( const Sample::Rubberband& rb )
 
 #if defined( H2CORE_HAVE_RUBBERBAND ) || _DOXYGEN_
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
-	const Sample::Rubberband& r
+	const Sample::Rubberband& r, Preferences* pPreferences
 );
 #endif
 
@@ -120,7 +120,8 @@ Sample::Sample(
 	long long nFrames,
 	int sample_rate,
 	float* data_l,
-	float* data_r
+	float* data_r,
+	Xml::Flag flags
 )
 	: m_bIsLoaded( false ),
 	  m_sFilePath( sFilePath ),
@@ -131,7 +132,8 @@ Sample::Sample(
 	  m_bIsModified( false ),
 	  m_license( license )
 {
-	if ( sFilePath.lastIndexOf( "/" ) <= 0 ) {
+	if ( sFilePath.lastIndexOf( "/" ) <= 0 &&
+		 !( flags & Xml::Flag::Project ) ) {
 		WARNINGLOG(
 			QString( "Provided filepath [%1] does not seem like an absolute "
 					 "path. Sample will most probably be unable to load." )
@@ -204,16 +206,18 @@ Sample::load( const QString& sFilePath, const License& license )
 	pSample = std::make_shared<Sample>( sFilePath, license );
 
 	// Samples loaded this way have no loops, rubberband, or envelopes
-	// set. Therefore, we do not have to pass a tempo in here.
-	if ( !pSample->load() ) {
+	// set. Therefore, we do not have to pass a tempo or Preferences in here
+	// (the latter is only consulted on the rubberband path; ADR 0015).
+	if ( !pSample->load( 120, nullptr ) ) {
 		return nullptr;
 	}
 
 	return pSample;
 }
 
-bool Sample::load( float fBpm )
+bool Sample::load( float fBpm, Preferences* pPreferences )
 {
+
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info = { 0 };
 
@@ -281,31 +285,43 @@ bool Sample::load( float fBpm )
 		);
 	}
 
+	const bool bOk = storeDecodedSamples(
+		buffer, static_cast<long long>( sound_info.frames ),
+		sound_info.channels, sound_info.samplerate, fBpm, pPreferences );
+
+	delete[] buffer;
+
+	return bOk;
+}
+
+bool Sample::storeDecodedSamples( const float* pInterleaved, long long nFrames,
+								  int nChannels, int nSampleRate, float fBpm,
+								  Preferences* pPreferences )
+{
 	// Flush the current content of the left and right channel and
 	// the current metadata.
 	unload();
 
 	// Save the metadata of the loaded file into private members
 	// of the Sample class.
-	m_nFrames = static_cast<long long>(sound_info.frames);
-	m_nSampleRate = sound_info.samplerate;
+	m_nFrames = nFrames;
+	m_nSampleRate = nSampleRate;
 
 	// Split the loaded frames into left and right channel.
 	// If only one channels was present in the underlying data,
 	// duplicate its content.
 	m_data_L = new float[m_nFrames];
 	m_data_R = new float[m_nFrames];
-	if ( sound_info.channels == 1 ) {
-		memcpy( m_data_L, buffer, m_nFrames * sizeof( float ) );
-		memcpy( m_data_R, buffer, m_nFrames * sizeof( float ) );
+	if ( nChannels == 1 ) {
+		memcpy( m_data_L, pInterleaved, m_nFrames * sizeof( float ) );
+		memcpy( m_data_R, pInterleaved, m_nFrames * sizeof( float ) );
 	}
-	else if ( sound_info.channels == SAMPLE_CHANNELS ) {
+	else if ( nChannels == SAMPLE_CHANNELS ) {
 		for ( long long ii = 0; ii < m_nFrames; ii++ ) {
-			m_data_L[ii] = buffer[ii * SAMPLE_CHANNELS];
-			m_data_R[ii] = buffer[ii * SAMPLE_CHANNELS + 1];
+			m_data_L[ii] = pInterleaved[ii * SAMPLE_CHANNELS];
+			m_data_R[ii] = pInterleaved[ii * SAMPLE_CHANNELS + 1];
 		}
 	}
-	delete[] buffer;
 
 	// Apply modifiers (if present/altered).
 	if ( !applyLoops() ) {
@@ -314,9 +330,9 @@ bool Sample::load( float fBpm )
 	applyVelocity();
 	applyPan();
 #ifdef H2CORE_HAVE_RUBBERBAND
-	applyRubberband( fBpm );
+	applyRubberband( fBpm, pPreferences );
 #else
-	if ( !execRubberbandCli( fBpm ) ) {
+	if ( !execRubberbandCli( fBpm, pPreferences ) ) {
 		WARNINGLOG( "Unable to apply rubberband" );
 	}
 #endif
@@ -554,7 +570,7 @@ void Sample::applyPan()
 	m_bIsModified = true;
 }
 
-void Sample::applyRubberband( float fBpm )
+void Sample::applyRubberband( float fBpm, Preferences* pPreferences )
 {
 	// TODO see Rubberband declaration in sample.h
 #ifdef H2CORE_HAVE_RUBBERBAND
@@ -567,7 +583,7 @@ void Sample::applyRubberband( float fBpm )
 	double output_duration = 60.0 / fBpm * m_rubberband.fLengthInBeats;
 	double time_ratio = output_duration / getSampleDuration();
 	RubberBand::RubberBandStretcher::Options options =
-		compute_rubberband_options( m_rubberband );
+		compute_rubberband_options( m_rubberband, pPreferences );
 	double pitch_scale = compute_pitch_scale( m_rubberband );
 	// output buffer
 	//
@@ -600,7 +616,7 @@ void Sample::applyRubberband( float fBpm )
 	// Hydrogen is told to apply Rubber Band to samples on-the-fly
 	// when encountering tempo changes, we will use Rubber Band's
 	// real-time processing mode.
-	if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if ( !pPreferences->getRubberBandBatchMode() ) {
 		ibuf[0] = m_data_L;
 		ibuf[1] = m_data_R;
 		rubber.study( ibuf, m_nFrames, true );
@@ -616,7 +632,7 @@ void Sample::applyRubberband( float fBpm )
 	long long nRequired = 0;
 
 	while ( nProcessed < m_nFrames ) {
-		if ( !Preferences::get_instance()->getRubberBandBatchMode() ) {
+		if ( !pPreferences->getRubberBandBatchMode() ) {
 			// Ask Rubber Band how many samples it requires to produce
 			// further output.
 			nRequired = rubber.getSamplesRequired();
@@ -751,7 +767,7 @@ void Sample::applyRubberband( float fBpm )
 #endif
 }
 
-bool Sample::execRubberbandCli( float fBpm )
+bool Sample::execRubberbandCli( float fBpm, Preferences* pPreferences )
 {
 	if ( !m_rubberband.bUse ) {
 		// Default behavior
@@ -760,7 +776,7 @@ bool Sample::execRubberbandCli( float fBpm )
 
 	// set the path to rubberband-cli
 	const auto sProgram =
-		Preferences::get_instance()->m_sRubberBandCLIexecutable;
+		pPreferences->m_sRubberBandCLIexecutable;
 	// test the path. if test fails return NULL
 	if ( !Filesystem::fileExists( sProgram, false ) ) {
 		ERRORLOG(
@@ -829,7 +845,12 @@ bool Sample::execRubberbandCli( float fBpm )
 	Filesystem::rm( sTmpFilePathInput );
 	Filesystem::rm( sTmpFilePathProcessed );
 
+	unload();
+
 	m_nFrames = pSampleProcessed->getFrames();
+	m_data_L = new float[ m_nFrames ];
+	m_data_R = new float[ m_nFrames ];
+
 	memcpy( m_data_L, pSampleProcessed->getData_L(), m_nFrames * 4 );
 	memcpy( m_data_R, pSampleProcessed->getData_R(), m_nFrames * 4 );
 
@@ -1003,6 +1024,10 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 		sOutput =
 			QString( "%1[Sample]\n" )
 				.arg( sPrefix )
+				.append( QString( "%1%2m_uuid: %3\n" )
+							 .arg( sPrefix )
+							 .arg( s )
+							 .arg( getUuid().toQString() ) )
 				.append( QString( "%1%2m_bIsLoaded: %3\n" )
 							 .arg( sPrefix )
 							 .arg( s )
@@ -1061,7 +1086,8 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const
 	else {
 		sOutput =
 			QString( "[Sample]" )
-				.append( QString( " m_bIsLoaded: %1" ).arg( m_bIsLoaded ) )
+				.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+				.append( QString( ", m_bIsLoaded: %1" ).arg( m_bIsLoaded ) )
 				.append( QString( ", m_sFilePath: %1" ).arg( m_sFilePath ) )
 				.append( QString( ", m_nFrames: %1" ).arg( m_nFrames ) )
 				.append( QString( ", m_nSampleRate: %1" ).arg( m_nSampleRate ) )
@@ -1308,7 +1334,7 @@ QString Sample::sndfileFormatToQString( int nFormat )
 
 #ifdef H2CORE_HAVE_RUBBERBAND
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
-	const Sample::Rubberband& rb
+	const Sample::Rubberband& rb, Preferences* pPreferences
 )
 {
 	// default settings
@@ -1385,7 +1411,7 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options(
 			break;
 	};
 
-	if ( Preferences::get_instance()->getRubberBandBatchMode() ) {
+	if ( pPreferences->getRubberBandBatchMode() ) {
 		options |= RubberBand::RubberBandStretcher::OptionProcessRealTime;
 	}
 	else {

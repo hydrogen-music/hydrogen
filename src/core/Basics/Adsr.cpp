@@ -318,6 +318,8 @@ QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[ADSR]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) )
 			.append( QString( "%1%2m_nAttack: %3\n" ).arg( sPrefix ).arg( s )
 					 .arg( m_nAttack ) )
 			.append( QString( "%1%2m_nDecay: %3\n" ).arg( sPrefix ).arg( s )
@@ -338,7 +340,8 @@ QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
 					 .arg( m_fQ ) );
 	} else {
 		sOutput = QString( "[ADSR]" )
-			.append( QString( " m_nAttack: %1" ).arg( m_nAttack ) )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) )
+			.append( QString( ", m_nAttack: %1" ).arg( m_nAttack ) )
 			.append( QString( ", m_nDecay: %1" ).arg( m_nDecay ) )
 			.append( QString( ", m_fSustain: %1" ).arg( m_fSustain ) )
 			.append( QString( ", m_nRelease: %1" ).arg( m_nRelease ) )

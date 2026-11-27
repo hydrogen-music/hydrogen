@@ -52,6 +52,13 @@
  */
 #define H2CORE_VERSION_PATCH @VERSION_PATCH@
 /**
+ * Will contain the release suffix of Hydrogen's version (e.g. "pre-alpha";
+ * empty for stable releases) and is set by __cmake__. It is part of the
+ * version identity announced in the IPC hello handshake (ADR 0018), where
+ * it is explicitly allowed to differ between engine and editor.
+ */
+#define H2CORE_VERSION_SUFFIX "@VERSION_SUFFIX@"
+/**
  * Will contain the current git revision version number suffix of
  * Hydrogen and is set by __cmake__.
  */
@@ -63,10 +70,6 @@
 #define H2CORE_VERSION "@DISPLAY_VERSION@"
 
 
-/**
- * Maximum number of effects. Set by __cmake__ to 4 (currently).
- */
-#define MAX_FX          	@MAX_FX@
 /**
  * Maximum buffer size. Set by __cmake__ to 8192 (currently).
  */
@@ -119,12 +122,6 @@
 /** Specifies whether the pulse/pulseaudio.h header could be found in
     the pulse library. */
 #define H2CORE_HAVE_PULSEAUDIO
-/** Specifies whether the lrdf.h header could be found in the lrdf
-    library. */
-#define H2CORE_HAVE_LRDF
-/** Specifies whether the ladspa.h header could be found in the noise
-    library. */
-#define H2CORE_HAVE_LADSPA
 /** Specifies whether the rubberband/RubberBandStretcher.h header
     could be found in the rubberband library. */
 #define H2CORE_HAVE_RUBBERBAND

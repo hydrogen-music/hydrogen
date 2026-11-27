@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef MIDIMAP_H
-#define MIDIMAP_H
+#ifndef H2C_MIDIMAP_H
+#define H2C_MIDIMAP_H
 
 #include <memory>
 #include <vector>
@@ -31,10 +31,12 @@
 #include <core/Midi/MidiEvent.h>
 #include <core/Object.h>
 
+#include <QtCore/QByteArray>
 #include <QtCore/QMutex>
 
 namespace H2Core {
 
+class Hydrogen;
 class XMLNode;
 
 /** \ingroup docCore docMIDI */
@@ -43,19 +45,36 @@ class MidiEventMap : public H2Core::Object<MidiEventMap>
 	H2_OBJECT(MidiEventMap)
 public:
 	MidiEventMap();
+	MidiEventMap( const std::shared_ptr<MidiEventMap> pOther );
 	~MidiEventMap();
 
 	static std::shared_ptr<MidiEventMap> loadFrom( const H2Core::XMLNode& node,
-											  bool bSilent = false );
+											  bool bSilent,
+											  Hydrogen* pHydrogen );
 	void saveTo( H2Core::XMLNode& node, bool bSilent = false ) const;
-	
+
+	/** Serializes the map into a self-contained XML buffer for IPC
+	 * transport (ADR 0030). */
+	QByteArray toXmlBuffer() const;
+	/** Reconstructs a map from a buffer produced by toXmlBuffer().
+	 *
+	 * \param bSilent Passed through to loadFrom().
+	 * \param pHydrogen loadFrom() registers the events with
+	 *   Event::Trigger::Suppress and never dereferences it, so a null
+	 *   value is safe (ADR 0015). */
+	static std::shared_ptr<MidiEventMap> fromXmlBuffer(
+		const QByteArray& xmlBuffer,
+		bool bSilent = false,
+		Hydrogen* pHydrogen = nullptr );
+
 	void reset();  ///< Reinitializes the object.
 
 	void registerEvent(
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
 		std::shared_ptr<MidiAction> pAction,
-        Event::Trigger trigger
+        Event::Trigger trigger,
+		Hydrogen* pHydrogen
 	);
 
 	const std::vector<std::shared_ptr<MidiEvent>>& getMidiEvents() const;
@@ -73,7 +92,8 @@ public:
 
 	std::vector<Midi::Parameter> findCCParameters( MidiAction::Type type );
 	std::vector<Midi::Parameter>
-	findCCParameters( MidiAction::Type type, int nInstrument );
+	findCCParameters( MidiAction::Type type, int nInstrument,
+					  Hydrogen* pHydrogen );
 
 	/**
 	 * @returns a list of all MIDI events registered to a particular
@@ -86,7 +106,8 @@ public:
 	void removeRegisteredEvent(
 		const MidiEvent::Type&,
 		Midi::Parameter parameter,
-		std::shared_ptr<MidiAction> pAction
+		std::shared_ptr<MidiAction> pAction,
+		Hydrogen* pHydrogen
 	);
 
 	/** Formatted string version for debugging purposes.

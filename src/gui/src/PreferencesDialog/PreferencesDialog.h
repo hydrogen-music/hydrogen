@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PREFERENCES_DIALOG_H
-#define PREFERENCES_DIALOG_H
+#ifndef H2C_PREFERENCES_DIALOG_H
+#define H2C_PREFERENCES_DIALOG_H
 
 #include <vector>
 #include <memory>
@@ -184,7 +184,7 @@ private:
 	 * Used to maintain the selection of items done by the user when
 	 * updating/recreating the shortcut table.
 	 */
-	std::vector<std::pair<H2Core::Shortcuts::Action,QKeySequence>> m_lastShortcutsSelected;
+	std::vector<std::pair<H2Core::Shortcuts::Action,H2Core::KeySequence>> m_lastShortcutsSelected;
 
 	void setIndexedTreeItemDirty( IndexedTreeItem* pItem );
 	std::unique_ptr<QColor> getColorById(

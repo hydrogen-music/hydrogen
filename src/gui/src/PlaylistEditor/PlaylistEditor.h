@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PLAYLIST_EDITOR_H
-#define PLAYLIST_EDITOR_H
+#ifndef H2C_PLAYLIST_EDITOR_H
+#define H2C_PLAYLIST_EDITOR_H
 
 #include <QtGui>
 #include <QtWidgets>
@@ -85,6 +85,9 @@ class PlaylistEditor :  public QDialog,
 		void playlistChangedEvent( int nValue ) override;
 		void playlistLoadSongEvent() override;
 		void moveRow( int nFrom, int nTo );
+		/** Deactivates the transport controls the host owns when the
+		 * editor is attached to a plugin-host engine (ADR 0026). */
+		void updatePluginHostGating();
 
 public slots:
 	void onPreferencesChanged( const H2Core::Preferences::Changes& changes );

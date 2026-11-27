@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MIDI_H
-#define MIDI_H
+#ifndef H2C_MIDI_H
+#define H2C_MIDI_H
 
 #include <algorithm>
 
@@ -96,6 +96,13 @@ namespace Midi {
 	static constexpr Note NoteDefault = Note( 36 );
 	static constexpr Note NoteMaximum = Note( 127 );
 	static constexpr Note NoteInvalid = Note( -1 );
+	/** Marks an input mapping that matches every incoming note — e.g.
+	 * Input::SelectedInstrument in MidiInstrumentMap. Distinct from
+	 * #NoteInvalid (no mapping at all) and, being outside
+	 * [#NoteMinimum, #NoteMaximum], it can never be produced by
+	 * noteFromInt() or noteFromIntClamp() — it is not reachable as a
+	 * user-set value. */
+	static constexpr Note NoteAll = Note( -2 );
 	/** When recording notes using MIDI Note-On events this offset will be
 	 * applied to the provided pitch in order to map it to an instrument
 	 * number in the current drmmkit. It corresponds to the electric bass

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ABOUT__DIALOG_H
-#define ABOUT__DIALOG_H
+#ifndef H2C_ABOUT__DIALOG_H
+#define H2C_ABOUT__DIALOG_H
 
 
 #include <QtGui>

@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef AUDIO_BENCHMARK_H
-#define AUDIO_BENCHMARK_H
+#ifndef H2C_AUDIO_BENCHMARK_H
+#define H2C_AUDIO_BENCHMARK_H
 
 
 #include <cppunit/extensions/HelperMacros.h>

@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef LCDTextEdit_H
-#define LCDTextEdit_H
+#ifndef H2C_LCDTextEdit_H
+#define H2C_LCDTextEdit_H
 
 #include <QtGui>
 #include <QtWidgets>

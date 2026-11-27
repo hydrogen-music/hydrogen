@@ -26,7 +26,7 @@ https://www.gnu.org/licenses
 
 #include "MainToolBar.h"
 #include "MidiActionTable.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 #include "../Widgets/LCDSpinBox.h"
@@ -44,13 +44,14 @@ https://www.gnu.org/licenses
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
 #include <qevent.h>
+#include <QSignalBlocker>
 
 using namespace H2Core;
 
 MidiControlDialog::MidiControlDialog( QWidget* pParent )
 	: QDialog( pParent )
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	setFocusPolicy( Qt::NoFocus );
@@ -187,27 +188,25 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 
 	m_pInputIgnoreNoteOffCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
-	/*: The character after the '&' symbol can be used as a shortcut via the Alt
-	 *  modifier. It should not coincide with any other shortcut in the Settings
-	 *  tab of the MidiControlDialog. If in question, you can just drop the
-	 *  '&'. */
-	m_pInputIgnoreNoteOffCheckBox->setText( tr( "&Ignore note-off" ) );
+	m_pInputIgnoreNoteOffCheckBox->setText( pCommonStrings->getIgnoreNoteOffLabel() );
 	pInputCheckboxLayout->addWidget( m_pInputIgnoreNoteOffCheckBox );
 	connect( m_pInputIgnoreNoteOffCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->m_bMidiNoteOffIgnore =
-			m_pInputIgnoreNoteOffCheckBox->isChecked();
+		persistMidiSettings();
 	} );
 
-	auto m_pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
+	m_pInputMidiClockCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	m_pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
 	m_pInputMidiClockCheckBox->setText( tr( "Handle MIDI Clock input" ) );
 	pInputCheckboxLayout->addWidget( m_pInputMidiClockCheckBox );
 	connect( m_pInputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		CoreActionController::setMidiClockInputHandling(
+		HydrogenApp::pEngine()->getCoreActionController()->setMidiClockInputHandling(
 			m_pInputMidiClockCheckBox->isChecked() );
+		// CoreActionController applies the live engine side-effect; we still need
+		// the durable write so this survives a crash like the other settings.
+		persistMidiSettings();
 	} );
 
-	auto m_pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
+	m_pInputMidiTransportCheckBox = new QCheckBox( m_pInputCheckboxWidget );
 	m_pInputMidiTransportCheckBox->setChecked( pPref->getMidiTransportInputHandling() );
 	/*: The character combination "\n" indicates a new line and must be
 	 *  conserved. All the capitalized words that follow are defined in the MIDI
@@ -217,8 +216,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		tr( "Handle MIDI sync message\nSTART, STOP, CONTINUE, SONG_POSITION, SONG_SELECT" ) );
 	pInputCheckboxLayout->addWidget( m_pInputMidiTransportCheckBox );
 	connect( m_pInputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->setMidiTransportInputHandling(
-			m_pInputMidiTransportCheckBox->isChecked() );
+		persistMidiSettings();
 	} );
 
 	auto pInputActionChannelWidget = new QWidget( pInputSettingsWidget );
@@ -243,13 +241,13 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pInputActionChannelSpinBox->setValue(
 		static_cast<int>( pPref->m_midiActionChannel )
 	);
+	// valueChanged fires on every increment; defer the durable write to commit
+	// (focus-out / Enter) so dragging the spin box does not write the config
+	// file on each tick. The widget holds the intermediate state; the command
+	// in persistMidiSettings() reads it back on commit.
 	connect(
-		m_pInputActionChannelSpinBox,
-		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]( double fValue ) {
-			Preferences::get_instance()->m_midiActionChannel =
-				Midi::channelFromInt( static_cast<int>( fValue ) );
-		}
+		m_pInputActionChannelSpinBox, &QAbstractSpinBox::editingFinished,
+		[=]() { persistMidiSettings(); }
 	);
 
 	auto pOutputSettingsWidget = new QWidget( pConfigWidget );
@@ -278,27 +276,28 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pOutputEnableMidiFeedbackCheckBox->setText( tr( "&Enable MIDI feedback" ) );
 	pOutputCheckboxLayout->addWidget( m_pOutputEnableMidiFeedbackCheckBox );
 	connect( m_pOutputEnableMidiFeedbackCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->m_bEnableMidiFeedback =
-			m_pOutputEnableMidiFeedbackCheckBox->isChecked();
+		persistMidiSettings();
 	} );
 
-	auto m_pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
+	m_pOutputMidiClockCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
 	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
 	m_pOutputMidiClockCheckBox->setText( tr( "Send MIDI Clock messages" ) );
 	pOutputCheckboxLayout->addWidget( m_pOutputMidiClockCheckBox );
 	connect( m_pOutputMidiClockCheckBox, &QAbstractButton::toggled, [=]() {
-		CoreActionController::setMidiClockOutputSend(
+		HydrogenApp::pEngine()->getCoreActionController()->setMidiClockOutputSend(
 			m_pOutputMidiClockCheckBox->isChecked() );
+		// CoreActionController applies the live engine side-effect; we still need
+		// the durable write so this survives a crash like the other settings.
+		persistMidiSettings();
 	} );
 
-	auto m_pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
+	m_pOutputMidiTransportCheckBox = new QCheckBox( m_pOutputCheckboxWidget );
 	m_pOutputMidiTransportCheckBox->setChecked( pPref->getMidiTransportOutputSend() );
 	m_pOutputMidiTransportCheckBox->setText(
 		tr( "Send MIDI START, STOP, CONTINUE, and SONG_POSITION" ) );
 	pOutputCheckboxLayout->addWidget( m_pOutputMidiTransportCheckBox );
 	connect( m_pOutputMidiTransportCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->setMidiTransportOutputSend(
-			m_pOutputMidiTransportCheckBox->isChecked() );
+		persistMidiSettings();
 	} );
 
 	auto pOutputLabelledWidget = new QWidget( pOutputSettingsWidget );
@@ -324,17 +323,16 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	m_pOutputFeedbackChannelSpinBox->setValue(
 		static_cast<int>( pPref->getMidiFeedbackChannel() )
 	);
+	// valueChanged fires on every increment; defer the durable write to commit
+	// (focus-out / Enter) so dragging the spin box does not write the config
+	// file on each tick. The widget holds the intermediate state; the command
+	// in persistMidiSettings() reads it back on commit.
 	connect(
-		m_pOutputFeedbackChannelSpinBox,
-		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
-		[=]( double fValue ) {
-			Preferences::get_instance()->setMidiFeedbackChannel(
-				Midi::channelFromInt( static_cast<int>( fValue ) )
-			);
-		}
+		m_pOutputFeedbackChannelSpinBox, &QAbstractSpinBox::editingFinished,
+		[=]() { persistMidiSettings(); }
 	);
 
-	auto pOutputSendNoteOffLabel = new QLabel( tr( "Send Note-Off messages" ) );
+	auto pOutputSendNoteOffLabel = new QLabel( pCommonStrings->getSendNoteOffLabel() );
 	pOutputLabelledLayout->addWidget( pOutputSendNoteOffLabel, 1, 0 );
 	m_pOutputSendNoteOffComboBox = new QComboBox( pOutputLabelledWidget );
 	m_pOutputSendNoteOffComboBox->setFixedSize( QSize(
@@ -344,7 +342,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	pOutputLabelledLayout->addWidget( m_pOutputSendNoteOffComboBox, 1, 1 );
 	m_pOutputSendNoteOffComboBox->insertItems(
 		0, QStringList() << pCommonStrings->getOptionAlways()
-						 << tr( "On custom note lengths" )
+						 << pCommonStrings->getOptionOnCustomNoteLengths()
 						 << pCommonStrings->getOptionNever()
 	);
 	m_pOutputSendNoteOffComboBox->setCurrentIndex(
@@ -354,13 +352,13 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 		m_pOutputSendNoteOffComboBox,
 		QOverload<int>::of( &QComboBox::activated ),
 		[=]( int ) {
-			auto pPref = Preferences::get_instance();
+			auto pPref = HydrogenApp::pPreferences();
 			const auto newValue = static_cast<Preferences::MidiSendNoteOff>(
 				m_pOutputSendNoteOffComboBox->currentIndex()
 			);
 
 			if ( newValue != pPref->getMidiSendNoteOff() ) {
-				pPref->setMidiSendNoteOff( newValue );
+				persistMidiSettings();
 			}
 		}
 	);
@@ -394,9 +392,7 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	const auto pMidiInstrumentMap = pPref->getMidiInstrumentMap();
 
 	auto pMappingTab = new QWidget( m_pTabWidget );
-	/*: Tab of the MIDI control dialog dedicated to mapping MIDI notes to
-	 *  instruments of the current drumkit. */
-	m_pTabWidget->addTab( pMappingTab, tr( "Instrument Mapping" ) );
+	m_pTabWidget->addTab( pMappingTab, pCommonStrings->getMappingTab() );
 
 	auto pMappingWrapperLayout = new QVBoxLayout();
 	pMappingWrapperLayout->setSpacing( 5 );
@@ -459,24 +455,36 @@ font-size: %1px;" ).arg( nHeaderTextSize ) );
 	connect( m_pInputNoteMappingComboBox,
 			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
 		auto pMidiInstrumentMap =
-			Preferences::get_instance()->getMidiInstrumentMap();
+			HydrogenApp::pPreferences()->getMidiInstrumentMap();
 		auto input = static_cast<MidiInstrumentMap::Input>(
 			m_pInputNoteMappingComboBox->currentIndex() );
 		if ( pMidiInstrumentMap->getInput() != input ) {
 			pMidiInstrumentMap->setInput( input );
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
+
+			// Input::SelectedInstrument forces the global input channel
+			// on — reflect it in the checkbox (checked and locked) and
+			// the spinbox. Signals are blocked: the state mirrors the
+			// map, it must not write back to it.
+			const QSignalBlocker blocker( m_pGlobalInputChannelCheckBox );
+			m_pGlobalInputChannelCheckBox->setChecked(
+				pMidiInstrumentMap->getUseGlobalInputChannel() );
+			m_pGlobalInputChannelCheckBox->setEnabled(
+				input != MidiInstrumentMap::Input::SelectedInstrument );
+			m_pGlobalInputChannelSpinBox->setEnabled(
+				pMidiInstrumentMap->getUseGlobalInputChannel() );
 		}
 	} );
 
 	pMappingGridLayout->addWidget( m_pInputNoteMappingComboBox, 1, 0, 1, 2,
 							  Qt::AlignCenter );
 
-	/*: Label of an option in the mapping tab of the MIDI control dialog
-	 *  specifying how incoming and outgoing MIDI notes and the instruments of
-	 *  the current drumkit should relate to eachother. */
-	auto pNoteMappingLabel = new QLabel( tr( "Note Mapping" ), pMappingTab );
+	auto pNoteMappingLabel =
+		new QLabel( pCommonStrings->getNoteMappingHeader(), pMappingTab );
 	pNoteMappingLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nSettingTextSize ) );
+font-size: %1px;" )
+										  .arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( pNoteMappingLabel, 1, 3, Qt::AlignCenter );
 
 	m_pOutputNoteMappingComboBox = new QComboBox( pMappingTab );
@@ -495,12 +503,13 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	connect( m_pOutputNoteMappingComboBox,
 			 QOverload<int>::of( &QComboBox::activated ), [=]( int ) {
 		auto pMidiInstrumentMap =
-			Preferences::get_instance()->getMidiInstrumentMap();
+			HydrogenApp::pPreferences()->getMidiInstrumentMap();
 		auto output = static_cast<MidiInstrumentMap::Output>(
 			m_pOutputNoteMappingComboBox->currentIndex() );
 		if ( pMidiInstrumentMap->getOutput() != output ) {
 			pMidiInstrumentMap->setOutput( output );
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
 
 			// Announce the changes to the instrument editor.
 			HydrogenApp::get_instance()->changePreferences(
@@ -537,12 +546,13 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		m_pGlobalInputChannelSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[&]( double fValue ) {
-			Preferences::get_instance()
+			HydrogenApp::pPreferences()
 				->getMidiInstrumentMap()
 				->setGlobalInputChannel(
 					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
 		}
 	);
 	pMappingGridLayout->addWidget(
@@ -552,23 +562,28 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pGlobalInputChannelCheckBox = new QCheckBox( pMappingTab );
 	m_pGlobalInputChannelCheckBox->setChecked(
 		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	// Input::SelectedInstrument forces the global input channel on —
+	// the checkbox renders checked and is locked.
+	m_pGlobalInputChannelCheckBox->setEnabled(
+		pMidiInstrumentMap->getInput() !=
+		MidiInstrumentMap::Input::SelectedInstrument );
 	connect( m_pGlobalInputChannelCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->getMidiInstrumentMap()
+		HydrogenApp::pPreferences()->getMidiInstrumentMap()
 			->setUseGlobalInputChannel(
 				m_pGlobalInputChannelCheckBox->isChecked() );
 		m_pGlobalInputChannelSpinBox->setEnabled(
 			m_pGlobalInputChannelCheckBox->isChecked() );
 		updateInstrumentTable();
+		persistMidiInstrumentMap();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalInputChannelCheckBox, 3, 1,
 							  Qt::AlignCenter );
 
-	/*: Label of an option in the mapping tab of the MIDI control dialog
-	 *  specifying whether (and which) all instruments of the current drumkit
-	 *  should feature the same incoming and outgoing MIDI channel. */
-	auto pGlobalChannelLabel = new QLabel( tr( "Global Channel" ), pMappingTab );
+	auto pGlobalChannelLabel =
+		new QLabel( pCommonStrings->getGlobalChannelLabel(), pMappingTab );
 	pGlobalChannelLabel->setStyleSheet( QString( "\
-font-size: %1px;" ).arg( nSettingTextSize ) );
+font-size: %1px;" )
+											.arg( nSettingTextSize ) );
 	pMappingGridLayout->addWidget( pGlobalChannelLabel, 3, 3, Qt::AlignCenter );
 
 	// -1 does not turn this channel "off". Instead, the combo box above it can
@@ -593,12 +608,13 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 		m_pGlobalOutputChannelSpinBox,
 		QOverload<double>::of( &QDoubleSpinBox::valueChanged ),
 		[&]( double fValue ) {
-			Preferences::get_instance()
+			HydrogenApp::pPreferences()
 				->getMidiInstrumentMap()
 				->setGlobalOutputChannel(
 					Midi::channelFromInt( static_cast<int>( fValue ) )
 				);
 			updateInstrumentTable();
+			persistMidiInstrumentMap();
 		}
 	);
 	pMappingGridLayout->addWidget(
@@ -609,12 +625,13 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	m_pGlobalOutputChannelCheckBox->setChecked(
 		pMidiInstrumentMap->getUseGlobalOutputChannel() );
 	connect( m_pGlobalOutputChannelCheckBox, &QAbstractButton::toggled, [=]() {
-		Preferences::get_instance()->getMidiInstrumentMap()
+		HydrogenApp::pPreferences()->getMidiInstrumentMap()
 			->setUseGlobalOutputChannel(
 				m_pGlobalOutputChannelCheckBox->isChecked() );
 		m_pGlobalOutputChannelSpinBox->setEnabled(
 			m_pGlobalOutputChannelCheckBox->isChecked() );
 		updateInstrumentTable();
+		persistMidiInstrumentMap();
 	} );
 	pMappingGridLayout->addWidget( m_pGlobalOutputChannelCheckBox, 3, 5,
 							  Qt::AlignCenter );
@@ -730,10 +747,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 
 	m_pInputBinButton = addBinButton( pInputWidget );
 	connect( m_pInputBinButton, &QToolButton::clicked, [&]() {
-		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
-		if ( pMidiDriver != nullptr ) {
-			pMidiDriver->clearHandledInput();
-		}
+		// Clear the driver's activity log via CAC (ADR 0029).
+		HydrogenApp::pEngine()->getCoreActionController()->clearMidiInputLog();
 		updateInputTable();
 	});
 
@@ -765,10 +780,8 @@ font-size: %1px;" ).arg( nSettingTextSize ) );
 	pOutputLayout->addWidget( m_pMidiOutputTable );
 	m_pOutputBinButton = addBinButton( pOutputWidget );
 	connect( m_pOutputBinButton, &QToolButton::clicked, [&]() {
-		auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
-		if ( pMidiDriver != nullptr ) {
-			pMidiDriver->clearHandledOutput();
-		}
+		// Clear the driver's activity log via CAC (ADR 0029).
+		HydrogenApp::pEngine()->getCoreActionController()->clearMidiOutputLog();
 		updateOutputTable();
 	});
 
@@ -805,6 +818,8 @@ void MidiControlDialog::instrumentParametersChangedEvent( int ) {
 }
 
 void MidiControlDialog::midiDriverChangedEvent() {
+	updateInputTable();
+	updateOutputTable();
 }
 
 void MidiControlDialog::midiInputEvent() {
@@ -822,33 +837,119 @@ void MidiControlDialog::updatePreferencesEvent( int nValue )
     }
 
 	// new preferences loaded within the core
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
-	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	reloadMidiControlSettings();
+
+	// The MIDI clock handling is driver-level state (setPreferences
+	// territory), not part of the scalar MIDI control settings.
+	const QSignalBlocker inputClockBlocker( m_pInputMidiClockCheckBox );
 	m_pInputMidiClockCheckBox->setChecked( pPref->getMidiClockInputHandling() );
+	const QSignalBlocker outputClockBlocker( m_pOutputMidiClockCheckBox );
+	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+
+	m_pMidiActionTable->resetTable();
+}
+
+void MidiControlDialog::midiControlSettingsChangedEvent()
+{
+	// An external change — the plugin UI or the engine side of the
+	// editor split — replaced the scalar MIDI settings. Our widget
+	// cache is stale: discard and reload. Our own edits are excluded
+	// via the id blacklist in persistMidiSettings().
+	reloadMidiControlSettings();
+}
+
+void MidiControlDialog::midiInstrumentMapChangedEvent()
+{
+	// An external change — the plugin UI or the engine side of the
+	// editor split — replaced the MIDI instrument map. Our widget
+	// cache is stale: discard and reload. Our own edits are excluded
+	// via the id blacklist in persistMidiInstrumentMap().
+	reloadMidiInstrumentMap();
+}
+
+void MidiControlDialog::reloadMidiControlSettings()
+{
+	const auto pPref = HydrogenApp::pPreferences();
+
+	const QSignalBlocker noteOffBlocker( m_pInputIgnoreNoteOffCheckBox );
+	m_pInputIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	const QSignalBlocker transportInBlocker( m_pInputMidiTransportCheckBox );
 	m_pInputMidiTransportCheckBox->setChecked(
 		pPref->getMidiTransportInputHandling()
 	);
+	const QSignalBlocker actionChannelBlocker( m_pInputActionChannelSpinBox );
 	m_pInputActionChannelSpinBox->setValue(
-		static_cast<int>( pPref->m_midiActionChannel ), Event::Trigger::Suppress
+		static_cast<int>( pPref->m_midiActionChannel ),
+		Event::Trigger::Suppress
 	);
 
+	const QSignalBlocker feedbackBlocker( m_pOutputEnableMidiFeedbackCheckBox );
 	m_pOutputEnableMidiFeedbackCheckBox->setChecked(
 		pPref->m_bEnableMidiFeedback
 	);
-	m_pOutputMidiClockCheckBox->setChecked( pPref->getMidiClockOutputSend() );
+	const QSignalBlocker transportOutBlocker( m_pOutputMidiTransportCheckBox );
 	m_pOutputMidiTransportCheckBox->setChecked(
 		pPref->getMidiTransportOutputSend()
 	);
+	const QSignalBlocker feedbackChannelBlocker(
+		m_pOutputFeedbackChannelSpinBox );
 	m_pOutputFeedbackChannelSpinBox->setValue(
 		static_cast<int>( pPref->getMidiFeedbackChannel() ),
 		Event::Trigger::Suppress
 	);
+	const QSignalBlocker sendNoteOffBlocker( m_pOutputSendNoteOffComboBox );
 	m_pOutputSendNoteOffComboBox->setCurrentIndex(
 		static_cast<int>( pPref->getMidiSendNoteOff() )
 	);
+}
 
-	m_pMidiActionTable->resetTable();
+void MidiControlDialog::reloadMidiInstrumentMap()
+{
+	const auto pMidiInstrumentMap =
+		HydrogenApp::pPreferences()->getMidiInstrumentMap();
+
+	const QSignalBlocker inputMappingBlocker( m_pInputNoteMappingComboBox );
+	m_pInputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pMidiInstrumentMap->getInput() ) );
+	const QSignalBlocker outputMappingBlocker( m_pOutputNoteMappingComboBox );
+	m_pOutputNoteMappingComboBox->setCurrentIndex(
+		static_cast<int>( pMidiInstrumentMap->getOutput() ) );
+
+	const QSignalBlocker globalInputChannelBlocker(
+		m_pGlobalInputChannelSpinBox );
+	m_pGlobalInputChannelSpinBox->setValue(
+		static_cast<int>( pMidiInstrumentMap->getGlobalInputChannel() ),
+		Event::Trigger::Suppress
+	);
+	m_pGlobalInputChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	const QSignalBlocker globalInputCheckBoxBlocker(
+		m_pGlobalInputChannelCheckBox );
+	m_pGlobalInputChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalInputChannel() );
+	m_pGlobalInputChannelCheckBox->setEnabled(
+		pMidiInstrumentMap->getInput() !=
+			MidiInstrumentMap::Input::SelectedInstrument );
+
+	const QSignalBlocker globalOutputChannelBlocker(
+		m_pGlobalOutputChannelSpinBox );
+	m_pGlobalOutputChannelSpinBox->setValue(
+		static_cast<int>( pMidiInstrumentMap->getGlobalOutputChannel() ),
+		Event::Trigger::Suppress
+	);
+	m_pGlobalOutputChannelSpinBox->setEnabled(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+	const QSignalBlocker globalOutputCheckBoxBlocker(
+		m_pGlobalOutputChannelCheckBox );
+	m_pGlobalOutputChannelCheckBox->setChecked(
+		pMidiInstrumentMap->getUseGlobalOutputChannel() );
+
+	// The per-instrument rows are re-created from the fresh map — their
+	// widgets are disconnected before the value writes and reconnected
+	// after (updateInstrumentTableRow), so no extra blocking is needed.
+	updateInstrumentTable();
 }
 
 void MidiControlDialog::updateSongEvent( int nValue ) {
@@ -891,7 +992,7 @@ void MidiControlDialog::showEvent( QShowEvent* pEvent ) {
 }
 
 void MidiControlDialog::updateFont() {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	const auto pFontTheme = pPref->getFontTheme();
 
 	QFont font( pFontTheme->m_sApplicationFontFamily,
@@ -901,9 +1002,11 @@ void MidiControlDialog::updateFont() {
 	setFont( font );
 
 	// In order to affect the fonts of all child widgets in the table as well,
-	// we have to use its stylesheet instead of the setFont() method.
+	// we have to use its stylesheet instead of the setFont() method. The
+	// family has to be quoted — a name containing a space would fail the
+	// stylesheet parser.
 	const auto sTableStyle = QString( "\
-font-family: %1; \
+font-family: \"%1\"; \
 font-size: %2; \
 " )
 		.arg( childFont.family() )
@@ -915,7 +1018,7 @@ font-size: %2; \
 
 void MidiControlDialog::updateIcons() {
 	QString sIconPath( Skin::getSvgImagePath() );
-	if ( Preferences::get_instance()->getInterfaceTheme()->m_iconColor ==
+	if ( HydrogenApp::pPreferences()->getInterfaceTheme()->m_iconColor ==
 		 InterfaceTheme::IconColor::White ) {
 		sIconPath.append( "/icons/white/" );
 	} else {
@@ -928,10 +1031,55 @@ void MidiControlDialog::updateIcons() {
 
 }
 
+void MidiControlDialog::persistMidiSettings()
+{
+	// The scalar MIDI settings edited in this dialog are part of the (config)
+	// Preferences. Route them through the CAC command — in the IPC split this
+	// installs them on the authoritative engine's preferences (its MIDI I/O
+	// reads them live) and on our mirror — before the durable write, so the
+	// config stores what the engine actually runs instead of living only in
+	// memory until shutdown (ADR 0030 + ADR 0027 bucket C). Standalone the
+	// command is a local install of the very same values — a no-op beyond the
+	// write.
+	const long nEventId = HydrogenApp::pEventQueue()->createEventId();
+	HydrogenApp::pEngine()->getCoreActionController()->setMidiControlSettings(
+		m_pInputIgnoreNoteOffCheckBox->isChecked(),
+		Midi::channelFromInt( static_cast<int>(
+			m_pInputActionChannelSpinBox->value() ) ),
+		m_pOutputEnableMidiFeedbackCheckBox->isChecked(),
+		m_pInputMidiTransportCheckBox->isChecked(),
+		m_pOutputMidiTransportCheckBox->isChecked(),
+		Midi::channelFromInt( static_cast<int>(
+			m_pOutputFeedbackChannelSpinBox->value() ) ),
+		static_cast<Preferences::MidiSendNoteOff>(
+			m_pOutputSendNoteOffComboBox->currentIndex() ),
+		nEventId );
+	// Ensure we do not act on the queued event ourselves — in editor mode
+	// both the local mirror apply and the engine echo carry the id.
+	blacklistEventId( nEventId );
+	HydrogenApp::pPreferences()->save( false );
+}
+
+void MidiControlDialog::persistMidiInstrumentMap()
+{
+	// The instrument map is GUI-authoritative and staged in place on the
+	// mirror's preferences (the callbacks mutate it directly). Push the whole
+	// map so the authoritative engine's MIDI I/O and Sampler apply it live
+	// instead of only on the next config reload (ADR 0030), then persist it
+	// like the scalar settings above (ADR 0027 bucket C).
+	const long nEventId = HydrogenApp::pEventQueue()->createEventId();
+	HydrogenApp::pEngine()->getCoreActionController()->setMidiInstrumentMap(
+		HydrogenApp::pPreferences()->getMidiInstrumentMap(), nEventId );
+	// Ensure we do not act on the queued event ourselves — in editor mode
+	// both the local mirror apply and the engine echo carry the id.
+	blacklistEventId( nEventId );
+	HydrogenApp::pPreferences()->save( false );
+}
+
 void MidiControlDialog::updateInstrumentTable() {
 	m_instrumentMap.clear();
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -939,7 +1087,7 @@ void MidiControlDialog::updateInstrumentTable() {
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
 
 	const auto pMidiInstrumentMap =
-		Preferences::get_instance()->getMidiInstrumentMap();
+		HydrogenApp::pPreferences()->getMidiInstrumentMap();
 
 	const int nNewRowCount = pInstrumentList->size();
 	while ( m_pInstrumentTable->rowCount() < nNewRowCount ) {
@@ -1037,20 +1185,19 @@ void MidiControlDialog::updateInstrumentTableRow(
 		return;
 	}
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
 
 	const auto pMidiInstrumentMap =
-		Preferences::get_instance()->getMidiInstrumentMap();
+		HydrogenApp::pPreferences()->getMidiInstrumentMap();
 
 	const auto instrumentHandle = std::make_pair( pInstrument->getType(),
 												  pInstrument->getId() );
 	m_instrumentMap[ instrumentHandle ] = pInstrument;
 	const auto inputMapping =
-		pMidiInstrumentMap->getInputMapping( pInstrument,
-											 pSong->getDrumkit() );
+		pMidiInstrumentMap->getInputMapping( pInstrument, pSong->getDrumkit(), HydrogenApp::pHydrogen() );
 	auto pInputChannelSpinBox =
 		static_cast<LCDSpinBox*>(m_pInstrumentTable->cellWidget( nRow, 0 ));
 	auto pInputNoteSpinBox =
@@ -1067,26 +1214,67 @@ void MidiControlDialog::updateInstrumentTableRow(
 				static_cast<int>( inputMapping.channel ),
 				Event::Trigger::Suppress
 			);
-			pInputNoteSpinBox->setValue(
-				static_cast<int>( inputMapping.note ), Event::Trigger::Suppress
-			);
+			if ( inputMapping.note == Midi::NoteAll ) {
+				// Input::SelectedInstrument: every incoming note maps to
+				// the instrument — display "All". The spinbox is disabled
+				// in this mode; the plain configuration is restored by
+				// the branches below whenever the table is updated
+				// again.
+				pInputNoteSpinBox->setFlag(
+					LCDSpinBox::Flag::MinusTwoAsAll );
+				pInputNoteSpinBox->setRange(
+					static_cast<double>( Midi::NoteAll ),
+					static_cast<double>( Midi::NoteMaximum ) );
+				pInputNoteSpinBox->setValue(
+					static_cast<double>( Midi::NoteAll ),
+					Event::Trigger::Suppress
+				);
+			}
+			else {
+				pInputNoteSpinBox->setFlag(
+					LCDSpinBox::Flag::ShowMidiNote );
+				// The value first, then the range: shrinking the range
+				// would clamp an out-of-range value (e.g. "All") with an
+				// unsuppressed change notification.
+				pInputNoteSpinBox->setValue(
+					static_cast<int>( inputMapping.note ),
+					Event::Trigger::Suppress
+				);
+				pInputNoteSpinBox->setRange(
+					static_cast<double>( Midi::NoteMinimum ),
+					static_cast<double>( Midi::NoteMaximum ) );
+			}
 		}
 		else {
 			pInputChannelSpinBox->setValue(
 				static_cast<int>( Midi::ChannelOff ), Event::Trigger::Suppress
 			);
+			// No input mapping in this mode. Reset the note spinbox to
+			// its plain configuration — a previous
+			// Input::SelectedInstrument pass may have left "All" in
+			// place, which must not leak into other modes.
+			pInputNoteSpinBox->setFlag( LCDSpinBox::Flag::ShowMidiNote );
+			pInputNoteSpinBox->setValue(
+				static_cast<double>( Midi::NoteMinimum ),
+				Event::Trigger::Suppress
+			);
+			pInputNoteSpinBox->setRange(
+				static_cast<double>( Midi::NoteMinimum ),
+				static_cast<double>( Midi::NoteMaximum ) );
 		}
 
-		if ( pMidiInstrumentMap->getInput() !=
-			 MidiInstrumentMap::Input::Custom ) {
-			pInputNoteSpinBox->setEnabled( false );
-			pInputChannelSpinBox->setEnabled( false );
-		}
-		else {
-			pInputNoteSpinBox->setEnabled( true );
-			pInputChannelSpinBox->setEnabled(
-				! pMidiInstrumentMap->getUseGlobalInputChannel() );
-		}
+		// The note is editable only in Custom mode; the channel in
+		// Custom and Order as well (Order derives the note from the
+		// instrument's position but keeps the individual channel). The
+		// global input channel — forced on in SelectedInstrument —
+		// overrides every individual channel.
+		const auto input = pMidiInstrumentMap->getInput();
+		pInputNoteSpinBox->setEnabled(
+			input == MidiInstrumentMap::Input::Custom );
+		pInputChannelSpinBox->setEnabled(
+			( input == MidiInstrumentMap::Input::Custom ||
+			  input == MidiInstrumentMap::Input::Order ) &&
+			! pMidiInstrumentMap->getUseGlobalInputChannel() );
 
 		connect(
 			pInputChannelSpinBox,
@@ -1098,7 +1286,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
-					Preferences::get_instance()
+					HydrogenApp::pPreferences()
 						->getMidiInstrumentMap()
 						->insertCustomInputMapping(
 							pInstrument,
@@ -1107,6 +1295,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 							Midi::channelFromInt( static_cast<int>( fValue
 							) )
 						);
+					persistMidiInstrumentMap();
 				}
 				else {
 					ERRORLOG(
@@ -1127,7 +1316,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
-					Preferences::get_instance()
+					HydrogenApp::pPreferences()
 						->getMidiInstrumentMap()
 						->insertCustomInputMapping(
 							pInstrument,
@@ -1137,6 +1326,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 								pInputChannelSpinBox->value()
 							)
 						);
+					persistMidiInstrumentMap();
 				}
 				else {
 					ERRORLOG(
@@ -1188,25 +1378,22 @@ void MidiControlDialog::updateInstrumentTableRow(
 					 m_instrumentMap.end() ) {
 					return;
 				}
-				auto pSong = Hydrogen::get_instance()->getSong();
+				auto pSong = HydrogenApp::pEngine()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
-					long nEventId = Event::nInvalidId;
-					CoreActionController::setInstrumentMidiOutNote(
+					long nEventId = HydrogenApp::pEventQueue()->createEventId();
+					HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutNote(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
 						Midi::noteFromIntClamp( static_cast<int>( fValue ) ),
-						&nEventId
+						nEventId
 					);
-					if ( nEventId != Event::nInvalidId ) {
-						// Ensure we do not act on the queued event
-						// ourself.
-						blacklistEventId( nEventId );
-					}
+					// Ensure we do not act on the queued event ourselves.
+					blacklistEventId( nEventId );
 				}
 				else {
 					ERRORLOG(
@@ -1222,9 +1409,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				const auto instrumentHandle = std::make_pair(
 					pInstrument->getType(), pInstrument->getId()
 				);
-				const auto inputMapping = pMidiInstrumentMap->getInputMapping(
-					pInstrument, pSong->getDrumkit()
-				);
+				const auto inputMapping = pMidiInstrumentMap->getInputMapping( pInstrument, pSong->getDrumkit(), HydrogenApp::pHydrogen() );
 				if ( !inputMapping.isNull() ) {
 					pInputNoteSpinBox->setValue(
 						static_cast<int>( inputMapping.note ),
@@ -1269,24 +1454,22 @@ void MidiControlDialog::updateInstrumentTableRow(
 					 m_instrumentMap.end() ) {
 					return;
 				}
-				auto pSong = Hydrogen::get_instance()->getSong();
+				auto pSong = HydrogenApp::pEngine()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
 				}
 				auto pInstrument = m_instrumentMap.at( instrumentHandle );
 				if ( pInstrument != nullptr ) {
-					long nEventId = Event::nInvalidId;
-					CoreActionController::setInstrumentMidiOutChannel(
+					long nEventId = HydrogenApp::pEventQueue()->createEventId();
+					HydrogenApp::pEngine()->getCoreActionController()->setInstrumentMidiOutChannel(
 						pSong->getDrumkit()->getInstruments()->index(
 							pInstrument
 						),
 						Midi::channelFromInt( static_cast<int>( fValue ) ),
-						&nEventId
+						nEventId
 					);
-					if ( nEventId != Event::nInvalidId ) {
-						// Ensure we do not act on the queued event ourself.
-						blacklistEventId( nEventId );
-					}
+					// Ensure we do not act on the queued event ourselves.
+					blacklistEventId( nEventId );
 				}
 				else {
 					ERRORLOG(
@@ -1302,9 +1485,7 @@ void MidiControlDialog::updateInstrumentTableRow(
 				const auto instrumentHandle = std::make_pair(
 					pInstrument->getType(), pInstrument->getId()
 				);
-				const auto inputMapping = pMidiInstrumentMap->getInputMapping(
-					pInstrument, pSong->getDrumkit()
-				);
+				const auto inputMapping = pMidiInstrumentMap->getInputMapping( pInstrument, pSong->getDrumkit(), HydrogenApp::pHydrogen() );
 				if ( !inputMapping.isNull() ) {
 					pInputChannelSpinBox->setValue(
 						static_cast<int>( inputMapping.channel ),
@@ -1334,12 +1515,7 @@ void MidiControlDialog::updateInputTable() {
 	const bool bLastRowPreviouslyVisible =
 		MidiControlDialog::lastRowVisible( m_pMidiInputTable );
 
-	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
-
-	std::vector< std::shared_ptr<MidiInput::HandledInput> > handledInputs;
-	if ( pMidiDriver != nullptr ) {
-		handledInputs = pMidiDriver->getHandledInputs();
-	}
+	const auto handledInputs = HydrogenApp::pEngine()->getHandledMidiInputs();
 
 	const int nOldRowCount = m_pMidiInputTable->rowCount();
 	m_pMidiInputTable->setRowCount( handledInputs.size() );
@@ -1353,7 +1529,7 @@ void MidiControlDialog::updateInputTable() {
 		if ( ii < nOldRowCount ) {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiInputTable->cellWidget( ii, 0 ) );
-			if ( ppLabel == nullptr || handledInputs[ ii ] != nullptr ||
+			if ( ppLabel == nullptr || handledInputs[ ii ] == nullptr ||
 				 ppLabel->text() != H2Core::timePointToQString(
 					 handledInputs[ ii ]->timePoint ) ) {
 				bInvalid = true;
@@ -1367,6 +1543,9 @@ void MidiControlDialog::updateInputTable() {
 		pLabel->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 		pLabel->setAlignment( Qt::AlignCenter );
 		pLabel->setText( sText );
+		// Columns further right (action types, mapped instruments) can
+		// elide; the tooltip keeps the full text reachable.
+		pLabel->setToolTip( sText );
 
 		return pLabel;
 	};
@@ -1533,21 +1712,21 @@ void MidiControlDialog::updateOutputTable() {
 	const bool bLastRowPreviouslyVisible =
 		MidiControlDialog::lastRowVisible( m_pMidiOutputTable );
 
-	auto pMidiDriver = Hydrogen::get_instance()->getMidiDriver();
-
-	std::vector< std::shared_ptr<MidiOutput::HandledOutput> > handledOutputs;
-	if ( pMidiDriver != nullptr ) {
-		handledOutputs = pMidiDriver->getHandledOutputs();
-	}
+	const auto handledOutputs = HydrogenApp::pEngine()->getHandledMidiOutputs();
 
 	const int nOldRowCount = m_pMidiOutputTable->rowCount();
 	m_pMidiOutputTable->setRowCount( handledOutputs.size() );
 
 	// First, we check whether the table holds mostly the same entries and we
-	// just have to insert a new one at the bottom.
+	// just have to insert a new one at the bottom. But after
+	// MidiBaseDriver::nBacklogSize events the first one will be poped and a new
+	// one appended.
 	bool bInvalid = false;
 	for ( int ii = 0; ii < handledOutputs.size(); ++ii ) {
-		if ( ii < m_pMidiOutputTable->rowCount() ) {
+		// Rows beyond the pre-update count were just created by
+		// setRowCount() above and have no cell widgets yet — comparing
+		// against rowCount() instead would always invalidate the fast path.
+		if ( ii < nOldRowCount ) {
 			auto ppLabel = dynamic_cast<QLabel*>(
 				m_pMidiOutputTable->cellWidget( ii, 0 ) );
 			if ( ppLabel == nullptr || handledOutputs[ ii ] == nullptr ||

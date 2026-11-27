@@ -27,10 +27,12 @@
 #include <core/Basics/Instrument.h>
 #include <core/Basics/Song.h>
 #include <core/config.h>
+#include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/IO/DiskWriterDriver.h>
 #include <core/IO/LoopBackMidiDriver.h>
+#include <core/IPC/EditorSession.h>
 #include <core/Midi/MidiActionManager.h>
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>
@@ -47,6 +49,7 @@
 
 TestHelper* TestHelper::m_pInstance = nullptr;
 QString TestHelper::sRootDir = CMAKE_SOURCE_DIR;
+int TestHelper::nEndpointCounter = 1;
 
 void TestHelper::createInstance( bool bAppveyor )
 {
@@ -85,7 +88,7 @@ QStringList TestHelper::findDrumkitBackupFiles( const QString& sPath ) const {
 }
 
 void TestHelper::varyAudioDriverConfig( int nIndex ) {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = pTestPreferences();
 	
 	switch( nIndex ) {
 	case 0:
@@ -156,7 +159,7 @@ void TestHelper::varyAudioDriverConfig( int nIndex ) {
 	___INFOLOG( QString( "New bufferSize: %1, new sampleRate: %2" )
 				.arg( pPref->m_nBufferSize ).arg( pPref->m_nSampleRate ) );
 
-	H2Core::Hydrogen::get_instance()->restartAudioDriver();
+	pTestHydrogen()->restartAudioDriver();
 }
 
 void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
@@ -169,18 +172,14 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pHydrogen = pTestHydrogen();
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
 		
 	pHydrogen->setSong( pSong );
 
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->setCurrentlyExported( true );
-	}
-
 	pHydrogen->startExportSession( nSampleRate, nSampleDepth, fCompressionLevel );
+	// No exclusion list -> all instruments are exported (ADR 0027).
 	pHydrogen->startExportSong( sFileName );
 
 	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
@@ -210,20 +209,16 @@ void TestHelper::exportSong( const QString& sSongFile, const QString& sFileName,
 				.arg( nSampleRate ).arg( nSampleDepth ).arg( t ) );
 }
 
-void TestHelper::exportSong( const QString& sFileName )
+void TestHelper::exportSong( const QString& sFileName,
+							 const std::vector<H2Core::Uuid>& excludedInstruments )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pSong = pHydrogen->getSong();
 
-	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	for (auto i = 0; i < pInstrumentList->size(); i++) {
-		pInstrumentList->get(i)->setCurrentlyExported( true );
-	}
-
 	pHydrogen->startExportSession( 44100, 16, 1.0 );
-	pHydrogen->startExportSong( sFileName );
+	pHydrogen->startExportSong( sFileName, excludedInstruments );
 
 	auto pDriver = std::dynamic_pointer_cast<H2Core::DiskWriterDriver>(
 		pHydrogen->getAudioDriver()
@@ -253,11 +248,11 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	auto pSong = H2Core::Song::load( sSongFile );
+	auto pSong = H2Core::Song::load( sSongFile, false, pTestHydrogen() );
 	CPPUNIT_ASSERT( pSong != nullptr );
-	H2Core::CoreActionController::setSong( pSong );
+	pTestHydrogen()->getCoreActionController()->setSong( pSong );
 
-	pWriter->save( sFileName, pSong, bUseHumanization );
+	pWriter->save( sFileName, pSong, bUseHumanization, pTestHydrogen() );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
@@ -265,7 +260,7 @@ void TestHelper::exportMIDI( const QString& sSongFile, const QString& sFileName,
 }
 
 void TestHelper::waitForAudioDriver() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	pAudioEngine->lock( RIGHT_HERE );
@@ -291,7 +286,7 @@ void TestHelper::waitForAudioDriver() {
 }
 
 void TestHelper::waitForMidiDriver() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pAudioEngine = pHydrogen->getAudioEngine();
 
 	CPPUNIT_ASSERT( pAudioEngine->getMidiDriver() != nullptr );
@@ -314,7 +309,7 @@ void TestHelper::waitForMidiDriver() {
 }
 
 void TestHelper::waitForMidiActionManagerWorkerThread() {
-	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pHydrogen = pTestHydrogen();
 	auto pMidiActionManager = pHydrogen->getMidiActionManager();
 
 	// Since incoming MIDI events are handled asynchronously, we pause execution
@@ -330,4 +325,104 @@ void TestHelper::waitForMidiActionManagerWorkerThread() {
 		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 	}
 	CPPUNIT_ASSERT( nnTry < nMaxTries );
+}
+
+// --- Test-instance accessors (ADR 0015, T1.5 fixture) ---
+
+H2Core::Hydrogen* pTestHydrogen() {
+	return TestHelper::get_instance()->getHydrogen();
+}
+
+std::shared_ptr<H2Core::Preferences> pTestPreferences() {
+	return TestHelper::get_instance()->getHydrogen()->getPreferences();
+}
+
+H2Core::EventQueue* pTestEventQueue() {
+	return TestHelper::get_instance()->getHydrogen()->getEventQueue();
+}
+
+// --- IPC helpers ---
+
+H2Core::Hydrogen* TestHelper::makeEngine() {
+	auto pPref = H2Core::Preferences::create_instance();
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::None;
+	pPref->setOscServerEnabled( false );
+	auto* pHydrogen = new H2Core::Hydrogen(
+		pPref, H2Core::ProcessMode::Headless, -1
+	);
+	pHydrogen->setFullyOperational( true );
+	return pHydrogen;
+}
+
+H2Core::Hydrogen* TestHelper::makeEngineWithLoopBackMidi() {
+	auto pPref = H2Core::Preferences::create_instance();
+	pPref->m_audioDriver = H2Core::Preferences::AudioDriver::Fake;
+	pPref->m_midiDriver = H2Core::Preferences::MidiDriver::LoopBack;
+	pPref->setOscServerEnabled( false );
+	// Without this the driver's open() starts a MIDI clock stream whose
+	// ticks would continuously append to the handled-output log and make
+	// snapshot comparisons racy.
+	pPref->setMidiClockOutputSend( false );
+	auto* pHydrogen = new H2Core::Hydrogen(
+		pPref, H2Core::ProcessMode::Headless, -1
+	);
+	pHydrogen->setFullyOperational( true );
+	return pHydrogen;
+}
+
+H2Core::Hydrogen* TestHelper::makeMirror() {
+	auto pPref = H2Core::Preferences::create_instance();
+	// Same headless-mirror configuration main()'s editor branch uses: the
+	// clocked but output-less Null driver (ADR 0031) rolls the mirror's
+	// transport locally; no MIDI, no OSC.
+	H2Core::EditorSession::configureMirrorPreferences( pPref );
+	auto pHydrogen = new H2Core::Hydrogen(
+		pPref, H2Core::ProcessMode::Editor, -1
+	);
+	pHydrogen->setFullyOperational( true );
+	return pHydrogen;
+}
+
+QString TestHelper::uniqueEndpoint() {
+	return QString( "h2-roundtrip-test-%1-%2" )
+		.arg( QCoreApplication::applicationPid() )
+		.arg( TestHelper::nEndpointCounter++ );
+}
+
+bool TestHelper::pumpUntil( std::function<bool()> cond, int nTimeoutMs )
+{
+	QElapsedTimer timer;
+	timer.start();
+	while ( !cond() && timer.elapsed() < nTimeoutMs ) {
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
+		QThread::msleep( 5 );
+	}
+	return cond();
+}
+
+bool TestHelper::pumpUntilEvent(
+	H2Core::Hydrogen* pMirror,
+	H2Core::Event::Type type,
+	int nValue,
+	int nTimeoutMs
+)
+{
+	QElapsedTimer timer;
+	timer.start();
+	while ( timer.elapsed() < nTimeoutMs ) {
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 10 );
+		auto pQueue = pMirror->getEventQueue();
+		if ( pQueue != nullptr ) {
+			std::unique_ptr<H2Core::Event> pEvent;
+			while ( ( pEvent = pQueue->popEvent() ) != nullptr ) {
+				if ( pEvent->getType() == type &&
+					 pEvent->getValue() == nValue ) {
+					return true;
+				}
+			}
+		}
+		QThread::msleep( 5 );
+	}
+	return false;
 }

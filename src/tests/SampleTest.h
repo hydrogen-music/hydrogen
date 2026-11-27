@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2TEST_SAMPLE_TEST_H
-#define H2TEST_SAMPLE_TEST_H
+#ifndef H2C_H2TEST_SAMPLE_TEST_H
+#define H2C_H2TEST_SAMPLE_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef TYPESTABLE_H_
-#define TYPESTABLE_H_
+#ifndef H2C_TYPESTABLE_H_
+#define H2C_TYPESTABLE_H_
 
 #include <core/Object.h>
 #include <QTableWidget>
@@ -57,4 +57,4 @@ private:
 	};
 };
 
-#endif // TYPESTABLE_H_
+#endif // H2C_TYPESTABLE_H_

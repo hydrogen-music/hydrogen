@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef NETWORK_TEST_H
-#define NETWORK_TEST_H
+#ifndef H2C_NETWORK_TEST_H
+#define H2C_NETWORK_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 

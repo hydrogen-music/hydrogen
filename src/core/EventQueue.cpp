@@ -27,19 +27,7 @@
 namespace H2Core
 {
 
-EventQueue* EventQueue::__instance = nullptr;
-
-void EventQueue::create_instance()
-{
-	if ( __instance == nullptr ) {
-		__instance = new EventQueue;
-	}
-}
-
-
-EventQueue::EventQueue() : m_bSilent( false ) {
-	__instance = this;
-
+EventQueue::EventQueue( Hydrogen* pHydrogen ) : m_pHydrogen( pHydrogen ), m_bSilent( false ) {
     std::random_device randomSeed;
 	m_randomEngine = std::default_random_engine( randomSeed() );
 	m_randomDistribution =
@@ -50,15 +38,33 @@ EventQueue::EventQueue() : m_bSilent( false ) {
 EventQueue::~EventQueue() {
 }
 
+void EventQueue::pushEvent(
+	const Event::Type type,
+	const int nValue,
+	long nRequestedId
+)
+{
+	pushEvent( type, nValue, nRequestedId, m_pHydrogen->getProcessMode() );
+}
 
-long EventQueue::pushEvent( const Event::Type type, const int nValue ) {
+void EventQueue::pushEvent(
+	const Event::Type type,
+	const int nValue,
+	long nRequestedId,
+	H2Core::ProcessMode origin
+)
+{
 	std::lock_guard< std::mutex > lock( m_mutex );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
+	// Errors are exempt from the fully-operational gate:
+	// constructor-time failures (OSC port conflict at server start,
+	// driver start) must survive until an editor attaches — the session
+	// retains and replays them so the user still sees the popup (ADR
+	// 0026 point 9).
 	if ( pHydrogen == nullptr ||
-		 pHydrogen->getGUIState() == Hydrogen::GUIState::startup ||
-		 pHydrogen->getGUIState() == Hydrogen::GUIState::shutdown ) {
-		return Event::nInvalidId;
+		 ( type != Event::Type::Error && ! pHydrogen->isFullyOperational() ) ) {
+		return;
 	}
 
 	/* The event queue is full. We could drop the old event, or the new event
@@ -76,11 +82,13 @@ long EventQueue::pushEvent( const Event::Type type, const int nValue ) {
 		}
 	}
 
-	auto pEvent = std::make_unique<Event>( type, nValue );
-	const auto nId = pEvent->getId();
-	m_eventQueue.push_back( std::move( pEvent ) );
+	long nId = nRequestedId;
+	if ( nId == Event::nInvalidId ) {
+		nId = createEventId();
+	}
 
-	return nId;
+	auto pEvent = std::make_unique<Event>( type, nValue, nId, origin );
+	m_eventQueue.push_back( std::move( pEvent ) );
 }
 
 std::unique_ptr<Event> EventQueue::popEvent() {
@@ -109,8 +117,34 @@ void EventQueue::dropEvents( const Event::Type& type ) {
     }
 }
 
+void EventQueue::pushMidiNoteAction( const AddMidiNoteVector& noteAction ) {
+	std::lock_guard< std::mutex > lock( m_addMidiNoteMutex );
+	m_addMidiNoteVector.push_back( noteAction );
+}
+
+std::vector<EventQueue::AddMidiNoteVector>
+EventQueue::drainMidiNoteActions() {
+	std::lock_guard< std::mutex > lock( m_addMidiNoteMutex );
+	std::vector<AddMidiNoteVector> notes;
+	notes.swap( m_addMidiNoteVector );
+	return notes;
+}
+
+std::vector<EventQueue::AddMidiNoteVector>
+EventQueue::getMidiNoteActions() const {
+	std::lock_guard< std::mutex > lock( m_addMidiNoteMutex );
+	return m_addMidiNoteVector;
+}
+
 long EventQueue::createEventId() {
-	return m_randomDistribution( m_randomEngine );
+	const long id = m_randomDistribution( m_randomEngine );
+
+	// For the off chance that we draw a 0, we draw again (which raises the
+	// already tiny probability to draw an invalid id to the power of two).
+	if ( id == Event::nInvalidId ) {
+		return m_randomDistribution( m_randomEngine );
+	}
+	return id;
 }
 
 QString EventQueue::toQString( const QString& sPrefix, bool bShort ) {

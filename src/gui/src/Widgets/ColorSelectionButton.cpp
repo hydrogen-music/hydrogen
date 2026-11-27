@@ -21,6 +21,8 @@
  */
 
 #include "ColorSelectionButton.h"
+#include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <QColorDialog>
 #include <core/Globals.h>
@@ -94,9 +96,11 @@ void ColorSelectionButton::paintEvent( QPaintEvent* ev) {
 		QColor backgroundColor( "#333" );
 		if ( m_bMouseOver ) {
 			if ( isEnabled() ) {
-				backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_highlightColor;
+				backgroundColor = Skin::toQColor(
+					HydrogenApp::pPreferences()->getColorTheme()->m_highlightColor );
 			} else {
-				backgroundColor = H2Core::Preferences::get_instance()->getColorTheme()->m_lightColor;
+				backgroundColor = Skin::toQColor(
+					HydrogenApp::pPreferences()->getColorTheme()->m_lightColor );
 			}
 		}
 

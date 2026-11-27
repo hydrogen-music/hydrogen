@@ -20,24 +20,31 @@
  *
  */
 
-#ifndef TEST_HELPER_H
-#define TEST_HELPER_H
+#ifndef H2C_TEST_HELPER_H
+#define H2C_TEST_HELPER_H
 
 #include <QString>
 #include <cassert>
+#include <memory>
+#include <vector>
 
 #include <core/Basics/Drumkit.h>
 #include <core/Basics/Song.h>
 #include <core/Midi/SMF.h>
 
+namespace H2Core {
+	class Hydrogen;
+	class Preferences;
+	class EventQueue;
+}
+
 class TestHelper {
-	static TestHelper*	m_pInstance;
-	QString m_sDataDir;
-	QString m_sTestDataDir;
-	bool m_bAppveyor;
-	
 	public:
 		TestHelper();
+
+		/** Set/get the suite's Hydrogen instance (set once by the harness). */
+		void setHydrogen( H2Core::Hydrogen* pHydrogen ) { m_pHydrogen = pHydrogen; }
+		H2Core::Hydrogen* getHydrogen() const { return m_pHydrogen; }
 
 	bool isAppveyor() const;
 		QString getDataDir() const;
@@ -49,8 +56,8 @@ class TestHelper {
 
 	/**
 	 * Picks different combinations of sample rate and buffer size of
-	 * the FakeAudioDriver, stores them in the Preferences instance, and
-	 * restarts the FakeAudioDriver.
+	 * the SoftwareDriver, stores them in the Preferences instance, and
+	 * restarts the SoftwareDriver.
 	 *
 	 * \param nIndex Numbers 0 till 10 correspond to hard-coded
 	 * parameter combinations. For all others random values will be
@@ -80,8 +87,13 @@ class TestHelper {
 	 * Export the current song within Hydrogen to audio file @a sFileName;
 	 *
 	 * \param sFileName Output file name
+	 * \param excludedInstruments Identities of instruments to leave out of the
+	 *   export (empty = export all). Forwarded to
+	 *   #H2Core::Hydrogen::startExportSong().
 	 */
-	static void exportSong( const QString& sFileName );
+	static void exportSong(
+		const QString& sFileName,
+		const std::vector<H2Core::Uuid>& excludedInstruments = {} );
 
 	/**
 	 * Export Hydrogon song @a sSongFile to MIDI file @a sFileName
@@ -111,6 +123,42 @@ class TestHelper {
 
 	static void			createInstance( bool bAppveyor );
 	static TestHelper*	get_instance();
+
+	static H2Core::Hydrogen* makeEngine();
+	/** Engine fixture with a LoopBack MIDI driver — for tests exercising the
+	 * MIDI read surface over IPC without hardware. MIDI clock output is
+	 * disabled so the handled-message logs only contain what a test seeds. */
+	static H2Core::Hydrogen* makeEngineWithLoopBackMidi();
+	/** A standalone headless engine standing in for the editor-side mirror that
+	 * the GUI would read from. Caller owns it. */
+	static H2Core::Hydrogen* makeMirror();
+	static QString uniqueEndpoint();
+
+	/** Pump the (main-thread) editor channel via the event loop and yield to
+	 * the engine's bridge thread, until @a cond holds or @a nTimeoutMs
+	 * elapses. */
+	static bool pumpUntil( std::function<bool()> cond, int nTimeoutMs = 4000 );
+
+	/** Pump as above, draining the mirror's EventQueue and reporting whether
+	 * the given (type,value) event arrived (forwarded from the engine). */
+	static bool pumpUntilEvent(
+		H2Core::Hydrogen* pMirror,
+		H2Core::Event::Type type,
+		int nValue,
+		int nTimeoutMs = 4000
+	);
+
+private:
+	static TestHelper*	m_pInstance;
+	QString m_sDataDir;
+	QString m_sTestDataDir;
+	bool m_bAppveyor;
+	/** The process-current Hydrogen instance the suite runs against (ADR 0015,
+	 * T1.5 test-instance fixture). Held here so tests reach it without the
+	 * Hydrogen::get_instance() shim. */
+	H2Core::Hydrogen* m_pHydrogen = nullptr;
+
+	static int nEndpointCounter;
 };
 
 inline TestHelper*	TestHelper::get_instance() 
@@ -136,6 +184,17 @@ inline QString TestHelper::getTestFile(const QString& file) const
 {
 	return m_sTestDataDir + file; 
 }
+
+/** @name Test-instance accessors (ADR 0015, T1.5 fixture)
+ * Resolve the suite's engine instance held by TestHelper, replacing the
+ * transitional Hydrogen/Preferences/EventQueue::get_instance() shims in tests.
+ * Use these only in tests that run against the harness singleton — tests that
+ * construct their own Hydrogen must keep their explicit instance.
+ * @{ */
+H2Core::Hydrogen* pTestHydrogen();
+std::shared_ptr<H2Core::Preferences> pTestPreferences();
+H2Core::EventQueue* pTestEventQueue();
+/** @} */
 
 #define H2TEST_FILE(name) TestHelper::get_instance()->getTestFile(name)
 #define ASSERT_SONG(pSong) {                                                    \

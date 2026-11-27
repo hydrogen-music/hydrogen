@@ -117,19 +117,19 @@ void WaveDisplay::setRenderPlayhead( bool bRender )
 
 void WaveDisplay::updateBackground()
 {
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	const QColor borderColor = Qt::black;
 	QColor backgroundColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
-		backgroundColor = pColorTheme->m_muteColor;
+		backgroundColor = Skin::toQColor( pColorTheme->m_muteColor );
 	}
 	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
-		backgroundColor = pColorTheme->m_soloColor;
+		backgroundColor = Skin::toQColor( pColorTheme->m_soloColor );
 	}
 	else {
-		backgroundColor = pColorTheme->m_accentColor;
+		backgroundColor = Skin::toQColor( pColorTheme->m_accentColor );
 	}
 
 	const qreal pixelRatio = devicePixelRatio();
@@ -256,25 +256,25 @@ void WaveDisplay::drawPeakData()
 		return;
 	}
 
-	auto pPref = H2Core::Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	const auto pColorTheme = pPref->getColorTheme();
 
 	QColor backgroundColor, textColor;
 	if ( m_pLayer != nullptr && m_pLayer->getIsMuted() ) {
-		textColor = pColorTheme->m_muteTextColor;
-		backgroundColor = pColorTheme->m_muteColor;
+		textColor = Skin::toQColor( pColorTheme->m_muteTextColor );
+		backgroundColor = Skin::toQColor( pColorTheme->m_muteColor );
 	}
 	else if ( m_pLayer != nullptr && m_pLayer->getIsSoloed() ) {
-		textColor = pColorTheme->m_soloTextColor;
-		backgroundColor = pColorTheme->m_soloColor;
+		textColor = Skin::toQColor( pColorTheme->m_soloTextColor );
+		backgroundColor = Skin::toQColor( pColorTheme->m_soloColor );
 	}
 	else {
-		textColor = pColorTheme->m_accentTextColor;
-		backgroundColor = pColorTheme->m_accentColor;
+		textColor = Skin::toQColor( pColorTheme->m_accentTextColor );
+		backgroundColor = Skin::toQColor( pColorTheme->m_accentColor );
 	}
 	textColor.setAlpha( 200 );
 
-	QColor waveFormColor = pColorTheme->m_waveFormColor;
+	QColor waveFormColor = Skin::toQColor( pColorTheme->m_waveFormColor );
 	const QColor waveFormInactiveColor =
 		Skin::makeBackgroundColorInactive( backgroundColor );
 

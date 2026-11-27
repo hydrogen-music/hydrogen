@@ -20,9 +20,10 @@
  *
  */
 
-#ifndef MIDI_INSTRUMENT_MAP_H
-#define MIDI_INSTRUMENT_MAP_H
+#ifndef H2C_MIDI_INSTRUMENT_MAP_H
+#define H2C_MIDI_INSTRUMENT_MAP_H
 
+#include <QByteArray>
 #include <QString>
 #include <map>
 #include <memory>
@@ -34,6 +35,7 @@
 namespace H2Core {
 
 class Drumkit;
+class Hydrogen;
 class Note;
 class XMLNode;
 
@@ -127,10 +129,22 @@ public:
 	void saveTo( XMLNode& node ) const;
 	static std::shared_ptr<MidiInstrumentMap> loadFrom( const XMLNode& node, bool bSilent = false );
 
+	/** Serializes the map into a self-contained XML buffer for IPC
+	 * transport (ADR 0030). */
+	QByteArray toXmlBuffer() const;
+	/** Reconstructs a map from a buffer produced by toXmlBuffer().
+	 *
+	 * \param bSilent Passed through to loadFrom(). */
+	static std::shared_ptr<MidiInstrumentMap> fromXmlBuffer(
+		const QByteArray& xmlBuffer,
+		bool bSilent = false );
+
 	std::vector< std::shared_ptr<Instrument> > mapInput(
-		Midi::Note note, Midi::Channel channel, std::shared_ptr<Drumkit> pDrumkit ) const;
+		Midi::Note note, Midi::Channel channel, std::shared_ptr<Drumkit> pDrumkit,
+		Hydrogen* pHydrogen ) const;
 	NoteRef getInputMapping( std::shared_ptr<Instrument> pInstrument,
-							std::shared_ptr<Drumkit> pDrumkit ) const;
+							std::shared_ptr<Drumkit> pDrumkit,
+							Hydrogen* pHydrogen ) const;
 	NoteRef getOutputMapping( std::shared_ptr<Note> pNote,
 							 std::shared_ptr<Instrument> pInstrument = nullptr ) const;
 
@@ -173,7 +187,15 @@ public:
 	 * we can save all the logic for keeping a cache data structure up to date
 	 * and do not have to worry about storing shared pointers to instruments
 	 * which might not be accessible otherwise anymore. */
-	std::map<NoteRef, std::shared_ptr<Instrument>> createFallbackMap() const;
+	std::map<NoteRef, std::shared_ptr<Instrument>> createFallbackMap(
+		Hydrogen* pHydrogen ) const;
+
+	/** The channel of the instrument's custom input mapping —
+	 * #Midi::ChannelInvalid if it has none. In Input::Order the note is
+	 * derived from the instrument's position but the channel is the
+	 * individual one configured here. */
+	Midi::Channel getCustomInputChannel(
+		std::shared_ptr<Instrument> pInstrument ) const;
 
 	Input m_input;
 	Output m_output;
@@ -204,7 +226,12 @@ inline void MidiInstrumentMap::setOutput( MidiInstrumentMap::Output mapping ) {
 	m_output = mapping;
 }
 inline bool MidiInstrumentMap::getUseGlobalInputChannel() const {
-	return m_bUseGlobalInputChannel;
+	// In Input::SelectedInstrument every incoming note maps to the
+	// selected instrument — there is no per-instrument input channel —
+	// so the global input channel is forced on. The UIs render the
+	// checkbox accordingly (checked and locked); the stored preference
+	// is preserved for the other modes (saveTo() writes the raw one).
+	return m_bUseGlobalInputChannel || m_input == Input::SelectedInstrument;
 }
 inline void MidiInstrumentMap::setUseGlobalInputChannel( bool bUse ){
 	m_bUseGlobalInputChannel = bUse;

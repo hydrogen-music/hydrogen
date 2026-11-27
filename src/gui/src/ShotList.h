@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef __SHOTLIST_H
-#define __SHOTLIST_H
+#ifndef H2C___SHOTLIST_H
+#define H2C___SHOTLIST_H
 
 #include <core/config.h>
 

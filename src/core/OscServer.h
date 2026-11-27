@@ -20,8 +20,12 @@
  *
  */
 
-#ifndef OSC_SERVER_H
-#define OSC_SERVER_H
+#ifndef H2C_OSC_SERVER_H
+#define H2C_OSC_SERVER_H
+
+// Pull in H2CORE_HAVE_OSC before the guard below so the class is defined
+// regardless of include order (the guard relied on the includer defining it).
+#include <core/config.h>
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
@@ -38,7 +42,9 @@ namespace lo
 	class ServerThread;
 }
 
-class MidiAction;
+namespace H2Core {
+	class MidiAction;
+	class Hydrogen;
 
 /**
 * @class OscServer
@@ -90,23 +96,17 @@ class OscServer : public H2Core::Object<OscServer>
 	H2_OBJECT(OscServer)
 	public:
 		/**
-		 * Object holding the current OscServer singleton. It is
-		 * initialized with nullptr, set with create_instance(), and
-		 * accessed with get_instance().
+		 * Owning Hydrogen instance (ADR 0015). Per-instance: each Hydrogen owns
+		 * its own OscServer. The OSC handler callbacks reach the engine through
+		 * this back-pointer (the per-message callbacks are bound to this instance
+		 * at registration; the catch-all generic_handler receives it as liblo
+		 * user_data).
 		 */
-		static OscServer* __instance;
+		H2Core::Hydrogen* m_pHydrogen;
 		/**
-		 * Destructor freeing all addresses in #m_pClientRegistry and
-		 * setting #__instance to nullptr.
+		 * Destructor freeing all addresses in #m_pClientRegistry.
 		 */
 		~OscServer();
-	
-		static void create_instance( int nOscPort );
-		/**
-		 * Returns a pointer to the current OscServer
-		 * singleton stored in #__instance.
-		 */
-		static OscServer* get_instance() { assert(__instance); return __instance; }
 
 		int getTemporaryPort() const;
 
@@ -185,7 +185,7 @@ class OscServer : public H2Core::Object<OscServer>
 		bool stop();
 		/**
 		 * Function called by
-		 * H2Core::CoreActionController::initExternalControlInterfaces()
+		 * H2Core::Hydrogen::get_instance()->getCoreActionController()->initExternalControlInterfaces()
 		 * to inform all clients about the current state of Hydrogen
 		 * using OSC messages send by Hydrogen itself.
 		 *
@@ -223,7 +223,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PLAY_Handler(lo_arg **argv, int i);
+		void PLAY_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAY/STOP_TOGGLE and passes
 		 * its references to MidiActionManager::handleMidiActionAsync().
@@ -232,7 +232,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PLAY_STOP_TOGGLE_Handler(lo_arg **argv, int i);
+		void PLAY_STOP_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAY/PAUSE_TOGGLE and passes
 		 * its references to MidiActionManager::handleMidiActionAsync().
@@ -241,7 +241,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv, int i);
+		void PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b STOP and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -250,7 +250,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void STOP_Handler(lo_arg **argv, int i);
+		void STOP_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PAUSE and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -259,7 +259,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PAUSE_Handler(lo_arg **argv, int i);
+		void PAUSE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b RECORD_READY and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -268,7 +268,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void RECORD_READY_Handler(lo_arg **argv, int i);
+		void RECORD_READY_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b RECORD/STROBE_TOGGLE and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -277,7 +277,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void RECORD_STROBE_TOGGLE_Handler(lo_arg **argv, int i);
+		void RECORD_STROBE_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b RECORD_STROBE and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -286,7 +286,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void RECORD_STROBE_Handler(lo_arg **argv, int i);
+		void RECORD_STROBE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b EXIT and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -295,7 +295,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void RECORD_EXIT_Handler(lo_arg **argv, int i);
+		void RECORD_EXIT_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b MUTE and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -304,7 +304,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void MUTE_Handler(lo_arg **argv, int i);
+		void MUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b UNMUTE and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -313,7 +313,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void UNMUTE_Handler(lo_arg **argv, int i);
+		void UNMUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b MUTE_TOGGLE and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -322,7 +322,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void MUTE_TOGGLE_Handler(lo_arg **argv, int i);
+		void MUTE_TOGGLE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b >>_NEXT_BAR and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -331,7 +331,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void NEXT_BAR_Handler(lo_arg **argv, int i);
+		void NEXT_BAR_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b <<_PREVIOUS_BAR and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -340,7 +340,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PREVIOUS_BAR_Handler(lo_arg **argv, int i);
+		void PREVIOUS_BAR_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates sets the current tempo of Hydrogen to the provided
 		 * value (first argument in @a argv).
@@ -349,7 +349,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void BPM_Handler(lo_arg **argv, int i);
+		void BPM_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b BPM_INCR and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -361,7 +361,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void BPM_INCR_Handler(lo_arg **argv, int i);
+		void BPM_INCR_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b BPM_DECR and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -373,7 +373,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void BPM_DECR_Handler(lo_arg **argv, int i);
+		void BPM_DECR_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b MASTER_VOLUME_RELATIVE and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
@@ -385,16 +385,16 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
+		void MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
 		/**
-		 * Calls H2Core::CoreActionController::setMasterVolume() with
+		 * Calls H2Core::Hydrogen::get_instance()->getCoreActionController()->setMasterVolume() with
 		 * the first argument in @a argv.
 		 *
 		 * \param argv Pointer to a vector of arguments passed
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv, int i);
+		void MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type
 		 * #H2Core::MidiAction::Type::HumanizationSwingAbsolute and passes its
@@ -407,7 +407,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void HUMANIZATION_SWING_ABSOLUTE_Handler(lo_arg **argv, int i);
+		void HUMANIZATION_SWING_ABSOLUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type
 		 * #H2Core::MidiAction::Type::HumanizationSwingRelative and passes its
@@ -420,7 +420,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void HUMANIZATION_SWING_RELATIVE_Handler(lo_arg **argv, int i);
+		void HUMANIZATION_SWING_RELATIVE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type
 		 * #H2Core::MidiAction::Type::HumanizationTimingAbsolute and passes its
@@ -433,7 +433,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void HUMANIZATION_TIMING_ABSOLUTE_Handler(lo_arg **argv, int i);
+		void HUMANIZATION_TIMING_ABSOLUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type
 		 * #H2Core::MidiAction::Type::HumanizationTimingRelative and passes its
@@ -446,7 +446,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void
+		 void
 		HUMANIZATION_TIMING_RELATIVE_Handler( lo_arg** argv, int i );
 		/**
 		 * #H2Core::MidiAction::Type::HumanizationVelocityAbsolute and passes its
@@ -459,7 +459,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void HUMANIZATION_VELOCITY_ABSOLUTE_Handler(lo_arg **argv, int i);
+		void HUMANIZATION_VELOCITY_ABSOLUTE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type
 		 * #H2Core::MidiAction::Type::HumanizationVelocityRelative and passes its
@@ -472,7 +472,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void HUMANIZATION_VELOCITY_RELATIVE_Handler(lo_arg **argv, int i);
+		void HUMANIZATION_VELOCITY_RELATIVE_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b STRIP_VOLUME_RELATIVE and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
@@ -480,17 +480,17 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param nInstrument Instrument index to act on.
 		 * \param nValue By which the current colume will be changed.
 		 * MidiAction.*/
-		static void
+		 void
 		STRIP_VOLUME_RELATIVE_Handler( int nValue, int nInstrument );
 		/**
-		 * Calls H2Core::CoreActionController::setStripVolume() with
+		 * Calls H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume() with
 		 * both @a param1 and @a param2.
 		 *
 		 * \param param1 Passed as first argument to
-		 * H2Core::CoreActionController::setStripVolume().
+		 * H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume().
 		 * \param param2 Passed as second argument to
-		 * H2Core::CoreActionController::setStripVolume().*/
-		static void STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2);
+		 * H2Core::Hydrogen::get_instance()->getCoreActionController()->setStripVolume().*/
+		void STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2);
 		/**
 		 * Creates an MidiAction of type @b SELECT_NEXT_PATTERN and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
@@ -502,7 +502,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
+		void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b SELECT_ONLY_NEXT_PATTERN and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
@@ -514,7 +514,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv, int i);
+		void SELECT_ONLY_NEXT_PATTERN_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b SELECT_AND_PLAY_PATTERN and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
@@ -526,8 +526,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
-		static void INSTRUMENT_PITCH_Handler( lo_arg **argv, int t);
+		void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
+		void INSTRUMENT_PITCH_Handler( lo_arg **argv, int t);
 		/**
 		 * Creates an MidiAction of type @b FILTER_CUTOFF_LEVEL_ABSOLUTE
 		 * and passes its references to
@@ -536,7 +536,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param nValue New value of the filter cutoff.
 		 * \param nInstrument Instrument index to act on.
 		 */
-		static void
+		 void
 		FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( int nValue, int nInstrument );
 		/**
 		 * Creates an MidiAction of type @b BEATCOUNTER and passes its
@@ -546,7 +546,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void BEATCOUNTER_Handler(lo_arg **argv, int i);
+		void BEATCOUNTER_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b TAP_TEMPO and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -555,7 +555,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void TAP_TEMPO_Handler(lo_arg **argv, int i);
+		void TAP_TEMPO_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAYLIST_SONG and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
@@ -567,7 +567,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PLAYLIST_SONG_Handler(lo_arg **argv, int i);
+		void PLAYLIST_SONG_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAYLIST_NEXT_SONG and passes
 		 * its references to MidiActionManager::handleMidiActionAsync().
@@ -576,7 +576,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PLAYLIST_NEXT_SONG_Handler(lo_arg **argv, int i);
+		void PLAYLIST_NEXT_SONG_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b PLAYLIST_PREV_SONG and passes
 		 * its references to MidiActionManager::handleMidiActionAsync().
@@ -585,7 +585,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void PLAYLIST_PREV_SONG_Handler(lo_arg **argv, int i);
+		void PLAYLIST_PREV_SONG_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b TOGGLE_METRONOME and passes
 		 * its references to MidiActionManager::handleMidiActionAsync().
@@ -594,7 +594,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void TOGGLE_METRONOME_Handler(lo_arg **argv, int i);
+		void TOGGLE_METRONOME_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b SELECT_INSTRUMENT and
 		 * passes its references to MidiActionManager::handleMidiActionAsync().
@@ -606,7 +606,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SELECT_INSTRUMENT_Handler(lo_arg **argv, int i);
+		void SELECT_INSTRUMENT_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b UNDO_ACTION and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -615,7 +615,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
-		static void UNDO_ACTION_Handler(lo_arg **argv, int i);
+		void UNDO_ACTION_Handler(lo_arg **argv, int i);
 		/**
 		 * Creates an MidiAction of type @b REDO_ACTION and passes its
 		 * references to MidiActionManager::handleMidiActionAsync().
@@ -624,7 +624,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * by the OSC message.
 		 * \param argc Number of arguments passed by the OSC
 		 * message.*/
-		static void REDO_ACTION_Handler(lo_arg **argv, int argc);
+		void REDO_ACTION_Handler(lo_arg **argv, int argc);
 		/**
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file. If another file already exists with the
@@ -633,7 +633,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param argv The "s" field does contain the absolute path.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void NEW_SONG_Handler(lo_arg **argv, int argc);
+		void NEW_SONG_Handler(lo_arg **argv, int argc);
 		/**
 		 * The handler expects the user to provide an absolute path for
 		 * a .h2song file.
@@ -641,17 +641,17 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param argv The "s" field does contain the absolute path.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void OPEN_SONG_Handler(lo_arg **argv, int argc);
+		void OPEN_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::saveSong().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSong().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SAVE_SONG_Handler(lo_arg **argv, int argc);
+		void SAVE_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::saveSongAs().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->saveSongAs().
 		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file. If another file already exists with the
@@ -660,92 +660,90 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param argv The "s" field does contain the absolute path.
 		 * \param argc Number of arguments passed by the OSC
 		 * message.*/
-		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
+		void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::savePreferences().
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		void SAVE_PREFERENCES_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->quit().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SAVE_PREFERENCES_Handler(lo_arg **argv, int argc);
+		void QUIT_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::quit().
-		 *
-		 * \param argv Unused pointer to a vector of arguments passed
-		 * by the OSC message.
-		 * \param argc Unused number of arguments passed by the OSC
-		 * message.*/
-		static void QUIT_Handler(lo_arg **argv, int argc);
-		/**
-		 * Triggers CoreActionController::activateTimeline().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateTimeline().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, the Timeline will be
 		 * deactivated. Else, it will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		void TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::addTempoMarker().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->addTempoMarker().
 		 *
 		 * \param argv The first field "f" does contain the bar at
 		 * which to place the new Timeline::TempoMarker while the
 		 * second one "f" specifies its tempo in bpm.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc);
+		void TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::deleteTempoMarker().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->deleteTempoMarker().
 		 *
 		 * \param argv The first field "f" does contain the bar at
 		 * which to delete a Timeline::TempoMarker.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc);
+		void TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activatedJackTransport().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activatedJackTransport().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, the Jack transport will be
 		 * deactivated. Else, it will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc);
+		void JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activateJackTimebaseControl().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateJackTimebaseControl().
 		 *
 		 * \param argv The "f" field does contain the value supplied by the
 		 *   user. If it is `0`, Hydrogen will drop JACK Timebase control. Else,
 		 *   it tries to register as Timebase controller instead.
 		 * \param argc Unused number of arguments passed by the OSC
 		 *   message.*/
-		static void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
+		void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::activateSongMode().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateSongMode().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, Pattern mode of the playback will
 		 * be activated. Else, Song mode will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		void SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
 	/**
-		 * Triggers CoreActionController::activateLoopMode().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->activateLoopMode().
 		 *
 		 * \param argv The "f" field does contain the value supplied
 		 * by the user. If it is 0, loop mode will
 		 * be deactivated. Else, it will be activated instead.
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		void LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/**
 		 * \param argv The "f" field does contain the desired
 		 * position / number of the pattern group (starting with
 		 * 0).
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void RELOCATE_Handler(lo_arg **argv, int argc);
+		void RELOCATE_Handler(lo_arg **argv, int argc);
 		/**
 		 * The handler expects the user to provide an absolute path for
 		 * a .h2pattern file. If another file already exists with the
@@ -755,7 +753,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * pattern.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void NEW_PATTERN_Handler(lo_arg **argv, int argc);
+		void NEW_PATTERN_Handler(lo_arg **argv, int argc);
 		/**
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2pattern file.
@@ -763,9 +761,9 @@ class OscServer : public H2Core::Object<OscServer>
 		 * \param argv The "s" field does contain the absolute path.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void OPEN_PATTERN_Handler(lo_arg **argv, int argc);
+		void OPEN_PATTERN_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::removePattern().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->removePattern().
 		 *
 		 * The handler expects the user to provide the pattern number
 		 * (row the pattern resides in within the SongEditor).
@@ -774,8 +772,8 @@ class OscServer : public H2Core::Object<OscServer>
 		 * (caution: it starts at 0).
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void REMOVE_PATTERN_Handler(lo_arg **argv, int argc);
-		static void CLEAR_SELECTED_INSTRUMENT_Handler(lo_arg **argv, int argc);
+		void REMOVE_PATTERN_Handler(lo_arg **argv, int argc);
+		void CLEAR_SELECTED_INSTRUMENT_Handler(lo_arg **argv, int argc);
 		/**
 		 * The handler expects the user to provide the number of the instrument
 		 * for which all notes should be removed from the currently selected
@@ -785,7 +783,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 * (caution: it starts at 0).
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void CLEAR_INSTRUMENT_Handler(lo_arg **argv, int argc);
+		void CLEAR_INSTRUMENT_Handler(lo_arg **argv, int argc);
 		/**
 		 * The handler removes all notes from the the currently selected
 		 * pattern.
@@ -794,11 +792,11 @@ class OscServer : public H2Core::Object<OscServer>
 		 * (caution: it starts at 0).
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void CLEAR_PATTERN_Handler(lo_arg **argv, int argc);
+		void CLEAR_PATTERN_Handler(lo_arg **argv, int argc);
 
-		static void COUNT_IN_Handler(lo_arg **argv, int argc);
-		static void COUNT_IN_PAUSE_TOGGLE_Handler(lo_arg **argv, int argc);
-		static void COUNT_IN_STOP_TOGGLE_Handler(lo_arg **argv, int argc);
+		void COUNT_IN_Handler(lo_arg **argv, int argc);
+		void COUNT_IN_PAUSE_TOGGLE_Handler(lo_arg **argv, int argc);
+		void COUNT_IN_STOP_TOGGLE_Handler(lo_arg **argv, int argc);
 
 		/**
 		 * Provides a similar behavior as a Note-On MIDI message.
@@ -809,7 +807,7 @@ class OscServer : public H2Core::Object<OscServer>
 		 *   the range of [0, 1.0]
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void NOTE_ON_Handler(lo_arg **argv, int argc);
+		void NOTE_ON_Handler(lo_arg **argv, int argc);
 
 		/**
 		 * Provides a similar behavior as a Note-Off MIDI message.
@@ -818,10 +816,10 @@ class OscServer : public H2Core::Object<OscServer>
 		 *   MIDI Note-On handling.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void NOTE_OFF_Handler(lo_arg **argv, int argc);
+		void NOTE_OFF_Handler(lo_arg **argv, int argc);
 
 		/**
-		 * Triggers CoreActionController::songEditorToggleGridCell().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->songEditorToggleGridCell().
 		 *
 		 * The handler expects the user to provide the pattern number
 		 * (row the pattern resides in within the SongEditor).
@@ -830,9 +828,9 @@ class OscServer : public H2Core::Object<OscServer>
 		 * and row number of the particular grid cell.
 		 * \param argc Number of arguments passed by the OSC message.
 		 */
-		static void SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc);
+		void SONG_EDITOR_TOGGLE_GRID_CELL_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::setDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->setDrumkit().
 		 *
 		 * The handler expects the user to provide the drumkit name. 
 		 * (row the pattern resides in within the SongEditor). The
@@ -840,15 +838,15 @@ class OscServer : public H2Core::Object<OscServer>
 		 * should be removed even if there is a pattern in which they
 		 * contain notes, is optional. The default choice will be true.
 		 */
-	static void LOAD_DRUMKIT_Handler( lo_arg **argv, int argc );
+	void LOAD_DRUMKIT_Handler( lo_arg **argv, int argc );
 
 		/** Triggers #H2Core::MidiActionManager::loadNextDrumkit(). */
-		static void LOAD_NEXT_DRUMKIT_Handler( lo_arg **argv, int argc );
+		void LOAD_NEXT_DRUMKIT_Handler( lo_arg **argv, int argc );
 		/** Triggers #H2Core::MidiActionManager::loadPrevDrumkit(). */
-		static void LOAD_PREV_DRUMKIT_Handler( lo_arg **argv, int argc );
+		void LOAD_PREV_DRUMKIT_Handler( lo_arg **argv, int argc );
 
 		/**
-		 * Triggers CoreActionController::upgradeDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->upgradeDrumkit().
 		 *
 		 * The handler expects the user to provide as first argument
 		 * the absolute path to a folder containing a drumkit, the
@@ -862,9 +860,9 @@ class OscServer : public H2Core::Object<OscServer>
 		 * provided as first argument, the upgraded drumkit will be
 		 * compressed as well.
 		 */
-	static void UPGRADE_DRUMKIT_Handler( lo_arg **argv, int argc );
+	void UPGRADE_DRUMKIT_Handler( lo_arg **argv, int argc );
 		/**
-		 * Triggers CoreActionController::validateDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->validateDrumkit().
 		 *
 		 * The handler expects the user to provide the absolute path
 		 * to a folder containing a drumkit, the absolute path to a
@@ -873,9 +871,9 @@ class OscServer : public H2Core::Object<OscServer>
 		 * optional and contains the absolute path to a directory
 		 * where the upgraded kit will be stored.
 		 */
-	static void VALIDATE_DRUMKIT_Handler( lo_arg **argv, int argc );
+	void VALIDATE_DRUMKIT_Handler( lo_arg **argv, int argc );
 		/**
-		 * Triggers CoreActionController::extractDrumkit().
+		 * Triggers H2Core::Hydrogen::get_instance()->getCoreActionController()->extractDrumkit().
 		 *
 		 * The handler expects the user to provide as first argument
 		 * the absolute path to a compressed drumkit ( *.h2drumkit). The
@@ -884,15 +882,15 @@ class OscServer : public H2Core::Object<OscServer>
 		 * the second path is missing, the drumkit will be installed
 		 * in the user's drumkit data folder.
 		 */
-	static void EXTRACT_DRUMKIT_Handler( lo_arg **argv, int argc );
+	void EXTRACT_DRUMKIT_Handler( lo_arg **argv, int argc );
 
-		static void NEW_PLAYLIST_Handler(lo_arg **argv, int argc);
-		static void OPEN_PLAYLIST_Handler(lo_arg **argv, int argc);
-		static void SAVE_PLAYLIST_Handler(lo_arg **argv, int argc);
-		static void SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc);
-		static void PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc);
-		static void PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc);
-		static void PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc);
+		void NEW_PLAYLIST_Handler(lo_arg **argv, int argc);
+		void OPEN_PLAYLIST_Handler(lo_arg **argv, int argc);
+		void SAVE_PLAYLIST_Handler(lo_arg **argv, int argc);
+		void SAVE_PLAYLIST_AS_Handler(lo_arg **argv, int argc);
+		void PLAYLIST_ADD_SONG_Handler(lo_arg **argv, int argc);
+		void PLAYLIST_ADD_CURRENT_SONG_Handler(lo_arg **argv, int argc);
+		void PLAYLIST_REMOVE_SONG_Handler(lo_arg **argv, int argc);
 
 		/** 
 		 * Catches any incoming messages and display them. 
@@ -927,10 +925,18 @@ class OscServer : public H2Core::Object<OscServer>
 	static int incomingMessageLogging(const char *path, const char *types, lo_arg ** argv,
 								int argc, lo_message data, void *user_data);
 
+	public:
+		OscServer( H2Core::Hydrogen* pHydrogen, int nOscPort );
+
 	private:
-		OscServer( int nOscPort );
-		
-		/** Helper function which sends a message with msgText to all 
+		/** Registers @a handler (a per-message member callback) on
+		 * #m_pServerThread bound to this instance, so the callback reaches this
+		 * OscServer's owning Hydrogen (ADR 0015). The liblo glue lives here in
+		 * one place. */
+		void addMethod( const char* path, const char* types,
+						void ( OscServer::*handler )( lo_arg**, int ) );
+
+		/** Helper function which sends a message with msgText to all
 		 * connected clients. **/
 		void broadcastMessage( const char* msgText, const lo_message& message);
 
@@ -968,13 +974,15 @@ class OscServer : public H2Core::Object<OscServer>
 		int					m_nTemporaryPort;
 };
 
-inline lo::ServerThread* OscServer::getServerThread() const {
+} // namespace H2Core
+
+inline lo::ServerThread* H2Core::OscServer::getServerThread() const {
 	return m_pServerThread;
 }
-inline int OscServer::getTemporaryPort() const {
+inline int H2Core::OscServer::getTemporaryPort() const {
 	return m_nTemporaryPort;
 }
 
 #endif /* H2CORE_HAVE_OSC */
 
-#endif // OSC_SERVER_H
+#endif // H2C_OSC_SERVER_H

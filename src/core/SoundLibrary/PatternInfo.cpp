@@ -36,7 +36,7 @@ PatternInfo::~PatternInfo()
 {
 }
 
-bool PatternInfo::load( const QString& sPath )
+bool PatternInfo::load( const QString& sPath, Hydrogen* pHydrogen )
 {
 	XMLDoc doc;
 	if ( !doc.read( sPath, true ) ) {
@@ -49,7 +49,7 @@ bool PatternInfo::load( const QString& sPath )
 	XMLNode rootNode = doc.firstChildElement( "drumkit_pattern" );
 	if ( !rootNode.isNull() ) {
 		m_sPath = sPath;
-		m_context = Filesystem::DetermineContext( sPath );
+		m_context = Filesystem::DetermineContext( sPath, pHydrogen );
 		m_type = SoundLibraryInfo::Type::Pattern;
 
 		const XMLNode patternNode = rootNode.firstChildElement( "pattern" );

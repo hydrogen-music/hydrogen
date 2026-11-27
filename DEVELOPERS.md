@@ -75,6 +75,136 @@ features or refactor code.
 
 2. You can reference the github issue number in your pull request if you want to fix a bug which is already known in our bugtracker
 
+## Notes on Plugin Release
+
+Our plugin release should be build of the release tags.
+
+But this is not done within our AppVeyor Pipeline. The reason for this is our
+underlying Qt toolkit. Although the plugin is a headless version of the Hydrogen
+engine starting the GUI in an external process, it still uses some parts of the
+Qt library. In case the version between plugin and host (or another plugin)
+mismatch, e.g. Qt5 and Qt6, the host process would crash due to a symbol clash.
+In order to prevent you must build Qt locally and static with a dedicated
+namespace derived from the release version.
+
+```bash
+# For the Hydrogen X.Y.Z release, download qt and build it using. In Qt tree
+./configure -static -qtnamespace H2_X_Y_Z -prefix /tmp/qt-static -release
+cmake --build . --parallel
+cmake --build . --target install
+```
+
+With this in place you have to rebuild Hydrogen.
+
+```bash
+# In Hydrogen tree
+mkdir build-static
+cd build-static
+cmake .. -DWANT_CLAP=1 -DWANT_LV2=1 -DWANT_VST3=1 -DCMAKE_PREFIX_PATH=/tmp/qt-static
+make -j $(nproc)
+```
+
+Since we already maxed out our cache usage within AppVeyor, we can not build a
+static version of Qt in there without wasting too much resources.
+
+**Attention**: Only the plugins are built with static Qt. The `hydrogen` binary must
+not be built statically! The universal macOS bundles described below are the
+only exception.
+
+## Universal macOS Bundles
+
+Our AppVeyor pipeline only produces x86_64 macOS artifacts linked against
+Homebrew. Portable, universal (arm64 + x86_64) bundles of both the application
+and the plugins are built locally using the `macos-*` recipes of the
+[Justfile](Justfile) instead.
+
+Regular users and everyday development are not affected by this: `build.sh`
+still builds Hydrogen for the architecture of the machine (arm64 or x86_64)
+against the libraries installed via Homebrew.
+
+### How it works
+
+Homebrew packages are built for a single architecture and the latest macOS
+release only. Therefore, all dependencies - Qt included - are built from pinned
+sources by [macos/build_universal_deps.sh](macos/build_universal_deps.sh):
+
+- Qt 6.8 LTS (qtbase, qtsvg, qttools) as a static, universal build with the
+  `H2_MAJOR_MINOR_PATCH` namespace.
+- libogg, libvorbis, FLAC, opus, mpg123, LAME (MP3 support), libsndfile,
+  libarchive, Rubber Band, and CppUnit (unit tests only) as static libraries.
+  They are built once per architecture and merged using `lipo`.
+
+Since everything is linked statically, the resulting bundles only depend on
+libraries shipped with macOS and run on every Mac with `MACOS_TARGET` (default:
+macOS 12, the oldest release supported by Qt 6.8) or newer.
+
+JACK is disabled in these builds. On macOS it can only be linked dynamically
+and the app would refuse to start on systems without JACK installed. PortAudio,
+PortMidi, and OSC are disabled as well. CoreAudio and CoreMIDI are used instead.
+
+### Prerequisites
+
+- Xcode or the Command Line Tools (`xcode-select --install`)
+- `cmake`, `pkg-config`, and `just` (e.g. via Homebrew; they are only used as
+  tools, nothing is linked against Homebrew)
+- Rosetta for running the x86_64 unit tests (`softwareupdate --install-rosetta`)
+- The plugin submodules (`git submodule update --init`)
+
+### Workflow
+
+```bash
+just macos-deps       # Build Qt and all libraries (~1h the first time)
+just macos-universal  # Build, stage into dist-universal/ and verify the bundles
+just macos-test       # Unit tests for arm64 and x86_64 (via Rosetta) + CTest suite
+just macos-install    # Install into /Applications and ~/Library/Audio/Plug-Ins
+just macos-dmg        # Create build-universal/Hydrogen-<version>-universal.dmg
+```
+
+`just macos` runs the first three steps in one go and `just macos-clean` removes
+the build directory and the staged bundles (but keeps the dependencies).
+
+All settings are defined at the top of the [Justfile](Justfile) and can be
+overridden using environment variables of the same name:
+
+| Variable           | Default                                   | Purpose                                          |
+|--------------------|-------------------------------------------|--------------------------------------------------|
+| `MACOS_SOURCE_DIR` | `~/software/src`                          | Downloaded tarballs, sources and their builds    |
+| `MACOS_TARGET`     | `12.0`                                    | Oldest supported macOS release                   |
+| `MACOS_DEPS_DIR`   | `~/software/h2-macos-universal-<target>` | Static Qt and libraries                          |
+| `MACOS_BUILD_DIR`  | `build-universal`                         | CMake build directory                            |
+| `MACOS_PREFIX`     | `dist-universal`                          | Staged `bin/hydrogen.app` and `lib/{clap,lv2,vst3}` |
+| `MACOS_APP_DIR`    | `/Applications`                           | Destination of `macos-install`                   |
+
+```bash
+# e.g. keep the sources on an external drive
+MACOS_SOURCE_DIR=/Volumes/scratch/h2-src just macos-deps
+```
+
+### Verification
+
+`macos-universal` and `macos-test` run
+[tools/check_macos_portable](tools/check_macos_portable) on the staged bundles.
+It fails if any binary
+
+- lacks an arm64 or x86_64 slice,
+- requires a macOS release newer than `MACOS_TARGET`,
+- links against a library not shipped with macOS (e.g. from Homebrew),
+- carries an rpath pointing outside of its bundle,
+- has a missing or invalid code signature, or
+- if the app does not declare `LSMinimumSystemVersion`.
+
+The check is not part of the regular CTest suite, so builds via `build.sh` are
+not affected.
+
+The bundles are only signed ad hoc (Apple Silicon does not run unsigned code)
+and are not notarized. Downloaded copies have to be released from quarantine
+(right click > Open, or `xattr -dr com.apple.quarantine <bundle>`).
+
+### Updating a dependency
+
+Adjust the version, URL, and SHA-256 sum in the `SOURCES` list of
+[macos/build_universal_deps.sh](macos/build_universal_deps.sh) and run `just
+macos-deps` again. Each dependency is rebuilt once its version changes.
 
 ## Making A Release
 
@@ -95,33 +225,46 @@ order to make a release has several, easy-to-forget steps.  They are:
  
      e. In default config file [data/hydrogen.default.conf](data/hydrogen.default.conf)
 
-  2. Run `src/gui/src/about_dialog_contributor_list_update.sh
+     f. Adjust the version in `QT_NAMESPACE` used for static Qt builds and
+        rebuild (`macos/build_universal.deps.sh`).
+
+  2. Check whether pinned versions of static libraries are still up to date
+     (`macos/build_universal.deps.sh`).
+
+  3. Run `src/gui/src/about_dialog_contributor_list_update.sh
      GIT_TAG_OF_LAST_RELEASE HEAD` to update the list of recent
      contributors.
 
-  3. Add a corresponding version tag in the documentation and update
+  4. Add a corresponding version tag in the documentation and update
      the submodule in [data/doc](data/doc).
 
-  4. Commit your changes.
+  5. Commit your changes.
 
-  5. Create a dedicated branch containing the suffix `-artifacts`, like
+  6. Create a dedicated branch containing the suffix `-artifacts`, like
      `releases/1.2.2-release-artifacts`, and manually set in `CMakeLists.txt`
      the `IS_DEVEL_BUILD` variable to "false" and ensure `DISPLAY_VERSION` does
      not have a suffix as well as removing the lines from the Windows pipeline
      in `.appveyor` tweaking the `DISPLAY_VERSION` variable according to tag and
      commit id. When pushing this branch to Github, our AppVeyor pipeline will
      create release artifacts for Linux, macOS, and Windows.
+	 
+	 Note that this does not include any plugins. Since these have to be build
+     against a static Qt with a dedicated namespace, they can not be compiled in
+     our current pipeline and have to build locally. The universal macOS
+     disk image containing both the application and the plugins is created
+     locally using `just macos` and `just macos-dmg` (see [Universal macOS
+     Bundles](#universal-macos-bundles)).
 
-  6. Call your friends.  Have a party.  Be sure to tests the artifacts
+  7. Call your friends.  Have a party.  Be sure to tests the artifacts
      on as many systems as possible.  Be sure to install and uninstall
      them, too.
 
-  7. If the release passes these "internal" tests, add new version,
+  8. If the release passes these "internal" tests, add new version,
      date, `CHANGELOG.md` updates as well as the release artifacts including
      their SHA256 sums to [linux/org.hydrogenmusic.Hydrogen.metainfo.xml.in](linux/org.hydrogenmusic.Hydrogen.metainfo.xml.in)
      and run `make` in [linux](linux)
 
-  8. Tag the release.  Remember, after tagging the release you may not
+  9. Tag the release.  Remember, after tagging the release you may not
      commit changes to the tag.
 
       ```bash
@@ -129,22 +272,22 @@ order to make a release has several, easy-to-forget steps.  They are:
       git push origin 0.9.4
       ```
 
-  9. In case the release is a new major or minor version, also create
+  10. In case the release is a new major or minor version, also create
      a dedicated release branch, like `releases/1.2`.
 
-  10. Create a Github release, incorporating binary packages, source
+  11. Create a Github release, incorporating binary packages, source
       package, tag and release announcement.
 
-  11. Upload the release artifacts to
+  12. Upload the release artifacts to
       [SourceForge](https://sourceforge.net/projects/hydrogen/files/Hydrogen/)
       and make them the default download for all supported platforms.
 
-  12. Add the new download links to the `README.md` on the `main` branch as well
+  13. Add the new download links to the `README.md` on the `main` branch as well
       as the Download section of the hydrogen-music.org web page.
 
-  13. Make release announcements on
+  14. Make release announcements on
       - hydrogen-users@lists.sourceforge.net
       - [hydrogen-music.org](https://github.com/hydrogen-music/hydrogen-music)
 
-  14. Update third party repos. Make a PR against:
+  15. Update third party repos. Make a PR against:
       - Flatpak: https://github.com/flathub/org.hydrogenmusic.Hydrogen/

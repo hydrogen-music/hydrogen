@@ -22,17 +22,16 @@
 
 #include <core/IO/AlsaAudioDriver.h>
 
+#include <core/Hydrogen.h>
+
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
-#include <pthread.h>
 #include <iostream>
 #include <core/Preferences/Preferences.h>
 #include <core/EventQueue.h>
 
 namespace H2Core
 {
-
-pthread_t alsaAudioDriverThread;
 
 static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 {
@@ -53,10 +52,12 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 	return err;
 }
 
-void* alsaAudioDriver_processCaller( void* param )
+void alsaAudioDriver_processCaller( AlsaAudioDriver* pDriver )
 {
-	Base *__object = (Base*)param;
-	AlsaAudioDriver *pDriver = ( AlsaAudioDriver* )param;
+
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
 
 	// stolen from amSynth
 	struct sched_param sched;
@@ -64,20 +65,20 @@ void* alsaAudioDriver_processCaller( void* param )
 	int res = sched_setscheduler( 0, SCHED_FIFO, &sched );
 	sched_getparam( 0, &sched );
 	if ( res ) {
-		__ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
+		___ERRORLOG( "Can't set realtime scheduling for ALSA Driver" );
 	}
-	__INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
+	___INFOLOG( QString( "Scheduling priority = %1" ).arg( sched.sched_priority ) );
 
 	sleep( 1 );
 
 	int err;
 	if ( ( err = snd_pcm_prepare( pDriver->m_pPlayback_handle ) ) < 0 ) {
-		__ERRORLOG( QString( "Cannot prepare audio interface for use: %1" )
+		___ERRORLOG( QString( "Cannot prepare audio interface for use: %1" )
 					.arg( snd_strerror ( err ) ) );
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
-	__INFOLOG( QString( "nFrames: %1" ).arg( nFrames ) );
+	___INFOLOG( QString( "nFrames: %1" ).arg( nFrames ) );
 	short pBuffer[ nFrames * 2 ];
 
 	float *pOut_L = pDriver->m_pOut_L;
@@ -87,7 +88,7 @@ void* alsaAudioDriver_processCaller( void* param )
 
 	while ( pDriver->m_bIsRunning ) {
 		// prepare the audio data
-		pDriver->m_processCallback( nFrames, nullptr );
+		pDriver->m_processCallback( nFrames, pDriver->getHydrogen() );
 
 		for ( int i = 0; i < nFrames; ++i ) {
 			pBuffer[ i * 2 ] = ( short )( pOut_L[ i ] * 32768.0 );
@@ -112,7 +113,7 @@ void* alsaAudioDriver_processCaller( void* param )
 							 .arg( snd_strerror( err ) ) );
 			}
 			pDriver->m_nXRuns++;
-			EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
+			pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 		} else {
 
 			// Playback stream is ready, let's write out the audio
@@ -129,27 +130,26 @@ void* alsaAudioDriver_processCaller( void* param )
 						___ERRORLOG( QString( "Unable to write playback stream again: %1" )
 									 .arg( snd_strerror( err ) ) );
 						pDriver->m_nXRuns++;
-						EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
+						pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 						if ( ( err = snd_pcm_recover( pDriver->m_pPlayback_handle, err, 0 ) ) < 0 ) {
-							__ERRORLOG( QString( "Can't recover from XRUN: %1" )
+							___ERRORLOG( QString( "Can't recover from XRUN: %1" )
 										.arg( snd_strerror( err ) ) );
 						}
 					}
 				} else {
-					__ERRORLOG( QString( "Can't recover from XRUN: %1" )
+					___ERRORLOG( QString( "Can't recover from XRUN: %1" )
 								.arg( snd_strerror( err ) ) );
 					pDriver->m_nXRuns++;
-					EventQueue::get_instance()->pushEvent( Event::Type::Xrun, 0 );
+					pDriver->getHydrogen()->getEventQueue()->pushEvent( Event::Type::Xrun, 0 );
 				}
 			}
 		}
 	}
-	return nullptr;
 }
 
 
 /// Use the name hints to build a list of potential device names.
-QStringList AlsaAudioDriver::getDevices()
+QStringList AlsaAudioDriver::getAlsaDevices()
 {
 	QStringList result;
 	void **pHints, **pHint;
@@ -186,8 +186,8 @@ QStringList AlsaAudioDriver::getDevices()
 	return result;
 }
 
-AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
-		: AudioDriver()
+AlsaAudioDriver::AlsaAudioDriver( Hydrogen* pHydrogen, audioProcessCallback processCallback )
+		: AudioDriver( pHydrogen )
 		, m_bIsRunning( false )
 		, m_pOut_L( nullptr )
 		, m_pOut_R( nullptr )
@@ -196,8 +196,8 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		, m_pPlayback_handle( nullptr )
 		, m_processCallback( processCallback )
 {
-	m_nSampleRate = Preferences::get_instance()->m_nSampleRate;
-	m_sAlsaAudioDevice = Preferences::get_instance()->m_sAlsaAudioDevice;
+	m_nSampleRate = m_pHydrogen->getPreferences()->m_nSampleRate;
+	m_sAlsaAudioDevice = m_pHydrogen->getPreferences()->m_sAlsaAudioDevice;
 }
 
 AlsaAudioDriver::~AlsaAudioDriver()
@@ -360,9 +360,7 @@ int AlsaAudioDriver::connect()
 	m_bIsRunning = true;
 
 	// start the main thread
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_create( &alsaAudioDriverThread, &attr, alsaAudioDriver_processCaller, this );
+	m_alsaAudioDriverThread = std::thread( alsaAudioDriver_processCaller, this );
 
 	return 0;	// OK
 }
@@ -376,7 +374,9 @@ void AlsaAudioDriver::disconnect()
 	
 	m_bIsRunning = false;
 
-	pthread_join( alsaAudioDriverThread, nullptr );
+	if ( m_alsaAudioDriverThread.joinable() ) {
+		m_alsaAudioDriverThread.join();
+	}
 
 	snd_pcm_close( m_pPlayback_handle );
 

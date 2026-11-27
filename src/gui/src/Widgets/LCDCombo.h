@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef LCDCOMBO_H
-#define LCDCOMBO_H
+#ifndef H2C_LCDCOMBO_H
+#define H2C_LCDCOMBO_H
 
 
 #include <QtGui>

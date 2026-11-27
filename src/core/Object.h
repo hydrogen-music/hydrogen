@@ -30,13 +30,80 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <map>
+#include <memory>
+#include <mutex>
 #include <QDebug>
 #include <QtCore>
 #include <unistd.h>
 
 namespace H2Core {
+
+/**
+ * Process-unique, immutable instance identity carried by every #Base
+ * (ADR 0028).
+ *
+ * The value is a pair of a per-process @a epoch (seeded once at startup off the
+ * real-time path) and a monotonically increasing @a counter (advanced by a
+ * wait-free atomic `fetch_add`, hence safe to mint while copying #Note objects
+ * on the audio thread). Two ids are equal iff both fields match; the epoch makes
+ * an id minted by another process (e.g. the out-of-process editor) never
+ * spuriously match a local object. Runtime-only — never serialised.
+ */
+struct Uuid {
+	uint64_t epoch;
+	uint64_t counter;
+
+	Uuid( uint64_t nEpoch = 0, uint64_t nCounter = 0 ) :
+		epoch( nEpoch ), counter( nCounter ) {}
+
+	/** A default-constructed (never-minted) id. */
+	bool isNull() const { return epoch == 0 && counter == 0; }
+
+	bool operator==( const Uuid& other ) const {
+		return epoch == other.epoch && counter == other.counter;
+	}
+	bool operator!=( const Uuid& other ) const { return !( *this == other ); }
+
+	QString toQString() const;
+	static Uuid fromQString( const QString& sUuid, bool bSilent = false );
+	friend std::ostream& operator<<( std::ostream& out, const Uuid& u ) {
+		out << u.toQString().toStdString();
+		return out;
+	}
+
+	/** Mints a fresh, globally-unique id. Lock-free / real-time-safe. */
+	static Uuid mint();
+};
+
+inline uint qHash( const Uuid& uuid, uint seed = 0 ) noexcept {
+	return ::qHash( uuid.epoch, seed ) ^ ::qHash( uuid.counter, seed );
+}
+
+/**
+ * The single instance-identity comparator (ADR 0028). Two managed objects are
+ * "the same" iff they are the same pointer or carry the same #Uuid. This is the
+ * one place identity is decided, so no call site has to reason about whether a
+ * raw pointer comparison is safe — and, unlike a bare pointer compare, it stays
+ * meaningful once an id is carried across the editor/engine process split.
+ *
+ * In-process this is exactly `a == b` (every object has a unique id), so routing
+ * the existing pointer-identity checks through it is behaviour-preserving.
+ */
+template <typename T>
+inline bool sameObject( const std::shared_ptr<T>& a,
+						const std::shared_ptr<T>& b ) {
+	if ( a == b ) {
+		// Identical managed pointer, including the both-null case.
+		return true;
+	}
+	if ( a == nullptr || b == nullptr ) {
+		return false;
+	}
+	return a->getUuid() == b->getUuid();
+}
 
 /** an objects class map item type */
 typedef struct atomic_obj_cpt_t {
@@ -60,20 +127,31 @@ typedef std::map<const char*, const atomic_obj_cpt_t*> object_internal_map_t;
 /** \ingroup docCore docDebugging*/
 class Base {
 	public:
-		Base() {
+		Base() : m_uuid( Uuid::mint() ) {
 #ifdef H2CORE_HAVE_DEBUG
 			if ( __count ) {
 				++__objects_count;
 			}
 #endif
 		}
-		Base(const Base &other) {
+		// A copy is a distinct object and therefore mints its own fresh
+		// identity (ADR 0028) — "pointer identity, but as a value".
+		Base(const Base &other) : m_uuid( Uuid::mint() ) {
 #ifdef H2CORE_HAVE_DEBUG
 			if ( __count ) {
 				++__objects_count;
 			}
 #endif
 		}
+		// Assignment transfers data, not identity: an object keeps the id it was
+		// born with. #m_uuid is deliberately left untouched.
+		Base& operator=( const Base& ) { return *this; }
+
+		/** \return the immutable per-instance identity (ADR 0028). */
+		const Uuid& getUuid() const { return m_uuid; }
+		/** Only intended to be used for reconstruction of an external objects
+		 * during IPC transport. */
+		void setUuid( const Uuid& uuid ) { m_uuid = uuid; }
 		static const char *_class_name() { return "Object"; }        ///< return the class name
 		virtual const char* class_name() const { return _class_name(); }
 		/**
@@ -158,9 +236,11 @@ class Base {
 		static TimePoint m_lastTimePoint;
 	
 	private:
+		/** Immutable per-instance identity, minted at construction (ADR 0028). */
+		Uuid m_uuid;
 		static std::atomic<int> __objects_count;        ///< total objects count
 		static object_internal_map_t __objects_map;      ///< objects classes and instances count structure
-		static pthread_mutex_t __mutex;         ///< yeah this has to be thread safe
+		static std::mutex __mutex;         ///< yeah this has to be thread safe
 };
 
 std::ostream& operator<<( std::ostream& os, const Base& object );
@@ -181,8 +261,12 @@ template<typename T> class Object: public Base {
 	public:
 		Object() {
 #ifdef H2CORE_HAVE_DEBUG
-			if ( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Constructor" );
+			// Announce through the ambient context (ADR 0015 / T1.6), like
+			// the log macros below, so objects born inside a per-instance
+			// Scope land in that instance's log.
+			Logger* pLogger = Logger::currentLogger();
+			if ( pLogger && pLogger->should_log( Logger::Constructors ) ) {
+				pLogger->log( Logger::Debug, nullptr, T::_class_name(), "Constructor" );
 			}
 			if ( __count ) {
 				if ( ! counters.constructed ) {
@@ -194,8 +278,9 @@ template<typename T> class Object: public Base {
 		}
 		Object(const Object<T> &other) {
 #ifdef H2CORE_HAVE_DEBUG
-			if( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
+			Logger* pLogger = Logger::currentLogger();
+			if( pLogger && pLogger->should_log( Logger::Constructors ) ) {
+				pLogger->log( Logger::Debug, nullptr, T::_class_name(), "Copy Constructor" );
 			}
 			if ( __count ) {
 				if ( ! counters.constructed ) {
@@ -208,8 +293,9 @@ template<typename T> class Object: public Base {
 	protected:
 		~Object() {
 #ifdef H2CORE_HAVE_DEBUG
-			if( __logger && __logger->should_log( Logger::Constructors ) ) {
-				__logger->log( Logger::Debug, nullptr, T::_class_name(), "Destructor" );
+			Logger* pLogger = Logger::currentLogger();
+			if( pLogger && pLogger->should_log( Logger::Constructors ) ) {
+				pLogger->log( Logger::Debug, nullptr, T::_class_name(), "Destructor" );
 			}
 			if ( __count ) {
 				++counters.destructed;
@@ -228,35 +314,32 @@ template<typename T> atomic_obj_cpt_t Object<T>::counters;
 			const char* class_name() const override { return _class_name(); }
 
 // LOG MACROS
-#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
-#define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, QString( "%1" ).arg( msg ) ); }
+// ADR 0015 / T1.6: log macros resolve the logger through the ambient context
+// (Logger::currentLogger()) at log time — the active per-instance Scope, or the
+// process default when none is set — instead of the static Base::__logger /
+// Logger::get_instance() singleton.
+//
+// Two families with distinct backings remain: the in-class one (usable in
+// instance and static methods alike, as _class_name() is static) and the
+// free-function one (thread bodies included). The historical single- and
+// double-underscore families had backings identical to these and were
+// dropped.
+#define __LOG_METHOD( lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), _class_name(), __FUNCTION__, QString( "%1" ).arg( msg ) ); }
+#define __LOG_STATIC( lvl, msg )  if( H2Core::Logger::currentLogger()->should_log( (lvl) ) ) { H2Core::Logger::currentLogger()->log( (lvl), 0, __PRETTY_FUNCTION__, QString( "%1" ).arg( msg ) ); }
 
-// Object instance method logging macros
+// In-class logging macros (instance and static methods)
+#define IPCLOG(x)       __LOG_METHOD( H2Core::Logger::Ipc,     (x) );
 #define DEBUGLOG(x)     __LOG_METHOD( H2Core::Logger::Debug,   (x) );
 #define INFOLOG(x)      __LOG_METHOD( H2Core::Logger::Info,    (x) );
 #define WARNINGLOG(x)   __LOG_METHOD( H2Core::Logger::Warning, (x) );
 #define ERRORLOG(x)     __LOG_METHOD( H2Core::Logger::Error,   (x) );
 
-// Object class method logging macros
-#define _DEBUGLOG(x)    __LOG_CLASS( H2Core::Logger::Debug,   (x) );
-#define _INFOLOG(x)     __LOG_CLASS( H2Core::Logger::Info,    (x) );
-#define _WARNINGLOG(x)  __LOG_CLASS( H2Core::Logger::Warning, (x) );
-#define _ERRORLOG(x)    __LOG_CLASS( H2Core::Logger::Error,   (x) );
-
-// logging macros using an Base *__object ( thread :  Base * __object = ( Base * )param; )
-#define __DEBUGLOG(x)   __LOG_OBJ( H2Core::Logger::Debug,      (x) );
-#define __INFOLOG(x)    __LOG_OBJ( H2Core::Logger::Info,       (x) );
-#define __WARNINGLOG(x) __LOG_OBJ( H2Core::Logger::Warning,    (x) );
-#define __ERRORLOG(x)   __LOG_OBJ( H2Core::Logger::Error,      (x) );
-
-// logging macros using  ( thread :  Base * __object = ( Base * )param; )
-#define ___DEBUGLOG(x)  __LOG_STATIC( H2Core::Logger::Debug,    (x) );
-#define ___INFOLOG(x)   __LOG_STATIC( H2Core::Logger::Info,     (x) );
-#define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,  (x) );
-#define ___ERRORLOG(x)  __LOG_STATIC( H2Core::Logger::Error,    (x) );
+// Free-function logging macros (thread bodies included)
+#define ___IPCLOG(x)     __LOG_STATIC( H2Core::Logger::Ipc,      (x) );
+#define ___DEBUGLOG(x)   __LOG_STATIC( H2Core::Logger::Debug,    (x) );
+#define ___INFOLOG(x)    __LOG_STATIC( H2Core::Logger::Info,     (x) );
+#define ___WARNINGLOG(x) __LOG_STATIC( H2Core::Logger::Warning,   (x) );
+#define ___ERRORLOG(x)   __LOG_STATIC( H2Core::Logger::Error,     (x) );
 
 // Can be called without or with a single argument
 #define CLOCK(...)      __LOG_METHOD( H2Core::Logger::Debug, base_clock( QString( "%1" ).arg( #__VA_ARGS__ ) ) );

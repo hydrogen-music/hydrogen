@@ -27,7 +27,9 @@ if(APPLE)
 	# set how it shows up in the Info.plist file
     set(MACOSX_BUNDLE_INFO_STRING "Hydrogen for Mac")
 	set(MACOSX_BUNDLE_ICON_FILE "icon.icns")
-	set(MACOSX_BUNDLE_GUI_IDENTIFIER "Hydrogen")
+	# Unique, reverse-DNS identifier: the plugins look the app up by it via
+	# LaunchServices (ADR 0038). Matches the Linux desktop-file ID.
+	set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.hydrogenmusic.Hydrogen")
 	set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VERSION}")
 	#this has to be short since it appears as the application name in the menu bar
 	set(MACOSX_BUNDLE_BUNDLE_NAME "Hydrogen")
@@ -72,6 +74,18 @@ if(APPLE)
 
     add_file_dependencies(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
 
+    # Without it, macOS releases older than the deployment target refuse to
+    # start the app with a generic "damaged or incomplete" error.
+    if(CMAKE_OSX_DEPLOYMENT_TARGET)
+        add_custom_command(
+            TARGET hydrogen
+            POST_BUILD
+            COMMAND plutil -replace LSMinimumSystemVersion
+                           -string "${CMAKE_OSX_DEPLOYMENT_TARGET}"
+                           hydrogen.app/Contents/Info.plist
+        )
+    endif()
+
 endif()
 
 target_link_libraries(hydrogen
@@ -80,6 +94,18 @@ target_link_libraries(hydrogen
 	Qt${QT_VERSION_MAJOR}::Widgets
 	Qt${QT_VERSION_MAJOR}::Svg
 )
+
+# A static Qt only contains the platform plugins that are explicitly linked
+# into an executable. The headless smoke tests below run this binary with
+# QT_QPA_PLATFORM=offscreen, so the offscreen platform integration has to be
+# linked in alongside the default one (xcb). A shared Qt loads it from its
+# plugin directory at runtime instead.
+if(QT_VERSION_MAJOR VERSION_GREATER_EQUAL 6)
+	get_target_property(_qt_core_type Qt6::Core TYPE)
+	if(_qt_core_type STREQUAL "STATIC_LIBRARY")
+		qt_import_plugins(hydrogen INCLUDE Qt6::QOffscreenIntegrationPlugin)
+	endif()
+endif()
 
 if(Backtrace_FOUND)
 	target_link_libraries(hydrogen
@@ -100,3 +126,191 @@ endif()
 add_dependencies(hydrogen hydrogen-core-${VERSION})
 
 install(TARGETS hydrogen RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})
+
+# GUI startup smoke test (ADR 0015/0016): launch the full GUI headless (Qt
+# offscreen platform), let it construct MainForm/HydrogenApp and tear down via
+# --quit-after-startup, and require a clean (zero) exit. Catches startup/teardown
+# crashes such as a not-yet-ready HydrogenApp being dereferenced during
+# construction. --quit-after-startup also selects the no-op Fake audio driver
+# (no hardware needed) and suppresses the development-build warning dialog. HOME
+# points at a throwaway dir so no user config interferes.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/gui-startup-test-home)
+add_test(
+	NAME GuiStartup
+	COMMAND hydrogen --nosplash --child --quit-after-startup
+			-P ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( GuiStartup PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
+	TIMEOUT 120
+)
+
+# Splash startup verification: launch the full GUI headless WITHOUT
+# --nosplash and require that the splash screen receives an event pass
+# during startup. QSplashScreen::show() does not paint synchronously and
+# the offscreen platform exposes windows immediately, so the visual
+# outcome (splash invisible for the whole startup on Wayland/X11) is not
+# observable headless — the hidden --verify-splash-shown mode instead
+# arms a zero-timer sentinel before the exposure pump in main() and
+# freezes the verdict right after it: only processing events in between
+# delivers the sentinel in time. Exit code 0 = pass, 1 = splash never
+# became visible. HOME points at a throwaway dir so no user config
+# interferes.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/splash-startup-test-home)
+add_test(
+	NAME SplashStartup
+	COMMAND hydrogen --verify-splash-shown --child
+			-P ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( SplashStartup PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/splash-startup-test-home"
+	TIMEOUT 120
+)
+
+# Connect-via-IPC mode abort smoke test (ADR 0016): `hydrogen --connect-via-ipc
+# <endpoint>` against an endpoint with no engine must abort cleanly (exit 1),
+# NOT crash, and must not run an audio-processing thread on the mirror (the
+# regression that segfaulted via a Logger use-after-free). The wrapper asserts
+# both. Shell script → Unix only, like WriteSurfaceGuard. (The deterministic
+# unit-level guard is ConnectViaIpcModeTest::testMirrorUsesPassiveAudioDriver.)
+if ( UNIX )
+	# 3 = Reporter::EXIT_CODE_CLEAN_FAILURE (the editor's clean "couldn't connect"
+	# abort code). Passed to the wrappers so the shell and C++ stay in sync.
+	add_test(
+		NAME EditorBadEndpoint
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/test_editor_bad_endpoint.sh
+				$<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data 3
+	)
+	set_tests_properties( EditorBadEndpoint PROPERTIES
+		ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
+		TIMEOUT 120
+	)
+
+	# The crash Reporter must treat that clean failed-connect as a normal exit
+	# (propagate the code, no crash dialog), not a crash. Runs the full command
+	# (no --child) so the Reporter wrapper is exercised end to end.
+	add_test(
+		NAME EditorReporterCleanFailure
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/test_editor_reporter.sh
+				$<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data 3
+	)
+	set_tests_properties( EditorReporterCleanFailure PROPERTIES
+		ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/gui-startup-test-home"
+		TIMEOUT 120
+	)
+endif()
+
+# Connect-via-IPC attach integration test (ADR 0016/0018): the success counterpart
+# to EditorBadEndpoint and GuiStartup. A small host harness stands up the engine
+# exactly as a DAW does — a HydrogenPlugin serving its engine over IPC
+# (EngineSession, production serve path) — then launches the real GUI in
+# out-of-process editor mode (`hydrogen --connect-via-ipc <endpoint>`) against that
+# live endpoint. With --quit-after-startup the editor connects, builds MainForm
+# over the IPC-backed engine handle, shows the window and quits cleanly; a clean
+# (zero) exit proves the whole spawn->connect->show->teardown chain. The harness
+# links the engine wrapper (hydrogen-plugin) and drives the spawn itself so it can
+# pass --quit-after-startup; the GUI binary is the editor under test.
+add_executable( plugin_editor_smoke PluginEditorSmoke.cpp )
+set_property( TARGET plugin_editor_smoke PROPERTY CXX_STANDARD 17 )
+target_link_libraries( plugin_editor_smoke
+	hydrogen-plugin
+	Qt${QT_VERSION_MAJOR}::Core
+)
+# Needs the GUI binary present (it is the editor that gets spawned).
+add_dependencies( plugin_editor_smoke hydrogen )
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-attach-test-home)
+add_test(
+	NAME EditorAttach
+	COMMAND plugin_editor_smoke $<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( EditorAttach PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-attach-test-home"
+	TIMEOUT 120
+)
+
+# Plugin-host transport gating integration test (ADR 0026): the same live
+# plugin-host engine as EditorAttach, but the spawned editor runs
+# --verify-plugin-transport-gating instead of a plain quit. Once the GUI is up
+# it asserts the transport buttons are deactivated (the host owns transport)
+# while record and the playlist song selector stay available, then quits with
+# the verdict. Exit 0 = gating correct; any non-zero (including the verifier's
+# 1) fails the test.
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-transport-gating-test-home)
+add_test(
+	NAME EditorTransportGating
+	COMMAND plugin_editor_smoke $<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+			--verify-transport-gating
+)
+set_tests_properties( EditorTransportGating PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-transport-gating-test-home"
+	TIMEOUT 120
+)
+
+# Version-gate integration test (ADR 0018): the refusal counterpart to
+# EditorAttach. A minimal host harness serves a *fake* engine whose hello
+# announces a different wire-protocol tag, then launches the real GUI
+# with --connect-via-ipc against it. The editor must refuse the handshake
+# and abort cleanly with Reporter::EXIT_CODE_CLEAN_FAILURE (3) — the same
+# clean path as a dead endpoint (EditorBadEndpoint) — proving the refusal is
+# graceful end to end. An exit 0 (editor wired itself around an incompatible
+# engine) fails the test.
+add_executable( editor_version_mismatch EditorVersionMismatch.cpp )
+set_property( TARGET editor_version_mismatch PROPERTY CXX_STANDARD 17 )
+target_link_libraries( editor_version_mismatch
+	hydrogen-core-${VERSION}
+	Qt${QT_VERSION_MAJOR}::Core
+	Qt${QT_VERSION_MAJOR}::Network
+)
+# Needs the GUI binary present (it is the editor that gets spawned).
+add_dependencies( editor_version_mismatch hydrogen )
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-version-mismatch-test-home)
+add_test(
+	NAME EditorVersionMismatch
+	COMMAND editor_version_mismatch $<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+)
+set_tests_properties( EditorVersionMismatch PROPERTIES
+	ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-version-mismatch-test-home"
+	TIMEOUT 120
+)
+
+# Editor-mode assert guard integration test (ADR 0033): spawns the GUI in
+# editor mode with --exercise-editor-paths, which dispatches every safe
+# Shortcuts::Action through MainForm::executeShortcut. If any action reaches
+# an ASSERT_NO_EDITOR_MODE site, the macro calls assert(false) → SIGABRT,
+# killing the process — the test detects this as a crash and fails.
+# Debug-only: ASSERT_NO_EDITOR_MODE is a no-op in release builds.
+if ( H2CORE_HAVE_DEBUG AND NOT NDEBUG )
+	add_executable( plugin_editor_assert_guard PluginEditorAssertGuard.cpp )
+	set_property( TARGET plugin_editor_assert_guard PROPERTY CXX_STANDARD 17 )
+	target_link_libraries( plugin_editor_assert_guard
+		hydrogen-plugin
+		Qt${QT_VERSION_MAJOR}::Core
+	)
+	add_dependencies( plugin_editor_assert_guard hydrogen )
+
+	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/editor-assert-guard-test-home)
+	add_test(
+		NAME EditorModeAssertGuard
+		COMMAND plugin_editor_assert_guard
+				$<TARGET_FILE:hydrogen> ${CMAKE_SOURCE_DIR}/data
+	)
+	set_tests_properties( EditorModeAssertGuard PROPERTIES
+		TIMEOUT 120
+		ENVIRONMENT "QT_QPA_PLATFORM=offscreen;HOME=${CMAKE_BINARY_DIR}/editor-assert-guard-test-home"
+	)
+endif()
+
+# Write-surface guard (ADR 0027, Phase 4.5 step 7): static source check that the
+# GUI does not mutate engine-owned Basics objects directly but routes edits
+# through CoreActionController. Pure source scan; needs no build artefacts.
+# It is a bash script, so it is only registered on Unix (Linux + macOS); on
+# Windows there is no shell to run it. The always-on Linux CI job runs it.
+if ( UNIX )
+	add_test(
+		NAME WriteSurfaceGuard
+		COMMAND ${CMAKE_SOURCE_DIR}/tools/check_write_surface
+	)
+	set_tests_properties( WriteSurfaceGuard PROPERTIES TIMEOUT 60 )
+endif()

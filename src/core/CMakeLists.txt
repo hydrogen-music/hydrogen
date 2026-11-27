@@ -45,7 +45,6 @@ include_directories( include
     ${PORTMIDI_INCLUDE_DIRS}
     ${COREAUDIO_INCLUDE_DIRS}
     ${COREMIDI_INCLUDE_DIRS}
-    ${LRDF_INCLUDE_DIRS}
     ${OSC_INCLUDE_DIRS}
     ${RUBBERBAND_INCLUDE_DIRS}
 )
@@ -64,7 +63,6 @@ target_link_libraries(hydrogen-core-${VERSION}
     ${COREAUDIO_LIBRARIES}
     ${COREMIDI_LIBRARIES}
     ${PULSEAUDIO_LIBRARIES}
-    ${LRDF_LIBRARIES}
     ${RUBBERBAND_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
@@ -74,8 +72,7 @@ target_link_libraries(hydrogen-core-${VERSION}
 target_link_libraries(hydrogen-core-${VERSION}
 	Qt${QT_VERSION_MAJOR}::Core
 	Qt${QT_VERSION_MAJOR}::Xml
-    Qt${QT_VERSION_MAJOR}::Test
-	Qt${QT_VERSION_MAJOR}::Gui # For QColor
+	Qt${QT_VERSION_MAJOR}::Test
 	Qt${QT_VERSION_MAJOR}::Network
 )
 

@@ -28,9 +28,12 @@
 #include <vector>
 
 #include <core/License.h>
+#include <core/Helpers/Xml.h>
 #include <core/Object.h>
 
 namespace H2Core {
+
+class Preferences;
 
 /**
  * A container for a sample, being able to apply modifications on it
@@ -172,7 +175,8 @@ class Sample : public H2Core::Object<Sample> {
 		long long nFrames = 0,
 		int sample_rate = 0,
 		float* data_l = nullptr,
-		float* data_r = nullptr
+		float* data_r = nullptr,
+		Xml::Flag flags = Xml::Flag::None
 	);
 	/** copy constructor */
 	Sample( std::shared_ptr<Sample> other );
@@ -235,7 +239,8 @@ class Sample : public H2Core::Object<Sample> {
 	 *
 	 * \fn load()
 	 */
-	bool load( float fBpm = 120 );
+	bool load( float fBpm, Preferences* pPreferences );
+
 	/**
 	 * Flush the current content of the left and right
 	 * channel and the current metadata.
@@ -303,6 +308,17 @@ class Sample : public H2Core::Object<Sample> {
 	double getSampleDuration() const;
 
 	/**
+	 * Back end of load(): split an interleaved float buffer (as decoded by
+	 * libsndfile) into #m_data_L / #m_data_R, store the metadata, and apply the
+	 * loop/velocity/pan/rubberband modifiers.
+	 *
+	 * @param pInterleaved Interleaved samples, @a nChannels per frame.
+	 */
+	bool storeDecodedSamples( const float* pInterleaved, long long nFrames,
+							  int nChannels, int nSampleRate, float fBpm,
+							  Preferences* pPreferences );
+
+	/**
 	 * apply #m_loops transformation to the sample
 	 */
 	bool applyLoops();
@@ -319,12 +335,12 @@ class Sample : public H2Core::Object<Sample> {
 	 * apply #m_rubberband transformation to the sample
 	 * \param fBpm tempo the Rubberband transformation will target
 	 */
-	void applyRubberband( float fBpm );
+	void applyRubberband( float fBpm, Preferences* pPreferences );
 	/**
 	 * call rubberband cli to modify the sample using #m_rubberband
 	 * \param fBpm tempo the Rubberband transformation will target
 	 */
-	bool execRubberbandCli( float fBpm );
+	bool execRubberbandCli( float fBpm, Preferences* pPreferences );
 
 	/** Convenience variable not written to disk. */
 	bool m_bIsLoaded;

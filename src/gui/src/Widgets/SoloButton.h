@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef SOLO_BUTTON_H
-#define SOLO_BUTTON_H
+#ifndef H2C_SOLO_BUTTON_H
+#define H2C_SOLO_BUTTON_H
 
 #include "ColoredButton.h"
 

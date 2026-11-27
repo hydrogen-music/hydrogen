@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef PIANO_ROLL_EDITOR_H
-#define PIANO_ROLL_EDITOR_H
+#ifndef H2C_PIANO_ROLL_EDITOR_H
+#define H2C_PIANO_ROLL_EDITOR_H
 
 #include <core/config.h>
 #include <core/Object.h>

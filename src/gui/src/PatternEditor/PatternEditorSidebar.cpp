@@ -36,7 +36,7 @@
 #include <core/SoundLibrary/SoundLibraryDatabase.h>
 
 #include "PianoRollEditor.h"
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../Compatibility/DropEvent.h"
 #include "../Compatibility/MouseEvent.h"
 #include "../DrumkitPropertiesDialog.h"
@@ -75,7 +75,7 @@ SidebarLabel::SidebarLabel(
 	  m_bDimed( false )
 {
 	const auto pColorTheme =
-		H2Core::Preferences::get_instance()->getColorTheme();
+		HydrogenApp::pPreferences()->getColorTheme();
 
 	setReadOnly( true );
 	setFixedWidth( size.width() );
@@ -91,8 +91,8 @@ SidebarLabel::SidebarLabel(
 
 	updateFont();
 	setColor(
-		pColorTheme->m_patternEditor_backgroundColor,
-		pColorTheme->m_patternEditor_textColor, pColorTheme->m_cursorColor
+		Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ),
+		Skin::toQColor( pColorTheme->m_patternEditor_textColor ), Skin::toQColor( pColorTheme->m_cursorColor )
 	);
 	updateStyle();
 
@@ -163,7 +163,7 @@ void SidebarLabel::setColor(
 
 void SidebarLabel::updateFont()
 {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	const QString sFontFamily = pFontTheme->m_sLevel2FontFamily;
 	const auto fontSize = pFontTheme->m_fontSize;
@@ -300,7 +300,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 	p.fillRect( QRect( 0, 0, width(), height() ), backgroundColor );
 
 	if ( m_bShowPlusSign ) {
-		const auto pPref = Preferences::get_instance();
+		const auto pPref = HydrogenApp::pPreferences();
 
 		int nLineWidth, nHeight;
 		switch ( pPref->getFontTheme()->m_fontSize ) {
@@ -321,7 +321,7 @@ void SidebarLabel::paintEvent( QPaintEvent* ev )
 				return;
 		}
 
-		QColor color = m_bEntered ? pPref->getColorTheme()->m_highlightColor
+		QColor color = m_bEntered ? Skin::toQColor( pPref->getColorTheme()->m_highlightColor )
 								  : m_textBaseColor;
 
 		if ( m_bDimed ) {
@@ -462,11 +462,11 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	const int nHeight =
-		Preferences::get_instance()->getPatternEditorGridHeight();
+		HydrogenApp::pPreferences()->getPatternEditorGridHeight();
 	resize( PatternEditorSidebar::m_nWidth, nHeight );
 
 	auto pGlobalLayout = new QVBoxLayout( this );
@@ -513,7 +513,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 			if ( pEvent->button() == Qt::LeftButton &&
 				 !m_pInstrumentNameLbl->isShowingPlusSign() ) {
 				// Play a sound
-				auto pSong = Hydrogen::get_instance()->getSong();
+				auto pSong = HydrogenApp::pEngine()->getSong();
 				if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 					return;
 				}
@@ -529,9 +529,8 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 						VELOCITY_MAX
 					);
 					auto pNote = std::make_shared<Note>( pInstr, 0, fVelocity );
-					Hydrogen::get_instance()
-						->getAudioEngine()
-						->getSampler()
+					HydrogenApp::pEngine()
+						->getCoreActionController()
 						->noteOn( pNote );
 				}
 			}
@@ -566,7 +565,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	connect( m_pInstrumentNameLbl, &SidebarLabel::editRejected, this, [&]() {
 		// Reset the typed instrument name with the one in the current drumkit.
 		if ( m_row.id != Instrument::EmptyId ) {
-			auto pSong = Hydrogen::get_instance()->getSong();
+			auto pSong = HydrogenApp::pEngine()->getSong();
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
 			}
@@ -637,7 +636,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 	auto editDrumkit = [&]() {
 		if ( m_row.bMappedToDrumkit ) {
-			auto pSong = Hydrogen::get_instance()->getSong();
+			auto pSong = HydrogenApp::pEngine()->getSong();
 			if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 				return;
 			}
@@ -845,7 +844,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 	m_pTypeLabelVisibilityAction->setCheckable( true );
 	m_pTypeLabelVisibilityAction->setChecked( true );
 	connect( m_pTypeLabelVisibilityAction, &QAction::triggered, this, [=]() {
-		Preferences::get_instance()->setPatternEditorAlwaysShowTypeLabels(
+		HydrogenApp::pPreferences()->setPatternEditorAlwaysShowTypeLabels(
 			m_pTypeLabelVisibilityAction->isChecked()
 		);
 		m_pPatternEditorPanel->updateTypeLabelVisibility();
@@ -860,7 +859,7 @@ SidebarRow::SidebarRow( QWidget* pParent, const DrumPatternRow& row )
 
 void SidebarRow::set( const DrumPatternRow& row )
 {
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	QString sToolTip;
 	bool bIsSoloed = false, bIsMuted = false;
 	m_row = row;
@@ -1024,12 +1023,12 @@ void SidebarRow::setSelected( bool bSelected )
 
 void SidebarRow::updateColors()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	m_pMuteBtn->setCheckedBackgroundColor( pColorTheme->m_muteColor );
-	m_pMuteBtn->setCheckedBackgroundTextColor( pColorTheme->m_muteTextColor );
-	m_pSoloBtn->setCheckedBackgroundColor( pColorTheme->m_soloColor );
-	m_pSoloBtn->setCheckedBackgroundTextColor( pColorTheme->m_soloTextColor );
+	m_pMuteBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_muteColor ) );
+	m_pMuteBtn->setCheckedBackgroundTextColor( Skin::toQColor( pColorTheme->m_muteTextColor ) );
+	m_pSoloBtn->setCheckedBackgroundColor( Skin::toQColor( pColorTheme->m_soloColor ) );
+	m_pSoloBtn->setCheckedBackgroundTextColor( Skin::toQColor( pColorTheme->m_soloTextColor ) );
 }
 
 void SidebarRow::updateFont()
@@ -1040,7 +1039,7 @@ void SidebarRow::updateFont()
 
 void SidebarRow::updateBorders()
 {
-	const int nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
+	const int nGridHeight = HydrogenApp::pPreferences()->getPatternEditorGridHeight();
 
 	int nBorderTop = 0;
 	int nBorderBottom = 0;
@@ -1070,77 +1069,77 @@ void SidebarRow::updateBorders()
 
 void SidebarRow::updateStyleSheet()
 {
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QColor textInstrumentColor, textTypeColor, backgroundTypeColor, backgroundInstrumentColor;
 	if ( m_bIsSelected ) {
 		backgroundTypeColor =
-			pColorTheme->m_patternEditor_selectedRowColor.darker(
+			Skin::toQColor( pColorTheme->m_patternEditor_selectedRowColor ).darker(
 				Skin::nListBackgroundColorScaling
 			);
 		backgroundInstrumentColor =
-			pColorTheme->m_patternEditor_instrumentSelectedRowColor;
-		textTypeColor = pColorTheme->m_patternEditor_selectedRowTextColor;
-		textInstrumentColor = pColorTheme->m_patternEditor_instrumentSelectedRowTextColor;
+			Skin::toQColor( pColorTheme->m_patternEditor_instrumentSelectedRowColor );
+		textTypeColor = Skin::toQColor( pColorTheme->m_patternEditor_selectedRowTextColor );
+		textInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentSelectedRowTextColor );
 	}
 	else if ( m_row.bAlternate ) {
 		backgroundTypeColor =
-			pColorTheme->m_patternEditor_alternateRowColor.darker(
+			Skin::toQColor( pColorTheme->m_patternEditor_alternateRowColor ).darker(
 				Skin::nListBackgroundColorScaling
 			);
 		backgroundInstrumentColor =
-			pColorTheme->m_patternEditor_instrumentAlternateRowColor;
-		textTypeColor = pColorTheme->m_patternEditor_textColor;
-		textInstrumentColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
+			Skin::toQColor( pColorTheme->m_patternEditor_instrumentAlternateRowColor );
+		textTypeColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
+		textInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowTextColor );
 	}
 	else {
 		backgroundTypeColor =
-			pColorTheme->m_patternEditor_backgroundColor.darker(
+			Skin::toQColor( pColorTheme->m_patternEditor_backgroundColor ).darker(
 				Skin::nListBackgroundColorScaling
 			);
-		backgroundInstrumentColor = pColorTheme->m_patternEditor_instrumentRowColor;
-		textTypeColor = pColorTheme->m_patternEditor_textColor;
-		textInstrumentColor = pColorTheme->m_patternEditor_instrumentRowTextColor;
+		backgroundInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowColor );
+		textTypeColor = Skin::toQColor( pColorTheme->m_patternEditor_textColor );
+		textInstrumentColor = Skin::toQColor( pColorTheme->m_patternEditor_instrumentRowTextColor );
 	}
 
 	// Indicate chosen editor mode.
 	QColor backgroundInactiveColor;
-	if ( Hydrogen::get_instance()->getMode() == Song::Mode::Pattern ) {
+	if ( HydrogenApp::pEngine()->getMode() == Song::Mode::Pattern ) {
 		backgroundInactiveColor =
-			pColorTheme->m_windowColor.lighter( Skin::nEditorActiveScaling );
+			Skin::toQColor( pColorTheme->m_windowColor ).lighter( Skin::nEditorActiveScaling );
 	}
 	else {
-		backgroundInactiveColor = pColorTheme->m_windowColor;
+		backgroundInactiveColor = Skin::toQColor( pColorTheme->m_windowColor );
 	}
 
 	m_pInstrumentNameLbl->setColor(
-		backgroundInstrumentColor, textInstrumentColor, pColorTheme->m_cursorColor
+		backgroundInstrumentColor, textInstrumentColor, Skin::toQColor( pColorTheme->m_cursorColor )
 	);
 	m_pTypeLbl->setColor(
-		backgroundTypeColor, textTypeColor, pColorTheme->m_cursorColor
+		backgroundTypeColor, textTypeColor, Skin::toQColor( pColorTheme->m_cursorColor )
 	);
 
 	QColor buttonColor =
-		pColorTheme->m_widgetColor.darker( Skin::nListBackgroundColorScaling );
+		Skin::toQColor( pColorTheme->m_widgetColor ).darker( Skin::nListBackgroundColorScaling );
 
     m_pMuteBtn->setDefaultBackgroundColor( buttonColor );
     m_pSoloBtn->setDefaultBackgroundColor( buttonColor );
 
-    const QColor backgroundColor = pColorTheme->m_windowColor;
+    const QColor backgroundColor = Skin::toQColor( pColorTheme->m_windowColor );
 
 	QColor borderColor, borderTopColor;
 	if ( m_bIsSelected ) {
-		borderColor = pColorTheme->m_highlightColor;
+		borderColor = Skin::toQColor( pColorTheme->m_highlightColor );
 		borderTopColor = borderColor;
 	}
 	else if ( m_bBelowSelection ) {
 		borderColor = backgroundColor;
-		borderTopColor = pColorTheme->m_highlightColor;
+		borderTopColor = Skin::toQColor( pColorTheme->m_highlightColor );
 	}
 	else {
 		borderColor = backgroundColor;
 		borderTopColor =
-			m_bDragHovered ? pColorTheme->m_highlightColor : backgroundColor;
+			m_bDragHovered ? Skin::toQColor( pColorTheme->m_highlightColor ) : backgroundColor;
 	}
 
 	QString sBorderTop, sBorderBottom;
@@ -1215,7 +1214,7 @@ void SidebarRow::mousePressEvent( QMouseEvent* ev )
 {
 	auto pEv = static_cast<MouseEvent*>( ev );
 
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pPatternEditorPanel->setSelectedRowDB(
 		m_pPatternEditorPanel->getRowIndexDB( m_row )
@@ -1249,7 +1248,7 @@ void SidebarRow::update()
 
 void SidebarRow::muteClicked()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1266,7 +1265,7 @@ void SidebarRow::muteClicked()
 			return;
 		}
 
-		H2Core::CoreActionController::setStripIsMuted(
+		HydrogenApp::pEngine()->getCoreActionController()->setStripIsMuted(
 			nRow, !pInstr->isMuted(), false
 		);
 	}
@@ -1274,7 +1273,7 @@ void SidebarRow::muteClicked()
 
 void SidebarRow::soloClicked()
 {
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1291,7 +1290,7 @@ void SidebarRow::soloClicked()
 			return;
 		}
 
-		H2Core::CoreActionController::setStripIsSoloed(
+		HydrogenApp::pEngine()->getCoreActionController()->setStripIsSoloed(
 			nRow, !pInstr->isSoloed(), false
 		);
 	}
@@ -1368,7 +1367,7 @@ PatternEditorSidebar::PatternEditorSidebar( QWidget* parent )
 	  m_nLastDragRow( -1 )
 {
 	HydrogenApp::get_instance()->addEventListener( this );
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	m_pPatternEditorPanel =
 		HydrogenApp::get_instance()->getPatternEditorPanel();
@@ -1524,7 +1523,7 @@ void PatternEditorSidebar::dropEvent( QDropEvent* event )
 
 	auto pEv = static_cast<DropEvent*>( event );
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
@@ -1613,14 +1612,14 @@ void PatternEditorSidebar::mouseMoveEvent( QMouseEvent* event )
 		return;
 	}
 
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	if ( abs( pEv->position().y() - m_nDragStartY ) <
 		 pPref->getPatternEditorGridHeight() ) {
 		// Still within the same row.
 		return;
 	}
 
-	auto pSong = Hydrogen::get_instance()->getSong();
+	auto pSong = HydrogenApp::pEngine()->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return;
 	}
@@ -1673,7 +1672,7 @@ void PatternEditorSidebar::mousePressEvent( QMouseEvent* event )
 
 void PatternEditorSidebar::updateRows()
 {
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 	if ( m_nEditorHeight != pPref->getPatternEditorGridHeight() *
 								m_pPatternEditorPanel->getRowNumberDB() ) {
 		m_nEditorHeight = pPref->getPatternEditorGridHeight() *
@@ -1727,14 +1726,14 @@ void PatternEditorSidebar::updateRows()
 int PatternEditorSidebar::yToRow( int nY ) const
 {
 
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = HydrogenApp::pHydrogen();
 	auto pSong = pHydrogen->getSong();
 	if ( pSong == nullptr || pSong->getDrumkit() == nullptr ) {
 		return -1;
 	}
 
 	auto pInstrumentList = pSong->getDrumkit()->getInstruments();
-	const auto pPref = H2Core::Preferences::get_instance();
+	const auto pPref = HydrogenApp::pPreferences();
 
 	// There might be rows in the pattern editor not corresponding to the
 	// current kit. Since we only support rearranging rows corresponding to

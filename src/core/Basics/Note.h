@@ -29,6 +29,7 @@
 #include <core/Basics/DrumkitMap.h>
 #include <core/Basics/Instrument.h>
 #include <core/Helpers/Time.h>
+#include <core/Helpers/Xml.h>
 #include <core/Midi/Midi.h>
 #include <core/Object.h>
 
@@ -54,8 +55,10 @@ namespace H2Core {
 
 class XMLNode;
 class ADSR;
+class Hydrogen;
 class InstrumentLayer;
 class InstrumentList;
+class Song;
 
 /** Auxiliary variables storing the rendering state of a #H2Core::Note within
  * the #H2Core::Sampler */
@@ -342,20 +345,33 @@ class Note : public H2Core::Object<Note> {
 
 	Note::Pitch toPitch() const;
 
-	/*
+	/**
 	 * save the note within the given XMLNode
 	 * \param node the XMLNode to feed
+	 * \param flags OR-ed combination of #Xml::Flag options.
 	 */
-	void saveTo( XMLNode& node ) const;
+	void saveTo( XMLNode& node, Xml::Flag flags ) const;
 	/**
 	 * load a note from an XMLNode
 	 * \param node the XMLDode to read from
+	 * \param flags OR-ed combination of #Xml::Flag options.
 	 * \param bSilent Whether infos, warnings, and errors should
 	 * be logged.
 	 * \return a new Note instance
 	 */
 	static std::shared_ptr<Note>
-	loadFrom( const XMLNode& node, bool bSilent = false );
+	loadFrom( const XMLNode& node, Xml::Flag flags, bool bSilent );
+
+	/** Serialize this note as a standalone XML document suitable for IPC
+	 * transport (ADR 0030). Uses #saveTo with Xml::Flag::Ipc set so IPC-only
+	 * members (uuid, selected layer info) are included. */
+	QByteArray toXmlBuffer() const;
+	/** Reconstruct a note from a buffer produced by #toXmlBuffer. The
+	 * instrument is resolved from @a pHydrogen's current drumkit by
+	 * m_instrumentId; if not found, the note is returned with a null
+	 * instrument pointer (the caller must handle this). */
+	static std::shared_ptr<Note> fromXmlBuffer(
+		const QByteArray& buffer, bool bSilent, Hydrogen* pHydrogen );
 
 	/** #m_pInstrument accessor */
 	std::shared_ptr<Instrument> getInstrument() const;
@@ -440,7 +456,7 @@ class Note : public H2Core::Object<Note> {
 	/** Returns the #H2Core::InstrumentLayer and some additional rendering
 	 * meta data for a given component. If no selection took place yet,
 	 * `nullptr` will be returned. */
-	std::shared_ptr<SelectedLayerInfo> getSelecterLayerInfo(
+	std::shared_ptr<SelectedLayerInfo> getSelectedLayerInfo(
 		std::shared_ptr<InstrumentComponent> pComponent
 	) const;
 	/** Can be used for custom layer selection.
@@ -580,13 +596,13 @@ class Note : public H2Core::Object<Note> {
 	 * enabled, the #m_nNoteStart gets invalidated and this function
 	 * needs to be rerun.
 	 */
-	void computeNoteStart();
+	void computeNoteStart( Hydrogen* pHydrogen );
 
 	/**
 	 * Add random contributions to #m_fPitchHumanization, #m_nHumanizeDelay, and
 	 * #m_fVelocity.
 	 */
-	void humanize();
+	void humanize( std::shared_ptr<Song> pSong );
 
 	/**
 	 * Add swing contribution to #m_nHumanizeDelay.
@@ -594,7 +610,7 @@ class Note : public H2Core::Object<Note> {
 	 * As the value applied is deterministic, it will not be handled
 	 * in humanice() but separately.
 	 */
-	void swing();
+	void swing( Hydrogen* pHydrogen );
 
 	/** Returns a short but expressive string using which the particular
 	 * note instance can be identified.

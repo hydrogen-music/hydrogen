@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef STATUS_MESSAGE_Display_H
-#define STATUS_MESSAGE_Display_H
+#ifndef H2C_STATUS_MESSAGE_Display_H
+#define H2C_STATUS_MESSAGE_Display_H
 
 
 #include "../Widgets/LCDDisplay.h"

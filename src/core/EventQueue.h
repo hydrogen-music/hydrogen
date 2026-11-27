@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef EVENT_QUEUE_H
-#define EVENT_QUEUE_H
+#ifndef H2C_EVENT_QUEUE_H
+#define H2C_EVENT_QUEUE_H
 
 #include <core/Basics/Event.h>
 #include <core/Basics/Instrument.h>
@@ -38,8 +38,15 @@
 namespace H2Core
 {
 
+class Hydrogen;
+
 /** Object handling the communication between the core of Hydrogen and
  * its GUI.
+ *
+ * Owned per Hydrogen instance (ADR 0015): any number of EventQueues may
+ * coexist independently. A transitional process-current pointer
+ * (#get_instance() / #setInstance()) keeps unconverted call sites compiling
+ * during the de-singletoning sweep and will be removed once they are gone.
  *
  * Whenever a specific condition is met or occasion happens within the core part
  * of Hydrogen (its engine), an Event will be added to the EventQueue singleton.
@@ -60,18 +67,8 @@ public:
 		H2Core::EventQueue::m_eventQueue.*/
 	static constexpr int nMaxEvents = 1024;
 
-	/**
-	* If #__instance equals 0, a new EventQueue singleton will be
-	 * created and stored in it.
-	 *
-	 * It is called in Hydrogen::create_instance().
-	 */
-	static void create_instance();
-	/**
-	 * Returns a pointer to the current EventQueue singleton
-	 * stored in #__instance.
-	 */
-	static EventQueue* get_instance() { assert(__instance); return __instance; }
+	/** Constructs an EventQueue owned by @a pHydrogen (ADR 0015). */
+	EventQueue( Hydrogen* pHydrogen );
 	~EventQueue();
 
 	/**
@@ -90,10 +87,27 @@ public:
 	 *
 	 * \param type Type of the event, which will be queued.
 	 * \param nValue Value specifying the content of the new event.
+	 * @param nRequestedId In order to reliably blacklist certain events based
+	 *   on their ids, the calling routine can request the new event to hold a
+	 *   specific one.
 	 *
 	 * \returns the ID of the created #H2Core::Event.
 	 */
-	long pushEvent( const Event::Type type, const int nValue );
+	void pushEvent(
+		const Event::Type type,
+		const int nValue,
+		long nRequestedId = Event::nInvalidId
+	);
+
+	/** Overload that lets the caller specify the event's ProcessMode origin.
+	 * Use this when forwarding an engine-origin event into a mirror queue so
+	 * the editor can distinguish remote from local events. */
+	void pushEvent(
+		const Event::Type type,
+		const int nValue,
+		long nRequestedId,
+		H2Core::ProcessMode origin
+	);
 	/**
 	 * Reads out the next event of the EventQueue.
 	 *
@@ -122,8 +136,31 @@ public:
 		float fPan;
 		Note::Key key;
 		Note::Octave octave;
+		/** Distinguishes a note-on (the editor integrates a new note)
+		 * from a note-off (the editor adjusts the length of the
+		 * previously recorded note; #nLength then carries the
+		 * engine-computed hold length). */
+		bool bNoteOff;
 	};
-	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
+	/** Queues @a noteAction for the editor's HydrogenApp::onEventQueueTimer.
+	 *
+	 * Thread-safe: the vector is pushed from the audio thread
+	 * (standalone MIDI recording, Hydrogen::addRealtimeNote) and from the
+	 * IPC reader thread (EditorStateMirror re-queuing an engine-recorded
+	 * note, ADR 0030 batch 2n) while the consumers below drain it. */
+	void pushMidiNoteAction( const AddMidiNoteVector& noteAction );
+
+	/** Atomically swaps out and returns all queued midi note actions.
+	 *
+	 * Thread-safe drain for the consumers: the GUI timer
+	 * (HydrogenApp::onEventQueueTimer, both modes) and the engine's serve
+	 * loop (EngineSession::forwardMidiNotes in the split). The caller owns
+	 * the returned batch; the queue is left empty. */
+	std::vector<AddMidiNoteVector> drainMidiNoteActions();
+
+	/** Non-consuming copy of the queued midi note actions (testing and
+	 * debugging). */
+	std::vector<AddMidiNoteVector> getMidiNoteActions() const;
 
 	bool getSilent() const;
 	void setSilent( bool bSilent );
@@ -143,12 +180,18 @@ public:
 	QString toQString( const QString& sPrefix = "", bool bShort = true );
 
 private:
-	EventQueue();
-	static EventQueue *__instance;
+	/** Owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
 
 	std::deque< std::unique_ptr<Event> >m_eventQueue;
 
 	std::mutex m_mutex;
+
+	/** Midi note actions queued for the editor. Guarded by
+	 * #m_addMidiNoteMutex: producers and consumers live on different
+	 * threads (see #pushMidiNoteAction). */
+	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
+	mutable std::mutex m_addMidiNoteMutex;
 
 	/** Whether or not to push log messages.*/
 	bool m_bSilent;

@@ -45,7 +45,7 @@ LCDTextEdit::LCDTextEdit( QWidget* pParent, bool bIsActive )
 	int nStepSize = 2;
 
 	m_fontPointSizes.resize( 3 );
-	switch ( H2Core::Preferences::get_instance()->getFontTheme()->m_fontSize ) {
+	switch ( HydrogenApp::pPreferences()->getFontTheme()->m_fontSize ) {
 	case H2Core::FontTheme::FontSize::Small:
 		m_fontPointSizes[ 0 ] = currentFont.pointSize();
 		break;
@@ -86,7 +86,7 @@ void LCDTextEdit::setIsActive( bool bIsActive ) {
 }
 
 void LCDTextEdit::updateFont() {
-	const auto pFontTheme = H2Core::Preferences::get_instance()->getFontTheme();
+	const auto pFontTheme = HydrogenApp::pPreferences()->getFontTheme();
 
 	int nIndex = 1;
 	if ( pFontTheme->m_fontSize == H2Core::FontTheme::FontSize::Small ) {
@@ -101,13 +101,13 @@ void LCDTextEdit::updateFont() {
 }
 
 void LCDTextEdit::updateStyleSheet() {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
-	QColor textColor = pColorTheme->m_windowTextColor;
-	QColor textColorActive = pColorTheme->m_widgetTextColor;
+	QColor textColor = Skin::toQColor( pColorTheme->m_windowTextColor );
+	QColor textColorActive = Skin::toQColor( pColorTheme->m_widgetTextColor );
 
-	QColor backgroundColor = pColorTheme->m_windowColor;
-	QColor backgroundColorActive = pColorTheme->m_widgetColor;
+	QColor backgroundColor = Skin::toQColor( pColorTheme->m_windowColor );
+	QColor backgroundColorActive = Skin::toQColor( pColorTheme->m_widgetColor );
 
 	QString sStyleSheet = QString( "\
 QTextEdit:enabled { \
@@ -135,7 +135,7 @@ void LCDTextEdit::onPreferencesChanged( const H2Core::Preferences::Changes& chan
 }
 
 void LCDTextEdit::paintEvent( QPaintEvent *ev ) {
-	const auto pColorTheme = H2Core::Preferences::get_instance()->getColorTheme();
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
 
 	QTextEdit::paintEvent( ev );
 
@@ -145,9 +145,9 @@ void LCDTextEdit::paintEvent( QPaintEvent *ev ) {
 
 		QColor colorHighlightActive;
 		if ( m_bIsActive ) {
-			colorHighlightActive = pColorTheme->m_highlightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_highlightColor );
 		} else {
-			colorHighlightActive = pColorTheme->m_lightColor;
+			colorHighlightActive = Skin::toQColor( pColorTheme->m_lightColor );
 		}
 
 		// If the mouse is placed on the widget but the user hasn't

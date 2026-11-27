@@ -52,10 +52,10 @@ InstrumentList::~InstrumentList()
 {
 }
 
-void InstrumentList::loadSamples( float fBpm )
+void InstrumentList::loadSamples( float fBpm, Preferences* pPreferences )
 {
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		m_pInstruments[i]->loadSamples( fBpm );
+		m_pInstruments[i]->loadSamples( fBpm, pPreferences );
 	}
 }
 
@@ -71,10 +71,11 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	const QString& sDrumkitPath,
 	const QString& sDrumkitName,
 	const QString& sSongPath,
+	Xml::Flag flags,
 	const License& license,
-	bool bSongKit,
 	bool* pLegacyFormatEncountered,
-	bool bSilent )
+	bool bSilent,
+	Hydrogen* pHydrogen )
 {
 
 	XMLNode instrumentListNode = node.firstChildElement( "instrumentList" );
@@ -89,8 +90,8 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 	while ( !instrumentNode.isNull() ) {
 		nCount++;
 		auto pInstrument = Instrument::loadFrom(
-			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath,
-			license, bSongKit, pLegacyFormatEncountered, bSilent );
+			instrumentNode, sDrumkitPath, sDrumkitName, sSongPath, flags,
+			license, pLegacyFormatEncountered, bSilent, pHydrogen );
 		if ( pInstrument != nullptr ) {
 			pInstrumentList->add( pInstrument );
 		}
@@ -106,28 +107,42 @@ std::shared_ptr<InstrumentList> InstrumentList::loadFrom(
 		return nullptr;
 	}
 
+	if ( flags & Xml::Flag::Ipc ) {
+		pInstrumentList->setUuid(
+			instrumentListNode.read_uuid( "ipc-uuid", false, false, false )
+		);
+	}
+
 	return pInstrumentList;
 }
 
-void InstrumentList::saveTo( XMLNode& node, bool bSongKit,
-							bool bKeepMissingSamples, bool bSilent ) const
+void InstrumentList::saveTo(
+	XMLNode& node,
+	Xml::Flag flags,
+	bool bSilent,
+	const Xml::ProjectSampleEntries* pProjectSampleEntries
+) const
 {
 	XMLNode instruments_node = node.createNode( "instrumentList" );
 	for ( const auto& pInstrument : m_pInstruments ) {
 		if ( pInstrument != nullptr && pInstrument->getAdsr() != nullptr ) {
-			pInstrument->saveTo( instruments_node, bSongKit,
-								bKeepMissingSamples, bSilent );
+			pInstrument->saveTo( instruments_node, flags, bSilent,
+								 pProjectSampleEntries );
 		}
 		else {
 			ERRORLOG( "Invalid instrument!" );
 		}
+	}
+
+	if ( flags & Xml::Flag::Ipc ) {
+		instruments_node.write_uuid( "ipc-uuid", getUuid() );
 	}
 }
 
 bool InstrumentList::operator==( std::shared_ptr<InstrumentList> pOther ) const {
 	if ( pOther != nullptr && size() == pOther->size() ) {
 		for ( int ii = 0; ii < size(); ++ii ) {
-			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+			if ( ! sameObject( get( ii ), pOther->get( ii ) ) ) {
 				return false;
 			}
 		}
@@ -141,7 +156,7 @@ bool InstrumentList::operator==( std::shared_ptr<InstrumentList> pOther ) const 
 bool InstrumentList::operator!=( std::shared_ptr<InstrumentList> pOther ) const {
 	if ( pOther != nullptr && size() == pOther->size() ) {
 		for ( int ii = 0; ii < size(); ++ii ) {
-			if ( get( ii ).get() != pOther->get( ii ).get() ) {
+			if ( ! sameObject( get( ii ), pOther->get( ii ) ) ) {
 				return true;
 			}
 		}
@@ -156,7 +171,7 @@ void InstrumentList::add( std::shared_ptr<Instrument> instrument )
 {
 	// do nothing if already in m_pInstruments
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if( m_pInstruments[i]==instrument ) return;
+		if( sameObject( m_pInstruments[i], instrument ) ) return;
 	}
 	m_pInstruments.push_back( instrument );
 }
@@ -165,7 +180,7 @@ void InstrumentList::insert( int idx, std::shared_ptr<Instrument> instrument )
 {
 	// do nothing if already in m_pInstruments
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if( m_pInstruments[i]==instrument ) return;
+		if( sameObject( m_pInstruments[i], instrument ) ) return;
 	}
 	m_pInstruments.insert( m_pInstruments.begin() + idx, instrument );
 }
@@ -203,8 +218,14 @@ std::shared_ptr<Instrument> InstrumentList::get( int idx ) const
 
 int InstrumentList::index( std::shared_ptr<Instrument> instr ) const
 {
+	return instr == nullptr ? -1 : index( instr->getUuid() );
+}
+
+int InstrumentList::index( const Uuid& uuid ) const
+{
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if ( m_pInstruments[i]==instr ) {
+		if ( m_pInstruments[i] != nullptr &&
+			 m_pInstruments[i]->getUuid() == uuid ) {
 			return i;
 		}
 	}
@@ -248,8 +269,15 @@ std::vector< std::shared_ptr<Instrument> > InstrumentList::findByMidiNote(
 
 std::shared_ptr<Instrument> InstrumentList::del( std::shared_ptr<Instrument> instrument )
 {
+	return instrument == nullptr ? nullptr : del( instrument->getUuid() );
+}
+
+std::shared_ptr<Instrument> InstrumentList::del( const Uuid& uuid )
+{
 	for( int i=0; i<m_pInstruments.size(); i++ ) {
-		if( m_pInstruments[i]==instrument ) {
+		if( m_pInstruments[i] != nullptr &&
+			m_pInstruments[i]->getUuid() == uuid ) {
+			auto instrument = m_pInstruments[i];
 			m_pInstruments.erase( m_pInstruments.begin() + i );
 			return instrument;
 		}
@@ -322,12 +350,15 @@ bool InstrumentList::hasAllMidiNotesSame() const
 	return notes.size() == 1;
 }
 
+Midi::Note InstrumentList::defaultMidiOutNote( int ii )
+{
+	return Midi::noteFromIntClamp( ii + static_cast<int>( Midi::NoteOffset ) );
+}
+
 void InstrumentList::setDefaultMidiOutNotes()
 {
 	for ( int ii = 0; ii < m_pInstruments.size(); ii++ ) {
-		m_pInstruments[ii]->setMidiOutNote(
-			Midi::noteFromIntClamp( ii + static_cast<int>( Midi::NoteOffset ) )
-		);
+		m_pInstruments[ii]->setMidiOutNote( defaultMidiOutNote( ii ) );
 	}
 }
 
@@ -336,7 +367,9 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const
 	QString s = Base::sPrintIndention;
 	QString sOutput;
 	if ( !bShort ) {
-		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );
+		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_uuid: %3\n" ).arg( sPrefix ).arg( s )
+					 .arg( getUuid().toQString() ) );
 		for ( const auto& ii : m_pInstruments ) {
 			if ( ii != nullptr ) {
 				sOutput.append(
@@ -346,7 +379,8 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const
 		}
 	}
 	else {
-		sOutput = QString( "[InstrumentList] " );
+		sOutput = QString( "[InstrumentList] " )
+			.append( QString( " m_uuid: %1" ).arg( getUuid().toQString() ) );
 		for ( const auto& ii : m_pInstruments ) {
 			if ( ii != nullptr ) {
 				sOutput.append( QString( "(%1: %2 [%3]) " )

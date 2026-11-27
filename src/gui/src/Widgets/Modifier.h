@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MODIFIER_H
-#define MODIFIER_H
+#ifndef H2C_MODIFIER_H
+#define H2C_MODIFIER_H
 
 #include <QString>
 

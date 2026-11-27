@@ -50,13 +50,26 @@ MidiEventMap::MidiEventMap()
 {
 }
 
+MidiEventMap::MidiEventMap( const std::shared_ptr<MidiEventMap> pOther )
+{
+	QMutexLocker mx( &pOther->__mutex );
+
+	// The events are mutable shared state: copy them one by one so the
+	// new map owns fresh objects instead of aliasing the source's ones.
+	m_events.reserve( pOther->m_events.size() );
+	for ( const auto& ppEvent : pOther->m_events ) {
+		m_events.push_back( std::make_shared<MidiEvent>( ppEvent ) );
+	}
+}
+
 MidiEventMap::~MidiEventMap()
 {
 	QMutexLocker mx(&__mutex);
 }
 
 std::shared_ptr<MidiEventMap>
-MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent )
+MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent,
+						Hydrogen* pHydrogen )
 {
 	auto pMidiEventMap = std::make_shared<MidiEventMap>();
 
@@ -123,8 +136,11 @@ MidiEventMap::loadFrom( const H2Core::XMLNode& node, bool bSilent )
 			auto pAction = MidiAction::fromQStrings(
 				actionType, sParameter1, sParameter2, sParameter3
 			);
+			// Event::Trigger::Suppress never dereferences pHydrogen, so a null
+			// pHydrogen is safe here (ADR 0015).
 			pMidiEventMap->registerEvent(
-				eventType, parameter, pAction, Event::Trigger::Suppress
+				eventType, parameter, pAction, Event::Trigger::Suppress,
+				pHydrogen
 			);
 		}
 		else {
@@ -231,6 +247,42 @@ void MidiEventMap::saveTo( H2Core::XMLNode& node, bool bSilent ) const {
 	}
 }
 
+QByteArray MidiEventMap::toXmlBuffer() const
+{
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "midiEventMap", "midiEventMap" );
+	// saveTo() nests the events in its own "midiEventMap" child node (in
+	// the file format the map lives below the preferences root), so the
+	// buffer mirrors that layout and fromXmlBuffer() unwraps it again.
+	saveTo( root );
+
+	return doc.toByteArray();
+}
+
+std::shared_ptr<MidiEventMap> MidiEventMap::fromXmlBuffer(
+	const QByteArray& xmlBuffer, bool bSilent, Hydrogen* pHydrogen )
+{
+	XMLDoc doc;
+	if ( ! doc.setContent( xmlBuffer ) ) {
+		ERRORLOG( "Unable to parse MIDI event map XML buffer" );
+		return nullptr;
+	}
+
+	XMLNode root = doc.firstChildElement( "midiEventMap" );
+	if ( root.isNull() ) {
+		ERRORLOG( "Error reading MIDI event map buffer: 'midiEventMap' node not found" );
+		return nullptr;
+	}
+
+	XMLNode mapNode = root.firstChildElement( "midiEventMap" );
+	if ( mapNode.isNull() ) {
+		ERRORLOG( "Error reading MIDI event map buffer: nested 'midiEventMap' node not found" );
+		return nullptr;
+	}
+
+	return loadFrom( mapNode, bSilent, pHydrogen );
+}
+
 /**
  * Clears the complete midi map and releases the memory
  * of the contained actions
@@ -246,7 +298,8 @@ void MidiEventMap::registerEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
 	std::shared_ptr<MidiAction> pAction,
-    Event::Trigger trigger
+    Event::Trigger trigger,
+	Hydrogen* pHydrogen
 )
 {
 	if ( pAction == nullptr || pAction->isNull() ||
@@ -288,7 +341,6 @@ void MidiEventMap::registerEvent(
 		m_events.push_back( pEvent );
 	}
 
-	const auto pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen == nullptr ) {
         // The MidiEventMap is loaded during startup. We skip sending event,
         // since the EventQueue is not ready yet.
@@ -296,7 +348,7 @@ void MidiEventMap::registerEvent(
 	}
 
 	if ( trigger != Event::Trigger::Suppress ) {
-		const auto nId = EventQueue::get_instance()->pushEvent(
+		pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
 	}
@@ -393,7 +445,7 @@ std::vector<Midi::Parameter> MidiEventMap::findCCParameters(
 }
 
 std::vector<Midi::Parameter>
-MidiEventMap::findCCParameters( MidiAction::Type type, int nInstrument )
+MidiEventMap::findCCParameters( MidiAction::Type type, int nInstrument , Hydrogen* pHydrogen )
 {
 	QMutexLocker mx( &__mutex );
 	std::vector<Midi::Parameter> values;
@@ -408,7 +460,7 @@ MidiEventMap::findCCParameters( MidiAction::Type type, int nInstrument )
 			   ( ppEvent->getMidiAction()->getInstrument() ==
 					 MidiAction::nCurrentSelectionParameter &&
 				 nInstrument ==
-					 Hydrogen::get_instance()->getSelectedInstrumentNumber() )
+					 pHydrogen->getSelectedInstrumentNumber() )
 			 ) ) {
 			values.push_back( ppEvent->getParameter() );
 		}
@@ -438,7 +490,8 @@ MidiEventMap::getRegisteredMidiEvents( std::shared_ptr<MidiAction> pAction
 void MidiEventMap::removeRegisteredEvent(
 	const MidiEvent::Type& type,
 	Midi::Parameter parameter,
-	std::shared_ptr<MidiAction> pAction
+	std::shared_ptr<MidiAction> pAction,
+	Hydrogen* pHydrogen
 )
 {
 	if ( pAction == nullptr ) {
@@ -464,7 +517,7 @@ void MidiEventMap::removeRegisteredEvent(
 	}
 
 	if ( bModified ) {
-		const auto nId = EventQueue::get_instance()->pushEvent(
+		pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::MidiEventMapChanged, 0
 		);
 	}

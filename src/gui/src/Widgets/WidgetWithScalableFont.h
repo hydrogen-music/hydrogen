@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef WIDGET_WITH_SCALABLE_FONT_H
-#define WIDGET_WITH_SCALABLE_FONT_H
+#ifndef H2C_WIDGET_WITH_SCALABLE_FONT_H
+#define H2C_WIDGET_WITH_SCALABLE_FONT_H
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>

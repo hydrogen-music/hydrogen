@@ -20,14 +20,16 @@
  *
  */
 
-#ifndef ONLINE_IMPORT_SOURCES_DIALOG_H
-#define ONLINE_IMPORT_SOURCES_DIALOG_H
+#ifndef H2C_ONLINE_IMPORT_SOURCES_DIALOG_H
+#define H2C_ONLINE_IMPORT_SOURCES_DIALOG_H
 
 #include <QDialog>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
 class QPushButton;
 class QTableWidget;
+QT_END_NAMESPACE
 
 /**
  * Dialog for managing online import source URLs.
@@ -75,4 +77,4 @@ inline QStringList OnlineImportSourcesDialog::getSources() const {
 	return m_sources;
 }
 
-#endif // ONLINE_IMPORT_SOURCES_DIALOG_H
+#endif // H2C_ONLINE_IMPORT_SOURCES_DIALOG_H

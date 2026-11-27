@@ -33,8 +33,18 @@
 #include <core/Helpers/TimeHelper.h>
 #include <core/Hydrogen.h>
 
+#include <chrono>
 #include <cmath>
+#include <memory>
+#include <thread>
+#include <vector>
+#include <optional>
+#include <QRegularExpression>
 #include <QTest>
+
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
 
 using namespace H2Core;
 
@@ -45,21 +55,21 @@ void TimeTest::setUp(){
 
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
-	auto pSong = H2Core::CoreActionController::loadSong(
+	auto pSong = pTestHydrogen()->getCoreActionController()->loadSong(
 		QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demosDir() ) );
-	H2Core::CoreActionController::setSong( pSong );
-	H2Core::CoreActionController::saveSongAs( m_sValidPath, true );
+	pTestHydrogen()->getCoreActionController()->setSong( pSong );
+	pTestHydrogen()->getCoreActionController()->saveSongAs( m_sValidPath, true );
 	
-	H2Core::CoreActionController::activateTimeline( true );
-	H2Core::CoreActionController::addTempoMarker( 0, 120 );
-	H2Core::CoreActionController::addTempoMarker( 3, 100 );
-	H2Core::CoreActionController::addTempoMarker( 5, 40 );
-	H2Core::CoreActionController::addTempoMarker( 7, 200 );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( true );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 0, 120 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 3, 100 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 5, 40 );
+	pTestHydrogen()->getCoreActionController()->addTempoMarker( 7, 200 );
 }
 
 void TimeTest::tearDown(){
 
-	H2Core::CoreActionController::activateTimeline( false );
+	pTestHydrogen()->getCoreActionController()->activateTimeline( false );
 	
 	// Delete all temporary files
 	if ( QFile::exists( m_sValidPath ) ) {
@@ -85,46 +95,173 @@ void TimeTest::testElapsedTime(){
 	___INFOLOG( "passed" );
 }
 
+namespace {
+/** Maximum time a sleep may last longer than requested. */
+constexpr double fSleepToleranceMs = 0.5;
+
+std::shared_ptr<TimeHelper> burnedInTimeHelper()
+{
+	auto pTimeHelper = std::make_shared<TimeHelper>();
+	const int nMaxTries = 100;
+	int nnTry = 0;
+	while ( ! pTimeHelper->isBurnedIn() && nnTry < nMaxTries ) {
+		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
+		++nnTry;
+	}
+	CPPUNIT_ASSERT( pTimeHelper->isBurnedIn() );
+	return pTimeHelper;
+}
+
+double toMs( const std::chrono::duration<double> duration )
+{
+	return std::chrono::duration<double, std::milli>( duration ).count();
+}
+}  // namespace
+
 void TimeTest::testHighResolutionSleep(){
 	___INFOLOG( "" );
 
 	auto pTestHelper = TestHelper::get_instance();
-	auto pHydrogen = Hydrogen::get_instance();
 
-	const float fTolerance = 1;
-	std::vector<int> durationsMs{ 2, 10, 65, 234 };
+	// A fresh helper: no sleep may serve as warm-up for the next one.
+	auto pTimeHelper = burnedInTimeHelper();
 
+	const std::vector<double> durationsMs{ 2, 10, 65, 158.5, 234, 500, 21.3 };
 	for ( const auto ffDurationMs : durationsMs ) {
-		// Perform one sleep without checking time. This allows for `TimeHelper`
-		// to adopt to the new system surplus (which might depend on the sleep
-		// duration) and produces results closer to those encountered in real
-		// life.
-		pHydrogen->getTimeHelper()->highResolutionSleep(
-			std::chrono::duration<float, std::milli>( ffDurationMs ) );
-
 		const auto start = Clock::now();
-		pHydrogen->getTimeHelper()->highResolutionSleep(
-			std::chrono::duration<float, std::milli>( ffDurationMs ) );
-		const auto end = Clock::now();
-
-		const auto fPassedMs = std::chrono::duration_cast<
-			std::chrono::milliseconds >( end - start ).count();
+		pTimeHelper->highResolutionSleep(
+			std::chrono::duration<double, std::milli>( ffDurationMs ) );
+		const double fPassedMs = toMs( Clock::now() - start );
 
 		___INFOLOG( QString( "Interval: [%1], Milliseconds passed: [%2], tolerance: [%3]" )
-					.arg( ffDurationMs ).arg( fPassedMs ).arg( fTolerance ) );
+					.arg( ffDurationMs ).arg( fPassedMs ).arg( fSleepToleranceMs ) );
 		// We have to wait at least the requested amount. A little bit more is
 		// ok. But less is not.
 		CPPUNIT_ASSERT( fPassedMs >= ffDurationMs );
 
 		if ( ! pTestHelper->isAppveyor() ) {
-			CPPUNIT_ASSERT( std::abs( fPassedMs - ffDurationMs ) <= fTolerance );
+			CPPUNIT_ASSERT( fPassedMs - ffDurationMs <= fSleepToleranceMs );
 		}
 	}
 
 	___INFOLOG( "passed" );
 }
 
+void TimeTest::testSleepUntil(){
+	___INFOLOG( "" );
+
+	auto pTestHelper = TestHelper::get_instance();
+	auto pTimeHelper = burnedInTimeHelper();
+
+	// Tap tempo at 378.4 bpm.
+	const auto interval = std::chrono::duration<double, std::milli>( 158.5624 );
+	const auto start = Clock::now();
+	for ( int nnTick = 1; nnTick <= 10; ++nnTick ) {
+		const auto deadline = start +
+			std::chrono::duration_cast<Clock::duration>( nnTick * interval );
+		pTimeHelper->sleepUntil( deadline );
+		const double fLateMs = toMs( Clock::now() - deadline );
+
+		___INFOLOG( QString( "Tick: [%1], late by [%2]ms, tolerance: [%3]" )
+					.arg( nnTick ).arg( fLateMs ).arg( fSleepToleranceMs ) );
+		CPPUNIT_ASSERT( fLateMs >= 0 );
+		if ( ! pTestHelper->isAppveyor() ) {
+			CPPUNIT_ASSERT( fLateMs <= fSleepToleranceMs );
+		}
+	}
+
+	// A deadline in the past returns right away.
+	const auto pastStart = Clock::now();
+	pTimeHelper->sleepUntil( pastStart - std::chrono::milliseconds( 5 ) );
+	CPPUNIT_ASSERT( toMs( Clock::now() - pastStart ) <= fSleepToleranceMs );
+
+	___INFOLOG( "passed" );
+}
+
+void TimeTest::testClockIsMonotonic(){
+	___INFOLOG( "" );
+
+	CPPUNIT_ASSERT( Clock::is_steady );
+
+	___INFOLOG( "passed" );
+}
+
+void TimeTest::testTimePointToQString(){
+	___INFOLOG( "" );
+
+	const auto wallBefore = std::chrono::system_clock::now();
+	const QString sNow = H2Core::timePointToQString( Clock::now() );
+	const auto wallAfter = std::chrono::system_clock::now();
+
+	const QRegularExpression format( "^(\\d\\d):(\\d\\d):(\\d\\d)\\.(\\d\\d\\d)$" );
+	const auto match = format.match( sNow );
+	___INFOLOG( QString( "now: [%1]" ).arg( sNow ) );
+	CPPUNIT_ASSERT( match.hasMatch() );
+
+	// Milliseconds since midnight UTC, compared modulo a day.
+	const auto msOfDay = []( std::chrono::system_clock::time_point timePoint ) {
+		return std::chrono::duration_cast<std::chrono::milliseconds>(
+				   timePoint.time_since_epoch() ).count() % 86400000;
+	};
+	const long long nShownMs = ( match.captured( 1 ).toLongLong() * 3600 +
+								 match.captured( 2 ).toLongLong() * 60 +
+								 match.captured( 3 ).toLongLong() ) * 1000 +
+		match.captured( 4 ).toLongLong();
+	const long long nBeforeMs = msOfDay( wallBefore );
+	const long long nAfterMs = msOfDay( wallAfter );
+	// Converting between clocks costs a few microseconds of accuracy.
+	const long long nSlackMs = 2;
+	if ( nBeforeMs <= nAfterMs ) {
+		CPPUNIT_ASSERT( nShownMs >= nBeforeMs - nSlackMs );
+		CPPUNIT_ASSERT( nShownMs <= nAfterMs + nSlackMs );
+	}
+
+	___INFOLOG( "passed" );
+}
+
+void TimeTest::testMinimizeTimerSlack(){
+	___INFOLOG( "" );
+
+	std::optional<std::chrono::nanoseconds> slack;
+#ifdef __linux__
+	long nThreadSlack = -1;
+	// The isolation check below requires this thread to run with a
+	// non-minimal slack. Its current value can not be relied upon:
+	// low-latency tuned systems run all processes with minimal slack. So,
+	// it is pinned to the stock kernel default and restored afterwards.
+	constexpr unsigned long nPinnedSlackNs = 50000UL;
+	const long nMainSlackBefore = prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 );
+	CPPUNIT_ASSERT( nMainSlackBefore >= 0 );
+	CPPUNIT_ASSERT( prctl( PR_SET_TIMERSLACK, nPinnedSlackNs,
+						   0UL, 0UL, 0UL ) == 0 );
+#endif
+	std::thread thread( [&]() {
+		slack = TimeHelper::minimizeTimerSlack();
+#ifdef __linux__
+		nThreadSlack = prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 );
+#endif
+	} );
+	thread.join();
+
+#ifdef __linux__
+	CPPUNIT_ASSERT( slack.has_value() );
+	CPPUNIT_ASSERT( slack->count() == 1 );
+	CPPUNIT_ASSERT( nThreadSlack == 1 );
+	// Other threads keep their slack.
+	CPPUNIT_ASSERT( prctl( PR_GET_TIMERSLACK, 0, 0, 0, 0 ) == nPinnedSlackNs );
+	// Restore the slack the test started with. A value of 0 denotes the
+	// thread's default (which may itself be 0 on tuned systems).
+	CPPUNIT_ASSERT( prctl( PR_SET_TIMERSLACK,
+						   static_cast<unsigned long>( nMainSlackBefore ),
+						   0UL, 0UL, 0UL ) == 0 );
+#else
+	CPPUNIT_ASSERT( ! slack.has_value() );
+#endif
+
+	___INFOLOG( "passed" );
+}
+
 float TimeTest::locateAndLookupTime( int nPatternPos ){
-	H2Core::CoreActionController::locateToColumn( nPatternPos );
-	return Hydrogen::get_instance()->getAudioEngine()->getElapsedTime();
+	pTestHydrogen()->getCoreActionController()->locateToColumn( nPatternPos );
+	return pTestHydrogen()->getAudioEngine()->getElapsedTime();
 }

@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef DRUMKIT_INFO_H
-#define DRUMKIT_INFO_H
+#ifndef H2C_DRUMKIT_INFO_H
+#define H2C_DRUMKIT_INFO_H
 
 #include <memory>
 #include <vector>
@@ -33,6 +33,7 @@ namespace H2Core
 {
 
 class Drumkit;
+class Hydrogen;
 class InstrumentInfo;
 
 /**
@@ -63,7 +64,7 @@ class DrumkitInfo : public SoundLibraryInfo,
 	 *
 	 * @return `true` on success
 	 */
-	bool load( const QString& sPath );
+	bool load( const QString& sPath, Hydrogen* pHydrogen );
 
 	const std::vector<std::shared_ptr<InstrumentInfo>>& getInstrumentInfos(
 	) const;
@@ -82,4 +83,4 @@ DrumkitInfo::getInstrumentInfos() const
 }
 };	// namespace H2Core
 
-#endif	// DRUMKIT_INFO_H
+#endif	// H2C_DRUMKIT_INFO_H

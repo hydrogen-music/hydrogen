@@ -1,0 +1,26 @@
+# Hydrogen VST3 module link script (Linux).
+#
+# Export exactly the VST3 Linux module contract and nothing else: the SDK's
+# hosting code (public.sdk/source/vst/hosting/module_linux.cpp) requires
+# ModuleEntry, ModuleExit and GetPluginFactory (all three defined extern "C"
+# - ModuleEntry/Exit by the SDK's linuxmain.cpp, GetPluginFactory by
+# clap-wrapper's export glue). The module statically links the hydrogen core,
+# Qt, Dear ImGui AND clap-wrapper's own copy of the CLAP entry
+# (hydrogen-vst3-entry): with default visibility, a Hydrogen CLAP binary in
+# the host's global symbol scope (plugin scan or RTLD_GLOBAL load)
+# interposed on those symbols - clap-wrapper then built its plugin inside the
+# OTHER binary, and the host's scanner dlclose() left every binding dangling
+# (Qtractor: SIGSEGV on insert; Ardour: SIGSEGV on UI open; see
+# src/plugin/vst3/interpose_smoke.cpp and the symbol-hygiene-* ctest gates).
+# Local symbols still satisfy every reference inside the module - they are
+# only invisible to the dynamic linker's scope search. Windows exports
+# explicitly (SMTG_EXPORT_SYMBOL); macOS's two-level namespace does not
+# interpose.
+{
+	global:
+		GetPluginFactory;
+		ModuleEntry;
+		ModuleExit;
+	local:
+		*;
+};

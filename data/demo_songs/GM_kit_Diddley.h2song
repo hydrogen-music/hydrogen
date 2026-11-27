@@ -3,7 +3,6 @@
  <version>1.2.0</version>
  <bpm>120</bpm>
  <volume>0.5</volume>
- <metronomeVolume>0.5</metronomeVolume>
  <name>Diddley</name>
  <author>Emiliano Grilli</author>
  <notes>Demo - Diddley</notes>

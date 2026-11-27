@@ -19,8 +19,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses
  *
  */
-#ifndef H2_AUDIO_DRIVER_H
-#define H2_AUDIO_DRIVER_H
+#ifndef H2C_AUDIO_DRIVER_H
+#define H2C_AUDIO_DRIVER_H
 
 
 #include <core/config.h>
@@ -28,6 +28,8 @@
 
 namespace H2Core
 {
+
+class Hydrogen;
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
@@ -38,8 +40,15 @@ class AudioDriver : public H2Core::Object<AudioDriver>
 {
 	H2_OBJECT(AudioDriver)
 public:
-	AudioDriver() = default;
+	/** @param pHydrogen Owning Hydrogen instance; stored as the back-pointer
+	 * shared by all audio drivers (ADR 0015). */
+	AudioDriver( Hydrogen* pHydrogen ) : m_pHydrogen( pHydrogen ) {}
 	virtual ~AudioDriver() { }
+
+	/** Owning Hydrogen instance (ADR 0015). Public accessor for the static
+	 * callbacks and free-function threads that reach a driver via a void*
+	 * instance pointer. */
+	Hydrogen* getHydrogen() const { return m_pHydrogen; }
 
 	virtual int init( unsigned nBufferSize ) = 0;
 	virtual int connect() = 0;
@@ -62,7 +71,18 @@ public:
 	virtual float* getOut_L() = 0;
 	virtual float* getOut_R() = 0;
 
-	static QStringList getDevices() { return QStringList(); }
+	/** Whether this driver consumes the rendered audio. When false (a headless
+	 * software driver, ADR 0031), the Sampler still advances note state / envelopes
+	 * and emits MIDI exactly as usual, but skips the sample interpolation and
+	 * mixing — the "silent render" fast path, since the output would be discarded.
+	 * Real output drivers leave this true. */
+	virtual bool producesAudio() const { return true; }
+
+	virtual QStringList getDevices() { return QStringList(); }
+
+protected:
+	/** Back-pointer to the owning Hydrogen instance (ADR 0015). */
+	Hydrogen* m_pHydrogen;
 };
 
 };

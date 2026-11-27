@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef WINDOW_PROPERTIES_H
-#define WINDOW_PROPERTIES_H
+#ifndef H2C_WINDOW_PROPERTIES_H
+#define H2C_WINDOW_PROPERTIES_H
 
 #include <core/Object.h>
 

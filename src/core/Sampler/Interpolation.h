@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef INTERPOLATION_H
-#define INTERPOLATION_H
+#ifndef H2C_INTERPOLATION_H
+#define H2C_INTERPOLATION_H
 
 #include <cmath>
 #include <QString>
@@ -161,4 +161,4 @@ namespace Interpolation
 
 }
 
-#endif // INTERPOLATION_H
+#endif // H2C_INTERPOLATION_H

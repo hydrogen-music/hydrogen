@@ -1,0 +1,76 @@
+/*
+ * Hydrogen
+ * Copyright(c) 2008-2026 The hydrogen development team [hydrogen-devel@lists.sourceforge.net]
+ *
+ * http://www.hydrogen-music.org
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see https://www.gnu.org/licenses
+ *
+ */
+
+// The landing view's renderer (proposal 0006 TU4.1): thin imgui draw
+// calls over PluginUiLandingModel — no logic grows here (TU1.3); the
+// window smoke covers it.
+
+#ifndef H2C_PLUGIN_UI_LANDING_VIEW_H
+#define H2C_PLUGIN_UI_LANDING_VIEW_H
+
+#include <ImGuiFileDialog.h>
+
+#include <array>
+#include <memory>
+
+#include "PluginUiLandingModel.h"
+
+namespace H2Core {
+
+class CommonStrings;
+class HydrogenPlugin;
+struct PluginUiPalette;
+
+class PluginUiLandingView
+{
+public:
+	explicit PluginUiLandingView( HydrogenPlugin* pPlugin );
+
+	/** One frame of the landing view's widget tree, painted with
+	 *  @a palette. */
+	void draw( const PluginUiPalette& palette );
+
+	/** The view's model — the window polls it (info diff) to decide
+	 *  frame requests. */
+	PluginUiLandingModel& model() { return m_model; }
+
+private:
+	/** The view's flowing content — everything above the status
+	 *  line, drawn inside the pinning child region. */
+	void drawContent( const PluginUiPalette& palette );
+	/** The pinned status line at the view's bottom edge: the last
+	 *  failed command's message in the palette's error color, or
+	 *  nothing after a successful command. */
+	void drawStatusLine( const PluginUiPalette& palette );
+	/** The drumkit picker popup (opened by the load-drumkit button). */
+	void drawDrumkitPicker( const PluginUiPalette& palette );
+
+	PluginUiLandingModel m_model;
+	std::shared_ptr<CommonStrings> m_pCommonStrings;
+	IGFD::FileDialog m_fileDialog;
+	// The editor executable line edit's content (UTF-8), prefilled with
+	// the resolved default at startup.
+	std::array<char, 4096> m_sEditorExecutableBuffer{};
+};
+
+} // namespace H2Core
+
+#endif // H2C_PLUGIN_UI_LANDING_VIEW_H

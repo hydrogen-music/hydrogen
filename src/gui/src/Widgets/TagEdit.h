@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef TAG_EDIT_H
-#define TAG_EDIT_H
+#ifndef H2C_TAG_EDIT_H
+#define H2C_TAG_EDIT_H
 
 #include <QtGui>
 

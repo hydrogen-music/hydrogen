@@ -30,10 +30,11 @@ CMAKE_OPTIONS="
     -DWANT_ALSA=1 \
     -DWANT_LIBARCHIVE=1 \
     -DWANT_RUBBERBAND=1 \
-    -DWANT_OSS=1 \
+    -DWANT_CLAP=1 \
+    -DWANT_LV2=1 \
+    -DWANT_VST3=1 \
     -DWANT_PORTAUDIO=1 \
     -DWANT_PORTMIDI=1 \
-    -DWANT_LRDF=1 \
     -DWANT_COREAUDIO=1 \
     -DWANT_COREMIDI=1 \
     -DWANT_INTEGRATION_TESTS=1
@@ -96,6 +97,31 @@ function cmake_appimage() {
 		exit 1
 	fi
 
+	## The linuxdeploy Qt plugin determines the Qt version by querying
+	## `qmake`. It searches for `qmake-qt5` and `qmake` before ever
+	## considering `qmake6` and, thus, picks a Qt5 one on systems with
+	## both versions installed. It then fails to recognize any of the
+	## Qt6 modules used by the application and aborts with "Could not
+	## find Qt modules to deploy". Since we build against Qt6, we prefer
+	## an explicit `$QMAKE`, the qmake in `$QTDIR` (if set) and `qmake6`
+	## before whatever `qmake` is found in the PATH.
+	if [ -z "$QMAKE" ]; then
+		if [ "$QTDIR" ] && [ -x "$QTDIR/bin/qmake" ]; then
+			QMAKE="$QTDIR/bin/qmake"
+		elif which qmake6 &> /dev/null; then
+			QMAKE="$(which qmake6)"
+		elif which qmake &> /dev/null; then
+			QMAKE="$(which qmake)"
+		fi
+	fi
+	if [ -z "$QMAKE" ]; then
+		echo -e "\nERROR: no 'qmake' found. The linuxdeploy Qt plugin requires one.\n" && exit 1
+	fi
+	if [[ "$("$QMAKE" -query QT_VERSION 2> /dev/null)" != 6.* ]]; then
+		echo -e "\nERROR: qmake at [$QMAKE] does not report a Qt6 version. Please point the \$QMAKE environment variable to a Qt6 qmake.\n" && exit 1
+	fi
+	export QMAKE
+
 	## Perform a regular cmake build.
 	cmake_make
 
@@ -116,8 +142,8 @@ function cmake_appimage() {
 	## Add custom OpenSSL libraries. They are used as fallback by Qt
     ## and are only dl_opened in case no matching version was found on
     ## system level.
-	LIB_SSL=$(find /usr -name "libssl.so.1.1*" | head -n 1)
-	LIB_CRYPTO=$(find /usr -name "libcrypto.so.1.1*" | head -n 1)
+	LIB_SSL=$(find /usr -name "libssl.so.3*" | head -n 1)
+	LIB_CRYPTO=$(find /usr -name "libcrypto.so.3*" | head -n 1)
 	ISSUE_ERROR=0
 	if [[ "$(echo $LIB_SSL | wc -c)" == "1" || "$(echo $LIB_CRYPTO | wc -c)" == "1" ]]; then
 		ISSUE_ERROR=1
@@ -190,7 +216,15 @@ function cmake_exec() {
 
 function cmake_tests() {
     cmake_init
-    echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests || exit 1
+    echo -e " * execute tests\n" && $BUILD_DIR/src/tests/tests -VIpc -o test.log || exit 1
+    # Run the full CTest suite registered by the current build. This always
+    # covers the GUI startup smoke test (src/gui, ADR 0015/0016) and, when the
+    # plugins are enabled, the CLAP/LV2/VST3 conformance tests (clap-validate,
+    # lv2-smoke, lv2lint, vst3-smoke, vst3-validate - src/plugin). Running the
+    # whole suite keeps `build.sh t` in sync with whatever tests the build
+    # registered. CTest shows each test's output on failure (--output-on-failure).
+    echo -e "\n * execute ctest suite\n" && \
+        ( cd $BUILD_DIR && ctest --output-on-failure ) || exit 1
 }
 
 function cmake_integration_tests() {
@@ -210,6 +244,40 @@ function cmake_integration_tests() {
 function cmake_pkg() {
     cmake_init
     echo -e " * execute hydrogen\n" && cd $BUILD_DIR && make package_source && cd .. || exit 1
+}
+
+# Compile the external plugin helper tools required by the CLAP/LV2 conformance
+# tests: clap-validator (Rust/cargo) and lv2lint (meson/ninja). The CLAP and LV2
+# SDKs themselves are header-only and need no build step. Each tool is skipped
+# with a warning when its toolchain is missing, so a partial environment still
+# builds what it can.
+function build_deps() {
+    echo -e " * build external plugin dependencies\n"
+
+    # clap-validator (Rust / cargo).
+    if which cargo &> /dev/null; then
+        echo -e " * \tbuilding clap-validator\n"
+        if ! ( cd extern/clap-validator && cargo build --release ); then
+            # The pinned 'time' crate fails to compile on recent rustc (E0282).
+            # Refresh the lock file to a fixed version and retry.
+            echo -e " * \tretrying clap-validator after refreshing its dependencies\n"
+            ( cd extern/clap-validator && cargo update && cargo build --release ) || exit 1
+        fi
+    else
+        echo -e " * \t\e[1;33mWARNING: 'cargo' not found; skipping clap-validator (install the Rust toolchain).\e[0m\n"
+    fi
+
+    # lv2lint (meson + ninja; also needs liblilv/sord/serd development packages).
+    if which meson &> /dev/null && which ninja &> /dev/null; then
+        echo -e " * \tbuilding lv2lint\n"
+        ( cd extern/lv2lint && \
+          if [ -d build ]; then meson setup --reconfigure build; else meson setup build; fi && \
+          ninja -C build ) || exit 1
+    else
+        echo -e " * \t\e[1;33mWARNING: 'meson'/'ninja' not found; skipping lv2lint (install meson, ninja and liblilv-dev).\e[0m\n"
+    fi
+
+    echo -e " * external plugin dependencies done\n"
 }
 
 function zoop() {
@@ -242,10 +310,13 @@ function update_translations() {
 		H_CORE=`find src/core | grep "\.h$"`
 		FILES="$UI_GUI $CPP_GUI $CPP_CORE $H_GUI $H_CORE"
 
+		# The include path is required to resolve angle includes, e.g.
+		# <core/CommonStrings.h>, and to associate the tr() calls within
+		# the corresponding classes.
 		if [[ -z "$SILENT" ]]; then
-			CMD_LUPDATE="$LUPDATE -noobsolete ${FILES} -ts"
+			CMD_LUPDATE="$LUPDATE -noobsolete -I src ${FILES} -ts"
 		else
-			CMD_LUPDATE="$LUPDATE -noobsolete ${FILES} -ts -silent"
+			CMD_LUPDATE="$LUPDATE -noobsolete -I src ${FILES} -ts -silent"
 		fi
 
 		echo -e " * update translation files'\n"
@@ -281,6 +352,7 @@ if [ $# -eq 0 ]; then
     echo "   x[exec]       => execute hydrogen"
     echo "   t[ests]       => execute tests"
     echo "   p[kg]         => build source package"
+    echo "   deps          => compile external plugin tools (clap-validator, lv2lint)"
     echo "   i[ntegration] => execute integration tests"
     echo "   translate     => update all translation files"
 	echo "   appimage      => build an AppImage file"
@@ -321,6 +393,8 @@ for arg in $@; do
             cmd="cmake_tests";;
         p|pkg)
             cmd="cmake_pkg";;
+        deps)
+            cmd="build_deps";;
 		translate)
 			cmd="update_translations";;
         z)

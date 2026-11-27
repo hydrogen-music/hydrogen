@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef MIDI_ACTION_TEST_H
-#define MIDI_ACTION_TEST_H
+#ifndef H2C_MIDI_ACTION_TEST_H
+#define H2C_MIDI_ACTION_TEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -40,17 +40,13 @@ class MidiMessage;
  * to maintain and comprehend. */
 class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( MidiActionTest );
-#ifndef Q_OS_MACX
 	CPPUNIT_TEST( testBeatCounterAction );
-#endif
 	CPPUNIT_TEST( testBpmCcRelativeAction );
 	CPPUNIT_TEST( testBpmDecreaseAction );
 	CPPUNIT_TEST( testBpmFineCcRelativeAction );
 	CPPUNIT_TEST( testBpmIncreaseAction );
 	CPPUNIT_TEST( testClearPatternAction );
 	CPPUNIT_TEST( testClearSelectedInstrumentAction );
-	CPPUNIT_TEST( testEffectLevelAbsoluteAction );
-	CPPUNIT_TEST( testEffectLevelRelativeAction );
 	CPPUNIT_TEST( testFilterCutoffLevelAbsoluteAction );
 	CPPUNIT_TEST( testGainLevelAbsoluteAction );
 	CPPUNIT_TEST( testHumanizationSwingAbsoluteAction );
@@ -61,7 +57,9 @@ class MidiActionTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testHumanizationVelocityRelativeAction );
 	CPPUNIT_TEST( testInstrumentPitchAction );
 	CPPUNIT_TEST( testLoadNextDrumkitAction );
+	CPPUNIT_TEST( testLoadNextDrumkitActionNoSong );
 	CPPUNIT_TEST( testLoadPrevDrumkitAction );
+	CPPUNIT_TEST( testLoadPrevDrumkitActionNoSong );
 	CPPUNIT_TEST( testMasterVolumeAbsoluteAction );
 	CPPUNIT_TEST( testMasterVolumeRelativeAction );
 	CPPUNIT_TEST( testMuteAction );
@@ -106,20 +104,13 @@ class MidiActionTest : public CppUnit::TestCase {
 	virtual void setUp();
 	virtual void tearDown();
 
-#ifndef Q_OS_MACX
-	/** Our macOS pipeline is really slow. Occasionally, messages take so
-	 * long they exceed the maximum difference allowed for beat counter
-	 * events. */
 	void testBeatCounterAction();
-#endif
 	void testBpmCcRelativeAction();
 	void testBpmDecreaseAction();
 	void testBpmFineCcRelativeAction();
 	void testBpmIncreaseAction();
 	void testClearPatternAction();
 	void testClearSelectedInstrumentAction();
-	void testEffectLevelAbsoluteAction();
-	void testEffectLevelRelativeAction();
 	void testFilterCutoffLevelAbsoluteAction();
 	void testGainLevelAbsoluteAction();
 	void testHumanizationSwingAbsoluteAction();
@@ -130,7 +121,11 @@ class MidiActionTest : public CppUnit::TestCase {
 	void testHumanizationVelocityRelativeAction();
 	void testInstrumentPitchAction();
 	void testLoadNextDrumkitAction();
+	/** Without a song set the drumkit navigation actions have to bail out
+	 * cleanly instead of constructing a Drumkit from a null kit. */
+	void testLoadNextDrumkitActionNoSong();
 	void testLoadPrevDrumkitAction();
+	void testLoadPrevDrumkitActionNoSong();
 	void testMasterVolumeAbsoluteAction();
 	void testMasterVolumeRelativeAction();
 	void testMuteAction();

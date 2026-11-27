@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef CLICKABLE_LABEL_H
-#define CLICKABLE_LABEL_H
+#ifndef H2C_CLICKABLE_LABEL_H
+#define H2C_CLICKABLE_LABEL_H
 
 #include <core/Object.h>
 #include <core/Preferences/Preferences.h>

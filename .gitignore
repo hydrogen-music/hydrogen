@@ -11,10 +11,14 @@ moc_*.cpp_parameters
 /.tags
 /build
 /build-appimage
+/build-plugins
+/build-universal
+/dist
+/dist-universal
 /cmake_opts
 /hydrogen
+/hydrogen.app
 /libs/hydrogen/include/hydrogen/config.h
-hydrogen.*
 *.cmake
 *.so
 *.make
@@ -52,3 +56,7 @@ test.log
 # Ignore AppImage toolchain
 linuxdeploy-plugin-qt-x86_64.AppImage
 linuxdeploy-x86_64.AppImage
+
+# Window layout state Dear ImGui writes to the working directory whenever
+# an imgui-based binary (e.g. the plugin UI smoke) is run from the repo root.
+imgui.ini

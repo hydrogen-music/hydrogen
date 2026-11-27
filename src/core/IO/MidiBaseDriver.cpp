@@ -34,9 +34,9 @@
 
 namespace H2Core {
 
-MidiBaseDriver::MidiBaseDriver()
-	: MidiInput(),
-	  MidiOutput(),
+MidiBaseDriver::MidiBaseDriver( Hydrogen* pHydrogen )
+	: MidiInput( pHydrogen ),
+	  MidiOutput( pHydrogen ),
 	  m_bSendClockTick( false ),
 	  m_bNotifyOnNextTick( false ),
 	  m_interval( 20.0 ),
@@ -44,12 +44,16 @@ MidiBaseDriver::MidiBaseDriver()
 	  m_nAverageIntervalNs( 0 ),
 	  m_lastTick( TimePoint() ),
 	  m_nTickCount( 0 ),
+	  m_nClockTimerSlackNs( -1 ),
 	  m_pClockThread( nullptr ),
       m_bInputActive( false ),
       m_bOutputActive( false )
 {
-	if ( Preferences::get_instance()->getMidiClockOutputSend() ) {
-		startMidiClockStream( Hydrogen::get_instance()
+	if ( MidiInput::m_pHydrogen->getPreferences()->getMidiClockOutputSend() &&
+		 MidiInput::m_pHydrogen->getProcessMode() != H2Core::ProcessMode::Editor &&
+		 ! MidiInput::m_pHydrogen->isUnderPluginHost() ) {
+		// No MIDI clock out under a plugin host (ADR 0026).
+		startMidiClockStream( MidiInput::m_pHydrogen
 								  ->getAudioEngine()
 								  ->getPlayhead()
 								  ->getBpm() );
@@ -192,7 +196,7 @@ MidiBaseDriver::getHandledOutputs()
 
 void MidiBaseDriver::sendAllNotesOff()
 {
-	const auto pPref = Preferences::get_instance();
+	const auto pPref = MidiInput::m_pHydrogen->getPreferences();
 	if ( pPref->getMidiSendNoteOff() == Preferences::MidiSendNoteOff::Never ) {
 		return;
 	}
@@ -248,19 +252,22 @@ void MidiBaseDriver::sendAllNotesOff()
 	// "All Notes Off" Channel Mode Message
 	MidiMessage::ControlChange allNotesOff = {
 		Midi::parameterFromIntClamp( 123 ), Midi::ParameterMinimum,
-		Preferences::get_instance()->getMidiFeedbackChannel()
+		MidiInput::m_pHydrogen->getPreferences()->getMidiFeedbackChannel()
 	};
 	enqueueOutputMessage( MidiMessage::from( allNotesOff ) );
 }
 
 void MidiBaseDriver::startMidiClockStream( float fBpm )
 {
+	ASSERT_NO_EDITOR_MODE( MidiInput::m_pHydrogen );
+
 	// Ensure there is just a single thread.
 	m_bSendClockTick = false;
 	if ( m_pClockThread != nullptr ) {
 		m_pClockThread->join();
 		m_pClockThread = nullptr;
 	}
+	m_nClockTimerSlackNs = -1;
 
 	// 24 MIDI Clock messages should make up a quarter.
 	const double fInterval = 60000 / fBpm / 24.0;
@@ -281,6 +288,7 @@ void MidiBaseDriver::stopMidiClockStream()
 		m_pClockThread->join();
 		m_pClockThread = nullptr;
 	}
+	m_nClockTimerSlackNs = -1;
 
 	// By resetting the time point of the last MIDI clock message sent the next
 	// call to startMidiClockStream() will send a message right away instead of
@@ -288,6 +296,16 @@ void MidiBaseDriver::stopMidiClockStream()
 	m_lastTick = TimePoint();
 	m_intervalCompensation = std::chrono::microseconds::zero();
 	m_nAverageIntervalNs = 0;
+}
+
+std::optional<std::chrono::nanoseconds>
+MidiBaseDriver::getMidiClockTimerSlack() const
+{
+	const long long nSlackNs = m_nClockTimerSlackNs;
+	if ( nSlackNs < 0 ) {
+		return std::nullopt;
+	}
+	return std::chrono::nanoseconds( nSlackNs );
 }
 
 void MidiBaseDriver::waitForNextMidiClockTick()
@@ -311,8 +329,21 @@ void MidiBaseDriver::midiClockStream( void* pInstance )
 		return;
 	}
 
-	auto pHydrogen = Hydrogen::get_instance();
-	const auto pPref = Preferences::get_instance();
+	// This thread serves one engine instance for its whole life, so a single
+	// scope at entry routes its logging to that instance's logger (ADR 0015, T1.6).
+	Logger::Scope loggerScope( pMidiDriver->getHydrogen()->getLogger() );
+
+	auto pHydrogen = pMidiDriver->getHydrogen();
+	ASSERT_NO_EDITOR_MODE( pHydrogen );
+
+	const auto pPref = pMidiDriver->getHydrogen()->getPreferences();
+
+	// The timer slack applies to this thread only. Ticks are sent at the
+	// requested time instead of being batched with other wake-ups of the
+	// system.
+	const auto timerSlack = TimeHelper::minimizeTimerSlack();
+	pMidiDriver->m_nClockTimerSlackNs =
+		timerSlack.has_value() ? timerSlack->count() : -1;
 
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();
@@ -438,7 +469,7 @@ std::shared_ptr<MidiInput::HandledInput> MidiBaseDriver::handleMessage(
 			m_handledInputs.pop_front();
 		}
 
-		EventQueue::get_instance()->pushEvent( Event::Type::MidiInput, 0 );
+		MidiInput::m_pHydrogen->getEventQueue()->pushEvent( Event::Type::MidiInput, 0 );
 	}
 
 	return pHandledInput;
@@ -451,6 +482,11 @@ void MidiBaseDriver::inputMessageHandler( void* pInstance )
 		ERRORLOG( "Invalid instance provided. Shutting down." );
 		return;
 	}
+
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
+
+	ASSERT_NO_EDITOR_MODE( pDriver->getHydrogen() );
+
 
 	// Signal the instance that we are ready.
 	pDriver->m_bInputActive = true;
@@ -492,6 +528,8 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
 	const MidiMessage& msg
 )
 {
+	ASSERT_NO_EDITOR_MODE( MidiInput::m_pHydrogen );
+
 	const auto pHandledOutput = MidiOutput::sendMessage( msg );
 
 	if ( pHandledOutput != nullptr &&
@@ -502,7 +540,7 @@ std::shared_ptr<MidiOutput::HandledOutput> MidiBaseDriver::sendMessage(
 			m_handledOutputs.pop_front();
 		}
 
-		EventQueue::get_instance()->pushEvent( Event::Type::MidiOutput, 0 );
+		MidiInput::m_pHydrogen->getEventQueue()->pushEvent( Event::Type::MidiOutput, 0 );
 	}
 
 	return pHandledOutput;
@@ -515,6 +553,8 @@ void MidiBaseDriver::outputMessageHandler( void* pInstance )
 		ERRORLOG( "Invalid instance provided. Shutting down." );
 		return;
 	}
+	Logger::Scope loggerScope( pDriver->getHydrogen()->getLogger() );
+	ASSERT_NO_EDITOR_MODE( pDriver->getHydrogen() );
 
 	// Signal the instance that we are ready.
 	pDriver->m_bOutputActive = true;

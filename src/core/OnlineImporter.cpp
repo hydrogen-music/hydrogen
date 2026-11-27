@@ -42,8 +42,9 @@
 namespace H2Core
 {
 
-OnlineImporter::OnlineImporter( QObject* pParent )
+OnlineImporter::OnlineImporter( Hydrogen* pHydrogen, QObject* pParent )
 	: QObject( pParent )
+	, m_pHydrogen( pHydrogen )
 	, m_bAborted( false )
 	, m_pAsyncNAM( new QNetworkAccessManager( this ) )
 	, m_pAsyncReply( nullptr )
@@ -263,7 +264,7 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 	}
 
 	// Production path: use SoundLibraryDatabase
-	auto pHydrogen = Hydrogen::get_instance();
+	auto pHydrogen = m_pHydrogen;
 	if ( pHydrogen == nullptr ) {
 		WARNINGLOG( "Hydrogen instance not available — cannot resolve "
 					"local status" );
@@ -282,23 +283,25 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 	// context.
 	const QString sSourceFolder = deriveSourceFolder( artifact.sourceUrl );
 	QString sRootFolder;
-	const std::vector<std::shared_ptr<SoundLibraryInfo>>* pInfos = nullptr;
+	std::vector<std::shared_ptr<SoundLibraryInfo>> infos;
 	switch ( artifact.type ) {
 	case OnlineArtifact::Type::Pattern:
-		pInfos = &pDB->getPatternInfos();
+		infos = pDB->getPatternInfos();
 		sRootFolder = Filesystem::userPatternsDir();
 		break;
 	case OnlineArtifact::Type::Song:
-		pInfos = &pDB->getSongInfos();
+		infos = pDB->getSongInfos();
 		sRootFolder = Filesystem::userSongsDir();
 		break;
 	case OnlineArtifact::Type::Drumkit:
-		pInfos = &pDB->getDrumkitInfos();
+		infos = pDB->getDrumkitInfos();
 		sRootFolder = Filesystem::userDrumkitsDir();
 		break;
 	}
 
-	if ( pInfos == nullptr ) {
+	if ( infos.empty() ) {
+		// Either an unsupported artifact type or no registered artifacts
+		// of this type.
 		artifact.localStatus = OnlineArtifact::LocalStatus::NotInstalled;
 		return;
 	}
@@ -329,7 +332,7 @@ void OnlineImporter::resolveLocalStatus( OnlineArtifact& artifact )
 	}
 
 	std::shared_ptr<SoundLibraryInfo> pLocalInfo = nullptr;
-	for ( const auto& pInfo : *pInfos ) {
+	for ( const auto& pInfo : infos ) {
 		if ( pInfo != nullptr &&
 			 pInfo->getContext() == Filesystem::Context::User &&
 			 pInfo->getPath() == sTargetPath ) {
@@ -745,7 +748,7 @@ void OnlineImporter::onAsyncReplyFinished()
 	else {
 		++m_nAsyncFail;
 		emit downloadFinished( artifact.sName, false, sError );
-		EventQueue::get_instance()->pushEvent(
+		m_pHydrogen->getEventQueue()->pushEvent(
 			Event::Type::OnlineImportProgress, nProgressError );
 	}
 
@@ -762,7 +765,7 @@ void OnlineImporter::onAsyncReplyFinished()
 	// Report overall batch progress as percentage (0–100) on the EventQueue.
 	const int nPercent = static_cast<int>(
 		( m_nAsyncIndex * 100 ) / m_asyncQueue.size() );
-	EventQueue::get_instance()->pushEvent(
+	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::OnlineImportProgress, nPercent );
 
 	startNextAsyncDownload();
@@ -784,7 +787,7 @@ void OnlineImporter::finishAsyncBatch()
 	m_nAsyncIndex = 0;
 	m_asyncQueue.clear();
 	emit batchFinished( m_nAsyncSuccess, m_nAsyncFail );
-	EventQueue::get_instance()->pushEvent(
+	m_pHydrogen->getEventQueue()->pushEvent(
 		Event::Type::OnlineImportProgress, nProgressComplete );
 }
 

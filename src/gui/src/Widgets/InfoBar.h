@@ -20,17 +20,19 @@
  *
  */
 
-#ifndef INFOBAR_H
-#define INFOBAR_H
+#ifndef H2C_INFOBAR_H
+#define H2C_INFOBAR_H
 
 #include <QWidget>
 #include <vector>
 #include <core/Preferences/Preferences.h>
 #include <core/Object.h>
 
+QT_BEGIN_NAMESPACE
 class QHBoxLayout;
 class QLabel;
 class QPushButton;
+QT_END_NAMESPACE
 
 /** \ingroup docGUI docWidgets*/
 class InfoBar : public QWidget, public H2Core::Object<InfoBar>

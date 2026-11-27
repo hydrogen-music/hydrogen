@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef METRO_BLINKER_H
-#define METRO_BLINKER_H
+#ifndef H2C_METRO_BLINKER_H
+#define H2C_METRO_BLINKER_H
 
 
 #include <QDialog>

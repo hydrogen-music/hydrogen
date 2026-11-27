@@ -28,13 +28,63 @@
 class SoundLibraryTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( SoundLibraryTest );
 	CPPUNIT_TEST( testContextValidity );
+	CPPUNIT_TEST( testFindArtifactPatternDoesNotReturnSong );
+	CPPUNIT_TEST( testFindArtifactStackedFindsLaterContext );
+	CPPUNIT_TEST( testFindArtifactStackedSkipsNonMatching );
 	CPPUNIT_TEST( testKitRetrievalCopy );
 	CPPUNIT_TEST( testKitRetrievalDirect );
+	CPPUNIT_TEST( testSnapshotStableAcrossUpdate );
+	CPPUNIT_TEST( testCustomDrumkitPathSurvivesUpdate );
+	CPPUNIT_TEST( testGetDrumkitPublishesSnapshot );
+	CPPUNIT_TEST( testGetDrumkitCanonicalizesPath );
+	CPPUNIT_TEST( testGetDrumkitUpgradeParameter );
+	CPPUNIT_TEST( testInitialScanCompletes );
+	CPPUNIT_TEST( testInitialScanProgressEvents );
+	CPPUNIT_TEST( testConcurrentSectionScansSerialize );
 	CPPUNIT_TEST_SUITE_END();
 	
 public:
 		/** No kit in the sound library must be of Context::Song. */
 		void testContextValidity();
-		void testKitRetrievalCopy();
-		void testKitRetrievalDirect();
+		/** A Pattern lookup must not fall through into the Song branch
+		 * of findArtifact() and return the path of a song of the same
+		 * name. */
+		void testFindArtifactPatternDoesNotReturnSong();
+		/** A stacked findArtifact() lookup has to find artifacts of a
+		 * later context through the cached first pass. */
+		void testFindArtifactStackedFindsLaterContext();
+		/** In a stacked findArtifact() lookup only artifacts matching by
+		 * name but not by context may be cached for a later pass. */
+		void testFindArtifactStackedSkipsNonMatching();
+	void testKitRetrievalCopy();
+	void testKitRetrievalDirect();
+	/** A snapshot held via getSnapshot() must remain valid and
+	 * unchanged across a full update() of the database. */
+	void testSnapshotStableAcrossUpdate();
+	/** A drumkit path registered via registerCustomDrumkitPath() must
+	 * survive a full update() of the database. */
+	void testCustomDrumkitPathSurvivesUpdate();
+	/** A lazy getDrumkit() load of a kit outside the scanned contexts
+	 * must publish a new snapshot without affecting previously held
+	 * ones. */
+	void testGetDrumkitPublishesSnapshot();
+	/** getDrumkit() must address a kit by a canonical path: folder
+	 * spellings and redundant separators hit the cached kit instead
+	 * of missing it and registering duplicates of it. */
+	void testGetDrumkitCanonicalizesPath();
+	/** getDrumkit() must honor its bUpgrade argument: an opt-out must
+	 * not rewrite a legacy kit on disk. */
+	void testGetDrumkitUpgradeParameter();
+	/** The initial sound library scan of a fresh engine runs in the
+	 * background: after waitForInitialScan() the database is populated
+	 * and no scan is running anymore. */
+	void testInitialScanCompletes();
+	/** The background scan reports its progress as
+	 * SoundLibraryScanProgress events (0-100, monotonic, throttled to
+	 * 5% steps). */
+	void testInitialScanProgressEvents();
+	/** Section scans serialize: a second scan overlapping a parked
+	 * first one must not publish in between, or the parked scan's
+	 * stale publish drops the second scan's content. */
+	void testConcurrentSectionScansSerialize();
 };

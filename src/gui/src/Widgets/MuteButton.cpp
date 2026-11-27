@@ -22,8 +22,9 @@
 
 #include "MuteButton.h"
 
-#include "../CommonStrings.h"
+#include <core/CommonStrings.h>
 #include "../HydrogenApp.h"
+#include "../Skin.h"
 
 #include <core/Preferences/Preferences.h>
 #include <core/Preferences/Theme.h>
@@ -46,9 +47,9 @@ MuteButton::MuteButton(
 		setText( pCommonStrings->getSmallMuteButton() );
 	}
 
-	const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-	setBaseColor( pColorTheme->m_muteColor );
-	setBaseTextColor( pColorTheme->m_muteTextColor );
+	const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+	setBaseColor( Skin::toQColor( pColorTheme->m_muteColor ) );
+	setBaseTextColor( Skin::toQColor( pColorTheme->m_muteTextColor ) );
 }
 
 MuteButton::~MuteButton()
@@ -62,8 +63,8 @@ void MuteButton::onPreferencesChanged(
 	Button::onPreferencesChanged( changes );
 
 	if ( changes & ( H2Core::Preferences::Changes::Colors ) ) {
-		const auto pColorTheme = Preferences::get_instance()->getColorTheme();
-		setBaseColor( pColorTheme->m_muteColor );
-		setBaseTextColor( pColorTheme->m_muteTextColor );
+		const auto pColorTheme = HydrogenApp::pPreferences()->getColorTheme();
+		setBaseColor( Skin::toQColor( pColorTheme->m_muteColor ) );
+		setBaseTextColor( Skin::toQColor( pColorTheme->m_muteTextColor ) );
 	}
 }

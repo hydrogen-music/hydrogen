@@ -59,7 +59,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	  m_nSelectedPattern( nSelectedPattern ),
 	  m_action( action )
 {
-	auto pPref = Preferences::get_instance();
+	auto pPref = HydrogenApp::pPreferences();
 	auto pCommonStrings = HydrogenApp::get_instance()->getCommonStrings();
 
 	if ( action & Action::Duplicate ) {
@@ -79,7 +79,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 		windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint
 	);
 
-	resize( 657, 542 );
+	resize( 697, 602 );
 
 	// Overall layout
 	auto pOverallLayout = new QVBoxLayout( this );
@@ -92,25 +92,26 @@ PatternPropertiesDialog::PatternPropertiesDialog(
 	pOverallLayout->addWidget( pScrollArea );
 
 	auto pScrollAreaContent = new QWidget( pScrollArea );
-	pScrollAreaContent->setMinimumSize( 652, 534 );
-	pScrollAreaContent->setStyleSheet(
-		QString( "\
-QWidget#PatternPropsFormContainer {				\
-    background-color: %1;						\
-}" )
-			.arg( pPref->getColorTheme()->m_midLightColor.name() )
-	);
+	pScrollAreaContent->setMinimumSize( 692, 594 );
 	pScrollArea->setWidget( pScrollAreaContent );
 
 	auto pOuterLayout = new QVBoxLayout();
 	pScrollAreaContent->setLayout( pOuterLayout );
 
-	auto pFormContainer = new QWidget( pScrollAreaContent );
+	auto pTabWidget = new QTabWidget( pScrollAreaContent );
+	pTabWidget->setSizePolicy(
+		QSizePolicy::Expanding, QSizePolicy::Expanding
+	);
+	pOuterLayout->addWidget( pTabWidget );
+
+	// ---- General tab ----
+	auto pFormContainer = new QWidget( pTabWidget );
 	pFormContainer->setObjectName( "PatternPropsFormContainer" );
 	pFormContainer->setSizePolicy(
 		QSizePolicy::Expanding, QSizePolicy::Expanding
 	);
-	pOuterLayout->addWidget( pFormContainer );
+	pTabWidget->addTab( pFormContainer, QString() );
+	pTabWidget->setTabText( 0, pCommonStrings->getTabGeneralDialog() );
 
 	auto pGridLayout = new QGridLayout( pFormContainer );
 	pFormContainer->setLayout( pGridLayout );
@@ -247,7 +248,7 @@ QWidget#PatternPropsFormContainer {				\
 		if ( ( action & Action::ModifyViaUndo ) &&
 			 ( action & Action::Duplicate ) ) {
 			auto pPatternList =
-				Hydrogen::get_instance()->getSong()->getPatternList();
+				HydrogenApp::pEngine()->getSong()->getPatternList();
 			m_pPatternNameTxt->setText(
 				pPatternList->findUnusedPatternName( pPattern->getName() )
 			);
@@ -481,7 +482,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 		// Within the current song we need to take extra care for the current
 		// song to have an unique name.
 		auto pPatternList =
-			Hydrogen::get_instance()->getSong()->getPatternList();
+			HydrogenApp::pEngine()->getSong()->getPatternList();
 		sPattName = pPatternList->findUnusedPatternName(
 			sPattName, m_nSelectedPattern
 		);
