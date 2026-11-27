@@ -26,6 +26,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QSaveFile>
 
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
@@ -64,10 +65,32 @@ static bool extractArchive( struct archive* pArchive, const QString& sTargetDir,
 		bUseUtf8Encoding = false;
 	}
 
+#ifdef WIN32
+	// On Windows the `libarchive` build used in the Windows CI converts
+	// the entry names read from the archive headers using the console
+	// codepage - and not the raw bytes stored in the archive - whenever a
+	// UTF-8 locale is active. Names of files and folders containing
+	// non-ASCII characters would be mangled this way and, since the
+	// conversion happens while reading the headers, there is no way to
+	// recover the original ones afterwards. As we handle all encoding
+	// ourselves using Qt, we switch the codeset-relevant part of the
+	// locale off for the duration of the reading. In a "C" locale
+	// `libarchive` passes the raw bytes through and
+	// `archive_entry_pathname()` yields the unmodified (UTF-8) names.
+	const QByteArray sLocaleCtype = setlocale( LC_CTYPE, nullptr );
+	if ( setlocale( LC_CTYPE, "C" ) == nullptr ) {
+		___WARNINGLOG( "Unable to switch to the C locale for reading the archive" );
+	}
+#endif
+
 	// Shutdown routine used on error. Therefore, contained commands are not
 	// checked for errors themselves.
 	auto tearDown = [&]() {
 		archive_read_close( pArchive );
+
+#ifdef WIN32
+		setlocale( LC_CTYPE, sLocaleCtype.constData() );
+#endif
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
 		archive_read_finish( pArchive );
@@ -92,21 +115,35 @@ static bool extractArchive( struct archive* pArchive, const QString& sTargetDir,
 			return false;
 		}
 
-		QString sNewPath = QString::fromUtf8(
-			archive_entry_pathname_utf8( entry ) );
+		// Do NOT use `archive_entry_pathname_utf8()`! On some systems -
+		// e.g. Windows - it lazily converts the stored multibyte name
+		// using the current locale and yields mangled entry names. The
+		// plain multibyte version contains the raw bytes as stored within
+		// the archive (which are UTF-8 for all archives created by
+		// Hydrogen itself). In case they are not valid UTF-8, the
+		// check below will handle them.
+		QString sNewPath = QString::fromUtf8( archive_entry_pathname( entry ) );
 		if ( sNewPath.isEmpty() ) {
-			sNewPath = QString::fromUtf8( archive_entry_pathname( entry ) );
+			___ERRORLOG( "Couldn't read pathname of archive entry" );
+			tearDown();
+			return false;
 		}
 
-		if ( ! bUseUtf8Encoding ) {
+		if ( ! bUseUtf8Encoding || sNewPath.contains( QChar( 0xFFFD ) ) ) {
 			// In case `libarchive` is not able to support UTF-8 on the
 			// system, we remove (a lot of) characters. Else they would be
 			// represented by wacky ones and the calling routine would have
 			// no idea where the extracted files did end up.
+			//
+			// The second condition covers archives with entry names which
+			// are not valid UTF-8 - e.g. encoded using a legacy codepage.
+			// `QString::fromUtf8()` does not fail for those but replaces
+			// all problematic characters with the Unicode replacement
+			// character.
 			const auto sNewPathTrimmed = Filesystem::removeUtf8Characters(
 				sNewPath );
 			if ( sNewPathTrimmed != sNewPath ) {
-				___ERRORLOG( QString( "Encoding error (no UTF-8 available)! File was renamed [%1] -> [%2]" )
+				___ERRORLOG( QString( "Encoding error! File was renamed [%1] -> [%2]" )
 							 .arg( sNewPath ).arg( sNewPathTrimmed ) );
 				if ( pEncodingIssuesDetected != nullptr ) {
 					*pEncodingIssuesDetected = true;
@@ -137,20 +174,67 @@ static bool extractArchive( struct archive* pArchive, const QString& sTargetDir,
 			return false;
 		}
 
-		const auto sNewPathUtf8 = sNewPath.toUtf8();
-		archive_entry_set_pathname( entry, sNewPathUtf8.data() );
-		nRet = archive_read_extract( pArchive, entry, 0 );
-		if ( nRet == ARCHIVE_WARN ) {
-			___WARNINGLOG( QString( "Entry [%1] extracted with warnings: %2" )
-						   .arg( sNewPath )
-						   .arg( archive_error_string( pArchive ) ) );
+		// We do not use `archive_read_extract()` but write the files
+		// ourselves using the Qt classes. The former relies on
+		// `libarchive` doing the multibyte to wide character conversion
+		// when creating the files - which is done using the system
+		// codepage on Windows and results in unusable paths for entry
+		// names containing non-ASCII characters. By using the QString we
+		// just assembled, extracted files and folders will be written
+		// using proper UTF-16 paths (Qt handles the conversion) and match
+		// exactly the ones reported via pExtractedPaths.
+		if ( archive_entry_filetype( entry ) == AE_IFDIR ) {
+			if ( ! QDir().mkpath( sNewPath ) ) {
+				___ERRORLOG( QString( "Unable to create directory [%1]" )
+							 .arg( sNewPath ) );
+				tearDown();
+				return false;
+			}
 		}
-		else if ( nRet != ARCHIVE_OK ) {
-			___ERRORLOG( QString( "Unable to extract entry [%1]: %2" )
-						 .arg( sNewPath )
-						 .arg( archive_error_string( pArchive ) ) );
-			tearDown();
-			return false;
+		else if ( archive_entry_hardlink( entry ) != nullptr ||
+				  archive_entry_symlink( entry ) != nullptr ||
+				  archive_entry_filetype( entry ) != AE_IFREG ) {
+			___WARNINGLOG( QString( "Skipping unsupported entry [%1] of type [%2]" )
+						   .arg( sNewPath )
+						   .arg( archive_entry_filetype( entry ) ) );
+		}
+		else {
+			QSaveFile file( sNewPath );
+			if ( ! file.open( QIODevice::WriteOnly ) ) {
+				___ERRORLOG( QString( "Unable to open file [%1] for writing: %2" )
+							 .arg( sNewPath )
+							 .arg( file.errorString() ) );
+				tearDown();
+				return false;
+			}
+
+			char buffer[ 65536 ];
+			la_ssize_t nBytesRead;
+			while ( ( nBytesRead = archive_read_data( pArchive, buffer,
+													  sizeof( buffer ) ) )
+					> 0 ) {
+				if ( file.write( buffer, nBytesRead ) != nBytesRead ) {
+					___ERRORLOG( QString( "Unable to write [%1] bytes to file [%2]" )
+								 .arg( nBytesRead )
+								 .arg( sNewPath ) );
+					tearDown();
+					return false;
+				}
+			}
+			if ( nBytesRead < 0 ) {
+				___ERRORLOG( QString( "Unable to read data of entry [%1]: %2" )
+							 .arg( sNewPath )
+							 .arg( archive_error_string( pArchive ) ) );
+				tearDown();
+				return false;
+			}
+			if ( ! file.commit() ) {
+				___ERRORLOG( QString( "Unable to save file [%1]: %2" )
+							 .arg( sNewPath )
+							 .arg( file.errorString() ) );
+				tearDown();
+				return false;
+			}
 		}
 
 		if ( pExtractedPaths != nullptr ) {
@@ -163,6 +247,9 @@ static bool extractArchive( struct archive* pArchive, const QString& sTargetDir,
 		___ERRORLOG( QString( "Unable to close archive: %1" )
 					 .arg( archive_error_string( pArchive ) ) );
 		archive_read_free( pArchive );
+#ifdef WIN32
+		setlocale( LC_CTYPE, sLocaleCtype.constData() );
+#endif
 		return false;
 	}
 
@@ -174,6 +261,10 @@ static bool extractArchive( struct archive* pArchive, const QString& sTargetDir,
 		___WARNINGLOG( QString( "Unable to free archive: %1" )
 					   .arg( archive_error_string( pArchive ) ) );
 	}
+#endif
+
+#ifdef WIN32
+	setlocale( LC_CTYPE, sLocaleCtype.constData() );
 #endif
 
 	if ( ! bSilent ) {
