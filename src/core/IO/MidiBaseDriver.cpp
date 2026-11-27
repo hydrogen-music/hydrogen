@@ -32,6 +32,10 @@
 
 #include <QMutexLocker>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 namespace H2Core {
 
 MidiBaseDriver::MidiBaseDriver( Hydrogen* pHydrogen )
@@ -344,6 +348,15 @@ void MidiBaseDriver::midiClockStream( void* pInstance )
 	const auto timerSlack = TimeHelper::minimizeTimerSlack();
 	pMidiDriver->m_nClockTimerSlackNs =
 		timerSlack.has_value() ? timerSlack->count() : -1;
+
+#ifdef WIN32
+	// Windows has no per-thread timer slack to minimize. Instead, the
+	// thread gets the highest dynamic priority available so neither the
+	// scheduler nor kernel housekeeping preempt it while sleeping or
+	// actively waiting for the next tick. Just like the slack, the
+	// priority is bound to this thread and dies with it.
+	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
+#endif
 
 	while ( pMidiDriver->m_bSendClockTick ) {
 		auto start = Clock::now();
